@@ -12,14 +12,17 @@ The integration happens through the digitalSTROM-Server, which acts as a gateway
 **Note:** All was tested with digitalSTROM-Server firmware version 1.9.3 to 1.10.3.
 
 ![various_digitalSTROM_clamps](doc/DS-Clamps.jpg)
+
 ## Supported Things
 
 ### digitalSTROM-Server
- The digitalSTROM-Server is required for accessing any other digitalSTROM-Devices. It acts like a *"bridge"*.
+
+The digitalSTROM-Server is required for accessing any other digitalSTROM-Devices. It acts like a *"bridge"*.
 
 ### digitalSTROM-Devices
+
 At this point almost all available **GE**, **SW** and **GR** digitalSTROM-Devices with an set output-mode, unequal *disabled* or *PWM*, are supported by this binding.  
-  For that there are identically named thing types. Only the *GR* type has a channel (shade), which cannot be changed. The other two types adds their channels dynamically affected by the set color-group and output-mode. They also automatically change or add the channels, if the color-group or output-mode has changed through the dSS-web-configuration or the configured sensor priorities of the thing has changed.
+For that there are identically named thing types. Only the *GR* type has a channel (shade), which cannot be changed. The other two types adds their channels dynamically affected by the set color-group and output-mode. They also automatically change or add the channels, if the color-group or output-mode has changed through the dSS-web-configuration or the configured sensor priorities of the thing has changed.
 
 The following table shows all tested digitalSTROM-Devices with their output-modes.
 
@@ -38,6 +41,7 @@ The following table shows all tested digitalSTROM-Devices with their output-mode
 | SW-ZWS200    | switch, powersave, wipe | black, yellow |
 
 ### digitalSTROM-Scenes
+
 Furthermore the digitalSTROM-Scene concept is part of the digitalSTROM-Binding. This scenes are implemented as virtual things. The difference scene thing types are list in the following table.
 
 | Thing-Type-ID | Label    | Description |
@@ -49,31 +53,36 @@ Furthermore the digitalSTROM-Scene concept is part of the digitalSTROM-Binding. 
  
 ## Discovery
 
- The digitalSTROM-Server is discovered by mDNS or *dss.local.* at the local network. Once the server is added as a thing, you have to set a user name and password or insert a valid Application-Token to authenticate with the server. If the binding is authorized, it automatically reads all supported devices, that are set up on the digitalSTROM-System and puts them into the *inbox*.
+The digitalSTROM-Server is discovered by mDNS or *dss.local.* at the local network. Once the server is added as a thing, you have to set a user name and password or insert a valid Application-Token to authenticate with the server. If the binding is authorized, it automatically reads all supported devices, that are set up on the digitalSTROM-System and puts them into the *inbox*.
  
- digitalSTROM-Scenes can be discovered, too. The background scene-discovery is deactivated by default to not flood the inbox. Otherwise it will discover so many scenes, that it can be difficult to find the searched devices.
+digitalSTROM-Scenes can be discovered, too. The background scene-discovery is deactivated by default to not flood the inbox. Otherwise it will discover so many scenes, that it can be difficult to find the searched devices.
  
- Discoverable scenes are all user named scenes, group scenes that are reachable by local push-buttons, zone scenes and apartment scenes. The discovery also will discover all called scenes, if they aren't automatically discovered yet.
+Discoverable scenes are all user named scenes, group scenes that are reachable by local push-buttons, zone scenes and apartment scenes. The discovery also will discover all called scenes, if they aren't automatically discovered yet.
 
 If you only want to discover one of the thing types, you can start a discovery scan on the thing type you wish have discovered. You can use the command line command, e.g.: ``smarthome:discovery start digitalstrom:namedScene`` to start the scan. What thing types this binding supports please have a look at **Supported Things**.
 
 ## digitalSTROM-Scenes
+
 ### General
- The device scene configuration will be saved persistently to the things to update the device state faster. For that each scene configuration of each device has to read out first, because of the digitalSTROM-rule 9 that requires a waiting period of one minute, that take some time so that at the first start a scene call can be take some time to read it out and update the device state. To read it out faster only the discovered or called scenes will be red out. 
+
+The device scene configuration will be saved persistently to the things to update the device state faster. For that each scene configuration of each device has to read out first, because of the digitalSTROM-rule 9 that requires a waiting period of one minute, that take some time so that at the first start a scene call can be take some time to read it out and update the device state. To read it out faster only the discovered or called scenes will be red out. 
  
- **Note:**
- Because the digitalSTROM-Server can't inform the binding about save scene events at this time, the persistently saved scene configurations can't be updated. The current troubleshooting to read out the new scene configuration after a save scene action at the digitalSTROM-Server is the following:
+**Note:**
+Because the digitalSTROM-Server can't inform the binding about save scene events at this time, the persistently saved scene configurations can't be updated. The current troubleshooting to read out the new scene configuration after a save scene action at the digitalSTROM-Server is the following:
+
 1. delete the thing to delete the persistently saved scene configuration
 2. restart the server to delete the temporary saved scene configuration 
 3. add the thing again to red out the scene configuration again.   
 
 ## Thing Configuration
 
-### digitalSTROM-Server:
+### digitalSTROM-Server
+
 The digitalSTROM-Server thing has the following configuration parameter groups *Connection configuration*, *Server information* and *General configurations*.
 
-#### Connection configuration:  
- If the digitalSTROM-Server isn’t found automatically, e.g. because the server isn’t placed at the local network or the mDNS-service is deactivated, you have to insert the network address or URL and the authentication data manually through the graphical user interface or type it into the \*.thing with textual configuration.
+#### Connection configuration
+
+If the digitalSTROM-Server isn’t found automatically, e.g. because the server isn’t placed at the local network or the mDNS-service is deactivated, you have to insert the network address or URL and the authentication data manually through the graphical user interface or type it into the \*.thing with textual configuration.
 
 | Parameter Label | Parameter ID | Description  | Required | Advanced 
 |-----------------|------------------------|--------------|----------------- |------------- |
@@ -82,9 +91,9 @@ The digitalSTROM-Server thing has the following configuration parameter groups *
 | Password | password | Password of a registered user to authenticate to the digitalSTROM-Server. | user name and password or Application-Token | false |
 | Application-Token | applicationToken | The Application-Token to authenticate to the digitalSTROM-Server. | user name and password or Application-Token| false |
 
-#### Server information:  
+#### Server information
  
- The group parameters *Server information* only includes informative parameters, which have no special functionality.
+The group parameters *Server information* only includes informative parameters, which have no special functionality.
 
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced 
@@ -92,10 +101,9 @@ The digitalSTROM-Server thing has the following configuration parameter groups *
 | dSID | dSID | The unique identifier of a digitalSTOM-server. | false| false |
 | digitalSTROM-Installation name | dsName | The user defined name of the digitalSTROM-Installation. | false | false | false |
 
+#### General configuration:
 
-
-#### General configuration:    
- Here you can set general binding configuration parameters, which shown in following table: 
+Here you can set general binding configuration parameters, which shown in following table: 
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced | default 
 |-----------------|------------------------|--------------|----------------- |------------- | ----------------- |
@@ -105,14 +113,17 @@ The digitalSTROM-Server thing has the following configuration parameter groups *
 | Wait time sensor reading | sensorWaitTime| Waiting time between the evaluation of the sensor values and the reading of the scenes in seconds. **ATTENTION:** digitalSTROM rule 8 and 9 require a waiting period of 1 minute. Values less than 60 seconds could affect the digitalSTROM system. | false | true | 60 | 
 
 At the thing file, a manual configuration looks e.g. like
+
 ```
 Bridge digitalstrom:dssBridge:dssBridge1 [ ipAddress="dss.local.",  userName="dssadmin", password=“dssadmin", sensorDataUpdateIntervall="180"]
 ```
 
-### digitalSTROM-Devices: 
+### digitalSTROM-Devices
+
 The digitalSTROM-Device things have the following configuration parameter groups *Device information* and *Sensor setup*.
    
 #### Device information
+
 Each digitalSTROM-Device needs the device ID named dSID as configuration parameter. The device ID is printed as serial number at the digitalSTOM-Device and can also be found within the web-interface of the digitalSTROM-Server. 
 Furthermore a supported digitalSTROM-Device has only informative parameter at this point.
 The following table shows all parameters: 
@@ -130,6 +141,7 @@ The following table shows all parameters:
 | Functional color group | funcColorGroup | The current digitalSTROM-Device functional color group e.g. yellow = light. | false | false |   
 
 #### Sensor setup
+
 The GE and SW digitalSTROM-Devices have usually sensors to capture power consumption data. So these devices have the following parameters to read them out.  
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced | Default |
@@ -139,6 +151,7 @@ The GE and SW digitalSTROM-Devices have usually sensors to capture power consump
 | Output current refresh priority | outputCurrentRefreshPriority | Sets the refresh priority for the output current sensor value. Can be never, low priority, medium priority or high priority. | false | false | never |
 
 ### digitalSTROM-Scenes
+
 The digitalSTROM-Scenes can be defined with following parameters.  
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced | 
@@ -183,11 +196,14 @@ All devices support some of the following channels:
 | totalElectricMeter | Number | The total electric meter channel indicates the current electric meter value in killowatt hours of all connected circuits to the digitalSTROM-System. | dssBridge  | 
 | scene | Switch | The scene channel allows to call or undo a scene from digitalSTROM. | Scene | 
 
-**Notes:**  
- *Channels with accepted command type increase and decrease:*  
+**Notes:**
+
+*Channels with accepted command type increase and decrease:*
+
   * digitalSTROM will only evaluate increase and decrease commands, if a scene was called before which turn the device on. 
    
- *Blinds:*  
+*Blinds:*
+
  * Increase, decrease and up, down commands of the shade channel changes the angle in digitalSTROM, too. If you want to set only the position, you have to set the value directly.
  * To protect the slats digitalSTROM changes the position by setting the angle, too, if the position is very high or low. So if you want to see the correct position, you have to send a refresh or stop command, if the blind is ready. 
 
@@ -208,11 +224,11 @@ demo.items:
 ```
 Dimmer Brightness { channel="digitalstrom:GE:GE-KM200-1:brightness" }
 Number ActivePower { channel="digitalstrom:GE:GE-KM200-1:activePower" }
-Number OutputCurrent { channel="digitalstrom:GE:GE-KM200-1:outputCurrent"}
+Number OutputCurrent { channel="digitalstrom:GE:GE-KM200-1:outputCurrent" }
 Number ElectricMeter { channel="digitalstrom:GE:GE-KM200-1:electricMeter" }
 
-Number TotalActivePower { channel="digitalstrom:dssBridge:dssBridge1:totalActivePower "}
-Number TotalElectricMeter { channel="digitalstrom:dssBridge:dssBridge1:totalElectricMeter  "}
+Number TotalActivePower { channel="digitalstrom:dssBridge:dssBridge1:totalActivePower" }
+Number TotalElectricMeter { channel="digitalstrom:dssBridge:dssBridge1:totalElectricMeter" }
 
 
 Rollershutter Shade { channel="digitalstrom:GR:GR-KM200-1:shade" }
