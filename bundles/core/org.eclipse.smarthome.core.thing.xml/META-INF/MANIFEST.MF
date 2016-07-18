@@ -22,4 +22,3 @@ Import-Package: com.thoughtworks.xstream,
  org.osgi.framework,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.core.thing.xml.internal.Activator
-Bundle-ActivationPolicy: lazy
