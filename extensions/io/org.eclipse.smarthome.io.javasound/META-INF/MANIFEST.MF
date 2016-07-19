@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome JavaSound I/O
+Bundle-SymbolicName: org.eclipse.smarthome.io.javasound
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: javax.sound.sampled,
+ org.eclipse.smarthome.core.audio,
+ org.slf4j
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml

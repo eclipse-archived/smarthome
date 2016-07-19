@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Core Voice
+Bundle-SymbolicName: org.eclipse.smarthome.core.voice
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: org.apache.commons.collections.map,
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.eclipse.smarthome.core.audio,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.i18n,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
+ org.osgi.framework,
+ org.slf4j
+Export-Package: org.eclipse.smarthome.core.voice,
+ org.eclipse.smarthome.core.voice.text
+Service-Component: OSGI-INF/*.xml
+Bundle-ActivationPolicy: lazy

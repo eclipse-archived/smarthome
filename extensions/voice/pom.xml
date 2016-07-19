@@ -17,6 +17,7 @@
 
   <modules>
     <module>org.eclipse.smarthome.voice.mactts</module>
+    <module>org.eclipse.smarthome.voice.mactts.test</module>
   </modules>
 
 </project>

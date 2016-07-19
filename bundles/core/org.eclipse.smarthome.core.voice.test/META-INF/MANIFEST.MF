@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Core Voice Tests
+Bundle-SymbolicName: org.eclipse.smarthome.core.voice.test
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Fragment-Host: org.eclipse.smarthome.core.voice
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.eclipse.smarthome.core.voice,
+ org.hamcrest.core,
+ org.junit;version="4.0.0"
+Bundle-ClassPath: .
