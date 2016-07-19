@@ -276,6 +276,7 @@
               <include>**/OSGI-INF/*.xml</include>
             </includes>
             <excludes>
+              <exclude>**/org.eclipse.smarthome.automation.*/**</exclude>
               <exclude>**/org/eclipse/smarthome/protocols/**</exclude>
               <exclude>target/**</exclude>
               <exclude>**/pom.xml</exclude>
