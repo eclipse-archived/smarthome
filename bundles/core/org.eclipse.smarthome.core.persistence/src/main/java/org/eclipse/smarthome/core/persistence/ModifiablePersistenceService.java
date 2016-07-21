@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.core.persistence;
 
+import java.util.Date;
+
+import org.eclipse.smarthome.core.items.Item;
+
 /**
  * This class provides an interface to the a {@link PersistenceService} to allow data to be stored
  * at a specific time. This allows bindings that interface to devices that store data internally,
@@ -15,7 +19,7 @@ package org.eclipse.smarthome.core.persistence;
  * @author Chris Jackson - Initial implementation and API
  *
  */
-public interface HistoricalPersistenceStoreService {
+public interface ModifiablePersistenceService extends QueryablePersistenceService {
     /**
      * <p>
      * Stores the historic item value. This allows the item, time and value to be specified.
@@ -26,7 +30,23 @@ public interface HistoricalPersistenceStoreService {
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
      * </p>
      *
-     * @param historicItem the data to be stored
+     * @param date the date of the record
+     * @param item the data to be stored
      */
-    public void store(HistoricItem historicItem);
+    public void store(Date date, Item item);
+
+    /**
+     * Removes a data from a persistence store.
+     *
+     * @param filter the filter to apply to the data removal
+     * @return true if the query executed successfully
+     */
+    public boolean remove(FilterCriteria filter);
+
+    /**
+     * Removes an item and all data associated with the item
+     *
+     * @return true if the item was deleted
+     */
+    public boolean removeItemData(String itemName);
 }
