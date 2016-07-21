@@ -81,6 +81,16 @@
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.config.xml</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.core.autoupdate</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
           </bundleStartLevel>
         </configuration>
       </plugin>
