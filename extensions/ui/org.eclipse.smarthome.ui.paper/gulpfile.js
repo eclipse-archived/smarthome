@@ -11,6 +11,7 @@ var angularFilesort = require('gulp-angular-filesort'),
     uglify = require('gulp-uglify'),
     inject = require('gulp-inject'),
     util = require('gulp-util');
+    //Server= require('karma').Server();
 var isDevelopment = !!util.env.development;
 
 
@@ -217,4 +218,37 @@ gulp.task('inject', ['build'], function () {
     }))
       .pipe(isDevelopment ? gulp.dest('./web-src'):gulp.dest('./web'));
   });
+
+//    gulp.task('tesdfst', function(done) {
+//        new Server({
+//            configFile : 'karma.conf.js',
+//            singleRun : true
+//        }, done).start();
+//    });
+
+var Server = require('karma').Server;
+
+gulp.task('test', function (done) {
+    return new Server({
+      configFile: __dirname + '/karma.conf.js',
+      singleRun: true
+    }, done).start();
+  });
+
+gulp.task('twest', function() {
+  // Be sure to return the stream
+  // NOTE: Using the fake './foobar' so as to run the files
+  // listed in karma.conf.js INSTEAD of what was passed to
+  // gulp.src !
+  return gulp.src('./foobar')
+    .pipe(new Server({
+      configFile:  __dirname +'/karma.conf.js',
+      action: 'run'
+    }))
+    .on('error', function(err) {
+      // Make sure failed tests cause gulp to exit non-zero
+      console.log(err);
+      this.emit('end'); //instead of erroring the stream, end it
+    });
+});
 
