@@ -12,34 +12,33 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.Bridge;
 
 /**
- * The {@link ConfigStatusThingHandler} is an extension of {@link BaseThingHandler} that implements the
+ * The {@link ConfigStatusBridgeHandler} is an extension of {@link BaseBridgeHandler} that implements the
  * {@link ConfigStatusProvider} interface. It provides default implementations for
  * <ul>
  * <li>{@link ConfigStatusProvider#supportsEntity(String)}</li>
  * <li>{@link ConfigStatusProvider#setConfigStatusCallback(ConfigStatusCallback)}</li>
  * </ul>
  * Furthermore it overwrites {@link ThingHandler#handleConfigurationUpdate(Map)} and
- * {@link BaseThingHandler#updateConfiguration(Configuration)} to initiate a propagation of a new
+ * {@link BaseBridgeHandler#updateConfiguration(Configuration)} to initiate a propagation of a new
  * configuration status. So sub classes need only to provide the current configuration status by implementing
  * {@link ConfigStatusProvider#getConfigStatus()}.
  *
  * @author Thomas Höfer - Initial contribution
- * @author Chris Jackson - Add updateConfiguration override to handle status updates
  */
-public abstract class ConfigStatusThingHandler extends BaseThingHandler implements ConfigStatusProvider {
+public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implements ConfigStatusProvider {
 
     private ConfigStatusCallback configStatusCallback;
 
     /**
-     * Creates a new instance of this class for the given {@link Thing}.
+     * Creates a new instance of this class for the given {@link Bridge}.
      *
-     * @param thing the thing for this handler
+     * @param bridge the bridge for this handler
      */
-    public ConfigStatusThingHandler(Thing thing) {
-        super(thing);
+    public ConfigStatusBridgeHandler(Bridge bridge) {
+        super(bridge);
     }
 
     @Override
