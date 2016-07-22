@@ -28,7 +28,18 @@ The hue binding supports all five types of lights of the Hue system: [Supported 
 | Extended Color light    | 0x0210           | 0210       |
 | Color temperature light | 0x0220           | 0220       |
 
-All different models of Hue or Osram bulbs nicely fit into one of these five categories.
+All different models of Hue or Osram bulbs nicely fit into one of these five categories. The following table lists the types for the most common Philips and Osram bulbs:  
+
+| Thing type | Brightness | Color | Color Temperature | Hue IDs | Osram IDs |
+|-------------|:----------:|:-----:|:-----------------:|:--------|:----------|
+|  0000       |            |       |                   |         |           |     
+|  0100       |     X      |       |                   | LWB004, LWB006, LWB007 |	|
+|  0200       |            |   X   |                   | LST001, LLC010, LLC011, LLC012, LLC006, LLC007, LLC013 |	|
+|  0210       |            |   X   |          X        | LCT001, LCT007, LCT002, LCT003, LLM001, LLC020, LST002 | Classic A60 RGBW	|
+|  0220       |     X      |       |          X        | LLM010, LLM011, LLM012, LTW001, LTW004  | PAR16 50 TW, Classic B40 TW |
+
+In case a specific bulb is not listed, the type can be identified by checking the lamp's features. For example, the type is **0220** if a lamp is dimmable (Brightness) and the color temperature can be changed.
+
 
 ## Discovery
 
