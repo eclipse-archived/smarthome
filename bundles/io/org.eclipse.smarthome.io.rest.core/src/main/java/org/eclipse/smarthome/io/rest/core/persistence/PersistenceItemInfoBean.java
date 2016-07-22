@@ -8,14 +8,22 @@
 package org.eclipse.smarthome.io.rest.core.persistence;
 
 /**
- * This is a java bean that is used to serialize services to JSON.
+ * This is a java bean that is used to serialize information about items in a persistence service to JSON.
  *
  * @author Chris Jackson - Initial Contribution
  *
  */
-public class ServiceBean {
-    ServiceBean() {
+public class PersistenceItemInfoBean {
+    PersistenceItemInfoBean() {
     }
 
+    /**
+     * The name of the item in the persistence service
+     */
     public String name;
+
+    /**
+     * The number of rows of data in the persistence store for the item
+     */
+    public Integer rows;
 }

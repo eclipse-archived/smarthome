@@ -30,23 +30,18 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
      * </p>
      *
-     * @param date the date of the record
      * @param item the data to be stored
+     * @param date the date of the record
      */
-    public void store(Date date, Item item);
+    void store(Item item, Date date);
 
     /**
-     * Removes a data from a persistence store.
+     * Removes data associated with an item from a persistence service.
+     * If all data is removed for the specified item, the persistence service should free any resources associated with
+     * the item (eg. remove any tables or delete files from the storage).
      *
      * @param filter the filter to apply to the data removal
      * @return true if the query executed successfully
      */
-    public boolean remove(FilterCriteria filter);
-
-    /**
-     * Removes an item and all data associated with the item
-     *
-     * @return true if the item was deleted
-     */
-    public boolean removeItemData(String itemName);
+    boolean remove(FilterCriteria filter);
 }
