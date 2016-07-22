@@ -6,7 +6,7 @@ layout: documentation
 
 # Classic Icon Set
 
-This is a modernized version of the original icon set of openHAB 1.<br/><br/> 
+This is a modernized version of the original icon set of openHAB 1.<br/><br/>
 
 ![alarm](icons/alarm.png "alarm")
 ![attic](icons/attic.png "attic")
