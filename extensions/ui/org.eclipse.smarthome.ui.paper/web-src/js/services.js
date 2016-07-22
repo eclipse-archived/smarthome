@@ -137,6 +137,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     } else if (parameter.context.toUpperCase() === 'DAYOFWEEK') {
                         parameter.element = 'dayofweek';
                         parameter.inputType = 'text';
+                    } else if (parameter.context.toUpperCase() === 'PASSWORD') {
+                        parameter.element = 'input';
+                        parameter.inputType = parameter.context === 'password' ? 'password' : 'text';
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'text';
@@ -145,9 +148,6 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
                         parameter.options = parameter.options;
-                    } else {
-                        parameter.element = 'input';
-                        parameter.inputType = parameter.context === 'password' ? 'password' : 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'BOOLEAN') {
                     parameter.element = 'switch';
