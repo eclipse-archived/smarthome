@@ -587,7 +587,8 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         String filterString = new String();
 
         if (filter.getPageSize() != 0x7fffffff) {
-            filterString += " LIMIT " + filter.getPageNumber() * filter.getPageSize() + "," + filter.getPageSize();
+            filterString += " LIMIT " + filter.getPageSize() + " OFFSET "
+                    + (filter.getPageNumber() * filter.getPageSize());
         }
 
         return filterString;
