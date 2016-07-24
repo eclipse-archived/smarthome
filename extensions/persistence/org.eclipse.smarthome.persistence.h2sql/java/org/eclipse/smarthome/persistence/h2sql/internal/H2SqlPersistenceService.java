@@ -103,7 +103,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         sqlTypes.put("LOCATIONITEM", "VARCHAR(30)");
         sqlTypes.put("GROUPITEM", "VARCHAR(30)");
         sqlTypes.put("NUMBERITEM", "DECIMAL");
-        sqlTypes.put("ROLERSHUTTERITEM", "TINYINT");
+        sqlTypes.put("ROLLERSHUTTERITEM", "TINYINT");
         sqlTypes.put("STRINGITEM", "VARCHAR(65500)");
         sqlTypes.put("SWITCHITEM", "CHAR(6)");
     }

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome H2SQL Persistence Service
 Bundle-SymbolicName: org.eclipse.smarthome.persistence.h2sql
 Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: openHAB.org
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 DynamicImport-Package: *
 Import-Package: org.apache.commons.io,
@@ -13,7 +13,6 @@ Import-Package: org.apache.commons.io,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.persistence,
  org.eclipse.smarthome.core.types,
- org.openhab.core.library.types,
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j
