@@ -8,10 +8,12 @@
  */
 package org.eclipse.smarthome.persistence.h2sql.internal;
 
+import java.util.Date;
+
 import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 
 /**
- * This is a Java bean used to return items from a SQL database.
+ * This is a class used to return item information from the H2SQL database.
  *
  * @author Chris Jackson - Initial contribution
  *
@@ -20,17 +22,33 @@ public class H2SqlPersistenceItem implements PersistenceItemInfo {
 
     final private String name;
     final private Integer rows;
+    final private Date earliest;
+    final private Date latest;
 
-    public H2SqlPersistenceItem(String name, Integer rows) {
+    public H2SqlPersistenceItem(String name, Integer rows, Date earliest, Date latest) {
         this.name = name;
         this.rows = rows;
+        this.earliest = earliest;
+        this.latest = latest;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
-    public Integer getRows() {
+    @Override
+    public Integer getCount() {
         return rows;
+    }
+
+    @Override
+    public Date getEarliest() {
+        return earliest;
+    }
+
+    @Override
+    public Date getLatest() {
+        return latest;
     }
 }

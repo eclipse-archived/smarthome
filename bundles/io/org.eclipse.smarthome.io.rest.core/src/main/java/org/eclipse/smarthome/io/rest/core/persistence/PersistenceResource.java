@@ -15,6 +15,7 @@
 */
 package org.eclipse.smarthome.io.rest.core.persistence;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -66,6 +68,8 @@ import io.swagger.annotations.ApiResponses;
  * store
  *
  * @author Chris Jackson - Initial Contribution
+ * @author Chris Jackson - Updated to add support for ModifiablePersistenceService
+ *
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
@@ -73,6 +77,7 @@ public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
     private final int MILLISECONDS_PER_DAY = 86400000;
+    private final SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     // The URI path to this resource
     public static final String PATH = "persistence";
@@ -113,8 +118,8 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpGetPersistenceItemData(@Context HttpHeaders headers,
-            @ApiParam(value = "The item name", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName,
+            @ApiParam(value = "The item name", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Start time of the data to return. Will default to 1 day before endtime", required = false) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return. Will default to current time.", required = false) @QueryParam("endtime") String endTime,
             @ApiParam(value = "Page number of data to return. This parameter will enable paging.", required = false) @QueryParam("page") int pageNumber,
@@ -142,8 +147,8 @@ public class PersistenceResource implements RESTResource {
             @ApiResponse(code = 400, message = "Invalid filter parameters"),
             @ApiResponse(code = 404, message = "Unknown persistence service") })
     public Response httpDeletePersistenceServiceItem(@Context HttpHeaders headers,
-            @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Name of the persistence service.", required = true) @QueryParam("servicename") String serviceName,
+            @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Start time of the data to return.", required = true) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return.", required = true) @QueryParam("endtime") String endTime) {
 
@@ -157,10 +162,10 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpPutPersistenceItemData(@Context HttpHeaders headers,
-            @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
-            @ApiParam(value = "The state to store.", required = true) @QueryParam("state") String value,
             @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName,
-            @ApiParam(value = "Time of the data to be stored. Will default to current time.", required = false) @QueryParam("time") String time) {
+            @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
+            @ApiParam(value = "Time of the data to be stored. Will default to current time.", required = true) @QueryParam("time") String time,
+            @ApiParam(value = "The state to store.", required = true) @QueryParam("state") String value) {
 
         return putItemState(serviceName, itemName, value, time);
     }
@@ -242,12 +247,16 @@ public class PersistenceResource implements RESTResource {
             quantity++;
         }
 
-        filter.setPageSize(pageLength);
+        if (pageLength == 0) {
+            filter.setPageNumber(0);
+            filter.setPageSize(Integer.MAX_VALUE);
+        } else {
+            filter.setPageSize(pageLength);
+        }
         filter.setPageNumber(pageNumber);
         filter.setBeginDate(dateTimeBegin);
         filter.setEndDate(dateTimeEnd);
         filter.setOrdering(Ordering.ASCENDING);
-        filter.setPageSize(Integer.MAX_VALUE);
 
         result = qService.query(filter);
         if (result != null) {
@@ -299,11 +308,6 @@ public class PersistenceResource implements RESTResource {
         return beanList;
     }
 
-    private Item getItem(String itemname) {
-        Item item = itemRegistry.get(itemname);
-        return item;
-    }
-
     private Response getServiceItemList(String serviceName) {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
@@ -331,7 +335,13 @@ public class PersistenceResource implements RESTResource {
         for (PersistenceItemInfo item : itemNames) {
             PersistenceItemInfoBean itemBean = new PersistenceItemInfoBean();
             itemBean.name = item.getName();
-            itemBean.rows = item.getRows();
+            itemBean.count = item.getCount();
+            if (item.getEarliest() != null) {
+                itemBean.earliest = isoDateFormat.format(item.getEarliest());
+            }
+            if (item.getLatest() != null) {
+                itemBean.latest = isoDateFormat.format(item.getLatest());
+            }
 
             items.add(itemBean);
         }
@@ -399,47 +409,44 @@ public class PersistenceResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.CONFLICT, "Persistence service not found: " + serviceName);
         }
 
-        Item item = getItem(itemName);
-        if (item == null) {
-            logger.warn("Item not found '{}'.", serviceName);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Item not found: " + serviceName);
+        Item item;
+        try {
+            if (itemRegistry == null) {
+                logger.warn("Item registry not set.");
+                return JSONResponse.createErrorResponse(Status.CONFLICT, "Item registry not set.");
+            }
+            item = itemRegistry.getItem(itemName);
+        } catch (ItemNotFoundException e) {
+            logger.warn("Item not found '{}'.", itemName);
+            return JSONResponse.createErrorResponse(Status.CONFLICT, "Item not found: " + itemName);
         }
 
         // Try to parse a State from the input
         State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
         if (state == null) {
             // State could not be parsed
-            logger.warn("Can't persist item {} with invalid status value '{}'.", itemName, value);
+            logger.warn("Can't persist item {} with invalid state '{}'.", itemName, value);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "State could not be parsed: " + value);
         }
 
-        // Item persistenceItem;// = new Item();
-        // persistenceItem
-
-        if (time == null || time.length() == 0) {
-            service.store(item);
-            return JSONResponse.createResponse(Status.OK, "", "");
-        }
-
-        if (time != null && !(service instanceof ModifiablePersistenceService)) {
-            logger.warn("Persistence service not modifiable '{}'. Time can not be set.", serviceName);
-            return JSONResponse.createErrorResponse(Status.CONFLICT,
-                    "Persistence service not modifiable: " + serviceName + ". Time can not be set.");
-        }
-
-        ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
-
-        Date dateTime = new Date();
-        if (time != null) {
+        Date dateTime = null;
+        if (time != null && time.length() != 0) {
             dateTime = convertTime(time);
         }
-        if (dateTime.getTime() == 0) {
+        if (dateTime == null || dateTime.getTime() == 0) {
             logger.warn("Error with persistence store to {}. Time badly formatted {}.", itemName, time);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Time badly formatted.");
         }
 
-        mService.store(item, dateTime);
+        if (!(service instanceof ModifiablePersistenceService)) {
+            logger.warn("Persistence service not modifiable '{}'.", serviceName);
+            return JSONResponse.createErrorResponse(Status.CONFLICT,
+                    "Persistence service not modifiable: " + serviceName);
+        }
+
+        ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
+
+        mService.store(item, dateTime, state);
         return JSONResponse.createResponse(Status.OK, "", "");
     }
-
 }

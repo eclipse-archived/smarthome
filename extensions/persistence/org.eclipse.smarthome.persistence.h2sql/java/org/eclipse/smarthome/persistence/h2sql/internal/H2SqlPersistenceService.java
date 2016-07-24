@@ -8,6 +8,7 @@
  */
 package org.eclipse.smarthome.persistence.h2sql.internal;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -79,7 +81,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     private final String schema = "SMARTHOME";
     private final String USERDATA_DIR_PROG_ARGUMENT = "smarthome.userdata";
 
-    private final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     protected ItemRegistry itemRegistry = null;
 
@@ -90,7 +92,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     private BundleContext bundleContext;
 
     protected void activate(BundleContext bundleContext, Map<String, Object> properties) {
-        logger.debug("H2SQL: Persistence bundle activate.");
+        logger.info("H2SQL: Persistence bundle activated.");
 
         this.bundleContext = bundleContext;
 
@@ -109,7 +111,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     public void deactivate() {
-        logger.debug("H2SQL: Persistence bundle deactivate. Disconnecting from database.");
+        logger.info("H2SQL: Persistence bundle deactivated.");
         disconnectFromDatabase();
         this.bundleContext = null;
     }
@@ -123,7 +125,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getName() {
@@ -131,29 +133,44 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     /**
-     * @{inheritDoc
-     */
-    @Override
-    public void store(Item item) {
-        store(item, new Date());
-    }
-
-    /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void store(Item item, String alias) {
-        store(item, new Date());
+        store(item);
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
-    public void store(Item item, Date date) {
-        if (item.getState() == null || item.getState() instanceof UnDefType) {
-            logger.debug("H2SQL: State of {} [{}] is {}. Store aborted", item, item.getClass().getSimpleName(),
-                    item.getState());
+    public void store(Item item) {
+        // Do some type conversion to ensure we know the data type.
+        // This is necessary for items that have multiple types and may return their
+        // state in a format that's not preferred or compatible with the H2SQL type.
+        // eg. DimmerItem can return OnOffType (ON, OFF), or PercentType (0-100).
+        // We need to make sure we cover the best type for serialisation.
+        State state;
+        if (item instanceof DimmerItem || item instanceof RollershutterItem) {
+            state = item.getStateAs(PercentType.class);
+        } else if (item instanceof ColorItem) {
+            state = item.getStateAs(HSBType.class);
+        } else {
+            // All other items should return the best format by default
+            state = item.getState();
+        }
+        logger.trace("H2SQL: State is {}::{}", item.getState(), state);
+
+        store(item, new Date(), state);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(Item item, Date date, State state) {
+        if (state == null || state instanceof UnDefType) {
+            logger.trace("H2SQL: State of {} [{}] is {}. Store aborted", item, item.getClass().getSimpleName(), state);
             return;
         }
 
@@ -179,13 +196,13 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         // Create the table for the data
         sqlCmd = new String("CREATE TABLE IF NOT EXISTS " + getTableName(item.getName()) + " (Time DATETIME, Value "
                 + sqlType + ", PRIMARY KEY(Time));");
-        logger.debug("H2SQL: " + sqlCmd);
+        logger.trace("H2SQL: " + sqlCmd);
 
         try {
             statement = connection.createStatement();
             statement.executeUpdate(sqlCmd);
 
-            logger.debug("H2SQL: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
+            logger.trace("H2SQL: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
         } catch (Exception e) {
             logger.error("H2SQL: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
             logger.error("     : " + e.getMessage());
@@ -198,32 +215,16 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             }
         }
 
-        // Do some type conversion to ensure we know the data type.
-        // This is necessary for items that have multiple types and may return their
-        // state in a format that's not preferred or compatible with the H2SQL type.
-        // eg. DimmerItem can return OnOffType (ON, OFF), or PercentType (0-100).
-        // We need to make sure we cover the best type for serialisation.
-        String value;
-        if (item instanceof DimmerItem || item instanceof RollershutterItem) {
-            value = item.getStateAs(PercentType.class).toString();
-        } else if (item instanceof ColorItem) {
-            value = item.getStateAs(HSBType.class).toString();
-        } else {
-            // All other items should return the best format by default
-            value = item.getState().toString();
-        }
-        logger.debug("H2SQL: State is {}::{}", item.getState(), value);
-
         try {
             statement = connection.createStatement();
-            sqlCmd = new String(
-                    "INSERT INTO " + getTableName(item.getName()) + " (TIME, VALUE) VALUES(NOW(),'" + value + "');");
+            sqlCmd = new String("INSERT INTO " + getTableName(item.getName()) + " (TIME, VALUE) " + "VALUES('"
+                    + sqlDateFormat.format(date) + "','" + state.toString() + "');");
             statement.executeUpdate(sqlCmd);
 
             long timerStop = System.currentTimeMillis();
-            logger.debug("H2SQL: Stored item '{}' as '{}'[{}] in {}ms", item.getName(), value,
-                    item.getState().toString(), timerStop - timerStart);
-            logger.debug("H2SQL: {}", sqlCmd);
+            logger.debug("H2SQL: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
+                    timerStop - timerStart);
+            logger.trace("H2SQL: {}", sqlCmd);
         } catch (Exception e) {
             logger.error("H2SQL: Could not store item '{}' in database with statement '{}'", item.getName(), sqlCmd);
             logger.error("     : " + e.getMessage());
@@ -238,14 +239,14 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void updated(Dictionary<String, ?> config) throws ConfigurationException {
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Iterable<HistoricItem> query(FilterCriteria filter) {
@@ -291,7 +292,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 queryString += filterString;
             }
 
-            logger.debug("H2SQL: " + queryString);
+            logger.trace("H2SQL: " + queryString);
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
@@ -344,7 +345,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<PersistenceItemInfo> getItems() {
@@ -361,7 +362,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             Statement st = connection.createStatement();
 
             String queryString = new String();
-            queryString = "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE, REMARKS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"
+            queryString = "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"
                     + schema + "'";
 
             // Turn use of the cursor on.
@@ -369,9 +370,28 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
 
             ResultSet rs = st.executeQuery(queryString);
 
+            Date earliest;
+            Date latest;
+
             Set<PersistenceItemInfo> items = new HashSet<PersistenceItemInfo>();
             while (rs.next()) {
-                H2SqlPersistenceItem item = new H2SqlPersistenceItem(rs.getString(1), rs.getInt(2));
+                Statement stTimes = connection.createStatement();
+
+                queryString = "SELECT MIN(Time), MAX(Time) FROM " + getTableName(rs.getString(1));
+                ResultSet rsTimes = stTimes.executeQuery(queryString);
+
+                if (rsTimes.next()) {
+                    earliest = rsTimes.getTimestamp(1);
+                    latest = rsTimes.getTimestamp(2);
+                } else {
+                    earliest = null;
+                    latest = null;
+                }
+
+                rsTimes.close();
+                stTimes.close();
+
+                H2SqlPersistenceItem item = new H2SqlPersistenceItem(rs.getString(1), rs.getInt(2), earliest, latest);
                 items.add(item);
             }
 
@@ -379,7 +399,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             st.close();
 
             long timerStop = System.currentTimeMillis();
-            logger.debug("H2SQL: query returned {} rows in {}ms", items.size(), timerStop - timerStart);
+            logger.debug("H2SQL: query returned {} items in {}ms", items.size(), timerStop - timerStart);
 
             return items;
         } catch (SQLException e) {
@@ -391,7 +411,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean remove(FilterCriteria filter) {
@@ -475,12 +495,16 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             logger.debug("H2SQL: Connecting to database");
             Class.forName(driverClass).newInstance();
 
-            final String eshUserDataFolder = System.getProperty(USERDATA_DIR_PROG_ARGUMENT);
-            String databaseFileName = "userdata/";
-            if (eshUserDataFolder != null) {
-                databaseFileName = eshUserDataFolder + "/";
+            final String folderName = ConfigConstants.getUserDataFolder() + "/h2sql";
+
+            // Create path for serialization.
+            final File folder = new File(folderName);
+            if (!folder.exists()) {
+                logger.debug("Creating H2SQL folder {}", folderName);
+                folder.mkdirs();
             }
-            databaseFileName += "h2sql/smarthome";
+
+            final String databaseFileName = folderName + "/smarthome";
 
             String url = h2Url + databaseFileName;
 

@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.persistence;
 import java.util.Date;
 
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.types.State;
 
 /**
  * This class provides an interface to the a {@link PersistenceService} to allow data to be stored
@@ -32,8 +33,9 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      *
      * @param item the data to be stored
      * @param date the date of the record
+     * @param state the state to be recorded
      */
-    void store(Item item, Date date);
+    void store(Item item, Date date, State state);
 
     /**
      * Removes data associated with an item from a persistence service.

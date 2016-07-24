@@ -23,7 +23,17 @@ public class PersistenceItemInfoBean {
     public String name;
 
     /**
-     * The number of rows of data in the persistence store for the item
+     * A count of the number of rows of data in the persistence store for the item
      */
-    public Integer rows;
+    public Integer count;
+
+    /**
+     * The earliest time for the data stored in the database
+     */
+    public String earliest;
+
+    /**
+     * The latest time for the data stored in the database
+     */
+    public String latest;
 }
