@@ -107,7 +107,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     private void initializeThing(ThingStatus bridgeStatus) {
-        logger.debug("initializeThing {}", bridgeStatus);
+        logger.debug("initializeThing thing {} bridge status {}", getThing().getUID(), bridgeStatus);
         final String configLightId = (String) getConfig().get(LIGHT_ID);
         if (configLightId != null) {
             lightId = configLightId;
@@ -160,7 +160,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (lightId != null) {
             HueBridgeHandler bridgeHandler = getHueBridgeHandler();
             if (bridgeHandler != null) {
-                getHueBridgeHandler().unregisterLightStatusListener(this);
+                bridgeHandler.unregisterLightStatusListener(this);
+                this.bridgeHandler = null;
             }
             lightId = null;
         }
