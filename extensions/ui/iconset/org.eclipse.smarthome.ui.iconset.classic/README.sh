@@ -23,7 +23,7 @@ for icon in icons/*.png; do
   name="$(basename "${icon}" | cut -d '.' -f1)"
 
   if [ "${name}" != 'none' ]; then
-    echo "![${name}](${icon})" >> "${README}"
+    echo "![${name}](${icon} \"${name}\")" >> "${README}"
   fi
 
 done
