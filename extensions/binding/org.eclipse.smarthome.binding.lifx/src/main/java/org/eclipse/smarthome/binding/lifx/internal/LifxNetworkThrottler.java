@@ -85,8 +85,10 @@ public class LifxNetworkThrottler {
     public static void unlock() {
 
         for (String key : locks.keySet()) {
-            timestamps.put(key, System.currentTimeMillis());
-            locks.get(key).unlock();
+            if (locks.get(key).isHeldByCurrentThread()) {
+                timestamps.put(key, System.currentTimeMillis());
+                locks.get(key).unlock();
+            }
         }
 
     }
