@@ -52,7 +52,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             .put("dimmable_light", "0100")
             .put("color_light", "0200")
             .put("extended_color_light", "0210")
-            .put("color_temperature_light", "0220").build();
+            .put("color_temperature_light", "0220")
+            .put("dimmable_plug_in_unit", "0100").build();
     // @formatter:on
 
     private HueBridgeHandler hueBridgeHandler;
