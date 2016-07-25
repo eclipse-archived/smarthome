@@ -17,5 +17,13 @@ public class ServiceBean {
     ServiceBean() {
     }
 
+    /**
+     * Service Name
+     */
     public String name;
+
+    /**
+     * Persistence service class
+     */
+    public String classname;
 }

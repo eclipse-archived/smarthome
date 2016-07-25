@@ -10,12 +10,14 @@ package org.eclipse.smarthome.model.persistence.tests;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
 import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
+import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
 import org.eclipse.smarthome.core.types.State;
 
@@ -45,13 +47,16 @@ public class TestPersistenceService implements QueryablePersistenceService {
         int startValue = 1950;
         int endValue = 2012;
 
-        if (filter.getBeginDate() != null)
+        if (filter.getBeginDate() != null) {
             startValue = filter.getBeginDate().getYear() + 1900;
-        if (filter.getEndDate() != null)
+        }
+        if (filter.getEndDate() != null) {
             endValue = filter.getEndDate().getYear() + 1900;
+        }
 
-        if (endValue <= startValue || startValue < 1950)
+        if (endValue <= startValue || startValue < 1950) {
             return Collections.emptyList();
+        }
 
         ArrayList<HistoricItem> results = new ArrayList<HistoricItem>(endValue - startValue);
         for (int i = startValue; i <= endValue; i++) {
@@ -77,6 +82,11 @@ public class TestPersistenceService implements QueryablePersistenceService {
             Collections.reverse(results);
         }
         return results;
+    }
+
+    @Override
+    public Set<PersistenceItemInfo> getItems() {
+        return null;
     }
 
 }

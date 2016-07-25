@@ -586,7 +586,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             } else {
                 filterString += " AND";
             }
-            filterString += " TIME>'" + sqlDateFormat.format(filter.getBeginDate()) + "'";
+            filterString += " TIME>='" + sqlDateFormat.format(filter.getBeginDate()) + "'";
         }
         if (filter.getEndDate() != null) {
             if (filterString.isEmpty()) {
@@ -594,7 +594,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             } else {
                 filterString += " AND";
             }
-            filterString += " TIME<'" + sqlDateFormat.format(filter.getEndDate().getTime()) + "'";
+            filterString += " TIME<='" + sqlDateFormat.format(filter.getEndDate().getTime()) + "'";
         }
         return filterString;
     }

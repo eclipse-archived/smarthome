@@ -301,6 +301,14 @@ public class PersistenceResource implements RESTResource {
         for (Map.Entry<String, PersistenceService> service : persistenceServices.entrySet()) {
             ServiceBean serviceBean = new ServiceBean();
             serviceBean.name = service.getKey();
+            PersistenceService persistence = service.getValue();
+            if (persistence instanceof ModifiablePersistenceService) {
+                serviceBean.classname = "ModifiablePersistenceService";
+            } else if (persistence instanceof QueryablePersistenceService) {
+                serviceBean.classname = "QueryablePersistenceService";
+            } else {
+                serviceBean.classname = "PersistenceService";
+            }
 
             beanList.add(serviceBean);
         }
