@@ -26,6 +26,10 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * Stores the historic item value. This allows the item, time and value to be specified.
      * </p>
      * <p>
+     * Adding data with the same time as an existing record should update the current record value rather than adding a
+     * new record.
+     * </p>
+     * <p>
      * Implementors should keep in mind that all registered {@link PersistenceService}s are called synchronously. Hence
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).

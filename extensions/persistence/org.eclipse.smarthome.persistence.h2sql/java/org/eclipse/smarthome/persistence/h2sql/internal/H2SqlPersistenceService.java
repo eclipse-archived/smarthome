@@ -216,6 +216,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         }
 
         try {
+            // Firstly, try an INSERT. This will work 99.9% of the time
             statement = connection.createStatement();
             sqlCmd = new String("INSERT INTO " + getTableName(item.getName()) + " (TIME, VALUE) " + "VALUES('"
                     + sqlDateFormat.format(date) + "','" + state.toString() + "');");
@@ -225,15 +226,42 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             logger.debug("H2SQL: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
                     timerStop - timerStart);
             logger.trace("H2SQL: {}", sqlCmd);
-        } catch (Exception e) {
-            logger.error("H2SQL: Could not store item '{}' in database with statement '{}'", item.getName(), sqlCmd);
-            logger.error("     : " + e.getMessage());
-        } finally {
+        } catch (Exception e1) {
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (Exception hidden) {
                 }
+            }
+
+            try {
+                // The INSERT failed. This might be because we tried persisting data too quickly, or it might be
+                // because we really want to UPDATE the data.
+                // So, let's try an update. If the reason for the exception isn't due to the primary key already
+                // existing, then we'll throw another exception.
+                // Note that H2 stores times using the Java Date class, so resolution is milliseconds. We really
+                // shouldn't be persisting data that quickly!
+                statement = connection.createStatement();
+                sqlCmd = new String("UPDATE " + getTableName(item.getName()) + " SET VALUE='" + state.toString() + "'"
+                        + " WHERE TIME='" + sqlDateFormat.format(date) + "';");
+                statement.executeUpdate(sqlCmd);
+
+                long timerStop = System.currentTimeMillis();
+                logger.debug("H2SQL: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
+                        timerStop - timerStart);
+                logger.trace("H2SQL: {}", sqlCmd);
+            } catch (Exception e2) {
+
+                logger.error("H2SQL: Could not store item '{}' in database with statement '{}'", item.getName(),
+                        sqlCmd);
+                logger.error("     : " + e2.getMessage());
+            }
+        }
+
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (Exception hidden) {
             }
         }
     }
