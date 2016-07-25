@@ -139,7 +139,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.inputType = 'text';
                     } else if (parameter.context.toUpperCase() === 'PASSWORD') {
                         parameter.element = 'input';
-                        parameter.inputType = parameter.context === 'password' ? 'password' : 'text';
+                        parameter.inputType = 'password';
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'text';
