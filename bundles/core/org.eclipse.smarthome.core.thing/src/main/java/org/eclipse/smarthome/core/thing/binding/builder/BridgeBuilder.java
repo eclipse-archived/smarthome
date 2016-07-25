@@ -8,7 +8,10 @@
 package org.eclipse.smarthome.core.thing.binding.builder;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -20,6 +23,7 @@ import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Kai Kreuzer - Refactoring to make BridgeBuilder a subclass of ThingBuilder
+ * @author Markus Rathgeb - Override methods to return BridgeBuidler instead of ThingBuidler
  *
  */
 public class BridgeBuilder extends ThingBuilder {
@@ -49,4 +53,45 @@ public class BridgeBuilder extends ThingBuilder {
     public Bridge build() {
         return (Bridge) super.build();
     }
+
+    @Override
+    public BridgeBuilder withLabel(String label) {
+        return (BridgeBuilder) super.withLabel(label);
+    }
+
+    @Override
+    public BridgeBuilder withChannel(Channel channel) {
+        return (BridgeBuilder) super.withChannel(channel);
+    }
+
+    @Override
+    public BridgeBuilder withChannels(Channel... channels) {
+        return (BridgeBuilder) super.withChannels(channels);
+    }
+
+    @Override
+    public BridgeBuilder withChannels(List<Channel> channels) {
+        return (BridgeBuilder) super.withChannels(channels);
+    }
+
+    @Override
+    public BridgeBuilder withConfiguration(Configuration thingConfiguration) {
+        return (BridgeBuilder) super.withConfiguration(thingConfiguration);
+    }
+
+    @Override
+    public BridgeBuilder withBridge(ThingUID bridgeUID) {
+        return (BridgeBuilder) super.withBridge(bridgeUID);
+    }
+
+    @Override
+    public BridgeBuilder withProperties(Map<String, String> properties) {
+        return (BridgeBuilder) super.withProperties(properties);
+    }
+
+    @Override
+    public BridgeBuilder withLocation(String location) {
+        return (BridgeBuilder) super.withLocation(location);
+    }
+
 }
