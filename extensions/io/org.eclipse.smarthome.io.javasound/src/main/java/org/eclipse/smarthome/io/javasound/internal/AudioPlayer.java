@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AudioPlayer extends Thread {
 
-    private static final Logger logger = LoggerFactory.getLogger(AudioPlayer.class);
+    private final Logger logger = LoggerFactory.getLogger(AudioPlayer.class);
 
     /**
      * The AudioStream to play

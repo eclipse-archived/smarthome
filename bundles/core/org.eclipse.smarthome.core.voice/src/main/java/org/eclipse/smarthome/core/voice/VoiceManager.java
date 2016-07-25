@@ -33,7 +33,20 @@ import org.slf4j.LoggerFactory;
  */
 public class VoiceManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(VoiceManager.class);
+    // the default keyword to use if no other is configured
+    private static final String DEFAULT_KEYWORD = "Wakeup";
+
+    // constants for the configuration properties
+    private static final String CONFIG_KEYWORD = "keyword";
+    private static final String CONFIG_DEFAULT_HLI = "defaultHLI";
+    private static final String CONFIG_DEFAULT_KS = "defaultKS";
+    private static final String CONFIG_DEFAULT_STT = "defaultSTT";
+    private static final String CONFIG_DEFAULT_TTS = "defaultTTS";
+    private static final String CONFIG_DEFAULT_SINK = "defaultSink";
+    private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
+    private static final String CONFIG_PREFIX_DEFAULT_VOICE = "defaultVoice.";
+
+    private final Logger logger = LoggerFactory.getLogger(VoiceManager.class);
 
     // service maps
     private Map<String, KSService> ksServices = new HashMap<>();
@@ -48,7 +61,7 @@ public class VoiceManager {
     /**
      * default settings filled through the service configuration
      */
-    private String keyword = "Wakeup";
+    private String keyword = DEFAULT_KEYWORD;
     private String defaultSource = null;
     private String defaultSink = null;
     private String defaultTTS = null;
@@ -66,17 +79,19 @@ public class VoiceManager {
 
     protected void modified(Map<String, Object> config) {
         if (config != null) {
-            this.keyword = config.containsKey("keyword") ? config.get("keyword").toString() : "Wakeup";
-            this.defaultSource = config.containsKey("defaultSource") ? config.get("defaultSource").toString() : null;
-            this.defaultSink = config.containsKey("defaultSink") ? config.get("defaultSink").toString() : null;
-            this.defaultTTS = config.containsKey("defaultTTS") ? config.get("defaultTTS").toString() : null;
-            this.defaultSTT = config.containsKey("defaultSTT") ? config.get("defaultSTT").toString() : null;
-            this.defaultKS = config.containsKey("defaultKS") ? config.get("defaultKS").toString() : null;
-            this.defaultHLI = config.containsKey("defaultHLI") ? config.get("defaultHLI").toString() : null;
+            this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
+            this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
+                    ? config.get(CONFIG_DEFAULT_SOURCE).toString() : null;
+            this.defaultSink = config.containsKey(CONFIG_DEFAULT_SINK) ? config.get(CONFIG_DEFAULT_SINK).toString()
+                    : null;
+            this.defaultTTS = config.containsKey(CONFIG_DEFAULT_TTS) ? config.get(CONFIG_DEFAULT_TTS).toString() : null;
+            this.defaultSTT = config.containsKey(CONFIG_DEFAULT_STT) ? config.get(CONFIG_DEFAULT_STT).toString() : null;
+            this.defaultKS = config.containsKey(CONFIG_DEFAULT_KS) ? config.get(CONFIG_DEFAULT_KS).toString() : null;
+            this.defaultHLI = config.containsKey(CONFIG_DEFAULT_HLI) ? config.get(CONFIG_DEFAULT_HLI).toString() : null;
 
             for (String key : config.keySet()) {
-                if (key.startsWith("defaultVoice.")) {
-                    String tts = key.substring("defaultVoice.".length());
+                if (key.startsWith(CONFIG_PREFIX_DEFAULT_VOICE)) {
+                    String tts = key.substring(CONFIG_PREFIX_DEFAULT_VOICE.length());
                     defaultVoices.put(tts, config.get(key).toString());
                 }
             }
@@ -364,8 +379,8 @@ public class VoiceManager {
         locale = (locale == null) ? localeProvider.getLocale() : locale;
 
         if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null) {
-            DialogProcessor processor = new DialogProcessor(getKS(), getSTT(), getTTS(), getHLI(), getSource(),
-                    getSink(), localeProvider.getLocale(), keyword);
+            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, localeProvider.getLocale(),
+                    keyword);
             processor.start();
         } else {
             String msg = "Cannot start dialog as services are missing.";
@@ -445,7 +460,7 @@ public class VoiceManager {
             if (tts == null) {
                 logger.warn("Default TTS service '{}' not available!", defaultTTS);
             }
-        } else if (ttsServices.size() > 0) {
+        } else if (!ttsServices.isEmpty()) {
             tts = ttsServices.values().iterator().next();
         } else {
             logger.debug("No TTS service available!");
@@ -468,7 +483,7 @@ public class VoiceManager {
             if (stt == null) {
                 logger.warn("Default STT service '{}' not available!", defaultSTT);
             }
-        } else if (sttServices.size() > 0) {
+        } else if (!sttServices.isEmpty()) {
             stt = sttServices.values().iterator().next();
         } else {
             logger.debug("No STT service available!");
@@ -491,7 +506,7 @@ public class VoiceManager {
             if (ks == null) {
                 logger.warn("Default KS service '{}' not available!", defaultKS);
             }
-        } else if (ksServices.size() > 0) {
+        } else if (!ksServices.isEmpty()) {
             ks = ksServices.values().iterator().next();
         } else {
             logger.debug("No KS service available!");
@@ -514,7 +529,7 @@ public class VoiceManager {
             if (hli == null) {
                 logger.warn("Default HumanLanguageInterpreter '{}' not available!", defaultHLI);
             }
-        } else if (humanLanguageInterpreters.size() > 0) {
+        } else if (!humanLanguageInterpreters.isEmpty()) {
             hli = humanLanguageInterpreters.values().iterator().next();
         } else {
             logger.debug("No HumanLanguageInterpreter available!");
@@ -537,7 +552,7 @@ public class VoiceManager {
             if (sink == null) {
                 logger.warn("Default AudioSink service '{}' not available!", defaultSink);
             }
-        } else if (audioSinks.size() > 0) {
+        } else if (!audioSinks.isEmpty()) {
             sink = audioSinks.values().iterator().next();
         } else {
             logger.debug("No AudioSink service available!");
@@ -560,7 +575,7 @@ public class VoiceManager {
             if (source == null) {
                 logger.warn("Default AudioSource service '{}' not available!", defaultSource);
             }
-        } else if (audioSources.size() > 0) {
+        } else if (!audioSources.isEmpty()) {
             source = audioSources.values().iterator().next();
         } else {
             logger.debug("No AudioSource service available!");

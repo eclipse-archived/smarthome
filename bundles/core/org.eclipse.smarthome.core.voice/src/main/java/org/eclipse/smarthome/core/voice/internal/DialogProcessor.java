@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DialogProcessor implements KSListener, STTListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(DialogProcessor.class);
+    private final Logger logger = LoggerFactory.getLogger(DialogProcessor.class);
 
     /**
      * If the processor should spot new keywords
