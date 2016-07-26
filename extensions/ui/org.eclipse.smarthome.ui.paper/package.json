@@ -36,7 +36,9 @@
   },
   "devDependencies": {
     "karma": "^1.1.0",
+    "karma-angular": "0.0.6",
     "karma-jasmine": "^1.0.2",
+    "karma-junit7-sonarqube-reporter": "0.0.5",
     "karma-phantomjs-launcher": "^1.0.1",
     "karma-spec-reporter": "0.0.26"
   }
