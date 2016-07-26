@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
@@ -346,9 +345,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 } else if (item instanceof RollershutterItem) {
                     state = new PercentType(rs.getInt(2));
                 } else if (item instanceof DateTimeItem) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(rs.getTimestamp(2).getTime());
-                    state = new DateTimeType(calendar);
+                    state = new DateTimeType(rs.getString(2));
                 } else {
                     state = new StringType(rs.getString(2));
                 }
