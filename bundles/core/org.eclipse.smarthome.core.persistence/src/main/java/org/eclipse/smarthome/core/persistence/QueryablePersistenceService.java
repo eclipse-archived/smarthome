@@ -34,7 +34,7 @@ public interface QueryablePersistenceService extends PersistenceService {
      * This is returned as a string to allow the persistence service to return items that are no long available as an
      * ESH {@link Item}.
      *
-     * @return list of strings of item names contained in the store
+     * @return list of strings of item names contained in the store. Not null.
      */
     Set<PersistenceItemInfo> getItems();
 }
