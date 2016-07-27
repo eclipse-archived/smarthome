@@ -43,6 +43,10 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     protected BigDecimal hue;
     protected BigDecimal saturation;
 
+    public HSBType() {
+        this("0,0,0");
+    }
+
     public HSBType(DecimalType h, PercentType s, PercentType b) {
         this.hue = h.toBigDecimal();
         this.saturation = s.toBigDecimal();
@@ -171,12 +175,15 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof HSBType))
+        }
+        if (!(obj instanceof HSBType)) {
             return false;
+        }
         HSBType other = (HSBType) obj;
         if ((getHue() != null && other.getHue() == null) || (getHue() == null && other.getHue() != null)
                 || (getSaturation() != null && other.getSaturation() == null)
