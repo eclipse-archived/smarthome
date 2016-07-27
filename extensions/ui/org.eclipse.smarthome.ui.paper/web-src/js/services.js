@@ -148,6 +148,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
                         parameter.options = parameter.options;
+                    } else {
+                        parameter.element = 'input';
+                        parameter.inputType = 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'BOOLEAN') {
                     parameter.element = 'switch';
