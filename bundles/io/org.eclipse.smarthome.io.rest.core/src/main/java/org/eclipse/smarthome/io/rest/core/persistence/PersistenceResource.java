@@ -123,9 +123,10 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "Start time of the data to return. Will default to 1 day before endtime", required = false) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return. Will default to current time.", required = false) @QueryParam("endtime") String endTime,
             @ApiParam(value = "Page number of data to return. This parameter will enable paging.", required = false) @QueryParam("page") int pageNumber,
-            @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength) {
+            @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength,
+            @ApiParam(value = "Gets one value before and after the requested period.", required = false) @QueryParam("boundary") boolean boundary) {
 
-        return getItemHistoryBean(serviceName, itemName, startTime, endTime, pageNumber, pageLength);
+        return getItemHistoryBean(serviceName, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
     @GET
@@ -176,7 +177,7 @@ public class PersistenceResource implements RESTResource {
     }
 
     private Response getItemHistoryBean(String serviceName, String itemName, String timeBegin, String timeEnd,
-            int pageNumber, int pageLength) {
+            int pageNumber, int pageLength, boolean boundary) {
         // Benchmarking timer...
         long timerStart = System.currentTimeMillis();
 
@@ -233,27 +234,32 @@ public class PersistenceResource implements RESTResource {
         ItemHistoryBean bean = new ItemHistoryBean();
         bean.name = itemName;
 
-        // First, get the value at the start time.
+        filter = new FilterCriteria();
+        filter.setItemName(itemName);
+
+        // If "boundary" is true then we want to get one value before and after the requested period
         // This is necessary for values that don't change often otherwise data will start after the start of the graph
         // (or not at all if there's no change during the graph period)
-        filter = new FilterCriteria();
-        filter.setEndDate(dateTimeBegin);
-        filter.setItemName(itemName);
-        filter.setPageSize(1);
-        filter.setOrdering(Ordering.DESCENDING);
-        result = qService.query(filter);
-        if (result != null && result.iterator().hasNext()) {
-            bean.addData(dateTimeBegin.getTime(), result.iterator().next().getState());
-            quantity++;
+        if (boundary) {
+            // Get the value before the start time.
+            filter.setEndDate(dateTimeBegin);
+            filter.setPageSize(1);
+            filter.setOrdering(Ordering.DESCENDING);
+            result = qService.query(filter);
+            if (result != null && result.iterator().hasNext()) {
+                bean.addData(dateTimeBegin.getTime(), result.iterator().next().getState());
+                quantity++;
+            }
         }
 
         if (pageLength == 0) {
             filter.setPageNumber(0);
             filter.setPageSize(Integer.MAX_VALUE);
         } else {
+            filter.setPageNumber(pageNumber);
             filter.setPageSize(pageLength);
         }
-        filter.setPageNumber(pageNumber);
+
         filter.setBeginDate(dateTimeBegin);
         filter.setEndDate(dateTimeEnd);
         filter.setOrdering(Ordering.ASCENDING);
@@ -276,10 +282,16 @@ public class PersistenceResource implements RESTResource {
                 bean.addData(historicItem.getTimestamp().getTime(), state);
                 quantity++;
             }
+        }
 
-            // Add the last value again at the end time
-            if (state != null) {
-                bean.addData(dateTimeEnd.getTime(), state);
+        if (boundary) {
+            // Get the value after the end time.
+            filter.setBeginDate(dateTimeEnd);
+            filter.setPageSize(1);
+            filter.setOrdering(Ordering.ASCENDING);
+            result = qService.query(filter);
+            if (result != null && result.iterator().hasNext()) {
+                bean.addData(result.iterator().next().getTimestamp().getTime(), result.iterator().next().getState());
                 quantity++;
             }
         }
