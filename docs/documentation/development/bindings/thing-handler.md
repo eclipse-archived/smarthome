@@ -255,4 +255,14 @@ But for some radio-based devices it is needed to communicate with the device in 
 After the removal was requested the status of the thing is `REMOVING` and can not be changed back to `ONLINE` or `OFFLINE` by the binding. The binding can only initiate the status transition to `REMOVED`.
 
 ## Providing the Configuration Status
-As on the [XML Reference](xml-reference.html) page explained the *ThingHandler* as handler for the thing entity can provide the configuration status of the thing by implementing the `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` interface. The `BaseThingHandlerFactory` registers the configuration status provider automatically as an OSGi service if the interface is implemented by the concrete thing handler.    
+As on the [XML Reference](xml-reference.html) page explained the *ThingHandler* as handler for the thing entity can provide the configuration status of the thing by implementing the `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` interface. For things that are created by sub-classes of the `BaseThingHandlerFactory` the provider is already automatically registered as an OSGi service if the concrete thing handler implements the configuration status provider interface. Currently the framework provides two base thing handler implementations for the configuration status provider interface:
+* `org.eclipse.smarthome.core.thing.binding.ConfigStatusThingHandler` extends the `BaseThingHandler` and is to be used if the configuration status is to be provided for thing entities
+* `org.eclipse.smarthome.core.thing.binding.ConfigStatusBridgeHandler` extends the `BaseBridgeHandler` and is to be used if the configuration status is to be provided for bridge entities
+
+Sub-classes of these handlers must only override the operation `getConfigStatus` to provide the configuration status in form of a collection of `org.eclipse.smarthome.config.core.status.ConfigStatusMessage`s.
+
+The framework will take care of internationalizing the messages. For this purpose there must be an i18n properties file inside the bundle of the configuration status provider that has a message declared for the message key of the `ConfigStatusMessage`. The actual message key is built by the operation `withMessageKeySuffix(String)` of the message´s builder in the manner that the given message key suffix is appended to *config-status."config-status-message-type."*. As a result depending on the type of the message the final constructed message keys are:
+* config-status.information.any-suffix
+* config-status.warning.any-suffix
+* config-status.error.any-suffix
+* config-status.pending.any-suffix

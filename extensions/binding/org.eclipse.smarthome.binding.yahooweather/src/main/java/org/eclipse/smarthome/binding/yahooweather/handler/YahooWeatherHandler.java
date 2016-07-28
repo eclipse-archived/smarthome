@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  */
 public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
-    private static final String LOCATION_NOT_FOUND = "yahooweather.configparam.location.notfound";
     private static final String LOCATION_PARAM = "location";
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
@@ -69,7 +68,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
         Configuration config = getThing().getConfiguration();
 
-        location = (BigDecimal) config.get("location");
+        location = (BigDecimal) config.get(LOCATION_PARAM);
 
         try {
             refresh = (BigDecimal) config.get("refresh");
@@ -143,8 +142,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             String weatherData = getWeatherData();
             String result = StringUtils.substringBetween(weatherData, "<item><title>", "</title>");
             if ("City not found".equals(result)) {
-                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM).withMessageKey(LOCATION_NOT_FOUND)
-                        .withArguments(location).build());
+                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM)
+                        .withMessageKeySuffix("location-not-found").withArguments(location).build());
             }
         } catch (IOException e) {
             logger.debug("Communication error occurred while getting Yahoo weather information.", e);
