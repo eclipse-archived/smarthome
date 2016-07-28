@@ -193,7 +193,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         ConfigStatusService service = getService(ConfigStatusService)
         service.setI18nProvider([
             getText: { bundle, key, defaultText, locale, args ->
-                key.equals("param.invalid") ? "param invalid" : "param ok"
+                key.endsWith("param.invalid") ? "param invalid" : "param ok"
             }
         ]  as I18nProvider)
 
@@ -285,8 +285,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
     class ConfigStatusProviderThingHandler extends ConfigStatusThingHandler {
 
         private static final String PARAM = "param"
-        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM).withMessageKey("param.invalid").build()
-        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM).withMessageKey("param.ok").build()
+        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM).withMessageKeySuffix("param.invalid").build()
+        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM).withMessageKeySuffix("param.ok").build()
         private ConfigStatusCallback configStatusCallback;
 
         ConfigStatusProviderThingHandler(Thing thing) {
