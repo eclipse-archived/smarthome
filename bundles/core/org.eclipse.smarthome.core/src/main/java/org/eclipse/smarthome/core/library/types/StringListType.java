@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 
@@ -30,6 +31,10 @@ public class StringListType implements Command, State {
     static final public String DELIMITER = ",";
     static final public String ESCAPED_DELIMITER = "\\" + DELIMITER;
     static final public String REGEX_SPLITTER = "(?<!\\\\)" + DELIMITER;
+
+    public StringListType() {
+        typeDetails = Collections.emptyList();
+    }
 
     public StringListType(StringType... rows) {
         typeDetails = new ArrayList<String>(rows.length);

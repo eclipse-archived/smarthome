@@ -23,7 +23,7 @@ public class PercentType extends DecimalType {
     final static public PercentType HUNDRED = new PercentType(100);
 
     public PercentType() {
-        super();
+        this(0);
     }
 
     public PercentType(int value) {
