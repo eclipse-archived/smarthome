@@ -54,6 +54,7 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -1185,25 +1186,29 @@ public class RuleEngine
     }
 
     private void resolveDefaultValues(RuntimeRule r) {
-        setDefautlValues(r.getUID(), r.getTriggers());
-        setDefautlValues(r.getUID(), r.getConditions());
-        setDefautlValues(r.getUID(), r.getActions());
+        setDefaultAndNormalizeConfigValues(r.getUID(), r.getTriggers());
+        setDefaultAndNormalizeConfigValues(r.getUID(), r.getConditions());
+        setDefaultAndNormalizeConfigValues(r.getUID(), r.getActions());
     }
 
-    private <T extends Module> void setDefautlValues(String ruleUID, List<T> modules) {
+    private <T extends Module> void setDefaultAndNormalizeConfigValues(String ruleUID, List<T> modules) {
         for (T module : modules) {
             Configuration moduleConfiguration = module.getConfiguration();
             String typeId = module.getTypeUID();
             ModuleType mt = mtManager.get(typeId);
-            List<ConfigDescriptionParameter> configs = mt.getConfigurationDescriptions();
-            if (configs != null) {
-                for (ConfigDescriptionParameter config : configs) {
-                    String defaultValue = config.getDefault();
-                    if (defaultValue != null) {
-                        String configName = config.getName();
-                        if (moduleConfiguration.get(configName) == null) {
-                            moduleConfiguration.put(configName, defaultValue);
+            List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
+            if (configDescriptions != null) {
+                for (ConfigDescriptionParameter configDescription : configDescriptions) {
+                    String defaultValue = configDescription.getDefault();
+                    String configName = configDescription.getName();
+                    Object configValue = moduleConfiguration.get(configName);
+                    if (configValue == null) {
+                        if (defaultValue != null) {
+                            moduleConfiguration.put(configName,
+                                    ConfigUtil.normalizeType(defaultValue, configDescription));
                         }
+                    } else {
+                        moduleConfiguration.put(configName, ConfigUtil.normalizeType(configValue, configDescription));
                     }
                 } // for
             }
