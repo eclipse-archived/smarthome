@@ -9,17 +9,21 @@ package org.eclipse.smarthome.core.thing.firmware;
 
 import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -30,10 +34,12 @@ import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroundTransferHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
+import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * The firmware update service is registered as an OSGi service and is responsible for tracking all available
@@ -44,12 +50,20 @@ import com.google.common.base.Preconditions;
  */
 public final class FirmwareUpdateService {
 
+    private static final String THREAD_POOL_NAME = FirmwareUpdateService.class.getSimpleName();
+    private static final Set<String> SUPPORTED_TIME_UNITS = ImmutableSet.of(TimeUnit.SECONDS.name(),
+            TimeUnit.MINUTES.name(), TimeUnit.HOURS.name(), TimeUnit.DAYS.name());
+    private static final String PERIOD_CONFIG_KEY = "period";
+    private static final String DELAY_CONFIG_KEY = "delay";
+    private static final String TIME_UNIT_CONFIG_KEY = "timeUnit";
+    private static final String CONFIG_DESC_URI_KEY = "system:firmware-status-info-job";
+
     private final Logger logger = LoggerFactory.getLogger(FirmwareUpdateService.class);
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(FirmwareUpdateService.class.getSimpleName());
-    private TimeUnit firmwareStatusInfoJobTimeUnit = TimeUnit.HOURS;
-    private final int firmwareStatusInfoJobPeriod = 1;
+    private int firmwareStatusInfoJobPeriod = 3600;
+    private int firmwareStatusInfoJobDelay = 1;
+    private TimeUnit firmwareStatusInfoJobTimeUnit = TimeUnit.SECONDS;
+
     private ScheduledFuture<?> firmwareStatusInfoJob;
 
     private int timeout = 30 * 60 * 1000;
@@ -84,18 +98,33 @@ public final class FirmwareUpdateService {
         }
     };
 
-    protected void activate() {
-        if (firmwareStatusInfoJob == null || firmwareStatusInfoJob.isCancelled()) {
-            firmwareStatusInfoJob = scheduler.scheduleAtFixedRate(firmwareStatusRunnable, 0,
-                    firmwareStatusInfoJobPeriod, firmwareStatusInfoJobTimeUnit);
+    protected void activate(Map<String, Object> config) {
+        modified(config);
+    }
+
+    protected synchronized void modified(Map<String, Object> config) {
+        logger.debug("Modifying the configuration of the firmware update service.");
+
+        if (!isValid(config)) {
+            return;
+        }
+
+        cancelFirmwareUpdateStatusInfoJob();
+
+        firmwareStatusInfoJobPeriod = config.containsKey(PERIOD_CONFIG_KEY) ? (Integer) config.get(PERIOD_CONFIG_KEY)
+                : firmwareStatusInfoJobPeriod;
+        firmwareStatusInfoJobDelay = config.containsKey(DELAY_CONFIG_KEY) ? (Integer) config.get(DELAY_CONFIG_KEY)
+                : firmwareStatusInfoJobDelay;
+        firmwareStatusInfoJobTimeUnit = config.containsKey(TIME_UNIT_CONFIG_KEY)
+                ? TimeUnit.valueOf((String) config.get(TIME_UNIT_CONFIG_KEY)) : firmwareStatusInfoJobTimeUnit;
+
+        if (!firmwareUpdateHandlers.isEmpty()) {
+            createFirmwareUpdateStatusInfoJob();
         }
     }
 
     protected void deactivate() {
-        if (firmwareStatusInfoJob != null && !firmwareStatusInfoJob.isCancelled()) {
-            firmwareStatusInfoJob.cancel(true);
-            firmwareStatusInfoJob = null;
-        }
+        cancelFirmwareUpdateStatusInfoJob();
     }
 
     /**
@@ -171,7 +200,7 @@ public final class FirmwareUpdateService {
 
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
 
-        scheduler.submit(new Runnable() {
+        ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).submit(new Runnable() {
             @Override
             public void run() {
                 final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler,
@@ -239,7 +268,7 @@ public final class FirmwareUpdateService {
 
     private void transferLatestFirmware(final FirmwareUpdateBackgroundTransferHandler fubtHandler,
             final Firmware latestFirmware, final FirmwareStatusInfo previousFirmwareStatusInfo) {
-        scheduler.submit(new Runnable() {
+        ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -299,15 +328,57 @@ public final class FirmwareUpdateService {
         return firmwareUpdateHandler.getThing().getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
     }
 
-    protected void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+    private void createFirmwareUpdateStatusInfoJob() {
+        if (firmwareStatusInfoJob == null || firmwareStatusInfoJob.isCancelled()) {
+            logger.debug("Creating firmware status info job. [delay:{}, period:{}, time unit: {}]",
+                    firmwareStatusInfoJobDelay, firmwareStatusInfoJobPeriod, firmwareStatusInfoJobTimeUnit);
+
+            firmwareStatusInfoJob = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).scheduleAtFixedRate(
+                    firmwareStatusRunnable, firmwareStatusInfoJobDelay, firmwareStatusInfoJobPeriod,
+                    firmwareStatusInfoJobTimeUnit);
+        }
+    }
+
+    private void cancelFirmwareUpdateStatusInfoJob() {
+        if (firmwareStatusInfoJob != null && !firmwareStatusInfoJob.isCancelled()) {
+            logger.debug("Cancelling firmware status info job.");
+            firmwareStatusInfoJob.cancel(true);
+            firmwareStatusInfoJob = null;
+        }
+    }
+
+    private boolean isValid(Map<String, Object> config) {
+        // the config description validator does not support option value validation at the moment; so we will validate
+        // the time unit here
+        if (!SUPPORTED_TIME_UNITS.contains(config.get(TIME_UNIT_CONFIG_KEY))) {
+            logger.warn("Given time unit {} is not supported. Will keep current configuration.",
+                    config.get(TIME_UNIT_CONFIG_KEY));
+            return false;
+        }
+
+        try {
+            ConfigDescriptionValidator.validate(config, new URI(CONFIG_DESC_URI_KEY));
+        } catch (URISyntaxException | ConfigValidationException e) {
+            logger.warn("Validation of new configuration values failed. Will keep current configuration.", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    protected synchronized void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        if (firmwareUpdateHandlers.isEmpty()) {
+            createFirmwareUpdateStatusInfoJob();
+        }
         firmwareUpdateHandlers.add(firmwareUpdateHandler);
     }
 
-    protected void removeFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
-        synchronized (this) {
-            firmwareStatusInfoMap.remove(firmwareUpdateHandler.getThing().getUID());
-        }
+    protected synchronized void removeFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        firmwareStatusInfoMap.remove(firmwareUpdateHandler.getThing().getUID());
         firmwareUpdateHandlers.remove(firmwareUpdateHandler);
+        if (firmwareUpdateHandlers.isEmpty()) {
+            cancelFirmwareUpdateStatusInfoJob();
+        }
     }
 
     protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
@@ -333,5 +404,4 @@ public final class FirmwareUpdateService {
     protected void unsetI18nProvider(I18nProvider i18nProvider) {
         this.i18nProvider = null;
     }
-
 }

@@ -21,4 +21,5 @@ Import-Package: com.google.gson,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.junit.rules,
- org.osgi.framework
+ org.osgi.framework,
+ org.osgi.service.cm
