@@ -31,17 +31,9 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.ColorItem;
-import org.eclipse.smarthome.core.library.items.ContactItem;
-import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
-import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.core.library.types.DateTimeType;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
@@ -51,6 +43,7 @@ import org.eclipse.smarthome.core.persistence.ModifiablePersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
@@ -78,35 +71,29 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     private final String driverClass = "org.h2.Driver";
     private final String h2Url = "jdbc:h2:file:";
     private final String schema = "SMARTHOME";
-    private final String USERDATA_DIR_PROG_ARGUMENT = "smarthome.userdata";
 
     private final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     protected ItemRegistry itemRegistry = null;
 
     private Connection connection = null;
-    private Map<String, String> sqlTypes = new HashMap<String, String>();
+    private final Map<String, String> sqlTypes = new HashMap<String, String>();
+    private final List<String> itemCache = new ArrayList<String>();
 
     @SuppressWarnings("unused")
     private BundleContext bundleContext;
+
+    public H2SqlPersistenceService() {
+        // Initialise the type array
+        sqlTypes.put("DIMMERITEM", "TINYINT");
+        sqlTypes.put("NUMBERITEM", "DECIMAL");
+        sqlTypes.put("ROLLERSHUTTERITEM", "TINYINT");
+    }
 
     protected void activate(BundleContext bundleContext, Map<String, Object> properties) {
         logger.info("H2SQL: Persistence bundle activated.");
 
         this.bundleContext = bundleContext;
-
-        // Initialise the type array
-        sqlTypes.put("CALLITEM", "VARCHAR(200)");
-        sqlTypes.put("COLORITEM", "VARCHAR(70)");
-        sqlTypes.put("CONTACTITEM", "VARCHAR(6)");
-        sqlTypes.put("DATETIMEITEM", "VARCHAR(30)");
-        sqlTypes.put("DIMMERITEM", "TINYINT");
-        sqlTypes.put("LOCATIONITEM", "VARCHAR(30)");
-        sqlTypes.put("GROUPITEM", "VARCHAR(30)");
-        sqlTypes.put("NUMBERITEM", "DECIMAL");
-        sqlTypes.put("ROLLERSHUTTERITEM", "TINYINT");
-        sqlTypes.put("STRINGITEM", "VARCHAR(65500)");
-        sqlTypes.put("SWITCHITEM", "CHAR(6)");
     }
 
     public void deactivate() {
@@ -179,37 +166,41 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             return;
         }
 
-        // A bit of profiling!
-        long timerStart = System.currentTimeMillis();
-
-        // Default the type to BigDecimal and get the real type
-        String sqlType = new String("DECIMAL");
-        String itemType = item.getClass().getSimpleName().toUpperCase();
-        if (sqlTypes.get(itemType) != null) {
-            sqlType = sqlTypes.get(itemType);
-        }
-
         Statement statement = null;
         String sqlCmd = null;
 
-        // Create the table for the data
-        sqlCmd = new String("CREATE TABLE IF NOT EXISTS " + getTableName(item.getName()) + " (Time DATETIME, Value "
-                + sqlType + ", PRIMARY KEY(Time));");
-        logger.trace("H2SQL: " + sqlCmd);
+        // A bit of profiling!
+        long timerStart = System.currentTimeMillis();
 
-        try {
-            statement = connection.createStatement();
-            statement.executeUpdate(sqlCmd);
+        if (!itemCache.contains(item.getName())) {
+            itemCache.add(item.getName());
 
-            logger.trace("H2SQL: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
-        } catch (Exception e) {
-            logger.error("H2SQL: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
-            logger.error("     : " + e.getMessage());
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (Exception hidden) {
+            // Default the type to String and get the real type
+            String sqlType = new String("VARCHAR");
+            String itemType = item.getClass().getSimpleName().toUpperCase();
+            if (sqlTypes.get(itemType) != null) {
+                sqlType = sqlTypes.get(itemType);
+            }
+
+            // Create the table for the data
+            sqlCmd = new String("CREATE TABLE IF NOT EXISTS " + getTableName(item.getName()) + " (Time DATETIME, Value "
+                    + sqlType + ", PRIMARY KEY(Time));");
+            logger.trace("H2SQL: " + sqlCmd);
+
+            try {
+                statement = connection.createStatement();
+                statement.executeUpdate(sqlCmd);
+
+                logger.trace("H2SQL: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
+            } catch (Exception e) {
+                logger.error("H2SQL: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
+                logger.error("     : " + e.getMessage());
+            } finally {
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (Exception hidden) {
+                    }
                 }
             }
         }
@@ -332,22 +323,10 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             while (rs.next()) {
                 count++;
 
-                if (item instanceof NumberItem) {
-                    state = new DecimalType(rs.getDouble(2));
-                } else if (item instanceof ColorItem) {
-                    state = new HSBType(rs.getString(2));
-                } else if (item instanceof DimmerItem) {
-                    state = new PercentType(rs.getInt(2));
-                } else if (item instanceof SwitchItem) {
-                    state = OnOffType.valueOf(rs.getString(2));
-                } else if (item instanceof ContactItem) {
-                    state = OpenClosedType.valueOf(rs.getString(2));
-                } else if (item instanceof RollershutterItem) {
-                    state = new PercentType(rs.getInt(2));
-                } else if (item instanceof DateTimeItem) {
-                    state = new DateTimeType(rs.getString(2));
-                } else {
+                if (item == null) {
                     state = new StringType(rs.getString(2));
+                } else {
+                    state = TypeParser.parseState(item.getAcceptedDataTypes(), rs.getString(2));
                 }
 
                 H2SqlHistoricItem sqlItem = new H2SqlHistoricItem(itemName, state, rs.getTimestamp(1));

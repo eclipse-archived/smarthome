@@ -17,6 +17,7 @@
 
   <modules>
     <module>org.eclipse.smarthome.persistence.h2sql</module>
+    <module>org.eclipse.smarthome.persistence.h2sql.test</module>
   </modules>
 
 </project>
