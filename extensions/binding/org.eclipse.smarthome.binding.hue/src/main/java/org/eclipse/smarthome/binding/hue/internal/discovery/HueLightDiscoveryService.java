@@ -147,7 +147,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
         if (thingTypeUID != null && getSupportedThingTypes().contains(thingTypeUID)) {
-            return new ThingUID(BINDING_ID, bridgeUID, light.getId());
+            return new ThingUID(thingTypeUID, bridgeUID, light.getId());
         } else {
             return null;
         }
