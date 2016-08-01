@@ -111,7 +111,18 @@ public class PersistenceResource implements RESTResource {
     }
 
     @GET
-    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Path("/items")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Gets a list of items available via a specific persistence service.", response = String.class, responseContainer = "List")
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
+            @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName) {
+
+        return getServiceItemList(serviceName);
+    }
+
+    @GET
+    @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Gets item persistence data from the persistence service.", response = ItemHistoryDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
@@ -132,19 +143,8 @@ public class PersistenceResource implements RESTResource {
         return getItemHistoryDto(serviceName, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
-    @GET
-    @Path("/items")
-    @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Gets a list of items available via a specific persistence service.", response = String.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
-    public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
-            @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName) {
-
-        return getServiceItemList(serviceName);
-    }
-
     @DELETE
-    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Delete item data from a specific persistence service.", response = String.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
@@ -162,7 +162,7 @@ public class PersistenceResource implements RESTResource {
     }
 
     @PUT
-    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Stores item persistence data into the persistence service.", response = ItemHistoryDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
