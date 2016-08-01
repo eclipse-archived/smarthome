@@ -340,10 +340,10 @@ public class PersistenceResource implements RESTResource {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
-        } else {
-            service = persistenceServices.get(serviceName);
+            serviceName = PersistenceExtensions.getDefaultService();
         }
+        service = persistenceServices.get(serviceName);
+
         if (service == null) {
             logger.debug("Persistence service not found '{}'.", serviceName);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
@@ -416,10 +416,9 @@ public class PersistenceResource implements RESTResource {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
-        } else {
-            service = persistenceServices.get(serviceName);
+            serviceName = PersistenceExtensions.getDefaultService();
         }
+        service = persistenceServices.get(serviceName);
 
         if (service == null) {
             logger.warn("Persistence service not found '{}'.", serviceName);
