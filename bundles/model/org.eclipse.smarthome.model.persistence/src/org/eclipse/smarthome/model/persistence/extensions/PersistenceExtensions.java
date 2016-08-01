@@ -718,6 +718,15 @@ public class PersistenceExtensions implements ManagedService {
         }
     }
 
+    /**
+     * Get the default persistence service id
+     * 
+     * @return {@link String} default service id
+     */
+    public static String getDefaultService() {
+        return defaultService;
+    }
+
     @Override
     @SuppressWarnings("rawtypes")
     public void updated(Dictionary config) throws ConfigurationException {

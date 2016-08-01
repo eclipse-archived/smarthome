@@ -18,7 +18,6 @@ package org.eclipse.smarthome.io.rest.core.persistence;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,8 +54,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +73,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
-public class PersistenceResource implements RESTResource, ManagedService {
+public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
     private final int MILLISECONDS_PER_DAY = 86400000;
@@ -85,7 +83,6 @@ public class PersistenceResource implements RESTResource, ManagedService {
 
     private ItemRegistry itemRegistry;
     private Map<String, PersistenceService> persistenceServices = new HashMap<String, PersistenceService>();
-    private String defaultService = null;
 
     public void addPersistenceService(PersistenceService service) {
         persistenceServices.put(service.getId(), service);
@@ -101,14 +98,6 @@ public class PersistenceResource implements RESTResource, ManagedService {
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    public void updated(Dictionary config) throws ConfigurationException {
-        if (config != null) {
-            defaultService = (String) config.get("default");
-        }
     }
 
     @GET
@@ -201,7 +190,7 @@ public class PersistenceResource implements RESTResource, ManagedService {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            service = persistenceServices.get(defaultService);
+            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
         } else {
             service = persistenceServices.get(serviceName);
         }
@@ -351,7 +340,7 @@ public class PersistenceResource implements RESTResource, ManagedService {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            service = persistenceServices.get(defaultService);
+            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
         } else {
             service = persistenceServices.get(serviceName);
         }
@@ -427,7 +416,7 @@ public class PersistenceResource implements RESTResource, ManagedService {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            service = persistenceServices.get(defaultService);
+            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
         } else {
             service = persistenceServices.get(serviceName);
         }
