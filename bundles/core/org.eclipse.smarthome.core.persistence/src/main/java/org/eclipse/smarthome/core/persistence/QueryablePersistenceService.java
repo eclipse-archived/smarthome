@@ -36,5 +36,5 @@ public interface QueryablePersistenceService extends PersistenceService {
      *
      * @return list of strings of item names contained in the store. Not null.
      */
-    Set<PersistenceItemInfo> getItems();
+    Set<PersistenceItemInfo> getItemInfo();
 }

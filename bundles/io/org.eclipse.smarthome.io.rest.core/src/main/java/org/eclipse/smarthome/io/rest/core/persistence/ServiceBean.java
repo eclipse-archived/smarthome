@@ -18,9 +18,14 @@ public class ServiceBean {
     }
 
     /**
-     * Service Name
+     * Service Id
      */
-    public String name;
+    public String id;
+
+    /**
+     * Service label
+     */
+    public String label;
 
     /**
      * Persistence service class

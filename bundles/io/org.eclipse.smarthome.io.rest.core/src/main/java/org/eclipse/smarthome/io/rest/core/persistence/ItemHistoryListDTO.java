@@ -11,19 +11,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.smarthome.core.persistence.dto.ItemHistoryDTO;
+
 /**
  * This is a java bean that is used to serialize item lists.
  *
  * @author Chris Jackson - Initial Contribution
  *
  */
-public class ItemHistoryListBean {
-    public final List<ItemHistoryBean> item = new ArrayList<ItemHistoryBean>();
+public class ItemHistoryListDTO {
+    public final List<ItemHistoryDTO> item = new ArrayList<ItemHistoryDTO>();
 
-    public ItemHistoryListBean() {
+    public ItemHistoryListDTO() {
     }
 
-    public ItemHistoryListBean(Collection<ItemHistoryBean> list) {
+    public ItemHistoryListDTO(Collection<ItemHistoryDTO> list) {
         item.addAll(list);
     }
 }
