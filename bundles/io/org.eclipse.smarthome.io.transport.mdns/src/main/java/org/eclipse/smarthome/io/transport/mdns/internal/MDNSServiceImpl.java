@@ -45,7 +45,9 @@ public class MDNSServiceImpl implements MDNSService {
                     logger.debug("Registering {} queued services", servicesToRegisterQueue.size());
                     for (ServiceDescription description : servicesToRegisterQueue) {
                         try {
-                            mdnsClient.registerService(description);
+                            if (mdnsClient != null) {
+                                mdnsClient.registerService(description);
+                            }
                         } catch (IOException e) {
                             logger.error(e.getMessage());
                         } catch (IllegalStateException e) {
@@ -62,6 +64,7 @@ public class MDNSServiceImpl implements MDNSService {
 
     public void unsetMDNSClient(MDNSClient mdnsClient) {
         this.mdnsClient = null;
+        mdnsClient.unregisterAllServices();
     }
 
     /**
