@@ -15,9 +15,10 @@
 */
 package org.eclipse.smarthome.io.rest.core.persistence;
 
-import java.text.SimpleDateFormat;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,10 +50,13 @@ import org.eclipse.smarthome.core.persistence.ModifiablePersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
 import org.eclipse.smarthome.core.persistence.dto.ItemHistoryDTO;
+import org.eclipse.smarthome.core.persistence.dto.PersistenceServiceDTO;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,17 +75,17 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
-public class PersistenceResource implements RESTResource {
+public class PersistenceResource implements RESTResource, ManagedService {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
     private final int MILLISECONDS_PER_DAY = 86400000;
-    private final SimpleDateFormat isoDateFormat = new SimpleDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
 
     // The URI path to this resource
     public static final String PATH = "persistence";
 
     private ItemRegistry itemRegistry;
     private Map<String, PersistenceService> persistenceServices = new HashMap<String, PersistenceService>();
+    private String defaultService = null;
 
     public void addPersistenceService(PersistenceService service) {
         persistenceServices.put(service.getId(), service);
@@ -97,6 +101,14 @@ public class PersistenceResource implements RESTResource {
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public void updated(Dictionary config) throws ConfigurationException {
+        if (config != null) {
+            defaultService = (String) config.get("default");
+        }
     }
 
     @GET
@@ -189,7 +201,7 @@ public class PersistenceResource implements RESTResource {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            // TODO: Add handler for default service once this is available in ESH
+            service = persistenceServices.get(defaultService);
         } else {
             service = persistenceServices.get(serviceName);
         }
@@ -313,33 +325,33 @@ public class PersistenceResource implements RESTResource {
      *
      * @return list of persistence services as {@link ServiceBean}
      */
-    private List<ServiceBean> getPersistenceServiceList() {
-        List<ServiceBean> beanList = new ArrayList<ServiceBean>();
+    private List<PersistenceServiceDTO> getPersistenceServiceList() {
+        List<PersistenceServiceDTO> dtoList = new ArrayList<PersistenceServiceDTO>();
 
         for (Map.Entry<String, PersistenceService> service : persistenceServices.entrySet()) {
-            ServiceBean serviceBean = new ServiceBean();
-            serviceBean.id = service.getKey();
+            PersistenceServiceDTO serviceDto = new PersistenceServiceDTO();
+            serviceDto.id = service.getKey();
             PersistenceService persistence = service.getValue();
-            serviceBean.label = persistence.getLabel();
+            serviceDto.label = persistence.getLabel();
             if (persistence instanceof ModifiablePersistenceService) {
-                serviceBean.classname = "Modifiable";
+                serviceDto.type = "Modifiable";
             } else if (persistence instanceof QueryablePersistenceService) {
-                serviceBean.classname = "Queryable";
+                serviceDto.type = "Queryable";
             } else {
-                serviceBean.classname = "Standard";
+                serviceDto.type = "Standard";
             }
 
-            beanList.add(serviceBean);
+            dtoList.add(serviceDto);
         }
 
-        return beanList;
+        return dtoList;
     }
 
     private Response getServiceItemList(String serviceName) {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            // TODO: Add handler for default service once this is available in ESH
+            service = persistenceServices.get(defaultService);
         } else {
             service = persistenceServices.get(serviceName);
         }
@@ -356,25 +368,6 @@ public class PersistenceResource implements RESTResource {
         }
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
-
-        /*
-         * List<PersistenceItemInfoBean> items = new ArrayList<PersistenceItemInfoBean>();
-         *
-         * Set<PersistenceItemInfo> itemNames = qService.getItemInfo();
-         * for (PersistenceItemInfo item : itemNames) {
-         * PersistenceItemInfoBean itemBean = new PersistenceItemInfoBean();
-         * itemBean.name = item.getName();
-         * itemBean.count = item.getCount();
-         * if (item.getEarliest() != null) {
-         * itemBean.earliest = isoDateFormat.format(item.getEarliest());
-         * }
-         * if (item.getLatest() != null) {
-         * itemBean.latest = isoDateFormat.format(item.getLatest());
-         * }
-         *
-         * items.add(itemBean);
-         * }
-         */
 
         return JSONResponse.createResponse(Status.OK, qService.getItemInfo(), "");
     }
@@ -421,7 +414,11 @@ public class PersistenceResource implements RESTResource {
         filter.setBeginDate(dateTimeBegin);
         filter.setEndDate(dateTimeEnd);
         filter.setItemName(itemName);
-        mService.remove(filter);
+        try {
+            mService.remove(filter);
+        } catch (InvalidParameterException e) {
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Invalid filter parameters.");
+        }
 
         return JSONResponse.createResponse(Status.OK, null, "");
     }
@@ -430,7 +427,7 @@ public class PersistenceResource implements RESTResource {
         // If serviceName is null, then use the default service
         PersistenceService service = null;
         if (serviceName == null) {
-            // TODO: Add handler for default service once this is available in ESH
+            service = persistenceServices.get(defaultService);
         } else {
             service = persistenceServices.get(serviceName);
         }

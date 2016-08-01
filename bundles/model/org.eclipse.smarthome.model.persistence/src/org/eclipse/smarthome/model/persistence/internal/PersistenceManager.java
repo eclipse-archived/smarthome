@@ -138,15 +138,15 @@ public class PersistenceManager
     }
 
     public void addPersistenceService(PersistenceService persistenceService) {
-        logger.debug("Initializing {} persistence service.", persistenceService.getName());
-        persistenceServices.put(persistenceService.getName(), persistenceService);
-        stopEventHandling(persistenceService.getName());
-        startEventHandling(persistenceService.getName());
+        logger.debug("Initializing {} persistence service.", persistenceService.getId());
+        persistenceServices.put(persistenceService.getId(), persistenceService);
+        stopEventHandling(persistenceService.getId());
+        startEventHandling(persistenceService.getId());
     }
 
     public void removePersistenceService(PersistenceService persistenceService) {
-        stopEventHandling(persistenceService.getName());
-        persistenceServices.remove(persistenceService.getName());
+        stopEventHandling(persistenceService.getId());
+        persistenceServices.remove(persistenceService.getId());
     }
 
     @Override

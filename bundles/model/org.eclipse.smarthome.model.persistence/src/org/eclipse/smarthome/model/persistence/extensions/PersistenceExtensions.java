@@ -53,11 +53,11 @@ public class PersistenceExtensions implements ManagedService {
     }
 
     public void addPersistenceService(PersistenceService service) {
-        services.put(service.getName(), service);
+        services.put(service.getId(), service);
     }
 
     public void removePersistenceService(PersistenceService service) {
-        services.remove(service.getName());
+        services.remove(service.getId());
     }
 
     /**
