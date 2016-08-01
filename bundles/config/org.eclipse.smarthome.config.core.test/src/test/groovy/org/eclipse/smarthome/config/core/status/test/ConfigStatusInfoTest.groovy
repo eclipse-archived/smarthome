@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -130,7 +130,7 @@ class ConfigStatusInfoTest {
         assertThat info.getConfigStatusMessages("unknown").size(), is(0)
     }
 
-    def static ConfigStatusMessage createMessage(String paramName, Type type, String messageKey, Integer statusCode=null) {
-        return new ConfigStatusMessage.Builder(paramName, type).withMessageKey(messageKey).withStatusCode(statusCode).build()
+    def static ConfigStatusMessage createMessage(String paramName, Type type, String messageKeySuffix, Integer statusCode=null) {
+        return new ConfigStatusMessage.Builder(paramName, type).withMessageKeySuffix(messageKeySuffix).withStatusCode(statusCode).build()
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  */
 public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
-    private static final String LOCATION_NOT_FOUND = "yahooweather.configparam.location.notfound";
     private static final String LOCATION_PARAM = "location";
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
@@ -69,7 +68,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
         Configuration config = getThing().getConfiguration();
 
-        location = (BigDecimal) config.get("location");
+        location = (BigDecimal) config.get(LOCATION_PARAM);
 
         try {
             refresh = (BigDecimal) config.get("refresh");
@@ -140,11 +139,11 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         Collection<ConfigStatusMessage> configStatus = new ArrayList<>();
 
         try {
-            String weatherData = getWeatherData();
-            String result = StringUtils.substringBetween(weatherData, "<item><title>", "</title>");
-            if ("City not found".equals(result)) {
-                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM).withMessageKey(LOCATION_NOT_FOUND)
-                        .withArguments(location).build());
+            String locationData = getWeatherData("SELECT location FROM weather.forecast WHERE woeid = " + location);
+            String city = getValue(locationData, "location", "city");
+            if (city == null) {
+                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM)
+                        .withMessageKeySuffix("location-not-found").withArguments(location).build());
             }
         } catch (IOException e) {
             logger.debug("Communication error occurred while getting Yahoo weather information.", e);
@@ -155,7 +154,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private synchronized boolean updateWeatherData() {
         try {
-            weatherData = getWeatherData();
+            weatherData = getWeatherData("SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location);
             if (weatherData != null) {
                 updateStatus(ThingStatus.ONLINE);
                 return true;
@@ -167,23 +166,21 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         return false;
     }
 
-    private String getWeatherData() throws IOException {
-        String urlString = "https://query.yahooapis.com/v1/public/yql?format=json&q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20u=%27c%27%20AND%20woeid%20=%20%27"
-                + location + "%27";
+    private String getWeatherData(String query) throws IOException {
         try {
-            URL url = new URL(urlString);
+            URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
+                    + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
             URLConnection connection = url.openConnection();
             return IOUtils.toString(connection.getInputStream());
         } catch (MalformedURLException e) {
-            logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
+            logger.debug("Constructed query url '{}' is not valid: {}", query, e.getMessage());
             return null;
         }
     }
 
     private State getHumidity() {
         if (weatherData != null) {
-            String humidity = StringUtils.substringAfter(weatherData, "atmosphere");
-            humidity = StringUtils.substringBetween(humidity, "humidity\":\"", "\"");
+            String humidity = getValue(weatherData, "atmosphere", "humidity");
             if (humidity != null) {
                 return new DecimalType(humidity);
             }
@@ -193,8 +190,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private State getPressure() {
         if (weatherData != null) {
-            String pressure = StringUtils.substringAfter(weatherData, "atmosphere");
-            pressure = StringUtils.substringBetween(pressure, "pressure\":\"", "\"");
+            String pressure = getValue(weatherData, "atmosphere", "pressure");
             if (pressure != null) {
                 return new DecimalType(pressure);
             }
@@ -204,12 +200,19 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private State getTemperature() {
         if (weatherData != null) {
-            String temp = StringUtils.substringAfter(weatherData, "condition");
-            temp = StringUtils.substringBetween(temp, "temp\":\"", "\"");
+            String temp = getValue(weatherData, "condition", "temp");
             if (temp != null) {
                 return new DecimalType(temp);
             }
         }
         return UnDefType.UNDEF;
+    }
+
+    private String getValue(String data, String element, String param) {
+        String tmp = StringUtils.substringAfter(data, element);
+        if (tmp != null) {
+            return StringUtils.substringBetween(tmp, param + "\":\"", "\"");
+        }
+        return null;
     }
 }

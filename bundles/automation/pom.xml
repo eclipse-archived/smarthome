@@ -34,7 +34,7 @@
     <module>org.eclipse.smarthome.automation.integration.test</module>
     <module>org.eclipse.smarthome.automation.sample.extension.java</module>
     <module>org.eclipse.smarthome.automation.rest</module>
-	<module>org.eclipse.smarthome.automation.sample.rest.api</module>
+    <module>org.eclipse.smarthome.automation.sample.rest.api</module>
   </modules>
 
   <build>
@@ -44,7 +44,7 @@
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <configuration>
-            <header>src/etc/header_prosyst.txt</header>
+            <skip>true</skip>
           </configuration>
         </plugin>
       </plugins>
@@ -57,13 +57,13 @@
       <artifactId>org.json-osgi</artifactId>
       <version>20080701</version>
     </dependency>
-<!--
-  <dependency>
-  <groupId>org.json</groupId>
-  <artifactId>json</artifactId>
-  <version>20141113</version>
-  </dependency>
--->
-</dependencies>   
+    <!--
+      <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20141113</version>
+      </dependency>
+    -->
+  </dependencies>
 
 </project>

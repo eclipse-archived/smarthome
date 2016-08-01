@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -797,12 +797,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
             @Override
             public void run() {
+                ThingHandler handler = childThing.getHandler();
                 try {
-                    childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
+                    if (handler != null) {
+                        handler.bridgeHandlerInitialized(bridge.getHandler(), bridge);
+                    }
                 } catch (Exception ex) {
                     logger.error("Exception occured during notification of thing '" + childThing.getUID()
-                            + "' about bridge initialization at '" + childThing.getHandler() + "': " + ex.getMessage(),
-                            ex);
+                            + "' about bridge initialization at '" + handler + "': " + ex.getMessage(), ex);
                 }
             }
         });
@@ -859,11 +861,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
             @Override
             public void run() {
+                ThingHandler handler = childThing.getHandler();
                 try {
-                    childThing.getHandler().bridgeHandlerDisposed(bridge.getHandler(), bridge);
+                    if (handler != null) {
+                        handler.bridgeHandlerDisposed(bridge.getHandler(), bridge);
+                    }
                 } catch (Exception ex) {
                     logger.error("Exception occured during notification of thing '" + childThing.getUID()
-                            + "' about bridge disposal at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
+                            + "' about bridge disposal at '" + handler + "': " + ex.getMessage(), ex);
                 }
             }
         });

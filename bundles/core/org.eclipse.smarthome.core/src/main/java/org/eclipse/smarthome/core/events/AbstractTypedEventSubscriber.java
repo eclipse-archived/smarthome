@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableSet;
  * helps to subscribe to a specific event type. To receive an event - casted to the specific event type - the
  * {@link #receiveTypedEvent(T)} method must be implemented. This implementation provides no event filter. To filter
  * events based on the topic or some content the {@link #getEventFilter()} method can be overridden.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  *
  * @param <T> The specific event type this class subscribes to.
@@ -27,10 +27,10 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
 
     /**
      * Constructs a new typed event subscriber. Must be called in the subclass.
-     * 
+     *
      * @param eventType the event type
      */
-    public AbstractTypedEventSubscriber(String eventType) {
+    protected AbstractTypedEventSubscriber(String eventType) {
         this.subscribedEventTypes = ImmutableSet.of(eventType);
     }
 
@@ -52,7 +52,7 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
 
     /**
      * Callback method for receiving typed events of type T.
-     * 
+     *
      * @param event the received event
      */
     protected abstract void receiveTypedEvent(T event);

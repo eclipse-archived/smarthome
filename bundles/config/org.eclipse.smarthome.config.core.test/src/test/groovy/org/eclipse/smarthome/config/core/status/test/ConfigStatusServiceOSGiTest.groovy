@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,9 +57,9 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
 
     private static final String ARGS = "args"
 
-    private final ConfigStatusMessage PARAM1_MSG1 = ConfigStatusMessage.Builder.information(PARAM1).withMessageKey(MSG_KEY1).build()
-    private final ConfigStatusMessage PARAM2_MSG2 = ConfigStatusMessage.Builder.warning(PARAM2).withMessageKey(MSG_KEY2).withStatusCode(1).withArguments(ARGS).build()
-    private final ConfigStatusMessage PARAM3_MSG3 = ConfigStatusMessage.Builder.error(PARAM3).withMessageKey(MSG_KEY3).withStatusCode(2).withArguments(ARGS).build()
+    private final ConfigStatusMessage PARAM1_MSG1 = ConfigStatusMessage.Builder.information(PARAM1).withMessageKeySuffix(MSG_KEY1).build()
+    private final ConfigStatusMessage PARAM2_MSG2 = ConfigStatusMessage.Builder.warning(PARAM2).withMessageKeySuffix(MSG_KEY2).withStatusCode(1).withArguments(ARGS).build()
+    private final ConfigStatusMessage PARAM3_MSG3 = ConfigStatusMessage.Builder.error(PARAM3).withMessageKeySuffix(MSG_KEY3).withStatusCode(2).withArguments(ARGS).build()
 
     private final Collection messagesEntity1 = new ArrayList()
     private final Collection messagesEntity2 = new ArrayList()
@@ -89,7 +89,9 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
         registerService([post:{ event->
             }] as EventPublisher)
 
-        registerService([getLocale: {return new Locale("en", "US")}] as LocaleProvider)
+        registerService([getLocale: {
+                return new Locale("en", "US")
+            }] as LocaleProvider)
         registerI18nProvider()
 
         configStatusService = getService(ConfigStatusService)
@@ -140,19 +142,19 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
         registerService([
             getText: { bundle, key, defaultText, locale, args ->
                 if(locale.equals(LOCALE_DE)) {
-                    if(key.equals(MSG_KEY1)) {
+                    if(key.endsWith(MSG_KEY1)) {
                         MSG1_DE
-                    } else if(key.equals(MSG_KEY2)) {
+                    } else if(key.endsWith(MSG_KEY2)) {
                         MessageFormat.format(MSG2_DE, ARGS)
-                    } else if(key.equals(MSG_KEY3)){
+                    } else if(key.endsWith(MSG_KEY3)){
                         MessageFormat.format(MSG3_DE, ARGS)
                     }
                 } else {
-                    if(key.equals(MSG_KEY1)) {
+                    if(key.endsWith(MSG_KEY1)) {
                         MSG1_EN
-                    } else if(key.equals(MSG_KEY2)) {
+                    } else if(key.endsWith(MSG_KEY2)) {
                         MessageFormat.format(MSG2_EN, ARGS)
-                    } else if(key.equals(MSG_KEY3)){
+                    } else if(key.endsWith(MSG_KEY3)){
                         MessageFormat.format(MSG3_EN, ARGS)
                     }
                 }

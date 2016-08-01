@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-15 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,14 +30,12 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
-import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateOption
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.osgi.service.component.ComponentContext
 
@@ -51,7 +49,7 @@ import org.osgi.service.component.ComponentContext
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  * @author Kai Kreuzer - Adapted to new service implementation
  */
-class ThingLinkManagerOSGiTest extends OSGiTest{
+class ThingLinkManagerOSGiTest extends OSGiTest {
 
     def ThingRegistry thingRegistry
     def ManagedThingProvider managedThingProvider
@@ -121,13 +119,12 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
 
     @Test
-    @Ignore("For some strange reason it fails. But it seems to a problem in the test, not in the runtime.")
     void 'assert that channelLinked and channelUnlinked at ThingHandler is called'() {
         ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
         Thing thing = thingRegistry.createThingOfType(new ThingTypeUID("hue:lamp"), thingUID, null, "test thing", new Configuration())
         managedThingProvider.add(thing)
 
-        def channelUID = new ChannelUID(thingUID, "alarm")
+        def channelUID = new ChannelUID(thingUID, "1")
 
         waitForAssert {
             assertThat context.get("linkedChannel"), is(equalTo(channelUID))
@@ -155,12 +152,14 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                         public void handleCommand(ChannelUID channelUID, Command command) { }
+
                         void channelLinked(ChannelUID channelUID) {
-                            context.put("linkedChannel", channelUID)
-                        };
+                            ThingLinkManagerOSGiTest.this.context.put("linkedChannel", channelUID)
+                        }
+
                         void channelUnlinked(ChannelUID channelUID) {
-                            context.put("unlinkedChannel", channelUID)
-                        };
+                            ThingLinkManagerOSGiTest.this.context.put("unlinkedChannel", channelUID)
+                        }
                     }
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             .put("dimmable_light", "0100")
             .put("color_light", "0200")
             .put("extended_color_light", "0210")
-            .put("color_temperature_light", "0220").build();
+            .put("color_temperature_light", "0220")
+            .put("dimmable_plug_in_unit", "0100").build();
     // @formatter:on
 
     private HueBridgeHandler hueBridgeHandler;

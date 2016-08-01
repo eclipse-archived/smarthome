@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,16 +97,34 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void initialize() {
         logger.debug("Initializing hue light handler.");
+        initializeThing((getBridge() == null) ? null : getBridge().getStatus());
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        logger.debug("bridgeStatusChanged {}", bridgeStatusInfo);
+        initializeThing(bridgeStatusInfo.getStatus());
+    }
+
+    private void initializeThing(ThingStatus bridgeStatus) {
+        logger.debug("initializeThing thing {} bridge status {}", getThing().getUID(), bridgeStatus);
         final String configLightId = (String) getConfig().get(LIGHT_ID);
         if (configLightId != null) {
             lightId = configLightId;
             // note: this call implicitly registers our handler as a listener on
             // the bridge
             if (getHueBridgeHandler() != null) {
-                ThingStatusInfo statusInfo = getBridge().getStatusInfo();
-                updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
-                initializeProperties();
+                if (bridgeStatus == ThingStatus.ONLINE) {
+                    updateStatus(ThingStatus.ONLINE);
+                    initializeProperties();
+                } else {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                }
+            } else {
+                updateStatus(ThingStatus.OFFLINE);
             }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
         }
     }
 
@@ -142,7 +160,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (lightId != null) {
             HueBridgeHandler bridgeHandler = getHueBridgeHandler();
             if (bridgeHandler != null) {
-                getHueBridgeHandler().unregisterLightStatusListener(this);
+                bridgeHandler.unregisterLightStatusListener(this);
+                this.bridgeHandler = null;
             }
             lightId = null;
         }

@@ -60,6 +60,14 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                         updateState = false;
                     }
                 }
+                if (item.type === "NumberItem" || item.groupType === "Number") {
+                    var parsedValue = Number(state);
+                    if (isNaN(parsedValue)) {
+                        state = null;
+                    } else {
+                        state = parsedValue;
+                    }
+                }
 
                 if (updateState) {
                     $scope.$apply(function(scope) {

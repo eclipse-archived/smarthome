@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,16 +17,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.ParameterOption;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionGroupI18nUtil;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
+import org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -41,16 +35,15 @@ import org.osgi.framework.Bundle;
  * @author Alex Tugarev - Extended for pattern and options
  * @author Chris Jackson - Modify to use config parameter builder
  * @author Thomas Höfer - Extended for unit
+ * @author Markus Rathgeb - Use ConfigI18nLocalizerService
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
 
-    private ConfigDescriptionI18nUtil configDescriptionParamI18nUtil;
-    private ConfigDescriptionGroupI18nUtil configDescriptionGroupI18nUtil;
+    private ConfigI18nLocalizationService configI18nLocalizerService;
 
     public XmlConfigDescriptionProvider() {
-        this.bundleConfigDescriptionsMap = new HashMap<>(10);
         this.bundleConfigDescriptionsMap = new HashMap<>(10);
     }
 
@@ -152,9 +145,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         if (configDescriptionsList != null) {
             for (Entry<Bundle, List<ConfigDescription>> configDescriptions : configDescriptionsList) {
                 for (ConfigDescription configDescription : configDescriptions.getValue()) {
-                    ConfigDescription localizedConfigDescription = getLocalizedConfigDescription(
-                            configDescriptions.getKey(), configDescription, locale);
-                    allConfigDescriptions.add(localizedConfigDescription);
+                    allConfigDescriptions.add(tryLocalization(configDescriptions.getKey(), configDescription, locale));
                 }
             }
         }
@@ -173,7 +164,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
             for (Entry<Bundle, List<ConfigDescription>> configDescriptions : configDescriptionsList) {
                 for (ConfigDescription configDescription : configDescriptions.getValue()) {
                     if (configDescription.getURI().equals(uri)) {
-                        return getLocalizedConfigDescription(configDescriptions.getKey(), configDescription, locale);
+                        return tryLocalization(configDescriptions.getKey(), configDescription, locale);
                     }
                 }
             }
@@ -183,118 +174,22 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
     }
 
     @Bind
-    public void seI18nProvider(I18nProvider i18nProvider) {
-        this.configDescriptionParamI18nUtil = new ConfigDescriptionI18nUtil(i18nProvider);
-        this.configDescriptionGroupI18nUtil = new ConfigDescriptionGroupI18nUtil(i18nProvider);
+    public void setConfigI18nLocalizerService(ConfigI18nLocalizationService configI18nLocalizerService) {
+        this.configI18nLocalizerService = configI18nLocalizerService;
     }
 
     @Unbind
-    public void unsetI18nProvider(I18nProvider i18nProvider) {
-        this.configDescriptionParamI18nUtil = null;
-        this.configDescriptionGroupI18nUtil = null;
+    public void unsetConfigI18nLocalizerService(ConfigI18nLocalizationService configI18nLocalizerService) {
+        this.configI18nLocalizerService = null;
     }
 
-    private ConfigDescription getLocalizedConfigDescription(Bundle bundle, ConfigDescription configDescription,
-            Locale locale) {
-
-        // We can only localise if we have both converters (for parameters and groups)
-        if (this.configDescriptionParamI18nUtil != null && this.configDescriptionGroupI18nUtil != null) {
-            List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(
-                    configDescription.getParameters().size());
-
-            // Loop through all the configuration parameters and localize them
-            for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-                ConfigDescriptionParameter localizedConfigDescriptionParameter = getLocalizedConfigDescriptionParameter(
-                        bundle, configDescription, configDescriptionParameter, locale);
-                localizedConfigDescriptionParameters.add(localizedConfigDescriptionParameter);
-            }
-
-            List<ConfigDescriptionParameterGroup> localizedConfigDescriptionGroups = new ArrayList<>(
-                    configDescription.getParameterGroups().size());
-
-            // Loop through all the configuration groups and localize them
-            for (ConfigDescriptionParameterGroup configDescriptionParameterGroup : configDescription
-                    .getParameterGroups()) {
-                ConfigDescriptionParameterGroup localizedConfigDescriptionGroup = getLocalizedConfigDescriptionGroup(
-                        bundle, configDescription, configDescriptionParameterGroup, locale);
-                localizedConfigDescriptionGroups.add(localizedConfigDescriptionGroup);
-            }
-            return new ConfigDescription(configDescription.getURI(), localizedConfigDescriptionParameters,
-                    localizedConfigDescriptionGroups);
-        } else {
+    private ConfigDescription tryLocalization(final Bundle bundle, final ConfigDescription configDescription,
+            final Locale locale) {
+        if (configI18nLocalizerService == null) {
             return configDescription;
+        } else {
+            return configI18nLocalizerService.getLocalizedConfigDescription(bundle, configDescription, locale);
         }
-    }
-
-    private ConfigDescriptionParameter getLocalizedConfigDescriptionParameter(Bundle bundle,
-            ConfigDescription configDescription, ConfigDescriptionParameter parameter, Locale locale) {
-
-        URI configDescriptionURI = configDescription.getURI();
-        String parameterName = parameter.getName();
-
-        String label = this.configDescriptionParamI18nUtil.getParameterLabel(bundle, configDescriptionURI,
-                parameterName, parameter.getLabel(), locale);
-
-        String description = this.configDescriptionParamI18nUtil.getParameterDescription(bundle, configDescriptionURI,
-                parameterName, parameter.getDescription(), locale);
-
-        String pattern = this.configDescriptionParamI18nUtil.getParameterPattern(bundle, configDescriptionURI,
-                parameterName, parameter.getPattern(), locale);
-
-        String unitLabel = this.configDescriptionParamI18nUtil.getParameterUnitLabel(bundle, configDescriptionURI,
-                parameterName, parameter.getUnit(), parameter.getUnitLabel(), locale);
-
-        List<ParameterOption> options = getLocalizedOptions(parameter.getOptions(), bundle, configDescriptionURI,
-                parameterName, locale);
-
-        ConfigDescriptionParameter localizedParameter = ConfigDescriptionParameterBuilder
-                .create(parameterName, parameter.getType()).withMinimum(parameter.getMinimum())
-                .withMaximum(parameter.getMaximum()).withStepSize(parameter.getStepSize()).withPattern(pattern)
-                .withRequired(parameter.isRequired()).withReadOnly(parameter.isReadOnly())
-                .withMultiple(parameter.isMultiple()).withContext(parameter.getContext())
-                .withDefault(parameter.getDefault()).withLabel(label).withDescription(description).withOptions(options)
-                .withFilterCriteria(parameter.getFilterCriteria()).withGroupName(parameter.getGroupName())
-                .withAdvanced(parameter.isAdvanced()).withLimitToOptions(parameter.getLimitToOptions())
-                .withMultipleLimit(parameter.getMultipleLimit()).withUnit(parameter.getUnit()).withUnitLabel(unitLabel)
-                .build();
-
-        return localizedParameter;
-    }
-
-    private ConfigDescriptionParameterGroup getLocalizedConfigDescriptionGroup(Bundle bundle,
-            ConfigDescription configDescription, ConfigDescriptionParameterGroup group, Locale locale) {
-
-        URI configDescriptionURI = configDescription.getURI();
-        String name = group.getName();
-
-        String label = this.configDescriptionGroupI18nUtil.getGroupLabel(bundle, configDescriptionURI, name,
-                group.getLabel(), locale);
-
-        String description = this.configDescriptionGroupI18nUtil.getGroupDescription(bundle, configDescriptionURI, name,
-                group.getDescription(), locale);
-
-        ConfigDescriptionParameterGroup localizedGroup = new ConfigDescriptionParameterGroup(name, group.getContext(),
-                group.isAdvanced(), label, description);
-
-        return localizedGroup;
-    }
-
-    private List<ParameterOption> getLocalizedOptions(List<ParameterOption> originalOptions, Bundle bundle,
-            URI configDescriptionURI, String parameterName, Locale locale) {
-        if (originalOptions == null || originalOptions.isEmpty()) {
-            return originalOptions;
-        }
-
-        List<ParameterOption> localizedOptions = new ArrayList<ParameterOption>();
-        for (ParameterOption option : originalOptions) {
-
-            String localizedLabel = this.configDescriptionParamI18nUtil.getParameterOptionLabel(bundle,
-                    configDescriptionURI, parameterName, /* key */option.getValue(), /* fallback */option.getLabel(),
-                    locale);
-            ParameterOption localizedOption = new ParameterOption(option.getValue(), localizedLabel);
-            localizedOptions.add(localizedOption);
-        }
-        return localizedOptions;
     }
 
 }

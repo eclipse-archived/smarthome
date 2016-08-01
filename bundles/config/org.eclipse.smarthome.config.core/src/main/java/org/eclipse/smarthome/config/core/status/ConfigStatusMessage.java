@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,21 @@ import com.google.common.base.Preconditions;
 
 /**
  * The {@link ConfigStatusMessage} is a domain object for a configuration status message. It contains the name
- * of the configuration parameter, the {@link ConfigStatusMessage.Type} information, the key for the message to be
- * internationalized, arguments to be added to the message and an optional status code.
+ * of the configuration parameter, the {@link ConfigStatusMessage.Type} information, the internationalized message and
+ * an optional status code.
  * <p>
- * The framework will take care of setting {@link ConfigStatusMessage#message} with the corresponding internationalized
- * message. For this purpose there should be an i18n properties file inside the bundle of the
- * {@link ConfigStatusProvider} that has a message declared for the {@link ConfigStatusMessage#messageKey}.
+ * The framework will take care of setting the corresponding internationalized message. For this purpose there must be
+ * an i18n properties file inside the bundle of the {@link ConfigStatusProvider} that has a message declared for the
+ * {@link ConfigStatusMessage#messageKey}. The actual message key is built by
+ * {@link ConfigStatusMessage.Builder#withMessageKeySuffix(String)} in the manner that the given message key suffix is
+ * appended to <code>config-status.config-status-message-type.</code>. As a result depending on the type of the message
+ * the final constructed message keys are:
+ * <ul>
+ * <li>config-status.information.any-suffix</li>
+ * <li>config-status.warning.any-suffix</li>
+ * <li>config-status.error.any-suffix</li>
+ * <li>config-status.pending.any-suffix</li>
+ * </ul>
  * </p>
  *
  * @author Thomas Höfer - Initial contribution
@@ -117,6 +126,8 @@ public final class ConfigStatusMessage {
      */
     public static class Builder {
 
+        private static final String CONFIG_STATUS_MSG_KEY_PREFIX = "config-status.";
+
         private final String parameterName;
 
         private final Type type;
@@ -204,14 +215,14 @@ public final class ConfigStatusMessage {
         }
 
         /**
-         * Adds the given message key to the builder.
+         * Adds the given message key suffix for the creation of {@link ConfigStatusMessage#messageKey}.
          *
-         * @param message the message key to be added
+         * @param messageKeySuffix the message key suffix to be added
          *
          * @return the updated builder
          */
-        public Builder withMessageKey(String messageKey) {
-            this.messageKey = messageKey;
+        public Builder withMessageKeySuffix(String messageKeySuffix) {
+            this.messageKey = CONFIG_STATUS_MSG_KEY_PREFIX + type.name().toLowerCase() + "." + messageKeySuffix;
             return this;
         }
 
@@ -229,9 +240,7 @@ public final class ConfigStatusMessage {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(arguments);
         result = prime * result + ((message == null) ? 0 : message.hashCode());
-        result = prime * result + ((messageKey == null) ? 0 : messageKey.hashCode());
         result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
         result = prime * result + ((statusCode == null) ? 0 : statusCode.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -250,21 +259,11 @@ public final class ConfigStatusMessage {
             return false;
         }
         ConfigStatusMessage other = (ConfigStatusMessage) obj;
-        if (!Arrays.equals(arguments, other.arguments)) {
-            return false;
-        }
         if (message == null) {
             if (other.message != null) {
                 return false;
             }
         } else if (!message.equals(other.message)) {
-            return false;
-        }
-        if (messageKey == null) {
-            if (other.messageKey != null) {
-                return false;
-            }
-        } else if (!messageKey.equals(other.messageKey)) {
             return false;
         }
         if (parameterName == null) {

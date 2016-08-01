@@ -142,7 +142,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         link : function(scope, element, attrs, ngModel) {
 
             scope.$watch(attrs.ngModel, function(value) {
-                if ((value === undefined || value == "") && attrs.isrequired == "true") {
+                if ((value === undefined || value === "") && attrs.isrequired == "true") {
                     element.addClass('border-invalid');
                 } else {
                     element.removeClass('border-invalid');

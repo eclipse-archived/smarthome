@@ -103,6 +103,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         for (var int = 0; int < $scope.data.items.length; int++) {
             var item = $scope.data.items[int];
             if (item.name === itemName) {
+                if (item.type && (item.type == "NumberItem" || item.groupType == "Number")) {
+                    var parsedValue = Number(item.state);
+                    if (isNaN(parsedValue)) {
+                        item.state = null;
+                    } else {
+                        item.state = parsedValue;
+                    }
+                }
                 return item;
             }
         }
@@ -513,4 +521,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.init();
     });
     $scope.init();
-});
+}).directive('itemStateDropdown', function() {
+    return {
+        restrict : 'A',
+        templateUrl : "partials/item.state.dropdown.html"
+    };
+})
