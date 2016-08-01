@@ -9,6 +9,7 @@
 package org.eclipse.smarthome.persistence.h2sql.internal;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -114,8 +115,16 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
+    public String getId() {
         return "h2sql";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getLabel() {
+        return "H2SQL Embedded Database";
     }
 
     /**
@@ -352,7 +361,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      * {@inheritDoc}
      */
     @Override
-    public Set<PersistenceItemInfo> getItems() {
+    public Set<PersistenceItemInfo> getItemInfo() {
         // Connect to H2SQL server if we're not already connected
         if (!connectToDatabase()) {
             logger.warn("H2SQL: No connection to database.");
@@ -418,11 +427,16 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      * {@inheritDoc}
      */
     @Override
-    public boolean remove(FilterCriteria filter) {
+    public boolean remove(FilterCriteria filter) throws InvalidParameterException {
         // Connect to H2SQL server if we're not already connected
         if (!connectToDatabase()) {
             logger.warn("H2SQL: No connection to database.");
             return false;
+        }
+
+        if (filter == null || filter.getItemName() == null) {
+            throw new InvalidParameterException(
+                    "Invalid filter. Filter must be specified and item name must be supplied.");
         }
 
         String filterString = getFilterStringWhere(filter);
