@@ -351,7 +351,7 @@ public final class FirmwareUpdateService {
         // the config description validator does not support option value validation at the moment; so we will validate
         // the time unit here
         if (!SUPPORTED_TIME_UNITS.contains(config.get(TIME_UNIT_CONFIG_KEY))) {
-            logger.warn("Given time unit {} is not supported. Will keep current configuration.",
+            logger.debug("Given time unit {} is not supported. Will keep current configuration.",
                     config.get(TIME_UNIT_CONFIG_KEY));
             return false;
         }
@@ -359,7 +359,7 @@ public final class FirmwareUpdateService {
         try {
             ConfigDescriptionValidator.validate(config, new URI(CONFIG_DESC_URI_KEY));
         } catch (URISyntaxException | ConfigValidationException e) {
-            logger.warn("Validation of new configuration values failed. Will keep current configuration.", e);
+            logger.debug("Validation of new configuration values failed. Will keep current configuration.", e);
             return false;
         }
 
