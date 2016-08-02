@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.persistence;
+package org.eclipse.smarthome.core.persistence.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Initial Contribution
  *
  */
-public class ItemHistoryBean {
+public class ItemHistoryDTO {
 
     public String name;
     public String totalrecords;
@@ -26,7 +26,7 @@ public class ItemHistoryBean {
 
     public List<HistoryDataBean> data = new ArrayList<HistoryDataBean>();
 
-    public ItemHistoryBean() {
+    public ItemHistoryDTO() {
     };
 
     /**
