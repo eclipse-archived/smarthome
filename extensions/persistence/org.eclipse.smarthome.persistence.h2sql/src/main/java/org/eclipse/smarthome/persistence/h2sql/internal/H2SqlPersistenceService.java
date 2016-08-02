@@ -23,10 +23,12 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -75,13 +77,13 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
 
     private final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    protected ItemRegistry itemRegistry = null;
+    private ItemRegistry itemRegistry = null;
+    private I18nProvider i18nProvider = null;
 
     private Connection connection = null;
     private final Map<String, String> sqlTypes = new HashMap<String, String>();
     private final List<String> itemCache = new ArrayList<String>();
 
-    @SuppressWarnings("unused")
     private BundleContext bundleContext;
 
     public H2SqlPersistenceService() {
@@ -111,6 +113,14 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         this.itemRegistry = null;
     }
 
+    public void setI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+    }
+
+    public void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -123,8 +133,8 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      * {@inheritDoc}
      */
     @Override
-    public String getLabel() {
-        return "H2SQL Embedded Database";
+    public String getLabel(Locale locale) {
+        return i18nProvider.getText(bundleContext.getBundle(), "h2sql.label", "H2SQL Embedded Database", locale);
     }
 
     /**
