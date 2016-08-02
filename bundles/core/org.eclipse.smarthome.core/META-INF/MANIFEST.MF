@@ -26,13 +26,14 @@ Ignore-Package: org.eclipse.smarthome.core.internal.items,org.eclipse.smarthome.
 Bundle-Name: Eclipse SmartHome Core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  javax.xml.bind;resolution:=optional,
+ org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.binding.dto,
@@ -52,6 +53,7 @@ Import-Package: com.google.common.base,
  org.osgi.framework,
  org.osgi.service.component,
  org.osgi.service.event,
+ org.osgi.service.packageadmin,
  org.osgi.util.tracker,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core

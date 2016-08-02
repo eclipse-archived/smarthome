@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 
 /**
  * This is a special class loader that tries to resolve classes from available {@link ActionService}s,
@@ -29,13 +29,9 @@ final public class ActionClassLoader extends ClassLoader {
             Class<?> clazz = getParent().loadClass(name);
             return clazz;
         } catch (ClassNotFoundException e) {
-            Object[] services = ScriptActivator.actionServiceTracker.getServices();
-            if (services != null) {
-                for (Object service : services) {
-                    ActionService actionService = (ActionService) service;
-                    if (actionService.getActionClassName().equals(name)) {
-                        return actionService.getActionClass();
-                    }
+            for (ActionService actionService : ScriptServiceUtil.getActionServices()) {
+                if (actionService.getActionClassName().equals(name)) {
+                    return actionService.getActionClass();
                 }
             }
         }

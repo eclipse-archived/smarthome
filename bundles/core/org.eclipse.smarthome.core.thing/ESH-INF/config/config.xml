@@ -16,5 +16,26 @@
             <default>true</default>
         </parameter>
     </config-description>
+    
+    <config-description uri="system:firmware-status-info-job">
+        <parameter name="period" type="integer" min="1" required="true">
+            <label>Period</label>
+            <description>The period between successive firmware status info job execution.</description>
+        </parameter>
+        <parameter name="delay" type="integer" min="0" required="true">
+            <label>Delay</label>
+            <description>The time to delay the first firmware status info job execution.</description>
+        </parameter>
+        <parameter name="timeUnit" type="text" required="true">
+            <label>Time unit</label>
+            <description>The time unit of the firmware status info job execution.</description>
+            <options>
+	            <option value="SECONDS">Seconds</option>
+	            <option value="MINUTES">Minutes</option>
+	            <option value="HOURS">Hours</option>
+	            <option value="DAYS">Days</option>
+            </options>
+        </parameter>
+    </config-description>
 
 </config-description:config-descriptions>

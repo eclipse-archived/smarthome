@@ -7,11 +7,9 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This class is implementation of {@link Trigger} modules used in the {@link RuleEngine}s.
@@ -22,7 +20,7 @@ public class RuntimeTrigger extends Trigger {
 
     private TriggerHandler triggerHandler;
 
-    public RuntimeTrigger(String id, String typeUID, Map<String, ?> configuration) {
+    public RuntimeTrigger(String id, String typeUID, Configuration configuration) {
         super(id, typeUID, configuration);
     }
 
@@ -30,11 +28,6 @@ public class RuntimeTrigger extends Trigger {
         super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());
-    }
-
-    @Override
-    public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     /**

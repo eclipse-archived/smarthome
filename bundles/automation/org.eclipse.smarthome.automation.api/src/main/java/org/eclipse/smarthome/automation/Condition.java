@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Condition module is used into "IF" section of the {@link Rule} definition.
@@ -40,7 +41,7 @@ public class Condition extends Module {
      * @param configuration configuration values of the {@link Condition} module.
      * @param inputs set of {@link Input}s used by this module.
      */
-    public Condition(String id, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
+    public Condition(String id, String typeUID, Configuration configuration, Map<String, String> inputs) {
         super(id, typeUID, configuration);
         setInputs(inputs);
     }

@@ -22,20 +22,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.refresh = function() {
         itemRepository.getAll(function(items) {
             $scope.tabs = [];
-            $scope.tabs.push({
-                name : 'all',
-                label : 'All'
-            });
-            $scope.items['All'] = items;
-            for (var int = 0; int < items.length; int++) {
-                var item = items[int];
-                if (item.tags.indexOf('home-group') > -1) {
-                    $scope.tabs.push({
-                        name : item.name,
-                        label : item.label
-                    });
-                }
-            }
+            // $scope.items['All'] = items;
         }, true);
     }
     $scope.channelTypes = [];
@@ -66,6 +53,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                             i++;
                         }
                     }
+                    getTabs();
                     $scope.isLoadComplete = true;
                 });
             });
@@ -81,10 +69,48 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         return false;
     }
 
+    function getTabs() {
+        if (!$scope.things) {
+            return;
+        }
+        var arr = [], otherTab = false;
+        for (var i = 0; i < $scope.things.length; i++) {
+            if ($scope.things[i].location && $scope.things[i].location.toUpperCase() != "OTHER") {
+                $scope.things[i].location = $scope.things[i].location.toUpperCase();
+                arr[$scope.things[i].location] = $scope.things[i].location;
+            } else {
+                $scope.things[i].location = "OTHER";
+                otherTab = true;
+            }
+        }
+        for ( var value in arr) {
+            $scope.tabs.push({
+                name : value
+            });
+        }
+        if (otherTab) {
+            $scope.tabs.push({
+                name : "OTHER"
+            });
+        }
+    }
+
+    $scope.tabComparator = function(actual, expected) {
+        return actual == expected;
+    }
+
     $scope.getItem = function(itemName) {
         for (var int = 0; int < $scope.data.items.length; int++) {
             var item = $scope.data.items[int];
             if (item.name === itemName) {
+                if (item.type && (item.type == "NumberItem" || item.groupType == "Number")) {
+                    var parsedValue = Number(item.state);
+                    if (isNaN(parsedValue)) {
+                        item.state = null;
+                    } else {
+                        item.state = parsedValue;
+                    }
+                }
                 return item;
             }
         }
@@ -92,7 +118,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.getThingsForTab = function(tabName) {
-        $scope.things = thingService.getAll();
+        // todo: filter things for tabs here
     }
 
     $scope.getItemsForTab = function(tabName) {
@@ -177,7 +203,8 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Contact' : {},
         'DimmableLight' : {
             label : 'Brightness',
-            icon : 'wb_incandescent'
+            icon : 'wb_incandescent',
+            showSwitch : true
         },
         'CarbonDioxide' : {
             label : 'CO2'
@@ -203,8 +230,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Smoke' : {},
         'SoundVolume' : {
             label : 'Volume',
-            icon : 'volume_up',
-            hideSwitch : true
+            icon : 'volume_up'
         },
         'Switch' : {},
         'Temperature' : {
@@ -245,11 +271,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             return defaultIcon;
         }
     }
-    $scope.isHideSwitch = function(itemCategory) {
+    $scope.showSwitch = function(itemCategory) {
         if (itemCategory) {
             var category = categories[itemCategory];
             if (category) {
-                return category.hideSwitch;
+                return category.showSwitch;
             }
         }
         return false;
@@ -495,4 +521,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.init();
     });
     $scope.init();
-});
+}).directive('itemStateDropdown', function() {
+    return {
+        restrict : 'A',
+        templateUrl : "partials/item.state.dropdown.html"
+    };
+})

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -142,13 +142,13 @@ abstract class OSGiTest {
      * The condition is specified by a closure, that must return a boolean object. When the condition is
      * not fulfilled Thread.sleep is called at the current Thread for a specified time. After this time
      * the condition is checked again. By a default the specified sleep time is 50 ms. The default timeout
-     * is 1000 ms.
+     * is 10000 ms.
      *
      * @param condition closure that must not have an argument and must return a boolean value
-     * @param timeout timeout, default is 1000ms
+     * @param timeout timeout, default is 10000ms
      * @param sleepTime interval for checking the condition, default is 50ms
      */
-    protected void waitFor(Closure<?> condition, int timeout = 1000, int sleepTime = 50) {
+    protected void waitFor(Closure<?> condition, int timeout = 10000, int sleepTime = 50) {
         def waitingTime = 0
         while(!condition() && waitingTime < timeout) {
             waitingTime += sleepTime
@@ -161,19 +161,19 @@ abstract class OSGiTest {
      * The assertion is specified by a closure, that must throw an Exception, if the assertion is not fulfilled.
      * When the assertion is not fulfilled Thread.sleep is called at the current Thread for a specified time.
      * After this time the condition is checked again. By a default the specified sleep time is 50 ms.
-     * The default timeout is 1000 ms.
+     * The default timeout is 10000 ms.
      *
      * @param condition closure that must not have an argument
-     * @param timeout timeout, default is 1000ms
+     * @param timeout timeout, default is 10000ms
      * @param sleepTime interval for checking the condition, default is 50ms
      */
-    protected void waitForAssert(Closure<?> assertion, int timeout = 1000, int sleepTime = 50) {
+    protected void waitForAssert(Closure<?> assertion, int timeout = 10000, int sleepTime = 50) {
         def waitingTime = 0
         while(waitingTime < timeout) {
             try {
                 assertion()
                 return
-            } catch(Error error) {
+            } catch(Error | NullPointerException error) {
                 waitingTime += sleepTime
                 sleep sleepTime
             }

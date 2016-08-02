@@ -110,7 +110,8 @@ class PluginProjectCreator implements IProjectCreator {
 			 org.eclipse.smarthome.core.library.types,
 			 org.eclipse.smarthome.core.library.items,
 			 org.eclipse.smarthome.core.items,
-			 org.eclipse.smarthome.core.persistence«IF !importedPackages.empty»,«ENDIF»
+             org.eclipse.smarthome.core.types,
+             org.eclipse.smarthome.core.persistence«IF !importedPackages.empty»,«ENDIF»
 			«FOR importPackage : importedPackages SEPARATOR ","»
 				«" " + importPackage»
 			«ENDFOR»

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Tests
 Bundle-SymbolicName: org.eclipse.smarthome.core.thing.test;singleton:=true
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.core.thing
@@ -12,6 +12,7 @@ Import-Package: com.google.gson,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.storage,
@@ -20,4 +21,5 @@ Import-Package: com.google.gson,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.junit.rules,
- org.osgi.framework
+ org.osgi.framework,
+ org.osgi.service.cm

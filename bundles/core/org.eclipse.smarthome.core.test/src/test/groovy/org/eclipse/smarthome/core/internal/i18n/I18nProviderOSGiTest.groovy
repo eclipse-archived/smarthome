@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ class I18nProviderOSGiTest extends OSGiTest {
         LocaleProviderImpl localeProvider = getService(LocaleProvider,LocaleProviderImpl)
         Map<String,String> localeCfg = new HashMap<>();
         localeCfg.putAt("language", "de");
-        localeCfg.putAt("country", "DE");
+        localeCfg.putAt("region", "DE");
         localeProvider.modified(localeCfg);
     }
 

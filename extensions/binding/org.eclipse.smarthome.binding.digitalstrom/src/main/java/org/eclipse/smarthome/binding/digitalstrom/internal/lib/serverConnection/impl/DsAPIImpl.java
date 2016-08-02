@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1268,8 +1268,9 @@ public class DsAPIImpl implements DsAPI {
     }
 
     @Override
-    public int getSceneValue(String token, DSID dsid, short sceneId) {
+    public int[] getSceneValue(String token, DSID dsid, short sceneId) {
         String response = null;
+        int[] value = { -1, -1 };
         response = transport.execute(
                 "/json/device/getSceneValue?dsid=" + dsid.toString() + "&sceneID=" + sceneId + "&token=" + token, 4000,
                 20000);
@@ -1278,10 +1279,14 @@ public class DsAPIImpl implements DsAPI {
         if (JSONResponseHandler.checkResponse(responseObj)) {
             JsonObject obj = JSONResponseHandler.getResultJsonObject(responseObj);
             if (obj != null && obj.get("value") != null) {
-                return obj.get("value").getAsInt();
+                value[0] = obj.get("value").getAsInt();
+                if (obj.get("angle") != null) {
+                    value[1] = obj.get("angle").getAsInt();
+                }
+                return value;
             }
         }
-        return -1;
+        return value;
     }
 
     @Override

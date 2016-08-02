@@ -61,6 +61,12 @@ cp -f siren-on.svg          siren.svg
 cp -f soundvolume-100.png   soundvolume.png
 cp -f soundvolume-100.svg   soundvolume.svg
 
+cp -f television-on.png     television.png
+cp -f television-on.svg     television.svg
+
+cp -f switch-on.png          switch.png
+cp -f switch-on.svg          switch.svg
+
 
 # ESH Channel Categories
 

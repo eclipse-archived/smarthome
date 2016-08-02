@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Explicitly sets the thing type
+     * Explicitly sets the thing type.
      *
      * @param thingTypeUID the {@link ThingTypeUID}
      * @return the updated builder
@@ -62,7 +62,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Adds properties to the desired result
+     * Adds properties to the desired result.
      *
      * @param properties of the desired result
      * @return the updated builder
@@ -73,7 +73,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Adds a property to the desired result
+     * Adds a property to the desired result.
      *
      * @param property of the desired result
      * @return the updated builder
@@ -84,7 +84,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Sets the representation Property of the desired result
+     * Sets the representation Property of the desired result.
      *
      * @param representationProperty the representation property of the desired result
      * @return the updated builder
@@ -95,7 +95,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Sets the bridgeUID of the desired result
+     * Sets the bridgeUID of the desired result.
      *
      * @param bridgeUID of the desired result
      * @return the updated builder
@@ -106,7 +106,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Sets the label of the desired result
+     * Sets the label of the desired result.
      *
      * @param label of the desired result
      * @return the updated builder
@@ -117,7 +117,7 @@ public class DiscoveryResultBuilder {
     }
 
     /**
-     * Sets the time to live for the result in seconds
+     * Sets the time to live for the result in seconds.
      *
      * @param ttl time to live in seconds
      * @return the updated builder

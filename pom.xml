@@ -9,7 +9,7 @@
 
   <groupId>org.eclipse.smarthome</groupId>
   <artifactId>smarthome</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
 
   <name>Eclipse SmartHome</name>
 
@@ -276,6 +276,7 @@
               <include>**/OSGI-INF/*.xml</include>
             </includes>
             <excludes>
+              <exclude>**/org.eclipse.smarthome.automation.*/**</exclude>
               <exclude>**/org/eclipse/smarthome/protocols/**</exclude>
               <exclude>target/**</exclude>
               <exclude>**/pom.xml</exclude>
@@ -283,7 +284,7 @@
             </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
             <properties>
-              <year>2015</year>
+              <year>2016</year>
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
@@ -453,6 +454,11 @@
     <pluginRepository>
       <id>cbi-releases</id>
       <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>buchen-maven-repo</id>
+      <url>http://buchen.github.io/maven-repo</url>
+      <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>
 

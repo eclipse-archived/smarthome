@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.core.internal.RuleEngine;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.osgi.framework.BundleContext;
@@ -31,14 +30,12 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class TemplateManager implements ServiceTrackerCustomizer {
 
     private ServiceTracker templateProviderTracker;
-    private RuleEngine ruleEngine;
     private BundleContext bc;
-    private Collection<TemplateProvider> providers = new HashSet<TemplateProvider>();;
+    private Collection<TemplateProvider> providers = new HashSet<TemplateProvider>();
 
     @SuppressWarnings("unchecked")
-    public TemplateManager(BundleContext bc, RuleEngine re) {
+    public TemplateManager(BundleContext bc) {
         this.bc = bc;
-        this.ruleEngine = re;
         templateProviderTracker = new ServiceTracker(bc, TemplateProvider.class.getName(), this);
         templateProviderTracker.open();
     }
@@ -133,17 +130,12 @@ public class TemplateManager implements ServiceTrackerCustomizer {
         TemplateProvider provider = (TemplateProvider) bc.getService(reference);
         if (provider != null) {
             providers.add(provider);
-            ruleEngine.templateUpdated(provider.getTemplates(null));
         }
         return provider;
     }
 
     @Override
     public void modifiedService(ServiceReference reference, Object service) {
-        TemplateProvider provider = (TemplateProvider) service;
-        if (provider != null) {
-            ruleEngine.templateUpdated(provider.getTemplates(null));
-        }
     }
 
     @Override

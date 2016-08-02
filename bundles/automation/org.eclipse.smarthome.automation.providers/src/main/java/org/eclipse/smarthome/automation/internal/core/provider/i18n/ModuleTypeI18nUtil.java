@@ -27,7 +27,7 @@ import org.osgi.framework.Bundle;
  */
 public class ModuleTypeI18nUtil {
 
-    public static final String MODULE_TYPE = "module-type.";
+    public static final String MODULE_TYPE = "module-type";
 
     public static String getLocalizedModuleTypeLabel(I18nProvider i18nProvider, Bundle bundle, String moduleTypeUID,
             String defaultLabel, Locale locale) {
@@ -46,7 +46,7 @@ public class ModuleTypeI18nUtil {
     public static List<Input> getLocalizedInputs(I18nProvider i18nProvider, List<Input> inputs, Bundle bundle,
             String uid, Locale locale) {
         List<Input> linputs = new ArrayList<Input>();
-        if (inputs != null)
+        if (inputs != null) {
             for (Input input : inputs) {
                 String inputName = input.getName();
                 String ilabel = ModuleTypeI18nUtil.getInputLabel(i18nProvider, bundle, uid, inputName, input.getLabel(),
@@ -56,13 +56,14 @@ public class ModuleTypeI18nUtil {
                 linputs.add(new Input(inputName, input.getType(), ilabel, idescription, input.getTags(),
                         input.isRequired(), input.getReference(), input.getDefaultValue()));
             }
+        }
         return linputs;
     }
 
     public static List<Output> getLocalizedOutputs(I18nProvider i18nProvider, List<Output> outputs, Bundle bundle,
             String uid, Locale locale) {
         List<Output> loutputs = new ArrayList<Output>();
-        if (outputs != null)
+        if (outputs != null) {
             for (Output output : outputs) {
                 String outputName = output.getName();
                 String olabel = ModuleTypeI18nUtil.getOutputLabel(i18nProvider, bundle, uid, outputName,
@@ -72,6 +73,7 @@ public class ModuleTypeI18nUtil {
                 loutputs.add(new Output(outputName, output.getType(), olabel, odescription, output.getTags(),
                         output.getReference(), output.getDefaultValue()));
             }
+        }
         return loutputs;
     }
 
@@ -104,14 +106,14 @@ public class ModuleTypeI18nUtil {
     }
 
     private static String inferModuleTypeKey(String moduleTypeUID, String lastSegment) {
-        return MODULE_TYPE + moduleTypeUID + "." + lastSegment;
+        return MODULE_TYPE + "." + moduleTypeUID + "." + lastSegment;
     }
 
     private static String inferInputKey(String moduleTypeUID, String inputName, String lastSegment) {
-        return MODULE_TYPE + moduleTypeUID + ".input." + inputName + "." + lastSegment;
+        return MODULE_TYPE + ".input." + moduleTypeUID + ".name." + inputName + "." + lastSegment;
     }
 
     private static String inferOutputKey(String moduleTypeUID, String outputName, String lastSegment) {
-        return MODULE_TYPE + moduleTypeUID + ".output." + outputName + "." + lastSegment;
+        return MODULE_TYPE + ".output." + moduleTypeUID + ".name." + outputName + "." + lastSegment;
     }
 }

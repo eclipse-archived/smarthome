@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,32 +10,27 @@ package org.eclipse.smarthome.core.items
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.Set
-import javax.management.InstanceOfQueryExp
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.RawType
-import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.RefreshType
-import org.eclipse.smarthome.core.types.State
-import org.eclipse.smarthome.core.types.UnDefType
+import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
 
 /**
- * The GroupItemTest tests functionality of the GroupItem.  
- * 
+ * The GroupItemTest tests functionality of the GroupItem.
+ *
  * @author Dennis Nobel - Initial contribution
- * @author Christoph Knauf - event tests  
+ * @author Christoph Knauf - event tests
  */
-class GroupItemTest {
+class GroupItemTest extends OSGiTest {
 
     List<Event> events = []
     EventPublisher publisher
@@ -100,9 +95,11 @@ class GroupItemTest {
         //State changes -> one change event is fired
         member.setState(new RawType())
 
-        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
 
-        assertThat events.size(), is(1)
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
         assertThat changes.size(), is(1)
 
         def change = changes.getAt(0) as GroupItemStateChangedEvent

@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.yahooweather</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
 
   <name>Eclipse SmartHome YahooWeather Binding</name>
   <packaging>eclipse-plugin</packaging>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse SmartHome Designer" uid="org.eclipse.smarthome.designer.product" id="org.eclipse.smarthome.designer.core.product" application="org.eclipse.smarthome.designer.ui.application" version="0.8.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Eclipse SmartHome Designer" uid="org.eclipse.smarthome.designer.product" id="org.eclipse.smarthome.designer.core.product" application="org.eclipse.smarthome.designer.ui.application" version="0.9.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.smarthome.designer.core/icons/esh400.png"/>
@@ -27,7 +27,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -117,6 +116,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </features>
 
    <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
@@ -128,10 +128,20 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <plugin id="org.eclipse.smarthome.config.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.core" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.core.thing" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.smarthome.designer.core" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.smarthome.designer.ui" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.smarthome.model.core" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="0" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

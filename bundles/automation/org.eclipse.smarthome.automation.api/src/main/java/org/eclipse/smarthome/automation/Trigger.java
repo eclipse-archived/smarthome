@@ -7,12 +7,11 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.Map;
-
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Trigger modules are used in the 'ON' section of {@link Rule} definition. They
@@ -27,7 +26,7 @@ public class Trigger extends Module {
     public Trigger() {
     }
 
-    public Trigger(String id, String typeUID, Map<String, ?> configuration) {
+    public Trigger(String id, String typeUID, Configuration configuration) {
         super(id, typeUID, configuration);
     }
 

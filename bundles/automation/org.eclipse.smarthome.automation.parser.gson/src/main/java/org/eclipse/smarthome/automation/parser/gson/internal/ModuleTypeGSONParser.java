@@ -68,7 +68,7 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
                     if (children != null && !children.isEmpty()) {
                         result.add(mt);
                     } else {
-                        result.add(new TriggerType(mt.getUID(), mt.getConfigurationDescription(), mt.getLabel(),
+                        result.add(new TriggerType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
                                 mt.getDescription(), mt.getTags(), mt.getVisibility(),
                                 ((TriggerType) mt).getOutputs()));
                     }
@@ -78,7 +78,7 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
                     if (children != null && !children.isEmpty()) {
                         result.add(mt);
                     } else {
-                        result.add(new ConditionType(mt.getUID(), mt.getConfigurationDescription(), mt.getLabel(),
+                        result.add(new ConditionType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
                                 mt.getDescription(), mt.getTags(), mt.getVisibility(),
                                 ((ConditionType) mt).getInputs()));
                     }
@@ -88,7 +88,7 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
                     if (children != null && !children.isEmpty()) {
                         result.add(mt);
                     } else {
-                        result.add(new ActionType(mt.getUID(), mt.getConfigurationDescription(), mt.getLabel(),
+                        result.add(new ActionType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
                                 mt.getDescription(), mt.getTags(), mt.getVisibility(), ((ActionType) mt).getInputs(),
                                 ((ActionType) mt).getOutputs()));
                     }

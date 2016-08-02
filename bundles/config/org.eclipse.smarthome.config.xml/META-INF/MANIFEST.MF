@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Config XML
 Bundle-SymbolicName: org.eclipse.smarthome.config.xml
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.thoughtworks.xstream,
@@ -22,7 +22,6 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.config.xml.util,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.i18n,
- org.eclipse.smarthome.core.thing,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j

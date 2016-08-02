@@ -37,7 +37,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
     var numberOfInboxEntries = -1;
     eventService.onEvent('smarthome/inbox/*/added', function(topic, discoveryResult) {
-        toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/setup');
+        toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/search');
     });
     eventService.onEvent('smarthome/items/*/state', function(topic, stateObject) {
 
@@ -58,6 +58,14 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                 if (item.type === 'DimmerItem') {
                     if (state === 'ON' || state == 'OFF') {
                         updateState = false;
+                    }
+                }
+                if (item.type === "NumberItem" || item.groupType === "Number") {
+                    var parsedValue = Number(state);
+                    if (isNaN(parsedValue)) {
+                        state = null;
+                    } else {
+                        state = parsedValue;
                     }
                 }
 
@@ -107,19 +115,19 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     discoveryResultRepository.getAll();
     thingTypeRepository.getAll();
     bindingRepository.getAll();
-}).controller('PreferencesPageController', function($rootScope, $scope, toastService) {
+}).controller('PreferencesPageController', function($rootScope, $scope, $window, $location, toastService) {
     $scope.setHeaderText('Edit user preferences.');
 
     var localStorage = window.localStorage;
     var language = localStorage.getItem('paperui.language');
 
     $scope.language = language ? language : 'english';
-    $scope.advancedMode = $rootScope.advancedMode;
     $scope.save = function() {
-        $rootScope.advancedMode = $scope.advancedMode;
         localStorage.setItem('paperui.language', $scope.language);
-        localStorage.setItem('paperui.advancedMode', $rootScope.advancedMode);
-        toastService.showSuccessToast('Preferences saved successfully. Please reload the page.');
+        toastService.showSuccessToast('Preferences saved successfully.');
+        setTimeout(function() {
+            $window.location.reload();
+        }, 1500);
     }
 
     $scope.getSelected = function(property) {

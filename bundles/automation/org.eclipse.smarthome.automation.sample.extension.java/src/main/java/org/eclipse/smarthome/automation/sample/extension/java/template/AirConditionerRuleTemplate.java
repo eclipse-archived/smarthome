@@ -27,6 +27,7 @@ import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * The purpose of this class is to illustrate how to create {@link RuleTemplate}
@@ -49,7 +50,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
 
         // initialize conditions
         // here the tricky part is the giving a value to the condition configuration parameter.
-        Map<String, Object> conditionConfig = new HashMap<String, Object>();
+        Configuration conditionConfig = new Configuration();
         conditionConfig.put(StateConditionType.CONFIG_STATE, "on");
 
         // here the tricky part is the referring into the condition input - trigger output.
@@ -63,7 +64,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
 
         // here the tricky part is the referring into the condition configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
-        conditionConfig = new HashMap<String, Object>();
+        conditionConfig = new Configuration();
         conditionConfig.put(TemperatureConditionType.CONFIG_TEMPERATURE, "$" + CONFIG_TARGET_TEMPERATURE);
         conditionConfig.put(TemperatureConditionType.CONFIG_OPERATOR, "$" + CONFIG_OPERATION);
 
@@ -82,7 +83,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
 
         // initialize actions - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
-        Map<String, String> actionConfig = new HashMap<String, String>();
+        Configuration actionConfig = new Configuration();
         actionConfig.put(WelcomeHomeActionType.CONFIG_DEVICE, "$" + WelcomeHomeRulesProvider.CONFIG_UNIT);
         actionConfig.put(WelcomeHomeActionType.CONFIG_RESULT, "$" + WelcomeHomeRulesProvider.CONFIG_EXPECTED_RESULT);
 

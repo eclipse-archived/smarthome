@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    Copyright (c) 2014-2016 by the respective copyright holders.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 <feature
       id="org.eclipse.smarthome.feature.dependencies.designer"
       label="Eclipse SmartHome Designer Dependencies"
-      version="0.8.0.qualifier"
+      version="0.9.0.qualifier"
       provider-name="Eclipse.org">
 
    <description>
@@ -19,7 +19,7 @@
    </description>
 
    <copyright>
-      Copyright (C) 2014 openHAB UG (haftungsbeschränkt) and others
+      Copyright (C) 2016 by the respective copyright owners
    </copyright>
 
    <license url="%licenseURL">
@@ -55,10 +55,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.xtext.runtime"
-         version="0.0.0"/>
-
-   <includes
          id="org.eclipse.emf.ecore"
          version="0.0.0"/>
 
@@ -74,11 +70,8 @@
          id="org.eclipse.emf.common"
          version="0.0.0"/>
 
-   <includes
-         id="org.eclipse.xtext.xbase"
-         version="0.0.0"/>
-
    <requires>
+      <import plugin="com.google.gson" version="2.2.4.v201311231704" match="perfect"/>
       <import plugin="org.apache.commons.lang"/>
       <import plugin="org.eclipse.osgi"/>
       <import plugin="org.eclipse.osgi.services"/>
@@ -116,7 +109,7 @@
       <import plugin="org.eclipse.pde.build"/>
       <import plugin="org.eclipse.pde.core"/>
    </requires>
-   
+
    <plugin
          id="ch.qos.logback.classic"
          download-size="0"
@@ -418,5 +411,83 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-   
+
+   <plugin
+         id="org.eclipse.xtext.smap"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtend.lib.macro"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.xbase.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.util"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.antlr.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.common.types"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.builder"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.xtext.smap"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

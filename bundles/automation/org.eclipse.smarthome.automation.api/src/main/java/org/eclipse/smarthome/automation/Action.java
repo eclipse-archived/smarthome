@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Actions are the part of "THEN" section of the {@link Rule} definition.
@@ -43,7 +44,7 @@ public class Action extends Module {
      * @param configuration map of configuration values.
      * @param inputs set of connections to other modules (triggers and other actions).
      */
-    public Action(String UID, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
+    public Action(String UID, String typeUID, Configuration configuration, Map<String, String> inputs) {
         super(UID, typeUID, configuration);
         setInputs(inputs);
     }

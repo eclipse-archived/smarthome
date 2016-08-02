@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.junit.Test
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - added test 'assert start search is called()'
+ *                        - modified tests after introducing the generic thing types
  */
 class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
@@ -114,6 +115,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         FullLight light = FullLight.class.newInstance()
         light.id = "1"
         light.modelid = "LCT001"
+        light.type = "Extended color light"
 
         def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
         registerDiscoveryListener( [
@@ -133,8 +135,8 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
         resultWrapper.wrappedObject.with {
             assertThat flag, is (DiscoveryResultFlag.NEW)
-            assertThat thingUID.toString(), is("hue:LCT001:testBridge:" + light.id)
-            assertThat thingTypeUID, is (THING_TYPE_LCT001)
+            assertThat thingUID.toString(), is("hue:0210:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_EXTENDED_COLOR_LIGHT)
             assertThat bridgeUID, is(hueBridge.getUID())
             assertThat properties.get(LIGHT_ID), is (light.id)
         }

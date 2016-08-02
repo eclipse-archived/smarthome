@@ -4,12 +4,12 @@
   <groupId>org.eclipse.smarthome.ui</groupId>
   <artifactId>org.eclipse.smarthome.ui.icon.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
   <name>Eclipse SmartHome UI Icon Tests</name>
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>ui</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
   </parent>
 
   <build>

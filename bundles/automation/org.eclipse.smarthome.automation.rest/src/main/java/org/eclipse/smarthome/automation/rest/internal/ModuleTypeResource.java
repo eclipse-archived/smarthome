@@ -9,7 +9,6 @@ package org.eclipse.smarthome.automation.rest.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +26,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.automation.dto.ActionTypeDTOMapper;
+import org.eclipse.smarthome.automation.dto.ConditionTypeDTOMapper;
+import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
+import org.eclipse.smarthome.automation.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -45,6 +48,7 @@ import io.swagger.annotations.ApiResponses;
  * This class acts as a REST resource for module types and is registered with the Jersey servlet.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Markus Rathgeb - Use DTOs
  */
 @Path("module-types")
 @Api("module-types")
@@ -65,53 +69,66 @@ public class ModuleTypeResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get all available module types.", response = ModuleType.class, responseContainer = "List")
+    @ApiOperation(value = "Get all available module types.", response = ModuleTypeDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @QueryParam("tags") @ApiParam(value = "tags for filtering", required = false) String tagList,
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
-        Locale locale = LocaleUtil.getLocale(language);
-        Set<String> tags = tagList != null ? new HashSet<String>(Arrays.asList(tagList.split(","))) : null;
-        List<ModuleType> allModules = new ArrayList<ModuleType>();
+        final Locale locale = LocaleUtil.getLocale(language);
+        final Set<String> tags = tagList != null ? new HashSet<String>(Arrays.asList(tagList.split(","))) : null;
+        final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
         if (type == null || type.equals("trigger")) {
             if (tags == null) {
-                allModules.addAll(moduleTypeRegistry.getAll(TriggerType.class, locale));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getAll(TriggerType.class, locale)));
             } else {
-                Collection<TriggerType> triggers = moduleTypeRegistry.getByTags(tags, locale);
-                allModules.addAll(triggers);
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType>getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("condition")) {
             if (tags == null) {
-                allModules.addAll(moduleTypeRegistry.getAll(ConditionType.class, locale));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getAll(ConditionType.class, locale)));
             } else {
-                allModules.addAll(moduleTypeRegistry.getByTags(tags, locale));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType>getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("action")) {
             if (tags == null) {
-                allModules.addAll(moduleTypeRegistry.getAll(ActionType.class, locale));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getAll(ActionType.class, locale)));
             } else {
-                allModules.addAll(moduleTypeRegistry.getByTags(tags, locale));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType>getByTags(tags, locale)));
             }
         }
-        return Response.ok(allModules).build();
+        return Response.ok(modules).build();
     }
 
     @GET
     @Path("/{moduleTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleType.class)
+    @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleTypeDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
         Locale locale = LocaleUtil.getLocale(language);
-        ModuleType moduleType = moduleTypeRegistry.get(moduleTypeUID, locale);
+        final ModuleType moduleType = moduleTypeRegistry.get(moduleTypeUID, locale);
         if (moduleType != null) {
-            return Response.ok(moduleType).build();
+            return Response.ok(getModuleTypeDTO(moduleType)).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
     }
+
+    private ModuleTypeDTO getModuleTypeDTO(final ModuleType moduleType) {
+        if (moduleType instanceof ActionType) {
+            return ActionTypeDTOMapper.map((ActionType) moduleType);
+        } else if (moduleType instanceof ConditionType) {
+            return ConditionTypeDTOMapper.map((ConditionType) moduleType);
+        } else if (moduleType instanceof TriggerType) {
+            return TriggerTypeDTOMapper.map((TriggerType) moduleType);
+        } else {
+            throw new IllegalArgumentException(
+                    String.format("Cannot handle given module type class (%s)", moduleType.getClass()));
+        }
+    }
+
 }

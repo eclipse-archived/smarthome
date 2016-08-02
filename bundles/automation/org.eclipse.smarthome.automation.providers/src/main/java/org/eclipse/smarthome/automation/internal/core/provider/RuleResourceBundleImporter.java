@@ -239,10 +239,10 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                         }
                         ruleRegistry.add(rule);
                     } catch (IllegalArgumentException e) {
-                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
+                        logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
                     } catch (IllegalStateException e) {
                         logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
-                                new Object[] { rule.getUID(), e.getMessage() });
+                                rule.getUID(), e.getMessage());
                     }
                 }
             } // while
@@ -266,7 +266,8 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     private Rule setUID(Vendor vendor, Rule rule) {
         String uid = vendor.getVendorID() + vendor.count();
         Rule r = new Rule(uid, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                rule.getConfigurationDescriptions(), rule.getConfiguration());
+                rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
+                rule.getVisibility());
         r.setName(rule.getName());
         r.setDescription(rule.getDescription());
         r.setTags(rule.getTags());

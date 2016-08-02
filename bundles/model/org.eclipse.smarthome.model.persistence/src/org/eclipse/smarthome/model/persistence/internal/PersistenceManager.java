@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,15 +138,15 @@ public class PersistenceManager
     }
 
     public void addPersistenceService(PersistenceService persistenceService) {
-        logger.debug("Initializing {} persistence service.", persistenceService.getName());
-        persistenceServices.put(persistenceService.getName(), persistenceService);
-        stopEventHandling(persistenceService.getName());
-        startEventHandling(persistenceService.getName());
+        logger.debug("Initializing {} persistence service.", persistenceService.getId());
+        persistenceServices.put(persistenceService.getId(), persistenceService);
+        stopEventHandling(persistenceService.getId());
+        startEventHandling(persistenceService.getId());
     }
 
     public void removePersistenceService(PersistenceService persistenceService) {
-        stopEventHandling(persistenceService.getName());
-        persistenceServices.remove(persistenceService.getName());
+        stopEventHandling(persistenceService.getId());
+        persistenceServices.remove(persistenceService.getId());
     }
 
     @Override

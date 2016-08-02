@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Name: Eclipse SmartHome MapDB Storage Service
 Bundle-Vendor: openHAB.org
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.gson,
@@ -12,6 +12,7 @@ Import-Package: com.google.gson,
  com.google.gson.stream,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
+ org.mapdb,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.event,
@@ -19,6 +20,5 @@ Import-Package: com.google.gson,
 Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
 Bundle-DocURL: http://www.openhab.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .,
- lib/mapdb-1.0.9.jar
+Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml

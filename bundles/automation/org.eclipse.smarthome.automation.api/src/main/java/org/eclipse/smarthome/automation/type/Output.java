@@ -14,21 +14,24 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 
 /**
- * This class defines meta-information for {@link Output} which is used by the RuleEngine when creating connection
- * between modules. The meta-information contains:
+ * This class defines meta-information properties, used by the Rule Engine when creating connections between modules.
+ * {@link Output}s are the exit point of a {@link Module}. They are used as data source for {@link Input}s of other
+ * {@link Module}s.
+ * <p>
+ * The meta-information contains:
  * <ul>
- * <li>name(mandatory) - unique id in scope of containing Module</li>
- * <li>type(mandatory) - accepted data type by this Output</li>
- * <li>label(optional) - short id (one word) of the Output</li>
- * <li>description(optional) - user friendly description of the Output</li>
- * <li>default value(optional) - default value of the Output</li>
- * <li>reference - reference to data source. It defines what part of complex data (i.e. JavaBean, java.lang.Map etc.)
- * has to be used as value of this output.
+ * <li>name (mandatory) - unique ID in the scope of the {@link Module}</li>
+ * <li>type (mandatory) - the type of the output data. The value of this meta-info property could be any string that
+ * makes sense for the user, like a fully qualified name of a Java class, or a general description like "temperature",
+ * for example. The type is used to determine which {@link Input} can be connected to this {@link Output}</li>
+ * <li>label (optional) - short id (one word) of the Output.</li>
+ * <li>description (optional) - user friendly description of the {@link Output}</li>
+ * <li>default value (optional) - the string representation of the default value of the {@link Output}.</li>
+ * <li>reference (optional) - reference to data source. It defines what part of complex data (i.e. JavaBean,
+ * java.lang.Map etc.) has to be used as value of this output.
  * </ul>
- * Outputs are exit points of a {@link Module}. They are used as data source for {@link Input}s of other {@link Module}
- * s.
- * The {@link Output} can be connected
- * to more then one {@link Input} of the same data type.<br>
+ * <p>
+ * An {@link Output} can be connected to more than one {@link Input} with a compatible data type.<br>
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -42,8 +45,9 @@ public class Output {
     private String name;
 
     /**
-     * This field specifies the type of the {@code Output}. The accepted types are all java types defined by fully
-     * qualified names.
+     * This field specifies the type of the output data. The value could be any string that makes sense for the user,
+     * like a fully qualified name of a Java class, or a general description like "temperature", for example. The type
+     * is used to determine which {@link Input} can be connected to this {@link Output}.
      */
     private String type;
 
@@ -75,8 +79,8 @@ public class Output {
     private String reference;
 
     /**
-     * The value of this field takes place when there is no runtime value for this {@code Output}. Type of the default
-     * value must be the type of the {@code Output}.
+     * The string representation of the default value of the {@link Output}. The value of this field is used when there
+     * is no runtime value for this {@code Output}. It must be compatible with the type of the {@link Output}.
      */
     private String defaultValue;
 
@@ -87,24 +91,21 @@ public class Output {
     }
 
     /**
-     * Constructor of {@code Output} objects. It is based on the type of data and {@code Output}'s name.
+     * Constructs an {@code Output} instance with the specified name and output data type.
      *
-     * @param name is an unique name of the {@code Output}.
-     * @param type is the data type accepted by this {@code Output}.
-     *
-     * @see #getType()
+     * @param name a unique name of the {@code Output}.
+     * @param type the type of the output data.
+     * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Output(String name, String type) {
-        this.name = name;
-        setType(type);
+        this(name, type, null, null, null, null, null);
     }
 
     /**
-     * Constructor of {@code Output} object. Creates an {@code Output} instance based on the type of accepted data
-     * and {@code Output}'s name.
+     * Constructs an {@code Output} instance with the specified parameters.
      *
-     * @param type is the data type accepted by this {@code Output}.
-     * @param name is an unique name of the {@code Output}.
+     * @param name a unique name of the {@code Output}.
+     * @param type the type of the output data.
      * @param label a single word description of the {@code Output}.
      * @param description is an user friendly description of the {@code Output}.
      * @param tags are associated with the {@code Output}. The tags add additional restrictions to connections between
@@ -118,14 +119,18 @@ public class Output {
      *            this {@code Output}.
      * @param defaultValue takes place when there is no runtime value for this {@code Output}. Type of the default value
      *            must be the type of the {@code Output}.
+     * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Output(String name, String type, String label, String description, Set<String> tags, String reference,
             String defaultValue) {
         if (name == null) {
-            throw new IllegalArgumentException("The name of the input must not be NULL!");
+            throw new IllegalArgumentException("The name of the output must not be NULL!");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("The type of the output must not be NULL!");
         }
         this.name = name;
-        setType(type);
+        this.type = type;
         this.label = label;
         this.description = description;
         this.tags = tags;
@@ -144,10 +149,10 @@ public class Output {
     }
 
     /**
-     * This method is used for getting the type of the {@code Output}. The accepted types
-     * are all java types defined by fully qualified names.
+     * This method is used to get the type of the {@code Output}. It can be any string that makes sense for the user,
+     * like a fully qualified name of a Java class, or a general description like "temperature", for example.
      *
-     * @return type is a fully qualified name of java type.
+     * @return the type of the output data.
      */
     public String getType() {
         return type;
@@ -199,23 +204,13 @@ public class Output {
     }
 
     /**
-     * This method is used for getting the default value of the {@code Output}. Default value takes place when there is
-     * no runtime value for this {@code Output}. Type of the default value must be the type of the {@code Output}.
+     * This method is used to get the string representation of the default value of the {@code Output}. It is used when
+     * there is no runtime value for this {@code Output}. It must be compatible with the type of the {@link Output}.
      *
-     * @return the default value of this {@code Output}.
+     * @return the string representation of the default value of this {@code Output}.
      */
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * This method is used for setting the type of the {@code Output}. The accepted types are all java types defined by
-     * fully qualified names.
-     *
-     * @param type is a fully qualified name of the java type.
-     */
-    private void setType(String type) {
-        this.type = type;
     }
 
     /**

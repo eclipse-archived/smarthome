@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
-import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -35,7 +35,7 @@ public class RuleContextHelper {
     /**
      * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the
      * same model (= rule file).
-     * 
+     *
      * @param rule the rule to get the context for
      * @return the evaluation context
      */
@@ -51,13 +51,13 @@ public class RuleContextHelper {
         }
         Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
         // no evaluation context found, so create a new one
-        ScriptEngine scriptEngine = RuleRuntimeActivator.scriptEngineTracker.getService();
+        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
         if (scriptEngine != null) {
             IEvaluationContext evaluationContext = contextProvider.get();
             for (VariableDeclaration var : ruleModel.getVariables()) {
                 try {
-                    Object initialValue = var.getRight() == null ? null : scriptEngine.newScriptFromXExpression(
-                            var.getRight()).execute();
+                    Object initialValue = var.getRight() == null ? null
+                            : scriptEngine.newScriptFromXExpression(var.getRight()).execute();
                     evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
                 } catch (ScriptExecutionException e) {
                     logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}",
@@ -68,8 +68,8 @@ public class RuleContextHelper {
             ruleModel.eAdapters().add(new RuleContextAdapter(evaluationContext));
             return evaluationContext;
         } else {
-            logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!", ruleModel
-                    .eResource().getURI().path());
+            logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!",
+                    ruleModel.eResource().getURI().path());
             return contextProvider.get();
         }
     }

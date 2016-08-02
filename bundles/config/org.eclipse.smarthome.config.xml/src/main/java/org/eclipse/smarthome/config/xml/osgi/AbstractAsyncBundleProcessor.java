@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,6 @@
 package org.eclipse.smarthome.config.xml.osgi;
 
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -21,16 +19,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.thing.BundleProcessor;
+import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleReference;
 import org.osgi.util.tracker.BundleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handles processing of bundles in an asynchronous way.
- * 
+ *
  * This helper class can be used in order to process bundles asynchronously, e.g.
  * loading some XML configuration content.
  * <p>
@@ -43,10 +40,11 @@ import org.slf4j.LoggerFactory;
  * If it is possible easily to determine if a bundle actually is relevant for later processing,
  * e.g. by presence of a OSGi Manifest parameter or a directory,
  * the {@link #isBundleRelevant(Bundle)} method can be overridden for this purpose.
- * 
+ *
  * @author Simon Kaufmann - Initial contribution and API
  * @author Benedikt Niehues - added helper method for filtering patched resources.
- * 
+ * @author Kai Kreuzer - fixed issues when bundles were added late and fixed xml folder lookup
+ *
  */
 
 public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
@@ -57,6 +55,8 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
 
     private final Queue<Bundle> queue = new ConcurrentLinkedQueue<>();
 
+    private final Set<Long> processedBundleIds = new CopyOnWriteArraySet<>();
+
     private static final Set<AbstractAsyncBundleProcessor> ALL_PROCESSORS = new CopyOnWriteArraySet<>();
 
     private Set<BundleProcessorListener> listeners = new CopyOnWriteArraySet<>();
@@ -66,7 +66,7 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
      * except the ones from the host bundle which are also contained in
      * a fragment. So the fragment bundle resources can override the
      * host bundles resources.
-     * 
+     *
      * @param xmlDocumentPaths
      * @param bundle
      * @return
@@ -98,12 +98,12 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
 
     /**
      * Determines whether a bundle is relevant to be further processed or not.
-     * 
+     *
      * Subclasses may override this method in order to determine in an efficient
      * way if the bundle is relevant to be processed or not. This usually should
      * happen in a cost-effective way, such as parsing the bundle's manifest for
      * a header.
-     * 
+     *
      * @param bundle
      * @return <code>true</code> if the bundle should be queued for further
      *         processing (default).
@@ -118,18 +118,18 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
      * to ACTIVE.
      *
      * Helper method which can be used in {@link #isBundleRelevant(Bundle)}.
-     * 
+     *
      * @param bundle
      * @param path the directory name to look for
      * @return <code>true</code> if the bundle or one of its attached fragments contain the given directory
      */
     protected final boolean isResourcePresent(Bundle bundle, String path) {
-        return bundle.getResource(path) != null;
+        return bundle.getEntry(path) != null;
     }
 
     /**
      * Process the given bundle.
-     * 
+     *
      * Subclasses must override this method and handle the bundle processing
      * according to the intended purpose.
      * <p>
@@ -137,20 +137,20 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
      * <p>
      * Exceptions which are thrown will get caught and logged, but not handled
      * otherwise.
-     * 
+     *
      * @param bundle
      */
     protected abstract void processBundle(Bundle bundle);
 
     /**
      * Add a bundle which potentially needs to be processed.
-     * 
+     *
      * This method should be called in order to queue a new bundle for asynchronous processing.
      * It can be used e.g. by a {@link BundleTracker}, detecting a new bundle.
      * <p>
      * If the bundle actually will be put into the queue depends on the outcome if
      * {@link #isBundleRelevant(Bundle)}.
-     * 
+     *
      * @param bundle
      */
     public void addingBundle(Bundle bundle) {
@@ -170,40 +170,25 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
     }
 
     @Override
-    public Bundle isFinishedLoading(Object object) {
-        Bundle bundle = getBundle(object.getClass());
-        if (queue.contains(bundle)) {
-            logger.trace("Bundle {} is still loading", bundle.getSymbolicName());
-            return bundle;
-        } else {
-            logger.trace("Bundle {} is not currently loading", bundle.getSymbolicName());
-            return null;
-        }
-    }
-
-    private Bundle getBundle(final Class<?> classFromBundle) {
-        ClassLoader classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            @Override
-            public ClassLoader run() {
-                return classFromBundle.getClassLoader();
+    public boolean hasFinishedLoading(Bundle bundle) {
+        if (isBundleRelevant(bundle)) {
+            if (!processedBundleIds.contains(bundle.getBundleId())) {
+                logger.trace("Resources of bundle '{}' are not yet loaded.", bundle.getSymbolicName());
+                return false;
+            } else {
+                logger.trace("Bundle {} has been fully processed.", bundle.getSymbolicName());
             }
-        });
-
-        if (classLoader instanceof BundleReference) {
-            Bundle bundle = ((BundleReference) classLoader).getBundle();
-            logger.trace("Bundle of {} is {}", classFromBundle, bundle.getSymbolicName());
-            return bundle;
         }
-        return null;
+        return true;
     }
 
     /**
      * Determines if a know relevant bundle's configuration has been processed
      * yet.
-     * 
+     *
      * <p>
      * NOTE: This method is primarily intended to be used in testing scenarios.
-     * 
+     *
      * @param bundle
      * @return
      */
@@ -219,14 +204,15 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
     /**
      * Notifies the {@link AbstractAsyncBundleProcessor} that a bundle has been
      * removed.
-     * 
+     *
      * Needs to be called by the {@link BundleTracker} when a bundle was
      * removed.
-     * 
+     *
      * @param bundle
      */
     public void removeBundle(Bundle bundle) {
         queue.remove(bundle);
+        processedBundleIds.remove(bundle.getBundleId());
     }
 
     private final Runnable processorRunnable = new Runnable() {
@@ -239,7 +225,6 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
                 // get first element from the queue, but keep it in
                 // there in order to indicate it's not yet processed
                 bundle = queue.peek();
-
                 // process the bundle
                 if (bundle != null) {
                     try {
@@ -253,6 +238,7 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
                 // remove bundle from queue
                 if (bundle != null) {
                     queue.remove(bundle);
+                    processedBundleIds.add(bundle.getBundleId());
                     informListeners(bundle);
                 }
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,15 @@ package org.eclipse.smarthome.model.persistence.tests;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
 import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
+import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
 import org.eclipse.smarthome.core.types.State;
 
@@ -27,7 +30,7 @@ import org.eclipse.smarthome.core.types.State;
 public class TestPersistenceService implements QueryablePersistenceService {
 
     @Override
-    public String getName() {
+    public String getId() {
         return "test";
     }
 
@@ -45,13 +48,16 @@ public class TestPersistenceService implements QueryablePersistenceService {
         int startValue = 1950;
         int endValue = 2012;
 
-        if (filter.getBeginDate() != null)
+        if (filter.getBeginDate() != null) {
             startValue = filter.getBeginDate().getYear() + 1900;
-        if (filter.getEndDate() != null)
+        }
+        if (filter.getEndDate() != null) {
             endValue = filter.getEndDate().getYear() + 1900;
+        }
 
-        if (endValue <= startValue || startValue < 1950)
+        if (endValue <= startValue || startValue < 1950) {
             return Collections.emptyList();
+        }
 
         ArrayList<HistoricItem> results = new ArrayList<HistoricItem>(endValue - startValue);
         for (int i = startValue; i <= endValue; i++) {
@@ -77,6 +83,16 @@ public class TestPersistenceService implements QueryablePersistenceService {
             Collections.reverse(results);
         }
         return results;
+    }
+
+    @Override
+    public Set<PersistenceItemInfo> getItemInfo() {
+        return null;
+    }
+
+    @Override
+    public String getLabel(Locale locale) {
+        return "Test Label";
     }
 
 }

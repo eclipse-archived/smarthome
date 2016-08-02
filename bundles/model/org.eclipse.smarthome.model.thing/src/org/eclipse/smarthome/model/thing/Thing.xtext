@@ -21,6 +21,7 @@ ModelBridge returns ModelThing:
 	{ModelBridge}
 	bridge?='Bridge' (id=UID | thingTypeId=UID_SEGMENT thingId=UID_SEGMENT)
     (label=STRING)?
+    ('@' location=STRING)?
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
 	']')?
@@ -28,7 +29,7 @@ ModelBridge returns ModelThing:
 		('Things:')?
 		things+=(ModelThing|ModelBridge)*
 		('Channels:')?			
-		channels+=ModelChannel*
+		channels+=ModelChannel*   
 		
 	'}')?
 ;
@@ -37,6 +38,7 @@ ModelThing:
 	('Thing')? (id=UID | thingTypeId=UID_SEGMENT thingId=UID_SEGMENT)
 	(label=STRING)?
 	('(' bridgeUID = UID ')')?
+	('@' location=STRING)?
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
 	']')?

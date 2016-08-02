@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,13 +50,13 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                 // do a double check if it is still null or if another thread might have created it meanwhile
                 pool = pools.get(poolName);
                 if (pool == null) {
-                    int[] cfg = getConfig(poolName);
-                    pool = new ExpressionThreadPoolExecutor(poolName, cfg[0]);
+                    Integer cfg = getConfig(poolName);
+                    pool = new ExpressionThreadPoolExecutor(poolName, cfg);
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
                     logger.debug("Created an expression-drive scheduled thread pool '{}' of size {}",
-                            new Object[] { poolName, cfg[0] });
+                            new Object[] { poolName, cfg });
                 }
             }
         }

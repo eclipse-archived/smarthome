@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,6 +167,9 @@ public class ThingResource implements RESTResource {
                 }
                 ThingHelper.addChannelsToThing(thing, channels);
             }
+            if (thingBean.location != null) {
+                thing.setLocation(thingBean.location);
+            }
         } else if (thingUID != null) {
             // if there wasn't any ThingFactory capable of creating the thing,
             // we create the Thing exactly the way we received it, i.e. we
@@ -179,7 +182,8 @@ public class ThingResource implements RESTResource {
         }
 
         thingRegistry.add(thing);
-        return getThingResponse(Status.CREATED, thing, locale, "Thing " + thingUID.toString() + " already exists!");
+        return getThingResponse(Status.CREATED, thing, locale,
+                "Thing " + thing.getUID().toString() + " already exists!");
     }
 
     @GET
@@ -418,7 +422,7 @@ public class ThingResource implements RESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);

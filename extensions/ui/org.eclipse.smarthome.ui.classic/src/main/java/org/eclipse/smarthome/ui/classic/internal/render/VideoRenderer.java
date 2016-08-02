@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,14 +36,22 @@ public class VideoRenderer extends AbstractWidgetRenderer {
      */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-        String snippet = getSnippet("video");
+        Video videoWidget = (Video) w;
+        String snippet = null;
 
         String widgetId = itemUIRegistry.getWidgetId(w);
         String sitemap = w.eResource().getURI().path();
 
+        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().contains("mjpeg")) {
+            // we handle mjpeg streams as an html image as browser can usually handle this
+            snippet = getSnippet("image");
+            snippet = StringUtils.replace(snippet, "%setrefresh%", "");
+            snippet = StringUtils.replace(snippet, "%refresh%", "");
+        } else {
+            snippet = getSnippet("video");
+        }
         String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
         snippet = StringUtils.replace(snippet, "%url%", url);
-
         sb.append(snippet);
         return null;
     }

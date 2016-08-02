@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>bundles</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -18,19 +18,5 @@
   <modules>
     <module>org.eclipse.smarthome.test</module>
   </modules>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.mycila</groupId>
-          <artifactId>license-maven-plugin</artifactId>
-          <configuration>
-            <header>src/etc/header_dt.txt</header>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 
 </project>

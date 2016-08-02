@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.model.script.internal.engine;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 
 import com.google.inject.Singleton;
 
@@ -26,7 +26,7 @@ import com.google.inject.Singleton;
 public class ServiceTrackerItemRegistryProvider implements IItemRegistryProvider {
     @Override
     public ItemRegistry get() {
-        ItemRegistry itemRegistry = ScriptActivator.itemRegistryTracker.getService();
+        ItemRegistry itemRegistry = ScriptServiceUtil.getItemRegistry();
         return itemRegistry;
     }
 }

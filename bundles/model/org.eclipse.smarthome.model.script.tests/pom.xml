@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>model</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -56,6 +56,11 @@
             <bundle>
               <id>org.eclipse.smarthome.core</id>
               <level>5</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.model.core</id>
+              <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
             <bundle>

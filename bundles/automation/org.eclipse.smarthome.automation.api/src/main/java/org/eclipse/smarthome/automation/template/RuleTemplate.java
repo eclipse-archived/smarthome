@@ -35,6 +35,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
+ * @author Markus Rathgeb - Add default constructor for deserialization
  */
 public class RuleTemplate implements Template {
 
@@ -87,6 +88,12 @@ public class RuleTemplate implements Template {
     private List<ConfigDescriptionParameter> configDescriptions;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected RuleTemplate() {
+    }
+
+    /**
      * This constructor creates a {@link RuleTemplate} instance.
      *
      * @param UID is an unique identifier of the {@link RuleTemplate} instance.
@@ -108,8 +115,9 @@ public class RuleTemplate implements Template {
         this.actions = actions;
         this.configDescriptions = configDescriptions;
         this.visibility = visibility;
-        if (tags == null || tags.isEmpty())
+        if (tags == null || tags.isEmpty()) {
             return;
+        }
         this.tags = new HashSet<String>(tags);
     }
 
@@ -175,7 +183,7 @@ public class RuleTemplate implements Template {
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
-    public List<ConfigDescriptionParameter> getConfigurationDescription() {
+    public List<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions != null ? configDescriptions : Collections.<ConfigDescriptionParameter> emptyList();
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -205,6 +205,24 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         assertThat(bridge.getConfiguration().get(USER_NAME), is(nullValue()))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
         assertThat(bridge.getStatusInfo().getStatusDetail(), equalTo(ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR))
+    }
+
+    @Test
+    void 'verify offline is set without bridge offline status'() {
+        Configuration configuration = new Configuration().with {
+            put(HOST, DUMMY_HOST)
+            put(SERIAL_NUMBER, "testSerialNumber")
+            it
+        }
+        Bridge bridge = createBridgeThing(configuration)
+
+        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        hueBridgeHandler.thingUpdated(bridge)
+
+        hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+
+        assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
+        assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
     }
 
     private Bridge createBridgeThing(Configuration configuration){

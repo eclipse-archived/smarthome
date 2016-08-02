@@ -40,7 +40,8 @@ import com.google.common.collect.Maps;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler, EventSubscriber {
+public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
+        implements TriggerHandler, EventSubscriber, EventFilter {
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
@@ -92,11 +93,13 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
         if (callback != null) {
             logger.trace("Received Event: Source: " + event.getSource() + " Topic: " + event.getTopic() + " Type: "
                     + event.getType() + " Payload: " + event.getPayload());
+
             if (!event.getTopic().contains(source)) {
                 return;
             }
             Map<String, Object> values = Maps.newHashMap();
             values.put("event", event);
+
             callback.triggered(this.module, values);
         }
     }
@@ -125,6 +128,12 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
             eventSubscriberRegistration.unregister();
             eventSubscriberRegistration = null;
         }
+    }
+
+    @Override
+    public boolean apply(Event event) {
+        logger.trace("->FILTER: {}:{}", event.getTopic(), source);
+        return event.getTopic().contains(source);
     }
 
 }

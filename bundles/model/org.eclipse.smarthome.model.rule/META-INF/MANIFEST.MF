@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Rule Model
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.rule;singleton:=true
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.generator;resolution:=optional,
@@ -33,6 +33,8 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.items,
  org.eclipse.smarthome.model.persistence.extensions,
+ org.eclipse.smarthome.model.script,
+ org.eclipse.smarthome.model.script.engine.action,
  org.eclipse.xtext.xbase.lib,
  org.joda.time,
  org.joda.time.base,
@@ -56,4 +58,5 @@ Export-Package: org.eclipse.smarthome.model.rule,org.eclipse.smarthome
  .rule.validation,org.eclipse.smarthome.model.rule.formatting,org.ecli
  pse.smarthome.model.rule.jvmmodel,org.eclipse.smarthome.model.rule.se
  rializer
+Bundle-ActivationPolicy: lazy
 

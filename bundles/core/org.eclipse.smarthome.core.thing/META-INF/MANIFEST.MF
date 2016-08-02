@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: Eclipse SmartHome Core Thing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.thing
@@ -29,7 +29,6 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.thing.i18n,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.link.dto,
- org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
@@ -50,7 +49,6 @@ Export-Package: org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.i18n,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.link.dto,
- org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util
 Service-Component: OSGI-INF/*.xml

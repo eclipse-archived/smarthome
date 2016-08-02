@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    Copyright (c) 2014-2016 by the respective copyright holders.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.model.script.jvmmodel.scriptitemrefresher">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.script.jvmmodel.scriptitemrefresher">
    <implementation class="org.eclipse.smarthome.model.script.jvmmodel.ScriptItemRefresher"/>
  <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
  <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+ <service>
+    <provide interface="org.eclipse.smarthome.model.script.jvmmodel.ScriptItemRefresher"/>
+ </service>
 </scr:component>

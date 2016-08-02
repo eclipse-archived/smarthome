@@ -62,28 +62,10 @@ unset COMMIT_ID_WC
 #
 # Parse command line arguments
 #
-VERSION_POSTFIX="${1}"; shift
 COMMIT_ID="${1}"; shift
-
-if [ -z "${VERSION_POSTFIX}" ]; then
-  die "version postfix missing"
-fi
 
 if [ -z "${COMMIT_ID}" ]; then
   die "commit id missing"
-fi
-
-#
-# Give the information to the user and wait for accept.
-#
-
-log "version postfix: ${VERSION_POSTFIX}"
-log "commit id: ${COMMIT_ID}"
-
-log "Enter 'Y' to proceed"
-read PROCEED
-if [ x"${PROCEED}" != x"Y" ]; then
-  exit 1
 fi
 
 # Clone only if necessary
@@ -104,21 +86,31 @@ if [ -n "${GIT_STATUS}" ]; then
   die "Your working copy is not clean"
 fi
 
+#
 # Store commit ID of current working copy
+#
 COMMIT_ID_WC="$(git rev-parse HEAD)"
 log "To restore your working copy (if script does not finish correctly), use:"
-log "git reset --hard ${COMMIT_ID_WC}"
+log "git reset -q --hard ${COMMIT_ID_WC}"
 
+#
 # Fetch all from repos
+#
 git fetch "${REMOTE}" || die "Cannot fetch."
 
+#
 # Reset current working copy to given commit id
-git reset --hard "${COMMIT_ID}" || die "Reset working copy failed."
+#
+git reset -q --hard "${COMMIT_ID}" || die "Reset working copy failed."
 
+#
 # Clean working copy
-git clean -x -d -f || die "Git clean failed."
+#
+git clean -q -x -d -f || die "Git clean failed."
 
+#
 # Parse version of the current working copy
+#
 VERSION_OLD="$(cat pom.xml | grep '<version>.*</version>' | head -n1 | sed 's:<version>\(.*\)</version>:\1:g' | awk '{print $1}')"
 case "${VERSION_OLD}" in
   *-SNAPSHOT) log "version old: ${VERSION_OLD}"
@@ -127,39 +119,126 @@ case "${VERSION_OLD}" in
     ;;
 esac
 
+#
+# Prepare some version old variables
+#
+VERSION_OLD_MMR=${VERSION_OLD%-SNAPSHOT}
+VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
+
+#
 # Generate new version
-VERSION_NEW="${VERSION_OLD%-SNAPSHOT}.${VERSION_POSTFIX}"
-log "version new: ${VERSION_NEW}"
+#
+if [ -z "${VERSION_NEW_MMR}" ]; then
+  VERSION_NEW_MMR="${VERSION_OLD_MMR}"
+fi
+if [ -n "${VERSION_NEW_CLASSI}" ]; then
+  case "${VERSION_NEW_CLASSI}" in
+    SNAPSHOT)
+      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_CLASSI}"
+      ;;
+    *)
+      VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_CLASSI}"
+      ;;
+  esac
+else
+  VERSION_NEW="${VERSION_NEW_MMR}"
+fi
+VERSION_NEW_QUALI="${VERSION_NEW_MMR}.qualifier"
+
+#
+# Print version info
+#
+log "version old: ${VERSION_OLD}, mmr: ${VERSION_OLD_MMR}, quali: ${VERSION_OLD_QUALI}"
+log "version new: ${VERSION_NEW}, mmr: ${VERSION_NEW_MMR}, quali: ${VERSION_NEW_QUALI}"
+log "commit id: ${COMMIT_ID}"
+
+log "Enter 'Y' to proceed"
+read PROCEED
+if [ x"${PROCEED}" != x"Y" ]; then
+  die
+fi
 
 # Use tycho to set version of pom and manifest files
 log "set new version using tycho"
 mvn tycho-versions:set-version -DnewVersion="${VERSION_NEW}" || die "Tycho set-version failed."
 
-# Change version that is hardcoded in some files
-log "change hardcoded version string in files"
-sed 's:\("version"\: *"\).*\(".*\):\1'"${VERSION_NEW}"'\2:g' -i extensions/ui/org.eclipse.smarthome.ui.paper/bower.json
+#
+# Now change some files manually
+#
+log "change additional files"
 
+for FILE in \
+  bundles/config/org.eclipse.smarthome.config.core.test/ConfigCoreTests.launch \
+  bundles/core/org.eclipse.smarthome.core.thing.test/org.eclipse.smarthome.core.thing.test.launch \
+  bundles/io/org.eclipse.smarthome.io.rest.core.test/org.eclipse.smarthome.io.rest.core.test.launch \
+  docs/documentation/development/testing.md \
+  products/org.eclipse.smarthome.repo/category.xml
+do
+  sed 's:'"${VERSION_OLD_QUALI}"':'"${VERSION_NEW_QUALI}"':g' -i "${FILE}"
+done
+
+for FILE in \
+  docs/documentation/community/downloads.md \
+  docs/pom.xml \
+  extensions/binding/create_binding_skeleton.cmd \
+  extensions/binding/create_binding_skeleton.sh \
+  protocols/enocean/org.eclipse.smarthome.protocols.enocean.basedriver.impl/pom.xml \
+  protocols/enocean/org.eclipse.smarthome.protocols.enocean.eeps.basic/pom.xml \
+  protocols/enocean/org.eclipse.smarthome.protocols.enocean.sample.client/pom.xml \
+  protocols/enocean/pom.xml
+do
+  sed 's:'"${VERSION_OLD}"':'"${VERSION_NEW}"':g' -i "${FILE}"
+done
+
+#for FILE in \
+#  extensions/ui/org.eclipse.smarthome.ui.basic/package.json \
+#  extensions/ui/org.eclipse.smarthome.ui.paper/package.json \
+#  extensions/ui/org.eclipse.smarthome.ui.paper/bower.json
+#do
+#  sed 's:\("version"\: *"\).*\(".*\):\1'"${VERSION_NEW_MMR}"'\2:g' -i "${FILE}"
+#done
+
+for FILE in \
+   protocols/enocean/README.md
+do
+  sed 's:\(org\.eclipse\.smarthome.* (\)'"${VERSION_OLD_MMR}"')\(.*\):\1'"${VERSION_NEW_MMR}"')\2:g' -i "${FILE}"
+done
+
+#
 # Check if maven could build
+#
 if [ -z "${REF_TAG_MVN_ARGS_CHECK_BUILD}" ]; then
   REF_TAG_MVN_ARGS_CHECK_BUILD="clean install"
 fi
 mvn ${REF_TAG_MVN_ARGS_CHECK_BUILD} || die "Check build using 'mvn ${REF_TAG_MVN_ARGS_CHECK_BUILD}' failed"
 
+#
 # Commit changes done in the working copy
+#
 git add . || die "git add failed"
 git commit -s -m "[ref] set version to ${VERSION_NEW}" || die "git commit failed"
 
+#
 # Generate tag name
+#
 TAG_NAME=ref-"${VERSION_NEW}"
 
+#
 # Create tag
+#
 git tag "${TAG_NAME}" || die "create tag failed"
 
+#
 # Push tag to remote
+#
 git push --tags "${REMOTE}" "${TAG_NAME}" || die "push tag failed"
 
+#
 # Now, do a build with additional deploy of the artifacts
+#
 #mvn clean install deploy
 
+#
 # Cleanup (e.g. restore working copy)
+#
 cleanup

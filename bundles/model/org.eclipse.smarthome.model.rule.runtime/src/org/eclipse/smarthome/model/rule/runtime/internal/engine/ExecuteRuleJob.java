@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
-import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -45,8 +45,8 @@ public class ExecuteRuleJob implements Job {
         String modelName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULEMODEL);
         String ruleName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULENAME);
 
-        ModelRepository modelRepository = RuleRuntimeActivator.modelRepositoryTracker.getService();
-        ScriptEngine scriptEngine = RuleRuntimeActivator.scriptEngineTracker.getService();
+        ModelRepository modelRepository = ScriptServiceUtil.getModelRepository();
+        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
 
         if (modelRepository != null && scriptEngine != null) {
             EObject model = modelRepository.getModel(modelName);
@@ -59,7 +59,7 @@ public class ExecuteRuleJob implements Job {
                     try {
                         script.execute(RuleContextHelper.getContext(rule, injector));
                     } catch (ScriptExecutionException e) {
-                        logger.error("Error during the execution of rule {}", rule.getName(), e.getCause());
+                        logger.error("Error during the execution of rule {}: {}", rule.getName(), e.getMessage());
                     }
                 } else {
                     logger.debug("Scheduled rule '{}' does not exist", ruleName);

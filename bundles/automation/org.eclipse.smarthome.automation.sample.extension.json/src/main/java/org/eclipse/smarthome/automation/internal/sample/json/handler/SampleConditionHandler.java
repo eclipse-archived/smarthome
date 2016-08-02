@@ -24,6 +24,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Condition Handler Sample Implementation.
@@ -61,7 +62,7 @@ public class SampleConditionHandler extends BaseModuleHandler<Condition>implemen
         if (conditionInput == null) {
             conditionInput = "";
         }
-        Map<String, Object> config = module.getConfiguration();
+        Configuration config = module.getConfiguration();
         String operator = (String) config.get(PROPERTY_OPERATOR);
         String constraint = (String) config.get(PROPERTY_CONSTRAINT);
         boolean evaluation = false;

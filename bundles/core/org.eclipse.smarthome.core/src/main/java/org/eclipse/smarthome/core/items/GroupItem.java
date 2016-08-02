@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,7 +92,16 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
+    /**
+     * Adds the given item to the members of this group item.
+     *
+     * @param item the item to be added (must not be null)
+     * @throws IllegalArgumentException if the given item is null
+     */
     public void addMember(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item must not be null!");
+        }
         members.add(item);
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
@@ -100,7 +109,16 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
+    /**
+     * Removes the given item from the members of this group item.
+     *
+     * @param item the item to be removed (must not be null)
+     * @throws IllegalArgumentException if the given item is null
+     */
     public void removeMember(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item must not be null!");
+        }
         members.remove(item);
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;

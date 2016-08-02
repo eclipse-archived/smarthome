@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,12 +81,13 @@ public class DefaultChartProvider implements ChartProvider {
     }
 
     public void addPersistenceService(PersistenceService service) {
-        if (service instanceof QueryablePersistenceService)
-            persistenceServices.put(service.getName(), (QueryablePersistenceService) service);
+        if (service instanceof QueryablePersistenceService) {
+            persistenceServices.put(service.getId(), (QueryablePersistenceService) service);
+        }
     }
 
     public void removePersistenceService(PersistenceService service) {
-        persistenceServices.remove(service.getName());
+        persistenceServices.remove(service.getId());
     }
 
     static public Map<String, QueryablePersistenceService> getPersistenceServices() {
@@ -168,8 +169,9 @@ public class DefaultChartProvider implements ChartProvider {
             String[] itemNames = items.split(",");
             for (String itemName : itemNames) {
                 Item item = itemUIRegistry.getItem(itemName);
-                if (addItem(chart, persistenceService, startTime, endTime, item, seriesCounter))
+                if (addItem(chart, persistenceService, startTime, endTime, item, seriesCounter)) {
                     seriesCounter++;
+                }
             }
         }
 
@@ -181,8 +183,9 @@ public class DefaultChartProvider implements ChartProvider {
                 if (item instanceof GroupItem) {
                     GroupItem groupItem = (GroupItem) item;
                     for (Item member : groupItem.getMembers()) {
-                        if (addItem(chart, persistenceService, startTime, endTime, member, seriesCounter))
+                        if (addItem(chart, persistenceService, startTime, endTime, member, seriesCounter)) {
                             seriesCounter++;
+                        }
                     }
                 } else {
                     throw new ItemNotFoundException("Item '" + item.getName() + "' defined in groups is not a group.");
@@ -284,8 +287,8 @@ public class DefaultChartProvider implements ChartProvider {
         // If the start value is below the median, then count legend position down
         // Otherwise count up.
         // We use this to decide whether to put the legend in the top or bottom corner.
-        if (yData.iterator().next().floatValue() > ((series.getyMax().floatValue() - series.getyMin().floatValue()) / 2 + series
-                .getyMin().floatValue())) {
+        if (yData.iterator().next().floatValue() > ((series.getyMax().floatValue() - series.getyMin().floatValue()) / 2
+                + series.getyMin().floatValue())) {
             legendPosition++;
         } else {
             legendPosition--;

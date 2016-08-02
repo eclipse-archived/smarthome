@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Deutsche Telekom AG and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,12 @@
  */
 package org.eclipse.smarthome.config.core.normalization;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link NormalizerFactory} can be used in order to obtain the {@link Normalizer} for any concrete
@@ -24,9 +23,16 @@ import com.google.common.collect.ImmutableMap;
  */
 public final class NormalizerFactory {
 
-    private static final Map<Type, Normalizer> normalizers = new ImmutableMap.Builder<Type, Normalizer>()
-            .put(Type.BOOLEAN, new BooleanNormalizer()).put(Type.TEXT, new TextNormalizer())
-            .put(Type.INTEGER, new IntNormalizer()).put(Type.DECIMAL, new DecimalNormalizer()).build();
+    private static final Map<Type, Normalizer> normalizers;
+
+    static {
+        Map<Type, Normalizer> map = new HashMap<Type, Normalizer>(11);
+        map.put(Type.BOOLEAN, new BooleanNormalizer());
+        map.put(Type.TEXT, new TextNormalizer());
+        map.put(Type.INTEGER, new IntNormalizer());
+        map.put(Type.DECIMAL, new DecimalNormalizer());
+        normalizers = Collections.unmodifiableMap(map);
+    }
 
     private NormalizerFactory() {
         // prevent instantiation
@@ -40,7 +46,9 @@ public final class NormalizerFactory {
      * @throws NullPointerException if the given config description parameter is null
      */
     public static Normalizer getNormalizer(ConfigDescriptionParameter configDescriptionParameter) {
-        Preconditions.checkNotNull(configDescriptionParameter, "The config description parameter must not be null.");
+        if (configDescriptionParameter == null) {
+            throw new NullPointerException("The config description parameter must not be null.");
+        }
 
         Normalizer ret = normalizers.get(configDescriptionParameter.getType());
 

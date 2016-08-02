@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,9 @@
  */
 package org.eclipse.smarthome.model.rule.runtime.internal;
 
-import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
-import org.eclipse.smarthome.model.rule.runtime.RuleRuntime;
-import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,28 +18,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class RuleRuntimeActivator implements RuleRuntime {
+public class RuleRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
 
-    public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
-    public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
-
     public void activate(BundleContext bc) throws Exception {
-
         RulesStandaloneSetup.doSetup();
         logger.debug("Registered 'rule' configuration parser");
-        modelRepositoryTracker = new ServiceTracker<ModelRepository, ModelRepository>(bc, ModelRepository.class, null);
-        modelRepositoryTracker.open();
-
-        scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
-        scriptEngineTracker.open();
-
     }
 
     public void deactivate() throws Exception {
-        modelRepositoryTracker.close();
-        scriptEngineTracker.close();
+    }
+
+    @Override
+    public String getExtension() {
+        return "rules";
     }
 
 }

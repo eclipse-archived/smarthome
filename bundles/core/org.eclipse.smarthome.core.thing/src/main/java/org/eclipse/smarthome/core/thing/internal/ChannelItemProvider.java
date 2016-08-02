@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,15 +31,19 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class dynamically provides items for all links that point to non-existing items.
  *
  * @author Kai Kreuzer
  * @author Markus Rathgeb - Add locale provider support
- *
+ * @author Thomas Höfer - Added modified operation
  */
 public class ChannelItemProvider implements ItemProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
     private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
@@ -123,40 +127,61 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     protected void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
+
+    protected synchronized void modified(Map<String, Object> properties) {
         if (properties != null) {
             String enabled = (String) properties.get("enabled");
             if ("false".equalsIgnoreCase(enabled)) {
                 this.enabled = false;
+            } else {
+                this.enabled = true;
             }
         }
+
         if (enabled) {
+            logger.debug("Enabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
                 for (Item item : getAll()) {
                     listener.added(this, item);
                 }
             }
-            this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
-            this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
-            this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
+            addRegistryChangeListeners();
         } else {
+            logger.debug("Disabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
                 for (Item item : getAll()) {
                     listener.removed(this, item);
                 }
             }
+            removeRegistryChangeListeners();
         }
     }
 
     protected void deactivate() {
-        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
-        this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
-        this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
+        removeRegistryChangeListeners();
         synchronized (this) {
             items = null;
         }
     }
 
+    private void addRegistryChangeListeners() {
+        this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
+        this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
+        this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
+    }
+
+    private void removeRegistryChangeListeners() {
+        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
+        this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
+        this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
+    }
+
     private void createItemForLink(ItemChannelLink link) {
+        if (!enabled) {
+            return;
+        }
         if (itemRegistry.get(link.getItemName()) != null) {
             // there is already an item, we do not need to create one
             return;
@@ -188,12 +213,13 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     private String getCategory(Channel channel) {
-        ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
-        if (channelType != null) {
-            return channelType.getCategory();
-        } else {
-            return null;
+        if (channel.getChannelTypeUID() != null) {
+            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
+            if (channelType != null) {
+                return channelType.getCategory();
+            }
         }
+        return null;
     }
 
     private String getLabel(Channel channel) {
@@ -201,9 +227,11 @@ public class ChannelItemProvider implements ItemProvider {
             return channel.getLabel();
         } else {
             final Locale locale = localeProvider.getLocale();
-            final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
-            if (channelType != null) {
-                return channelType.getLabel();
+            if (channel.getChannelTypeUID() != null) {
+                final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
+                if (channelType != null) {
+                    return channelType.getLabel();
+                }
             }
         }
         return null;

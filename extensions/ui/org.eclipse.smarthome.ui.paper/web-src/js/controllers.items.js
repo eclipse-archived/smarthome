@@ -74,9 +74,12 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
                 toastService.showDefaultToast(text);
+                itemRepository.setDirty(true);
+                $location.path('configuration/items');
+            }, function(failed) {
+                $location.path('configuration/items');
             });
         }
-        $location.path('configuration/items');
     }
 
     $scope.renderIcon = function() {
@@ -84,12 +87,13 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
     }
 
-}).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, item) {
+}).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemRepository, item) {
     $scope.item = item;
     $scope.remove = function(itemName) {
         itemService.remove({
             itemName : itemName
         }, function() {
+            itemRepository.setDirty(true);
             toastService.showDefaultToast('Item removed.');
         });
         $mdDialog.hide();

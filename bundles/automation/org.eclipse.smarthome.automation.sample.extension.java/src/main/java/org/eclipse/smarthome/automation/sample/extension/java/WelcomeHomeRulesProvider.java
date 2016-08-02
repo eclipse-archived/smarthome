@@ -28,6 +28,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeAc
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -105,11 +106,13 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * @param config
      *            gives the new configuration of the rule
      */
-    public void update(String uid, String template, Map<String, Object> config) {
+    public void update(String uid, String template, Configuration config) {
 
         // specific for this application
         Rule oldelement = rules.get(uid);
-        Rule element = new Rule(uid, template, config);
+        Rule element = new Rule(uid);
+        element.setTemplateUID(template);
+        element.setConfiguration(config);
         rules.put(uid, element);
 
         // inform all listeners, interested about changing of the rules
@@ -143,12 +146,15 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * @return the created rule
      */
     private Rule createACRule() {
-        Map<String, Object> config = new HashMap<String, Object>();
+        Configuration config = new Configuration();
         config.put(CONFIG_UNIT, "Air Conditioner");
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
         config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
         config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, TemperatureConditionType.OPERATOR_HEATING);
-        return new Rule(AC_UID, AirConditionerRuleTemplate.UID, config);
+        Rule rule = new Rule(AC_UID);
+        rule.setTemplateUID(AirConditionerRuleTemplate.UID);
+        rule.setConfiguration(config);
+        return rule;
     }
 
     /**
@@ -165,7 +171,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
         // initialize the condition - here the tricky part is the referring into the condition input - trigger output.
         // The syntax is a similar to the JUEL syntax.
-        Map<String, Object> config = new HashMap<String, Object>();
+        Configuration config = new Configuration();
         config.put(StateConditionType.CONFIG_STATE, "on");
         List<Condition> conditions = new ArrayList<Condition>();
         Map<String, String> inputs = new HashMap<String, String>();
@@ -174,7 +180,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
         // initialize the action - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
-        config = new HashMap<String, Object>();
+        config = new Configuration();
         config.put(WelcomeHomeActionType.CONFIG_DEVICE, "Lights");
         config.put(WelcomeHomeActionType.CONFIG_RESULT, "Lights are switched on");
         List<Action> actions = new ArrayList<Action>();
@@ -193,12 +199,16 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         configDescriptions.add(result);
 
         // initialize the configuration
-        config = new HashMap<String, Object>();
+        config = new Configuration();
         config.put(CONFIG_UNIT, "Lights");
         config.put(CONFIG_EXPECTED_RESULT, "The lights are switched on.");
 
         // create the rule
-        Rule lightsSwitchOn = new Rule(L_UID, triggers, conditions, actions, configDescriptions, config);
+        Rule lightsSwitchOn = new Rule(L_UID);
+        lightsSwitchOn.setTriggers(triggers);
+        lightsSwitchOn.setConfigurationDescriptions(configDescriptions);
+        lightsSwitchOn.setConditions(conditions);
+        lightsSwitchOn.setActions(actions);
 
         // initialize the tags
         Set<String> tags = new HashSet<String>();

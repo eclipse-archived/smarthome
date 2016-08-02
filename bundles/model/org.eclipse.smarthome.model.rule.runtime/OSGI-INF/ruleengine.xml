@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    Copyright (c) 2014-2016 by the respective copyright holders.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="false" name="org.eclipse.smarthome.model.ruleengine">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.model.ruleengine">
    <implementation class="org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleEngineImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
       <provide interface="org.eclipse.smarthome.model.rule.runtime.RuleEngine"/>
    </service>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
-   <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
-   <reference bind="setScriptEngine" cardinality="1..1" interface="org.eclipse.smarthome.model.script.engine.ScriptEngine" name="ScriptEngine" policy="dynamic" unbind="unsetScriptEngine"/>
-   <reference bind="setRuleRuntime" cardinality="1..1" interface="org.eclipse.smarthome.model.rule.runtime.RuleRuntime" name="RuleRuntime" policy="static" unbind="unsetRuleRuntime"/>
+   <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="static" unbind="unsetModelRepository"/>
+   <reference bind="setScriptEngine" cardinality="1..1" interface="org.eclipse.smarthome.model.script.engine.ScriptEngine" name="ScriptEngine" policy="static" unbind="unsetScriptEngine"/>
 </scr:component>

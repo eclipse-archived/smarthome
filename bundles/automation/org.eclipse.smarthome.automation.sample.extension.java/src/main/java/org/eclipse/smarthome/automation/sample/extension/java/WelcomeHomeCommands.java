@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.handler.WelcomeHom
 import org.eclipse.smarthome.automation.sample.extension.java.template.AirConditionerRuleTemplate;
 import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditionType;
 import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -212,8 +213,7 @@ public class WelcomeHomeCommands extends AbstractConsoleCommandExtension {
             return;
         }
         @SuppressWarnings("unchecked")
-        Map<String, Object> config = (Map<String, Object>) rulesProvider.rules.get(WelcomeHomeRulesProvider.AC_UID)
-                .getConfiguration();
+        Configuration config = rulesProvider.rules.get(WelcomeHomeRulesProvider.AC_UID).getConfiguration();
         if (params[0] != null && (params[0].equalsIgnoreCase(TemperatureConditionType.OPERATOR_HEATING)
                 || params[0].equalsIgnoreCase(TemperatureConditionType.OPERATOR_COOLING))) {
             config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, params[0]);

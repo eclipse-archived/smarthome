@@ -4,16 +4,31 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
     var objectFilter = $filter('filter');
     $scope.moduleData;
-    moduleTypeService.getByType({
-        mtype : type
-    }).$promise.then(function(data) {
-        $scope.moduleData = objectFilter(data, {
-            visibility : 'VISIBLE'
+    $scope.triggerData;
+
+    getModulesByType(type, type == 'trigger' ? setConfigurations : null);
+
+    function getModulesByType(mtype, callback) {
+        moduleTypeService.getByType({
+            mtype : mtype
+        }).$promise.then(function(data) {
+            var modules = objectFilter(data, {
+                visibility : 'VISIBLE'
+            });
+            if (mtype != 'trigger' || type == 'trigger') {
+                $scope.moduleData = modules;
+            }
+            if (callback) {
+                $scope.triggerData = modules;
+                if ($scope.module) {
+                    callback();
+                }
+            } else {
+                getModulesByType('trigger', setConfigurations);
+            }
+
         });
-        if ($scope.id) {
-            setConfigurations();
-        }
-    });
+    }
     $scope.id = module.id;
     $scope.type = type;
     $scope.description = '';
@@ -21,20 +36,52 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     $scope.step = 1;
     $scope.editMode = false;
     $scope.configuration = {};
+    $scope.parameters = [];
     var originalConfiguration = {};
-    function setConfigurations() {
+    $scope.items = [];
+
+    $scope.selectChip = function(chip, textAreaName) {
+        var textArea = $("textarea[name=" + textAreaName + "]")[0];
+        var textBefore = textArea.value.substring(0, textArea.selectionStart);
+        var textAfter = textArea.value.substring(textArea.selectionStart, textArea.value.length);
+        $scope.configuration[textAreaName] = textBefore + chip.name + textAfter;
+    }
+
+    var setConfigurations = function() {
         if ($scope.moduleData) {
             var params = filterByUid($scope.moduleData, $scope.module);
-            var res = configService.getRenderingModel(params[0].configDescriptions);
-            angular.forEach(res, function(value) {
+
+            $scope.parameters = configService.getRenderingModel(params[0].configDescriptions);
+            var hasScript = false;
+            angular.forEach($scope.parameters, function(value) {
+
                 sharedProperties.updateParams(value);
+                hasScript = $.grep(value.parameters, function(parameter) {
+                    return parameter.context == 'script';
+                }).length > 0;
             });
 
             var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
             if (index != -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
                 angular.copy($scope.configuration, originalConfiguration);
-                $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            }
+            $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+            if (hasScript && type != 'trigger') {
+                var triggers = sharedProperties.getModuleArray('trigger');
+                angular.forEach(triggers, function(trigger, i) {
+                    var moduleType = filterByUid($scope.triggerData, trigger.type);
+                    $scope.items = $scope.items.concat(moduleType[0].outputs);
+                });
+                if (type == 'action') {
+                    var actions = sharedProperties.getModuleArray('action');
+                    for (var i = 0; i < sharedProperties.searchArray(actions, $scope.id); i++) {
+                        var moduleType = filterByUid($scope.moduleData, actions[i].type);
+                        if (moduleType[0] && moduleType[0].outputs && moduleType[0].outputs.length > 0) {
+                            $scope.items = $scope.items.concat(moduleType[0].outputs);
+                        }
+                    }
+                }
             }
         }
     }
@@ -63,13 +110,14 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         var tempModule = filterByUid($scope.moduleData, $scope.module);
         if (tempModule != null && tempModule.length > 0) {
             tempModule[0].label = $scope.name;
-            $scope.configuration = configService.replaceEmptyValues($scope.configuration);
+            var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
+            configuration = configService.replaceEmptyValues(configuration);
             var obj = {
                 id : $scope.id,
                 label : $scope.name,
                 description : $scope.description,
                 type : tempModule[0].uid,
-                configuration : $scope.configuration
+                configuration : configuration
             };
             sharedProperties.updateModule($scope.type, obj);
         }
@@ -100,4 +148,20 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         });
     }
 
+}).directive('mdChips', function() {
+    return {
+        restrict : 'E',
+        require : 'mdChips',
+        link : function(scope, element, attributes, ctrl) {
+            setTimeout(deferListeners, 500);
+            function deferListeners() {
+                var chipContents = element[0].getElementsByClassName('md-chip-content');
+                for (var i = 0; i < chipContents.length; i++) {
+                    chipContents[i].addEventListener("blur", function() {
+                        ctrl.$scope.$apply();
+                    });
+                }
+            }
+        }
+    }
 });

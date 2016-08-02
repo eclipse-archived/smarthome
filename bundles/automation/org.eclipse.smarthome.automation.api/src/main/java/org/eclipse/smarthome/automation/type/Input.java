@@ -14,32 +14,39 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 
 /**
- * This class defines meta-information which is used by the RuleEngine when creating connection between modules. The
- * meta-information contains:
+ * This class defines meta-information properties, used by the Rule Engine when creating connections between modules.
+ * The {@link Input}s of a {@link Module} are the entry points for data coming from other {@link Module}s. An
+ * {@link Input} can be connected to a single {@link Output} of another {@link Module}, which produces data of an
+ * acceptable type.
+ * <p>
+ * The meta-information contains:
  * <ul>
- * <li>name(mandatory) - unequal id in scope of containing Module</li>
- * <li>type(mandatory) - accepted data type by this Parameter</li>
- * <li>label(optional) - short id (one word) of the Parameter</li>
- * <li>description(optional) - user friendly description of the Parameter</li>
- * <li>default value(optional) - default value of the Parameter</li>
- * <li>is required(optional) - defines if the Parameter is required or optional. If missing the value is true.</li>
+ * <li>name (mandatory) - unique ID in the scope of the {@link Module}</li>
+ * <li>type (mandatory) - the acceptable data type for this {@link Input}. The value of this meta-info property could be
+ * any string that makes sense for the user, like a fully qualified name of a Java class, or a general description like
+ * "temperature", for example. The value "*" means that all possible types are acceptable. The type is used to determine
+ * which {@link Output} can be connected to this {@link Input}.</li>
+ * <li>label (optional) - short description (one word) of the {@link Input}</li>
+ * <li>description (optional) - long user friendly description of the {@link Input}</li>
+ * <li>default value (optional) - the string representation of the default value of the {@link Input}. It must be
+ * compatible with the type of the {@link Input}</li>
+ * <li>required (optional) - defines if the {@link Input} is required or optional. The default value is false.</li>
  * </ul>
- * The Inputs are entry points of {@link Module}s for data coming from other
- * modules. The {@link Input} can be connected to a single {@link Output} of
- * other module which produces data of the same type.</br>
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
 public class Input {
 
     /**
-     * is an unique name of the {@code Input} in scope of the {@link Module}.
+     * A unique name of the {@code Input} in scope of the {@link Module}.
      */
     private String name;
 
     /**
-     * This field specifies the type of the {@code Input}. The accepted types are all java types defined by fully
-     * qualified names.
+     * This field specifies the acceptable data type for this {@link Input}. The value could be any string that makes
+     * sense for the user, like a fully qualified name of a Java class, or a general description like "temperature", for
+     * example. The value "*" means that all possible types are acceptable. The type is used to determine which
+     * {@link Output} can be connected to this {@link Input} instance.
      */
     private String type;
 
@@ -68,11 +75,11 @@ public class Input {
     }
 
     /**
-     * Constructor of the {@code Input} object. Creates Input base on type of accepted data and {@code Input}'s name.
+     * Constructs an {@code Input} instance with the specified name and type.
      *
-     * @param type data type accepted by this Input. The accepted types are any java types defined by fully qualified
-     *            names.
-     * @param name unique name of the Input.
+     * @param name unique name of the {@link Input}.
+     * @param type the acceptable data type for this {@link Input}.
+     * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Input(String name, String type) {
         this(name, type, null, null, null, false, null, null);
@@ -82,8 +89,8 @@ public class Input {
      * Constructor of Input object. Creates Input base on type of accepted data
      * and input name
      *
-     * @param type data type accepted by this {@code Input}.
      * @param name unique name of the {@code Input}.
+     * @param type the acceptable data type for this {@link Input}.
      * @param label a single word description of the {@code Input}.
      * @param description user friendly description of the {@code Input}.
      * @param tags are associated with the {@code Input}. The tags adds additional restrictions to connections between
@@ -98,14 +105,18 @@ public class Input {
      *            the reference should be null.
      * @param defaultValue default value takes place when there is no value for this Input. Type of the default value
      *            must be the type the Input.
+     * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Input(String name, String type, String label, String description, Set<String> tags, boolean required,
             String reference, String defaultValue) {
         if (name == null) {
             throw new IllegalArgumentException("The name of the input must not be NULL!");
         }
+        if (type == null) {
+            throw new IllegalArgumentException("The type of the input must not be NULL!");
+        }
         this.name = name;
-        setType(type);
+        this.type = type;
         this.label = label;
         this.description = description;
         this.tags = tags;
@@ -152,17 +163,18 @@ public class Input {
     }
 
     /**
-     * This method is used for getting the type of the Input. The accepted types are all java types defined by fully
-     * qualified names.
+     * This method is used to get the type of the {@link Input}. The returned value can be any string that makes sense
+     * for the user, like a fully qualified name of a Java class, or a general description like "temperature", for
+     * example. The value "*" means that all possible types are acceptable.
      *
-     * @return type is a fully qualified name of java type.
+     * @return the type of the {@link Input}.
      */
     public String getType() {
         return type;
     }
 
     /**
-     * This method is used for getting the tags of the Input. The tags adds additional restrictions to connections
+     * This method is used for getting the tags of the Input. The tags add additional restrictions to connections
      * between {@link Input}s and {@link Output}s. The input tags must be subset of the output tags to succeed the
      * connection.</br>
      * For example: When we want to connect input to output and they both have same java.lang.double
@@ -186,24 +198,13 @@ public class Input {
     }
 
     /**
-     * This method is used for getting the default value of the Input. Default value takes place when there is no value
-     * for this Input. Type of the default value must be the type the Input.
+     * This method is used to get the string representation of the default value of the {@link Input}. It is used when
+     * there is no runtime value for this {@link Input}. It must be compatible with the type of the {@link Input}.
      *
-     * @return default Input value
+     * @return the string representation of the default value of this {@link Input}.
      */
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * This method is used for setting the type of the Input. The accepted types are all java types defined by fully
-     * qualified names.
-     *
-     * @param type is a fully qualified name of java type.
-     */
-    private void setType(String type) {
-        // TODO verify type if it is a fully qualified class name
-        this.type = type;
     }
 
     @Override

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.eclipse.smarthome.extension.ui</groupId>
     <artifactId>pom</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -26,7 +26,18 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>0.0.27</version>
+        <version>1.0</version>
+
+        <configuration>
+          <nodeVersion>v5.4.0</nodeVersion>
+          <npmVersion>3.3.12</npmVersion>
+          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <environmentVariables>
+            <npm_config_cache>${project.build.directory}/npm_cache</npm_config_cache>
+            <npm_config_tmp>${project.build.directory}/npm_tmp</npm_config_tmp>
+          </environmentVariables>
+        </configuration>
 
         <executions>
           <execution>
@@ -36,17 +47,7 @@
             </goals>
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
-            <configuration>
-              <nodeVersion>v5.4.0</nodeVersion>
-              <npmVersion>3.3.12</npmVersion>
-              <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
-              <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
-              <!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
-              <!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot>-->
-            </configuration>
           </execution>
-
-          <!-- Default execution argument is 'install' -->
 
           <execution>
             <id>npm install</id>

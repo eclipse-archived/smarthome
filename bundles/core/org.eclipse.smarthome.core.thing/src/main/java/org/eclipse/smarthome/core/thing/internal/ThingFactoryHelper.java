@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Deutsche Telekom AG and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -179,7 +179,7 @@ public class ThingFactoryHelper {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         if (configDescriptionRegistry != null && configuration != null) {
             // Set default values to thing-configuration
-            if (thingType.hasConfigDescriptionURI()) {
+            if (thingType.getConfigDescriptionURI() != null) {
                 ConfigDescription thingConfigDescription = configDescriptionRegistry
                         .getConfigDescription(thingType.getConfigDescriptionURI());
                 if (thingConfigDescription != null) {

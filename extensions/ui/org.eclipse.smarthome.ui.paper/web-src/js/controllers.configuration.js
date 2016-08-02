@@ -83,6 +83,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, function(configDescription) {
             if (configDescription) {
                 $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
+                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+                $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
             }
         });
     }
@@ -96,7 +98,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             id : bindingId
         }).$promise.then(function(config) {
             $scope.configuration = configService.convertValues(config);
-            $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+            $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
+
         }, function(failed) {
             $scope.configuration = {};
             $scope.configArray = configService.getConfigAsArray($scope.configuration);
@@ -123,17 +127,18 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         if ($scope.expertMode) {
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
-        $scope.configuration = configService.replaceEmptyValues($scope.configuration);
+        var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
+        configuration = configService.replaceEmptyValues(configuration);
         bindingService.updateConfig({
             id : bindingId
-        }, $scope.configuration, function() {
+        }, configuration, function() {
             $mdDialog.hide();
             toastService.showDefaultToast('Binding config updated.');
         });
     }
     $scope.$watch('expertMode', function() {
         if ($scope.expertMode) {
-            $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
         } else {
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
@@ -241,20 +246,21 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
     $scope.save = function() {
+        var configuration = {};
         if ($scope.expertMode) {
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
-        $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+        var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
         serviceConfigService.updateConfig({
             id : (serviceId ? serviceId : $scope.serviceId)
-        }, $scope.configuration, function() {
-            $mdDialog.hide();
+        }, configuration, function() {
             toastService.showDefaultToast('Service config updated.');
         });
+        $mdDialog.hide();
     }
     $scope.$watch('expertMode', function() {
         if ($scope.expertMode) {
-            $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
         } else {
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
@@ -271,6 +277,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 }).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
+    $scope.newThingUID = window.localStorage.getItem('thingUID');
+    window.localStorage.removeItem('thingUID')
     $scope.refresh = function() {
         thingRepository.getAll(true);
     }
@@ -475,7 +483,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
 
-    $scope.configChannel = function(channel, thing) {
+    $scope.configChannel = function(channel, thing, event) {
         var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
 
         $mdDialog.show({
@@ -572,7 +580,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
 
-    $scope.thing;
+    $scope.thing = {};
     $scope.groups = [];
     $scope.thingType;
     $scope.isEditing = true;
@@ -582,6 +590,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         if (!thing.item) {
             thing.item = {};
         }
+        thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
             thing.configuration = configService.replaceEmptyValues(thing.configuration);
             thingService.updateConfig({
@@ -590,20 +599,11 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 thingRepository.update(thing);
             });
         }
-        var dict = {};
-        var update = false;
-        if (originalThing.label !== thing.label) {
-            dict.label = thing.label;
-            update = true;
-        }
-        if (originalThing.bridgeUID !== thing.bridgeUID) {
-            dict.bridgeUID = thing.bridgeUID
-            update = true;
-        }
-        if (update) {
+        originalThing.configuration = thing.configuration = {};
+        if (JSON.stringify(originalThing) !== JSON.stringify(thing)) {
             thingService.update({
                 thingUID : thing.UID
-            }, dict);
+            }, thing);
         }
         toastService.showDefaultToast('Thing updated');
         $scope.navigateTo('things/view/' + thing.UID);
@@ -631,6 +631,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, function(thingType) {
             $scope.thingType = thingType;
             $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
+            $scope.configuration = configService.setConfigDefaults($scope.thing.configuration, $scope.parameters)
             $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
             if ($scope.needsBridge) {
                 $scope.getBridges();
@@ -652,6 +653,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             }
         }, refresh);
     }
+    $scope.$watch('configuration', function() {
+        $scope.thing.configuration = $scope.configuration;
+    });
     $scope.getThing(false);
 }).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channel, thing) {
     $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);

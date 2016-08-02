@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
+ * @author Andre Fuechsel - modified tests after introducing the generic thing types
  */
 class HueLightHandlerOSGiTest extends OSGiTest {
 
@@ -59,9 +60,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-    final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LCT001")
-    final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LWB004")
-    final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "PAR16_50_TW")
+    final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0210")
+    final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0100")
+    final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220")
+    final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
+    final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
 
     ThingRegistry thingRegistry
     ItemChannelLinkRegistry linkRegistry
@@ -149,27 +152,90 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     }
 
     @Test
+    void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
+        Bridge hueBridge = createBridge()
+
+        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
+        assertThat hueLightHandler, is(nullValue())
+
+        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
+
+        try {
+            // wait for HueLightHandler to be registered
+            waitForAssert({
+                hueLightHandler = getService(ThingHandler, HueLightHandler)
+                assertThat hueLightHandler, is(notNullValue())
+            }, 10000)
+
+            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
+            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
+
+            MockedHttpClient mockedHttpClient =  [
+                put: { String address, String body ->
+                    addressWrapper.set(address)
+                    bodyWrapper.set(body)
+                    new Result("", 200)
+                },
+                get: { String address ->
+                    if (address.endsWith("testUserName/")) {
+                        new Result(new HueLightState().toString(), 200)
+                    }
+                }
+            ] as MockedHttpClient
+
+            HueBridgeHandler hueBridgeHandler = hueLightHandler.getHueBridgeHandler()
+            installHttpClientMock(hueBridgeHandler, mockedHttpClient)
+
+            assertBridgeOnline(hueLightHandler.getBridge())
+            hueLightHandler.initialize()
+
+            waitForAssert({
+                assertThat(hueLight.getStatus(), is(ThingStatus.ONLINE))
+            }, 10000)
+
+            hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+
+            assertThat(hueBridge.getStatus(), is(ThingStatus.OFFLINE))
+            assertThat(hueBridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
+            waitForAssert({
+                assertThat(hueLight.getStatus(),  is(ThingStatus.OFFLINE))
+            }, 10000)
+            waitForAssert({
+                assertThat(hueLight.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.BRIDGE_OFFLINE))
+            }, 10000)
+
+        } finally {
+            thingRegistry.forceRemove(hueLight.getUID())
+            thingRegistry.forceRemove(hueBridge.getUID())
+            waitForAssert({
+                assertThat thingRegistry.get(hueLight.getUID()), is(nullValue())
+                assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
+            }, 10000)
+        }
+    }
+
+    @Test
     void 'assert command for osram par16 50 for color temperature channel: on'() {
         def expectedReply = '{"on" : true, "bri" : 254}'
-        assertSendCommandForColorTempForPar16(OnOffType.ON, new HueLightState(), expectedReply)
+        assertSendCommandForColorTempForPar16(OnOffType.ON, new HueLightState(OSRAM_MODEL_TYPE), expectedReply)
     }
 
     @Test
     void 'assert command for osram par16 50 for color temperature channel: off'() {
         def expectedReply = '{"on" : false, "transitiontime" : 0}'
-        assertSendCommandForColorTempForPar16(OnOffType.OFF, new HueLightState(), expectedReply)
+        assertSendCommandForColorTempForPar16(OnOffType.OFF, new HueLightState(OSRAM_MODEL_TYPE), expectedReply)
     }
 
     @Test
     void 'assert command for osram par16 50 for brightness channel: on'() {
         def expectedReply = '{"on" : true, "bri" : 254}'
-        assertSendCommandForBrightnessForPar16(OnOffType.ON, new HueLightState(), expectedReply)
+        assertSendCommandForBrightnessForPar16(OnOffType.ON, new HueLightState(OSRAM_MODEL_TYPE), expectedReply)
     }
 
     @Test
     void 'assert command for osram par16 50 for brightness channel: off'() {
         def expectedReply = '{"on" : false, "transitiontime" : 0}'
-        assertSendCommandForBrightnessForPar16(OnOffType.OFF, new HueLightState(), expectedReply)
+        assertSendCommandForBrightnessForPar16(OnOffType.OFF, new HueLightState(OSRAM_MODEL_TYPE), expectedReply)
     }
 
     @Test
@@ -407,11 +473,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     }
 
     private void assertSendCommandForColorTempForPar16(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply, OSRAM_MODEL_TYPE_ID, "OSRAM")
     }
 
     private void assertSendCommandForBrightnessForPar16(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_BRIGHTNESS, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_BRIGHTNESS, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply, OSRAM_MODEL_TYPE_ID, "OSRAM")
     }
 
     private void assertSendCommandForColor(Command command, HueLightState currentState, String expectedReply) {
@@ -439,7 +505,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         assertSendCommand(CHANNEL_EFFECT, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
     }
 
-    private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply) {
+    private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply, String expectedModel = "LCT001", String expectedVendor = "Philips") {
         Bridge hueBridge = createBridge()
 
         HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
@@ -474,6 +540,14 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
             assertBridgeOnline(hueLightHandler.getBridge())
             hueLightHandler.initialize()
+
+            waitForAssert({
+                hueLight.with {
+                    assertThat properties.get(Thing.PROPERTY_MODEL_ID), is(expectedModel)
+                    assertThat properties.get(Thing.PROPERTY_VENDOR), is(expectedVendor)
+                }
+            })
+
             postCommand(hueLight, channel, command)
 
             waitForAssert({assertTrue addressWrapper.isSet}, 10000)

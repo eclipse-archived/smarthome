@@ -157,19 +157,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             groupNames : selectedGroupNames
         });
     }
-}).controller('ManualSetupChooseController', function($scope, bindingRepository, thingTypeRepository, thingService) {
-    $scope.setSubtitle([ 'Manual Setup' ]);
-    $scope.setHeaderText('Choose a thing, which should be aded manually to your Smart Home.')
-
-    $scope.currentBindingId = null;
-    $scope.setCurrentBindingId = function(bindingId) {
-        $scope.currentBindingId = bindingId;
-    };
-
-    bindingRepository.getAll(function(data) {
-    });
-
-}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, toastService, bindingRepository, thingTypeRepository, thingService, thingRepository, configService, linkService) {
+}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, $location, toastService, bindingRepository, thingTypeRepository, thingService, thingRepository, configService, linkService) {
 
     var thingTypeUID = $routeParams.thingTypeUID;
 
@@ -198,19 +186,13 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.addThing = function(thing) {
         thing.thingTypeUID = thingTypeUID;
         thing.UID = thing.thingTypeUID + ":" + thing.ID;
+        thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         thingService.add(thing, function() {
             toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thing.UID);
-            $scope.navigateTo('setup/search/' + $scope.thingType.UID.split(':')[0]);
+            window.localStorage.setItem('thingUID', thing.UID);
+            $location.path('configuration/things');
         });
     };
-
-    function linkChannel(channelUID) {
-        var itemName = channelUID.replace(/:/g, "_");
-        linkService.link({
-            itemName : itemName,
-            channelUID : channelUID
-        });
-    }
 
     $scope.needsBridge = false;
     $scope.bridges = [];
@@ -256,6 +238,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.refresh();
     $scope.filter = function(discoveryResult) {
         return $scope.showIgnored || discoveryResult.flag === 'NEW';
+    }
+    $scope.areEntriesIgnored = function(discoveryResults) {
+        return $.grep(discoveryResults, function(discoveryResult) {
+            return discoveryResult.flag === 'IGNORED';
+        }).length > 0;
     }
 }).controller('SetupWizardBindingsController', function($scope, bindingRepository, discoveryService) {
     $scope.setSubtitle([ 'Choose Binding' ]);

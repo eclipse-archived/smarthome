@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,19 +40,19 @@ public class ScriptExecutionThread extends Thread {
         super.run();
         try {
             result = script.execute(context);
-        } catch (ScriptExecutionException e) {
+        } catch (Exception e) {
             String msg = e.getMessage();
             if (msg == null) {
-                logger.error("Error during the execution of rule '{}'", getName(), e.getCause());
+                logger.error("Rule '{}'", getName(), e.getCause());
             } else {
-                logger.error("Error during the execution of rule '{}': {}", new Object[] { getName(), msg });
+                logger.error("Rule '{}': {}", getName(), msg);
             }
         }
     }
 
     /**
      * Returns the script evaluation result (or null, if thread is still active)
-     * 
+     *
      * @return the script evaluation result
      */
     public Object getResult() {

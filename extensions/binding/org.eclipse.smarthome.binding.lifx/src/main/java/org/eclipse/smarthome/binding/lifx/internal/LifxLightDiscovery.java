@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     private Selector selector;
     private DatagramChannel broadcastChannel;
     private long source;
+    private boolean isScanning = false;
 
     private ScheduledFuture<?> discoveryJob;
 
@@ -177,33 +178,39 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
         try {
 
-            if (selector != null) {
-                selector.close();
+            if (!isScanning) {
+                isScanning = true;
+                if (selector != null) {
+                    selector.close();
+                }
+
+                if (broadcastChannel != null) {
+                    broadcastChannel.close();
+                }
+
+                selector = Selector.open();
+
+                broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                        .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                        .setOption(StandardSocketOptions.SO_BROADCAST, true);
+                broadcastChannel.configureBlocking(false);
+                broadcastChannel.socket().setSoTimeout(BROADCAST_TIMEOUT);
+                broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT));
+
+                SelectionKey broadcastKey = broadcastChannel.register(selector,
+                        SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+
+                networkJob = scheduler.schedule(networkRunnable, 0, TimeUnit.MILLISECONDS);
+
+                source = UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
+                logger.debug("The LIFX discovery service will use '{}' as source identifier",
+                        Long.toString(source, 16));
+
+                GetServiceRequest packet = new GetServiceRequest();
+                broadcastPacket(packet, broadcastKey);
+            } else {
+                logger.info("A discovery scan for LIFX light is already underway");
             }
-
-            if (broadcastChannel != null) {
-                broadcastChannel.close();
-            }
-
-            selector = Selector.open();
-
-            broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                    .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                    .setOption(StandardSocketOptions.SO_BROADCAST, true);
-            broadcastChannel.configureBlocking(false);
-            broadcastChannel.socket().setSoTimeout(BROADCAST_TIMEOUT);
-            broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT));
-
-            SelectionKey broadcastKey = broadcastChannel.register(selector,
-                    SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-
-            networkJob = scheduler.schedule(networkRunnable, 0, TimeUnit.MILLISECONDS);
-
-            source = UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
-            logger.debug("The LIFX discovery service will use '{}' as source identifier", Long.toString(source, 16));
-
-            GetServiceRequest packet = new GetServiceRequest();
-            broadcastPacket(packet, broadcastKey);
 
         } catch (Exception e) {
             logger.debug("An exception occurred while discovering LIFX lights : '{}", e.getMessage());
@@ -398,6 +405,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                         }
                     }
                 }
+                isScanning = false;
             } catch (Exception e) {
                 logger.error("An exception orccurred while communicating with the bulb : '{}'", e.getMessage(), e);
             }

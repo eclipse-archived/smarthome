@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,10 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     protected BigDecimal hue;
     protected BigDecimal saturation;
+
+    public HSBType() {
+        this("0,0,0");
+    }
 
     public HSBType(DecimalType h, PercentType s, PercentType b) {
         this.hue = h.toBigDecimal();
@@ -171,12 +175,15 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof HSBType))
+        }
+        if (!(obj instanceof HSBType)) {
             return false;
+        }
         HSBType other = (HSBType) obj;
         if ((getHue() != null && other.getHue() == null) || (getHue() == null && other.getHue() != null)
                 || (getSaturation() != null && other.getSaturation() == null)

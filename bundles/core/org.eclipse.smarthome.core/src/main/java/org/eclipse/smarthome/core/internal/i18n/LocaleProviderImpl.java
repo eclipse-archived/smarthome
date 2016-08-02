@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Markus Rathgeb
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,31 +19,33 @@ import org.slf4j.LoggerFactory;
  * This class implements a local provider using an OSGi component.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Thomas Höfer - Removed default initialization of locale attribute
  */
 public class LocaleProviderImpl implements LocaleProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final String LANGUAGE = "language";
-    private final String SCRIPT = "script";
-    private final String REGION = "region";
-    private final String VARIANT = "variant";
+    private static final String LANGUAGE = "language";
+    private static final String SCRIPT = "script";
+    private static final String REGION = "region";
+    private static final String VARIANT = "variant";
 
-    private Locale locale = Locale.getDefault();
+    private Locale locale;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
     }
 
-    protected void modified(Map<String, Object> config) {
+    protected synchronized void modified(Map<String, Object> config) {
         final String language = (String) config.get(LANGUAGE);
         final String script = (String) config.get(SCRIPT);
         final String region = (String) config.get(REGION);
         final String variant = (String) config.get(VARIANT);
 
         if (StringUtils.isEmpty(language)) {
-            // if no language is set, skip new locale...
-            logger.info("LOCALE: no language is set, keep old: {}", locale);
+            // at least the language must be defined otherwise the system default locale is used
+            logger.debug("No language set, fallback to default system locale");
+            locale = null;
             return;
         }
 
@@ -77,11 +79,14 @@ public class LocaleProviderImpl implements LocaleProvider {
         }
 
         locale = builder.build();
-        logger.info("LOCALE: new locale set: {}", locale);
+        logger.info("Locale set to {}", locale);
     }
 
     @Override
     public Locale getLocale() {
+        if (locale == null) {
+            return Locale.getDefault();
+        }
         return locale;
     }
 

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Core REST API
 Bundle-SymbolicName: org.eclipse.smarthome.io.rest.core
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
@@ -29,11 +29,11 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.persistence,
+ org.eclipse.smarthome.core.persistence.dto,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.dto,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.link.dto,
- org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.transform;resolution:=optional,
@@ -41,6 +41,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.io.rest,
  org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing,
+ org.eclipse.smarthome.model.persistence.extensions,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,

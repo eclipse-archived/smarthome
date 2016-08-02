@@ -7,13 +7,11 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Modules are building components of the {@link Rule}s. Each Module is
@@ -53,8 +51,7 @@ public abstract class Module {
      *
      * @see {@link ConfigDescriptionParameter}.
      */
-    protected Map<String, Object> configuration;
-
+    protected Configuration configuration;
     /**
      * Unique type id of this module.
      */
@@ -67,7 +64,7 @@ public abstract class Module {
      * @param typeUID unique id of the module type.
      * @param configuration configuration values of the module.
      */
-    public Module(String id, String typeUID, Map<String, ?> configuration) {
+    public Module(String id, String typeUID, Configuration configuration) {
         this.id = id;
         this.type = typeUID;
         setConfiguration(configuration);
@@ -137,29 +134,23 @@ public abstract class Module {
 
     /**
      * This method is used for getting configuration values of the {@link Module}.
-     * The key is id of the {@link ConfigDescriptionParameter} and the value is
-     * the configuration value.
      *
      * @return current configuration values or null.
      */
-    public Map<String, Object> getConfiguration() {
+    public Configuration getConfiguration() {
         if (configuration == null) {
-            configuration = new HashMap<String, Object>(11);
+            configuration = new Configuration();
         }
         return configuration;
     }
 
     /**
-     * This method is used for setting the Map with configuration values of the {@link Module}. Key - id of the
-     * {@link ConfigDescriptionParameter} Value -
-     * the value of the corresponding property
+     * This method is used for setting the configuration of the {@link Module}.
      *
      * @param configuration new configuration values.
      */
-    public void setConfiguration(Map<String, ?> configuration) {
-        if (configuration != null) {
-            this.configuration = new HashMap<String, Object>(configuration);
-        }
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
 
     }
 

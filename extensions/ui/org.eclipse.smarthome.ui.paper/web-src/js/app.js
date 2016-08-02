@@ -1,4 +1,4 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', function($routeProvider, httpProvider, globalConfig) {
+angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -13,14 +13,6 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
     }).when('/inbox/search', {
         templateUrl : 'partials/setup.html',
         controller : 'SetupWizardController',
-        title : 'Inbox'
-    }).when('/inbox/manual-setup/choose', {
-        templateUrl : 'partials/setup.html',
-        controller : 'ManualSetupChooseController',
-        title : 'Inbox'
-    }).when('/inbox/manual-setup/configure/:thingTypeUID', {
-        templateUrl : 'partials/setup.html',
-        controller : 'ManualSetupConfigureController',
         title : 'Inbox'
     }).when('/inbox/setup/bindings', {
         templateUrl : 'partials/setup.html',
@@ -105,6 +97,27 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             redirectTo : '/control'
         });
     }
+    if (window.localStorage.getItem('paperui.language') == 'de') {
+        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ];
+    } else {
+        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+    }
+    $mdDateLocaleProvider.formatDate = function(date) {
+        if (!date) {
+            return null;
+        }
+        return (date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear());
+    };
+
+    $mdDateLocaleProvider.parseDate = function(date) {
+        if (!date) {
+            return null;
+        }
+        var dateParts = date.split(/[\s\/,.:-]+/);
+        if (dateParts.length > 2) {
+            return new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
+        }
+    };
 } ]).directive('editableitemstate', function() {
     return function($scope, $element) {
         $element.context.addEventListener('focusout', function(e) {
@@ -128,16 +141,106 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         require : 'ngModel',
         link : function(scope, element, attrs, ngModel) {
 
-            element[0].addEventListener('click', function() {
-                scope.$watch(attrs.ngModel, function(value) {
-                    if ((value === undefined || value == "") && attrs.isrequired) {
-                        element.addClass('border-invalid');
-                    } else {
-                        element.removeClass('border-invalid');
-                    }
+            scope.$watch(attrs.ngModel, function(value) {
+                if ((value === undefined || value === "") && attrs.isrequired == "true") {
+                    element.addClass('border-invalid');
+                } else {
+                    element.removeClass('border-invalid');
+                }
+            });
+        }
+    };
+}).directive('customFocus', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs, ngModel) {
+
+            if (element[0] && element[0].childNodes && element[0].childNodes.length > 1 && element[0].children[1].childNodes && element[0].childNodes[1].childNodes.length > 0) {
+                element[0].childNodes[1].childNodes[0].addEventListener('focus', function() {
+                    scope.focus = true;
+                    scope.initial = false;
+                    scope.$apply();
                 });
+                element[0].childNodes[1].childNodes[0].addEventListener('blur', function() {
+                    scope.focus = false;
+                    scope.$apply();
+                });
+            }
+
+        }
+    };
+
+}).directive('colorSelect', function() {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+
+            element[0].addEventListener('click', function() {
+                scope.configuration[scope.parameter.name] = "#ffffff";
             });
 
+        }
+    };
+}).directive('colorRemove', function() {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+
+            element[0].addEventListener('click', function() {
+                scope.configuration[scope.parameter.name] = undefined;
+                scope.$apply();
+            });
+        }
+    };
+}).directive('dayOfWeek', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs, ngModel) {
+            if (element[0] && element[0].children && element[0].children.length > 1) {
+                if (!scope.configuration[scope.parameter.name]) {
+                    scope.configuration[scope.parameter.name] = attrs.multi == "true" ? [] : "";
+                    if (attrs.ngRequired == "true") {
+                        $(element[0]).addClass('border-invalid');
+                    }
+                }
+                for (var nodeIndex = 0; nodeIndex < element[0].children.length; nodeIndex++) {
+                    if (scope.configuration[scope.parameter.name].indexOf(element[0].children[nodeIndex].value) != -1) {
+                        $(element[0].children[nodeIndex]).addClass('dow-selected');
+                    }
+                    element[0].children[nodeIndex].addEventListener('click', function(event) {
+                        $(element[0]).removeClass('border-invalid');
+                        if (attrs.multi == "true") {
+                            var index = scope.configuration[scope.parameter.name].indexOf(event.target.value)
+                            if (index == -1) {
+                                scope.configuration[scope.parameter.name].push(event.target.value);
+                                $(event.target).addClass('dow-selected');
+                            } else {
+                                scope.configuration[scope.parameter.name].splice(index, 1);
+                                $(event.target).removeClass('dow-selected');
+                                if (attrs.ngRequired && scope.configuration[scope.parameter.name].length == 0) {
+                                    $(element[0]).addClass('border-invalid');
+                                }
+                            }
+                        } else {
+                            if (scope.configuration[scope.parameter.name] == "" || scope.configuration[scope.parameter.name] != event.target.value) {
+                                if (scope.configuration[scope.parameter.name] != event.target.value) {
+                                    $(element[0].children).removeClass('dow-selected');
+                                }
+                                scope.configuration[scope.parameter.name] = event.target.value;
+                                $(event.target).addClass('dow-selected');
+                            } else {
+                                scope.configuration[scope.parameter.name] = "";
+                                $(event.target).removeClass('dow-selected');
+                                if (attrs.ngRequired == "true") {
+                                    $(element[0]).addClass('border-invalid');
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
     };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {

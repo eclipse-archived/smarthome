@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,11 +47,10 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
     }
 
     /**
-     * Returns the item name, which is bound to the given UID.
+     * Returns the item names, which are bound to the given UID.
      *
-     * @param uid
-     *            UID
-     * @return item name or null if no item is bound to the given UID
+     * @param uid UID
+     * @return a non-null collection of item names that are linked to the given UID.
      */
     public Set<String> getLinkedItems(UID uid) {
         Set<String> linkedItems = new LinkedHashSet<>();

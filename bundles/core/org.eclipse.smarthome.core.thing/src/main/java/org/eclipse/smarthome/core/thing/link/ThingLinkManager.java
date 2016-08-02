@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,15 @@ import java.util.List;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.service.component.ComponentContext;
@@ -35,7 +38,11 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Refactored to make it a service and introduced the auto-linking (as a replacement for the
  *         ThingSetupManager)
  */
-public class ThingLinkManager {
+public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
+
+    public ThingLinkManager() {
+        super(ThingStatusInfoChangedEvent.TYPE);
+    }
 
     private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
 
@@ -211,4 +218,24 @@ public class ThingLinkManager {
                     thing.getUID());
         }
     }
+
+    @Override
+    protected void receiveTypedEvent(ThingStatusInfoChangedEvent event) {
+        // when a thing handler is successfully initialized (i.e. it goes from INITIALIZING to ONLINE or OFFLINE), we
+        // need to make sure that channelLinked() is called for all existing links
+        if (event.getOldStatusInfo().getStatus() == ThingStatus.INITIALIZING) {
+            if (event.getStatusInfo().getStatus() == ThingStatus.ONLINE
+                    || event.getStatusInfo().getStatus() == ThingStatus.OFFLINE) {
+                Thing thing = thingRegistry.get(event.getThingUID());
+                if (thing != null) {
+                    for (Channel channel : thing.getChannels()) {
+                        if (itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size() > 0) {
+                            informHandlerAboutLinkedChannel(thing, channel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

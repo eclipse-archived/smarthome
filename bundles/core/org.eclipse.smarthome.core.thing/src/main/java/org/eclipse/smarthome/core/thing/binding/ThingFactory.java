@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
-import org.eclipse.smarthome.core.thing.binding.builder.GenericThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.internal.ThingFactoryHelper;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
@@ -141,7 +140,7 @@ public class ThingFactory {
         return createThing(thingType, thingUID, configuration, null);
     }
 
-    private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {
+    private static ThingBuilder createThingBuilder(ThingType thingType, ThingUID thingUID) {
         if (thingType instanceof BridgeType) {
             return BridgeBuilder.create(thingType.getUID(), thingUID);
         }

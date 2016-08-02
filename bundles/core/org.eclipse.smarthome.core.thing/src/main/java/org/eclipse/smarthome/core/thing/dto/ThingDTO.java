@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,12 +31,13 @@ public class ThingDTO {
     public String UID;
     public String thingTypeUID;
     public List<ChannelDTO> channels;
+    public String location;
 
     public ThingDTO() {
     }
 
     public ThingDTO(String thingTypeUID, String UID, String label, String bridgeUID, List<ChannelDTO> channels,
-            Configuration configuration, Map<String, String> properties) {
+            Configuration configuration, Map<String, String> properties, String location) {
         this.thingTypeUID = thingTypeUID;
         this.UID = UID;
         this.label = label;
@@ -44,6 +45,7 @@ public class ThingDTO {
         this.channels = channels;
         this.configuration = toMap(configuration);
         this.properties = properties;
+        this.location = location;
     }
 
     private Map<String, Object> toMap(Configuration configuration) {

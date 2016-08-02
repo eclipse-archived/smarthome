@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -497,7 +497,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private List<ConfigDescriptionParameter> getConfigDescParams(DiscoveryResult discoveryResult) {
         ThingType type = thingTypeRegistry.getThingType(discoveryResult.getThingTypeUID());
-        if (type != null && type.hasConfigDescriptionURI()) {
+        if (type != null && type.getConfigDescriptionURI() != null) {
             URI descURI = type.getConfigDescriptionURI();
             ConfigDescription desc = configDescRegistry.getConfigDescription(descURI);
             if (desc != null) {

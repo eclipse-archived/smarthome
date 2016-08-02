@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,8 +168,7 @@ public class LifxLightHandler extends BaseThingHandler {
                 try {
                     fadeTime = Long.parseLong(fadeCfg.toString());
                 } catch (NumberFormatException e) {
-                    logger.warn("Invalid value '{}' for transition time, using default instead.",
-                            fadeCfg.toString());
+                    logger.warn("Invalid value '{}' for transition time, using default instead.", fadeCfg.toString());
                 }
             }
 
@@ -230,41 +230,68 @@ public class LifxLightHandler extends BaseThingHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
-        try {
-            switch (channelUID.getId()) {
-                case CHANNEL_COLOR:
-                    if (command instanceof HSBType) {
-                        handleHSBCommand((HSBType) command);
-                        return;
-                    }
-                case CHANNEL_BRIGHTNESS:
-                    if (command instanceof PercentType) {
-                        handlePercentCommand((PercentType) command);
-                    } else if (command instanceof OnOffType) {
-                        handleOnOffCommand((OnOffType) command);
-                    } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
-                    }
-                    break;
-                case CHANNEL_TEMPERATURE:
-                    if (command instanceof PercentType) {
-                        handleTemperatureCommand((PercentType) command);
-                    } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
-                    }
-                    break;
-                default:
-                    break;
+        if (command instanceof RefreshType) {
+            GetLightPowerRequest powerPacket = new GetLightPowerRequest();
+            GetRequest colorPacket = new GetRequest();
+
+            try {
+                switch (channelUID.getId()) {
+                    case CHANNEL_COLOR:
+                    case CHANNEL_BRIGHTNESS:
+                        sendPacket(powerPacket);
+                        sendPacket(colorPacket);
+                        break;
+                    case CHANNEL_TEMPERATURE:
+                        sendPacket(colorPacket);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Error while refreshing a channel for the bulb: {}", ex.getMessage(), ex);
             }
-        } catch (Exception ex) {
-            logger.error("Error while updating bulb: {}", ex.getMessage(), ex);
+        } else {
+            try {
+                switch (channelUID.getId()) {
+                    case CHANNEL_COLOR:
+                        if (command instanceof HSBType) {
+                            handleHSBCommand((HSBType) command);
+                            return;
+                        } else if (command instanceof PercentType) {
+                            handlePercentCommand((PercentType) command);
+                        } else if (command instanceof OnOffType) {
+                            handleColorOnOffCommand((OnOffType) command);
+                        }
+                        break;
+                    case CHANNEL_BRIGHTNESS:
+                        if (command instanceof PercentType) {
+                            handlePercentCommand((PercentType) command);
+                        } else if (command instanceof OnOffType) {
+                            handleBrightnessOnOffCommand((OnOffType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                        }
+                        break;
+                    case CHANNEL_TEMPERATURE:
+                        if (command instanceof PercentType) {
+                            handleTemperatureCommand((PercentType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Error while updating bulb: {}", ex.getMessage(), ex);
+            }
         }
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
+        logger.debug("The set temperature '{}' yields {} Kelvin", temperature, toKelvin(temperature.intValue()));
         SetColorRequest packet = new SetColorRequest((int) (currentColorState.getHue().floatValue() / 360 * 65535.0f),
-                (int) (currentColorState.getSaturation().floatValue() / 100 * 65535.0f),
-                (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
+                0, (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
                 toKelvin(temperature.intValue()), fadeTime);
         packet.setResponseRequired(false);
         sendPacket(packet);
@@ -306,7 +333,26 @@ public class LifxLightHandler extends BaseThingHandler {
         }
     }
 
-    private void handleOnOffCommand(OnOffType onOffType) {
+    private void handleColorOnOffCommand(OnOffType onOffType) {
+
+        if (currentColorState != null) {
+            PercentType percentType = onOffType == OnOffType.ON ? new PercentType(100) : new PercentType(0);
+            HSBType newColorState = new HSBType(currentColorState.getHue(), currentColorState.getSaturation(),
+                    percentType);
+            handleHSBCommand(newColorState);
+        }
+
+        PowerState lfxPowerState = onOffType == OnOffType.ON ? PowerState.ON : PowerState.OFF;
+        SetLightPowerRequest packet = new SetLightPowerRequest(lfxPowerState);
+        sendPacket(packet);
+
+        // the LIFX LAN protocol spec indicates that the response returned for a request would be the
+        // previous value, so we explicitely demand for the latest value
+        GetLightPowerRequest powerPacket = new GetLightPowerRequest();
+        sendPacket(powerPacket);
+    }
+
+    private void handleBrightnessOnOffCommand(OnOffType onOffType) {
         PowerState lfxPowerState = onOffType == OnOffType.ON ? PowerState.ON : PowerState.OFF;
         SetLightPowerRequest packet = new SetLightPowerRequest(lfxPowerState);
         sendPacket(packet);
@@ -731,12 +777,12 @@ public class LifxLightHandler extends BaseThingHandler {
 
     private int toKelvin(int temperature) {
         // range is from 2500-9000K
-        return 9000 - (temperature * 65 + 2500);
+        return 9000 - (temperature * 65);
     }
 
     private int toPercent(int kelvin) {
         // range is from 2500-9000K
-        return 100 - ((kelvin - 2500) / 65);
+        return (kelvin - 9000) / (-65);
     }
 
     public void handleLightStatus(StateResponse packet) {

@@ -23,6 +23,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.junit.Assert;
@@ -123,7 +124,7 @@ public class RuleEngineTest {
     public void testRuleTags() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule2 = new Rule("rule2", null, null, null, null, null);
+        Rule rule2 = new Rule("rule2");
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         ruleTags.add("tag2");
@@ -154,13 +155,13 @@ public class RuleEngineTest {
     public void testGetRuleByTags() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule1 = new Rule("rule1", null, null, null, null, null);
+        Rule rule1 = new Rule("rule1");
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         rule1.setTags(ruleTags);
         ruleEngine.addRule(rule1, true);
 
-        Rule rule2 = new Rule("rule2", null, null, null, null, null);
+        Rule rule2 = new Rule("rule2");
         Set<String> ruleTags2 = new LinkedHashSet<String>();
         ruleTags2.add("tag1");
         ruleTags2.add("tag2");
@@ -187,11 +188,12 @@ public class RuleEngineTest {
     public void testRuleConfigNull() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule3 = new Rule("rule3", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                null, null);
+        Rule rule3 = new Rule("rule3");
+        rule3.setTriggers(createTriggers("typeUID"));
+        rule3.setConditions(createConditions("typeUID"));
+        rule3.setActions(createActions("typeUID"));
         ruleEngine.addRule(rule3, true);
         Rule rule3Get = ruleEngine.getRule("rule3");
-        Assert.assertNotNull("Rule configuration description is null", rule3Get.getConfigurationDescriptions());
         Assert.assertNotNull("Rule configuration is null", rule3Get.getConfiguration());
     }
 
@@ -203,14 +205,18 @@ public class RuleEngineTest {
         RuleEngine ruleEngine = createRuleEngine();
 
         List<ConfigDescriptionParameter> configDescriptions = createConfigDescriptions();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("config1", 5);
 
-        Rule rule4 = new Rule("rule4", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                configDescriptions, configurations);
+        Rule rule4 = new Rule("rule4");
+        rule4.setTriggers(createTriggers("typeUID"));
+        rule4.setConditions(createConditions("typeUID"));
+        rule4.setActions(createActions("typeUID"));
+        rule4.setConfigurationDescriptions(configDescriptions);
+        rule4.setConfiguration(configurations);
         ruleEngine.addRule(rule4, true);
         Rule rule4Get = ruleEngine.getRule("rule4");
-        Map<String, ?> rule4cfg = rule4Get.getConfiguration();
+        Configuration rule4cfg = rule4Get.getConfiguration();
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
         Assert.assertNotNull("Rule configuration is null", rule4cfg);
         Assert.assertTrue("Missing config property in rule copy", rule4cfg.containsKey("config1"));
@@ -313,23 +319,25 @@ public class RuleEngineTest {
     }
 
     private Rule createRule() {
-        List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
-        Map<String, Object> configurations = null;// new HashMap<String, Object>();
-        return new Rule("rule1", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                configDescriptions, configurations);
+        Rule rule = new Rule("rule1");
+        rule.setTriggers(createTriggers("typeUID"));
+        rule.setConditions(createConditions("typeUID"));
+        rule.setActions(createActions("typeUID"));
+        return rule;
     }
 
     private Rule createAutoMapRule() {
-        List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
-        Map<String, Object> configurations = null;// new HashMap<String, Object>();
-        return new Rule("rule1", createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE),
-                createConditions(ModuleTypeManagerMockup.CONDITION_TYPE),
-                createActions(ModuleTypeManagerMockup.ACTION_TYPE), configDescriptions, configurations);
+        Rule rule = new Rule("rule1");
+        rule.setTriggers(createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE));
+        rule.setConditions(createConditions(ModuleTypeManagerMockup.CONDITION_TYPE));
+        rule.setActions(createActions(ModuleTypeManagerMockup.ACTION_TYPE));
+        return rule;
+
     }
 
     private List<Trigger> createTriggers(String type) {
         List<Trigger> triggers = new ArrayList<Trigger>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
@@ -339,7 +347,7 @@ public class RuleEngineTest {
 
     private List<Condition> createConditions(String type) {
         List<Condition> conditions = new ArrayList<Condition>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
@@ -354,7 +362,7 @@ public class RuleEngineTest {
 
     private List<Action> createActions(String type) {
         List<Action> actions = new ArrayList<Action>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");

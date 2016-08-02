@@ -2,9 +2,9 @@
 	<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
 	<div class="item-content">
 		<h3>
-			{{getThingTypeLabel(discoveryResult.thingTypeUID)}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+			{{discoveryResult.label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
 		</h3>
-		<p>{{discoveryResult.label}}</p>
+		<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
 		<p>{{discoveryResult.thingUID}}</p>
 		<div class="actions">
 			<md-button ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore"> <i class="material-icons">visibility</i></md-button>
@@ -15,5 +15,5 @@
 	<hr class="border-line" ng-show="!$last" />
 </div>
 <p class="text-center">
-	<button class="md-button" ng-click="toggleShowIgnored()" aria-label="Toggle Show Ignored">{{showIgnored ? 'Hide Ignored' : 'Show Ignored'}}</button>
+	<button ng-show="areEntriesIgnored(data.discoveryResults)" class="md-button" ng-click="toggleShowIgnored()" aria-label="Toggle Show Ignored">{{showIgnored ? 'Hide Ignored' : 'Show Ignored'}}</button>
 </p>

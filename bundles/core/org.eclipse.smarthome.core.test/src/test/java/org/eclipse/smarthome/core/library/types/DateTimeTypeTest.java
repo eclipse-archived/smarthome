@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,6 +125,8 @@ public class DateTimeTypeTest {
                         "2014-03-30T10:58:47.033+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), "2014-03-30T10:58:47UTS",
                         "2014-03-30T10:58:47.000+0200") },
+                { new ParameterSet(TimeZone.getTimeZone("GMT+5"), "2014-03-30T10:58:47.000Z",
+                        "2014-03-30T15:58:47.000+0500") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT"), initTimeMap(), TimeZone.getTimeZone("GMT"),
                         "2014-03-30T10:58:47.033+0000") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT+2"), initTimeMap(), TimeZone.getTimeZone("GML"),

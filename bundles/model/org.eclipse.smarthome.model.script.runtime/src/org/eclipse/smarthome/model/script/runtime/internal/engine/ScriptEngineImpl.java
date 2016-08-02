@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2016 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -33,6 +34,8 @@ import org.eclipse.xtext.validation.CheckMode;
 import org.eclipse.xtext.validation.IResourceValidator;
 import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 
@@ -43,17 +46,18 @@ import com.google.common.base.Predicate;
  * @author Oliver Libutzki - Reorganization of Guice injection
  *
  */
-@SuppressWarnings("restriction")
-public class ScriptEngineImpl implements ScriptEngine {
+public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     protected XtextResourceSet resourceSet;
-    private ScriptRuntime scriptRuntime;
+
+    private final Logger logger = LoggerFactory.getLogger(ScriptEngineImpl.class);
 
     public ScriptEngineImpl() {
     }
 
     public void activate() {
-
+        ScriptRuntimeStandaloneSetup.doSetup();
+        logger.debug("Registered 'script' configuration parser");
     }
 
     private XtextResourceSet getResourceSet() {
@@ -68,12 +72,13 @@ public class ScriptEngineImpl implements ScriptEngine {
         this.resourceSet = null;
     }
 
+    /**
+     * we need to make sure that the scriptRuntime service has been started before us
+     */
     protected void setScriptRuntime(final ScriptRuntime scriptRuntime) {
-        this.scriptRuntime = scriptRuntime;
     }
 
     protected void unsetScriptRuntime(final ScriptRuntime scriptRuntime) {
-        this.scriptRuntime = null;
     }
 
     /**
@@ -162,6 +167,11 @@ public class ScriptEngineImpl implements ScriptEngine {
             }
         });
         return issues;
+    }
+
+    @Override
+    public String getExtension() {
+        return "script";
     }
 
 }
