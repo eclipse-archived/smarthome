@@ -28,7 +28,23 @@ The hue binding supports all five types of lights of the Hue system: [Supported 
 | Extended Color light    | 0x0210           | 0210       |
 | Color temperature light | 0x0220           | 0220       |
 
-All different models of Hue or Osram bulbs nicely fit into one of these five categories.
+All different models of Hue or Osram bulbs nicely fit into one of these five types. This type also determines the capability  of a bulb and with that the possible ways of interacting with the bulb. The following matrix lists the capabilities (channels) for each type:
+
+| Thing type  | On/Off | Brightness | Color | Color Temperature |
+|-------------|:------:|:----------:|:-----:|:-----------------:|
+|  0000       |    X   |            |       |                   |    
+|  0100       |    X   |     X      |       |                   |
+|  0200       |    X   |            |   X   |                   |
+|  0210       |    X   |            |   X   |          X        |
+|  0220       |    X   |     X      |       |          X        |
+
+The type of a specific bulb can found in the configuration section for things in the PaperUI. It is part of the unique thing id which could look like:
+
+```
+hue:0210:00178810d0dc:1
+```
+
+The thing type is the second string behind the first colon and in this example **0210**.
 
 ## Discovery
 
@@ -56,7 +72,6 @@ Thus, all if needs for manual configuration is this single value like
 ```
 0210 bulb1 [ lightId="1" ]
 ```
-
 
 ## Channels
 

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
@@ -34,6 +35,7 @@ import org.osgi.framework.Bundle;
  * {@link XmlChannelTypeProvider} provides channel types from XML files.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Kai Kreuzer - fixed concurrency issues
  */
 public class XmlChannelTypeProvider implements ChannelTypeProvider {
 
@@ -98,8 +100,8 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
 
     private Map<Bundle, List<ChannelType>> bundleChannelTypesMap;
 
-    private Map<LocalizedChannelTypeKey, ChannelGroupType> localizedChannelGroupTypeCache = new HashMap<>();
-    private Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new HashMap<>();
+    private Map<LocalizedChannelTypeKey, ChannelGroupType> localizedChannelGroupTypeCache = new ConcurrentHashMap<>();
+    private Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
