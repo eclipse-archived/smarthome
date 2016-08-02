@@ -53,6 +53,7 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -117,6 +118,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
+    private boolean subscriptionsRequested = false;
+
     private final Object upnpLock = new Object();
 
     private final Object stateLock = new Object();
@@ -127,11 +130,28 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         public void run() {
             try {
                 logger.debug("Polling job");
+
+                // First check if the Sonos zone is set in the UPnP service registry
+                // If not, set the thing state to OFFLINE and wait for the next poll
+                if (!isUpnpDeviceRegistered()) {
+                    logger.debug("UPnP device {} not yet registered", getUDN());
+                    updateStatus(ThingStatus.OFFLINE);
+                    return;
+                }
+
+                // Check if the Sonos zone can be joined
+                // If not, set the thing state to OFFLINE and do nothing else
+                updatePlayerState();
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
+                    return;
+                }
+
+                addSubscription();
+
                 updateZoneInfo();
                 updateRunningAlarmProperties();
                 updateLed();
                 updateMediaInfo();
-                updatePlayerState();
                 updateSleepTimerDuration();
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
@@ -180,11 +200,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
+            updateStatus(ThingStatus.ONLINE);
             this.discoveryServiceRegistry.addDiscoveryListener(this);
             this.notificationSoundVolume = getVolume();
             onUpdate();
             super.initialize();
         } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
         }
     }
@@ -213,7 +235,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void handleCommand(ChannelUID channelUID, Command command) {
         switch (channelUID.getId()) {
             case LED:
-                this.setLed(command);
+                setLed(command);
                 break;
             case MUTE:
                 setMute(command);
@@ -274,7 +296,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 playPlayList(command);
                 break;
             case PLAYQUEUE:
-                playQueue(command);
+                playQueue();
                 break;
             case PLAYTRACK:
                 playTrack(command);
@@ -586,6 +608,22 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
+    private boolean isUpnpDeviceRegistered() {
+        return service.isRegistered(this);
+    }
+
+    private void addSubscription() {
+        synchronized (upnpLock) {
+            // Set up GENA Subscriptions
+            if (service.isRegistered(this) && !subscriptionsRequested) {
+                for (String subscription : SERVICE_SUBSCRIPTIONS) {
+                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                }
+                subscriptionsRequested = true;
+            }
+        }
+    }
+
     private void removeSubscription() {
         synchronized (upnpLock) {
             // Set up GENA Subscriptions
@@ -593,27 +631,22 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 for (String subscription : SERVICE_SUBSCRIPTIONS) {
                     service.removeSubscription(this, subscription);
                 }
-                service.unregisterParticipant(this);
             }
+            subscriptionsRequested = false;
+            service.unregisterParticipant(this);
         }
     }
 
     private void onUpdate() {
-        synchronized (upnpLock) {
-            for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+        if (pollingJob == null || pollingJob.isCancelled()) {
+            Configuration config = getThing().getConfiguration();
+            // use default if not specified
+            int refreshInterval = DEFAULT_REFRESH_INTERVAL;
+            Object refreshConfig = config.get("refresh");
+            if (refreshConfig != null) {
+                refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
-
-            if (pollingJob == null || pollingJob.isCancelled()) {
-                Configuration config = getThing().getConfiguration();
-                // use default if not specified
-                int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-                Object refreshConfig = config.get("refresh");
-                if (refreshConfig != null) {
-                    refreshInterval = ((BigDecimal) refreshConfig).intValue();
-                }
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
-            }
+            pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 
@@ -745,6 +778,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 if (!currentTrack.getTitle().contains("x-sonosapi-stream")) {
                     title = currentTrack.getTitle();
+                } else {
+                    // For tune-in, don't reset the title as it was previously set in updateCurrentURIFormatted
+                    // using the Opml HTTP query
+                    title = stateMap.get("CurrentTitle");
                 }
                 album = currentTrack.getAlbum();
             }
@@ -1544,6 +1581,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 }
             }
+        } else {
+            // If the group topology was not yet received, return at least the current Sonos zone
+            result.add((String) getThing().getConfiguration().get(UDN));
         }
         return result;
     }
@@ -1693,11 +1733,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (SonosAlarm anAlarm : sonosAlarms) {
                 SimpleDateFormat durationFormat = new SimpleDateFormat("HH:mm:ss");
                 durationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                Date durationDate = null;
+                Date durationDate;
                 try {
                     durationDate = durationFormat.parse(anAlarm.getDuration());
                 } catch (ParseException e) {
                     logger.error("An exception occurred while parsing a date : '{}'", e.getMessage());
+                    continue;
                 }
 
                 long duration = durationDate.getTime();
@@ -1729,7 +1770,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public Boolean isAlarmRunning() {
-        return stateMap.get("AlarmRunning").equals("1") ? true : false;
+        return ((stateMap.get("AlarmRunning") != null) && stateMap.get("AlarmRunning").equals("1")) ? true : false;
     }
 
     public void snoozeAlarm(Command command) {
@@ -1758,12 +1799,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 this.onValueReceived(variable, result.get(variable), "AVTransport");
             }
         } else {
-            logger.warn("There is no alarm running on {} ", this);
+            logger.warn("There is no alarm running on {}", getUDN());
         }
     }
 
     public Boolean isLineInConnected() {
-        return stateMap.get("LineInConnected").equals("true") ? true : false;
+        return ((stateMap.get("LineInConnected") != null) && stateMap.get("LineInConnected").equals("true")) ? true
+                : false;
     }
 
     public void becomeStandAlonePlayer() {
@@ -1829,7 +1871,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
 
         } else {
-            logger.warn("Line-in of {} is not connected", this);
+            logger.warn("Line-in of {} is not connected", getUDN());
             return false;
         }
 
@@ -1865,7 +1907,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 coordinator.addURIToQueue(url, "", 0, true);
 
                 // set the current playlist to our new queue
-                coordinator.setCurrentURI("x-rincon-queue:" + getUDN() + "#0", "");
+                coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
 
                 // take the system off mute
                 coordinator.setMute(OnOffType.OFF);
@@ -1988,7 +2030,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         coordinator.stop();
         applyNotificationSoundVolume();
         int notificationPosition = coordinator.getQueue().size() + 1;
-        coordinator.setCurrentURI("x-rincon-queue:" + getUDN() + "#0", "");
+        coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
         coordinator.addURIToQueue(notificationURL.toString(), "", notificationPosition, false);
         coordinator.setPositionTrack(notificationPosition);
         coordinator.play();
@@ -2098,12 +2140,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
-    public void playQueue(Command command) {
+    public void playQueue() {
         try {
             ZonePlayerHandler coordinator = getCoordinatorHandler();
 
             // set the current playlist to our new queue
-            coordinator.setCurrentURI("x-rincon-queue:" + getUDN() + "#0", "");
+            coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
 
             // take the system off mute
             coordinator.setMute(OnOffType.OFF);
@@ -2198,6 +2240,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } catch (IllegalStateException e) {
                     logger.warn("Cannot play radio ({})", e.getMessage());
                 }
+            } else {
+                logger.warn("Radio station '{}' not found", station);
             }
         }
 
@@ -2233,16 +2277,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     /**
                      * If this is a playlist we need to treat it as such
                      */
-                    if (theEntry.getResourceMetaData() != null && theEntry.getResourceMetaData().getUpnpClass()
-                            .equals("object.container.playlistContainer")) {
+                    if (theEntry.getResourceMetaData() != null
+                            && theEntry.getResourceMetaData().getUpnpClass().startsWith("object.container")) {
                         coordinator.removeAllTracksFromQueue();
                         coordinator.addURIToQueue(theEntry);
                         coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
-                        if (stateMap != null) {
-                            String firstTrackNumberEnqueued = stateMap.get("FirstTrackNumberEnqueued");
-                            if (firstTrackNumberEnqueued != null) {
-                                coordinator.seek("TRACK_NR", firstTrackNumberEnqueued);
-                            }
+                        String firstTrackNumberEnqueued = stateMap.get("FirstTrackNumberEnqueued");
+                        if (firstTrackNumberEnqueued != null) {
+                            coordinator.seek("TRACK_NR", firstTrackNumberEnqueued);
                         }
                     } else {
                         coordinator.setCurrentURI(theEntry);
@@ -2251,6 +2293,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } catch (IllegalStateException e) {
                     logger.warn("Cannot paly favorite ({})", e.getMessage());
                 }
+            } else {
+                logger.warn("Favorite '{}' not found", favorite);
             }
 
         }
@@ -2264,8 +2308,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 String trackNumber = command.toString();
 
+                coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
+
                 // seek the track - warning, we do not check if the tracknumber falls in the boundary of the queue
-                setPositionTrack(trackNumber);
+                coordinator.setPositionTrack(trackNumber);
 
                 // take the system off mute
                 coordinator.setMute(OnOffType.OFF);
@@ -2299,20 +2345,21 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 try {
                     ZonePlayerHandler coordinator = getCoordinatorHandler();
 
-                    // coordinator.setCurrentURI(theEntry);
                     coordinator.addURIToQueue(theEntry);
 
-                    if (stateMap != null) {
-                        String firstTrackNumberEnqueued = stateMap.get("FirstTrackNumberEnqueued");
-                        if (firstTrackNumberEnqueued != null) {
-                            coordinator.seek("TRACK_NR", firstTrackNumberEnqueued);
-                        }
+                    coordinator.setCurrentURI("x-rincon-queue:" + coordinator.getUDN() + "#0", "");
+
+                    String firstTrackNumberEnqueued = stateMap.get("FirstTrackNumberEnqueued");
+                    if (firstTrackNumberEnqueued != null) {
+                        coordinator.seek("TRACK_NR", firstTrackNumberEnqueued);
                     }
 
                     coordinator.play();
                 } catch (IllegalStateException e) {
                     logger.warn("Cannot play playlist ({})", e.getMessage());
                 }
+            } else {
+                logger.warn("Playlist '{}' not found", playlist);
             }
         }
     }
@@ -2339,7 +2386,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public boolean getLed() {
-        return stateMap.get("CurrentLEDState").equals("On") ? true : false;
+        return ((stateMap.get("CurrentLEDState") != null) && stateMap.get("CurrentLEDState").equals("On")) ? true
+                : false;
     }
 
     public String getCurrentZoneName() {
