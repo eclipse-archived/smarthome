@@ -45,8 +45,11 @@ public class MDNSServiceImpl implements MDNSService {
                     logger.debug("Registering {} queued services", servicesToRegisterQueue.size());
                     for (ServiceDescription description : servicesToRegisterQueue) {
                         try {
-                            if (mdnsClient != null) {
-                                mdnsClient.registerService(description);
+                            MDNSClient localClient = mdnsClient;
+                            if (localClient != null) {
+                                localClient.registerService(description);
+                            } else {
+                                break;
                             }
                         } catch (IOException e) {
                             logger.error(e.getMessage());
