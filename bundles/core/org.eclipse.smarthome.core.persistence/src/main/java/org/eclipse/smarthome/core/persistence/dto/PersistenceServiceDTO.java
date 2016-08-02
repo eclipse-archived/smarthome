@@ -5,17 +5,30 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.persistence;
+package org.eclipse.smarthome.core.persistence.dto;
 
 /**
- * This is a java bean that is used to serialize items to JSON.
+ * This is a java bean that is used to serialize services to JSON.
  *
  * @author Chris Jackson - Initial Contribution
  *
  */
-public class ServiceBean {
-    ServiceBean() {
+public class PersistenceServiceDTO {
+    public PersistenceServiceDTO() {
     }
 
-    public String name;
+    /**
+     * Service Id
+     */
+    public String id;
+
+    /**
+     * Service label
+     */
+    public String label;
+
+    /**
+     * Persistence service class
+     */
+    public String type;
 }

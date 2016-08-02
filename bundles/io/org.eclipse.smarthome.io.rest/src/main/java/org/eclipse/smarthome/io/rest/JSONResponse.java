@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.Provider;
 
+import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,8 @@ public class JSONResponse {
     // also dump stacktrace?
     private final static boolean WITH_STACKTRACE = false;
 
-    final static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    final static Gson GSON = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)
+            .setPrettyPrinting().create();
 
     /**
      * hide ctor a bit from public
