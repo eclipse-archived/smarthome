@@ -10,6 +10,7 @@ package org.eclipse.smarthome.model.persistence.tests;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
@@ -29,7 +30,7 @@ import org.eclipse.smarthome.core.types.State;
 public class TestPersistenceService implements QueryablePersistenceService {
 
     @Override
-    public String getName() {
+    public String getId() {
         return "test";
     }
 
@@ -85,8 +86,13 @@ public class TestPersistenceService implements QueryablePersistenceService {
     }
 
     @Override
-    public Set<PersistenceItemInfo> getItems() {
+    public Set<PersistenceItemInfo> getItemInfo() {
         return null;
+    }
+
+    @Override
+    public String getLabel(Locale locale) {
+        return "Test Label";
     }
 
 }
