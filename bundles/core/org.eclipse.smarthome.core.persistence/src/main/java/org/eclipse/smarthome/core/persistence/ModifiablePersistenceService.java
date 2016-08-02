@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.persistence;
 
-import java.security.InvalidParameterException;
 import java.util.Date;
 
 import org.eclipse.smarthome.core.items.Item;
@@ -49,7 +48,7 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      *
      * @param filter the filter to apply to the data removal. ItemName can not be null.
      * @return true if the query executed successfully
-     * @throws {@link InvalidParameterException} if item name is null.
+     * @throws {@link IllegalArgumentException} if item name is null.
      */
-    boolean remove(FilterCriteria filter) throws InvalidParameterException;
+    boolean remove(FilterCriteria filter) throws IllegalArgumentException;
 }

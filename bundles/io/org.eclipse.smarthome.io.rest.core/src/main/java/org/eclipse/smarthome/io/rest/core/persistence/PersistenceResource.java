@@ -15,16 +15,17 @@
 */
 package org.eclipse.smarthome.io.rest.core.persistence;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -53,6 +54,7 @@ import org.eclipse.smarthome.core.persistence.dto.PersistenceServiceDTO;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.slf4j.Logger;
@@ -77,6 +79,10 @@ public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
     private final int MILLISECONDS_PER_DAY = 86400000;
+
+    private final String MODIFYABLE = "Modifiable";
+    private final String QUERYABLE = "Queryable";
+    private final String STANDARD = "Standard";
 
     // The URI path to this resource
     public static final String PATH = "persistence";
@@ -104,9 +110,12 @@ public class PersistenceResource implements RESTResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Gets a list of persistence services.", response = String.class, responseContainer = "List")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
-    public Response httpGetPersistenceServices(@Context HttpHeaders headers) {
+    public Response httpGetPersistenceServices(@Context HttpHeaders headers,
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
 
-        Object responseObject = getPersistenceServiceList();
+        Locale locale = LocaleUtil.getLocale(language);
+
+        Object responseObject = getPersistenceServiceList(locale);
         return Response.ok(responseObject).build();
     }
 
@@ -140,7 +149,7 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength,
             @ApiParam(value = "Gets one value before and after the requested period.", required = false) @QueryParam("boundary") boolean boundary) {
 
-        return getItemHistoryDto(serviceName, itemName, startTime, endTime, pageNumber, pageLength, boundary);
+        return getItemHistoryDTO(serviceName, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
     @DELETE
@@ -182,7 +191,7 @@ public class PersistenceResource implements RESTResource {
         return dateTime.getCalendar().getTime();
     }
 
-    private Response getItemHistoryDto(String serviceName, String itemName, String timeBegin, String timeEnd,
+    private Response getItemHistoryDTO(String serviceName, String itemName, String timeBegin, String timeEnd,
             int pageNumber, int pageLength, boolean boundary) {
         // Benchmarking timer...
         long timerStart = System.currentTimeMillis();
@@ -314,23 +323,24 @@ public class PersistenceResource implements RESTResource {
      *
      * @return list of persistence services as {@link ServiceBean}
      */
-    private List<PersistenceServiceDTO> getPersistenceServiceList() {
+    private List<PersistenceServiceDTO> getPersistenceServiceList(Locale locale) {
         List<PersistenceServiceDTO> dtoList = new ArrayList<PersistenceServiceDTO>();
 
         for (Map.Entry<String, PersistenceService> service : persistenceServices.entrySet()) {
-            PersistenceServiceDTO serviceDto = new PersistenceServiceDTO();
-            serviceDto.id = service.getKey();
+            PersistenceServiceDTO serviceDTO = new PersistenceServiceDTO();
+            serviceDTO.id = service.getKey();
             PersistenceService persistence = service.getValue();
-            serviceDto.label = persistence.getLabel();
+            serviceDTO.label = persistence.getLabel(locale);
+
             if (persistence instanceof ModifiablePersistenceService) {
-                serviceDto.type = "Modifiable";
+                serviceDTO.type = MODIFYABLE;
             } else if (persistence instanceof QueryablePersistenceService) {
-                serviceDto.type = "Queryable";
+                serviceDTO.type = QUERYABLE;
             } else {
-                serviceDto.type = "Standard";
+                serviceDTO.type = STANDARD;
             }
 
-            dtoList.add(serviceDto);
+            dtoList.add(serviceDTO);
         }
 
         return dtoList;
@@ -405,11 +415,11 @@ public class PersistenceResource implements RESTResource {
         filter.setItemName(itemName);
         try {
             mService.remove(filter);
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Invalid filter parameters.");
         }
 
-        return JSONResponse.createResponse(Status.OK, null, "");
+        return Response.status(Status.OK).build();
     }
 
     private Response putItemState(String serviceName, String itemName, String value, String time) {
@@ -464,6 +474,6 @@ public class PersistenceResource implements RESTResource {
         ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
 
         mService.store(item, dateTime, state);
-        return JSONResponse.createResponse(Status.OK, "", "");
+        return Response.status(Status.OK).build();
     }
 }

@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.persistence;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -31,9 +33,11 @@ public interface PersistenceService {
      * Returns the label of this {@link PersistenceService}.
      * This label provides a user friendly name for the {@link PersistenceService}.
      *
+     * @param locale the language to return the label in, or null for the default language
+     *
      * @return the label of the {@link PersistenceService}.
      */
-    String getLabel();
+    String getLabel(Locale locale);
 
     /**
      * Stores the current value of the given item.
