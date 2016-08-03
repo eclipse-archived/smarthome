@@ -7,15 +7,16 @@
  */
 package org.eclipse.smarthome.model.persistence.extensions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
+import org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.persistence.tests.TestPersistenceService;
@@ -31,14 +32,38 @@ import org.junit.Test;
 @SuppressWarnings("deprecation")
 public class PersistenceExtensionsTest {
 
-    private PersistenceService testPersistenceService = new TestPersistenceService();
+    private PersistenceServiceRegistry registry = new PersistenceServiceRegistry() {
+
+        private PersistenceService testPersistenceService = new TestPersistenceService();
+
+        @Override
+        public String getDefaultId() {
+            return null;
+        }
+
+        @Override
+        public PersistenceService getDefault() {
+            return testPersistenceService;
+        }
+
+        @Override
+        public Set<PersistenceService> getAll() {
+            return null;
+        }
+
+        @Override
+        public PersistenceService get(String serviceId) {
+            return testPersistenceService;
+        }
+    };
+
     private PersistenceExtensions ext;
     private GenericItem item;
 
     @Before
     public void setUp() {
         ext = new PersistenceExtensions();
-        ext.addPersistenceService(testPersistenceService);
+        ext.setPersistenceServiceRegistry(registry);
         item = new GenericItem("Test", "Test") {
             @Override
             public List<Class<? extends State>> getAcceptedDataTypes() {
@@ -54,7 +79,7 @@ public class PersistenceExtensionsTest {
 
     @After
     public void tearDown() {
-        ext.removePersistenceService(testPersistenceService);
+        ext.unsetPersistenceServiceRegistry(registry);
     }
 
     @Test
@@ -102,7 +127,7 @@ public class PersistenceExtensionsTest {
         DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), "test");
         assertEquals("2100", average.toString());
     }
-    
+
     @Test
     public void testPreviousStateNoSkip() {
         item.setState(new DecimalType(4321));
