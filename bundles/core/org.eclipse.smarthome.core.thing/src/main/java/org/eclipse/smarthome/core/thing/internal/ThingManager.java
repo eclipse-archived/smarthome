@@ -98,9 +98,9 @@ public class ThingManager extends AbstractItemEventSubscriber
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
 
     private final Multimap<Bundle, Object> initializerVetoes = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
+            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object>create());
     private final Multimap<Long, ThingHandler> initializerQueue = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler> create());
+            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler>create());
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -248,9 +248,9 @@ public class ThingManager extends AbstractItemEventSubscriber
         }
 
         @Override
-        public void changeThingType(final Thing thing, final ThingTypeUID thingTypeUID,
+        public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
                 final Configuration configuration) {
-            ThingManager.this.changeThingType(thing, thingTypeUID, configuration);
+            ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
         }
 
     };
@@ -306,20 +306,20 @@ public class ThingManager extends AbstractItemEventSubscriber
     }
 
     @Override
-    public void changeThingType(final Thing thing, final ThingTypeUID thingTypeUID,
+    public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
             final Configuration configuration) {
+        final ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        if (thingType == null) {
+            throw new RuntimeException(
+                    MessageFormat.format("No thing type {0} registered, cannot change thing type for thing {1}",
+                            thingTypeUID.getAsString(), thing.getUID().getAsString()));
+        }
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
                 ThingUID thingUID = thing.getUID();
                 waitForRunningHandlerRegistrations(thingUID);
-                ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
-                if (thingType == null) {
-                    logger.error("No thing type {} registered, cannot change thing type for thing {}",
-                            thingTypeUID.getAsString(), thingUID.getAsString());
-                    return;
-                }
-    
+
                 // Remove the ThingHandler, if any
                 final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
                 if (oldThingHandlerFactory != null) {
@@ -328,26 +328,26 @@ public class ThingManager extends AbstractItemEventSubscriber
                 } else {
                     logger.debug("No ThingHandlerFactory available that can handle {}", thing.getThingTypeUID());
                 }
-    
+
                 // Set the new channels
                 List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID,
                         configDescriptionRegistry);
                 ((ThingImpl) thing).setChannels(channels);
-    
+
                 // Set the given configuration
                 ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
                 ((ThingImpl) thing).setConfiguration(configuration);
-    
+
                 // Change the ThingType
                 ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
-    
+
                 // Register the new Handler - ThingManager.updateThing() is going to take care of that
                 thingRegistry.update(thing);
-    
-                logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
-                        thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
+
+                logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.", thing.getUID().toString(),
+                        thing.getThingTypeUID(), thing.getHandler().toString());
             }
-    
+
             private void waitUntilHandlerUnregistered(final Thing thing, int timeout) {
                 for (int i = 0; i < timeout / 100; i++) {
                     if (thing.getHandler() == null && thingHandlers.get(thing.getUID()) == null) {
@@ -355,9 +355,8 @@ public class ThingManager extends AbstractItemEventSubscriber
                     }
                     try {
                         Thread.sleep(100);
-                        logger.debug(
-                                "Waiting for handler deregistration to complete for thing {}. Took already {}ms.",
-                                thing.getUID().getAsString(), i * 100);
+                        logger.debug("Waiting for handler deregistration to complete for thing {}. Took already {}ms.",
+                                thing.getUID().getAsString(), (i + 1) * 100);
                     } catch (InterruptedException e) {
                         return;
                     }
@@ -368,7 +367,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                 logger.error(message);
                 throw new RuntimeException(message);
             }
-    
+
             private void waitForRunningHandlerRegistrations(ThingUID thingUID) {
                 for (int i = 0; i < 10 * 10; i++) {
                     if (!registerHandlerLock.contains(thingUID)) {

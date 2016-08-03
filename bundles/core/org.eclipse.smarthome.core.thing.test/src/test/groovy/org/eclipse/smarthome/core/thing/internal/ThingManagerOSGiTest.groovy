@@ -125,12 +125,12 @@ class ThingManagerOSGiTest extends OSGiTest {
         def migrator = getService(ThingTypeMigrator.class)
         assertThat migrator, is(not(null))
 
-        migrator.changeThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
+        migrator.migrateThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
 
         waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID_NEW.getAsString()))}
     }
 
-    @Test
+    @Test(expected=RuntimeException.class)
     void 'ThingManager does not change the thing type when new thing type is not registered'() {
 
         def thingHandlerFactory = [
@@ -148,9 +148,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         def migrator = getService(ThingTypeMigrator.class)
         assertThat migrator, is(not(null))
 
-        migrator.changeThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
-
-        waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID.getAsString()))}
+        migrator.migrateThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
     }
 
     @Test
