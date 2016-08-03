@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingStatusInfo
+import org.eclipse.smarthome.core.thing.ThingTypeMigrator
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
@@ -103,6 +104,53 @@ class ThingManagerOSGiTest extends OSGiTest {
             managedThingProvider.remove(it.getUID())
         }
         thingLinkManager.activate(null)
+    }
+
+    @Test
+    void 'ThingManager changes the thing type'() {
+        registerThingTypeProvider()
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true}
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        managedThingProvider.add(THING)
+
+        assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID.getAsString()))
+
+        def THING_TYPE_UID_NEW = new ThingTypeUID("binding:type2")
+
+        def migrator = getService(ThingTypeMigrator.class)
+        assertThat migrator, is(not(null))
+
+        migrator.changeThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
+
+        waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID_NEW.getAsString()))}
+    }
+
+    @Test
+    void 'ThingManager does not change the thing type when new thing type is not registered'() {
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true}
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        managedThingProvider.add(THING)
+
+        assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID.getAsString()))
+
+        def THING_TYPE_UID_NEW = new ThingTypeUID("binding:type2")
+
+        def migrator = getService(ThingTypeMigrator.class)
+        assertThat migrator, is(not(null))
+
+        migrator.changeThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
+
+        waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID.getAsString()))}
     }
 
     @Test
