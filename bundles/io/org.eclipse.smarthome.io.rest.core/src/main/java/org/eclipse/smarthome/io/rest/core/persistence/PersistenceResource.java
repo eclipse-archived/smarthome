@@ -17,11 +17,9 @@ package org.eclipse.smarthome.io.rest.core.persistence;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -48,6 +46,7 @@ import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.ModifiablePersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
+import org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
 import org.eclipse.smarthome.core.persistence.dto.ItemHistoryDTO;
 import org.eclipse.smarthome.core.persistence.dto.PersistenceServiceDTO;
@@ -56,7 +55,6 @@ import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +69,7 @@ import io.swagger.annotations.ApiResponses;
  * store
  *
  * @author Chris Jackson - Initial Contribution and add support for ModifiablePersistenceService
+ * @author Kai Kreuzer - Refactored to use PersistenceServiceRegistryImpl
  *
  */
 @Path(PersistenceResource.PATH)
@@ -88,14 +87,14 @@ public class PersistenceResource implements RESTResource {
     public static final String PATH = "persistence";
 
     private ItemRegistry itemRegistry;
-    private Map<String, PersistenceService> persistenceServices = new HashMap<String, PersistenceService>();
+    private PersistenceServiceRegistry persistenceServiceRegistry;
 
-    public void addPersistenceService(PersistenceService service) {
-        persistenceServices.put(service.getId(), service);
+    protected void setPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
+        this.persistenceServiceRegistry = persistenceServiceRegistry;
     }
 
-    public void removePersistenceService(PersistenceService service) {
-        persistenceServices.remove(service.getId());
+    protected void unsetPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
+        this.persistenceServiceRegistry = null;
     }
 
     protected void setItemRegistry(ItemRegistry itemRegistry) {
@@ -125,9 +124,9 @@ public class PersistenceResource implements RESTResource {
     @ApiOperation(value = "Gets a list of items available via a specific persistence service.", response = String.class, responseContainer = "List")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
     public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
-            @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName) {
+            @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId) {
 
-        return getServiceItemList(serviceName);
+        return getServiceItemList(serviceId);
     }
 
     @GET
@@ -137,7 +136,7 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpGetPersistenceItemData(@Context HttpHeaders headers,
-            @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName,
+            @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId,
             @ApiParam(value = "The item name", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Start time of the data to return. Will default to 1 day before endtime. ["
                     + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS
@@ -149,7 +148,7 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength,
             @ApiParam(value = "Gets one value before and after the requested period.", required = false) @QueryParam("boundary") boolean boundary) {
 
-        return getItemHistoryDTO(serviceName, itemName, startTime, endTime, pageNumber, pageLength, boundary);
+        return getItemHistoryDTO(serviceId, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
     @DELETE
@@ -160,14 +159,14 @@ public class PersistenceResource implements RESTResource {
             @ApiResponse(code = 400, message = "Invalid filter parameters"),
             @ApiResponse(code = 404, message = "Unknown persistence service") })
     public Response httpDeletePersistenceServiceItem(@Context HttpHeaders headers,
-            @ApiParam(value = "Name of the persistence service.", required = true) @QueryParam("servicename") String serviceName,
+            @ApiParam(value = "Id of the persistence service.", required = true) @QueryParam("serviceId") String serviceId,
             @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Start time of the data to return. [" + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS
                     + "]", required = true) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return. [" + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS
                     + "]", required = true) @QueryParam("endtime") String endTime) {
 
-        return deletePersistenceItemData(serviceName, itemName, startTime, endTime);
+        return deletePersistenceItemData(serviceId, itemName, startTime, endTime);
     }
 
     @PUT
@@ -177,13 +176,13 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpPutPersistenceItemData(@Context HttpHeaders headers,
-            @ApiParam(value = "Name of the persistence service. If not provided the default service will be used", required = false) @QueryParam("servicename") String serviceName,
+            @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId,
             @ApiParam(value = "The item name.", required = true) @PathParam("itemname") String itemName,
             @ApiParam(value = "Time of the data to be stored. Will default to current time. ["
                     + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS + "]", required = true) @QueryParam("time") String time,
             @ApiParam(value = "The state to store.", required = true) @QueryParam("state") String value) {
 
-        return putItemState(serviceName, itemName, value, time);
+        return putItemState(serviceId, itemName, value, time);
     }
 
     private Date convertTime(String sTime) {
@@ -191,29 +190,27 @@ public class PersistenceResource implements RESTResource {
         return dateTime.getCalendar().getTime();
     }
 
-    private Response getItemHistoryDTO(String serviceName, String itemName, String timeBegin, String timeEnd,
+    private Response getItemHistoryDTO(String serviceId, String itemName, String timeBegin, String timeEnd,
             int pageNumber, int pageLength, boolean boundary) {
         // Benchmarking timer...
         long timerStart = System.currentTimeMillis();
 
-        // If serviceName is null, then use the default service
+        // If serviceId is null, then use the default service
         PersistenceService service = null;
-        if (serviceName == null) {
-            service = persistenceServices.get(PersistenceExtensions.getDefaultService());
-        } else {
-            service = persistenceServices.get(serviceName);
+        if (serviceId == null) {
+            serviceId = persistenceServiceRegistry.getDefaultId();
         }
+        service = persistenceServiceRegistry.get(serviceId);
 
         if (service == null) {
-            logger.debug("Persistence service not found '{}'.", serviceName);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not found: " + serviceName);
+            logger.debug("Persistence service not found '{}'.", serviceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
         }
 
         if (!(service instanceof QueryablePersistenceService)) {
-            logger.debug("Persistence service not queryable '{}'.", serviceName);
+            logger.debug("Persistence service not queryable '{}'.", serviceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not queryable: " + serviceName);
+                    "Persistence service not queryable: " + serviceId);
         }
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -326,15 +323,14 @@ public class PersistenceResource implements RESTResource {
     private List<PersistenceServiceDTO> getPersistenceServiceList(Locale locale) {
         List<PersistenceServiceDTO> dtoList = new ArrayList<PersistenceServiceDTO>();
 
-        for (Map.Entry<String, PersistenceService> service : persistenceServices.entrySet()) {
+        for (PersistenceService service : persistenceServiceRegistry.getAll()) {
             PersistenceServiceDTO serviceDTO = new PersistenceServiceDTO();
-            serviceDTO.id = service.getKey();
-            PersistenceService persistence = service.getValue();
-            serviceDTO.label = persistence.getLabel(locale);
+            serviceDTO.id = service.getId();
+            serviceDTO.label = service.getLabel(locale);
 
-            if (persistence instanceof ModifiablePersistenceService) {
+            if (service instanceof ModifiablePersistenceService) {
                 serviceDTO.type = MODIFYABLE;
-            } else if (persistence instanceof QueryablePersistenceService) {
+            } else if (service instanceof QueryablePersistenceService) {
                 serviceDTO.type = QUERYABLE;
             } else {
                 serviceDTO.type = STANDARD;
@@ -346,24 +342,24 @@ public class PersistenceResource implements RESTResource {
         return dtoList;
     }
 
-    private Response getServiceItemList(String serviceName) {
-        // If serviceName is null, then use the default service
+    private Response getServiceItemList(String serviceId) {
+        // If serviceId is null, then use the default service
         PersistenceService service = null;
-        if (serviceName == null) {
-            serviceName = PersistenceExtensions.getDefaultService();
+        if (serviceId == null) {
+            service = persistenceServiceRegistry.getDefault();
+        } else {
+            service = persistenceServiceRegistry.get(serviceId);
         }
-        service = persistenceServices.get(serviceName);
 
         if (service == null) {
-            logger.debug("Persistence service not found '{}'.", serviceName);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not found: " + serviceName);
+            logger.debug("Persistence service not found '{}'.", serviceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
         }
 
         if (!(service instanceof QueryablePersistenceService)) {
-            logger.debug("Persistence service not queryable '{}'.", serviceName);
+            logger.debug("Persistence service not queryable '{}'.", serviceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not queryable: " + serviceName);
+                    "Persistence service not queryable: " + serviceId);
         }
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -371,25 +367,24 @@ public class PersistenceResource implements RESTResource {
         return JSONResponse.createResponse(Status.OK, qService.getItemInfo(), "");
     }
 
-    private Response deletePersistenceItemData(String serviceName, String itemName, String timeBegin, String timeEnd) {
-        // For deleting, we must specify a servicename - don't use the default service
-        if (serviceName == null || serviceName.length() == 0) {
+    private Response deletePersistenceItemData(String serviceId, String itemName, String timeBegin, String timeEnd) {
+        // For deleting, we must specify a service id - don't use the default service
+        if (serviceId == null || serviceId.length() == 0) {
             logger.debug("Persistence service must be specified for delete operations.");
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
                     "Persistence service must be specified for delete operations.");
         }
 
-        PersistenceService service = persistenceServices.get(serviceName);
+        PersistenceService service = persistenceServiceRegistry.get(serviceId);
         if (service == null) {
-            logger.debug("Persistence service not found '{}'.", serviceName);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not found: " + serviceName);
+            logger.debug("Persistence service not found '{}'.", serviceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
         }
 
         if (!(service instanceof ModifiablePersistenceService)) {
-            logger.warn("Persistence service not modifiable '{}'.", serviceName);
+            logger.warn("Persistence service not modifiable '{}'.", serviceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not modifiable: " + serviceName);
+                    "Persistence service not modifiable: " + serviceId);
         }
 
         ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
@@ -422,18 +417,17 @@ public class PersistenceResource implements RESTResource {
         return Response.status(Status.OK).build();
     }
 
-    private Response putItemState(String serviceName, String itemName, String value, String time) {
-        // If serviceName is null, then use the default service
+    private Response putItemState(String serviceId, String itemName, String value, String time) {
+        // If serviceId is null, then use the default service
         PersistenceService service = null;
-        if (serviceName == null) {
-            serviceName = PersistenceExtensions.getDefaultService();
+        if (serviceId == null) {
+            serviceId = persistenceServiceRegistry.getDefaultId();
         }
-        service = persistenceServices.get(serviceName);
+        service = persistenceServiceRegistry.get(serviceId);
 
         if (service == null) {
-            logger.warn("Persistence service not found '{}'.", serviceName);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not found: " + serviceName);
+            logger.warn("Persistence service not found '{}'.", serviceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
         }
 
         Item item;
@@ -466,9 +460,9 @@ public class PersistenceResource implements RESTResource {
         }
 
         if (!(service instanceof ModifiablePersistenceService)) {
-            logger.warn("Persistence service not modifiable '{}'.", serviceName);
+            logger.warn("Persistence service not modifiable '{}'.", serviceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not modifiable: " + serviceName);
+                    "Persistence service not modifiable: " + serviceId);
         }
 
         ModifiablePersistenceService mService = (ModifiablePersistenceService) service;

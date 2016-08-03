@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" modified="modified" name="org.eclipse.smarthome.persistence">
+   <implementation class="org.eclipse.smarthome.core.persistence.internal.PersistenceServiceRegistryImpl"/>
+   <property name="service.pid" type="String" value="org.eclipse.smarthome.persistence"/>
+   <property name="service.config.description.uri" type="String" value="system:persistence"/>
+   <property name="service.config.label" type="String" value="Persistence"/>
+   <property name="service.config.category" type="String" value="system"/>
+   <reference bind="addPersistenceService" cardinality="0..n" interface="org.eclipse.smarthome.core.persistence.PersistenceService" name="PersistenceService" policy="dynamic" unbind="removePersistenceService"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry"/>
+      <provide interface="org.eclipse.smarthome.config.core.ConfigOptionProvider"/>
+   </service>
+</scr:component>
