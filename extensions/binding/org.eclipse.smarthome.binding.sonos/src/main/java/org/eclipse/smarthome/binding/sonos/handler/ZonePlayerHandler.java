@@ -760,6 +760,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         try {
             ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
             SonosMetaData currentTrack = getTrackMetadata();
+            SonosMetaData currentUriMetaData = getCurrentURIMetadata();
 
             if (coordinatorHandler != null && coordinatorHandler != this) {
                 coordinatorHandler.updateMediaInfo();
@@ -769,20 +770,22 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             String artist = null;
             String title = null;
             String album = null;
+            
             if (currentTrack != null) {
-                if (currentTrack.getAlbumArtist().equals("")) {
-                    artist = currentTrack.getCreator();
-                } else {
-                    artist = currentTrack.getAlbumArtist();
-                }
+                artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
+                        : currentTrack.getCreator();
 
                 if (!currentTrack.getTitle().contains("x-sonosapi-stream")) {
                     title = currentTrack.getTitle();
+                } else if (opmlUrl == null && currentUriMetaData != null) {
+                    artist = currentUriMetaData.getTitle();
+                    title = currentTrack.getStreamContent();
                 } else {
                     // For tune-in, don't reset the title as it was previously set in updateCurrentURIFormatted
                     // using the Opml HTTP query
                     title = stateMap.get("CurrentTitle");
                 }
+
                 album = currentTrack.getAlbum();
             }
 
@@ -811,6 +814,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         String currentURI = URI;
         SonosMetaData currentTrack = null;
+        SonosMetaData currentUriMetaData = null;
 
         try {
             ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
@@ -821,9 +825,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
                 currentURI = coordinatorHandler.getCurrentURI();
                 currentTrack = coordinatorHandler.getTrackMetadata();
+                currentUriMetaData = coordinatorHandler.getCurrentURIMetadata();
             } else {
                 // currentURI = getCurrentURI();
                 currentTrack = getTrackMetadata();
+                currentUriMetaData = getCurrentURIMetadata();
             }
 
         } catch (IllegalStateException e) {
@@ -888,6 +894,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             if (currentURI.contains("x-rincon-stream")) {
                 if (currentTrack != null) {
                     resultString = stateMap.get("CurrentTitle");
+                    needsUpdating = true;
+                }
+            }
+
+            if (currentURI.contains("x-sonosapi-stream") && opmlUrl == null) {
+                if (currentUriMetaData != null) {
+                    resultString = currentUriMetaData.getTitle() + " - " + currentTrack.getStreamContent();
                     needsUpdating = true;
                 }
             }
