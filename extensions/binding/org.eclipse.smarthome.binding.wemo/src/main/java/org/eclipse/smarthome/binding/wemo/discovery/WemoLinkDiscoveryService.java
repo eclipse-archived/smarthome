@@ -45,7 +45,7 @@ import org.xml.sax.InputSource;
  * The {@link WemoLinkDiscoveryService} is responsible for discovering new and
  * removed WeMo devices connected to the WeMo Link Bridge.
  *
- * @author Hans-Jörg Merk - Initial contribution
+ * @author Hans-JÃ¶rg Merk - Initial contribution
  *
  */
 public class WemoLinkDiscoveryService extends AbstractDiscoveryService implements UpnpIOParticipant {
@@ -69,17 +69,24 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
      */
     private final static int SCAN_INTERVAL = 120;
 
+    /**
+     * The handler for WeMo Link bridge
+     */
     private WemoBridgeHandler wemoBridgeHandler;
 
     /**
      * Job which will do the background scanning
      */
     private WemoLinkScan scanningRunnable;
+    
     /**
      * Schedule for scanning
      */
     private ScheduledFuture<?> scanningJob;
 
+    /**
+     * The Upnp service
+     */
     private UpnpIOService service;
 
     public WemoLinkDiscoveryService(WemoBridgeHandler wemoBridgeHandler, UpnpIOService upnpIOService) {
@@ -135,7 +142,14 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                                 "</DeviceLists>");
 
                         stringParser = StringEscapeUtils.unescapeXml(stringParser);
+                        
+                        // check if there are already paired devices with WeMo Link
+                        if("0".equals(stringParser)) {
+                        	logger.info("There are no devices connected with WeMo Link. Exit discovery");
+                            return;
+                        }
 
+                        // Build parser for received <DeviceList>
                         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                         DocumentBuilder db = dbf.newDocumentBuilder();
                         InputSource is = new InputSource();
