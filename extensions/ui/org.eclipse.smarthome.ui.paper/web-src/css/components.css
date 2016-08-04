@@ -892,3 +892,19 @@ md-dialog-content .dayParameter {
 .dayParameter>div {
 	min-height: 48px;
 }
+
+.container.itemConfig .md-select-value {
+	padding: 2px 2px 1px 2px;
+}
+
+.container.itemConfig md-select {
+	max-height: 30px;
+}
+
+.container .itemSet {
+	margin-top: 10px;
+}
+
+.itemSet md-chips {
+	padding-bottom: 10px;
+}
