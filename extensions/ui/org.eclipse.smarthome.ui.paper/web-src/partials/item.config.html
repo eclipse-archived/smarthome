@@ -51,7 +51,7 @@
 						</div>
 						<div class="parameter col-sm-6 col-xs-12" ng-show="item.type=='GroupItem'">
 							<label for="itemType" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Base type</label>
-							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="itemBaseType" ng-model="item.groupType"> <md-option ng-value="option.name" ng-repeat="option in groupTypes"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="itemBaseType" ng-model="item.groupType" ng-change="resetFunction()"> <md-option ng-value="option.name" ng-repeat="option in groupTypes"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select>
 							<div ng-messages="form.itemForm.itemBaseType.$error">
 								<div ng-message="required">Field is required</div>
 							</div>
@@ -61,20 +61,20 @@
 					<div class="row" ng-show="item.type=='GroupItem' && item.groupType && item.groupType!='none'">
 						<div class="parameter col-sm-6 col-xs-12">
 							<label for="itemType" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Function</label>
-							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" name="function" ng-model="item.function"> <md-option ng-value="option.name" ng-repeat="option in functions"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select> </md-input-container>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" name="function" ng-model="item.function.name"> <md-option ng-value="option.name" ng-repeat="option in functions"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select> </md-input-container>
 						</div>
 					</div>
-					<div class="row includeConfig" ng-show="item.type=='GroupItem'">
-						<fieldset>
-							<legend>Group members</legend>
-							<div class="itemSet">
-								<md-chips class="col-xs-10" md-on-add="createChip($chip,'childItems')" md-on-remove="removeChip($index)" name="childItems" md-require-match="true" md-autocomplete-snap ng-show="items && items.length>0" md-on-select="setMemberItem($chip)" ng-model="childItems" placeholder="Add an item"> <md-autocomplete md-search-text="searchText" md-items="child in searchItem(searchText)" md-item-text="child" md-min-length="0"> <span md-highlight-text="searchText">{{child}}</span> </md-autocomplete> <md-chip-template> <span>{{$chip}}</span> </md-chip-template> </md-chips>
-								<div class="col-xs-2">
-									<button ng-disabled="!selectedMember" class="md-button" ng-click="openItem()">Open item</button>
-								</div>
-							</div>
-						</fieldset>
-					</div>
+<!-- 					<div class="row includeConfig" ng-show="item.type=='GroupItem'"> -->
+<!-- 						<fieldset> -->
+<!-- 							<legend>Group members</legend> -->
+<!-- 							<div class="itemSet"> -->
+<!-- 								<md-chips class="col-xs-10" md-on-add="createChip($chip,'childItems')" md-on-remove="removeChip($index)" name="childItems" md-require-match="true" md-autocomplete-snap ng-show="items && items.length>0" md-on-select="setMemberItem($chip)" ng-model="childItems" placeholder="Add an item"> <md-autocomplete md-search-text="searchText" md-items="child in searchItem(searchText)" md-item-text="child" md-min-length="0"> <span md-highlight-text="searchText">{{child}}</span> </md-autocomplete> <md-chip-template> <span>{{$chip}}</span> </md-chip-template> </md-chips> -->
+<!-- 								<div class="col-xs-2"> -->
+<!-- 									<button ng-disabled="!selectedMember" class="md-button" ng-click="openItem()">Open item</button> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+<!-- 						</fieldset> -->
+<!-- 					</div> -->
 					<div class="row includeConfig">
 						<fieldset>
 							<legend>Parent groups</legend>

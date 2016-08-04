@@ -191,35 +191,41 @@ angular.module('PaperUI.constants').constant('itemConfig', {
         value : "None"
     } ],
     'arithmeticFunctions' : [ {
-        name : "avg",
+        name : "AVG",
         value : "AVG"
     }, {
-        name : "max",
+        name : "MAX",
         value : "MAX"
     }, {
-        name : "min",
+        name : "MIN",
         value : "MIN"
     }, {
-        name : "sum",
+        name : "SUM",
         value : "SUM"
     } ],
     'logicalFunctions' : [ {
-        name : "andOn",
+        name : "AND_ON_OFF",
         value : "All ON → ON else OFF"
     }, {
-        name : "andOff",
-        value : "All OFF → OFF else ON"
-    }, {
-        name : "nandOn",
+        name : "NAND_ON_OFF",
         value : "All ON → OFF else ON"
     }, {
-        name : "nandOff",
+        name : "OR_OFF_ON",
+        value : "All OFF → OFF else ON"
+    }, {
+        name : "NOR_ON_OFF",
         value : "All OFF → ON else OFF"
     }, {
-        name : "or",
+        name : "OR_ON_OFF",
         value : "One ON → ON else OFF"
     }, {
-        name : "nor",
+        name : "NOR_ON_OFF",
         value : "One ON → OFF else ON"
+    }, {
+        name : "AND_OFF_ON",
+        value : "One OFF → OFF else ON"
+    }, {
+        name : "NAND_OFF_ON",
+        value : "One OFF → ON else OFF"
     } ]
 });

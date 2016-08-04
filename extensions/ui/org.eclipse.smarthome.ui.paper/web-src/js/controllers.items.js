@@ -50,7 +50,16 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             });
             if (items.length > 0) {
                 $scope.item = items[0];
+                setFunctionToItem();
                 angular.copy($scope.item, originalItem);
+                if (!$scope.item['function']) {
+                    $scope.item['function'] = {
+                        name : ''
+                    };
+                }
+                if ($scope.item.groupType) {
+                    $scope.item.groupType = $scope.item.groupType + "Item";
+                }
                 $scope.configMode = "edit";
                 $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
                 $scope.oldCategory = $scope.item.category;
@@ -74,6 +83,14 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function putItem(text) {
+        if ($scope.item.type !== "GroupItem" || $scope.item.groupType == "none") {
+            $scope.item['function'] = null;
+        } else {
+            if ($scope.item.groupType) {
+                $scope.item.groupType = $scope.item.groupType.replace("Item", "");
+            }
+            setItemToFunction();
+        }
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
             itemService.create({
                 itemName : $scope.item.name
@@ -84,6 +101,29 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }, function(failed) {
                 $location.path('configuration/items');
             });
+        } else {
+            toastService.showDefaultToast(text);
+            $location.path('configuration/items');
+        }
+    }
+
+    function setItemToFunction() {
+        if ($scope.item['function'].name.indexOf("none") == -1) {
+            var splitValue = $scope.item['function'].name.split('_');
+            $scope.item['function'].name = splitValue[0];
+            if (splitValue.length > 1) {
+                $scope.item['function'].params = [ splitValue[1], splitValue[2] ];
+            }
+
+        }
+        if (!$scope.item['function'].name) {
+            $scope.item['function'] = null;
+        }
+    }
+
+    function setFunctionToItem() {
+        if ($scope.item['function'].name && $scope.item['function'].params) {
+            $scope.item['function'].name += "_" + $scope.item['function'].params[0] + "_" + $scope.item['function'].params[1];
         }
     }
 
@@ -142,6 +182,12 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             $scope.functions = itemConfig.logicalFunctions;
         }
     });
+
+    $scope.resetFunction = function() {
+        if ($scope.item.groupType != originalItem.groupType) {
+            $scope.item['function'].name = "";
+        }
+    }
 
 }).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemRepository, item) {
     $scope.item = item;
