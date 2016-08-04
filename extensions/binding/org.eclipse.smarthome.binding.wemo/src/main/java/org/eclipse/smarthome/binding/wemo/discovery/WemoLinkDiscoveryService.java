@@ -69,17 +69,24 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
      */
     private final static int SCAN_INTERVAL = 120;
 
+    /**
+     * The handler for WeMo Link bridge
+     */
     private WemoBridgeHandler wemoBridgeHandler;
 
     /**
      * Job which will do the background scanning
      */
     private WemoLinkScan scanningRunnable;
+    
     /**
      * Schedule for scanning
      */
     private ScheduledFuture<?> scanningJob;
 
+    /**
+     * The Upnp service
+     */
     private UpnpIOService service;
 
     public WemoLinkDiscoveryService(WemoBridgeHandler wemoBridgeHandler, UpnpIOService upnpIOService) {
@@ -135,7 +142,14 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                                 "</DeviceLists>");
 
                         stringParser = StringEscapeUtils.unescapeXml(stringParser);
+                        
+                        // check if there are already paired devices with WeMo Link
+                        if("0".equals(stringParser)) {
+                        	logger.debug("There are no devices connected with WeMo Link. Exit discovery");
+                            return;
+                        }
 
+                        // Build parser for received <DeviceList>
                         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                         DocumentBuilder db = dbf.newDocumentBuilder();
                         InputSource is = new InputSource();
