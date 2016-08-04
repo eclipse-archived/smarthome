@@ -145,7 +145,7 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                         
                         // check if there are already paired devices with WeMo Link
                         if("0".equals(stringParser)) {
-                        	logger.info("There are no devices connected with WeMo Link. Exit discovery");
+                        	logger.debug("There are no devices connected with WeMo Link. Exit discovery");
                             return;
                         }
 
