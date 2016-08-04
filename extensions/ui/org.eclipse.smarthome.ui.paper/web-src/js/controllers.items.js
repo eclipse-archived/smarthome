@@ -59,6 +59,8 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
                 }
                 if ($scope.item.groupType) {
                     $scope.item.groupType = $scope.item.groupType + "Item";
+                } else {
+                    $scope.item.groupType = "none";
                 }
                 $scope.configMode = "edit";
                 $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
@@ -122,7 +124,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function setFunctionToItem() {
-        if ($scope.item['function'].name && $scope.item['function'].params) {
+        if ($scope.item['function'] && $scope.item['function'].name && $scope.item['function'].params) {
             $scope.item['function'].name += "_" + $scope.item['function'].params[0] + "_" + $scope.item['function'].params[1];
         }
     }
