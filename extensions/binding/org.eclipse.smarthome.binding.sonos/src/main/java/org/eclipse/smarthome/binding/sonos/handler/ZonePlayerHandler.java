@@ -88,6 +88,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final static Collection<String> SERVICE_SUBSCRIPTIONS = Lists.newArrayList("DeviceProperties",
             "AVTransport", "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn");
+    private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
     protected final static int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
 
@@ -117,8 +118,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int DEFAULT_REFRESH_INTERVAL = 60;
 
     private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
-
-    private boolean subscriptionsRequested = false;
 
     private final Object upnpLock = new Object();
 
@@ -615,11 +614,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private void addSubscription() {
         synchronized (upnpLock) {
             // Set up GENA Subscriptions
-            if (service.isRegistered(this) && !subscriptionsRequested) {
+            if (service.isRegistered(this)) {
                 for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                    if ((subscriptionState.get(subscription) == null)
+                            || !subscriptionState.get(subscription).booleanValue()) {
+                        logger.debug("{}: Subscribing to service {}...", getUDN(), subscription);
+                        service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                        subscriptionState.put(subscription, true);
+                    }
                 }
-                subscriptionsRequested = true;
             }
         }
     }
@@ -629,11 +632,23 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             // Set up GENA Subscriptions
             if (service.isRegistered(this)) {
                 for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                    service.removeSubscription(this, subscription);
+                    if ((subscriptionState.get(subscription) != null)
+                            && subscriptionState.get(subscription).booleanValue()) {
+                        logger.debug("{}: Unsubscribing from service {}...", getUDN(), subscription);
+                        service.removeSubscription(this, subscription);
+                    }
                 }
             }
-            subscriptionsRequested = false;
+            subscriptionState = new HashMap<String, Boolean>();
             service.unregisterParticipant(this);
+        }
+    }
+
+    @Override
+    public void onServiceSubscribed(String service, boolean succeeded) {
+        synchronized (upnpLock) {
+            logger.debug("{}: Subscription to service {} {}", getUDN(), service, succeeded ? "succeeded" : "failed");
+            subscriptionState.put(service, succeeded);
         }
     }
 
@@ -770,7 +785,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             String artist = null;
             String title = null;
             String album = null;
-            
+
             if (currentTrack != null) {
                 artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
                         : currentTrack.getCreator();
