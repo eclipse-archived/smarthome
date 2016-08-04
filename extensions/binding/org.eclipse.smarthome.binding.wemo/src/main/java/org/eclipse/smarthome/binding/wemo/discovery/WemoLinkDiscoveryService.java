@@ -45,7 +45,7 @@ import org.xml.sax.InputSource;
  * The {@link WemoLinkDiscoveryService} is responsible for discovering new and
  * removed WeMo devices connected to the WeMo Link Bridge.
  *
- * @author Hans-JÃ¶rg Merk - Initial contribution
+ * @author Hans-Jörg Merk - Initial contribution
  *
  */
 public class WemoLinkDiscoveryService extends AbstractDiscoveryService implements UpnpIOParticipant {
