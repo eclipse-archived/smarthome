@@ -10,12 +10,12 @@ package org.eclipse.smarthome.core.thing;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * The {@link ThingTypeMigrator} describes a service to change the thing type
+ * The {@link ThingTypeMigrationService} describes a service to change the thing type
  * of a given {@link Thing}.
  * 
  * @author Andre Fuechsel - initial contribution
  */
-public interface ThingTypeMigrator {
+public interface ThingTypeMigrationService {
 
     /**
      * Changes the type of a given {@link Thing}.

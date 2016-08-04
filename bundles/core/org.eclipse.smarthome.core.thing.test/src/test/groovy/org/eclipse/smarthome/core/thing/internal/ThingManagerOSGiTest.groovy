@@ -35,7 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingStatusInfo
-import org.eclipse.smarthome.core.thing.ThingTypeMigrator
+import org.eclipse.smarthome.core.thing.ThingTypeMigrationService
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
@@ -82,14 +82,15 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
 
-    Thing THING = ThingBuilder.create(THING_UID).withChannels([
-        new Channel(CHANNEL_UID, "Switch")
-    ]).build()
+    Thing THING;
 
     EventPublisher eventPublisher
 
     @Before
     void setUp() {
+        THING = ThingBuilder.create(THING_UID).withChannels([
+            new Channel(CHANNEL_UID, "Switch")
+        ]).build()
         registerVolatileStorageService()
         thingLinkManager = getService ThingLinkManager
         thingLinkManager.deactivate()
@@ -122,7 +123,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def THING_TYPE_UID_NEW = new ThingTypeUID("binding:type2")
 
-        def migrator = getService(ThingTypeMigrator.class)
+        def migrator = getService(ThingTypeMigrationService.class)
         assertThat migrator, is(not(null))
 
         migrator.migrateThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
@@ -145,7 +146,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def THING_TYPE_UID_NEW = new ThingTypeUID("binding:type2")
 
-        def migrator = getService(ThingTypeMigrator.class)
+        def migrator = getService(ThingTypeMigrationService.class)
         assertThat migrator, is(not(null))
 
         migrator.migrateThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())

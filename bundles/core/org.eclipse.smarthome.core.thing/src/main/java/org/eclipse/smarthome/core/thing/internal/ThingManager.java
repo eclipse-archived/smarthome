@@ -46,7 +46,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.core.thing.ThingTypeMigrator;
+import org.eclipse.smarthome.core.thing.ThingTypeMigrationService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -79,7 +79,7 @@ import com.google.common.collect.Multimaps;
  * tracks {@link ThingHandlerFactory}s and calls {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that
  * was added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
  * as an {@link EventHandler} and subscribes to smarthome update and command
- * events. Finally the {@link ThingManager} implement the {@link ThingTypeMigrator} service to offer
+ * events. Finally the {@link ThingManager} implement the {@link ThingTypeMigrationService} to offer
  * a way to change the thing type of a {@link Thing}.
  *
  * @author Dennis Nobel - Initial contribution
@@ -88,10 +88,10 @@ import com.google.common.collect.Multimaps;
  *         refactorings thing life cycle
  * @author Simon Kaufmann - Added remove handling
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
- * @author Andre Fuechsel - Added the {@link ThingTypeMigrator} service
+ * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  */
 public class ThingManager extends AbstractItemEventSubscriber
-        implements ThingTracker, BundleProcessorListener, ThingTypeMigrator {
+        implements ThingTracker, BundleProcessorListener, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
