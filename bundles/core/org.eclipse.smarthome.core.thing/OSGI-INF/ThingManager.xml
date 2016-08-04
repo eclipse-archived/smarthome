@@ -14,6 +14,7 @@
    <reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
+      <provide interface="org.eclipse.smarthome.core.thing.ThingTypeMigrationService"/>
    </service>
    <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
    <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>

@@ -544,7 +544,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     protected void changeThingType(ThingTypeUID thingTypeUID, Configuration configuration) {
         if (this.callback != null) {
-            this.callback.changeThingType(getThing(), thingTypeUID, configuration);
+            this.callback.migrateThingType(getThing(), thingTypeUID, configuration);
         } else {
             throw new IllegalStateException("Could not change thing type because callback is missing");
         }

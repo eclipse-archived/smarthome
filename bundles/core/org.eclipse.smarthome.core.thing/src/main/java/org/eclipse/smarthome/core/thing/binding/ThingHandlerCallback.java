@@ -71,6 +71,6 @@ public interface ThingHandlerCallback {
      * @param thingTypeUID the new type of the thing (must not be null)
      * @param configuration a configuration that should be applied to the given {@link Thing}
      */
-    void changeThingType(Thing thing, ThingTypeUID thingTypeUID, Configuration configuration);
+    void migrateThingType(Thing thing, ThingTypeUID thingTypeUID, Configuration configuration);
 
 }
