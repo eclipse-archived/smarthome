@@ -94,23 +94,22 @@ public class ItemDTOMapper {
             case "AND":
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.And(args.get(0), args.get(1));
-                    break;
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'AND' requires two arguments. Using Equality instead.");
                 }
+                break;
             case "OR":
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.Or(args.get(0), args.get(1));
-                    break;
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'OR' requires two arguments. Using Equality instead.");
                 }
+                break;
             case "NAND":
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.NAnd(args.get(0), args.get(1));
-                    break;
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'NOT AND' requires two arguments. Using Equality instead.");
@@ -119,19 +118,19 @@ public class ItemDTOMapper {
             case "NOR":
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.NOr(args.get(0), args.get(1));
-                    break;
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'NOT OR' requires two arguments. Using Equality instead.");
                 }
+                break;
             case "COUNT":
                 if (args.size() == 1) {
                     groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
-                    break;
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'COUNT' requires one argument. Using Equality instead.");
                 }
+                break;
             case "AVG":
                 groupFunction = new ArithmeticGroupFunction.Avg();
                 break;
@@ -208,7 +207,7 @@ public class ItemDTOMapper {
      * @param itemname name of the item
      * @return the newly created item
      */
-    static private GenericItem createItem(String itemType, String itemname, Set<ItemFactory> itemFactories) {
+    private static GenericItem createItem(String itemType, String itemname, Set<ItemFactory> itemFactories) {
         GenericItem newItem = null;
         for (ItemFactory itemFactory : itemFactories) {
             newItem = itemFactory.createItem(itemType, itemname);
