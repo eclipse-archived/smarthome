@@ -39,6 +39,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Yordan Zhelev - Added Swagger annotations
+ * @author Ivaylo Ivanov - Added payload to the response of <code>scan</code>
  */
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @Api(value = DiscoveryResource.PATH_DISCOVERY)
@@ -73,7 +74,8 @@ public class DiscoveryResource implements RESTResource {
 
     @POST
     @Path("/bindings/{bindingId}/scan")
-    @ApiOperation(value = "Starts asynchronous discovery process for a binding.")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Starts asynchronous discovery process for a binding and returns the timeout in seconds of the discovery operation.", response = Integer.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response scan(@PathParam("bindingId") @ApiParam(value = "bindingId") final String bindingId) {
         discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
@@ -88,7 +90,8 @@ public class DiscoveryResource implements RESTResource {
                 logger.debug("Scan for binding '{}' successfully finished.", bindingId);
             }
         });
-        return Response.ok().build();
+
+        return Response.ok(discoveryServiceRegistry.getMaxScanTimeout(bindingId)).build();
     }
 
 }
