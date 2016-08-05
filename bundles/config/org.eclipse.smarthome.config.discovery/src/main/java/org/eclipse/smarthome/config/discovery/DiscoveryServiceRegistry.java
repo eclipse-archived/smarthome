@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * </ul>
  *
  * @author Michael Grammling - Initial Contribution.
+ * @author Ivaylo Ivanov - Added getMaxScanTimeout
  *
  * @see DiscoveryService
  * @see DiscoveryListener

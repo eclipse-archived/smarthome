@@ -42,6 +42,7 @@ import com.google.common.collect.HashMultimap;
  * @author Michael Grammling - Initial Contribution
  * @author Kai Kreuzer - Refactored API
  * @author Andre Fuechsel - Added removeOlderResults
+ * @author Ivaylo Ivanov - Added getMaxScanTimeout
  *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
