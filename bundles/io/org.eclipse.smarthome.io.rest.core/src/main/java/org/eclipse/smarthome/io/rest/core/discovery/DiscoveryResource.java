@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,10 +18,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryServiceDTO;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +71,15 @@ public class DiscoveryResource implements RESTResource {
     @ApiOperation(value = "Gets all bindings that support discovery.", response = String.class, responseContainer = "Set")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getDiscoveryServices() {
+        Collection<DiscoveryServiceDTO> dtoList = new ArrayList<DiscoveryServiceDTO>();
         Collection<String> supportedBindings = discoveryServiceRegistry.getSupportedBindings();
-        return Response.ok(new LinkedHashSet<>(supportedBindings)).build();
+        for (String binding : supportedBindings) {
+            DiscoveryServiceDTO dto = new DiscoveryServiceDTO();
+            dto.id = binding;
+            dto.timeout = discoveryServiceRegistry.getMaxScanTimeout(binding);
+            dtoList.add(dto);
+        }
+        return JSONResponse.createResponse(Status.OK, dtoList, "");
     }
 
     @POST
@@ -91,7 +101,9 @@ public class DiscoveryResource implements RESTResource {
             }
         });
 
-        return Response.ok(discoveryServiceRegistry.getMaxScanTimeout(bindingId)).build();
+        DiscoveryServiceDTO dto = new DiscoveryServiceDTO();
+        dto.timeout = discoveryServiceRegistry.getMaxScanTimeout(bindingId);
+        return JSONResponse.createResponse(Status.OK, dto, "");
     }
 
 }
