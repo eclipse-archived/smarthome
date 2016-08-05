@@ -23,4 +23,3 @@ Bundle-ClassPath: .,
 Service-Component: OSGI-INF/h2sql.xml
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.smarthome.persistence.h2sql.internal.H2SqlPersistenceServiceActivator
-Export-Package: org.eclipse.smarthome.persistence.h2sql.internal
