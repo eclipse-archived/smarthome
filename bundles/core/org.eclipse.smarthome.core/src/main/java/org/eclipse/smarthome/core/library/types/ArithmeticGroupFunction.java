@@ -10,8 +10,8 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -23,6 +23,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * for its calculations.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Thomas Eichstädt-Engelen - Added "N" functions
+ * @author Gaël L'hopital - Added count function
  *
  */
 public interface ArithmeticGroupFunction extends GroupFunction {
@@ -30,12 +32,9 @@ public interface ArithmeticGroupFunction extends GroupFunction {
     /**
      * This does a logical 'and' operation. Only if all items are of 'activeState' this
      * is returned, otherwise the 'passiveState' is returned.
-     * 
+     *
      * Through the getStateAs() method, it can be determined, how many
      * items actually are not in the 'activeState'.
-     * 
-     * @author Kai Kreuzer - Initial contribution and API
-     *
      */
     static class And implements GroupFunction {
 
@@ -50,9 +49,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             this.passiveState = passiveValue;
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             if (items != null && items.size() > 0) {
@@ -68,9 +64,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             }
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);
@@ -101,17 +94,19 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return count;
 
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[] { activeState, passiveState };
+        }
     }
 
     /**
      * This does a logical 'or' operation. If at least one item is of 'activeState' this
      * is returned, otherwise the 'passiveState' is returned.
-     * 
+     *
      * Through the getStateAs() method, it can be determined, how many
      * items actually are in the 'activeState'.
-     * 
-     * @author Kai Kreuzer - Initial contribution and API
-     *
      */
     static class Or implements GroupFunction {
 
@@ -126,9 +121,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             this.passiveState = passiveValue;
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             if (items != null) {
@@ -141,9 +133,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return passiveState;
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);
@@ -169,6 +158,11 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             }
             return count;
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[] { activeState, passiveState };
+        }
     }
 
     /**
@@ -176,8 +170,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
      * the normal 'and' operation and than negated by returning the opposite
      * value. E.g. when the 'and' operation calculates the activeValue the
      * passiveValue will be returned and vice versa.
-     * 
-     * @author Thomas.Eichstaedt-Engelen
      */
     static class NAnd extends And {
 
@@ -199,8 +191,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
      * the normal 'or' operation and than negated by returning the opposite
      * value. E.g. when the 'or' operation calculates the activeValue the
      * passiveValue will be returned and vice versa.
-     * 
-     * @author Thomas.Eichstaedt-Engelen
      */
     static class NOr extends Or {
 
@@ -219,9 +209,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 
     /**
      * This calculates the numeric average over all item states of decimal type.
-     * 
-     * @author Kai Kreuzer - Initial contribution and API
-     *
      */
     static class Avg implements GroupFunction {
 
@@ -263,22 +250,21 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 return null;
             }
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[0];
+        }
     }
 
     /**
      * This calculates the numeric sum over all item states of decimal type.
-     * 
-     * @author Thomas.Eichstaedt-Engelen
-     *
      */
     static class Sum implements GroupFunction {
 
         public Sum() {
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             BigDecimal sum = BigDecimal.ZERO;
@@ -293,9 +279,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return new DecimalType(sum);
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);
@@ -305,22 +288,21 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 return null;
             }
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[0];
+        }
     }
 
     /**
      * This calculates the minimum value of all item states of decimal type.
-     * 
-     * @author Kai Kreuzer - Initial contribution and API
-     *
      */
     static class Min implements GroupFunction {
 
         public Min() {
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             if (items != null && items.size() > 0) {
@@ -340,9 +322,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return UnDefType.UNDEF;
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);
@@ -352,22 +331,21 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 return null;
             }
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[0];
+        }
     }
 
     /**
      * This calculates the maximum value of all item states of decimal type.
-     * 
-     * @author Kai Kreuzer - Initial contribution and API
-     *
      */
     static class Max implements GroupFunction {
 
         public Max() {
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             if (items != null && items.size() > 0) {
@@ -387,9 +365,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return UnDefType.UNDEF;
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);
@@ -399,58 +374,60 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 return null;
             }
         }
+
+        @Override
+        public State[] getParameters() {
+            return new State[0];
+        }
     }
-    
-	/**
-	 * This calculates the number of items in the group matching the
-	 * regular expression passed in parameter
-	 * Group:Number:COUNT(".") will count all items having a string state of one character
-	 * Group:Number:COUNT("[5-9]") will count all items having a string state between 5 and 9
-	 * ...
-	 * 
-	 * @author Gaël L'hopital
-	 *
-	 */
-	static class Count implements GroupFunction {
-		
-		protected final Pattern pattern;
-		
-		public Count(State regExpr) {
-			if(regExpr==null) {
-				throw new IllegalArgumentException("Parameter must not be null!");
-			}
-			this.pattern = Pattern.compile(regExpr.toString());
-		}
 
-		/**
-		 * @{inheritDoc
-		 */
-		@Override
-		public State calculate(Set<Item> items) {
-			int count = 0;
-			if(items!=null) {
-				for(Item item : items) {
-					Matcher matcher = pattern.matcher(item.getState().toString());
-					if (matcher.matches()) count++;
-				}
-			}
-			
-			return new DecimalType(count);
-		}
+    /**
+     * This calculates the number of items in the group matching the
+     * regular expression passed in parameter
+     * Group:Number:COUNT(".") will count all items having a string state of one character
+     * Group:Number:COUNT("[5-9]") will count all items having a string state between 5 and 9
+     * ...
+     */
+    static class Count implements GroupFunction {
 
-		/**
-		 * @{inheritDoc
-		 */
-		@Override
-		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
-			State state = calculate(items);
-			if(stateClass.isInstance(state)) {
-				return state;
-			} else {
-				return null;
-			}
-		}
-	}
+        protected final Pattern pattern;
 
+        public Count(State regExpr) {
+            if (regExpr == null) {
+                throw new IllegalArgumentException("Parameter must not be null!");
+            }
+            this.pattern = Pattern.compile(regExpr.toString());
+        }
+
+        @Override
+        public State calculate(Set<Item> items) {
+            int count = 0;
+            if (items != null) {
+                for (Item item : items) {
+                    Matcher matcher = pattern.matcher(item.getState().toString());
+                    if (matcher.matches()) {
+                        count++;
+                    }
+                }
+            }
+
+            return new DecimalType(count);
+        }
+
+        @Override
+        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+            State state = calculate(items);
+            if (stateClass.isInstance(state)) {
+                return state;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public State[] getParameters() {
+            return new State[] { new StringType(pattern.pattern()) };
+        }
+    }
 
 }

@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.item;
 
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -18,14 +20,16 @@ import org.eclipse.smarthome.core.types.StateDescription;
  */
 public class EnrichedGroupItemDTO extends EnrichedItemDTO {
 
-    public EnrichedGroupItemDTO(ItemDTO itemDTO, String groupType, EnrichedItemDTO[] members, String link, String state,
+    public EnrichedGroupItemDTO(ItemDTO itemDTO, EnrichedItemDTO[] members, String link, String state,
             StateDescription stateDescription) {
         super(itemDTO, link, state, stateDescription);
         this.members = members;
-        this.groupType = groupType;
+        this.groupType = ((GroupItemDTO) itemDTO).groupType;
+        this.function = ((GroupItemDTO) itemDTO).function;
     }
 
     public EnrichedItemDTO[] members;
     public String groupType;
+    public GroupFunctionDTO function;
 
 }
