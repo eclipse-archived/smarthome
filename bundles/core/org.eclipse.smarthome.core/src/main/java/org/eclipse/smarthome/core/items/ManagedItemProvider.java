@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - improved return values
  * @author Alex Tugarev - added tags
  */
-public class ManagedItemProvider extends AbstractManagedProvider<Item, String, PersistedItem>implements ItemProvider {
+public class ManagedItemProvider extends AbstractManagedProvider<Item, String, PersistedItem> implements ItemProvider {
 
     public static class PersistedItem {
 
@@ -226,7 +226,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         if (item instanceof GroupItem) {
             String baseItemType = null;
-            GenericItem baseItem = ((GroupItem) item).getBaseItem();
+            Item baseItem = ((GroupItem) item).getBaseItem();
             if (baseItem != null) {
                 baseItemType = toItemFactoryName(baseItem);
             }
