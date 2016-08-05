@@ -11,8 +11,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import java.util.Collection;
-
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryService
@@ -21,7 +19,6 @@ import org.eclipse.smarthome.config.discovery.ScanListener
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryServiceRegistryImpl
 import org.eclipse.smarthome.core.thing.ThingTypeUID
-import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -67,7 +64,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
         discoveryServiceMockForBinding1 = new DiscoveryServiceMock(
                 new ThingTypeUID(ANY_BINDING_ID_1,ANY_THING_TYPE_1), 1)
         discoveryServiceMockForBinding2 = new DiscoveryServiceMock(
-                new ThingTypeUID(ANY_BINDING_ID_2,ANY_THING_TYPE_2), 1)
+                new ThingTypeUID(ANY_BINDING_ID_2,ANY_THING_TYPE_2), 3)
 
         discoveryServiceFaultyMock = new DiscoveryServiceMock(
                 new ThingTypeUID(FAULTY_BINDING_ID, FAULTY_THING_TYPE), 1, true)
@@ -310,5 +307,14 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
         assertTrue discoveryServiceRegistry.supportsDiscovery(ANY_BINDING_ID_1)
         assertFalse discoveryServiceRegistry.supportsDiscovery('unknownBindingId')
+    }
+    
+    @Test
+    void 'assert getMaxScanTimeout works' () {
+        assertEquals 1, discoveryServiceRegistry.getMaxScanTimeout(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1))
+        assertEquals 0, discoveryServiceRegistry.getMaxScanTimeout(new ThingTypeUID(ANY_BINDING_ID_1, 'unknownType'))
+        
+        assertEquals 3, discoveryServiceRegistry.getMaxScanTimeout(ANY_BINDING_ID_2)
+        assertEquals 0, discoveryServiceRegistry.getMaxScanTimeout('unknownBindingId')
     }
 }

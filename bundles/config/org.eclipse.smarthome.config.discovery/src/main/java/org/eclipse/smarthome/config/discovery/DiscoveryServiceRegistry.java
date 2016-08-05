@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * </ul>
  *
  * @author Michael Grammling - Initial Contribution.
+ * @author Ivaylo Ivanov - Added getMaxScanTimeout
  *
  * @see DiscoveryService
  * @see DiscoveryListener
@@ -164,5 +165,23 @@ public interface DiscoveryServiceRegistry {
      * @return list of bindings, that support discovery
      */
     List<String> getSupportedBindings();
+
+    /**
+     * Returns the maximum discovery timeout from all discovery services registered for the specified thingTypeUID
+     * 
+     * @param thingTypeUID
+     *            thing type UID
+     * @return the maximum amount of seconds which the discovery can take
+     */
+    int getMaxScanTimeout(ThingTypeUID thingTypeUID);
+
+    /**
+     * Returns the maximum discovery timeout from all discovery services registered for the specified binding id
+     * 
+     * @param bindingId
+     *            id of the binding 
+     * @return the maximum amount of seconds which the discovery can take
+     */
+    int getMaxScanTimeout(String bindingId);
 
 }

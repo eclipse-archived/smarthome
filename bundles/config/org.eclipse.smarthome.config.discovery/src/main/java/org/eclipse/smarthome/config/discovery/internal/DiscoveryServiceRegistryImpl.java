@@ -42,6 +42,7 @@ import com.google.common.collect.HashMultimap;
  * @author Michael Grammling - Initial Contribution
  * @author Kai Kreuzer - Refactored API
  * @author Andre Fuechsel - Added removeOlderResults
+ * @author Ivaylo Ivanov - Added getMaxScanTimeout
  *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
@@ -392,6 +393,28 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         this.discoveryServices.clear();
         this.listeners.clear();
         this.cachedResults.clear();
+    }
+    
+    private int getMaxScanTimeout(Set<DiscoveryService> discoveryServices) {
+        int result = 0;
+        
+        for (DiscoveryService discoveryService : discoveryServices) {
+            if (discoveryService.getScanTimeout() > result) {
+                result = discoveryService.getScanTimeout();
+            }
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public int getMaxScanTimeout(ThingTypeUID thingTypeUID) {
+        return getMaxScanTimeout(getDiscoveryServices(thingTypeUID));
+    }
+
+    @Override
+    public int getMaxScanTimeout(String bindingId) {
+        return getMaxScanTimeout(getDiscoveryServices(bindingId));
     }
 
 }
