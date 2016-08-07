@@ -167,5 +167,65 @@ angular.module('PaperUI.constants').constant('itemConfig', {
     }, {
         name : "LocationItem",
         value : "Location"
+    }, {
+        name : "GroupItem",
+        value : "Group"
+    }, {
+        name : "none",
+        value : "None"
+    } ],
+    'groupTypes' : [ {
+        name : "SwitchItem",
+        value : "Switch"
+    }, {
+        name : "ContactItem",
+        value : "Contact"
+    }, {
+        name : "NumberItem",
+        value : "Number"
+    }, {
+        name : "DimmerItem",
+        value : "Dimmer"
+    }, {
+        name : "none",
+        value : "None"
+    } ],
+    'arithmeticFunctions' : [ {
+        name : "AVG",
+        value : "AVG"
+    }, {
+        name : "MAX",
+        value : "MAX"
+    }, {
+        name : "MIN",
+        value : "MIN"
+    }, {
+        name : "SUM",
+        value : "SUM"
+    } ],
+    'logicalFunctions' : [ {
+        name : "AND_ON_OFF",
+        value : "All ON → ON else OFF"
+    }, {
+        name : "NAND_ON_OFF",
+        value : "All ON → OFF else ON"
+    }, {
+        name : "OR_OFF_ON",
+        value : "All OFF → OFF else ON"
+    }, {
+        name : "NOR_ON_OFF",
+        value : "All OFF → ON else OFF"
+    }, {
+        name : "OR_ON_OFF",
+        value : "One ON → ON else OFF"
+    }, {
+        name : "NOR_ON_OFF",
+        value : "One ON → OFF else ON"
+    }, {
+        name : "AND_OFF_ON",
+        value : "One OFF → OFF else ON"
+    }, {
+        name : "NAND_OFF_ON",
+        value : "One OFF → ON else OFF"
     } ]
 });
