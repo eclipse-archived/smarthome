@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="99">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="100">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -134,8 +134,8 @@
 <repository location="http://download.eclipse.org/paho/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="javax.jmdns.feature.feature.group" version="3.4.2"/>
-<repository location="http://www.jmdns.org/update-site/3.4.2/"/>
+<unit id="javax.jmdns.feature.feature.group" version="0.0.0"/>
+<repository location="http://www.jmdns.org/update-site/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="net.minidev.asm" version="1.0.2"/>
@@ -145,6 +145,10 @@
 <unit id="javax.measure.unit-api" version="0.8.0"/>
 <unit id="tec.units.unit-ri" version="0.8.0"/>
 <repository location="http://eclipse.github.io/smarthome/third-party/target/repository"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.jmdns.feature.feature.group" version="0.0.0"/>
+<repository location="http://www.jmdns.org/update-site/"/>
 </location>
 </locations>
 </target>

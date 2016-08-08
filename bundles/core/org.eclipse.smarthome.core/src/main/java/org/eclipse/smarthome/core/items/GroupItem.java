@@ -55,8 +55,17 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      *
      * @return the base item of this GroupItem
      */
-    public GenericItem getBaseItem() {
+    public Item getBaseItem() {
         return baseItem;
+    }
+
+    /**
+     * Returns the function of this {@link GroupItem}.
+     *
+     * @return the function of this GroupItem
+     */
+    public GroupFunction getFunction() {
+        return function;
     }
 
     /**

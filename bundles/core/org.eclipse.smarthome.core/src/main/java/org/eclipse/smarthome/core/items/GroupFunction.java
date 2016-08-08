@@ -20,29 +20,36 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-abstract public interface GroupFunction {
+public interface GroupFunction {
 
     /**
      * Determines the current state of a group based on a list of items
-     * 
+     *
      * @param items the items to calculate a group state for
      * @return the calculated group state
      */
-    public State calculate(Set<Item> items);
+    State calculate(Set<Item> items);
 
     /**
      * Calculates the group state and returns it as a state of the requested type.
-     * 
+     *
      * @param items the items to calculate a group state for
      * @param stateClass the type in which the state should be returned
      * @return the calculated group state of the requested type or null, if type is not supported
      */
-    public State getStateAs(Set<Item> items, Class<? extends State> stateClass);
+    State getStateAs(Set<Item> items, Class<? extends State> stateClass);
+
+    /**
+     * Returns the parameters of the function as an array.
+     *
+     * @return the parameters of this function
+     */
+    State[] getParameters();
 
     /**
      * This is the default group function that does nothing else than to check if all member items
      * have the same state. If this is the case, this state is returned, otherwise UNDEF is returned.
-     * 
+     *
      * @author Kai Kreuzer - Initial contribution and API
      *
      */
@@ -78,6 +85,11 @@ abstract public interface GroupFunction {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        public State[] getParameters() {
+            return new State[0];
         }
     }
 

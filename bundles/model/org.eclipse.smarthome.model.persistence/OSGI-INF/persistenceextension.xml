@@ -10,9 +10,5 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.persistence.extensions">
    <implementation class="org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions"/>
-   <reference bind="addPersistenceService" cardinality="0..n" interface="org.eclipse.smarthome.core.persistence.PersistenceService" name="PersistenceService" policy="dynamic" unbind="removePersistenceService"/>
-   <service>
-      <provide interface="org.osgi.service.cm.ManagedService"/>
-   </service>
-   <property name="service.pid" type="String" value="org.eclipse.smarthome.persistence"/>
+   <reference bind="setPersistenceServiceRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry" name="PersistenceServiceRegistry" policy="static" unbind="unsetPersistenceServiceRegistry"/>
 </scr:component>

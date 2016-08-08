@@ -26,11 +26,10 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
-import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
-import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
-import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -222,76 +221,11 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private GroupItem applyGroupFunction(GenericItem baseItem, ModelGroupItem modelGroupItem,
             ModelGroupFunction function) {
-        List<State> args = new ArrayList<State>();
-        for (String arg : modelGroupItem.getArgs()) {
-            State state = TypeParser.parseState(baseItem.getAcceptedDataTypes(), arg);
-            if (state == null) {
-                logger.warn("State '{}' is not valid for group item '{}' with base type '{}'",
-                        new Object[] { arg, modelGroupItem.getName(), modelGroupItem.getType() });
-                args.clear();
-                break;
-            } else {
-                args.add(state);
-            }
-        }
+        GroupFunctionDTO dto = new GroupFunctionDTO();
+        dto.name = function.getName();
+        dto.params = modelGroupItem.getArgs().toArray(new String[modelGroupItem.getArgs().size()]);
 
-        GroupFunction groupFunction = null;
-        switch (function) {
-            case AND:
-                if (args.size() == 2) {
-                    groupFunction = new ArithmeticGroupFunction.And(args.get(0), args.get(1));
-                    break;
-                } else {
-                    logger.error("Group function 'AND' requires two arguments. Using Equality instead.");
-                }
-            case OR:
-                if (args.size() == 2) {
-                    groupFunction = new ArithmeticGroupFunction.Or(args.get(0), args.get(1));
-                    break;
-                } else {
-                    logger.error("Group function 'OR' requires two arguments. Using Equality instead.");
-                }
-            case NAND:
-                if (args.size() == 2) {
-                    groupFunction = new ArithmeticGroupFunction.NAnd(args.get(0), args.get(1));
-                    break;
-                } else {
-                    logger.error("Group function 'NOT AND' requires two arguments. Using Equality instead.");
-                }
-                break;
-            case NOR:
-                if (args.size() == 2) {
-                    groupFunction = new ArithmeticGroupFunction.NOr(args.get(0), args.get(1));
-                    break;
-                } else {
-                    logger.error("Group function 'NOT OR' requires two arguments. Using Equality instead.");
-                }
-            case COUNT:
-                if (args.size() == 1) {
-                    groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
-                    break;
-                } else {
-                    logger.error("Group function 'COUNT' requires one argument. Using Equality instead.");
-                }
-            case AVG:
-                groupFunction = new ArithmeticGroupFunction.Avg();
-                break;
-            case SUM:
-                groupFunction = new ArithmeticGroupFunction.Sum();
-                break;
-            case MIN:
-                groupFunction = new ArithmeticGroupFunction.Min();
-                break;
-            case MAX:
-                groupFunction = new ArithmeticGroupFunction.Max();
-                break;
-            default:
-                logger.error("Unknown group function '" + function.getName() + "'. Using Equality instead.");
-        }
-
-        if (groupFunction == null) {
-            groupFunction = new GroupFunction.Equality();
-        }
+        GroupFunction groupFunction = ItemDTOMapper.mapFunction(baseItem, dto);
 
         return new GroupItem(modelGroupItem.getName(), baseItem, groupFunction);
     }

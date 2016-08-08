@@ -46,6 +46,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.thing.ThingTypeMigrationService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -76,10 +77,10 @@ import com.google.common.collect.Multimaps;
  * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
  * mediates the communication between the {@link Thing} and the {@link ThingHandler} from the binding. Therefore it
  * tracks {@link ThingHandlerFactory}s and calls {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that
- * was
- * added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
+ * was added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
  * as an {@link EventHandler} and subscribes to smarthome update and command
- * events.
+ * events. Finally the {@link ThingManager} implement the {@link ThingTypeMigrationService} to offer
+ * a way to change the thing type of a {@link Thing}.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
@@ -87,17 +88,19 @@ import com.google.common.collect.Multimaps;
  *         refactorings thing life cycle
  * @author Simon Kaufmann - Added remove handling
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
+ * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  */
-public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, BundleProcessorListener {
+public class ThingManager extends AbstractItemEventSubscriber
+        implements ThingTracker, BundleProcessorListener, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
 
     private final Multimap<Bundle, Object> initializerVetoes = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
+            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object>create());
     private final Multimap<Long, ThingHandler> initializerQueue = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler> create());
+            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler>create());
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -245,80 +248,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         @Override
-        public void changeThingType(final Thing thing, final ThingTypeUID thingTypeUID,
+        public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
                 final Configuration configuration) {
-            scheduler.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    ThingUID thingUID = thing.getUID();
-                    waitForRunningHandlerRegistrations(thingUID);
-                    ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
-
-                    // Remove the ThingHandler
-                    final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
-                    if (oldThingHandlerFactory != null) {
-                        unregisterHandler(thing, oldThingHandlerFactory);
-                        waitUntilHandlerUnregistered(thing, 60 * 1000);
-                    } else {
-                        throw new RuntimeException(
-                                "No ThingHandlerFactory available that can handle " + thing.getThingTypeUID());
-                    }
-
-                    // Set the new channels
-                    List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID,
-                            configDescriptionRegistry);
-                    ((ThingImpl) thing).setChannels(channels);
-
-                    // Set the given configuration
-                    ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
-                    ((ThingImpl) thing).setConfiguration(configuration);
-
-                    // Change the ThingType
-                    ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
-
-                    // Register the new Handler - ThingManager.updateThing() is going to take care of that
-                    thingRegistry.update(thing);
-
-                    logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
-                            thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
-                }
-
-                private void waitUntilHandlerUnregistered(final Thing thing, int timeout) {
-                    for (int i = 0; i < timeout / 100; i++) {
-                        if (thing.getHandler() == null && thingHandlers.get(thing.getUID()) == null) {
-                            return;
-                        }
-                        try {
-                            Thread.sleep(100);
-                            logger.debug(
-                                    "Waiting for handler deregistration to complete for thing {}. Took already {}ms.",
-                                    thing.getUID().getAsString(), i * 100);
-                        } catch (InterruptedException e) {
-                            return;
-                        }
-                    }
-                    throw new RuntimeException(MessageFormat.format(
-                            "Thing type migration failed for {0}. The handler deregistration did not complete within {1}ms.",
-                            thing.getUID().getAsString(), timeout));
-                }
-
-                private void waitForRunningHandlerRegistrations(ThingUID thingUID) {
-                    for (int i = 0; i < 10 * 10; i++) {
-                        if (!registerHandlerLock.contains(thingUID)) {
-                            return;
-                        }
-                        try {
-                            // Wait a little to give running handler registrations a chance to complete...
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            return;
-                        }
-                    }
-                    throw new RuntimeException(MessageFormat.format(
-                            "Thing type migration failed for {0}. Could not obtain lock for hander registration.",
-                            thingUID.getAsString()));
-                }
-            }, 0, TimeUnit.MILLISECONDS);
+            ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
         }
 
     };
@@ -371,6 +303,90 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (thing instanceof Bridge) {
             notifyThingsAboutBridgeDisposal((Bridge) thing);
         }
+    }
+
+    @Override
+    public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
+            final Configuration configuration) {
+        final ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        if (thingType == null) {
+            throw new RuntimeException(
+                    MessageFormat.format("No thing type {0} registered, cannot change thing type for thing {1}",
+                            thingTypeUID.getAsString(), thing.getUID().getAsString()));
+        }
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                ThingUID thingUID = thing.getUID();
+                waitForRunningHandlerRegistrations(thingUID);
+
+                // Remove the ThingHandler, if any
+                final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
+                if (oldThingHandlerFactory != null) {
+                    unregisterHandler(thing, oldThingHandlerFactory);
+                    waitUntilHandlerUnregistered(thing, 60 * 1000);
+                } else {
+                    logger.debug("No ThingHandlerFactory available that can handle {}", thing.getThingTypeUID());
+                }
+
+                // Set the new channels
+                List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID,
+                        configDescriptionRegistry);
+                ((ThingImpl) thing).setChannels(channels);
+
+                // Set the given configuration
+                ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
+                ((ThingImpl) thing).setConfiguration(configuration);
+
+                // Change the ThingType
+                ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
+
+                // Register the new Handler - ThingManager.updateThing() is going to take care of that
+                thingRegistry.update(thing);
+
+                logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.", thing.getUID().toString(),
+                        thing.getThingTypeUID(), thing.getHandler().toString());
+            }
+
+            private void waitUntilHandlerUnregistered(final Thing thing, int timeout) {
+                for (int i = 0; i < timeout / 100; i++) {
+                    if (thing.getHandler() == null && thingHandlers.get(thing.getUID()) == null) {
+                        return;
+                    }
+                    try {
+                        Thread.sleep(100);
+                        logger.debug("Waiting for handler deregistration to complete for thing {}. Took already {}ms.",
+                                thing.getUID().getAsString(), (i + 1) * 100);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                String message = MessageFormat.format(
+                        "Thing type migration failed for {0}. The handler deregistration did not complete within {1}ms.",
+                        thing.getUID().getAsString(), timeout);
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+
+            private void waitForRunningHandlerRegistrations(ThingUID thingUID) {
+                for (int i = 0; i < 10 * 10; i++) {
+                    if (!registerHandlerLock.contains(thingUID)) {
+                        return;
+                    }
+                    try {
+                        // Wait a little to give running handler registrations a chance to complete...
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                String message = MessageFormat.format(
+                        "Thing type migration failed for {0}. Could not obtain lock for hander registration.",
+                        thingUID.getAsString());
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+        }, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
