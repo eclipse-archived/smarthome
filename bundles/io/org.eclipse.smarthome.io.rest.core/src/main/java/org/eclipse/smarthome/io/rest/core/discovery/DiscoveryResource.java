@@ -23,7 +23,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
-import org.eclipse.smarthome.config.discovery.dto.DiscoveryServiceDTO;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryBindingDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
@@ -71,10 +71,10 @@ public class DiscoveryResource implements RESTResource {
     @ApiOperation(value = "Gets all bindings that support discovery.", response = String.class, responseContainer = "Set")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getDiscoveryServices() {
-        Collection<DiscoveryServiceDTO> dtoList = new ArrayList<DiscoveryServiceDTO>();
+        Collection<DiscoveryBindingDTO> dtoList = new ArrayList<DiscoveryBindingDTO>();
         Collection<String> supportedBindings = discoveryServiceRegistry.getSupportedBindings();
         for (String binding : supportedBindings) {
-            DiscoveryServiceDTO dto = new DiscoveryServiceDTO();
+            DiscoveryBindingDTO dto = new DiscoveryBindingDTO();
             dto.id = binding;
             dto.timeout = discoveryServiceRegistry.getMaxScanTimeout(binding);
             dtoList.add(dto);
@@ -101,7 +101,7 @@ public class DiscoveryResource implements RESTResource {
             }
         });
 
-        DiscoveryServiceDTO dto = new DiscoveryServiceDTO();
+        DiscoveryBindingDTO dto = new DiscoveryBindingDTO();
         dto.timeout = discoveryServiceRegistry.getMaxScanTimeout(bindingId);
         return JSONResponse.createResponse(Status.OK, dto, "");
     }
