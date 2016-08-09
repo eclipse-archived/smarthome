@@ -137,59 +137,8 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
     }
 });
 angular.module('PaperUI.constants').constant('itemConfig', {
-    'types' : [ {
-        name : "SwitchItem",
-        value : "Switch"
-    }, {
-        name : "ContactItem",
-        value : "Contact"
-    }, {
-        name : "StringItem",
-        value : "String"
-    }, {
-        name : "NumberItem",
-        value : "Number"
-    }, {
-        name : "DimmerItem",
-        value : "Dimmer"
-    }, {
-        name : "DateTimeItem",
-        value : "DateTime"
-    }, {
-        name : "ColorItem",
-        value : "Color"
-    }, {
-        name : "ImageItem",
-        value : "Image"
-    }, {
-        name : "PlayerItem",
-        value : "Player"
-    }, {
-        name : "LocationItem",
-        value : "Location"
-    }, {
-        name : "GroupItem",
-        value : "Group"
-    }, {
-        name : "none",
-        value : "None"
-    } ],
-    'groupTypes' : [ {
-        name : "SwitchItem",
-        value : "Switch"
-    }, {
-        name : "ContactItem",
-        value : "Contact"
-    }, {
-        name : "NumberItem",
-        value : "Number"
-    }, {
-        name : "DimmerItem",
-        value : "Dimmer"
-    }, {
-        name : "none",
-        value : "None"
-    } ],
+    'types' : [ 'Switch', 'Contact', 'String', 'Number', 'Dimmer', 'DateTime', 'Color', 'Image', 'Player', 'Location', 'Group' ],
+    'groupTypes' : [ 'Switch', 'Contact', 'Number', 'Dimmer', 'None' ],
     'arithmeticFunctions' : [ {
         name : "AVG",
         value : "AVG"

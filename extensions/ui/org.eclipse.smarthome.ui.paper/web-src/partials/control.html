@@ -32,7 +32,7 @@
 								<div ng-init="item = getItem(channel.linkedItems[0])">
 									<div ng-if="item">
 										<div ng-switch on="item.type" class="icontrol" ng-controller="ItemController">
-											<div ng-switch-when="SwitchItem" ng-controller="SwitchItemController">
+											<div ng-switch-when="Switch" ng-controller="SwitchItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
@@ -45,7 +45,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="DimmerItem" ng-controller="DimmerItemController">
+											<div ng-switch-when="Dimmer" ng-controller="DimmerItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
@@ -67,7 +67,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="ColorItem" ng-controller="ColorItemController">
+											<div ng-switch-when="Color" ng-controller="ColorItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
@@ -97,7 +97,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="NumberItem" ng-controller="NumberItemController">
+											<div ng-switch-when="Number" ng-controller="NumberItemController">
 												<div ng-if="!isOptionList(item)">
 													<div layout="row" layout-align="start center">
 														<div flex="40" layout="row" layout-align="start center">
@@ -126,7 +126,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="RollershutterItem" ng-controller="RollershutterItemController">
+											<div ng-switch-when="Rollershutter" ng-controller="RollershutterItemController">
 												<div layout="row" layout-align="start center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
@@ -152,7 +152,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="PlayerItem" ng-controller="PlayerItemController">
+											<div ng-switch-when="Player" ng-controller="PlayerItemController">
 												<div layout="row" layout-align="end center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
@@ -175,7 +175,7 @@
 													</div>
 												</div>
 											</div>
-											<div ng-switch-when="ContactItem" ng-controller="DefaultItemController">
+											<div ng-switch-when="Contact" ng-controller="DefaultItemController">
 												<div layout="row" layout-align="start center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
@@ -188,7 +188,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="LocationItem" ng-controller="LocationItemController">
+											<div ng-switch-when="Location" ng-controller="LocationItemController">
 												<div layout="row" layout-align="start center">
 													<p>
 														<i class="material-icons">place</i>{{getLabel(item.category, item.label, 'Location')}}
@@ -213,7 +213,7 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
 											</div>
-											<div ng-switch-when="ImageItem" ng-controller="ImageItemController">
+											<div ng-switch-when="Image" ng-controller="ImageItemController">
 												<div layout-align="start center" layout="row">
 													<div flex="60">
 														<p class="ng-binding">

@@ -57,10 +57,8 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
                         name : ''
                     };
                 }
-                if ($scope.item.groupType) {
-                    $scope.item.groupType = $scope.item.groupType + "Item";
-                } else {
-                    $scope.item.groupType = "none";
+                if (!$scope.item.groupType) {
+                    $scope.item.groupType = "None";
                 }
                 $scope.configMode = "edit";
                 $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
@@ -85,12 +83,9 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function putItem(text) {
-        if ($scope.item.type !== "GroupItem" || $scope.item.groupType == "none") {
+        if ($scope.item.type !== "Group" || $scope.item.groupType == "None") {
             $scope.item['function'] = null;
         } else {
-            if ($scope.item.groupType) {
-                $scope.item.groupType = $scope.item.groupType.replace("Item", "");
-            }
             setItemToFunction();
         }
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
@@ -110,7 +105,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function setItemToFunction() {
-        if ($scope.item['function'].name.indexOf("none") == -1) {
+        if ($scope.item['function'].name.indexOf("None") == -1) {
             var splitValue = $scope.item['function'].name.split('_');
             $scope.item['function'].name = splitValue[0];
             if (splitValue.length > 1) {
@@ -139,7 +134,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             name : searchText
         };
         if (onlyGroups) {
-            criterion.type = "GroupItem";
+            criterion.type = "Group";
         }
         var items = $filter('filter')($scope.items, criterion);
         items = $filter('orderBy')(items, 'name');
@@ -178,7 +173,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         if (!$scope.item) {
             return;
         }
-        if ($scope.item.groupType === 'NumberItem' || $scope.item.groupType === 'DimmerItem') {
+        if ($scope.item.groupType === 'Number' || $scope.item.groupType === 'Dimmer') {
             $scope.functions = itemConfig.arithmeticFunctions;
         } else {
             $scope.functions = itemConfig.logicalFunctions;

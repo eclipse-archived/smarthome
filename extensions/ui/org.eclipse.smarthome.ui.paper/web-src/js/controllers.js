@@ -55,12 +55,12 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
             var updateState = true;
             if (item.name === itemName) {
                 // ignore ON and OFF update for Dimmer
-                if (item.type === 'DimmerItem') {
+                if (item.type === 'Dimmer') {
                     if (state === 'ON' || state == 'OFF') {
                         updateState = false;
                     }
                 }
-                if (item.type === "NumberItem" || item.groupType === "Number") {
+                if (item.type === "Number" || item.groupType === "Number") {
                     var parsedValue = Number(state);
                     if (isNaN(parsedValue)) {
                         state = null;
