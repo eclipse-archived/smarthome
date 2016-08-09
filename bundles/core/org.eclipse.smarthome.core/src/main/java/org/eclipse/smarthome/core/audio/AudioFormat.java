@@ -1,0 +1,272 @@
+/**
+ * Copyright (c) 2014-2016 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.core.audio;
+
+/**
+ * An audio format definition
+ *
+ * @author Harald Kuhn - Initial API
+ * @author Kelly Davis - Modified to match discussion in #584
+ * @author Kai Kreuzer - Moved class, included constants, added toString
+ */
+public class AudioFormat {
+
+    /**
+     * {@link AudioCodec} encoded data without any container header or footer,
+     * e.g. MP3 is a non-container format
+     */
+    public static final String CONTAINER_NONE = "NONE";
+
+    /**
+     * Microsofts wave container format
+     *
+     * @see <a href="http://bit.ly/1TUW93t">WAV Format</a>
+     * @see <a href="http://bit.ly/1oRMKOt">Supported codecs</a>
+     * @see <a href="http://bit.ly/1TUWSlk">RIFF container format</a>
+     */
+    public static final String CONTAINER_WAVE = "WAVE";
+
+    /**
+     * OGG container format
+     *
+     * @see <a href="http://bit.ly/1oRMWNE">OGG</a>
+     */
+    public static final String CONTAINER_OGG = "OGG";
+
+    /**
+     * PCM Signed
+     *
+     * @see <a href="http://wiki.multimedia.cx/?title=PCM#PCM_Types">PCM Types</a>
+     */
+    public static final String CODEC_PCM_SIGNED = "PCM_SIGNED";
+
+    /**
+     * PCM Unsigned
+     *
+     * @see <a href="http://wiki.multimedia.cx/?title=PCM#PCM_Types">PCM Types</a>
+     */
+    public static final String CODEC_PCM_UNSIGNED = "PCM_UNSIGNED";
+
+    /**
+     * PCM A-law
+     *
+     * @see <a href="http://wiki.multimedia.cx/?title=PCM#PCM_Types">PCM Types</a>
+     */
+    public static final String CODEC_PCM_ALAW = "ALAW";
+
+    /**
+     * PCM u-law
+     *
+     * @see <a href="http://wiki.multimedia.cx/?title=PCM#PCM_Types">PCM Types</a>
+     */
+    public static final String CODEC_PCM_ULAW = "ULAW";
+
+    /**
+     * MP3 Codec
+     *
+     * @see <a href="http://wiki.multimedia.cx/index.php?title=MP3">MP3 Codec</a>
+     */
+    public static final String CODEC_MP3 = "MP3";
+
+    /**
+     * Vorbis Codec
+     *
+     * @see <a href="http://xiph.org/vorbis/doc/">Vorbis</a>
+     */
+    public static final String CODEC_VORBIS = "VORBIS";
+
+    /**
+     * Codec
+     */
+    private final String codec;
+
+    /**
+     * Container
+     */
+    private final String container;
+
+    /**
+     * Big endian or little endian
+     */
+    private final Boolean bigEndian;
+
+    /**
+     * Bit depth
+     *
+     * @see <a href="http://bit.ly/1OTydad">Bit Depth</a>
+     */
+    private final Integer bitDepth;
+
+    /**
+     * Bit rate
+     *
+     * @see <a href="http://bit.ly/1OTy5rk">Bit Rate</a>
+     */
+    private final Integer bitRate;
+
+    /**
+     * Sample frequency
+     */
+    private final Long frequency;
+
+    /**
+     * Constructs an instance with the specified properties.
+     *
+     * Note that any properties that are null indicate that
+     * the corresponding AudioFormat allows any value for
+     * the property.
+     *
+     * Concretely this implies that if, for example, one
+     * passed null for the value of frequency, this would
+     * mean the created AudioFormat allowed for any valid
+     * frequency.
+     *
+     * @param container The container for the audio
+     * @param codec The audio codec
+     * @param bigEndian If the audo data is big endian
+     * @param bitDepth The bit depth of the audo data
+     * @param bitRate The bit rate of the audio
+     * @param frequency The frequency at which the audio was sampled
+     */
+    public AudioFormat(String container, String codec, Boolean bigEndian, Integer bitDepth, Integer bitRate,
+            Long frequency) {
+        super();
+        this.container = container;
+        this.codec = codec;
+        this.bigEndian = bigEndian;
+        this.bitDepth = bitDepth;
+        this.bitRate = bitRate;
+        this.frequency = frequency;
+    }
+
+    /**
+     * Gets codec
+     *
+     * @return The codec
+     */
+    public String getCodec() {
+        return codec;
+    }
+
+    /**
+     * Gets container
+     *
+     * @return The container
+     */
+    public String getContainer() {
+        return container;
+    }
+
+    /**
+     * Is big endian?
+     *
+     * @return If format is big endian
+     */
+    public Boolean isBigEndian() {
+        return bigEndian;
+    }
+
+    /**
+     * Gets bit depth
+     *
+     * @see <a href="http://bit.ly/1OTydad">Bit Depth</a>
+     * @return Bit depth
+     */
+    public Integer getBitDepth() {
+        return bitDepth;
+    }
+
+    /**
+     * Gets bit rate
+     *
+     * @see <a href="http://bit.ly/1OTy5rk">Bit Rate</a>
+     * @return Bit rate
+     */
+    public Integer getBitRate() {
+        return bitRate;
+    }
+
+    /**
+     * Gets frequency
+     *
+     * @return The frequency
+     */
+    public Long getFrequency() {
+        return frequency;
+    }
+
+    /**
+     * Determines if the passed AudioFormat is compatible with this AudioFormat.
+     *
+     * This AudioFormat is compatible with the passed AudioFormat if both have
+     * the same value for all non-null members of this instance.
+     */
+    public boolean isCompatible(AudioFormat audioFormat) {
+        if (audioFormat == null) {
+            return false;
+        }
+        if ((null != getContainer()) && (!getContainer().equals(audioFormat.getContainer()))) {
+            return false;
+        }
+        if ((null != getCodec()) && (!getCodec().equals(audioFormat.getCodec()))) {
+            return false;
+        }
+        if ((null != isBigEndian()) && (!isBigEndian().equals(audioFormat.isBigEndian()))) {
+            return false;
+        }
+        if ((null != getBitDepth()) && (!getBitDepth().equals(audioFormat.getBitDepth()))) {
+            return false;
+        }
+        if ((null != getBitRate()) && (!getBitRate().equals(audioFormat.getBitRate()))) {
+            return false;
+        }
+        if ((null != getFrequency()) && (!getFrequency().equals(audioFormat.getFrequency()))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AudioFormat) {
+            AudioFormat format = (AudioFormat) obj;
+            if (!(null == getCodec() ? null == format.getCodec() : getCodec().equals(format.getCodec()))) {
+                return false;
+            }
+            if (!(null == getContainer() ? null == format.getContainer()
+                    : getContainer().equals(format.getContainer()))) {
+                return false;
+            }
+            if (!(null == isBigEndian() ? null == format.isBigEndian() : isBigEndian().equals(format.isBigEndian()))) {
+                return false;
+            }
+            if (!(null == getBitDepth() ? null == format.getBitDepth() : getBitDepth().equals(format.getBitDepth()))) {
+                return false;
+            }
+            if (!(null == getBitRate() ? null == format.getBitRate() : getBitRate().equals(format.getBitRate()))) {
+                return false;
+            }
+            if (!(null == getFrequency() ? null == format.getFrequency()
+                    : getFrequency().equals(format.getFrequency()))) {
+                return false;
+            }
+            return true;
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return "AudioFormat [" + (codec != null ? "codec=" + codec + ", " : "")
+                + (container != null ? "container=" + container + ", " : "")
+                + (bigEndian != null ? "bigEndian=" + bigEndian + ", " : "")
+                + (bitDepth != null ? "bitDepth=" + bitDepth + ", " : "")
+                + (bitRate != null ? "bitRate=" + bitRate + ", " : "")
+                + (frequency != null ? "frequency=" + frequency : "") + "]";
+    }
+}

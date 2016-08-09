@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014-2016 by the respective copyright holders.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" modified="modified" name="org.eclipse.smarthome.voice">
+   <implementation class="org.eclipse.smarthome.core.voice.VoiceManager"/>
+   <reference bind="addKSService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.KSService" name="KSService" policy="dynamic" unbind="removeKSService"/>
+   <reference bind="addSTTService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.STTService" name="STTService" policy="dynamic" unbind="removeSTTService"/>
+   <reference bind="addTTSService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.TTSService" name="TTSService" policy="dynamic" unbind="removeTTSService"/>
+   <reference bind="addHumanLanguageInterpreter" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter" name="HumanLanguageInterpreter" policy="dynamic" unbind="removeHumanLanguageInterpreter"/>
+   <reference bind="addAudioSource" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSource" name="AudioSource" policy="dynamic" unbind="removeAudioSource"/>
+   <reference bind="addAudioSink" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSink" name="AudioSink" policy="dynamic" unbind="removeAudioSink"/>
+   <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
+
+   <service>
+      <provide interface="org.eclipse.smarthome.core.voice.VoiceManager"/>
+   </service></scr:component>

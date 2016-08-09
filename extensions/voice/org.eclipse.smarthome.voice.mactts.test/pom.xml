@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.eclipse.smarthome.voice</groupId>
+    <artifactId>pom</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <bundle.symbolicName>org.eclipse.smarthome.voice.mactts.test</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.voice.mactts.test</bundle.namespace>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome.voice</groupId>
+  <artifactId>org.eclipse.smarthome.voice.mactts.test</artifactId>
+
+  <name>Eclipse SmartHome Mac TTS Tests</name>
+
+  <packaging>eclipse-test-plugin</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.vafer</groupId>
+        <artifactId>jdeb</artifactId>
+        <version>1.5</version>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-Djava.library.path=${project.basedir}/lib</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

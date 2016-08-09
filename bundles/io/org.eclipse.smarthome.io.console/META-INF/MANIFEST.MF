@@ -21,3 +21,4 @@ Service-Component: OSGI-INF/*.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions
+Bundle-ActivationPolicy: lazy

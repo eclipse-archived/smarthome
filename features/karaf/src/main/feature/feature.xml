@@ -28,10 +28,9 @@
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.transform/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.voice/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.voice/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.audio/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
@@ -332,6 +331,11 @@
     <feature>esh-base</feature>
     <feature>esh-ui-icon</feature>
     <bundle>mvn:org.eclipse.smarthome.extension.ui.iconset/org.eclipse.smarthome.ui.iconset.classic/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-javasound" description="JavaSound Audio Support" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.javasound/${project.version}</bundle>
   </feature>
 
   <feature name="esh-voice-mactts" description="MacOS Text-to-Speech" version="${project.version}">
