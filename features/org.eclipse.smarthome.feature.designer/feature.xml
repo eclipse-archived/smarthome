@@ -137,7 +137,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.io.voice"
+         id="org.eclipse.smarthome.core.voice"
          download-size="0"
          install-size="0"
          version="0.0.0"

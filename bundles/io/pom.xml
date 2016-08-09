@@ -16,7 +16,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.eclipse.smarthome.io.audio</module>
     <module>org.eclipse.smarthome.io.console</module>
     <module>org.eclipse.smarthome.io.console.eclipse</module>
     <module>org.eclipse.smarthome.io.console.rfc147</module>
@@ -35,7 +34,6 @@
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
-    <module>org.eclipse.smarthome.io.voice</module>
   </modules>
 
 </project>
