@@ -1,564 +1,75 @@
-	{
-		"$schema":"http://json-schema.org/draft-04/schema#",
-		"title":"Automation Module Type Definitions",
-		"description":"This schema is used for verification of JSON objects used for creation of Automation Object Templates.",
-		"type":"object",
-		"additionalProperties":false,
-		"properties":{
-			"triggers":{
-				"type":"array",
-				"minItems":1,
-				"title":"Trigger Templates",
-				"description":"Container for Trigger Templates used to create the Trigger Modules of the Rule.",
-				"items":{
-					"type":"object",
-					"title":"Trigger Module Type",
-					"description":"Definition of the Trigger Module Type.",
-					"additionalProperties":false,
-					"properties":{
-						"uid":{
-							"type":"string",
-							"title":"Trigger UID",
-							"description":"Unique identifier of the Trigger Module Type.",
-							"pattern":"[A-Za-z0-9]+"
-						},
-						"visibility":{
-							"enum":[
-								"PUBLIC",
-								"PRIVATE"
-							],
-							"default":"PUBLIC"
-						},
-						"label":{
-							"type":"string",
-							"title":"Trigger Label",
-							"description":"Short(one word) user friendly description of the Trigger Module Type."
-						},
-						"description":{
-							"type":"string",
-							"title":"Trigger Designation",
-							"description":"A brief description of what the Trigger is and for what it is used."
-						},
-						"tags":{
-							"type":"array",
-							"title":"Module Type Tags",
-							"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
-							"minItems":1,
-							"items":{
-								"type":"string"
-							}
-						},
-						"configDescriptions":{
-							"type":"array",
-							"title":"Trigger Configurations",
-							"description":"Used to configure the Trigger. Contains objects describing Configuration Properties.",
-							"minItems":1,
-							"items":{
-								"type":"object",
-								"title":"Configuration Property",
-								"description":"Property for configuring Rule or Module.",
-								"additionalProperties":false,
-								"required":[
-									"type",
-									"name"
-								],
-								"properties":{
-									"name":{
-										"pattern":"[A-Za-z0-9]+",
-										"type":"string"
-									},
-									"type":{
-										"enum":[
-											"TEXT",
-											"INTEGER",
-											"DECIMAL",
-											"BOOLEAN"
-										],
-										"title":"Configuration Parameter Type",
-										"description":"Property declaring data type of the Configuration Parameter."
-									},
-									"label":{
-										"type":"string",
-										"title":"Configuration Parameter Label",
-										"description":"A human understandable label of the Configuration Parameter."
-									},
-									"description":{
-										"type":"string",
-										"title":"Configuration Parameter Description",
-										"description":"A human understandable description of the Configuration Parameter."
-									},
-									"required":{
-										"type":"boolean",
-										"default":false,
-										"title":"Required Configuration Parameter",
-										"description":"Specifies whether the value is required."
-									},
-									"min":{
-										"type":"number",
-										"title":"Configuration Parameter Minimum Allowed Value",
-										"description":"Minimum value of numeric types, minimal length for strings, minimal number selected options."
-									},
-									"max":{
-										"type":"number",
-										"title":"Configuration Parameter Maximum Allowed Value",
-										"description":"Maximum value of numeric types, maximal length for strings, maximal number selected options."
-									},
-									"step":{
-										"type":"number",
-										"title":"Configuration Parameter Step",
-										"description":"A constant value for increasing/decreasing numeric types"
-									},
-									"pattern":{
-										"type":"string",
-										"title":"Configuration Parameter Pattern",
-										"description":"Regular script for subscribing text types."
-									},
-									"readOnly":{
-										"type":"boolean",
-										"default":false,
-										"title":"Readable Configuration Parameter",
-										"description":"Specifies whether the value is read-only."
-									},
-									"multiple":{
-										"type":"boolean",
-										"default":false,
-										"title":"Multiple Configuration Parameter",
-										"description":"Specifies whether multiple selections of options are allowed."
-									},
-									"context":{
-										"type":"string",
-										"title":"Configuration Parameter Context",
-										"description":"Serves to determine how to treat the value of the Configuration Parameter."
-									},
-									"defaultValue":{
-										"title":"Configuration Parameter Default Value",
-										"description":"Declaring a default value for the Configuration Parameter if missing."
-									},
-									"value":{
-										"title":"Configuration Parameter Value",
-										"description":"Declaring a value for the Configuration Parameter in case of system context."
-									},
-									"filterCriteria":{
-										"type":"array",
-										"title":"Configuration Parameter Filter",
-										"description":"Criteria for dynamic selection of values.",
-										"items":{
-											"type":"object",
-											"additionalProperties":false,
-											"required":[
-												"name",
-												"value"
-											],
-											"properties":{
-												"name":{
-													"type":"string"
-												},
-												"value":{
-													"type":"string"
-												}
-											}
-										}
-									},
-									"options":{
-										"type":"array",
-										"title":"Configuration Parameter Options",
-										"description":"List of definitions of the parameter for static selection.",
-										"items":{
-											"type":"object",
-											"additionalProperties":false,
-											"required":[
-												"label",
-												"value"
-											],
-											"properties":{
-												"label":{
-													"type":"string"
-												},
-												"value":{
-													"type":"string"
-												}
-											}
-										}
-									}
-								}
-							}
-						},
-						"children":{
-							"type":"array",
-							"minItems":1,
-							"title":"Trigger Modules",
-							"description":"Contains definitions of the Trigger Modules of the Trigger Composition.",
-							"items":{
-								"type":"object",
-								"title":"Trigger Module",
-								"description":"Defines the fact which triggers the Rule execution.",
-								"additionalProperties":false,
-								"properties":{
-									"id":{
-										"type":"string",
-										"title":"Trigger uid",
-										"description":"Identifies uniquely the Module in scope of the Rule."
-									},
-									"type":{
-										"type":"string",
-										"title":"Trigger Module Type",
-										"description":"Identifies the Module Type used for creation of the Trigger Composition. Must be unique in scope of concrete Rule definition."
-									},
-									"config":{
-										"type":"object",
-										"title":"Trigger Configurations",
-										"description":"Used to configure the Trigger Composition. Contains pairs of Configuration Property's name and its value."
-									}
-								}
-							}
-						},
-						"outputs":{
-							"type":"array",
-							"minItems":1,
-							"title":"Trigger Outputs",
-							"description":"Container for Trigger Outputs used to bring data to the other Modules of the Rule.",
-							"items":{
-								"type":"object",
-								"title":"Trigger Output",
-								"description":"Output object of the Trigger used to transfer data to other modules of the Rule.",
-								"additionalProperties":false,
-								"required":["type", "name"],
-								"properties":{
-									"name":{
-										"type":"string",
-										"pattern":"[A-Za-z0-9]+"
-									},
-									"type":{
-										"type":"string",
-										"description":"Fully qualified name of Java class."
-									},
-									"label":{
-										"type":"string"
-									},
-									"description":{
-										"type":"string"
-									},
-									"defaultValue":{
-										"type":"string"
-									},
-									"reference":{
-										"type":"string"
-									},
-									"tags":{
-										"type":"array",
-										"minItems":1,
-										"items":{
-											"type":"string"
-										},
-										"description":"Shows how to be considered a given value. For example, as a Temperature."
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"conditions":{
-				"type":"array",
-				"minItems":1,
-				"title":"Condition Templates",
-				"description":"Container for Condition Templates used to create the Condition Modules of the Rule.",
-				"items":{
-					"type":"object",
-					"title":"Condition Module Type",
-					"description":"Definition of the Condition Module Type.",
-					"additionalProperties":false,
-					"properties":{
-						"uid":{
-							"type":"string",
-							"title":"Condition UID",
-							"description":"Unique identifier of the Condition Module Type.",
-							"pattern":"[A-Za-z0-9]+"
-						},
-						"visibility":{
-							"enum":[
-								"PUBLIC",
-								"PRIVATE"
-							],
-							"default":"PUBLIC"
-						},
-						"label":{
-							"type":"string",
-							"title":"Condition Label",
-							"description":"Short(one word) user friendly description of the Condition Module Type."
-						},
-						"description":{
-							"type":"string",
-							"title":"Condition Designation",
-							"description":"A brief description of what the Condition is and for what it is used."
-						},
-						"tags":{
-							"type":"array",
-							"title":"Module Type Tags",
-							"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
-							"minItems":1,
-							"items":{
-								"type":"string"
-							}
-						},
-						"configDescriptions":{
-							"type":"array",
-							"title":"Condition Configurations",
-							"description":"Used to configure the Condition. Contains objects describing Configuration Properties.",
-							"minItems":1,
-							"items":{
-								"type":"object",
-								"title":"Configuration Property",
-								"description":"Property for configuring Rule or Module.",
-								"additionalProperties":false,
-								"required":["type", "name"],
-								"properties":{
-									"name":{
-										"pattern":"[A-Za-z0-9]+",
-										"type":"string"
-									},
-									"type":{
-										"enum":[
-											"TEXT",
-											"INTEGER",
-											"DECIMAL",
-											"BOOLEAN"
-										],
-										"title":"Configuration Parameter Type",
-										"description":"Property declaring data type of the Configuration Parameter."
-									},
-									"label":{
-										"type":"string",
-										"title":"Configuration Parameter Label",
-										"description":"A human understandable label of the Configuration Parameter."
-									},
-									"description":{
-										"type":"string",
-										"title":"Configuration Parameter Description",
-										"description":"A human understandable description of the Configuration Parameter."
-									},
-									"required":{
-										"type":"boolean",
-										"default":false,
-										"title":"Required Configuration Parameter",
-										"description":"Specifies whether the value is required."
-									},
-									"min":{
-										"type":"number",
-										"title":"Configuration Parameter Minimum Allowed Value",
-										"description":"Minimum value of numeric types, minimal length for strings, minimal number selected options."
-									},
-									"max":{
-										"type":"number",
-										"title":"Configuration Parameter Maximum Allowed Value",
-										"description":"Maximum value of numeric types, maximal length for strings, maximal number selected options."
-									},
-									"step":{
-										"type":"number",
-										"title":"Configuration Parameter Step",
-										"description":"A constant value for increasing/decreasing numeric types"
-									},
-									"pattern":{
-										"type":"string",
-										"title":"Configuration Parameter Pattern",
-										"description":"Regular script for subscribing text types."
-									},
-									"readOnly":{
-										"type":"boolean",
-										"default":false,
-										"title":"Readable Configuration Parameter",
-										"description":"Specifies whether the value is read-only."
-									},
-									"multiple":{
-										"type":"boolean",
-										"default":false,
-										"title":"Multiple Configuration Parameter",
-										"description":"Specifies whether multiple selections of options are allowed."
-									},
-									"context":{
-										"type":"string",
-										"title":"Configuration Parameter Context",
-										"description":"Serves to determine how to treat the value of the Configuration Parameter."
-									},
-									"defaultValue":{
-										"title":"Configuration Parameter Default Value",
-										"description":"Declaring a defaultValue value for the Configuration Parameter if missing."
-									},
-									"filterCriteria":{
-										"type":"array",
-										"title":"Configuration Parameter Filter",
-										"description":"Criteria for dynamic selection of values.",
-										"items":{
-											"type":"object",
-											"additionalProperties":false,
-											"required":["name", "value"],
-											"properties":{
-												"name":{
-													"type":"string"
-												},
-												"value":{
-													"type":"string"
-												}
-											}
-										}
-									},
-									"options":{
-										"type":"array",
-										"title":"Configuration Parameter Options",
-										"description":"List of definitions of the parameter for static selection.",
-										"items":{
-											"type":"object",
-											"additionalProperties":false,
-											"required":["label", "value"],
-											"properties":{
-												"label":{
-													"type":"string"
-												},
-												"value":{
-													"type":"string"
-												}
-											}
-										}
-									}
-								}
-							}
-						},
-						"children":{
-							"type":"array",
-							"minItems":1,
-							"title":"Condition Modules",
-							"description":"Contains definitions of the Condition Modules of the Condition Composition.",
-							"items":{
-								"type":"object",
-								"title":"Condition Module",
-								"description":"A brief description of what the Condition is and for what it is used.",
-								"additionalProperties":false,
-								"properties":{
-									"id":{
-										"type":"string",
-										"title":"Condition uid",
-										"description":"Identifies uniquely the Module in scope of the Rule."
-									},
-									"type":{
-										"type":"string",
-										"title":"Condition Module Type",
-										"description":"Identifies the Module Type used for creation of the Condition Composition. Must be unique in scope of concrete Rule definition."
-									},
-									"config":{
-										"type":"object",
-										"title":"Condition Configurations",
-										"description":"Used to configure the Condition Composition. Contains pairs of Configuration Property's name and its value."
-									}
-								}
-							}
-						},
-						"inputs":{
-							"type":"array",
-							"minItems":1,
-							"title":"Condition Inputs",
-							"description":"Container for Condition Inputs used to get data from the Trigger Modules of the Rule.",
-							"items":{
-								"type":"object",
-								"title":"Condition Input",
-								"description":"Input object of the Condition used for binding an Output objects of other modules in order to receive data.",
-								"additionalProperties":false,
-								"required":["type", "name"],
-								"properties":{
-									"name":{
-										"type":"string",
-										"pattern":"[A-Za-z0-9]+"
-									},
-									"type":{
-										"type":"string",
-										"description":"Fully qualified name of Java class."
-									},
-									"label":{
-										"type":"string"
-									},
-									"defaultValue":{
-										"type":"string"
-									},
-									"description":{
-										"type":"string"
-									},
-									"tags":{
-										"type":"array",
-										"minItems":1,
-										"items":{
-											"type":"string"
-										},
-										"description":"Shows how to be considered a given value. For example, as a Temperature."
-									},
-									"required":{
-										"type":"boolean"
-									},
-									"reference":{
-										"type":"string"
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"actions":{
-				"type":"array",
-				"minItems":1,
-				"title":"Action Templates",
-				"description":"Container for Action Module Types used to create the Action Modules of the Rule.",
-				"items":{
-					"type":"object",
-					"title":"Action Module Type",
-					"description":"Definition of the Action Module Type.",
-					"additionalProperties":false,
-					"properties":{
-						"uid":{
-							"type":"string",
-							"title":"Action UID",
-							"description":"Unique identifier of the Action Module Type.",
-							"pattern":"[A-Za-z0-9]+"
-						},
-						"visibility":{
-							"enum":[
-								"PUBLIC",
-								"PRIVATE"
-							],
-							"default":"PUBLIC"
-						},
-						"label":{
-							"type":"string",
-							"title":"Action Label",
-							"description":"Short(one word) user friendly description of the Action Module Type."
-						},
-						"description":{
-							"type":"string",
-							"title":"Action Designation",
-							"description":"A brief description of what the Action is and for what it is used."
-						},
-						"tags":{
-							"type":"array",
-							"title":"Module Type Tags",
-							"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
-							"minItems":1,
-							"items":{
-								"type":"string"
-							}
-						},
-						"configDescriptions":{
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"title":"Automation Module Type Definitions",
+	"description":"This schema is used for verification of JSON objects used for creation of Automation Object Templates.",
+	"type":"object",
+	"additionalProperties":false,
+	"properties":{
+		"triggers":{
+			"type":"array",
+			"minItems":1,
+			"title":"Trigger Templates",
+			"description":"Container for Trigger Templates used to create the Trigger Modules of the Rule.",
+			"items":{
+				"type":"object",
+				"title":"Trigger Module Type",
+				"description":"Definition of the Trigger Module Type.",
+				"additionalProperties":false,
+				"properties":{
+					"uid":{
+						"type":"string",
+						"title":"Trigger UID",
+						"description":"Unique identifier of the Trigger Module Type.",
+						"pattern":"[A-Za-z0-9_-]*"
+					},
+					"visibility":{
+						"enum":[
+							"VISIBLE",
+							"HIDDEN",
+							"EXPERT"
+						],
+						"default":"VISIBLE",
+						"title":"Visibility",
+						"description":"Defines visibility of the Module Type."
+					},
+					"label":{
+						"type":"string",
+						"title":"Trigger Label",
+						"description":"Short(one word) user friendly description of the Trigger Module Type."
+					},
+					"description":{
+						"type":"string",
+						"title":"Trigger Description",
+						"description":"A brief description of what the Trigger is and for what it is used."
+					},
+					"tags":{
 						"type":"array",
-						"title":"Action Configurations",
-						"description":"Used to configure the Action. Contains objects describing Configuration Properties.",
+						"title":"Module Type Tags",
+						"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
+						"minItems":1,
+						"items":{
+							"type":"string",
+							"title":"Tag",
+							"description":"Keyword or term describing the Module Type."
+						}
+					},
+					"configDescriptions":{
+						"type":"array",
+						"title":"Trigger Configuration Descriptor",
+						"description":"Used to describe the configuration parameters of the Trigger.",
 						"minItems":1,
 						"items":{
 							"type":"object",
-							"title":"Configuration Property",
-							"description":"Property for configuring Rule or Module.",
+							"title":"Configuration Parameter Description",
+							"description":"Description of property for configuring the Module.",
 							"additionalProperties":false,
-							"required":["type", "name"],
+							"required":["name"],
 							"properties":{
 								"name":{
 									"pattern":"[A-Za-z0-9]+",
-									"type":"string"
+									"type":"string",
+									"title":"Configuration Parameter Name",
+									"description":"The name of the configuration parameter (must neither be null nor empty)"
 								},
 								"type":{
 									"enum":[
@@ -568,7 +79,7 @@
 										"BOOLEAN"
 									],
 									"title":"Configuration Parameter Type",
-									"description":"Property declaring data type of the Configuration Parameter."
+									"description":"Property declaring the data type of the configuration parameter."
 								},
 								"label":{
 									"type":"string",
@@ -589,22 +100,22 @@
 								"min":{
 									"type":"number",
 									"title":"Configuration Parameter Minimum Allowed Value",
-									"description":"Minimum value of numeric types, minimal length for strings, minimal number selected options."
+									"description":"The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options."
 								},
 								"max":{
 									"type":"number",
 									"title":"Configuration Parameter Maximum Allowed Value",
-									"description":"Maximum value of numeric types, maximal length for strings, maximal number selected options."
+									"description":"The maximal value for numeric types, or the maximal length of strings, or the maximal number of selected options."
 								},
 								"step":{
 									"type":"number",
 									"title":"Configuration Parameter Step",
-									"description":"A constant value for increasing/decreasing numeric types"
+									"description":"The value granularity for a numeric value"
 								},
 								"pattern":{
 									"type":"string",
 									"title":"Configuration Parameter Pattern",
-									"description":"Regular script for subscribing text types."
+									"description":"The regular expression for a text type."
 								},
 								"readOnly":{
 									"type":"boolean",
@@ -618,14 +129,30 @@
 									"title":"Multiple Configuration Parameter",
 									"description":"Specifies whether multiple selections of options are allowed."
 								},
+								"multipleLimit":{
+									"type":"number",
+									"title":"Multiple Configuration Parameter Limit",
+									"description":"Specifies the maximum number of options that can be selected when multiple is true."
+								},
 								"context":{
 									"type":"string",
 									"title":"Configuration Parameter Context",
 									"description":"Serves to determine how to treat the value of the Configuration Parameter."
 								},
 								"defaultValue":{
+									"type":"string",
 									"title":"Configuration Parameter Default Value",
-									"description":"Declaring a defaultValue value for the Configuration Parameter if missing."
+									"description":"Declaring a default value for the Configuration Parameter if missing."
+								},
+								"unit":{
+									"type":"string",
+									"title":"Configuration Parameter Unit",
+									"description":"Specifies the unit of measurements for the configuration parameter."
+								},
+								"unitLabel":{
+									"type":"string",
+									"title":"Configuration Parameter Unit Label",
+									"description":"Specifies the unit label for the configuration parameter. This attribute can also be used to provide natural language units as iterations, runs, etc."
 								},
 								"filterCriteria":{
 									"type":"array",
@@ -634,7 +161,10 @@
 									"items":{
 										"type":"object",
 										"additionalProperties":false,
-										"required":["name", "value"],
+										"required":[
+											"name",
+											"value"
+										],
 										"properties":{
 											"name":{
 												"type":"string"
@@ -652,7 +182,10 @@
 									"items":{
 										"type":"object",
 										"additionalProperties":false,
-										"required":["label", "value"],
+										"required":[
+											"label",
+											"value"
+										],
 										"properties":{
 											"label":{
 												"type":"string"
@@ -662,6 +195,23 @@
 											}
 										}
 									}
+								},
+								"limitToOptions":{
+									"type":"boolean",
+									"default":false,
+									"title":"limit To Options",
+									"description":"Specifies that the users input is limited to the options list. When set to true without options, this should have no affect. When set to true with options, the user can only select the options from the list When set to false with options, the user can enter values other than those in the list."
+								},
+								"groupName":{
+									"type":"string",
+									"title":"Configuration Parameter Group Name",
+									"description":"A string used to group parameters together into logical blocks so that the UI can display them together."
+								},
+								"advanced":{
+									"type":"boolean",
+									"default":false,
+									"title":"An Advanced Configuration Parameter",
+									"description":"Specifies if this is an advanced parameter. An advanced parameter can be hidden in the UI to focus the user on important configuration."
 								}
 							}
 						}
@@ -669,28 +219,336 @@
 					"children":{
 						"type":"array",
 						"minItems":1,
-						"title":"Action Modules",
-						"description":"Contains definitions of the Action Modules of the Action Composition.",
+						"title":"Trigger Modules",
+						"description":"Contains definitions of the Trigger Modules of the Trigger Composition.",
 						"items":{
 							"type":"object",
-							"title":"Action Module",
-							"description":"A brief description of what the Action is and for what it is used.",
+							"title":"Trigger Module",
+							"description":"Defines the fact which triggers the Rule execution.",
 							"additionalProperties":false,
 							"properties":{
 								"id":{
 									"type":"string",
-									"title":"Action id",
-									"description":"Identifies uniquely the Module in scope of the Rule."
+									"pattern":"[A-Za-z0-9_-]*",
+									"title":"Trigger ID",
+									"description":"Identifies uniquely the Module in scope of the Composite Module Type."
 								},
 								"type":{
 									"type":"string",
-									"title":"Action Module Type",
-									"description":"Identifies the Module Type used for creation of the Action Composition. Must be unique in scope of concrete Rule definition."
+									"pattern":"[A-Za-z0-9_-]*",
+									"title":"Trigger Module Type UID",
+									"description":"Identifies the Module Type used for creation of the Trigger Composition. Must be unique in scope of concrete Trigger Composition."
 								},
-								"config":{
+								"configuration":{
 									"type":"object",
-									"title":"Action Configurations",
-									"description":"Used to configure the Action Composition. Contains pairs of Configuration Property's name and its value."
+									"title":"Trigger Configuration",
+									"description":"Used to define values for the configuration parameters of the Trigger."
+								},
+								"label":{
+									"type":"string",
+									"title":"Trigger Label",
+									"description":"A human understandable label of the Trigger."
+								},
+								"description":{
+									"type":"string",
+									"title":"Trigger Description",
+									"description":"A human understandable description of the Trigger."
+								}
+							}
+						}
+					},
+					"outputs":{
+						"type":"array",
+						"minItems":1,
+						"title":"Trigger Outputs",
+						"description":"Container for Trigger Outputs used to bring data to the other Modules of the Rule.",
+						"items":{
+							"type":"object",
+							"title":"Trigger Output",
+							"description":"Output object of the Trigger used to transfer data to other modules of the Rule.",
+							"additionalProperties":false,
+							"required":["type", "name"],
+							"properties":{
+								"name":{
+									"type":"string",
+									"pattern":"[A-Za-z0-9_-]*"
+								},
+								"type":{
+									"type":"string",
+									"description":"Fully qualified name of Java class."
+								},
+								"label":{
+									"type":"string"
+								},
+								"description":{
+									"type":"string"
+								},
+								"defaultValue":{
+									"type":"string"
+								},
+								"reference":{
+									"type":"string"
+								},
+								"tags":{
+									"type":"array",
+									"minItems":1,
+									"items":{
+										"type":"string"
+									},
+									"description":"Shows how to be considered a given value. For example, as a Temperature."
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"conditions":{
+			"type":"array",
+			"minItems":1,
+			"title":"Condition Templates",
+			"description":"Container for Condition Templates used to create the Condition Modules of the Rule.",
+			"items":{
+				"type":"object",
+				"title":"Condition Module Type",
+				"description":"Definition of the Condition Module Type.",
+				"additionalProperties":false,
+				"properties":{
+					"uid":{
+						"type":"string",
+						"title":"Condition UID",
+						"description":"Unique identifier of the Condition Module Type.",
+						"pattern":"[A-Za-z0-9_-]*"
+					},
+					"visibility":{
+						"enum":[
+							"VISIBLE",
+							"HIDDEN",
+							"EXPERT"
+						],
+						"default":"VISIBLE",
+						"title":"Visibility",
+						"description":"Defines visibility of the Module Type."
+					},
+					"label":{
+						"type":"string",
+						"title":"Condition Label",
+						"description":"Short(one word) user friendly description of the Condition Module Type."
+					},
+					"description":{
+						"type":"string",
+						"title":"Condition Designation",
+						"description":"A brief description of what the Condition is and for what it is used."
+					},
+					"tags":{
+						"type":"array",
+						"title":"Module Type Tags",
+						"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
+						"minItems":1,
+						"items":{
+							"type":"string"
+						}
+					},
+					"configDescriptions":{
+						"type":"array",
+						"title":"Condition Configuration Descriptor",
+						"description":"Used to describe the configuration parameters of the Condition.",
+						"minItems":1,
+						"items":{
+							"type":"object",
+							"title":"Configuration Parameter Description",
+							"description":"Describes the configuration Parameter for configuring the Module.",
+							"additionalProperties":false,
+							"required":["name"],
+							"properties":{
+								"name":{
+									"pattern":"[A-Za-z0-9_-]*",
+									"type":"string",
+									"title":"Configuration Parameter Name",
+									"description":"The name of the configuration parameter."
+								},
+								"type":{
+									"enum":[
+										"TEXT",
+										"INTEGER",
+										"DECIMAL",
+										"BOOLEAN"
+									],
+									"title":"Configuration Parameter Type",
+									"description":"Property declaring the data type of the configuration parameter."
+								},
+								"label":{
+									"type":"string",
+									"title":"Configuration Parameter Label",
+									"description":"A human understandable label of the Configuration Parameter."
+								},
+								"description":{
+									"type":"string",
+									"title":"Configuration Parameter Description",
+									"description":"A human understandable description of the Configuration Parameter."
+								},
+								"required":{
+									"type":"boolean",
+									"default":false,
+									"title":"Required Configuration Parameter",
+									"description":"Specifies whether the value is required."
+								},
+								"min":{
+									"type":"number",
+									"title":"Configuration Parameter Minimum Allowed Value",
+									"description":"The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options."
+								},
+								"max":{
+									"type":"number",
+									"title":"Configuration Parameter Maximum Allowed Value",
+									"description":"The maximal value for numeric types, or the maximal length of strings, or the maximal number of selected options."
+								},
+								"step":{
+									"type":"number",
+									"title":"Configuration Parameter Step",
+									"description":"The value granularity for a numeric value"
+								},
+								"pattern":{
+									"type":"string",
+									"title":"Configuration Parameter Pattern",
+									"description":"The regular expression for a text type."
+								},
+								"readOnly":{
+									"type":"boolean",
+									"default":false,
+									"title":"Readable Configuration Parameter",
+									"description":"Specifies whether the value is read-only."
+								},
+								"multiple":{
+									"type":"boolean",
+									"default":false,
+									"title":"Multiple Configuration Parameter",
+									"description":"Specifies whether multiple selections of options are allowed."
+								},
+								"multipleLimit":{
+									"type":"number",
+									"title":"Multiple Configuration Parameter Limit",
+									"description":"Specifies the maximum number of options that can be selected when multiple is true."
+								},
+								"context":{
+									"type":"string",
+									"title":"Configuration Parameter Context",
+									"description":"Serves to determine how to treat the value of the Configuration Parameter."
+								},
+								"defaultValue":{
+									"type":"string",
+									"title":"Configuration Parameter Default Value",
+									"description":"Declaring a default value for the Configuration Parameter if missing."
+								},
+								"unit":{
+									"type":"string",
+									"title":"Configuration Parameter Unit",
+									"description":"Specifies the unit of measurements for the configuration parameter."
+								},
+								"unitLabel":{
+									"type":"string",
+									"title":"Configuration Parameter Unit Label",
+									"description":"Specifies the unit label for the configuration parameter. This attribute can also be used to provide natural language units as iterations, runs, etc."
+								},
+								"filterCriteria":{
+									"type":"array",
+									"title":"Configuration Parameter Filter",
+									"description":"Criteria for dynamic selection of values.",
+									"items":{
+										"type":"object",
+										"additionalProperties":false,
+										"required":[
+											"name",
+											"value"
+										],
+										"properties":{
+											"name":{
+												"type":"string"
+											},
+											"value":{
+												"type":"string"
+											}
+										}
+									}
+								},
+								"options":{
+									"type":"array",
+									"title":"Configuration Parameter Options",
+									"description":"List of definitions of the parameter for static selection.",
+									"items":{
+										"type":"object",
+										"additionalProperties":false,
+										"required":[
+											"label",
+											"value"
+										],
+										"properties":{
+											"label":{
+												"type":"string"
+											},
+											"value":{
+												"type":"string"
+											}
+										}
+									}
+								},
+								"limitToOptions":{
+									"type":"boolean",
+									"default":false,
+									"title":"limit To Options",
+									"description":"Specifies that the users input is limited to the options list. When set to true without options, this should have no affect. When set to true with options, the user can only select the options from the list When set to false with options, the user can enter values other than those in the list."
+								},
+								"groupName":{
+									"type":"string",
+									"title":"Configuration Parameter Group Name",
+									"description":"A string used to group parameters together into logical blocks so that the UI can display them together."
+								},
+								"advanced":{
+									"type":"boolean",
+									"default":false,
+									"title":"An Advanced Configuration Parameter",
+									"description":"Specifies if this is an advanced parameter. An advanced parameter can be hidden in the UI to focus the user on important configuration."
+								}
+							}
+						}
+					},
+					"children":{
+						"type":"array",
+						"minItems":1,
+						"title":"Condition Modules",
+						"description":"Contains definitions of the Condition Modules of the Condition Composition.",
+						"items":{
+							"type":"object",
+							"title":"Condition Module",
+							"description":"A brief description of what the Condition is and for what it is used.",
+							"additionalProperties":false,
+							"properties":{
+								"id":{
+									"type":"string",
+									"pattern":"[A-Za-z0-9_-]*",
+									"title":"Condition ID",
+									"description":"Identifies uniquely the Module in scope of the Composite Condition Type."
+								},
+								"type":{
+									"type":"string",
+									"pattern":"[A-Za-z0-9_-]*",
+									"title":"Condition Module Type UID",
+									"description":"Identifies the Module Type used for creation of the Condition Composition. Must be unique in scope of concrete Condition Composition definition."
+								},
+								"configuration":{
+									"type":"object",
+									"title":"Condition Configuration",
+									"description":"Used to define values for the configuration parameters of the Condition."
+								},
+								"label":{
+									"type":"string",
+									"title":"Condition Label",
+									"description":"A human understandable label of the Condition."
+								},
+								"description":{
+									"type":"string",
+									"title":"Condition Description",
+									"description":"A human understandable description of the Condition."
 								}
 							}
 						}
@@ -698,91 +556,388 @@
 					"inputs":{
 						"type":"array",
 						"minItems":1,
-						"title":"Action Inputs",
-						"description":"Container for Action Inputs used to get data from the other Modules of the Rule.",
+						"title":"Condition Inputs",
+						"description":"Container for Condition Inputs used to get data from the Trigger Modules of the Rule.",
 						"items":{
-								"type":"object",
-								"title":"Action Input",
-								"description":"Input object of the Action used for binding an Output objects of other modules in order to receive data.",
-								"additionalProperties":false,
-								"required":["type", "name"],
-								"properties":{
-									"name":{
-										"pattern":"[A-Za-z0-9]+",
+							"type":"object",
+							"title":"Condition Input",
+							"description":"Input object of the Condition used for binding an Output objects of other modules in order to receive data.",
+							"additionalProperties":false,
+							"required":["type", "name"],
+							"properties":{
+								"name":{
+									"type":"string",
+									"pattern":"[A-Za-z0-9_-]*"
+								},
+								"type":{
+									"type":"string",
+									"description":"Fully qualified name of Java class."
+								},
+								"label":{
+									"type":"string"
+								},
+								"defaultValue":{
+									"type":"string"
+								},
+								"description":{
+									"type":"string"
+								},
+								"tags":{
+									"type":"array",
+									"minItems":1,
+									"items":{
 										"type":"string"
 									},
-									"type":{
-										"type":"string",
-										"description":"Fully qualified name of Java class."
-									},
-									"label":{
-										"type":"string"
-									},
-									"required":{
-										"type":"boolean",
-										"default":false,
-										"title":"Required Input",
-										"description":"Specifies whether the value is required."
-									},
-									"defaultValue":{
-										"type":"string",
-										"title":"Input Default Value",
-										"description":"Specifies the value if the Input is not required and is missing."
-									},
-									"description":{
-										"type":"string"
-									},
-									"tags":{
-										"type":"array",
-										"minItems":1,
-										"items":{
-											"type":"string"
-										},
-										"description":"Shows how to be considered a given value. For example, as a Temperature."
-									}
+									"description":"Shows how to be considered a given value. For example, as a Temperature."
+								},
+								"required":{
+									"type":"boolean"
+								},
+								"reference":{
+									"type":"string"
 								}
 							}
-						},
-						"outputs":{
-							"type":"array",
-							"minItems":1,
-							"title":"Action Outputs",
-							"description":"Container for Action Outputs used to bring data to the other Action Modules of the Rule.",
-							"items":{
-								"type":"object",
-								"title":"Action Output",
-								"description":"Output object of the Action used to transfer data to other Action Modules of the Rule.",
-								"additionalProperties":false,
-								"required":["type", "name"],
-								"properties":{
-									"name":{
-										"type":"string",
-										"pattern":"[A-Za-z0-9]+"
-									},
-									"type":{
-										"type":"string",
-										"description":"Fully qualified name of Java class."
-									},
-									"label":{
-										"type":"string"
-									},
-									"description":{
-										"type":"string"
-									},
-									"defaultValue":{
-										"type":"string"
-									},
-									"reference":{
-										"type":"string"
-									},
-									"tags":{
-										"type":"array",
-										"minItems":1,
-										"items":{
-											"type":"string"
-										},
-										"description":"Shows how to be considered a given value. For example, as a Temperature."
+						}
+					}
+				}
+			}
+		},
+		"actions":{
+			"type":"array",
+			"minItems":1,
+			"title":"Action Templates",
+			"description":"Container for Action Module Types used to create the Action Modules of the Rule.",
+			"items":{
+				"type":"object",
+				"title":"Action Module Type",
+				"description":"Definition of the Action Module Type.",
+				"additionalProperties":false,
+				"properties":{
+					"uid":{
+						"type":"string",
+						"title":"Action UID",
+						"description":"Unique identifier of the Action Module Type.",
+						"pattern":"[A-Za-z0-9_-]*"
+					},
+					"visibility":{
+						"enum":[
+							"VISIBLE",
+							"HIDDEN",
+							"EXPERT"
+						],
+						"default":"VISIBLE",
+						"title":"Visibility",
+						"description":"Defines visibility of Module Type."
+					},
+					"label":{
+						"type":"string",
+						"title":"Action Label",
+						"description":"Short(one word) user friendly description of the Action Module Type."
+					},
+					"description":{
+						"type":"string",
+						"title":"Action Designation",
+						"description":"A brief description of what the Action is and for what it is used."
+					},
+					"tags":{
+						"type":"array",
+						"title":"Module Type Tags",
+						"description":"Non-hierarchical keywords or terms describing the Module Type. They help to classify the module types and allow them to be found.",
+						"minItems":1,
+						"items":{
+							"type":"string"
+						}
+					},
+					"configDescriptions":{
+						"type":"array",
+						"title":"Action Configuration Descriptor",
+						"description":"Used to describe the configuration parameters of the Action.",
+						"minItems":1,
+						"items":{
+							"type":"object",
+							"title":"Configuration Parameter Description",
+							"description":"Describes the Configuration Parameter for configuring the Module.",
+							"additionalProperties":false,
+							"required":["name"],
+							"properties":{
+								"name":{
+									"pattern":"[A-Za-z0-9_-]*",
+									"type":"string",
+									"title":"Configuration Parameter Name",
+									"description":"The name of the configuration parameter."
+								},
+								"type":{
+									"enum":[
+										"TEXT",
+										"INTEGER",
+										"DECIMAL",
+										"BOOLEAN"
+									],
+									"title":"Configuration Parameter Type",
+									"description":"Property declaring the data type of the configuration parameter."
+								},
+								"label":{
+									"type":"string",
+									"title":"Configuration Parameter Label",
+									"description":"A human understandable label of the Configuration Parameter."
+								},
+								"description":{
+									"type":"string",
+									"title":"Configuration Parameter Description",
+									"description":"A human understandable description of the Configuration Parameter."
+								},
+								"required":{
+									"type":"boolean",
+									"default":false,
+									"title":"Required Configuration Parameter",
+									"description":"Specifies whether the value is required."
+								},
+								"min":{
+									"type":"number",
+									"title":"Configuration Parameter Minimum Allowed Value",
+									"description":"The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options."
+								},
+								"max":{
+									"type":"number",
+									"title":"Configuration Parameter Maximum Allowed Value",
+									"description":"The maximal value for numeric types, or the maximal length of strings, or the maximal number of selected options."
+								},
+								"step":{
+									"type":"number",
+									"title":"Configuration Parameter Step",
+									"description":"The value granularity for a numeric value"
+								},
+								"pattern":{
+									"type":"string",
+									"title":"Configuration Parameter Pattern",
+									"description":"The regular expression for a text type."
+								},
+								"readOnly":{
+									"type":"boolean",
+									"default":false,
+									"title":"Readable Configuration Parameter",
+									"description":"Specifies whether the value is read-only."
+								},
+								"multiple":{
+									"type":"boolean",
+									"default":false,
+									"title":"Multiple Configuration Parameter",
+									"description":"Specifies whether multiple selections of options are allowed."
+								},
+								"multipleLimit":{
+									"type":"number",
+									"title":"Multiple Configuration Parameter Limit",
+									"description":"Specifies the maximum number of options that can be selected when multiple is true."
+								},
+								"context":{
+									"type":"string",
+									"title":"Configuration Parameter Context",
+									"description":"Serves to determine how to treat the value of the Configuration Parameter."
+								},
+								"defaultValue":{
+									"type":"string",
+									"title":"Configuration Parameter Default Value",
+									"description":"Declaring a default value for the Configuration Parameter if missing."
+								},
+								"unit":{
+									"type":"string",
+									"title":"Configuration Parameter Unit",
+									"description":"Specifies the unit of measurements for the configuration parameter."
+								},
+								"unitLabel":{
+									"type":"string",
+									"title":"Configuration Parameter Unit Label",
+									"description":"Specifies the unit label for the configuration parameter. This attribute can also be used to provide natural language units as iterations, runs, etc."
+								},
+								"filterCriteria":{
+									"type":"array",
+									"title":"Configuration Parameter Filter",
+									"description":"Criteria for dynamic selection of values.",
+									"items":{
+										"type":"object",
+										"additionalProperties":false,
+										"required":[
+											"name",
+											"value"
+										],
+										"properties":{
+											"name":{
+												"type":"string"
+											},
+											"value":{
+												"type":"string"
+											}
+										}
 									}
+								},
+								"options":{
+									"type":"array",
+									"title":"Configuration Parameter Options",
+									"description":"List of definitions of the parameter for static selection.",
+									"items":{
+										"type":"object",
+										"additionalProperties":false,
+										"required":[
+											"label",
+											"value"
+										],
+										"properties":{
+											"label":{
+												"type":"string"
+											},
+											"value":{
+												"type":"string"
+											}
+										}
+									}
+								},
+								"limitToOptions":{
+									"type":"boolean",
+									"default":false,
+									"title":"limit To Options",
+									"description":"Specifies that the users input is limited to the options list. When set to true without options, this should have no affect. When set to true with options, the user can only select the options from the list When set to false with options, the user can enter values other than those in the list."
+								},
+								"groupName":{
+									"type":"string",
+									"title":"Configuration Parameter Group Name",
+									"description":"A string used to group parameters together into logical blocks so that the UI can display them together."
+								},
+								"advanced":{
+									"type":"boolean",
+									"default":false,
+									"title":"An Advanced Configuration Parameter",
+									"description":"Specifies if this is an advanced parameter. An advanced parameter can be hidden in the UI to focus the user on important configuration."
+								}
+							}
+						}
+				},
+				"children":{
+					"type":"array",
+					"minItems":1,
+					"title":"Action Modules",
+					"description":"Contains definitions of the Action Modules of the Action Composition.",
+					"items":{
+						"type":"object",
+						"title":"Action Module",
+						"description":"A brief description of what the Action is and for what it is used.",
+						"additionalProperties":false,
+						"properties":{
+							"id":{
+								"type":"string",
+								"title":"Action ID",
+								"description":"Identifies uniquely the Module in scope of the Composite Action Type."
+							},
+							"type":{
+								"type":"string",
+								"pattern":"[A-Za-z0-9_-]*",
+								"title":"Action Module Type UID",
+								"description":"Identifies the Module Type used for creation of the Action Composition. Must be unique in scope of concrete Action Composition definition."
+							},
+							"configuration":{
+								"type":"object",
+								"title":"Action Configuration",
+								"description":"Used to define values for configuration parameters of the Action."
+							},
+							"label":{
+								"type":"string",
+								"title":"Action Label",
+								"description":"A human understandable label of the Action."
+							},
+							"description":{
+								"type":"string",
+								"title":"Action Description",
+								"description":"A human understandable description of the Action."
+							}
+						}
+					}
+				},
+				"inputs":{
+					"type":"array",
+					"minItems":1,
+					"title":"Action Inputs",
+					"description":"Container for Action Inputs used to get data from the other Modules of the Rule.",
+					"items":{
+						"type":"object",
+						"title":"Action Input",
+						"description":"Input object of the Action used for binding an Output objects of other modules in order to receive data.",
+							"additionalProperties":false,
+							"required":["type", "name"],
+							"properties":{
+								"name":{
+									"pattern":"[A-Za-z0-9_-]*",
+									"type":"string"
+								},
+								"type":{
+									"type":"string",
+									"description":"Fully qualified name of Java class."
+								},
+								"label":{
+									"type":"string"
+								},
+								"required":{
+									"type":"boolean",
+									"default":false,
+									"title":"Required Input",
+									"description":"Specifies whether the value is required."
+								},
+								"defaultValue":{
+									"type":"string",
+									"title":"Input Default Value",
+									"description":"Specifies the value if the Input is not required and is missing."
+								},
+								"description":{
+									"type":"string"
+								},
+								"tags":{
+									"type":"array",
+									"minItems":1,
+									"items":{
+										"type":"string"
+									},
+									"description":"Shows how to be considered a given value. For example, as a Temperature."
+								}
+							}
+						}
+					},
+					"outputs":{
+						"type":"array",
+						"minItems":1,
+						"title":"Action Outputs",
+						"description":"Container for Action Outputs used to bring data to the other Action Modules of the Rule.",
+						"items":{
+							"type":"object",
+							"title":"Action Output",
+							"description":"Output object of the Action used to transfer data to other Action Modules of the Rule.",
+							"additionalProperties":false,
+							"required":["type", "name"],
+							"properties":{
+								"name":{
+									"type":"string",
+									"pattern":"[A-Za-z0-9_-]*"
+								},
+								"type":{
+									"type":"string",
+									"description":"Fully qualified name of Java class."
+								},
+								"label":{
+									"type":"string"
+								},
+								"description":{
+									"type":"string"
+								},
+								"defaultValue":{
+									"type":"string"
+								},
+								"reference":{
+									"type":"string"
+								},
+								"tags":{
+									"type":"array",
+									"minItems":1,
+									"items":{
+										"type":"string"
+									},
+									"description":"Shows how to be considered a given value. For example, as a Temperature."
 								}
 							}
 						}
@@ -791,3 +946,4 @@
 			}
 		}
 	}
+}
