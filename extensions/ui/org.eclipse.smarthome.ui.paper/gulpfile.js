@@ -10,9 +10,9 @@ var angularFilesort = require('gulp-angular-filesort'),
     rename = require("gulp-rename"),
     uglify = require('gulp-uglify'),
     inject = require('gulp-inject'),
-    util = require('gulp-util');
+    util = require('gulp-util'),
+    Server = require('karma').Server;
 var isDevelopment = !!util.env.development;
-
 
 var paths = {
     scripts: [
@@ -217,4 +217,12 @@ gulp.task('inject', ['build'], function () {
     }))
       .pipe(isDevelopment ? gulp.dest('./web-src'):gulp.dest('./web'));
   });
+
+gulp.task('test',['build'], function (done) {
+    return new Server({
+      configFile: __dirname + '/karma.conf.js',
+      singleRun: true
+    }, done).start();
+  });
+
 
