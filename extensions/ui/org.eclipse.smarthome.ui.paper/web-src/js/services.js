@@ -111,7 +111,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 group = $filter('filter')(configGroups, {
                     name : parameter.groupName
                 }, true);
-
+                if (group.length == 0) {
+                    group = $filter('filter')(configGroups, {
+                        name : "_default"
+                    }, true);
+                }
                 parameter.locale = window.localStorage.getItem('paperui.language');
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
