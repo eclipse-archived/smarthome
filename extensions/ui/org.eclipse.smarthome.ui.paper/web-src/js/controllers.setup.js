@@ -102,14 +102,16 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $scope.activeScans.push(bindingId);
         discoveryService.scan({
             'bindingId' : bindingId
-        }, function() {
-
+        }, function(response) {
+            var timeout = parseInt(response.timeout);
+            timeout = (!isNaN(timeout) ? timeout : 3) * 1000;
+            setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.activeScans.splice($scope.activeScans.indexOf(bindingId), 1)
+                });
+            }, timeout);
         });
-        setTimeout(function() {
-            $scope.$apply(function() {
-                $scope.activeScans.splice($scope.activeScans.indexOf(bindingId), 1)
-            });
-        }, 3000);
+
     };
 
     bindingRepository.getAll();
@@ -285,13 +287,16 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $scope.scanning = true;
         discoveryService.scan({
             'bindingId' : bindingId
-        }, function() {
+        }, function(response) {
+            var timeout = parseInt(response.timeout);
+            timeout = (!isNaN(timeout) ? timeout : 10) * 1000;
+            setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.scanning = false;
+                });
+            }, timeout);
         });
-        setTimeout(function() {
-            $scope.$apply(function() {
-                $scope.scanning = false;
-            });
-        }, 10000);
+
     };
 
     $scope.refresh = function() {
