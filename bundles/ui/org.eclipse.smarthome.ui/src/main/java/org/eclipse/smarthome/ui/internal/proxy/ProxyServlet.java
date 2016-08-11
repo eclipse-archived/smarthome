@@ -8,21 +8,28 @@
 package org.eclipse.smarthome.ui.internal.proxy;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.util.B64Code;
+import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -51,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * This servlet also supports data streams, such as a webcam video stream etc.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Svilen Valkanov - Replaced Apache HttpClient with Jetty
  */
 public class ProxyServlet extends HttpServlet {
 
@@ -60,6 +68,11 @@ public class ProxyServlet extends HttpServlet {
     private final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
 
     private static final long serialVersionUID = -4716754591953017793L;
+
+    private static HttpClient httpClient = new HttpClient();
+
+    /** Timeout for HTTP requests in ms */
+    private static final int TIMEOUT = 5000;
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
@@ -91,8 +104,9 @@ public class ProxyServlet extends HttpServlet {
 
     protected void activate() {
         try {
-            logger.debug("Starting up proxy servlet at /" + PROXY_ALIAS);
+            logger.debug("Starting up proxy servlet at /{}", PROXY_ALIAS);
 
+            startHttpClient(httpClient);
             Hashtable<String, String> props = new Hashtable<String, String>();
             httpService.registerServlet("/" + PROXY_ALIAS, this, props, createHttpContext());
         } catch (NamespaceException e) {
@@ -104,11 +118,12 @@ public class ProxyServlet extends HttpServlet {
 
     protected void deactivate() {
         httpService.unregister("/" + PROXY_ALIAS);
+        stopHttpClient(httpClient);
     }
 
     /**
      * Creates a {@link HttpContext}
-     * 
+     *
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {
@@ -122,15 +137,16 @@ public class ProxyServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String sitemapName = request.getParameter("sitemap");
         String widgetId = request.getParameter("widgetId");
 
         if (sitemapName == null) {
-            throw new ServletException("Parameter 'sitemap' must be provided!");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'sitemap' must be provided!");
         }
         if (widgetId == null) {
-            throw new ServletException("Parameter 'widget' must be provided!");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'widget' must be provided!");
         }
 
         String uriString = null;
@@ -146,43 +162,93 @@ public class ProxyServlet extends HttpServlet {
                 uriString = video.getUrl();
             } else {
                 if (widget == null) {
-                    throw new ServletException("Widget '" + widgetId + "' could not be found!");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                            "Widget '" + widgetId + "' could not be found!");
+                    return;
                 } else {
-                    throw new ServletException("Widget type '" + widget.getClass().getName() + "' is not supported!");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                            "Widget type '" + widget.getClass().getName() + "' is not supported!");
+                    return;
                 }
             }
         } else {
-            throw new ServletException("Sitemap '" + sitemapName + "' could not be found!");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sitemap '" + sitemapName + "' could not be found!");
+            return;
         }
 
-        HttpClient httpClient = new HttpClient();
-
+        Request httpRequest;
         try {
             // check if the uri uses credentials and configure the http client accordingly
             URI uri = URI.create(uriString);
 
+            httpRequest = httpClient.newRequest(uri);
+
             if (uri.getUserInfo() != null) {
                 String[] userInfo = uri.getUserInfo().split(":");
-                httpClient.getParams().setAuthenticationPreemptive(true);
-                Credentials creds = new UsernamePasswordCredentials(userInfo[0], userInfo[1]);
-                httpClient.getState().setCredentials(new AuthScope(uri.getHost(), uri.getPort(), AuthScope.ANY_REALM),
-                        creds);
+
+                String user = userInfo[0];
+                String password = userInfo[1];
+
+                String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
+                httpRequest.header(HttpHeader.AUTHORIZATION, basicAuthentication);
             }
         } catch (IllegalArgumentException e) {
-            throw new ServletException("URI '" + uriString + "' is not valid: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "URI '" + uriString + "' is not valid: " + e.getMessage());
+            return;
         }
+
+        InputStreamResponseListener listener = new InputStreamResponseListener();
 
         // do the client request
-        GetMethod method = new GetMethod(uriString);
-        httpClient.executeMethod(method);
+        try {
+            httpRequest.send(listener);
+            // wait for the response headers to arrive or the timeout to expire
+            Response httpResponse = listener.get(TIMEOUT, TimeUnit.MILLISECONDS);
 
-        // copy all headers
-        for (Header header : method.getResponseHeaders()) {
-            response.setHeader(header.getName(), header.getValue());
+            // get response headers
+            HttpFields headers = httpResponse.getHeaders();
+            Iterator<HttpField> iterator = headers.iterator();
+
+            // copy all headers
+            while (iterator.hasNext()) {
+                HttpField header = iterator.next();
+                response.setHeader(header.getName(), header.getValue());
+            }
+
+        } catch (Exception e) {
+            if (e instanceof TimeoutException) {
+                logger.warn("Proxy servlet failed to stream content due to a timeout");
+                response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
+            } else {
+                logger.warn("Proxy servlet failed to stream content: {}", e.getMessage());
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            }
+            return;
         }
-
         // now copy/stream the body content
-        IOUtils.copy(method.getResponseBodyAsStream(), response.getOutputStream());
-        method.releaseConnection();
+        try (InputStream responseContent = listener.getInputStream()) {
+            IOUtils.copy(responseContent, response.getOutputStream());
+        }
+    }
+
+    private void startHttpClient(HttpClient client) {
+        if (!client.isStarted()) {
+            try {
+                client.start();
+            } catch (Exception e) {
+                logger.warn("Cannot start HttpClient!", e);
+            }
+        }
+    }
+
+    private void stopHttpClient(HttpClient client) {
+        if (client.isStarted()) {
+            try {
+                client.stop();
+            } catch (Exception e) {
+                logger.error("Unable to stop HttpClient!", e);
+            }
+        }
     }
 }
