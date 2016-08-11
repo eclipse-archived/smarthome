@@ -5,16 +5,15 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.net
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.apache.commons.codec.net,
- org.apache.commons.exec,
- org.apache.commons.httpclient,
- org.apache.commons.httpclient.auth,
- org.apache.commons.httpclient.methods,
- org.apache.commons.httpclient.params,
- org.apache.commons.io,
+Import-Package: org.apache.commons.exec,
  org.apache.commons.lang,
- org.apache.commons.net.util,
- org.eclipse.smarthome.io.console,
+ org.eclipse.jetty.client,
+ org.eclipse.jetty.client.api,
+ org.eclipse.jetty.client.util,
+ org.eclipse.jetty.http,
+ org.eclipse.jetty.io,
+ org.eclipse.jetty.util,
+ org.eclipse.jetty.util.component,
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http,
  org.slf4j

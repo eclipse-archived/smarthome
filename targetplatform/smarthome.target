@@ -150,5 +150,10 @@
 <unit id="org.jmdns.feature.feature.group" version="0.0.0"/>
 <repository location="http://www.jmdns.org/update-site/"/>
 </location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.jetty.client" version="9.3.9.v20160517"/>
+<unit id="org.eclipse.jetty.client.source" version="9.3.9.v20160517"/>
+<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.3.9.v20160517"/>
+</location>
 </locations>
 </target>
