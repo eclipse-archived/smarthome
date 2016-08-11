@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper
 import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemEventPayloadBean
 import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemStateChangedEventPayloadBean
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.types.RefreshType
@@ -173,7 +174,7 @@ class ItemEventFactoryTest extends OSGiTest {
         assertThat itemAddedEvent.getPayload(), is(ITEM_ADDED_EVENT_PAYLOAD)
         assertThat itemAddedEvent.getItem(), not(null)
         assertThat itemAddedEvent.getItem().name, is(ITEM_NAME)
-        assertThat itemAddedEvent.getItem().type, is("SwitchItem")
+        assertThat itemAddedEvent.getItem().type, is(CoreItemFactory.SWITCH)
     }
 
     @Test
@@ -184,6 +185,6 @@ class ItemEventFactoryTest extends OSGiTest {
         assertThat event.getTopic(), is(ITEM_ADDED_EVENT_TOPIC)
         assertThat event.getItem(), not(null)
         assertThat event.getItem().name, is(ITEM_NAME)
-        assertThat event.getItem().type, is("SwitchItem")
+        assertThat event.getItem().type, is(CoreItemFactory.SWITCH)
     }
 }

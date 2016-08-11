@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableSet;
 
 public class GroupItem extends GenericItem implements StateChangeListener {
 
+    public static final String TYPE = "Group";
+
     private final Logger logger = LoggerFactory.getLogger(GroupItem.class);
 
     protected final GenericItem baseItem;
@@ -42,7 +44,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     }
 
     public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
-        super("Group", name);
+        super(TYPE, name);
         members = new CopyOnWriteArraySet<Item>();
         this.function = function;
         this.baseItem = baseItem;
