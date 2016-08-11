@@ -103,7 +103,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         for (var int = 0; int < $scope.data.items.length; int++) {
             var item = $scope.data.items[int];
             if (item.name === itemName) {
-                if (item.type && (item.type == "NumberItem" || item.groupType == "Number")) {
+                if (item.type && (item.type == "Number" || item.groupType == "Number")) {
                     var parsedValue = Number(item.state);
                     if (isNaN(parsedValue)) {
                         item.state = null;
@@ -160,9 +160,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (item.state === 'NULL' || item.state === 'UNDEF') {
             return '-';
         }
-        var state = item.type === 'NumberItem' ? parseFloat(item.state) : item.state;
+        var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
 
-        if (item.type === 'DateTimeItem') {
+        if (item.type === 'DateTime') {
             var date = new Date(item.state);
             return $filter('date')(date, "dd.MM.yyyy hh:mm:ss");
         } else if (!item.stateDescription || !item.stateDescription.pattern) {
