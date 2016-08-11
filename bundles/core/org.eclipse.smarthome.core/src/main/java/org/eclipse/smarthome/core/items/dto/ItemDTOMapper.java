@@ -47,7 +47,7 @@ public class ItemDTOMapper {
 
         GenericItem newItem = null;
         if (itemDTO.type != null) {
-            if (itemDTO instanceof GroupItemDTO && itemDTO.type.equals("GroupItem")) {
+            if (itemDTO instanceof GroupItemDTO && itemDTO.type.equals(GroupItem.TYPE)) {
                 GroupItemDTO groupItemDTO = (GroupItemDTO) itemDTO;
                 GenericItem baseItem = null;
                 if (!Strings.isNullOrEmpty(groupItemDTO.groupType)) {
@@ -59,7 +59,7 @@ public class ItemDTOMapper {
                 }
                 newItem = new GroupItem(itemDTO.name, baseItem, function);
             } else {
-                String itemType = itemDTO.type.substring(0, itemDTO.type.length() - 4);
+                String itemType = itemDTO.type;
                 newItem = createItem(itemType, itemDTO.name, itemFactories);
             }
             if (newItem != null) {
@@ -179,7 +179,7 @@ public class ItemDTOMapper {
             }
         }
         itemDTO.name = item.getName();
-        itemDTO.type = item.getClass().getSimpleName();
+        itemDTO.type = item.getType();
         itemDTO.label = item.getLabel();
         itemDTO.tags = item.getTags();
         itemDTO.category = item.getCategory();
