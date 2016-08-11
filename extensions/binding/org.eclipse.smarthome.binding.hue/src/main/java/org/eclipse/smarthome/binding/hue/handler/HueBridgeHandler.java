@@ -133,7 +133,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                         lastBridgeConnectionState = false;
                         onNotAuthenticated(bridge);
                     } else {
-                        if (lastBridgeConnectionState) {
+                        if (lastBridgeConnectionState || thing.getStatus() == ThingStatus.INITIALIZING) {
                             lastBridgeConnectionState = false;
                             onConnectionLost(bridge);
                         }
@@ -163,7 +163,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             } catch (IOException e) {
                 return false;
             } catch (ApiException e) {
-                if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")) {
+                if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")
+                        || e.getMessage().contains("SocketException")) {
                     return false;
                 } else {
                     // this seems to be only an authentication issue
