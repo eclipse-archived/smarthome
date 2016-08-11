@@ -63,6 +63,10 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',
         title : 'Configuration'
+    }).when('/configuration/system', {
+        templateUrl : 'partials/system.configuration.html',
+        controller : 'ConfigurationPageController',
+        title : 'Configuration'
     }).when('/extensions', {
         templateUrl : 'partials/extensions.html',
         controller : 'ExtensionPageController',
