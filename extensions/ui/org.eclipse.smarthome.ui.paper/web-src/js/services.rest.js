@@ -172,6 +172,11 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             params : {
                 bindingId : '@bindingId'
             },
+            transformResponse : function(data) {
+                return {
+                    timeout : angular.fromJson(data)
+                }
+            },
             url : restConfig.restPath + '/discovery/bindings/:bindingId/scan'
         }
     });
