@@ -399,7 +399,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!$scope.pending) {
             $timeout(function() {
                 var stateObject = getStateAsObject($scope.item.state);
-                stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
+                stateObject.b = brightness === 0 ? '0' : brightness;
                 stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
                 stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
                 $scope.item.state = toState(stateObject);
@@ -415,7 +415,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!$scope.pending) {
             $timeout(function() {
                 var stateObject = getStateAsObject($scope.item.state);
-                stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
+                stateObject.h = hue === 0 ? '0' : hue;
                 stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
                 stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
                 if ($scope.item.state == "UNDEF" || $scope.item.state === 'NULL') {
@@ -438,7 +438,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!$scope.pending) {
             $timeout(function() {
                 var stateObject = getStateAsObject($scope.item.state);
-                stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
+                stateObject.s = saturation === 0 ? '0' : saturation;
                 stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
                 stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
                 $scope.item.state = toState(stateObject);
