@@ -368,7 +368,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ThingBuilder editThing() {
         return ThingBuilder.create(this.thing.getThingTypeUID(), this.thing.getUID())
                 .withBridge(this.thing.getBridgeUID()).withChannels(this.thing.getChannels())
-                .withConfiguration(this.thing.getConfiguration());
+                .withConfiguration(this.thing.getConfiguration()).withLabel(this.thing.getLabel())
+                .withLocation(this.thing.getLocation()).withProperties(this.thing.getProperties());
     }
 
     /**
