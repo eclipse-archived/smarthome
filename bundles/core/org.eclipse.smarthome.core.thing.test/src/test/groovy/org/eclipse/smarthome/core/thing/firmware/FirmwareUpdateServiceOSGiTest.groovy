@@ -650,10 +650,10 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         def enMsg = "An unexpected error occurred during firmware update."
 
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), null)
-        assertFailedFirmwareUpdate("An unexpected error occurred during firmware update.")
+        assertFailedFirmwareUpdate(enMsg)
 
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), Locale.ENGLISH)
-        assertFailedFirmwareUpdate("An unexpected error occurred during firmware update.")
+        assertFailedFirmwareUpdate(enMsg)
 
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), Locale.GERMAN)
         assertFailedFirmwareUpdate("Es ist ein unerwarteter Fehler während des Firmware-Updates aufgetreten.")
@@ -816,11 +816,9 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     private void assertFirmwareStatusInfoEvent(ThingUID thingUID, FirmwareStatusInfo expected) {
-        final int onlyOneEventExpected = 1
-
         waitForAssert {
-            assertThat firmwareStatusInfoEventSubscriber.events.size(), is(onlyOneEventExpected)
-            FirmwareStatusInfoEvent firmwareStatusInfoEvent = (FirmwareStatusInfoEvent) firmwareStatusInfoEventSubscriber.events [0]
+            assertThat firmwareStatusInfoEventSubscriber.events.findAll { it.thingUID.equals(thingUID) }.size(), is(1)
+            FirmwareStatusInfoEvent firmwareStatusInfoEvent = (FirmwareStatusInfoEvent) firmwareStatusInfoEventSubscriber.events.first()
             assertThat firmwareStatusInfoEvent.getTopic(), containsString(thingUID.getAsString())
             assertThat firmwareStatusInfoEvent.getThingUID(), is(thingUID)
             assertThat firmwareStatusInfoEvent.getFirmwareStatusInfo(), is(expected)
@@ -832,7 +830,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     def assertFailedFirmwareUpdate(def expectedErrorMessage) {
         waitForAssert {
             assertThat firmwareUpdateResultInfoEventSubscriber.events.size(), is(1)
-            FirmwareUpdateResultInfoEvent firmwareUpdateResultInfoEvent = (FirmwareUpdateResultInfoEvent) firmwareUpdateResultInfoEventSubscriber.events [0]
+            FirmwareUpdateResultInfoEvent firmwareUpdateResultInfoEvent = (FirmwareUpdateResultInfoEvent) firmwareUpdateResultInfoEventSubscriber.events.first()
             assertThat firmwareUpdateResultInfoEvent.getTopic(), containsString(THING1_UID.getAsString())
             assertThat firmwareUpdateResultInfoEvent.getThingUID(), is(THING1_UID)
             assertThat firmwareUpdateResultInfoEvent.getFirmwareUpdateResultInfo().getResult(), is(FirmwareUpdateResult.ERROR)
