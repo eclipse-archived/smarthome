@@ -318,6 +318,10 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
     }
 
     @Override
+    public void onServiceSubscribed(String service, boolean succeeded) {
+    }
+
+    @Override
     public void onValueReceived(String variable, String value, String service) {
     }
 
