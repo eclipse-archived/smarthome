@@ -342,6 +342,10 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     }
 
     @Override
+    public void onServiceSubscribed(String service, boolean succeeded) {
+    }
+
+    @Override
     public void onValueReceived(String variable, String value, String service) {
         logger.trace("Received pair '{}':'{}' (service '{}') for thing '{}'",
                 new Object[] { variable, value, service, this.getThing().getUID() });

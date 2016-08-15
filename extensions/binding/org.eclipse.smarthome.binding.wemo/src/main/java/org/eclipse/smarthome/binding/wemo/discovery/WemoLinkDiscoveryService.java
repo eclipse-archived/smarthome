@@ -78,7 +78,7 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
      * Job which will do the background scanning
      */
     private WemoLinkScan scanningRunnable;
-    
+
     /**
      * Schedule for scanning
      */
@@ -142,10 +142,10 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                                 "</DeviceLists>");
 
                         stringParser = StringEscapeUtils.unescapeXml(stringParser);
-                        
+
                         // check if there are already paired devices with WeMo Link
-                        if("0".equals(stringParser)) {
-                        	logger.debug("There are no devices connected with WeMo Link. Exit discovery");
+                        if ("0".equals(stringParser)) {
+                            logger.debug("There are no devices connected with WeMo Link. Exit discovery");
                             return;
                         }
 
@@ -254,6 +254,10 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
     @Override
     public String getUDN() {
         return (String) this.wemoBridgeHandler.getThing().getConfiguration().get(UDN);
+    }
+
+    @Override
+    public void onServiceSubscribed(String service, boolean succeeded) {
     }
 
     @Override

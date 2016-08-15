@@ -185,6 +185,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     }
 
     @Override
+    public void onServiceSubscribed(String service, boolean succeeded) {
+    }
+
+    @Override
     public void onValueReceived(String variable, String value, String service) {
 
         if (getThing().getStatus() == ThingStatus.ONLINE) {
