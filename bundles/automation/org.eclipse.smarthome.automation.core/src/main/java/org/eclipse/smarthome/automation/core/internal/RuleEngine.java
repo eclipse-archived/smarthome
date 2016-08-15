@@ -476,7 +476,7 @@ public class RuleEngine
                 }
 
                 if (handler != null) {
-                    ModuleHandlerFactory factory = getModuleHandlerFactory(m.getTypeUID(), ruleUID);
+                    ModuleHandlerFactory factory = getModuleHandlerFactory(m.getTypeUID());
                     if (factory != null) {
                         factory.ungetHandler(m, ruleUID, handler);
                     }
@@ -535,14 +535,14 @@ public class RuleEngine
      */
     public ModuleHandler getModuleHandler(Module m, String ruleUID) {
         String moduleTypeId = m.getTypeUID();
-        ModuleHandlerFactory mhf = getModuleHandlerFactory(moduleTypeId, ruleUID);
+        ModuleHandlerFactory mhf = getModuleHandlerFactory(moduleTypeId);
         if (mhf == null || mtManager.get(moduleTypeId) == null) {
             return null;
         }
         return mhf.getHandler(m, ruleUID);
     }
 
-    public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId, String rUID) {
+    public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
         ModuleHandlerFactory mhf = moduleHandlerFactories.get(moduleTypeId);
         if (mhf == null) {
             ModuleType mt = mtManager.get(moduleTypeId);

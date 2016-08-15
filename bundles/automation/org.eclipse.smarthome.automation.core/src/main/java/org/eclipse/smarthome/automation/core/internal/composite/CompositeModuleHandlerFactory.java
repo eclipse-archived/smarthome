@@ -78,41 +78,46 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
 
     @SuppressWarnings({ "unchecked" })
     @Override
-    public void ungetHandler(Module module, String ruleUID, ModuleHandler handler) {
-        ModuleHandler handlerOfModule = handlers.get(ruleUID + module.getId());
+    public void ungetHandler(Module module, String childModulePrefix, ModuleHandler handler) {
+        ModuleHandler handlerOfModule = handlers.get(childModulePrefix + module.getId());
         if (handlerOfModule instanceof AbstractCompositeModuleHandler) {
             AbstractCompositeModuleHandler<Module, ?, ?> h = (AbstractCompositeModuleHandler<Module, ?, ?>) handlerOfModule;
             Set<Module> modules = h.moduleHandlerMap.keySet();
             if (modules != null) {
                 for (Module child : modules) {
                     ModuleHandler childHandler = h.moduleHandlerMap.get(child);
-                    ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID(), ruleUID);
-                    mhf.ungetHandler(child, ruleUID, childHandler);
+                    ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
+                    mhf.ungetHandler(child, childModulePrefix + ":" + module.getId(), childHandler);
                 }
             }
         }
-        super.ungetHandler(module, ruleUID, handler);
+        String ruleId = getRuleId(childModulePrefix);
+        super.ungetHandler(module, ruleId, handler);
+    }
+
+    private String getRuleId(String childModulePrefix) {
+        int i = childModulePrefix.indexOf(':');
+        String ruleId = i != -1 ? childModulePrefix.substring(0, i) : childModulePrefix;
+        return ruleId;
     }
 
     @Override
     public ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler handler = null;
         if (module != null) {
-            logger.debug("create composite module:" + module.getId() + ", of rule: " + ruleUID);
             String moduleType = module.getTypeUID();
-
             ModuleType mt = mtManager.get(moduleType);
             if (mt instanceof CompositeTriggerType) {
                 List<Trigger> childModules = ((CompositeTriggerType) mt).getChildren();
-                LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler = getChildHandlers(module.getConfiguration(),
-                        childModules, ruleUID);
+                LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler = getChildHandlers(module.getId(),
+                        module.getConfiguration(), childModules, ruleUID);
                 if (mapModuleToHandler != null) {
                     handler = new CompositeTriggerHandler((Trigger) module, (CompositeTriggerType) mt,
                             mapModuleToHandler, ruleUID);
                 }
             } else if (mt instanceof CompositeConditionType) {
                 List<Condition> childModules = ((CompositeConditionType) mt).getChildren();
-                LinkedHashMap<Condition, ConditionHandler> mapModuleToHandler = getChildHandlers(
+                LinkedHashMap<Condition, ConditionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
                         module.getConfiguration(), childModules, ruleUID);
                 if (mapModuleToHandler != null) {
                     handler = new CompositeConditionHandler((Condition) module, (CompositeConditionType) mt,
@@ -120,45 +125,55 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
                 }
             } else if (mt instanceof CompositeActionType) {
                 List<Action> childModules = ((CompositeActionType) mt).getChildren();
-                LinkedHashMap<Action, ActionHandler> mapModuleToHandler = getChildHandlers(module.getConfiguration(),
-                        childModules, ruleUID);
+                LinkedHashMap<Action, ActionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
+                        module.getConfiguration(), childModules, ruleUID);
                 if (mapModuleToHandler != null) {
                     handler = new CompositeActionHandler((Action) module, (CompositeActionType) mt, mapModuleToHandler,
                             ruleUID);
                 }
             }
+            if (handler != null) {
+                logger.debug("Set module handler: {}  -> {} of rule {}.", module.getId(),
+                        handler.getClass().getSimpleName() + "(" + moduleType + ")", ruleUID);
+            } else {
+                logger.debug("Not found module handler {} for moduleType {} of rule {}.", module.getId(), moduleType,
+                        ruleUID);
+            }
         }
 
-        logger.debug("Set handler to child module: {}  -> {}.", module,
-                handler != null ? handler.getClass().getSimpleName() : "null");
         return handler;
     }
 
     /**
      * This method associates module handlers to the child modules of composite module types. It links module types of
      * child modules to the rule which contains this composite module. It also resolve links between child configuration
-     * properties and configuration of composite module see: {@link #resolveConfigurationProperties(Map, Module)}.
+     * properties and configuration of composite module see:
+     * {@link #ReferenceResolverUtil.updateModuleConfiguration(Module, Map)}.
      *
      * @param compositeConfig configuration values of composite module.
      * @param childModules list of child modules
-     * @param ruleUID UID of rule where the composite module is participating
+     * @param childModulePrefix defines UID of child module. The rule id is not enough for prefix when a composite type
+     *            is used more then one time in one and the same rule. For example the prefix can be:
+     *            ruleId:compositeModuleId:compositeModileId2.
      * @return map of pairs of module and its handler. Return null when some of the child modules can not find its
      *         handler.
      */
     @SuppressWarnings("unchecked")
-    private <T extends Module, MT extends ModuleHandler> LinkedHashMap<T, MT> getChildHandlers(
-            Configuration compositeConfig, List<T> childModules, String ruleUID) {
+    private <T extends Module, MT extends ModuleHandler> LinkedHashMap<T, MT> getChildHandlers(String compositeModuleId,
+            Configuration compositeConfig, List<T> childModules, String childModulePrefix) {
         LinkedHashMap<T, MT> mapModuleToHandler = new LinkedHashMap<T, MT>();
         for (T child : childModules) {
-            ruleEngine.updateMapModuleTypeToRule(ruleUID, child.getTypeUID());
-            ModuleHandlerFactory childMhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID(), ruleUID);
+            String ruleId = getRuleId(childModulePrefix);
+            ruleEngine.updateMapModuleTypeToRule(ruleId, child.getTypeUID());
+            ModuleHandlerFactory childMhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
             if (childMhf == null) {
                 mapModuleToHandler.clear();
                 mapModuleToHandler = null;
                 return null;
             }
             ReferenceResolverUtil.updateModuleConfiguration(child, compositeConfig.getProperties());
-            MT childHandler = (MT) childMhf.getHandler(child, ruleUID);
+            MT childHandler = (MT) childMhf.getHandler(child, childModulePrefix + ":" + compositeModuleId);
+
             if (childHandler == null) {
                 mapModuleToHandler.clear();
                 mapModuleToHandler = null;
@@ -169,32 +184,6 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
 
         }
         return mapModuleToHandler;
-    }
-
-    /**
-     * Resolves links between child configuration property values and composite config property ones.
-     * When the child configuration value is a string and start "$" sign, the rest of value is a
-     * name of configuration property of composite type. This method gets this composite configuration value and sets
-     * it as child configuration values.
-     *
-     * @param compositeConfig configuration of composite module type.
-     * @param child child module of composite module type.
-     */
-    private void resolveConfigurationProperties(Map<String, Object> compositeConfig, Module child) {
-        Configuration childConfig = child.getConfiguration();
-        for (String key : childConfig.keySet()) {
-            Object value = childConfig.get(key);
-            if (value != null && value instanceof String) {
-                String ref = (String) value;
-                if (ref.startsWith("$") && ref.length() > 1) {
-                    ref = ref.substring(1);
-                    Object o = compositeConfig.get(ref);
-                    if (o != null) {
-                        childConfig.put(key, o);
-                    }
-                }
-            }
-        }
     }
 
     @Override

@@ -201,7 +201,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                 } else {
                     final GenericEventTriggerHandler triggerHandler = new GenericEventTriggerHandler((Trigger) module,
                             this.bundleContext);
-                    handlers.put(ruleUID + module.getId(), triggerHandler);
                     return triggerHandler;
                 }
             }
@@ -215,7 +214,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     final ItemStateConditionHandler conditionHandler = new ItemStateConditionHandler(
                             (Condition) module);
                     conditionHandler.setItemRegistry(itemRegistry);
-                    handlers.put(ruleUID + module.getId(), conditionHandler);
                     return conditionHandler;
                 }
             } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
@@ -223,7 +221,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     return handler;
                 } else {
                     final EventConditionHandler eventConditionHandler = new EventConditionHandler((Condition) module);
-                    handlers.put(ruleUID + module.getId(), eventConditionHandler);
                     return eventConditionHandler;
                 }
             } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
@@ -232,7 +229,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                 } else {
                     final CompareConditionHandler compareConditionHandler = new CompareConditionHandler(
                             (Condition) module);
-                    handlers.put(ruleUID + module.getId(), compareConditionHandler);
                     return compareConditionHandler;
                 }
             }
@@ -247,7 +243,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                             (Action) module);
                     postCommandActionHandler.setEventPublisher(eventPublisher);
                     postCommandActionHandler.setItemRegistry(itemRegistry);
-                    handlers.put(ruleUID + module.getId(), postCommandActionHandler);
                     return postCommandActionHandler;
                 }
             }
