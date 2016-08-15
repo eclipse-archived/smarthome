@@ -17,8 +17,8 @@
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.digitalstrom</artifactId>
   <version>0.9.0-SNAPSHOT</version>
-  
-  <name>DigitalSTROM Binding</name>
+
+  <name>Eclipse SmartHome DigitalSTROM Binding</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>
