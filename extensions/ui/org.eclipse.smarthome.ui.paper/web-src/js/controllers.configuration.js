@@ -164,20 +164,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             });
         });
     };
-    $scope.add = function(serviceId, event) {
-        $mdDialog.show({
-            controller : 'ConfigureServiceDialogController',
-            templateUrl : 'partials/dialog.configureservice.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            locals : {
-                serviceId : undefined,
-                configDescriptionURI : undefined
-            }
-        }).then(function() {
-            $scope.refresh();
-        });
-    }
     $scope.configure = function(serviceId, configDescriptionURI, event) {
         $mdDialog.show({
             controller : 'ConfigureServiceDialogController',
