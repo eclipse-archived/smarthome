@@ -23,6 +23,9 @@
                     <span class="side-menu">Configuration</span>
                 </a>
                 <ul ng-show="isActive('configuration')">
+                    <li ng-class="{active: isSubActive('system')}">
+                        <a href="#configuration/system">System</a>
+                    </li>
                     <li ng-class="{active: isSubActive('bindings')}">
                         <a href="#configuration/bindings">Bindings</a>
                     </li>
