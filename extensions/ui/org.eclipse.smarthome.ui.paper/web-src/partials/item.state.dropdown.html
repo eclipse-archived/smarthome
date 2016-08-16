@@ -1,7 +1,6 @@
 
 <div layout="row" layout-align="end center" flex="100">
 	<div class="container options">
-		<md-select placeholder="Select" class="controlSelect" ng-model="item.state" ng-change="optionListChanged()" ng-disabled="isReadOnly(item)" aria-label={{item.label}}> <md-option ng-value="option.value" ng-repeat="option in item.stateDescription.options"> {{option.label}} ({{option.value}}) </md-option> </md-select>
+		<md-select placeholder="Select" class="controlSelect" ng-model="item.state" ng-change="optionListChanged()" aria-label={{item.label}}> <md-option ng-value="option.value" ng-repeat="option in item.stateDescription.options"> {{option.label}} ({{option.value}}) </md-option> </md-select>
 	</div>
 </div>
-
