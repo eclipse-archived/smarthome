@@ -63,9 +63,10 @@ public abstract class BaseBridgeHandler extends BaseThingHandler {
      */
     @Override
     protected BridgeBuilder editThing() {
-        return (BridgeBuilder) BridgeBuilder.create(this.thing.getThingTypeUID(), this.thing.getUID())
+        return BridgeBuilder.create(this.thing.getThingTypeUID(), this.thing.getUID())
                 .withBridge(this.thing.getBridgeUID()).withChannels(this.thing.getChannels())
-                .withConfiguration(this.thing.getConfiguration());
+                .withConfiguration(this.thing.getConfiguration()).withLabel(this.thing.getLabel())
+                .withLocation(this.thing.getLocation()).withProperties(this.thing.getProperties());
     }
 
 }
