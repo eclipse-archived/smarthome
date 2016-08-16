@@ -14,4 +14,6 @@
       <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry"/>
    </service>
    <reference bind="addDiscoveryService" cardinality="0..n" interface="org.eclipse.smarthome.config.discovery.DiscoveryService" name="DiscoveryService" policy="dynamic" unbind="removeDiscoveryService"/>
+   <reference bind="setThingRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="dynamic" unbind="unsetThingRegistry"/>
+   <reference bind="setInbox" cardinality="0..1" interface="org.eclipse.smarthome.config.discovery.inbox.Inbox" name="Inbox" policy="dynamic" unbind="unsetInbox"/>
 </scr:component>
