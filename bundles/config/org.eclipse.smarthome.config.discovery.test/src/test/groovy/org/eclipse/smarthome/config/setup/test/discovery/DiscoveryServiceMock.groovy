@@ -17,8 +17,8 @@ import org.eclipse.smarthome.core.thing.ThingUID
  * The {@link DiscoveryServiceMock} is a mock for a {@link DiscoveryService}
  * which can simulate a working and faulty discovery.<br>
  * If this mock is configured to be faulty, an exception is thrown if the
- * discovery is enforced or aborted. 
- * 
+ * discovery is enforced or aborted.
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
  */
