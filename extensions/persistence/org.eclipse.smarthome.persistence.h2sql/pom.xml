@@ -9,7 +9,7 @@
 		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
-	<name>H2SQL Persistence Service</name>
+	<name>Eclipse SmartHome H2SQL Persistence Service</name>
 
 	<properties>
 		<bundle.symbolicName>org.eclipse.smarthome.persistence.h2sql</bundle.symbolicName>
