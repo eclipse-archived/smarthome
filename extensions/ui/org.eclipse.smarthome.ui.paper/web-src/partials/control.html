@@ -55,7 +55,7 @@
 															<i class="material-icons">{{getIcon(item.category, 'brightness_medium')}}</i>{{getLabel(item.category, item.label, 'Dimmer')}}
 														</p>
 													</div>
-													<div ng-if="!isOptionList(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
+													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
 														<h2>{{item.state}}%</h2>
 													</div>
 												</div>
@@ -98,7 +98,7 @@
 														<md-slider class="md-default-theme" flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)" aria-label="{{item.label}} saturation"></md-slider>
 													</div>
 												</div>
-												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center" class="dimmer-widget">
+												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
 													<h2>{{item.state}}</h2>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
@@ -191,7 +191,7 @@
 															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Contact')}}
 														</p>
 													</div>
-													<div ng-if="!isOptionList(item)" flex="60" layout="row" layout-align="end center">
+													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
 														<h2 class="state">{{getStateText(item)}}</h2>
 													</div>
 												</div>
