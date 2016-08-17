@@ -7,17 +7,21 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUnknownInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpToDateInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateAvailableInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateExecutableInfo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -26,15 +30,20 @@ import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroundTransferHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +57,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * @author Thomas Höfer - Initial contribution
  */
-public final class FirmwareUpdateService {
+public final class FirmwareUpdateService implements EventSubscriber {
 
     private static final String THREAD_POOL_NAME = FirmwareUpdateService.class.getSimpleName();
     private static final Set<String> SUPPORTED_TIME_UNITS = ImmutableSet.of(TimeUnit.SECONDS.name(),
@@ -61,14 +70,16 @@ public final class FirmwareUpdateService {
     private final Logger logger = LoggerFactory.getLogger(FirmwareUpdateService.class);
 
     private int firmwareStatusInfoJobPeriod = 3600;
-    private int firmwareStatusInfoJobDelay = 1;
+    private int firmwareStatusInfoJobDelay = 3600;
     private TimeUnit firmwareStatusInfoJobTimeUnit = TimeUnit.SECONDS;
 
     private ScheduledFuture<?> firmwareStatusInfoJob;
 
     private int timeout = 30 * 60 * 1000;
 
-    private final Map<ThingUID, FirmwareStatusInfo> firmwareStatusInfoMap = new HashMap<>();
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingStatusInfoChangedEvent.TYPE);
+
+    private final Map<ThingUID, FirmwareStatusInfo> firmwareStatusInfoMap = new ConcurrentHashMap<>();
 
     private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
     private FirmwareRegistry firmwareRegistry;
@@ -200,7 +211,7 @@ public final class FirmwareUpdateService {
 
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
 
-        ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).submit(new Runnable() {
+        getPool().submit(new Runnable() {
             @Override
             public void run() {
                 final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler,
@@ -229,6 +240,32 @@ public final class FirmwareUpdateService {
         });
     }
 
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return subscribedEventTypes;
+    }
+
+    @Override
+    public EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ThingStatusInfoChangedEvent) {
+            ThingStatusInfoChangedEvent changedEvent = (ThingStatusInfoChangedEvent) event;
+            if (changedEvent.getStatusInfo().getStatus() != ThingStatus.ONLINE) {
+                return;
+            }
+
+            ThingUID thingUID = changedEvent.getThingUID();
+            FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
+            if (firmwareUpdateHandler != null && !firmwareStatusInfoMap.containsKey(thingUID)) {
+                initializeFirmwareStatus(firmwareUpdateHandler);
+            }
+        }
+    }
+
     private FirmwareStatusInfo getFirmwareStatusInfo(FirmwareUpdateHandler firmwareUpdateHandler,
             Firmware latestFirmware) {
         String thingFirmwareVersion = getThingFirmwareVersion(firmwareUpdateHandler);
@@ -240,9 +277,8 @@ public final class FirmwareUpdateService {
         if (latestFirmware.isSuccessorVersion(thingFirmwareVersion)) {
             if (firmwareUpdateHandler.isUpdateExecutable()) {
                 return createUpdateExecutableInfo(latestFirmware.getUID());
-            } else {
-                return createUpdateAvailableInfo();
             }
+            return createUpdateAvailableInfo();
         }
 
         return createUpToDateInfo();
@@ -268,7 +304,7 @@ public final class FirmwareUpdateService {
 
     private void transferLatestFirmware(final FirmwareUpdateBackgroundTransferHandler fubtHandler,
             final Firmware latestFirmware, final FirmwareStatusInfo previousFirmwareStatusInfo) {
-        ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).submit(new Runnable() {
+        getPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -333,9 +369,8 @@ public final class FirmwareUpdateService {
             logger.debug("Creating firmware status info job. [delay:{}, period:{}, time unit: {}]",
                     firmwareStatusInfoJobDelay, firmwareStatusInfoJobPeriod, firmwareStatusInfoJobTimeUnit);
 
-            firmwareStatusInfoJob = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).scheduleAtFixedRate(
-                    firmwareStatusRunnable, firmwareStatusInfoJobDelay, firmwareStatusInfoJobPeriod,
-                    firmwareStatusInfoJobTimeUnit);
+            firmwareStatusInfoJob = getPool().scheduleAtFixedRate(firmwareStatusRunnable, firmwareStatusInfoJobDelay,
+                    firmwareStatusInfoJobPeriod, firmwareStatusInfoJobTimeUnit);
         }
     }
 
@@ -364,6 +399,22 @@ public final class FirmwareUpdateService {
         }
 
         return true;
+    }
+
+    private void initializeFirmwareStatus(final FirmwareUpdateHandler firmwareUpdateHandler) {
+        getPool().submit(new Runnable() {
+            @Override
+            public void run() {
+                ThingUID thingUID = firmwareUpdateHandler.getThing().getUID();
+                FirmwareStatusInfo info = getFirmwareStatusInfo(thingUID);
+                logger.debug("Firmware status {} for thing {} initialized.", info.getFirmwareStatus(), thingUID);
+                firmwareStatusInfoMap.put(thingUID, info);
+            }
+        });
+    }
+
+    private static ScheduledExecutorService getPool() {
+        return ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
     }
 
     protected synchronized void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
