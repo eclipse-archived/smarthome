@@ -28,6 +28,16 @@ In the thing file, this looks e.g. like
 ```
 wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
 ```
+For a WeMo Link bridge and paired LED Lights, please use the following Thing definition
+
+```
+Bridge wemo:bridge:Bridge-1_0-231445B01006A0 [udn="Bridge-1_0-231445B010xxxx"] {
+MZ100 94103EA2B278xxxx [ deviceID="94103EA2B278xxxx" ]
+MZ100 94103EA2B278xxxx [ deviceID="94103EA2B278xxxx" ]
+}
+```
+
+
 
 ## Channels
 
@@ -55,6 +65,11 @@ demo.things:
 
 ```
 wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
+wemo:motion:Sensor1 [udn="Sensor-1_0-221337L11xxxxx"]
+Bridge wemo:bridge:Bridge-1_0-231445B010xxxx [udn="Bridge-1_0-231445B010xxxx"] {
+MZ100 94103EA2B278xxxx [ deviceID="94103EA2B278xxxx" ]
+MZ100 94103EA2B278xxxx [ deviceID="94103EA2B278xxxx" ]
+}
 ```
 
 demo.items:
@@ -62,11 +77,15 @@ demo.items:
 ```
 Switch DemoSwitch    { channel="wemo:socket:Switch1:state" }
 Switch LightSwitch   { channel="wemo:lightswitch:Lightswitch1:state" }
-Switch MotionSensor  { channel="wemo:Motion:Sensor1:state" }
+Switch MotionSensor  { channel="wemo:Motion:Sensor1:motionDetection" }
 Number InsightPower  { channel="wemo:insight:Insight1:currentPower" }
 Number InsightLastOn { channel="wemo:insight:Insight1:lastOnFor" }
 Number InsightToday  { channel="wemo:insight:Insight1:onToday" }
 Number InsightTotal  { channel="wemo:insight:Insight1:onTotal" }
+Switch LED1 { channel="wemo:MZ100:Bridge-1_0-231445B010xxxx:94103EA2B278xxxx:state" }
+Dimmer dLED1 { channel="wemo:MZ100:Bridge-1_0-231445B010xxxx:94103EA2B278xxxx:brightness" }
+Switch LED2 { channel="wemo:MZ100:Bridge-1_0-231445B010xxxx:94103EA2B278xxxx:state" }
+Dimmer dLED2 { channel="wemo:MZ100:Bridge-1_0-231445B010xxxx:94103EA2B278xxxx:brightness" }
 ```
 
 demo.sitemap:
@@ -82,6 +101,10 @@ sitemap demo label="Main Menu"
 			Number item=InsightLastOn
 			Number item=InsightToday
 			Number item=InsightTotal
+			Switch item=LED1
+			Slider item=dLED1
+			Switch item=LED2
+			Slider item=dLED2
 		}
 }
 ```
