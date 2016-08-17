@@ -63,10 +63,18 @@ public class ItemDTOMapper {
                 newItem = createItem(itemType, itemDTO.name, itemFactories);
             }
             if (newItem != null) {
-                newItem.setLabel(itemDTO.label);
-                newItem.setCategory(itemDTO.category);
-                newItem.addGroupNames(itemDTO.groupNames);
-                newItem.addTags(itemDTO.tags);
+                if (itemDTO.label != null) {
+                    newItem.setLabel(itemDTO.label);
+                }
+                if (itemDTO.category != null) {
+                    newItem.setCategory(itemDTO.category);
+                }
+                if (itemDTO.groupNames != null) {
+                    newItem.addGroupNames(itemDTO.groupNames);
+                }
+                if (itemDTO.tags != null) {
+                    newItem.addTags(itemDTO.tags);
+                }
             }
         }
         return newItem;
