@@ -326,6 +326,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     };
 
 }).controller('SwitchItemController', function($scope, $timeout, itemService) {
+    if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
+        $scope.item.state = '-';
+    }
     $scope.setOn = function(state) {
         $scope.sendCommand(state);
     }
@@ -371,6 +374,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     });
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
 
+    if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
+        $scope.item.state = '-';
+    }
     function getStateAsObject(state) {
         var stateParts = state.split(",");
         if (stateParts.length == 3) {
