@@ -42,8 +42,11 @@
 													<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="!isOptionList(item)">
 														<md-switch class="md-default-theme" ng-disabled="isReadOnly(item)" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
 													</div>
+													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget" ng-if="isReadOnly(item)">
+														<h2>{{item.state}}</h2>
+													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Dimmer" ng-controller="DimmerItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
@@ -52,12 +55,12 @@
 															<i class="material-icons">{{getIcon(item.category, 'brightness_medium')}}</i>{{getLabel(item.category, item.label, 'Dimmer')}}
 														</p>
 													</div>
-													<div ng-if="!isOptionList(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
+													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
 														<h2>{{item.state}}%</h2>
 													</div>
 												</div>
-												<md-slider ng-if="!isOptionList(item)" class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
-												<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="showSwitch(item.category) && !isOptionList(item)">
+												<md-slider ng-if="!isOptionList(item) && !isReadOnly(item)" class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
+												<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="showSwitch(item.category) && !isOptionList(item) && !isReadOnly(item)">
 													<div flex="40">
 														<p>Off/On</p>
 													</div>
@@ -65,7 +68,7 @@
 														<md-switch class="md-default-theme" ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Color" ng-controller="ColorItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
@@ -74,12 +77,12 @@
 															<i class="material-icons">wb_incandescent</i>{{getLabel(item.category, null, 'Color')}}
 														</p>
 													</div>
-													<div ng-if="!isOptionList(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
+													<div ng-if="!isOptionList(item) && !isReadOnly(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
 
 														<md-slider class="hue md-default-theme" flex min="0" max="360" ng-model="hue" ng-change="setHue(hue)" aria-label="{{item.label}} hue"></md-slider>
 													</div>
 												</div>
-												<div ng-if="!isOptionList(item)" layout="row" layout-align="start center" class="dimmer-widget">
+												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p class="">Brightness</p>
 													</div>
@@ -87,7 +90,7 @@
 														<md-slider class="md-default-theme" flex min="0" max="100" ng-model="brightness" ng-change="setBrightness(brightness)" aria-label="{{item.label}} brightness"></md-slider>
 													</div>
 												</div>
-												<div ng-if="!isOptionList(item)" layout="row" layout-align="start center" class="dimmer-widget">
+												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p class="">Saturation</p>
 													</div>
@@ -95,10 +98,13 @@
 														<md-slider class="md-default-theme" flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)" aria-label="{{item.label}} saturation"></md-slider>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
+													<h2>{{item.state}}</h2>
+												</div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Number" ng-controller="NumberItemController">
-												<div ng-if="!isOptionList(item)">
+												<div>
 													<div layout="row" layout-align="start center">
 														<div flex="40" layout="row" layout-align="start center">
 															<p>
@@ -124,7 +130,7 @@
 														<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Rollershutter" ng-controller="RollershutterItemController">
 												<div layout="row" layout-align="start center">
@@ -150,7 +156,10 @@
 														</button>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
+													<h2>{{item.state}}</h2>
+												</div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Player" ng-controller="PlayerItemController">
 												<div layout="row" layout-align="end center">
@@ -182,11 +191,11 @@
 															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Contact')}}
 														</p>
 													</div>
-													<div ng-if="!isOptionList(item)" flex="60" layout="row" layout-align="end center">
+													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
 														<h2 class="state">{{getStateText(item)}}</h2>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Location" ng-controller="LocationItemController">
 												<div layout="row" layout-align="start center">
@@ -199,7 +208,7 @@
 														<iframe width="100%" ng-src="{{url}}"></iframe>
 													</div>
 												</div>
-												<div layout="row" layout-align="start center" ng-if="!isOptionList(item)">
+												<div layout="row" layout-align="start center">
 													<div ng-show="isReadOnly(item)" layout="row" layout-align="end center">
 														<h2 class="state" ng-if="isReadOnly(item)">{{formattedState}}</h2>
 													</div>
@@ -211,7 +220,7 @@
 														</button>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item)"></div>
+												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Image" ng-controller="ImageItemController">
 												<div layout-align="start center" layout="row">
@@ -257,7 +266,7 @@
 												</div>
 
 												<!-- for option list selection -->
-												<div layout="row" layout-align="start center" ng-show="isOptionList(item)" item-state-dropdown></div>
+												<div layout="row" layout-align="start center" ng-show="isOptionList(item) && !isReadOnly(item)" item-state-dropdown></div>
 											</div>
 										</div>
 									</div>
