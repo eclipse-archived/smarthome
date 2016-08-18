@@ -121,6 +121,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
+        linkRegistryServiceTracker.close();
         thingRegistryServiceTracker.close();
         this.bundleContext = null;
     }
