@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +18,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -52,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Höfer - Added thing properties and config description validation
  * @author Stefan Bußweiler - Added new thing status handling, refactorings thing life cycle
  * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
+ * @author Chris Jackson - Added i18 helper method
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -64,6 +68,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ThingRegistry thingRegistry;
     protected ItemChannelLinkRegistry linkRegistry;
     protected BundleContext bundleContext;
+    protected I18nProvider i18nProvider;
 
     protected Thing thing;
 
@@ -71,6 +76,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     private ServiceTracker thingRegistryServiceTracker;
     @SuppressWarnings("rawtypes")
     private ServiceTracker linkRegistryServiceTracker;
+
+    private ServiceTracker<I18nProvider, I18nProvider> i18nProviderServiceTracker;
 
     private ThingHandlerCallback callback;
 
@@ -102,6 +109,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
+
         linkRegistryServiceTracker = new ServiceTracker(this.bundleContext, ItemChannelLinkRegistry.class.getName(),
                 null) {
             @Override
@@ -118,10 +126,28 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         linkRegistryServiceTracker.open();
+
+        i18nProviderServiceTracker = new ServiceTracker(this.bundleContext, I18nProvider.class.getName(), null) {
+            @Override
+            public Object addingService(final ServiceReference reference) {
+                i18nProvider = (I18nProvider) bundleContext.getService(reference);
+                return i18nProvider;
+            }
+
+            @Override
+            public void removedService(final ServiceReference reference, final Object service) {
+                synchronized (BaseThingHandler.this) {
+                    i18nProvider = null;
+                }
+            }
+        };
+        i18nProviderServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
+        i18nProviderServiceTracker.close();
+
         this.bundleContext = null;
     }
 
@@ -549,6 +575,47 @@ public abstract class BaseThingHandler implements ThingHandler {
         } else {
             throw new IllegalStateException("Could not change thing type because callback is missing");
         }
+    }
+
+    /**
+     * Returns a translation for the specified key in the specified locale (language) by only considering the
+     * translations within the specified module.
+     *
+     * If no translation could be found, the specified default text is returned.
+     * If the specified locale is null, the default locale is used.
+     *
+     * @param key the key to be translated (could be null or empty)
+     * @param defaultText the default text to be used (could be null or empty)
+     * @param locale the locale (language) to be used (could be null)
+     * @return the translated text or the default text (could be null or empty)
+     */
+    protected String getText(String key, String defaultText, Locale locale) {
+        if (i18nProvider == null) {
+            return defaultText;
+        }
+        return i18nProvider.getText(bundleContext.getBundle(), key, defaultText, locale);
+    }
+
+    /**
+     * Returns a translation for the specified key in the specified locale (language) by only
+     * considering the translations within the binding. The operation will inject the
+     * given arguments into the translation.
+     * <p>
+     * If no translation could be found, the specified default text is returned.<br>
+     * If the specified locale is {@code null}, the default locale is used.
+     *
+     * @param key the key to be translated (could be null or empty)
+     * @param defaultText the default text to be used (could be null or empty)
+     * @param locale the locale (language) to be used (could be null)
+     * @param arguments the arguments to be injected into the translation (could be null)
+     *
+     * @return the translated text or the default text (could be null or empty)
+     */
+    protected String getText(String key, String defaultText, Locale locale, Object... arguments) {
+        if (i18nProvider == null) {
+            return MessageFormat.format(defaultText, arguments);
+        }
+        return i18nProvider.getText(bundleContext.getBundle(), key, defaultText, locale, arguments);
     }
 
 }

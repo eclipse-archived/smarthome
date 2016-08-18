@@ -186,3 +186,6 @@ If one binding supports the German language and another does not, it might occur
 
 For Binding Info and ConfigDescription, the localized objects can be retrieved via the `BindingInfoRegistry` and the `ConfigDescriptionRegistry` in the same manner as described for Thing Types.
 
+## Internationalising Strings within Bindings
+
+The BaseThingHandler contains a helper method `getText(String key, String defaultText, Locale locale)` to call the `I18nProvider.getText` methods.
