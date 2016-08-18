@@ -46,7 +46,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         if (itemName) {
             var items = $filter('filter')(items, {
                 name : itemName
-            });
+            }, true);
             if (items.length > 0) {
                 $scope.item = items[0];
                 setFunctionToItem();
@@ -181,10 +181,6 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             $scope.functions = itemConfig.logicalFunctions;
         }
     });
-
-    $scope.resetFunction = function() {
-
-    }
 
 }).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemRepository, item) {
     $scope.item = item;
