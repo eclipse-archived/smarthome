@@ -36,7 +36,6 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.selectedParent = null;
     $scope.searchText = null;
     $scope.childItems = [];
-    $scope.groupNames = [];
     var itemName;
     var originalItem = {};
     if ($scope.path && $scope.path.length > 4) {
@@ -47,7 +46,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         if (itemName) {
             var items = $filter('filter')(items, {
                 name : itemName
-            });
+            }, true);
             if (items.length > 0) {
                 $scope.item = items[0];
                 setFunctionToItem();
@@ -68,9 +67,11 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }
         } else {
             $scope.item = {};
+            $scope.item.groupNames = [];
             $scope.setTitle('Configuration');
             $scope.setSubtitle([ 'New Item' ]);
             $scope.configMode = "create";
+
         }
 
     });
@@ -78,13 +79,14 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.update = function() {
         putItem("Item updated.");
     }
-    $scope.create = function(item) {
+    $scope.create = function() {
         putItem("Item created.");
     }
 
     function putItem(text) {
-        if ($scope.item.type !== "Group" || $scope.item.groupType == "None") {
-            $scope.item['function'] = null;
+        if ($scope.item.type !== "Group") {
+            delete $scope.item['function'];
+            delete $scope.item.groupType;
         } else {
             setItemToFunction();
         }
@@ -179,12 +181,6 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             $scope.functions = itemConfig.logicalFunctions;
         }
     });
-
-    $scope.resetFunction = function() {
-        if ($scope.item.groupType != originalItem.groupType) {
-            $scope.item['function'].name = "";
-        }
-    }
 
 }).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemRepository, item) {
     $scope.item = item;
