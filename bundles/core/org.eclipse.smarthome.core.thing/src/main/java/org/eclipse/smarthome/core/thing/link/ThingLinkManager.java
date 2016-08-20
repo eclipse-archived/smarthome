@@ -191,6 +191,11 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     };
 
     private void informHandlerAboutLinkedChannel(Thing thing, Channel channel) {
+        // Don't notify the thing if the thing isn't initialised
+        if (thing.getStatus() != ThingStatus.ONLINE && thing.getStatus() != ThingStatus.OFFLINE) {
+            return;
+        }
+
         ThingHandler handler = thing.getHandler();
         if (handler != null) {
             try {
@@ -205,6 +210,11 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     }
 
     private void informHandlerAboutUnlinkedChannel(Thing thing, Channel channel) {
+        // Don't notify the thing if the thing isn't initialised
+        if (thing.getStatus() != ThingStatus.ONLINE && thing.getStatus() != ThingStatus.OFFLINE) {
+            return;
+        }
+
         ThingHandler handler = thing.getHandler();
         if (handler != null) {
             try {
