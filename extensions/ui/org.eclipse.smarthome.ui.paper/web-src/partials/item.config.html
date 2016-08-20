@@ -49,16 +49,16 @@
 							</div>
 							</md-input-container>
 						</div>
-						<div class="parameter col-sm-6 col-xs-12" ng-show="item.type=='Group'">
+						<div class="parameter col-sm-6 col-xs-12" ng-if="item.type=='Group'">
 							<label for="itemType" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Base type</label>
-							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="itemBaseType" ng-model="item.groupType" ng-change="resetFunction()"> <md-option ng-value="option" ng-repeat="option in groupTypes"> <span style="display: inline-block;"> {{option}} </span> </md-option> </md-select>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="itemBaseType" ng-model="item.groupType"> <md-option ng-value="option" ng-repeat="option in groupTypes"> <span style="display: inline-block;"> {{option}} </span> </md-option> </md-select>
 							<div ng-messages="form.itemForm.itemBaseType.$error">
 								<div ng-message="required">Field is required</div>
 							</div>
 							</md-input-container>
 						</div>
 					</div>
-					<div class="row" ng-show="item.type=='Group' && item.groupType && item.groupType!='None'">
+					<div class="row" ng-if="item.type=='Group' && item.groupType && item.groupType!='None'">
 						<div class="parameter col-sm-6 col-xs-12">
 							<label for="itemType" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Function</label>
 							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" name="function" ng-model="item.function.name"> <md-option ng-value="option.name" ng-repeat="option in functions"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select> </md-input-container>
