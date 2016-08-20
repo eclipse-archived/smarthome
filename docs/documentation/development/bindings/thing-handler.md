@@ -266,3 +266,7 @@ The framework will take care of internationalizing the messages. For this purpos
 * config-status.warning.any-suffix
 * config-status.error.any-suffix
 * config-status.pending.any-suffix
+
+## Internationalising Strings
+
+The BaseThingHandler contains a helper method `getText(String key, String defaultText, Locale locale)` to call the `I18nProvider.getText` methods.
