@@ -181,11 +181,7 @@ for FILE in \
   docs/documentation/community/downloads.md \
   docs/pom.xml \
   extensions/binding/create_binding_skeleton.cmd \
-  extensions/binding/create_binding_skeleton.sh \
-  protocols/enocean/org.eclipse.smarthome.protocols.enocean.basedriver.impl/pom.xml \
-  protocols/enocean/org.eclipse.smarthome.protocols.enocean.eeps.basic/pom.xml \
-  protocols/enocean/org.eclipse.smarthome.protocols.enocean.sample.client/pom.xml \
-  protocols/enocean/pom.xml
+  extensions/binding/create_binding_skeleton.sh
 do
   sed 's:'"${VERSION_OLD}"':'"${VERSION_NEW}"':g' -i "${FILE}"
 done
@@ -197,12 +193,6 @@ done
 #do
 #  sed 's:\("version"\: *"\).*\(".*\):\1'"${VERSION_NEW_MMR}"'\2:g' -i "${FILE}"
 #done
-
-for FILE in \
-   protocols/enocean/README.md
-do
-  sed 's:\(org\.eclipse\.smarthome.* (\)'"${VERSION_OLD_MMR}"')\(.*\):\1'"${VERSION_NEW_MMR}"')\2:g' -i "${FILE}"
-done
 
 #
 # Check if maven could build
