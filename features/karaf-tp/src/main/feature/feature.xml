@@ -141,9 +141,9 @@
   </feature>
 
   <feature name="esh-tp-jmdns" description="An implemenation of multi-cast DNS in Java." version="${project.version}">
-    <capability>esh.tp;feature=jmdns;version=3.5.0</capability>
+    <capability>esh.tp;feature=jmdns;version=3.5.1</capability>
 
-    <bundle>mvn:org.jmdns/jmdns/3.5.0</bundle>
+    <bundle>mvn:org.jmdns/jmdns/3.5.1</bundle>
   </feature>
 
   <feature name="esh-tp-paho" description="MQTT v3 Client" version="${project.version}">
