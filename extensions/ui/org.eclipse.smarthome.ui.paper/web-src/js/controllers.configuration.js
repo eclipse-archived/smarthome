@@ -363,7 +363,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             targetEvent : event,
             hasBackdrop : true,
             linkedItem : channel.linkedItems.length > 0 ? channel.linkedItems[0] : '',
-            acceptedItemType : channel.itemType + 'Item',
+            acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : ""
         }).then(function(itemName) {
             linkService.link({
