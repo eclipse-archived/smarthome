@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.service;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +21,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 /**
  * Base class for OSGI services that access to file system by Java WatchService. <br />
@@ -36,6 +39,11 @@ public abstract class AbstractWatchService {
      * Default logger for ESH Watch Services
      */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    /**
+     * Tthe maximum number of directory levels to visit
+     */
+    private static final int MAX_DEPTH = 2;
 
     /**
      * The WatchService
@@ -77,7 +85,9 @@ public abstract class AbstractWatchService {
                 if (watchSubDirectories()) {
                     watchService = FileSystems.getDefault().newWatchService();
 
-                    Files.walkFileTree(toWatch, new SimpleFileVisitor<Path>() {
+                    // walk through all folders and follow symlinks
+                    Files.walkFileTree(toWatch, Sets.newHashSet(FileVisitOption.FOLLOW_LINKS), MAX_DEPTH, 
+                    		new SimpleFileVisitor<Path>() {
                         @Override
                         public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attrs)
                                 throws IOException {
