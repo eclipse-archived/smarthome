@@ -107,7 +107,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function setItemToFunction() {
-        if ($scope.item['function'].name.indexOf("None") == -1) {
+        if ($scope.item.groupType.indexOf("None") == -1) {
             var splitValue = $scope.item['function'].name.split('_');
             $scope.item['function'].name = splitValue[0];
             if (splitValue.length > 1) {
@@ -115,7 +115,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }
 
         }
-        if (!$scope.item['function'].name) {
+        if ($scope.item['function'] && !$scope.item['function'].name) {
             $scope.item['function'] = null;
         }
     }
