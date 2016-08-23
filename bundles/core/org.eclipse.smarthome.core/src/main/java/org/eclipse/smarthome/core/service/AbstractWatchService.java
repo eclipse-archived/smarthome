@@ -41,7 +41,7 @@ public abstract class AbstractWatchService {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     /**
-     * Tthe maximum number of directory levels to visit
+     * The maximum number of directory levels to visit
      */
     private static final int MAX_DEPTH = 2;
 
