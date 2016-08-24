@@ -5,7 +5,7 @@
 <div style="margin-top: 80px;" ng-if="page === 'system'" ng-controller="SystemController">
 	<div class="container">
 		<div class="row">
-			<div class="col-xs-12" ng-repeat="service in services | orderBy:'label'">
+			<div class="col-xs-12" ng-show="service.found" ng-repeat="service in services | orderBy:'label'">
 				<div class="card text-left" data-service-id="{{service.id}}">
 					<div class="clabel" ng-init="serviceId=service.id;configDescriptionURI=service.configDescriptionURI;">
 						<h3 class="md-title">{{service.label}}</h3>
