@@ -8,13 +8,9 @@
 package org.eclipse.smarthome.automation.internal.provider.file;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
@@ -28,7 +24,12 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
  */
 public class ModuleTypeFileProvider extends AbstractFileProvider<ModuleType> implements ModuleTypeProvider {
 
-    private static final String MODULE_TYPES_ROOT = "automation/moduletype";
+    private final String moduleTypesRoot = "moduletypes";
+
+    public ModuleTypeFileProvider(String root) {
+        WatchingDir = root + File.separator + moduleTypesRoot;
+        super.activate();
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -47,46 +48,8 @@ public class ModuleTypeFileProvider extends AbstractFileProvider<ModuleType> imp
     }
 
     @Override
-    public void activate() {
-        super.activate();
-        importResources(new File(MODULE_TYPES_ROOT));
-    }
-
-    @Override
-    protected void updateProvidedObjectsHolder(URL url, Set<ModuleType> providedObjects) {
-        if (providedObjects != null && !providedObjects.isEmpty()) {
-            List<String> uids = new ArrayList<String>();
-            for (ModuleType providedObject : providedObjects) {
-                String uid = providedObject.getUID();
-                ModuleType oldModuleType = getOldElement(uid);
-                notifyListeners(oldModuleType, providedObject);
-                uids.add(uid);
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, providedObject);
-                }
-            }
-            synchronized (providerPortfolio) {
-                providerPortfolio.put(url, uids);
-            }
-        }
-    }
-
-    @Override
-    protected String getSourcePath() {
-        return MODULE_TYPES_ROOT;
-    }
-
-    @Override
-    protected void removeElements(List<String> objectsForRemove) {
-        if (objectsForRemove != null) {
-            for (String removededObject : objectsForRemove) {
-                ModuleType mtRemoved;
-                synchronized (providedObjectsHolder) {
-                    mtRemoved = providedObjectsHolder.remove(removededObject);
-                }
-                notifyListeners(mtRemoved);
-            }
-        }
+    protected String getUID(ModuleType providedObject) {
+        return providedObject.getUID();
     }
 
 }

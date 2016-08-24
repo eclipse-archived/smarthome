@@ -13,7 +13,7 @@ Import-Package:
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.service,
  org.osgi.framework,
- org.osgi.service.component;version="1.2.2",
+ org.osgi.service.component,
  org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

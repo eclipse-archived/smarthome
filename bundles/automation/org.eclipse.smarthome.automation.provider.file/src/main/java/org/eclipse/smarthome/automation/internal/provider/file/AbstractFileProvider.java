@@ -51,7 +51,9 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("rawtypes")
 public abstract class AbstractFileProvider<E> extends AbstractWatchService implements Provider<E> {
 
-    protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected String[] WatchingDirs;
+    protected String WatchingDir;
 
     /**
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
@@ -81,12 +83,26 @@ public abstract class AbstractFileProvider<E> extends AbstractWatchService imple
 
     protected List<ProviderChangeListener<E>> listeners = new ArrayList<ProviderChangeListener<E>>();
 
+    public void activate(Map<Parser<E>, Map<String, String>> parsers) {
+        for (Parser<E> parser : parsers.keySet()) {
+            addParser(parser, parsers.get(parser));
+        }
+        super.activate();
+        importResources(new File(WatchingDir));
+    }
+
     @Override
     public void deactivate() {
         super.deactivate();
         parsers.clear();
         urls.clear();
         providedObjectsHolder.clear();
+        listeners.clear();
+    }
+
+    @Override
+    protected String getSourcePath() {
+        return WatchingDir;
     }
 
     @Override
@@ -142,7 +158,7 @@ public abstract class AbstractFileProvider<E> extends AbstractWatchService imple
                     String parserType = getParserType(url);
                     importFile(parserType, url);
                 } catch (MalformedURLException e) {
-                    // should not happen
+                    // can't happen for the 'file' protocol handler with a correctly formatted URI
                 }
             }
         }
@@ -155,7 +171,7 @@ public abstract class AbstractFileProvider<E> extends AbstractWatchService imple
                 removeElements(providerPortfolio.remove(url));
             }
         } catch (MalformedURLException e) {
-            // should not happen
+            // can't happen for the 'file' protocol handler with a correctly formatted URI
         }
     }
 
@@ -249,9 +265,37 @@ public abstract class AbstractFileProvider<E> extends AbstractWatchService imple
         }
     }
 
-    protected abstract void updateProvidedObjectsHolder(URL url, Set<E> providedObjects);
+    protected void updateProvidedObjectsHolder(URL url, Set<E> providedObjects) {
+        if (providedObjects != null && !providedObjects.isEmpty()) {
+            List<String> uids = new ArrayList<String>();
+            for (E providedObject : providedObjects) {
+                String uid = getUID(providedObject);
+                E oldModuleType = getOldElement(uid);
+                notifyListeners(oldModuleType, providedObject);
+                uids.add(uid);
+                synchronized (providedObjectsHolder) {
+                    providedObjectsHolder.put(uid, providedObject);
+                }
+            }
+            synchronized (providerPortfolio) {
+                providerPortfolio.put(url, uids);
+            }
+        }
+    }
 
-    protected abstract void removeElements(List<String> objectsForRemove);
+    protected abstract String getUID(E providedObject);
+
+    protected void removeElements(List<String> objectsForRemove) {
+        if (objectsForRemove != null) {
+            for (String removededObject : objectsForRemove) {
+                E mtRemoved;
+                synchronized (providedObjectsHolder) {
+                    mtRemoved = providedObjectsHolder.remove(removededObject);
+                }
+                notifyListeners(mtRemoved);
+            }
+        }
+    }
 
     private String getParserType(URL url) {
         String fileName = url.getPath();

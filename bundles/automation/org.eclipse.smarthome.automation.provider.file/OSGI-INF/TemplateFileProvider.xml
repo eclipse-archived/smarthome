@@ -10,9 +10,12 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true"
     name="org.eclipse.smarthome.automation.internal.provider.file.TemplateFileProvider">
-    <implementation class="org.eclipse.smarthome.automation.internal.provider.file.TemplateFileProvider" />
+    <implementation class="org.eclipse.smarthome.automation.internal.provider.file.MultipleTemplateFileProvider" />
     <reference bind="addParser" cardinality="0..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="static" unbind="removeParser" target="(parser.type=parser.template)"/>
     <service>
         <provide interface="org.eclipse.smarthome.automation.template.TemplateProvider" />
     </service>
+    <property name="service.config.description.uri" type="String" value="system:automationresources:templates"/>
+    <property name="service.config.label" type="String" value="Automation Template Resource File Directories"/>
+    <property name="service.config.category" type="String" value="system"/>
 </scr:component>

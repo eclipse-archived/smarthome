@@ -8,13 +8,9 @@
 package org.eclipse.smarthome.automation.internal.provider.file;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -28,7 +24,12 @@ import org.eclipse.smarthome.automation.template.TemplateProvider;
  */
 public class TemplateFileProvider extends AbstractFileProvider<RuleTemplate> implements TemplateProvider {
 
-    private static final String TEMPLATES_ROOT = "automation/template";
+    private final String templatesRoot = "templates";
+
+    public TemplateFileProvider(String root) {
+        WatchingDir = root + File.separator + templatesRoot;
+        super.activate();
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -48,44 +49,8 @@ public class TemplateFileProvider extends AbstractFileProvider<RuleTemplate> imp
     }
 
     @Override
-    public void activate() {
-        super.activate();
-        importResources(new File(TEMPLATES_ROOT));
-    }
-
-    @Override
-    protected void updateProvidedObjectsHolder(URL url, Set<RuleTemplate> providedObjects) {
-        if (providedObjects != null && !providedObjects.isEmpty()) {
-            List<String> uids = new ArrayList<String>();
-            for (RuleTemplate ruleT : providedObjects) {
-                String uid = ruleT.getUID();
-                RuleTemplate oldRuleT = getOldElement(uid);
-                notifyListeners(oldRuleT, ruleT);
-                uids.add(uid);
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, ruleT);
-                }
-            }
-            synchronized (providerPortfolio) {
-                providerPortfolio.put(url, uids);
-            }
-        }
-    }
-
-    @Override
-    protected String getSourcePath() {
-        return TEMPLATES_ROOT;
-    }
-
-    @Override
-    protected void removeElements(List<String> objectsForRemove) {
-        for (String removededObject : objectsForRemove) {
-            RuleTemplate rtRemoved;
-            synchronized (providedObjectsHolder) {
-                rtRemoved = providedObjectsHolder.remove(removededObject);
-            }
-            notifyListeners(rtRemoved);
-        }
+    protected String getUID(RuleTemplate providedObject) {
+        return providedObject.getUID();
     }
 
 }
