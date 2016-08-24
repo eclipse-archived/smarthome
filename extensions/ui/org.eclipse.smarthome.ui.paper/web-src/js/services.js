@@ -6,7 +6,10 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
     $httpProvider.interceptors.push(function($q, $injector) {
         return {
             'responseError' : function(rejection) {
-                $injector.get('toastService').showErrorToast('ERROR: ' + rejection.status + ' - ' + rejection.statusText);
+                var showError = !!rejection.showError;
+                if (showError) {
+                    $injector.get('toastService').showErrorToast('ERROR: ' + rejection.status + ' - ' + rejection.statusText);
+                }
                 return $q.reject(rejection);
             }
         };

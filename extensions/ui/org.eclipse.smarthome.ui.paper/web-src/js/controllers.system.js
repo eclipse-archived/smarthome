@@ -9,8 +9,19 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
             $scope.services = $.grep(services, function(service) {
                 return service.category && service.category.toUpperCase() === 'SYSTEM';
             });
+            angular.forEach($scope.services, function(service) {
+                service.found = true;
+            });
         });
     };
+    $scope.$on('noConfigDesc', function(event, serviceId) {
+        var services = $.grep($scope.services, function(service) {
+            return service.id == serviceId;
+        });
+        services[0].found = false;
+        event.stopPropagation();
+        event.preventDefault();
+    });
     $scope.refresh();
 }).controller('ConfigureSystemServiceController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService) {
 
@@ -37,6 +48,8 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
                         angular.copy($scope.configuration, originalServiceConf);
                     }
                 }
+            }, function() {
+                $scope.$emit('noConfigDesc', serviceId);
             });
         }
         if (serviceId) {
@@ -65,7 +78,10 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
             var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
             serviceConfigService.updateConfig({
                 id : $scope.serviceId
-            }, configuration);
+            }, configuration, function() {
+                toastService.showDefaultToast('System config updated.');
+
+            });
         }
         $scope.editing = false;
     }
