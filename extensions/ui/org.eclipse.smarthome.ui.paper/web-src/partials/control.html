@@ -103,32 +103,30 @@
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
-											<div ng-switch-when="Number" ng-controller="NumberItemController">
-												<div>
-													<div layout="row" layout-align="start center">
-														<div flex="40" layout="row" layout-align="start center">
-															<p>
-																<i class="material-icons">{{getIcon(item.category, 'trending_up')}}</i>{{getLabel(item.category, item.label, 'Value')}}
-															</p>
-														</div>
-														<div flex="60">
-															<div ng-show="isReadOnly(item)" layout="row" layout-align="end center">
-																<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
-															</div>
-															<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
-																<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
-																<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number"></input> </md-input-container>
-																<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
-															</div>
-														</div>
+											<div ng-switch-when="Number" class="numberWidget" ng-controller="NumberItemController">
+												<div layout="row" layout-align="start center">
+													<div flex="40" layout="row" layout-align="start center">
+														<p>
+															<i class="material-icons">{{getIcon(item.category, 'trending_up')}}</i>{{getLabel(item.category, item.label, 'Value')}}
+														</p>
 													</div>
-													<div ng-show="!isReadOnly(item)" layout="row" layout-align="start center" class="number-control-widget">
-														<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
-														<md-slider class="md-default-theme" flex="70" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-if="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
-														<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
+													<div flex="60" layout="row" layout-align="end center">
+														<div ng-show="isReadOnly(item)">
+															<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+														</div>
+														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
+															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
+															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number"></input> </md-input-container>
+															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+														</div>
 													</div>
 												</div>
-												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
+												<div ng-if="!isOptionList(item) && !isReadOnly(item) && shouldRenderSlider(item)" layout="row" layout-align="start center" class="number-control-widget">
+													<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
+													<md-slider flex="70" class="md-default-theme" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-if="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
+													<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
+												</div>
+											    <div layout="row" item-state-dropdown layout-align="start center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>                        
 											</div>
 											<div ng-switch-when="Rollershutter" ng-controller="RollershutterItemController">
 												<div layout="row" layout-align="start center">
