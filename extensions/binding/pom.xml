@@ -25,6 +25,7 @@
     <module>org.eclipse.smarthome.binding.sonos</module>
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>
+    <module>org.eclipse.smarthome.binding.triggertest</module>
   </modules>
 
 </project>
