@@ -17,12 +17,11 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * Base class for OSGI services that access to file system by Java WatchService. <br />
@@ -39,11 +38,6 @@ public abstract class AbstractWatchService {
      * Default logger for ESH Watch Services
      */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
-    /**
-     * The maximum number of directory levels to visit
-     */
-    private static final int MAX_DEPTH = 2;
 
     /**
      * The WatchService
@@ -86,7 +80,7 @@ public abstract class AbstractWatchService {
                     watchService = FileSystems.getDefault().newWatchService();
 
                     // walk through all folders and follow symlinks
-                    Files.walkFileTree(toWatch, Sets.newHashSet(FileVisitOption.FOLLOW_LINKS), MAX_DEPTH, 
+                    Files.walkFileTree(toWatch, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, 
                     		new SimpleFileVisitor<Path>() {
                         @Override
                         public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attrs)
