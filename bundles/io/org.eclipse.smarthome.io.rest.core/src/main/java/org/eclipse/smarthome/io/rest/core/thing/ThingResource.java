@@ -8,14 +8,15 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -161,7 +162,7 @@ public class ThingResource implements RESTResource {
                 }
             }
             if (thingBean.channels != null) {
-                Set<Channel> channels = new HashSet<>();
+                List<Channel> channels = new ArrayList<>();
                 for (ChannelDTO channelDTO : thingBean.channels) {
                     channels.add(ChannelDTOMapper.map(channelDTO));
                 }
