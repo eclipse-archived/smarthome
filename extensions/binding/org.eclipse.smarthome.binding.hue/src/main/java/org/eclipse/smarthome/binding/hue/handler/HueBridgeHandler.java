@@ -164,7 +164,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                 return false;
             } catch (ApiException e) {
                 if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")
-                        || e.getMessage().contains("SocketException")) {
+                        || e.getMessage().contains("SocketException")
+                        || e.getMessage().contains("NoRouteToHostException")) {
                     return false;
                 } else {
                     // this seems to be only an authentication issue
