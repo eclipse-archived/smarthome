@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger;
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger;
+import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger;
 import org.eclipse.smarthome.model.rule.rules.EventTrigger;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
@@ -70,6 +71,7 @@ public class RuleTriggerManager {
         UPDATE, // fires whenever a status update is received for an item
         CHANGE, // same as UPDATE, but only fires if the current item state is changed by the update
         COMMAND, // fires whenever a command is received for an item
+        TRIGGER, // fires whenever a trigger is emitted on a channel
         STARTUP, // fires when the rule engine bundle starts and once as soon as all required items are available
         SHUTDOWN, // fires when the rule engine bundle is stopped
         TIMER // fires at a given time
@@ -79,6 +81,8 @@ public class RuleTriggerManager {
     private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
+    // Maps from channelName -> Rules
+    private Map<String, Set<Rule>> triggerEventTriggeredRules = Maps.newHashMap();
     private Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
     private Set<Rule> systemShutdownTriggeredRules = new CopyOnWriteArraySet<>();
     private Set<Rule> timerEventTriggeredRules = new CopyOnWriteArraySet<>();
@@ -122,6 +126,9 @@ public class RuleTriggerManager {
                 break;
             case COMMAND:
                 result = Iterables.concat(commandEventTriggeredRules.values());
+                break;
+            case TRIGGER:
+                result = Iterables.concat(triggerEventTriggeredRules.values());
                 break;
             default:
                 result = Sets.newHashSet();
@@ -172,6 +179,45 @@ public class RuleTriggerManager {
      */
     public Iterable<Rule> getRules(TriggerTypes triggerType, Item item, Command command) {
         return internalGetRules(triggerType, item, null, command);
+    }
+
+    /**
+     * Returns all rules for which the trigger condition is true for the given type and channel.
+     *
+     * @param triggerType
+     * @param channel
+     * @return all rules for which the trigger condition is true
+     */
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String channel, Type type) {
+        List<Rule> result = Lists.newArrayList();
+
+        switch (triggerType) {
+            case TRIGGER:
+                Set<Rule> rules = triggerEventTriggeredRules.get(channel);
+                if (rules == null) {
+                    return Sets.newHashSet();
+                }
+                for (Rule rule : rules) {
+                    for (EventTrigger t : rule.getEventtrigger()) {
+                        if (t instanceof EventEmittedTrigger) {
+                            EventEmittedTrigger et = (EventEmittedTrigger) t;
+                            if (et.getTrigger() != null) {
+                                Type expectedType = TypeParser.parseType(type.getClass().getSimpleName(),
+                                        et.getTrigger());
+                                if (!type.equals(expectedType)) {
+                                    continue;
+                                }
+                            }
+                            result.add(rule);
+                        }
+                    }
+                }
+                break;
+            default:
+                return Sets.newHashSet();
+        }
+
+        return result;
     }
 
     private Iterable<Rule> getAllRules(TriggerTypes type, String itemName) {
@@ -304,6 +350,9 @@ public class RuleTriggerManager {
             case COMMAND:
                 commandEventTriggeredRules.clear();
                 break;
+            case TRIGGER:
+                triggerEventTriggeredRules.clear();
+                break;
             case TIMER:
                 for (Rule rule : timerEventTriggeredRules) {
                     removeTimerRule(rule);
@@ -323,6 +372,7 @@ public class RuleTriggerManager {
         clear(CHANGE);
         clear(COMMAND);
         clear(TIMER);
+        clear(TRIGGER);
     }
 
     /**
@@ -369,6 +419,14 @@ public class RuleTriggerManager {
                         logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
                     }
                 }
+            } else if (t instanceof EventEmittedTrigger) {
+                EventEmittedTrigger eeTrigger = (EventEmittedTrigger) t;
+                Set<Rule> rules = triggerEventTriggeredRules.get(eeTrigger.getChannel());
+                if (rules == null) {
+                    rules = new HashSet<Rule>();
+                    triggerEventTriggeredRules.put(eeTrigger.getChannel(), rules);
+                }
+                rules.add(rule);
             }
         }
     }
@@ -380,6 +438,8 @@ public class RuleTriggerManager {
      * @param rule the rule to add
      */
     public void removeRule(TriggerTypes type, Rule rule) {
+        // TODO MKA: This doesn't seem right, most collections are maps from String -> x, and remove(Rule) is
+        // called.
         switch (type) {
             case STARTUP:
                 systemStartupTriggeredRules.remove(rule);
@@ -395,6 +455,9 @@ public class RuleTriggerManager {
                 break;
             case COMMAND:
                 commandEventTriggeredRules.remove(rule);
+                break;
+            case TRIGGER:
+                triggerEventTriggeredRules.remove(rule);
                 break;
             case TIMER:
                 timerEventTriggeredRules.remove(rule);
@@ -423,6 +486,7 @@ public class RuleTriggerManager {
         removeRules(UPDATE, updateEventTriggeredRules.values(), ruleModel);
         removeRules(CHANGE, changedEventTriggeredRules.values(), ruleModel);
         removeRules(COMMAND, commandEventTriggeredRules.values(), ruleModel);
+        removeRules(TRIGGER, triggerEventTriggeredRules.values(), ruleModel);
         removeRules(STARTUP, Collections.singletonList(systemStartupTriggeredRules), ruleModel);
         removeRules(SHUTDOWN, Collections.singletonList(systemShutdownTriggeredRules), ruleModel);
         removeRules(TIMER, Collections.singletonList(timerEventTriggeredRules), ruleModel);

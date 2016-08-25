@@ -85,7 +85,7 @@ public class ThingHelper {
     private static String toString(List<Channel> channels) {
         List<String> strings = new ArrayList<>(channels.size());
         for (Channel channel : channels) {
-            strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType());
+            strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType() + '#' + channel.getTriggerType());
         }
         Collections.sort(strings);
         return Joiner.on(',').join(strings);

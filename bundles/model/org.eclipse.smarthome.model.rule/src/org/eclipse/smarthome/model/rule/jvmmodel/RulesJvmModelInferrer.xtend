@@ -17,6 +17,8 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
+import org.eclipse.smarthome.core.thing.events.ThingTriggerEvent
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -38,6 +40,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
 	/** Variable name for the received command in a "command triggered" rule */
 	public static final String VAR_RECEIVED_COMMAND = "receivedCommand";
+	
+	/** Variable name for the received event in a "trigger event" rule */
+    public static final String VAR_RECEIVED_EVENT = "receivedEvent";   
 	
     /**
      * conveninence API to build and initialize JvmTypes and their members.
@@ -110,6 +115,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 						val stateTypeRef = ruleModel.newTypeRef(State)
 						parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef) 
 					}
+					if (containsEventTrigger(rule)) {
+                        val eventTypeRef = ruleModel.newTypeRef(ThingTriggerEvent)
+                        parameters += rule.toParameter(VAR_RECEIVED_EVENT, eventTypeRef)					    
+					}
 					
 					body = rule.script
 				]
@@ -135,6 +144,13 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 		}
 		return false;
 	}
-
-
+	
+   def private boolean containsEventTrigger(Rule rule) {
+        for(EventTrigger trigger : rule.getEventtrigger()) {
+            if(trigger instanceof EventEmittedTrigger) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

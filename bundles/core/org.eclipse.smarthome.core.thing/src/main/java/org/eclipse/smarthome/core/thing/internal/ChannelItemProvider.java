@@ -205,10 +205,13 @@ public class ChannelItemProvider implements ItemProvider {
         Channel channel = thingRegistry.getChannel(link.getUID());
         if (channel != null) {
             Item item = null;
-            for (ItemFactory itemFactory : itemFactories) {
-                item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
-                if (item != null) {
-                    break;
+            // Only create an item if the item type is set
+            if (channel.getAcceptedItemType() != null) {
+                for (ItemFactory itemFactory : itemFactories) {
+                    item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
+                    if (item != null) {
+                        break;
+                    }
                 }
             }
             if (item != null) {

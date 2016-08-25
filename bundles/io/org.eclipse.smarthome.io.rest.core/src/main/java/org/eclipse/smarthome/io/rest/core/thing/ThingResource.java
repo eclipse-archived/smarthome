@@ -250,6 +250,12 @@ public class ThingResource implements RESTResource {
             String message = "Channel " + channelId + " for Thing " + thingUID + " does not exist!";
             return JSONResponse.createResponse(Status.NOT_FOUND, null, message);
         }
+        if (channel.getAcceptedItemType() == null) {
+            logger.info("Tried to link channel '{}' of thing '{}', which has no item type", channel, thingUID);
+            String message = "Channel " + channelId + " for Thing " + thingUID
+                    + " is not linkable, as it has no item type!";
+            return JSONResponse.createResponse(Status.FORBIDDEN, null, message);
+        }
 
         try {
             itemRegistry.getItem(itemName);

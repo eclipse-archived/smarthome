@@ -110,6 +110,41 @@
                "reference":"itemStateChangeTriggerID.event"
             }
          ]
+      },
+      {
+         "uid":"ThingEventTrigger",
+         "label":"Thing Trigger Event Trigger",
+         "description":"This triggers a rule if a channel emits a trigger",
+         "configDescriptions":[
+            {
+               "name":"channelId",
+               "type":"TEXT",
+               "context":"channel",
+               "label":"channel ID",
+               "description":"the id of the channel which should be observed for triggers",
+               "required":true
+            }
+         ],
+         "children":[
+            {
+               "id":"thingTriggerEventId",
+               "type":"GenericEventTrigger",
+               "configuration":{
+                  "eventSource":"$channelId",
+                  "eventTopic":"smarthome/things/*/triggered",
+                  "eventTypes":"ThingTriggerEvent"
+               }
+            }
+         ],
+         "outputs":[
+            {
+               "name":"event",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "description":"the event of the thing trigger",
+               "label":"Event",
+               "reference":"thingTriggerEventId.event"
+            }
+         ]
       }
    ]
 }

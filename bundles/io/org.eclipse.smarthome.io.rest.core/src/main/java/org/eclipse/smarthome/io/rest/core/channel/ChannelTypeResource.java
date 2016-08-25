@@ -130,7 +130,7 @@ public class ChannelTypeResource implements RESTResource {
         }
 
         return new ChannelTypeDTO(channelType.getUID().toString(), channelType.getLabel(), channelType.getDescription(),
-                channelType.getCategory(), channelType.getItemType(), parameters, parameterGroups,
+                channelType.getCategory(), channelType.getItemType(), channelType.getTriggerType(), parameters, parameterGroups,
                 channelType.getState(), channelType.getTags());
     }
 

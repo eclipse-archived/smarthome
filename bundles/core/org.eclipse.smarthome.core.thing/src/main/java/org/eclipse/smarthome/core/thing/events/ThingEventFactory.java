@@ -16,6 +16,8 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.types.Type;
+import org.eclipse.smarthome.core.types.TypeParser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -29,6 +31,8 @@ import com.google.common.collect.Sets;
  */
 public class ThingEventFactory extends AbstractEventFactory {
 
+    private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
+
     private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
 
     private static final String THING_STATUS_INFO_CHANGED_EVENT_TOPIC = "smarthome/things/{thingUID}/statuschanged";
@@ -39,12 +43,14 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private static final String THING_UPDATED_EVENT_TOPIC = "smarthome/things/{thingUID}/updated";
 
+    private static final String THING_TRIGGERED_EVENT_TOPIC = "smarthome/things/{thingUID}/triggered";
+
     /**
      * Constructs a new ThingEventFactory.
      */
     public ThingEventFactory() {
         super(Sets.newHashSet(ThingStatusInfoEvent.TYPE, ThingStatusInfoChangedEvent.TYPE, ThingAddedEvent.TYPE,
-                ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE));
+                ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE, ThingTriggerEvent.TYPE));
     }
 
     @Override
@@ -60,14 +66,75 @@ public class ThingEventFactory extends AbstractEventFactory {
             event = createRemovedEvent(topic, payload);
         } else if (eventType.equals(ThingUpdatedEvent.TYPE)) {
             event = createUpdatedEvent(topic, payload);
+        } else if (eventType.equals(ThingTriggerEvent.TYPE)) {
+            event = createTriggerEvent(topic, payload, source);
         }
+
         return event;
+    }
+
+    /**
+     * This is a java bean that is used to serialize/deserialize trigger event payload.
+     */
+    private static class TriggerEventPayloadBean {
+        private String type;
+        private String value;
+
+        /**
+         * Default constructor for deserialization e.g. by Gson.
+         */
+        protected TriggerEventPayloadBean() {
+        }
+
+        public TriggerEventPayloadBean(String type, String value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    /**
+     * Creates a trigger event from a {@link Type}.
+     *
+     * @param event Event.
+     *              @param thing thing, which triggered the event.
+     * @param source Source.
+     * @return Created trigger event.
+     */
+    public static ThingTriggerEvent createTriggerEvent(Type event, ThingUID thing, String source) {
+        TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event.getClass().getSimpleName(), event.toString());
+        String payload = serializePayload(bean);
+        String topic = buildTopic(THING_TRIGGERED_EVENT_TOPIC, thing.getAsString());
+        return new ThingTriggerEvent(topic, payload, source, event);
+    }
+
+    /**
+     * Creates a trigger event from a payload.
+     *
+     * @param topic Event topic
+     * @param source Event source
+     * @param payload Payload
+     * @return created trigger event
+     */
+    public ThingTriggerEvent createTriggerEvent(String topic, String payload, String source) {
+        TriggerEventPayloadBean bean = deserializePayload(payload, TriggerEventPayloadBean.class);
+
+        Type event = TypeParser.parseType(bean.getType(), bean.getValue());
+        return new ThingTriggerEvent(topic, payload, source, event);
     }
 
     private Event createStatusInfoEvent(String topic, String payload) throws Exception {
         String[] topicElements = getTopicElements(topic);
-        if (topicElements.length != 4)
+        if (topicElements.length != 4) {
             throw new IllegalArgumentException("ThingStatusInfoEvent creation failed, invalid topic: " + topic);
+        }
         ThingUID thingUID = new ThingUID(topicElements[2]);
         ThingStatusInfo thingStatusInfo = deserializePayload(payload, ThingStatusInfo.class);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
@@ -75,8 +142,9 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private Event createStatusInfoChangedEvent(String topic, String payload) throws Exception {
         String[] topicElements = getTopicElements(topic);
-        if (topicElements.length != 4)
+        if (topicElements.length != 4) {
             throw new IllegalArgumentException("ThingStatusInfoChangedEvent creation failed, invalid topic: " + topic);
+        }
         ThingUID thingUID = new ThingUID(topicElements[2]);
         ThingStatusInfo[] thingStatusInfo = deserializePayload(payload, ThingStatusInfo[].class);
         return new ThingStatusInfoChangedEvent(topic, payload, thingUID, thingStatusInfo[0], thingStatusInfo[1]);
@@ -94,8 +162,9 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private Event createUpdatedEvent(String topic, String payload) throws Exception {
         ThingDTO[] thingDTO = deserializePayload(payload, ThingDTO[].class);
-        if (thingDTO.length != 2)
+        if (thingDTO.length != 2) {
             throw new IllegalArgumentException("ThingUpdateEvent creation failed, invalid payload: " + payload);
+        }
         return new ThingUpdatedEvent(topic, payload, thingDTO[0], thingDTO[1]);
     }
 

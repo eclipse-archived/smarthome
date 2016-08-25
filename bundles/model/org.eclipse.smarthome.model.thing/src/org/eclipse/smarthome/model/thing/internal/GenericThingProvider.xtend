@@ -274,9 +274,16 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         val List<Channel> channels = newArrayList
         modelChannels.forEach [
             if (addedChannelIds.add(id)) {
-                channels +=
-                    ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type).withConfiguration(
-                        createConfiguration).build
+                val channelType = if (it.channelType == null) "Item" else it.channelType 
+                
+                val channel = if (channelType.equals("Item")) {
+                    ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type)
+                } else if (channelType.equals("Trigger")) {
+                    ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), null).withTriggerType(type)
+                } else {
+                    throw new AssertionError("Invalid channel type" + channelType)
+                }
+                channels += channel.withConfiguration(createConfiguration).build()
             }
         ]
         channelDefinitions.forEach [

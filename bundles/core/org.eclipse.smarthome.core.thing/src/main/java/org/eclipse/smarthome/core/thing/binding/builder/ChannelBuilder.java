@@ -28,6 +28,7 @@ public class ChannelBuilder {
 
     private ChannelUID channelUID;
     private String acceptedItemType;
+    private String triggerType;
     private Configuration configuration;
     private Set<String> defaultTags;
     private Map<String, String> properties;
@@ -123,12 +124,23 @@ public class ChannelBuilder {
     }
 
     /**
+     * Sets the trigger type of the channel.
+     *
+     * @param triggerType trigger type.
+     * @return channel builder
+     */
+    public ChannelBuilder withTriggerType(String triggerType) {
+        this.triggerType = triggerType;
+        return this;
+    }
+
+    /**
      * Builds and returns the channel.
      *
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, channelTypeUID, acceptedItemType, configuration, defaultTags, properties, label,
+        return new Channel(channelUID, channelTypeUID, acceptedItemType, triggerType, configuration, defaultTags, properties, label,
                 description);
     }
 }

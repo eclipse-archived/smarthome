@@ -28,6 +28,7 @@ public class ChannelDTO {
     public String id;
     public String channelTypeUID;
     public String itemType;
+    public String triggerType;
     public String label;
     public String description;
     public Set<String> defaultTags;
@@ -37,7 +38,7 @@ public class ChannelDTO {
     public ChannelDTO() {
     }
 
-    public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, String label, String description,
+    public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, String triggerType, String label, String description,
             Map<String, String> properties, Configuration configuration, Set<String> defaultTags) {
         this.uid = uid.toString();
         this.id = uid.getId();
@@ -48,6 +49,7 @@ public class ChannelDTO {
         this.properties = properties;
         this.configuration = toMap(configuration);
         this.defaultTags = new HashSet<>(defaultTags);
+        this.triggerType = triggerType;
     }
 
     private Map<String, Object> toMap(Configuration configuration) {

@@ -27,6 +27,7 @@ public class EnrichedChannelDTO extends ChannelDTO {
         this.id = channelDTO.id;
         this.channelTypeUID = channelDTO.channelTypeUID;
         this.itemType = channelDTO.itemType;
+        this.triggerType = channelDTO.triggerType;
         this.label = channelDTO.label;
         this.description = channelDTO.description;
         this.properties = channelDTO.properties;

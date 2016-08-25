@@ -59,6 +59,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.Type;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;
@@ -98,9 +99,9 @@ public class ThingManager extends AbstractItemEventSubscriber
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
 
     private final Multimap<Bundle, Object> initializerVetoes = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object>create());
+            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
     private final Multimap<Long, ThingHandler> initializerQueue = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler>create());
+            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler> create());
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -251,6 +252,11 @@ public class ThingManager extends AbstractItemEventSubscriber
         public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
                 final Configuration configuration) {
             ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
+        }
+
+        @Override
+        public void eventEmitted(Thing thing, ChannelUID channelUID, Type event) {
+            eventPublisher.post(ThingEventFactory.createTriggerEvent(event, thing.getUID(), channelUID.toString()));
         }
 
     };

@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.Type;
 
 /**
  * {@link ThingHandlerCallback} is callback interface for {@link ThingHandler}s. The implementation of a
@@ -72,5 +73,13 @@ public interface ThingHandlerCallback {
      * @param configuration a configuration that should be applied to the given {@link Thing}
      */
     void migrateThingType(Thing thing, ThingTypeUID thingTypeUID, Configuration configuration);
+
+    /**
+     * Informs the framework that a channel has emitted an event.
+     * 
+     * @param channelUID ID of the channel over which the event has been emitted.
+     * @param event Event.
+     */
+    void eventEmitted(Thing thing, ChannelUID channelUID, Type event);
 
 }

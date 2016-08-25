@@ -28,6 +28,7 @@ public class ChannelTypeDTO {
     public String label;
     public String category;
     public String itemType;
+    public String triggerType;
     public StateDescription stateDescription;
     public Set<String> tags;
     public String UID;
@@ -35,7 +36,7 @@ public class ChannelTypeDTO {
     public ChannelTypeDTO() {
     }
 
-    public ChannelTypeDTO(String UID, String label, String description, String category, String itemType,
+    public ChannelTypeDTO(String UID, String label, String description, String category, String itemType, String triggerType,
             List<ConfigDescriptionParameterDTO> parameters, List<ConfigDescriptionParameterGroupDTO> parameterGroups,
             StateDescription stateDescription, Set<String> tags) {
         this.UID = UID;
@@ -46,5 +47,7 @@ public class ChannelTypeDTO {
         this.parameterGroups = parameterGroups;
         this.stateDescription = stateDescription;
         this.tags = tags;
+        this.triggerType = triggerType;
+        this.itemType = itemType;
     }
 }

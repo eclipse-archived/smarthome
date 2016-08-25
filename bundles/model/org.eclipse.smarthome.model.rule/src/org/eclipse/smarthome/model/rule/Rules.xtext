@@ -30,6 +30,7 @@ EventTrigger:
 	UpdateEventTrigger |
 	CommandEventTrigger |
 	ChangedEventTrigger |
+	EventEmittedTrigger |
 	TimerTrigger |
 	SystemTrigger
 ;
@@ -45,6 +46,11 @@ UpdateEventTrigger:
 ChangedEventTrigger:
 	'Item' item=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
 ;		
+
+EventEmittedTrigger:
+	'Channel' channel=(STRING|ID) 'triggered' (trigger=ValidTrigger)?
+;
+
 
 TimerTrigger:
 	'Time' 'cron' cron=STRING |
@@ -76,5 +82,9 @@ ValidState:
 ;
 
 ValidCommand:
+	ID | Number | STRING
+;
+
+ValidTrigger:
 	ID | Number | STRING
 ;

@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.Type;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -276,6 +277,34 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void updateState(String channelID, State state) {
         ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
         updateState(channelUID, state);
+    }
+
+    /**
+     * Emits an event for the given channel.
+     *
+     * @param channelUID ID of the channel over which the event will be emitted
+     * @param event Event to emit
+     */
+    protected void emitEvent(ChannelUID channelUID, Type event) {
+        synchronized (this) {
+            if (this.callback != null) {
+                this.callback.eventEmitted(this.getThing(), channelUID, event);
+            } else {
+                throw new IllegalStateException("Could not update state, because callback is missing");
+            }
+        }
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelID ID of the channel over which the event will be emitted
+     * @param event Event to emit
+     */
+    protected void emitEvent(String channelID, Type event) {
+        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
+        emitEvent(channelUID, event);
     }
 
     /**

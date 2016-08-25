@@ -344,8 +344,9 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
             StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
 
             ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
-                    channelType.getItemType(), label, description, channelType.getCategory(), channelType.getTags(),
-                    state, channelType.getConfigDescriptionURI());
+                    channelType.getItemType(), channelType.getTriggerType(), label, description,
+                    channelType.getCategory(), channelType.getTags(), state, channelType.getEvent(),
+                    channelType.getConfigDescriptionURI());
 
             localizedChannelTypeCache.put(localizedChannelTypeKey, localizedChannelType);
 

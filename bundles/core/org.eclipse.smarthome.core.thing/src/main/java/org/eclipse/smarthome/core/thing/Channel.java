@@ -34,6 +34,8 @@ public class Channel {
 
     private String acceptedItemType;
 
+    private String triggerType;
+
     private ChannelUID uid;
 
     private ChannelTypeUID channelTypeUID;
@@ -62,26 +64,28 @@ public class Channel {
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
-        this(uid, null, acceptedItemType, configuration, new HashSet<String>(0), null, null, null);
+        this(uid, null, acceptedItemType, null, configuration, new HashSet<String>(0), null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
-        this(uid, null, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null,
-                null);
+        this(uid, null, acceptedItemType, null, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null,
+                null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
             Map<String, String> properties) {
-        this(uid, null, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, properties,
-                null, null);
+        this(uid, null, acceptedItemType, null, null, defaultTags == null ? new HashSet<String>(0) : defaultTags,
+                properties, null, null);
     }
 
-    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, Configuration configuration,
-            Set<String> defaultTags, Map<String, String> properties, String label, String description) {
+    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, String triggerType,
+            Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label,
+            String description) {
         this.uid = uid;
         this.channelTypeUID = channelTypeUID;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
+        this.triggerType = triggerType;
         this.label = label;
         this.description = description;
         this.properties = properties;
@@ -167,5 +171,14 @@ public class Channel {
      */
     public Set<String> getDefaultTags() {
         return defaultTags;
+    }
+
+    /**
+     * Returns the trigger type.
+     *
+     * @return trigger type
+     */
+    public String getTriggerType() {
+        return triggerType;
     }
 }
