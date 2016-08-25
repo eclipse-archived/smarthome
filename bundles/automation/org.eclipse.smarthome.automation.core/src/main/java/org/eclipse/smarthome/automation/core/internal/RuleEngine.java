@@ -344,6 +344,10 @@ public class RuleEngine
 
         String errMsgs = null;
         RuntimeRule r = getRule0(rUID);
+        if (r.getTemplateUID() != null) {
+            return; // Template is not available (when a template is resolved it removes tempalteUID configuration
+                    // property). The rule must stay NOT_INITIALISED.
+        }
 
         autoMapConnections(r);
 
