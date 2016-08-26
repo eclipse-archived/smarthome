@@ -29,7 +29,6 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
@@ -61,7 +60,6 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         implements TemplateProvider {
 
     protected TemplateRegistry templateRegistry;
-    protected ModuleTypeRegistry moduleTypeRegistry;
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker tracker;
@@ -83,8 +81,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         super(context);
         path = PATH + "/templates/";
         try {
-            Filter filter = bc.createFilter("(|(objectClass=" + TemplateRegistry.class.getName() + ")(objectClass="
-                    + ModuleTypeRegistry.class.getName() + "))");
+            Filter filter = bc.createFilter("(|(objectClass=" + TemplateRegistry.class.getName() + ")" + ")");
             tracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
                 @Override
@@ -92,8 +89,6 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     Object service = bc.getService(reference);
                     if (service instanceof TemplateRegistry) {
                         templateRegistry = (TemplateRegistry) service;
-                    } else {
-                        moduleTypeRegistry = (ModuleTypeRegistry) service;
                     }
                     queue.open();
                     return service;
@@ -107,8 +102,6 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 public void removedService(ServiceReference reference, Object service) {
                     if (service == templateRegistry) {
                         templateRegistry = null;
-                    } else {
-                        moduleTypeRegistry = null;
                     }
                 }
             });
@@ -156,7 +149,6 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         if (tracker != null) {
             tracker.close();
             tracker = null;
-            moduleTypeRegistry = null;
             templateRegistry = null;
         }
         if (tpReg != null) {
@@ -217,7 +209,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
     @Override
     public boolean isReady() {
-        return moduleTypeRegistry != null && templateRegistry != null && queue != null;
+        return templateRegistry != null && queue != null;
     }
 
     @SuppressWarnings("unchecked")

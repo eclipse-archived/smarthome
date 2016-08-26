@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements RuleRegistry, StatusInfoCallback {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
     private Logger logger;
@@ -197,6 +197,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements 
         Rule r1 = resolveTemplate(ruleWithUID); // the resolved rule must be store in managed provider
         if (r1 != null) {
             super.add(r1);
+            ruleWithUID = r1;
         } else {
             // template is not available
             super.add(ruleWithUID);
@@ -324,12 +325,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements 
 
     @Override
     public synchronized void setEnabled(String uid, boolean isEnabled) {
-        ruleEngine.setRuleEnabled(uid, isEnabled);
-        if (disabledRulesStorage != null) {
-            if (isEnabled) {
-                disabledRulesStorage.remove(uid);
-            } else {
-                disabledRulesStorage.put(uid, isEnabled);
+        if (ruleEngine.hasRule(uid)) {
+            ruleEngine.setRuleEnabled(uid, isEnabled);
+            if (disabledRulesStorage != null) {
+                if (isEnabled) {
+                    disabledRulesStorage.remove(uid);
+                } else {
+                    disabledRulesStorage.put(uid, isEnabled);
+                }
             }
         }
     }
@@ -426,11 +429,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements 
             Rule r1 = new Rule(rule.getUID(), RuleUtils.getTriggersCopy(template.getTriggers()),
                     RuleUtils.getConditionsCopy(template.getConditions()),
                     RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
-                    rule.getConfiguration(), template.getUID(), template.getVisibility());
+                    rule.getConfiguration(), null, rule.getVisibility());
             validateConfiguration(r1);
             r1.setName(rule.getName());
-            r1.setTags(template.getTags());
-            r1.setDescription(template.getDescription());
+            r1.setTags(rule.getTags());
+            r1.setDescription(rule.getDescription());
 
             return r1;
         }
