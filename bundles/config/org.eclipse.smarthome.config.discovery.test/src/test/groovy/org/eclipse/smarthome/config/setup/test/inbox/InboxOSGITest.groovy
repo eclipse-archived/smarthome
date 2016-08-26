@@ -59,11 +59,11 @@ class InboxOSGITest extends OSGiTest {
 
     def DEFAULT_TTL = 60
     def BRIDGE_ID = new ThingUID("bindingId:bridge:bridgeId")
-    def BRIDGE = new DiscoveryResultImpl(BRIDGE_ID, null, null,"Bridge", "bridge", DEFAULT_TTL)
-    def THING1_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id1"), BRIDGE_ID, null,"Thing1", "thing1", DEFAULT_TTL)
-    def THING2_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id2"), BRIDGE_ID, null,"Thing2", "thing2", DEFAULT_TTL)
-    def THING_WITHOUT_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id3"), null, null,"Thing3", "thing3", DEFAULT_TTL)
-    def THING_WITH_OTHER_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id4"), new ThingUID("bindingId:thing:id5"),null,"Thing4", "thing4", DEFAULT_TTL)
+    DiscoveryResult BRIDGE = new DiscoveryResultImpl(BRIDGE_ID, null, null,"Bridge", "bridge", DEFAULT_TTL)
+    DiscoveryResult THING1_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id1"), BRIDGE_ID, null,"Thing1", "thing1", DEFAULT_TTL)
+    DiscoveryResult THING2_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id2"), BRIDGE_ID, null,"Thing2", "thing2", DEFAULT_TTL)
+    DiscoveryResult THING_WITHOUT_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id3"), null, null,"Thing3", "thing3", DEFAULT_TTL)
+    DiscoveryResult THING_WITH_OTHER_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id4"), new ThingUID("bindingId:thing:id5"),null,"Thing4", "thing4", DEFAULT_TTL)
 
     final List<DiscoveryResult> inboxContent = []
     final URI testURI = new URI("http:dummy")
@@ -689,6 +689,34 @@ class InboxOSGITest extends OSGiTest {
                 assertThat it, is(instanceOf(InboxRemovedEvent))
             }
         }
+    }
+
+    @Test
+    void 'assert that removing a bridge Thing from the registry removes its discovered child Things from the inbox'() {
+        def receivedEvents = new ArrayList()
+        def inboxEventSubscriber = [
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: { Sets.newHashSet(InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService inboxEventSubscriber
+
+        registry.add(BridgeBuilder.create(BRIDGE.thingUID).build())
+
+        inbox.add(THING1_WITH_BRIDGE)
+        inbox.add(THING2_WITH_BRIDGE)
+        inbox.add(THING_WITHOUT_BRIDGE)
+        inbox.add(THING_WITH_OTHER_BRIDGE)
+        assertThat inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)), hasItems(THING1_WITH_BRIDGE,THING2_WITH_BRIDGE,THING_WITHOUT_BRIDGE, THING_WITH_OTHER_BRIDGE)
+
+
+        registry.forceRemove(BRIDGE.thingUID)
+
+        waitForAssert({
+            assertTrue inbox.get(new InboxFilterCriteria(THING1_WITH_BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+            assertTrue inbox.get(new InboxFilterCriteria(THING2_WITH_BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+            assertThat inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)), hasItems(THING_WITHOUT_BRIDGE,THING_WITH_OTHER_BRIDGE)
+        })
     }
 
     @Test(expected=IllegalArgumentException.class)
