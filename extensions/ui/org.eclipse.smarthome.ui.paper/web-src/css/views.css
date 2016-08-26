@@ -100,15 +100,14 @@ section#main.header-tabs {
 	{
 	margin-right: 10px;
 	border-radius: 50%;
-	width: 32px;
-	height: 32px;
+	width: 35px;
+	height: 35px;
 	background-color: #4CAF50;
 	color: white;
 	text-align: center;
 	font-size: 16px;
-	line-height: 32px;
 	padding: 10px;
-	display: inline;
+
 }
 
 .items .item md-input-container input {
