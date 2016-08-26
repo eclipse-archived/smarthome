@@ -7,9 +7,6 @@
  */
 package org.eclipse.smarthome.automation.module.timer.internal;
 
-
-import static org.junit.Assert.*
-
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
@@ -38,6 +35,7 @@ import org.slf4j.LoggerFactory
  * this tests the Timer Trigger
  *
  * @author Christoph Knauf - initial contribution
+ * @author Markus Rathgeb - fix module timer test
  *
  */
 class RuntimeRuleTest extends OSGiTest{
@@ -75,17 +73,48 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Test
     public void 'assert that timerTrigger works'(){
-        def testExpression = "* * * * * ?"
         def testItemName = "myLampItem"
 
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        def SwitchItem lampItem = itemRegistry.getItem(testItemName)
+
+        /*
+         * Check if auto update is working and
+         * ensure that the lamp item state if OFF after this check
+         */
+        logger.info("Check auto update");
+        for (state in [
+            OnOffType.OFF,
+            OnOffType.ON,
+            OnOffType.OFF
+        ]) {
+            lampItem.send(state);
+            waitForAssert({
+                assertThat lampItem.state,is(state);
+            })
+        }
+        logger.info("Auto update works");
+
+        /*
+         * Create Rule
+         */
+        logger.info("Create rule");
+        def testExpression = "* * * * * ?"
+
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
+        def triggers = [
+            new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)
+        ]
 
         def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
-        def actions = [new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)]
+        def actions = [
+            new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)
+        ]
 
         def conditionConfig = new Configuration([operator:"=", itemName:testItemName, state:"OFF"])
-        def conditions = [new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)]
+        def conditions = [
+            new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)
+        ]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
@@ -94,31 +123,42 @@ class RuntimeRuleTest extends OSGiTest{
         rule.name="MyTimerTriggerTestRule"
         logger.info("Rule created: "+rule.getUID())
 
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        def SwitchItem lampItem = itemRegistry.getItem(testItemName)
-        lampItem.send(OnOffType.OFF);
-        waitForAssert({
-            assertThat lampItem.state,is(OnOffType.OFF)
-        })
 
+        logger.info("Add rule");
         ruleRegistry.add(rule)
+        logger.info("Rule added");
+
+        logger.info("Enable rule and wait for idle status")
         ruleRegistry.setEnabled(rule.UID, true)
         waitForAssert({
             println ruleRegistry.getStatus(rule.UID).statusDetail
             assertThat ruleRegistry.getStatus(rule.UID).status, is(RuleStatus.IDLE)
         })
+        logger.info("Rule is enabled and idle")
 
         def numberOfTests = 3
-        for (int i=0; i < numberOfTests;i++){
+        for (int i=0; i < numberOfTests;i++) {
+            logger.info("Disable rule");
             ruleRegistry.setEnabled(rule.UID, false)
+            waitForAssert({
+                println ruleRegistry.getStatus(rule.UID).statusDetail
+                assertThat ruleRegistry.getStatus(rule.UID).status, is(RuleStatus.DISABLED)
+            })
+            logger.info("Rule is disabled");
+
+            logger.info("Try to set lamp item state to OFF")
             lampItem.send(OnOffType.OFF);
             waitForAssert({
                 assertThat lampItem.state,is(OnOffType.OFF)
             })
+            logger.info("Lamp item state is OFF")
+
+            logger.info("Enable rule and wait for lamp item state is ON")
             ruleRegistry.setEnabled(rule.UID, true)
             waitForAssert({
                 assertThat lampItem.state,is(OnOffType.ON)
             })
+            logger.info("lamp item state is ON")
         }
     }
 }
