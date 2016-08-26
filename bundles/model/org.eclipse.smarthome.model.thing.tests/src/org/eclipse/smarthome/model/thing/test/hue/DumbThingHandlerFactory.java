@@ -22,10 +22,10 @@ import com.google.common.collect.Sets;
 
 /**
  * {@link ThingHandlerFactory} that can be switched into <code>dumb</code> mode
- * 
+ *
  * In <code>dumb</code> mode, it behaves as if the XML configuration files have not been processed yet,
  * i.e. it returns <code>null</code> on {@link #createThing(ThingTypeUID, Configuration, ThingUID, ThingUID)}
- * 
+ *
  * @author Simon Kaufmann - Initial contribution and API
  */
 public class DumbThingHandlerFactory extends BaseThingHandlerFactory {
@@ -54,13 +54,9 @@ public class DumbThingHandlerFactory extends BaseThingHandlerFactory {
             return null;
         } else {
             if (SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-                Thing ret = super.createThing(thingTypeUID, configuration, thingUID, null);
-                // set a property so that the test case may detect that the thing got created here
-                ret.setProperty("funky", "true");
-                return ret;
+                return super.createThing(thingTypeUID, configuration, thingUID, null);
             }
-            throw new IllegalArgumentException(
-                    "The thing type " + thingTypeUID + " is not supported by the hue binding.");
+            throw new IllegalArgumentException("The thing type " + thingTypeUID + " is not supported by the mock.");
         }
     }
 
