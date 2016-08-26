@@ -113,7 +113,6 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     });
 
     discoveryResultRepository.getAll();
-    thingTypeRepository.getAll();
     bindingRepository.getAll();
 }).controller('PreferencesPageController', function($rootScope, $scope, $window, $location, toastService) {
     $scope.setHeaderText('Edit user preferences.');
