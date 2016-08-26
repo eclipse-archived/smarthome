@@ -19,13 +19,26 @@
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
     <bundle start-level="75">mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.xml/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemRegistry
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.autoupdate/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.binding.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.id/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.persistence/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.scheduler/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.ThingRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
+    </capability>
+
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.transform/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.voice/${project.version}</bundle>
@@ -162,13 +175,21 @@
   <feature name="esh-io-transport-mdns" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mdns/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.io.transport.mdns.MDNSService
+    </capability>
   </feature>
 
   <feature name="esh-io-transport-mqtt" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=paho)"</requirement>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mqtt/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.io.transport.mqtt.MqttService
+    </capability>
   </feature>
 
   <feature name="esh-io-transport-upnp" version="${project.version}">
