@@ -474,7 +474,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         this.inbox = inbox;
     }
 
-    protected void removeInbox(Inbox inbox) {
+    protected void unsetInbox(Inbox inbox) {
         this.inbox = null;
     }
 
