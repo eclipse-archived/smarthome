@@ -56,7 +56,9 @@ MY_CMD="${0}"
 MY_CMD_ABS="$(get_abs "${MY_CMD}")" || die "Cannot resolve path"
 MY_DIRNAME_ABS="$(dirname "${MY_CMD_ABS}")"
 
-REMOTE=origin
+if [ -z "${REMOTE}" ]; then
+  REMOTE=origin
+fi
 unset COMMIT_ID_WC
 
 #
