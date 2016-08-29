@@ -22,15 +22,18 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link ResourceBundleClassLoader} is a user defined classloader which is responsible
- * to map files within an <i>OSGi</i> bundle to {@link URL}s. This implementation only supports
- * the method {@link #getResource(String)} for mappings.
+ * The {@link ResourceBundleClassLoader} is a user defined classloader which is
+ * responsible to map files within an <i>OSGi</i> bundle to {@link URL}s. This
+ * implementation only supports the method {@link #getResource(String)} for
+ * mappings.
  *
  * @author Michael Grammling - Initial Contribution
  */
@@ -46,15 +49,21 @@ public class ResourceBundleClassLoader extends ClassLoader {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param bundle the bundle whose files should be mapped (must not be null)
+     * @param bundle
+     *            the bundle whose files should be mapped (must not be null)
      *
-     * @param path the path within the bundle which should be considered to be mapped.
-     *            If null is set, all files within the bundle are considered.
+     * @param path
+     *            the path within the bundle which should be considered to be
+     *            mapped. If null is set, all files within the bundle are
+     *            considered.
      *
-     * @param filePattern the pattern for files to be considered within the specified path.
-     *            If null is set, all files within the specified path are considered.
+     * @param filePattern
+     *            the pattern for files to be considered within the specified
+     *            path. If null is set, all files within the specified path are
+     *            considered.
      *
-     * @throws IllegalArgumentException if the bundle is null
+     * @throws IllegalArgumentException
+     *             if the bundle is null
      */
     public ResourceBundleClassLoader(Bundle bundle, String path, String filePattern) throws IllegalArgumentException {
 
@@ -72,6 +81,7 @@ public class ResourceBundleClassLoader extends ClassLoader {
     public URL getResource(String name) {
         Enumeration<URL> resourceFiles = this.bundle.findEntries(this.path, this.filePattern, true);
 
+        List<URL> allResources = new LinkedList<URL>();
         if (resourceFiles != null) {
             while (resourceFiles.hasMoreElements()) {
                 URL resourceURL = resourceFiles.nextElement();
@@ -80,9 +90,27 @@ public class ResourceBundleClassLoader extends ClassLoader {
                 String resourceFileName = resourceFile.getName();
 
                 if (resourceFileName.equals(name)) {
-                    return resourceURL;
+                    allResources.add(resourceURL);
                 }
             }
+        }
+
+        if (allResources.isEmpty()) {
+            return null;
+        }
+
+        if (allResources.size() == 1) {
+            return allResources.get(0);
+        }
+
+        // handle fragment resources. return first one.
+        for (URL url : allResources) {
+            boolean isHostResource = bundle.getEntry(url.getPath()) != null
+                    && bundle.getEntry(url.getPath()).equals(url);
+            if (isHostResource) {
+                continue;
+            }
+            return url;
         }
 
         return null;
