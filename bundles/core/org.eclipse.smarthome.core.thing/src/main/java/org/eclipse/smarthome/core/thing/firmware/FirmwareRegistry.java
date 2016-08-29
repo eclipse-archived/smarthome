@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
@@ -42,8 +43,10 @@ public final class FirmwareRegistry {
 
     private final List<FirmwareProvider> firmwareProviders = new CopyOnWriteArrayList<>();
 
+    private LocaleProvider localeProvider;
+
     /**
-     * Returns the firmware for the given UID using the default locale.
+     * Returns the firmware for the given UID using the locale provided by the {@link LocaleProvider}.
      *
      * @param firmwareUID the firmware UID (must not be null)
      *
@@ -52,14 +55,14 @@ public final class FirmwareRegistry {
      * @throws NullPointerException if given firmware UID is null
      */
     public Firmware getFirmware(FirmwareUID firmwareUID) {
-        return getFirmware(firmwareUID, null);
+        return getFirmware(firmwareUID, localeProvider.getLocale());
     }
 
     /**
      * Returns the firmware for the given UID.
      *
      * @param firmwareUID the firmware UID (must not be null)
-     * @param locale the locale to be used (if null then the default locale is used)
+     * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
      *
      * @return the corresponding firmware or null if no firmware was found
      *
@@ -68,7 +71,7 @@ public final class FirmwareRegistry {
     public Firmware getFirmware(FirmwareUID firmwareUID, Locale locale) {
         Preconditions.checkNotNull(firmwareUID, "Firmware UID must not be null");
 
-        Locale loc = locale != null ? locale : Locale.getDefault();
+        Locale loc = locale != null ? locale : localeProvider.getLocale();
 
         for (FirmwareProvider firmwareProvider : firmwareProviders) {
             try {
@@ -87,7 +90,7 @@ public final class FirmwareRegistry {
     }
 
     /**
-     * Returns the latest firmware for the given thing type UID using the default locale.
+     * Returns the latest firmware for the given thing type UID using the locale provided by the {@link LocaleProvider}.
      *
      * @param thingTypeUID the thing type UID (must not be null)
      *
@@ -96,27 +99,28 @@ public final class FirmwareRegistry {
      * @throws NullPointerException if given thing type UID is null
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID) {
-        return getLatestFirmware(thingTypeUID, Locale.getDefault());
+        return getLatestFirmware(thingTypeUID, localeProvider.getLocale());
     }
 
     /**
      * Returns the latest firmware for the given thing type UID and locale.
      *
      * @param thingTypeUID the thing type UID (must not be null)
-     * @param locale the locale to be used (if null then the default locale is used)
+     * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
      *
      * @return the corresponding latest firmware or null if no firmware was found
      *
      * @throws NullPointerException if given thing type UID is null
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID, Locale locale) {
-        Locale loc = locale != null ? locale : Locale.getDefault();
+        Locale loc = locale != null ? locale : localeProvider.getLocale();
         return Iterables.getFirst(getFirmwares((thingTypeUID), loc), null);
     }
 
     /**
-     * Returns the collection of available firmwares for the given thing type UID using the default locale. The
-     * collection is sorted in descending order, i.e. the latest firmware will be the first element in the collection.
+     * Returns the collection of available firmwares for the given thing type UID using the locale provided by the
+     * {@link LocaleProvider}. The collection is sorted in descending order, i.e. the latest firmware will be the first
+     * element in the collection.
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
      *
@@ -125,7 +129,7 @@ public final class FirmwareRegistry {
      * @throws NullPointerException if given thing type UID is null
      */
     public Collection<Firmware> getFirmwares(ThingTypeUID thingTypeUID) {
-        return getFirmwares(thingTypeUID, null);
+        return getFirmwares(thingTypeUID, localeProvider.getLocale());
     }
 
     /**
@@ -133,7 +137,7 @@ public final class FirmwareRegistry {
      * sorted in descending order, i.e. the latest firmware will be the first element in the collection.
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
-     * @param locale the locale to be used (if null then the default locale is used)
+     * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
      *
      * @return the collection of available firmwares for the given thing type UID (not null)
      *
@@ -142,7 +146,7 @@ public final class FirmwareRegistry {
     public Collection<Firmware> getFirmwares(ThingTypeUID thingTypeUID, Locale locale) {
         Preconditions.checkNotNull(thingTypeUID, "Thing type UID must not be null");
 
-        Locale loc = locale != null ? locale : Locale.getDefault();
+        Locale loc = locale != null ? locale : localeProvider.getLocale();
 
         Set<Firmware> firmwares = new TreeSet<>();
         for (FirmwareProvider firmwareProvider : firmwareProviders) {
@@ -169,4 +173,11 @@ public final class FirmwareRegistry {
         firmwareProviders.remove(firmwareProvider);
     }
 
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = null;
+    }
 }

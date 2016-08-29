@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUnknownInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpToDateInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateAvailableInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateExecutableInfo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +31,7 @@ import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
@@ -74,6 +78,7 @@ public final class FirmwareUpdateService {
     private FirmwareRegistry firmwareRegistry;
     private EventPublisher eventPublisher;
     private I18nProvider i18nProvider;
+    private LocaleProvider localeProvider;
 
     private Runnable firmwareStatusRunnable = new Runnable() {
         @Override
@@ -168,7 +173,8 @@ public final class FirmwareUpdateService {
      *
      * @param thingUID the thing UID (must not be null)
      * @param firmwareUID the UID of the firmware to be updated (must not be null)
-     * @param locale the locale to be used to internationalize error messages (if null then the default locale is used)
+     * @param locale the locale to be used to internationalize error messages (if null then the locale provided by the
+     *            {@link LocaleProvider} is used)
      *
      * @throws NullPointerException if given thing UID or firmware UID is null
      * @throws IllegalStateException if
@@ -198,14 +204,15 @@ public final class FirmwareUpdateService {
 
         validateFirmwareUpdateConditions(firmware, firmwareUpdateHandler);
 
+        final Locale loc = locale != null ? locale : localeProvider.getLocale();
+
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
 
         ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME).submit(new Runnable() {
             @Override
             public void run() {
                 final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler,
-                        eventPublisher, i18nProvider, thingUID, firmwareUID,
-                        locale != null ? locale : Locale.getDefault());
+                        eventPublisher, i18nProvider, thingUID, firmwareUID, loc);
                 try {
                     SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                         @Override
@@ -240,9 +247,8 @@ public final class FirmwareUpdateService {
         if (latestFirmware.isSuccessorVersion(thingFirmwareVersion)) {
             if (firmwareUpdateHandler.isUpdateExecutable()) {
                 return createUpdateExecutableInfo(latestFirmware.getUID());
-            } else {
-                return createUpdateAvailableInfo();
             }
+            return createUpdateAvailableInfo();
         }
 
         return createUpToDateInfo();
@@ -403,5 +409,13 @@ public final class FirmwareUpdateService {
 
     protected void unsetI18nProvider(I18nProvider i18nProvider) {
         this.i18nProvider = null;
+    }
+
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 }
