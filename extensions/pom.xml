@@ -18,6 +18,7 @@
   <modules>
     <module>binding</module>
     <module>io</module>
+    <module>persistence</module>
     <module>transform</module>
     <module>ui</module>
     <module>voice</module>
