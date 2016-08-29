@@ -14,6 +14,7 @@ Import-Package: org.apache.commons.exec,
  org.eclipse.jetty.io,
  org.eclipse.jetty.util,
  org.eclipse.jetty.util.component,
+ org.eclipse.jetty.util.ssl,
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http,
  org.slf4j

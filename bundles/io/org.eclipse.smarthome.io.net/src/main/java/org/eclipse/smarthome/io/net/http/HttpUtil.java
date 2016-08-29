@@ -31,6 +31,7 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class HttpUtil {
 
     private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
-    private static HttpClient client = new HttpClient();
+    private static HttpClient client = new HttpClient(new SslContextFactory());
 
     /**
      * Executes the given <code>url</code> with the given <code>httpMethod</code>.
