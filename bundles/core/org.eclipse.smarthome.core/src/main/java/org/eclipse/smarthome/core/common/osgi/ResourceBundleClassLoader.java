@@ -22,6 +22,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -72,6 +74,7 @@ public class ResourceBundleClassLoader extends ClassLoader {
     public URL getResource(String name) {
         Enumeration<URL> resourceFiles = this.bundle.findEntries(this.path, this.filePattern, true);
 
+        List<URL> allResources = new LinkedList<URL>();
         if (resourceFiles != null) {
             while (resourceFiles.hasMoreElements()) {
                 URL resourceURL = resourceFiles.nextElement();
@@ -80,11 +83,26 @@ public class ResourceBundleClassLoader extends ClassLoader {
                 String resourceFileName = resourceFile.getName();
 
                 if (resourceFileName.equals(name)) {
-                    return resourceURL;
+                    allResources.add(resourceURL);
                 }
             }
         }
+        
+        if(allResources.isEmpty())
+        	return null;
+        
+        if(allResources.size() == 1)
+        	return allResources.get(0);
 
+        // handle fragment resources. return first one.
+        for (URL url : allResources) {
+        	boolean isHostResource = bundle.getEntry(url.getPath()) != null && bundle.getEntry(url.getPath()).equals(url);
+        	if (isHostResource) {
+        		continue;
+        	}
+        	return url;
+		}
+        
         return null;
     }
 
