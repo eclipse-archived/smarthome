@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.transform</groupId>
   <artifactId>org.eclipse.smarthome.transform.xpath</artifactId>
 
-  <name>Eclipse SmartHome XPath Transform Service</name>
+  <name>Eclipse SmartHome XPath Transformation Service</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>

@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.transform</groupId>
   <artifactId>org.eclipse.smarthome.transform.xslt</artifactId>
 
-  <name>Eclipse SmartHome Xslt Transform Service</name>
+  <name>Eclipse SmartHome Xslt Transformation Service</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>
