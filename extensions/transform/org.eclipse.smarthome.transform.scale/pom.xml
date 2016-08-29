@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.transform</groupId>
   <artifactId>org.eclipse.smarthome.transform.scale</artifactId>
 
-  <name>Eclipse SmartHome Scale Transform Service</name>
+  <name>Eclipse SmartHome Scale Transformation Service</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>

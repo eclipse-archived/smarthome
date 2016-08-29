@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.transform</groupId>
   <artifactId>org.eclipse.smarthome.transform.regex</artifactId>
 
-  <name>Eclipse SmartHome RegEx Transform Service</name>
+  <name>Eclipse SmartHome RegEx Transformation Service</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>
