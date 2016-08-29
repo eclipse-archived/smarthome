@@ -30,6 +30,7 @@ import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -69,7 +70,7 @@ public class ProxyServlet extends HttpServlet {
 
     private static final long serialVersionUID = -4716754591953017793L;
 
-    private static HttpClient httpClient = new HttpClient();
+    private static HttpClient httpClient = new HttpClient(new SslContextFactory());
 
     /** Timeout for HTTP requests in ms */
     private static final int TIMEOUT = 5000;
