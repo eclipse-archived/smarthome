@@ -230,10 +230,14 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         managedThingProvider.add(thing2)
         managedThingProvider.add(thing3)
 
+        def expectedInitializedFirmwareStatusInfoEvents = 3
+
         waitForAssert {
             assertThat thing1.getStatus(), is(ThingStatus.ONLINE)
             assertThat thing2.getStatus(), is(ThingStatus.ONLINE)
             assertThat thing3.getStatus(), is(ThingStatus.ONLINE)
+
+            assertThat firmwareStatusInfoEventSubscriber.events.size(), is(expectedInitializedFirmwareStatusInfoEvents)
         }
     }
 
@@ -310,7 +314,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         assertFirmwareStatusInfoEvent(THING1_UID, updateExecutableInfoFw112)
 
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112)
-        assertThatNoFirmwareStatusInfoEventWasPropagated()
+        assertThatNoFirmwareStatusInfoEventWasPropagated(THING1_UID)
     }
 
     @Test
@@ -478,8 +482,10 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         registerService(firmwareProvider2, FirmwareProvider.class.getName())
 
+        assertFirmwareStatusInfoEvent(THING2_UID, upToDateInfo)
+
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw113)
-        assertFirmwareStatusInfoEvent(THING1_UID, updateExecutableInfoFw113)
+        assertFirmwareStatusInfoEvent(THING1_UID, updateExecutableInfoFw112, updateExecutableInfoFw113)
 
         try {
             firmwareUpdateService.updateFirmware(THING1_UID, FW113_EN.getUID(), null)
@@ -497,7 +503,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         }
 
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw113)
-        assertThatNoFirmwareStatusInfoEventWasPropagated()
+        assertThatNoFirmwareStatusInfoEventWasPropagated(THING1_UID)
 
         firmwareUpdateService.updateFirmware(THING1_UID, FW113_EN.getUID(), null)
 
@@ -622,7 +628,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         assertFirmwareStatusInfoEvent(THING1_UID, updateExecutableInfoFw112)
 
         def longwait = 10000
-        thing1.getHandler().sleep = longwait
+        thing1.getHandler().wait = longwait
 
         def enMsg = "A timeout occurred during firmware update."
 
@@ -660,7 +666,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         assertThat thing1.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION), is(V111.toString())
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112)
-        assertThatNoFirmwareStatusInfoEventWasPropagated()
+        assertThatNoFirmwareStatusInfoEventWasPropagated(THING1_UID)
     }
 
     @Test
@@ -687,7 +693,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         assertThat thing1.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION), is(V111.toString())
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112)
-        assertThatNoFirmwareStatusInfoEventWasPropagated()
+        assertThatNoFirmwareStatusInfoEventWasPropagated(THING1_UID)
     }
 
     @Test
@@ -809,25 +815,37 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         ] as ConfigDescriptionProvider)
     }
 
-    private void assertThatNoFirmwareStatusInfoEventWasPropagated() {
+    private void assertThatNoFirmwareStatusInfoEventWasPropagated(ThingUID thingUID) {
+        def infoEvents = new ArrayList(firmwareStatusInfoEventSubscriber.events)
+        assertThat infoEvents.findAll {
+            it.thingUID.equals(thingUID)
+        }.size(), is(0)
+    }
+
+    private void assertFirmwareStatusInfoEvent(ThingUID thingUID, FirmwareStatusInfo... expected) {
+        def expectedList = expected as List
+
+        def infoEvents = []
         waitForAssert {
-            assertThat firmwareStatusInfoEventSubscriber.events.size(), is(0)
+            infoEvents = new ArrayList(firmwareStatusInfoEventSubscriber.events)
+            infoEvents = infoEvents.findAll {
+                it.thingUID.equals(thingUID)
+            }
+
+            assertThat infoEvents.size(), is(expected.size())
+            infoEvents.each {
+                assertThat it.getTopic(), containsString(thingUID.getAsString())
+                assertThat it.getThingUID(), is(thingUID)
+                assertThat expectedList, hasItem(it.getFirmwareStatusInfo())
+            }
+        }
+
+        infoEvents.each {
+            firmwareStatusInfoEventSubscriber.events.remove(it)
         }
     }
 
-    private void assertFirmwareStatusInfoEvent(ThingUID thingUID, FirmwareStatusInfo expected) {
-        waitForAssert {
-            assertThat firmwareStatusInfoEventSubscriber.events.findAll { it.thingUID.equals(thingUID) }.size(), is(1)
-            FirmwareStatusInfoEvent firmwareStatusInfoEvent = (FirmwareStatusInfoEvent) firmwareStatusInfoEventSubscriber.events.first()
-            assertThat firmwareStatusInfoEvent.getTopic(), containsString(thingUID.getAsString())
-            assertThat firmwareStatusInfoEvent.getThingUID(), is(thingUID)
-            assertThat firmwareStatusInfoEvent.getFirmwareStatusInfo(), is(expected)
-        }
-
-        firmwareStatusInfoEventSubscriber.events.clear()
-    }
-
-    def assertFailedFirmwareUpdate(def expectedErrorMessage) {
+    private void assertFailedFirmwareUpdate(def expectedErrorMessage) {
         waitForAssert {
             assertThat firmwareUpdateResultInfoEventSubscriber.events.size(), is(1)
             FirmwareUpdateResultInfoEvent firmwareUpdateResultInfoEvent = (FirmwareUpdateResultInfoEvent) firmwareUpdateResultInfoEventSubscriber.events.first()
@@ -893,13 +911,19 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
             ProgressStep.UPDATING
         ].toArray(new ProgressStep[0])
 
-        int sleep = 25
+        int wait = 25
         boolean updateExecutable = true
         boolean exception = false
         boolean fail = false
 
         FirmwareUpdateThingHandler(Thing thing) {
             super(thing)
+        }
+
+        @Override
+        public void initialize() {
+            sleep wait
+            super.initialize();
         }
 
         @Override
@@ -915,7 +939,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
                 return
             }
 
-            Thread.sleep(sleep)
+            sleep wait
 
             progressCallback.next()
             progressCallback.next()
@@ -956,7 +980,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     final class FirmwareUpdateBackgroundTransferThingHandler extends BaseThingHandler implements FirmwareUpdateBackgroundTransferHandler {
 
-        int sleep = 25
+        int wait = 25
         boolean updateExecutable = false
         boolean transferred = false
 
@@ -965,12 +989,18 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         }
 
         @Override
+        public void initialize() {
+            sleep wait
+            super.initialize()
+        }
+
+        @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
         }
 
         @Override
         public void updateFirmware(Firmware firmware, ProgressCallback progressCallback) {
-            Thread.sleep(sleep)
+            sleep wait
             updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getVersion())
             updateExecutable = false;
         }
@@ -981,7 +1011,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         }
 
         void transferFirmware(Firmware firmware) {
-            Thread.sleep(sleep)
+            sleep wait
             updateExecutable = true
         }
     }
