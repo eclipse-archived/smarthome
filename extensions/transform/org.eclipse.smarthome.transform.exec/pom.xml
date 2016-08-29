@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.transform</groupId>
   <artifactId>org.eclipse.smarthome.transform.exec</artifactId>
 
-  <name>Eclipse SmartHome Exec Transform Service</name>
+  <name>Eclipse SmartHome Exec Transformation Service</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>
