@@ -134,7 +134,9 @@ public class VoiceManager {
             Voice voice = null;
             if (voiceId == null) {
                 tts = getTTS();
-                voice = getPreferredVoice(tts.getAvailableVoices());
+                if (tts != null) {
+                    voice = getPreferredVoice(tts.getAvailableVoices());
+                }
             } else if (voiceId.contains(":")) {
                 // it is a fully qualified unique id
                 String[] segments = voiceId.split(":");
