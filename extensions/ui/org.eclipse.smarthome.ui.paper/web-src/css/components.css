@@ -932,3 +932,8 @@ md-dialog-content .dayParameter {
 .includeConfig .parameter .hint h6 {
     font-size:10px;
 }
+
+.icontrol .control-button {
+	min-height: 35px;
+	min-width: 35px;
+}
