@@ -6,19 +6,16 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 DynamicImport-Package: *
-Import-Package: org.apache.commons.io,
- org.apache.commons.lang,
- org.eclipse.smarthome.config.core,
+Import-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.persistence,
  org.eclipse.smarthome.core.types,
+ org.h2,
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j
-Bundle-ClassPath: .,
- lib/h2-1.3.176.jar
 Service-Component: OSGI-INF/h2.xml
 Bundle-ActivationPolicy: lazy
