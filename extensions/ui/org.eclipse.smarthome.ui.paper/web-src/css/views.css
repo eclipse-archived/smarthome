@@ -79,6 +79,9 @@ section#main.header-tabs {
 .number-control-widget md-slider {
 	margin: 0px;
 }
+.number-control-widget .text-left, .number-control-widget .text-right {
+	margin-top: 15px;
+}
 
 .items .item .icontrol>div>div {
 	height: 40px;
