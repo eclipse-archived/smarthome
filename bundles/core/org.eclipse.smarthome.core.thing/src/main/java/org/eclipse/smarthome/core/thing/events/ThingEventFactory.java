@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -43,7 +44,7 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private static final String THING_UPDATED_EVENT_TOPIC = "smarthome/things/{thingUID}/updated";
 
-    private static final String THING_TRIGGERED_EVENT_TOPIC = "smarthome/things/{thingUID}/triggered";
+    private static final String CHANNEL_TRIGGERED_EVENT_TOPIC = "smarthome/channels/{channelUID}/triggered";
 
     /**
      * Constructs a new ThingEventFactory.
@@ -104,15 +105,15 @@ public class ThingEventFactory extends AbstractEventFactory {
      * Creates a trigger event from a {@link Type}.
      *
      * @param event Event.
-     *              @param thing thing, which triggered the event.
+     * @param thing thing, which triggered the event.
      * @param source Source.
      * @return Created trigger event.
      */
-    public static ThingTriggerEvent createTriggerEvent(Type event, ThingUID thing, String source) {
+    public static ThingTriggerEvent createTriggerEvent(Type event, ChannelUID channel) {
         TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event.getClass().getSimpleName(), event.toString());
         String payload = serializePayload(bean);
-        String topic = buildTopic(THING_TRIGGERED_EVENT_TOPIC, thing.getAsString());
-        return new ThingTriggerEvent(topic, payload, source, event);
+        String topic = buildTopic(CHANNEL_TRIGGERED_EVENT_TOPIC, channel);
+        return new ThingTriggerEvent(topic, payload, null, event);
     }
 
     /**
@@ -182,7 +183,7 @@ public class ThingEventFactory extends AbstractEventFactory {
         Preconditions.checkArgument(thingUID != null, "The argument 'thingUID' must not be null.");
         Preconditions.checkArgument(thingStatusInfo != null, "The argument 'thingStatusInfo' must not be null.");
 
-        String topic = buildTopic(THING_STATUS_INFO_EVENT_TOPIC, thingUID.getAsString());
+        String topic = buildTopic(THING_STATUS_INFO_EVENT_TOPIC, thingUID);
         String payload = serializePayload(thingStatusInfo);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
     }
@@ -205,7 +206,7 @@ public class ThingEventFactory extends AbstractEventFactory {
         Preconditions.checkArgument(thingStatusInfo != null, "The argument 'thingStatusInfo' must not be null.");
         Preconditions.checkArgument(oldThingStatusInfo != null, "The argument 'oldThingStatusInfo' must not be null.");
 
-        String topic = buildTopic(THING_STATUS_INFO_CHANGED_EVENT_TOPIC, thingUID.getAsString());
+        String topic = buildTopic(THING_STATUS_INFO_CHANGED_EVENT_TOPIC, thingUID);
         String payload = serializePayload(new ThingStatusInfo[] { thingStatusInfo, oldThingStatusInfo });
         return new ThingStatusInfoChangedEvent(topic, payload, thingUID, thingStatusInfo, oldThingStatusInfo);
     }
@@ -221,7 +222,7 @@ public class ThingEventFactory extends AbstractEventFactory {
      */
     public static ThingAddedEvent createAddedEvent(Thing thing) {
         assertValidArgument(thing);
-        String topic = buildTopic(THING_ADDED_EVENT_TOPIC, thing.getUID().getAsString());
+        String topic = buildTopic(THING_ADDED_EVENT_TOPIC, thing.getUID());
         ThingDTO thingDTO = map(thing);
         String payload = serializePayload(thingDTO);
         return new ThingAddedEvent(topic, payload, thingDTO);
@@ -238,7 +239,7 @@ public class ThingEventFactory extends AbstractEventFactory {
      */
     public static ThingRemovedEvent createRemovedEvent(Thing thing) {
         assertValidArgument(thing);
-        String topic = buildTopic(THING_REMOVED_EVENT_TOPIC, thing.getUID().getAsString());
+        String topic = buildTopic(THING_REMOVED_EVENT_TOPIC, thing.getUID());
         ThingDTO thingDTO = map(thing);
         String payload = serializePayload(thingDTO);
         return new ThingRemovedEvent(topic, payload, thingDTO);
@@ -257,7 +258,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     public static ThingUpdatedEvent createUpdateEvent(Thing thing, Thing oldThing) {
         assertValidArgument(thing);
         assertValidArgument(oldThing);
-        String topic = buildTopic(THING_UPDATED_EVENT_TOPIC, thing.getUID().getAsString());
+        String topic = buildTopic(THING_UPDATED_EVENT_TOPIC, thing.getUID());
         ThingDTO thingDTO = map(thing);
         ThingDTO oldThingDTO = map(oldThing);
         List<ThingDTO> thingDTOs = Lists.newLinkedList();
@@ -272,8 +273,12 @@ public class ThingEventFactory extends AbstractEventFactory {
         Preconditions.checkArgument(thing.getUID() != null, "The thingUID of a thing must not be null.");
     }
 
-    private static String buildTopic(String topic, String thingUID) {
-        return topic.replace("{thingUID}", thingUID);
+    private static String buildTopic(String topic, ThingUID thingUID) {
+        return topic.replace("{thingUID}", thingUID.getAsString());
+    }
+
+    private static String buildTopic(String topic, ChannelUID channelUID) {
+        return topic.replace("{channelUID}", channelUID.getAsString());
     }
 
     private static ThingDTO map(Thing thing) {

@@ -256,7 +256,7 @@ public class ThingManager extends AbstractItemEventSubscriber
 
         @Override
         public void eventEmitted(Thing thing, ChannelUID channelUID, Type event) {
-            eventPublisher.post(ThingEventFactory.createTriggerEvent(event, thing.getUID(), channelUID.toString()));
+            eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
         }
 
     };

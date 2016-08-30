@@ -131,7 +131,7 @@
                "type":"GenericEventTrigger",
                "configuration":{
                   "eventSource":"$channelId",
-                  "eventTopic":"smarthome/things/*/triggered",
+                  "eventTopic":"smarthome/channels/*/triggered",
                   "eventTypes":"ThingTriggerEvent"
                }
             }
