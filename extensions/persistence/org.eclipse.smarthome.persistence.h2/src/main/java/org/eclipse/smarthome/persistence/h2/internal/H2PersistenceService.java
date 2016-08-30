@@ -70,7 +70,6 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
     private static final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
 
-    private final String driverClass = "org.h2.Driver";
     private final String h2Url = "jdbc:h2:file:";
     private final String schema = "SMARTHOME";
 
@@ -519,7 +518,8 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         // We're not connected, so connect
         try {
             logger.debug("H2: Connecting to database");
-            Class.forName(driverClass).newInstance();
+            // Ensure that the driver is loaded (don't want to use Class.forName in the OSGi env.
+            org.h2.Driver.load();
 
             final String folderName = ConfigConstants.getUserDataFolder() + "/h2";
 
