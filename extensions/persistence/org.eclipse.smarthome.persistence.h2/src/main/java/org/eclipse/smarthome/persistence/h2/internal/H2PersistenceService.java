@@ -518,8 +518,6 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         // We're not connected, so connect
         try {
             logger.debug("H2: Connecting to database");
-            // Ensure that the driver is loaded (don't want to use Class.forName in the OSGi env.
-            org.h2.Driver.load();
 
             final String folderName = ConfigConstants.getUserDataFolder() + "/h2";
 
