@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse SmartHome H2SQL Persistence Service
-Bundle-SymbolicName: org.eclipse.smarthome.persistence.h2sql
+Bundle-Name: Eclipse SmartHome H2 Persistence Service
+Bundle-SymbolicName: org.eclipse.smarthome.persistence.h2
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -20,5 +20,5 @@ Import-Package: org.apache.commons.io,
  org.slf4j
 Bundle-ClassPath: .,
  lib/h2-1.3.176.jar
-Service-Component: OSGI-INF/h2sql.xml
+Service-Component: OSGI-INF/h2.xml
 Bundle-ActivationPolicy: lazy

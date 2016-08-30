@@ -5,26 +5,26 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.persistence.h2sql.internal;
+package org.eclipse.smarthome.persistence.h2.internal;
 
 import java.util.Date;
 
 import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 
 /**
- * This is a class used to return item information from the H2SQL database.
+ * This is a class used to return item information from the H2 database.
  *
  * @author Chris Jackson - Initial contribution
  *
  */
-public class H2SqlPersistenceItem implements PersistenceItemInfo {
+public class H2PersistenceItem implements PersistenceItemInfo {
 
     final private String name;
     final private Integer rows;
     final private Date earliest;
     final private Date latest;
 
-    public H2SqlPersistenceItem(String name, Integer rows, Date earliest, Date latest) {
+    public H2PersistenceItem(String name, Integer rows, Date earliest, Date latest) {
         this.name = name;
         this.rows = rows;
         this.earliest = earliest;

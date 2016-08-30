@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.eclipse.smarthome.persistence.h2sql</module>
+    <module>org.eclipse.smarthome.persistence.h2</module>
   </modules>
 
 </project>

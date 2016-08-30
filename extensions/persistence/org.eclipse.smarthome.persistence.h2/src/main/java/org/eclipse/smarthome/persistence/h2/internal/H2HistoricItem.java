@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.persistence.h2sql.internal;
+package org.eclipse.smarthome.persistence.h2.internal;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -20,13 +20,13 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Initial contribution
  *
  */
-public class H2SqlHistoricItem implements HistoricItem {
+public class H2HistoricItem implements HistoricItem {
 
 	final private String name;
 	final private State state;
 	final private Date timestamp;
 	
-	public H2SqlHistoricItem(String name, State state, Date timestamp) {
+	public H2HistoricItem(String name, State state, Date timestamp) {
 		this.name = name;
 		this.state = state;
 		this.timestamp = timestamp;

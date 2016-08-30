@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.persistence.h2sql">
-    <implementation class="org.eclipse.smarthome.persistence.h2sql.internal.H2SqlPersistenceService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.persistence.h2">
+    <implementation class="org.eclipse.smarthome.persistence.h2.internal.H2PersistenceService"/>
     <service>
         <provide interface="org.eclipse.smarthome.core.persistence.PersistenceService"/>
     </service>

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.persistence.h2sql.internal;
+package org.eclipse.smarthome.persistence.h2.internal;
 
 import java.io.File;
 import java.security.InvalidParameterException;
@@ -54,7 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the implementation of the H2 SQL {@link PersistenceService}.
+ * This is the implementation of the H2 {@link PersistenceService}.
  * See http://h2database.com
  *
  * H2 database licensed under EPL (http://h2database.com/html/license.html)
@@ -62,13 +62,13 @@ import org.slf4j.LoggerFactory;
  * In the store method, type conversion is performed where the default type for
  * an item is not as above For example, DimmerType can return OnOffType, so to
  * keep the best resolution, we store as a number in SQL and convert to
- * DecimalType before persisting to H2SQL.
+ * DecimalType before persisting to H2.
  *
  * @author Chris Jackson - Initial contribution
  */
-public class H2SqlPersistenceService implements ModifiablePersistenceService, ManagedService {
+public class H2PersistenceService implements ModifiablePersistenceService, ManagedService {
 
-    private static final Logger logger = LoggerFactory.getLogger(H2SqlPersistenceService.class);
+    private static final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
 
     private final String driverClass = "org.h2.Driver";
     private final String h2Url = "jdbc:h2:file:";
@@ -85,7 +85,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
 
     private BundleContext bundleContext;
 
-    public H2SqlPersistenceService() {
+    public H2PersistenceService() {
         // Initialise the type array
         sqlTypes.put("DIMMERITEM", "TINYINT");
         sqlTypes.put("NUMBERITEM", "DECIMAL");
@@ -93,13 +93,13 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     }
 
     protected void activate(BundleContext bundleContext, Map<String, Object> properties) {
-        logger.info("H2SQL: Persistence bundle activated.");
+        logger.info("H2: Persistence bundle activated.");
 
         this.bundleContext = bundleContext;
     }
 
     public void deactivate() {
-        logger.info("H2SQL: Persistence bundle deactivated.");
+        logger.info("H2: Persistence bundle deactivated.");
         disconnectFromDatabase();
         this.bundleContext = null;
     }
@@ -125,7 +125,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      */
     @Override
     public String getId() {
-        return "h2sql";
+        return "h2";
     }
 
     /**
@@ -133,7 +133,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      */
     @Override
     public String getLabel(Locale locale) {
-        return i18nProvider.getText(bundleContext.getBundle(), "h2sql.label", "H2SQL Embedded Database", locale);
+        return i18nProvider.getText(bundleContext.getBundle(), "h2.label", "H2 Embedded Database", locale);
     }
 
     /**
@@ -151,7 +151,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     public void store(Item item) {
         // Do some type conversion to ensure we know the data type.
         // This is necessary for items that have multiple types and may return their
-        // state in a format that's not preferred or compatible with the H2SQL type.
+        // state in a format that's not preferred or compatible with the H2 type.
         // eg. DimmerItem can return OnOffType (ON, OFF), or PercentType (0-100).
         // We need to make sure we cover the best type for serialisation.
         State state;
@@ -163,7 +163,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             // All other items should return the best format by default
             state = item.getState();
         }
-        logger.trace("H2SQL: State is {}::{}", item.getState(), state);
+        logger.trace("H2: State is {}::{}", item.getState(), state);
 
         store(item, new Date(), state);
     }
@@ -174,13 +174,13 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
     @Override
     public void store(Item item, Date date, State state) {
         if (state == null || state instanceof UnDefType) {
-            logger.trace("H2SQL: State of {} [{}] is {}. Store aborted", item, item.getClass().getSimpleName(), state);
+            logger.trace("H2: State of {} [{}] is {}. Store aborted", item, item.getClass().getSimpleName(), state);
             return;
         }
 
-        // Connect to H2SQL server if we're not already connected
+        // Connect to H2 server if we're not already connected
         if (!connectToDatabase()) {
-            logger.warn("H2SQL: No connection to database. Can not persist item '{}'", item.getName());
+            logger.warn("H2: No connection to database. Can not persist item '{}'", item.getName());
             return;
         }
 
@@ -203,15 +203,15 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             // Create the table for the data
             sqlCmd = new String("CREATE TABLE IF NOT EXISTS " + getTableName(item.getName()) + " (Time DATETIME, Value "
                     + sqlType + ", PRIMARY KEY(Time));");
-            logger.trace("H2SQL: " + sqlCmd);
+            logger.trace("H2: " + sqlCmd);
 
             try {
                 statement = connection.createStatement();
                 statement.executeUpdate(sqlCmd);
 
-                logger.trace("H2SQL: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
+                logger.trace("H2: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
             } catch (Exception e) {
-                logger.error("H2SQL: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
+                logger.error("H2: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
                 logger.error("     : " + e.getMessage());
             } finally {
                 if (statement != null) {
@@ -231,9 +231,9 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             statement.executeUpdate(sqlCmd);
 
             long timerStop = System.currentTimeMillis();
-            logger.debug("H2SQL: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
+            logger.debug("H2: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
                     timerStop - timerStart);
-            logger.trace("H2SQL: {}", sqlCmd);
+            logger.trace("H2: {}", sqlCmd);
         } catch (Exception e1) {
             if (statement != null) {
                 try {
@@ -255,13 +255,12 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 statement.executeUpdate(sqlCmd);
 
                 long timerStop = System.currentTimeMillis();
-                logger.debug("H2SQL: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
+                logger.debug("H2: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
                         timerStop - timerStart);
-                logger.trace("H2SQL: {}", sqlCmd);
+                logger.trace("H2: {}", sqlCmd);
             } catch (Exception e2) {
 
-                logger.error("H2SQL: Could not store item '{}' in database with statement '{}'", item.getName(),
-                        sqlCmd);
+                logger.error("H2: Could not store item '{}' in database with statement '{}'", item.getName(), sqlCmd);
                 logger.error("     : " + e2.getMessage());
             }
         }
@@ -286,9 +285,9 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      */
     @Override
     public Iterable<HistoricItem> query(FilterCriteria filter) {
-        // Connect to H2SQL server if we're not already connected
+        // Connect to H2 server if we're not already connected
         if (!connectToDatabase()) {
-            logger.debug("Query aborted on item {} - H2SQL not connected!", filter.getItemName());
+            logger.debug("Query aborted on item {} - H2 not connected!", filter.getItemName());
             return Collections.emptyList();
         }
 
@@ -301,7 +300,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 item = itemRegistry.getItem(itemName);
             }
         } catch (ItemNotFoundException e) {
-            logger.error("H2SQL: Unable to get item type for {}", itemName);
+            logger.error("H2: Unable to get item type for {}", itemName);
             logger.error("     : " + e.getMessage());
 
             // Set type to null - data will be returned as StringType
@@ -328,7 +327,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 queryString += filterString;
             }
 
-            logger.trace("H2SQL: " + queryString);
+            logger.trace("H2: " + queryString);
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
@@ -347,7 +346,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                     state = TypeParser.parseState(item.getAcceptedDataTypes(), rs.getString(2));
                 }
 
-                H2SqlHistoricItem sqlItem = new H2SqlHistoricItem(itemName, state, rs.getTimestamp(1));
+                H2HistoricItem sqlItem = new H2HistoricItem(itemName, state, rs.getTimestamp(1));
                 items.add(sqlItem);
             }
 
@@ -355,11 +354,11 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             st.close();
 
             long timerStop = System.currentTimeMillis();
-            logger.debug("H2SQL: query returned {} rows in {}ms", count, timerStop - timerStart);
+            logger.debug("H2: query returned {} rows in {}ms", count, timerStop - timerStart);
 
             return items;
         } catch (SQLException e) {
-            logger.error("H2SQL: Error running query");
+            logger.error("H2: Error running query");
             logger.error("     : " + e.getMessage());
 
             return Collections.emptyList();
@@ -371,9 +370,9 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      */
     @Override
     public Set<PersistenceItemInfo> getItemInfo() {
-        // Connect to H2SQL server if we're not already connected
+        // Connect to H2 server if we're not already connected
         if (!connectToDatabase()) {
-            logger.warn("H2SQL: No connection to database.");
+            logger.warn("H2: No connection to database.");
             return Collections.emptySet();
         }
 
@@ -413,7 +412,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
                 rsTimes.close();
                 stTimes.close();
 
-                H2SqlPersistenceItem item = new H2SqlPersistenceItem(rs.getString(1), rs.getInt(2), earliest, latest);
+                H2PersistenceItem item = new H2PersistenceItem(rs.getString(1), rs.getInt(2), earliest, latest);
                 items.add(item);
             }
 
@@ -421,11 +420,11 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             st.close();
 
             long timerStop = System.currentTimeMillis();
-            logger.debug("H2SQL: query returned {} items in {}ms", items.size(), timerStop - timerStart);
+            logger.debug("H2: query returned {} items in {}ms", items.size(), timerStop - timerStart);
 
             return items;
         } catch (SQLException e) {
-            logger.error("H2SQL: Error running query");
+            logger.error("H2: Error running query");
             logger.error("     : " + e.getMessage());
 
             return Collections.emptySet();
@@ -437,9 +436,9 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      */
     @Override
     public boolean remove(FilterCriteria filter) throws InvalidParameterException {
-        // Connect to H2SQL server if we're not already connected
+        // Connect to H2 server if we're not already connected
         if (!connectToDatabase()) {
-            logger.warn("H2SQL: No connection to database.");
+            logger.warn("H2: No connection to database.");
             return false;
         }
 
@@ -469,21 +468,21 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + getTableName(filter.getItemName()));
 
             rs.next();
-            logger.debug("H2SQL: deleted {} rows from {} in {}ms. {} rows remain.", filter.getItemName(), rowsDeleted,
+            logger.debug("H2: deleted {} rows from {} in {}ms. {} rows remain.", filter.getItemName(), rowsDeleted,
                     timerStop - timerStart, rs.getInt(1));
 
             if (rs.getInt(1) == 0) {
                 queryString = "DROP TABLE " + getTableName(filter.getItemName());
                 st.execute(queryString);
 
-                logger.info("H2SQL: Dropped table for {}", filter.getItemName());
+                logger.info("H2: Dropped table for {}", filter.getItemName());
             }
 
             st.close();
 
             return true;
         } catch (SQLException e) {
-            logger.error("H2SQL: Error running query");
+            logger.error("H2: Error running query");
             logger.error("     : " + e.getMessage());
 
             return false;
@@ -499,10 +498,10 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
         // Check if connection is valid
         try {
             if (connection != null && !connection.isValid(5000)) {
-                logger.error("H2SQL: Connection is not valid!");
+                logger.error("H2: Connection is not valid!");
             }
         } catch (SQLException e) {
-            logger.error("H2SQL: Error while checking connection");
+            logger.error("H2: Error while checking connection");
             logger.error("     : " + e.getMessage());
         }
         return connection != null;
@@ -519,15 +518,15 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
 
         // We're not connected, so connect
         try {
-            logger.debug("H2SQL: Connecting to database");
+            logger.debug("H2: Connecting to database");
             Class.forName(driverClass).newInstance();
 
-            final String folderName = ConfigConstants.getUserDataFolder() + "/h2sql";
+            final String folderName = ConfigConstants.getUserDataFolder() + "/h2";
 
             // Create path for serialization.
             final File folder = new File(folderName);
             if (!folder.exists()) {
-                logger.debug("Creating H2SQL folder {}", folderName);
+                logger.debug("Creating H2 folder {}", folderName);
                 folder.mkdirs();
             }
 
@@ -539,7 +538,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             url += ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;DEFRAG_ALWAYS=true;";
             connection = DriverManager.getConnection(url);
 
-            logger.debug("H2SQL: Connected to database {}", databaseFileName);
+            logger.debug("H2: Connected to database {}", databaseFileName);
 
             Statement statement = connection.createStatement();
             String sqlCmd = new String("CREATE SCHEMA IF NOT EXISTS " + schema + ";");
@@ -548,7 +547,7 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
             statement.executeUpdate(sqlCmd);
             statement.close();
         } catch (Exception e) {
-            logger.error("H2SQL: Failed connecting to the SQL database");
+            logger.error("H2: Failed connecting to the database");
             logger.error("     : " + e.getMessage());
         }
 
@@ -559,13 +558,13 @@ public class H2SqlPersistenceService implements ModifiablePersistenceService, Ma
      * Disconnects from the database
      */
     private void disconnectFromDatabase() {
-        logger.debug("H2SQL: Disconnecting from database.");
+        logger.debug("H2: Disconnecting from database.");
         if (connection != null) {
             try {
                 connection.close();
-                logger.debug("H2SQL: Disconnected from database.");
+                logger.debug("H2: Disconnected from database.");
             } catch (Exception e) {
-                logger.error("H2SQL: Failed disconnecting from the SQL database");
+                logger.error("H2: Failed disconnecting from the database");
                 logger.error("     : " + e.getMessage());
             }
             connection = null;
