@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  */
 public class H2PersistenceService implements ModifiablePersistenceService, ManagedService {
 
-    private static final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
+    private final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
 
     private final String h2Url = "jdbc:h2:file:";
     private final String schema = "SMARTHOME";
