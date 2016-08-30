@@ -143,9 +143,7 @@
 														<p>Control</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
-														<i class="md-button control-button material-icons" ng-click="sendCommand('DOWN')">vertical_align_bottom</i> 
-														<i class="md-button control-button material-icons" ng-click="sendCommand('STOP')">stop</i> 
-														<i class="md-button control-button material-icons" ng-click="sendCommand('UP')">vertical_align_top</i>
+														<i class="md-button control-button material-icons" ng-click="sendCommand('DOWN')">vertical_align_bottom</i> <i class="md-button control-button material-icons" ng-click="sendCommand('STOP')">stop</i> <i class="md-button control-button material-icons" ng-click="sendCommand('UP')">vertical_align_top</i>
 													</div>
 												</div>
 												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
@@ -161,12 +159,9 @@
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
-				
-															<i class="md-button control-button material-icons" ng-click="sendCommand('PREVIOUS')">skip_previous</i>
-															<i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i>
-															<i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i>
-														    <i class="md-button control-button material-icons" ng-click="sendCommand('NEXT')">skip_next</i>
-														      
+
+														<i class="md-button control-button material-icons" ng-click="sendCommand('PREVIOUS')">skip_previous</i> <i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i> <i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i> <i class="md-button control-button material-icons" ng-click="sendCommand('NEXT')">skip_next</i>
+
 													</div>
 												</div>
 											</div>
@@ -214,7 +209,7 @@
 														</p>
 													</div>
 													<div layout="row" layout-align="end center" flex="40">
-															<i class="md-button control-button material-icons" ng-click="refreshCameraImage()" >autorenew</i>
+														<i class="md-button control-button material-icons" ng-click="refreshCameraImage()">autorenew</i>
 													</div>
 												</div>
 												<div class="image-widget" layout-align="center center" layout="row">
