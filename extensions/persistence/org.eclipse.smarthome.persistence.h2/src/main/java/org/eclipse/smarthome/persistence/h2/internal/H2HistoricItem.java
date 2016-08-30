@@ -13,40 +13,42 @@ import java.util.Date;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.types.State;
 
-
 /**
  * This is a Java bean used to return historic items from a SQL database.
- * 
+ *
  * @author Chris Jackson - Initial contribution
  *
  */
 public class H2HistoricItem implements HistoricItem {
 
-	final private String name;
-	final private State state;
-	final private Date timestamp;
-	
-	public H2HistoricItem(String name, State state, Date timestamp) {
-		this.name = name;
-		this.state = state;
-		this.timestamp = timestamp;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public State getState() {
-		return state;
-	}
-	
-	public Date getTimestamp() {
-		return timestamp;
-	}
+    final private String name;
+    final private State state;
+    final private Date timestamp;
 
-	@Override
-	public String toString() {
-		return DateFormat.getDateTimeInstance().format(timestamp) + ": " + name + " -> "+ state.toString();
-	}
+    public H2HistoricItem(String name, State state, Date timestamp) {
+        this.name = name;
+        this.state = state;
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public State getState() {
+        return state;
+    }
+
+    @Override
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return DateFormat.getDateTimeInstance().format(timestamp) + ": " + name + " -> " + state.toString();
+    }
 
 }
