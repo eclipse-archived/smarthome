@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation GSON Parser
 Bundle-SymbolicName: org.eclipse.smarthome.automation.parser.gson
 Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.automation.parser.gson.internal.Activator
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson,
@@ -13,3 +12,4 @@ Import-Package: com.google.gson,
  org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,
  org.osgi.framework
+Service-Component: OSGI-INF/*.xml
