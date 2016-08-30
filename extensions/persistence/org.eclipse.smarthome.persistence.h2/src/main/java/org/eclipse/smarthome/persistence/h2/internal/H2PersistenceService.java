@@ -11,6 +11,7 @@ import java.io.File;
 import java.security.InvalidParameterException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -65,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * DecimalType before persisting to H2.
  *
  * @author Chris Jackson - Initial contribution
+ * @author Markus Rathgeb - Use prepared statement and try-with-resources
  */
 public class H2PersistenceService implements ModifiablePersistenceService, ManagedService {
 
@@ -183,8 +185,7 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             return;
         }
 
-        Statement statement = null;
-        String sqlCmd = null;
+        final String tableName = getTableName(item.getName());
 
         // A bit of profiling!
         long timerStart = System.currentTimeMillis();
@@ -194,82 +195,60 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
             // Default the type to String and get the real type
             String sqlType = new String("VARCHAR");
-            String itemType = item.getClass().getSimpleName().toUpperCase();
+            final String itemType = item.getClass().getSimpleName().toUpperCase();
             if (sqlTypes.get(itemType) != null) {
                 sqlType = sqlTypes.get(itemType);
             }
 
             // Create the table for the data
-            sqlCmd = new String("CREATE TABLE IF NOT EXISTS " + getTableName(item.getName()) + " (Time DATETIME, Value "
-                    + sqlType + ", PRIMARY KEY(Time));");
-            logger.trace("H2: " + sqlCmd);
+            final String sql = String.format(
+                    "CREATE TABLE IF NOT EXISTS %s (Time DATETIME, Value %s, PRIMARY KEY(Time));", tableName, sqlType);
+            logger.trace("H2: {}", sql);
 
-            try {
-                statement = connection.createStatement();
-                statement.executeUpdate(sqlCmd);
+            try (final Statement statement = connection.createStatement()) {
+                statement.executeUpdate(sql);
 
                 logger.trace("H2: Table created for item '{}' with datatype '{}'", item.getName(), sqlType);
-            } catch (Exception e) {
-                logger.error("H2: Could not create table for item '{}' with statement '{}'", item.getName(), sqlCmd);
-                logger.error("     : " + e.getMessage());
-            } finally {
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (Exception hidden) {
-                    }
-                }
+            } catch (final RuntimeException | SQLException ex) {
+                logger.error("H2: Could not create table for item '{}' with statement '{}'", item.getName(), sql);
+                logger.error("     : " + ex.getMessage());
+                return;
             }
         }
 
-        try {
-            // Firstly, try an INSERT. This will work 99.9% of the time
-            statement = connection.createStatement();
-            sqlCmd = new String("INSERT INTO " + getTableName(item.getName()) + " (TIME, VALUE) " + "VALUES('"
-                    + sqlDateFormat.format(date) + "','" + state.toString() + "');");
-            statement.executeUpdate(sqlCmd);
-
+        // Firstly, try an INSERT. This will work 99.9% of the time
+        final String sqlI = String.format("INSERT INTO %s (TIME, VALUE) VALUES(?,?);", tableName);
+        try (final PreparedStatement stmt = connection.prepareStatement(sqlI)) {
+            stmt.setString(1, sqlDateFormat.format(date));
+            stmt.setString(2, state.toString());
+            stmt.executeUpdate();
             long timerStop = System.currentTimeMillis();
             logger.debug("H2: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
                     timerStop - timerStart);
-            logger.trace("H2: {}", sqlCmd);
-        } catch (Exception e1) {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (Exception hidden) {
-                }
-            }
-
-            try {
-                // The INSERT failed. This might be because we tried persisting data too quickly, or it might be
-                // because we really want to UPDATE the data.
-                // So, let's try an update. If the reason for the exception isn't due to the primary key already
-                // existing, then we'll throw another exception.
-                // Note that H2 stores times using the Java Date class, so resolution is milliseconds. We really
-                // shouldn't be persisting data that quickly!
-                statement = connection.createStatement();
-                sqlCmd = new String("UPDATE " + getTableName(item.getName()) + " SET VALUE='" + state.toString() + "'"
-                        + " WHERE TIME='" + sqlDateFormat.format(date) + "';");
-                statement.executeUpdate(sqlCmd);
-
+            logger.trace("H2: {}", sqlI);
+            return;
+        } catch (final RuntimeException | SQLException ex) {
+            // The INSERT failed. This might be because we tried persisting data too quickly, or it might be
+            // because we really want to UPDATE the data.
+            // So, let's try an update. If the reason for the exception isn't due to the primary key already
+            // existing, then we'll throw another exception.
+            // Note that H2 stores times using the Java Date class, so resolution is milliseconds. We really
+            // shouldn't be persisting data that quickly!
+            final String sqlU = String.format("UPDATE %s SET VALUE = ? WHERE TIME = ?", tableName);
+            try (final PreparedStatement stmt = connection.prepareStatement(sqlU)) {
+                stmt.setString(1, state.toString());
+                stmt.setString(2, sqlDateFormat.format(date));
+                stmt.executeUpdate();
                 long timerStop = System.currentTimeMillis();
                 logger.debug("H2: Stored item '{}' as '{}' in {}ms", item.getName(), state.toString(),
                         timerStop - timerStart);
-                logger.trace("H2: {}", sqlCmd);
-            } catch (Exception e2) {
-
-                logger.error("H2: Could not store item '{}' in database with statement '{}'", item.getName(), sqlCmd);
-                logger.error("     : " + e2.getMessage());
+                logger.trace("H2: {}", sqlU);
+            } catch (final RuntimeException | SQLException ex2) {
+                logger.error("H2: Could not store item '{}' in database with statement '{}'", item.getName(), sqlU);
+                logger.error("     : " + ex2.getMessage());
             }
         }
 
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (Exception hidden) {
-            }
-        }
     }
 
     /**
@@ -314,51 +293,43 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         String filterString = getFilterStringWhere(filter) + getFilterStringOrder(filter)
                 + getFilterStringLimit(filter);
 
-        try {
-            long timerStart = System.currentTimeMillis();
-
-            // Retrieve the table array
-            Statement st = connection.createStatement();
-
-            String queryString = new String();
-            queryString = "SELECT Time, Value FROM " + getTableName(filter.getItemName());
+        final long timerStart = System.currentTimeMillis();
+        try (final Statement st = connection.createStatement()) {
+            String queryString = "SELECT Time, Value FROM " + getTableName(filter.getItemName());
             if (!filterString.isEmpty()) {
                 queryString += filterString;
             }
-
             logger.trace("H2: " + queryString);
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
 
-            ResultSet rs = st.executeQuery(queryString);
+            try (final ResultSet rs = st.executeQuery(queryString)) {
+                long count = 0;
+                List<HistoricItem> items = new ArrayList<HistoricItem>();
+                State state;
+                while (rs.next()) {
+                    ++count;
 
-            long count = 0;
-            List<HistoricItem> items = new ArrayList<HistoricItem>();
-            State state;
-            while (rs.next()) {
-                count++;
+                    if (item == null) {
+                        state = new StringType(rs.getString(2));
+                    } else {
+                        state = TypeParser.parseState(item.getAcceptedDataTypes(), rs.getString(2));
+                    }
 
-                if (item == null) {
-                    state = new StringType(rs.getString(2));
-                } else {
-                    state = TypeParser.parseState(item.getAcceptedDataTypes(), rs.getString(2));
+                    H2HistoricItem sqlItem = new H2HistoricItem(itemName, state, rs.getTimestamp(1));
+                    items.add(sqlItem);
                 }
 
-                H2HistoricItem sqlItem = new H2HistoricItem(itemName, state, rs.getTimestamp(1));
-                items.add(sqlItem);
+                long timerStop = System.currentTimeMillis();
+                logger.debug("H2: query returned {} rows in {}ms", count, timerStop - timerStart);
+
+                return items;
             }
 
-            rs.close();
-            st.close();
-
-            long timerStop = System.currentTimeMillis();
-            logger.debug("H2: query returned {} rows in {}ms", count, timerStop - timerStart);
-
-            return items;
-        } catch (SQLException e) {
+        } catch (final SQLException ex) {
             logger.error("H2: Error running query");
-            logger.error("     : " + e.getMessage());
+            logger.error("     : " + ex.getMessage());
 
             return Collections.emptyList();
         }
@@ -375,56 +346,49 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             return Collections.emptySet();
         }
 
-        try {
-            long timerStart = System.currentTimeMillis();
-
-            // Retrieve the table array
-            Statement st = connection.createStatement();
-
-            String queryString = new String();
-            queryString = "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"
+        final long timerStart = System.currentTimeMillis();
+        // Retrieve the table array
+        try (final Statement st = connection.createStatement()) {
+            final String queryString = "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"
                     + schema + "'";
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
 
-            ResultSet rs = st.executeQuery(queryString);
+            try (final ResultSet rs = st.executeQuery(queryString)) {
 
-            Date earliest;
-            Date latest;
+                Date earliest;
+                Date latest;
 
-            Set<PersistenceItemInfo> items = new HashSet<PersistenceItemInfo>();
-            while (rs.next()) {
-                Statement stTimes = connection.createStatement();
+                Set<PersistenceItemInfo> items = new HashSet<PersistenceItemInfo>();
+                while (rs.next()) {
+                    try (final Statement stTimes = connection.createStatement()) {
 
-                queryString = "SELECT MIN(Time), MAX(Time) FROM " + getTableName(rs.getString(1));
-                ResultSet rsTimes = stTimes.executeQuery(queryString);
+                        final String minMax = "SELECT MIN(Time), MAX(Time) FROM " + getTableName(rs.getString(1));
+                        try (final ResultSet rsTimes = stTimes.executeQuery(minMax)) {
 
-                if (rsTimes.next()) {
-                    earliest = rsTimes.getTimestamp(1);
-                    latest = rsTimes.getTimestamp(2);
-                } else {
-                    earliest = null;
-                    latest = null;
+                            if (rsTimes.next()) {
+                                earliest = rsTimes.getTimestamp(1);
+                                latest = rsTimes.getTimestamp(2);
+                            } else {
+                                earliest = null;
+                                latest = null;
+                            }
+                        }
+                    }
+
+                    H2PersistenceItem item = new H2PersistenceItem(rs.getString(1), rs.getInt(2), earliest, latest);
+                    items.add(item);
                 }
+                long timerStop = System.currentTimeMillis();
+                logger.debug("H2: query returned {} items in {}ms", items.size(), timerStop - timerStart);
 
-                rsTimes.close();
-                stTimes.close();
-
-                H2PersistenceItem item = new H2PersistenceItem(rs.getString(1), rs.getInt(2), earliest, latest);
-                items.add(item);
+                return items;
             }
 
-            rs.close();
-            st.close();
-
-            long timerStop = System.currentTimeMillis();
-            logger.debug("H2: query returned {} items in {}ms", items.size(), timerStop - timerStart);
-
-            return items;
-        } catch (SQLException e) {
+        } catch (final SQLException ex) {
             logger.error("H2: Error running query");
-            logger.error("     : " + e.getMessage());
+            logger.error("     : " + ex.getMessage());
 
             return Collections.emptySet();
         }
@@ -448,38 +412,34 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
         String filterString = getFilterStringWhere(filter);
 
-        try {
-            long timerStart = System.currentTimeMillis();
+        final long timerStart = System.currentTimeMillis();
 
-            // Retrieve the table array
-            Statement st = connection.createStatement();
-
-            String queryString = new String();
-            queryString = "DELETE FROM " + getTableName(filter.getItemName()) + filterString;
+        // Retrieve the table array
+        try (final Statement st = connection.createStatement()) {
+            final String queryString = "DELETE FROM " + getTableName(filter.getItemName()) + filterString;
 
             st.execute(queryString);
             int rowsDeleted = st.getUpdateCount();
 
-            long timerStop = System.currentTimeMillis();
+            final long timerStop = System.currentTimeMillis();
 
             // Do some housekeeping...
             // See how many rows remain - if it's 0, we should remove the table from the database
-            ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + getTableName(filter.getItemName()));
+            try (final ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + getTableName(filter.getItemName()))) {
 
-            rs.next();
-            logger.debug("H2: deleted {} rows from {} in {}ms. {} rows remain.", filter.getItemName(), rowsDeleted,
-                    timerStop - timerStart, rs.getInt(1));
+                rs.next();
+                logger.debug("H2: deleted {} rows from {} in {}ms. {} rows remain.", filter.getItemName(), rowsDeleted,
+                        timerStop - timerStart, rs.getInt(1));
 
-            if (rs.getInt(1) == 0) {
-                queryString = "DROP TABLE " + getTableName(filter.getItemName());
-                st.execute(queryString);
+                if (rs.getInt(1) == 0) {
+                    final String drop = "DROP TABLE " + getTableName(filter.getItemName());
+                    st.execute(drop);
 
-                logger.info("H2: Dropped table for {}", filter.getItemName());
+                    logger.info("H2: Dropped table for {}", filter.getItemName());
+                }
+
+                return true;
             }
-
-            st.close();
-
-            return true;
         } catch (SQLException e) {
             logger.error("H2: Error running query");
             logger.error("     : " + e.getMessage());
@@ -538,12 +498,12 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
             logger.debug("H2: Connected to database {}", databaseFileName);
 
-            Statement statement = connection.createStatement();
-            String sqlCmd = new String("CREATE SCHEMA IF NOT EXISTS " + schema + ";");
-            statement.executeUpdate(sqlCmd);
-            sqlCmd = new String("SET SCHEMA " + schema + ";");
-            statement.executeUpdate(sqlCmd);
-            statement.close();
+            try (final Statement statement = connection.createStatement()) {
+                String sqlCmd = new String("CREATE SCHEMA IF NOT EXISTS " + schema + ";");
+                statement.executeUpdate(sqlCmd);
+                sqlCmd = new String("SET SCHEMA " + schema + ";");
+                statement.executeUpdate(sqlCmd);
+            }
         } catch (Exception e) {
             logger.error("H2: Failed connecting to the database");
             logger.error("     : " + e.getMessage());
