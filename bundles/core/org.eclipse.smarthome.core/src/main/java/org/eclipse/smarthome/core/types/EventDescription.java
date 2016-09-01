@@ -13,20 +13,22 @@ import java.util.List;
 
 /**
  * Describes event options and gives information how to interpret it.
+ *
+ * @author Moritz Kammerer
  */
 public class EventDescription {
-    private final List<StateOption> options;
+    private final List<EventOption> options;
 
     /**
-     * Creates a state description object.
+     * Creates an event description object.
      *
      * @param options predefined list of options
      */
-    public EventDescription(List<StateOption> options) {
+    public EventDescription(List<EventOption> options) {
         if (options != null) {
-            this.options = Collections.unmodifiableList(new ArrayList<StateOption>(options));
+            this.options = Collections.unmodifiableList(new ArrayList<EventOption>(options));
         } else {
-            this.options = Collections.unmodifiableList(new ArrayList<StateOption>(0));
+            this.options = Collections.unmodifiableList(new ArrayList<EventOption>(0));
         }
     }
 
@@ -35,7 +37,7 @@ public class EventDescription {
      *
      * @return list of predefined events with their label
      */
-    public List<StateOption> getOptions() {
+    public List<EventOption> getOptions() {
         return options;
     }
 
