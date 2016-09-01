@@ -48,6 +48,7 @@ import org.eclipse.smarthome.core.persistence.PersistenceItemInfo;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -70,6 +71,12 @@ import org.slf4j.LoggerFactory;
  */
 public class H2PersistenceService implements ModifiablePersistenceService, ManagedService {
 
+    private static class SqlType {
+        public static final String TINYINT = "TINYINT";
+        public static final String DECIMAL = "DECIMAL";
+        public static final String VARCHAR = "VARCHAR";
+    }
+
     private final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
 
     private final String h2Url = "jdbc:h2:file:";
@@ -88,9 +95,9 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
     public H2PersistenceService() {
         // Initialize the type array
-        sqlTypes.put(DimmerItem.class, "TINYINT");
-        sqlTypes.put(NumberItem.class, "DECIMAL");
-        sqlTypes.put(RollershutterItem.class, "TINYINT");
+        sqlTypes.put(DimmerItem.class, SqlType.TINYINT);
+        sqlTypes.put(NumberItem.class, SqlType.DECIMAL);
+        sqlTypes.put(RollershutterItem.class, SqlType.TINYINT);
     }
 
     protected void activate(BundleContext bundleContext) {
@@ -167,10 +174,10 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
 
         final String tableName = getTableName(item.getName());
+        final String sqlType = getSqlType(item);
 
         if (!itemCache.contains(item.getName())) {
             itemCache.add(item.getName());
-            final String sqlType = getSqlType(item);
             if (createTable(tableName, sqlType)) {
             } else {
                 logger.error("H2: Could not create table for item '{}'", item.getName());
@@ -178,7 +185,13 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             }
         }
 
-        final String value = state.toString();
+        final String value = getValue(sqlType, state);
+        if (value == null) {
+            logger.warn("Skip store... Don't know how to store state ({}) for item '{}' of type '{}'", state, item,
+                    item.getClass().getSimpleName());
+            return;
+        }
+
         // Firstly, try an INSERT. This will work 99.9% of the time
         if (!insert(tableName, date, value)) {
             // The INSERT failed. This might be because we tried persisting data too quickly, or it might be
@@ -193,6 +206,15 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             }
         }
         logger.debug("H2: Stored item '{}' as '{}'", item.getName(), value);
+    }
+
+    private String getValue(final String sqlType, final State state) {
+        if (state instanceof UnDefType) {
+            if (sqlType.equals(SqlType.DECIMAL) || sqlType.equals(SqlType.TINYINT)) {
+                return null;
+            }
+        }
+        return state.toString();
     }
 
     private boolean createTable(final String tableName, final String sqlType) {
@@ -477,7 +499,7 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             return sqlTypes.get(itemClass);
         } else {
             // Default type is 'String'
-            return "VARCHAR";
+            return SqlType.VARCHAR;
         }
     }
 
