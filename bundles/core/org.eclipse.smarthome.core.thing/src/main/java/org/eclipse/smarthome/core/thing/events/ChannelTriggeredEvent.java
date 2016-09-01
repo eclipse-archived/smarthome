@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEvent;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.types.Type;
 
 /**
@@ -22,6 +23,11 @@ public class ChannelTriggeredEvent extends AbstractEvent {
     public final static String TYPE = ChannelTriggeredEvent.class.getSimpleName();
 
     /**
+     * The channel which triggered the event.
+     */
+    private final ChannelUID channel;
+
+    /**
      * The event.
      */
     private final Type event;
@@ -33,10 +39,12 @@ public class ChannelTriggeredEvent extends AbstractEvent {
      *            {@link ThingEventFactory#THING_TRIGGERED_EVENT_TOPIC}
      * @param payload the payload. Contains a serialized {@link ThingEventFactory.TriggerEventPayloadBean}.
      * @param source the source
+     * @param channel the channel which triggered the event
      */
-    protected ChannelTriggeredEvent(String topic, String payload, String source, Type event) {
+    protected ChannelTriggeredEvent(String topic, String payload, String source, Type event, ChannelUID channel) {
         super(topic, payload, source);
         this.event = event;
+        this.channel = channel;
     }
 
     /**
@@ -46,6 +54,13 @@ public class ChannelTriggeredEvent extends AbstractEvent {
      */
     public Type getEvent() {
         return event;
+    }
+
+    /**
+     * @return the channel which triggered the event
+     */
+    public ChannelUID getChannel() {
+        return channel;
     }
 
     @Override

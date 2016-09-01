@@ -52,7 +52,7 @@ class ThingEventFactoryTest extends OSGiTest {
     def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
     def CHANNEL_TRIGGERED_EVENT_TOPIC = ThingEventFactory.CHANNEL_TRIGGERED_EVENT_TOPIC.replace("{channelUID}", CHANNEL_UID.getAsString())
     def EVENT_TYPE = new StringType("PRESSED")
-    def CHANNEL_TRIGGERED_EVENT_PAYLOAD = new Gson().toJson(new TriggerEventPayloadBean(EVENT_TYPE.getClass().getSimpleName(), EVENT_TYPE.toString()))
+    def CHANNEL_TRIGGERED_EVENT_PAYLOAD = new Gson().toJson(new TriggerEventPayloadBean(EVENT_TYPE.getClass().getSimpleName(), EVENT_TYPE.toString(), CHANNEL_UID.getAsString()))
 
     @Test
     void 'ThingEventFactory creates Event as ThingStatusInfoEvent correctly'() {

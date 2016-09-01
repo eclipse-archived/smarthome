@@ -75,6 +75,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     public static class TriggerEventPayloadBean {
         private String type;
         private String value;
+        private String channel;
 
         /**
          * Default constructor for deserialization e.g. by Gson.
@@ -82,9 +83,10 @@ public class ThingEventFactory extends AbstractEventFactory {
         protected TriggerEventPayloadBean() {
         }
 
-        public TriggerEventPayloadBean(String type, String value) {
+        public TriggerEventPayloadBean(String type, String value, String channel) {
             this.type = type;
             this.value = value;
+            this.channel = channel;
         }
 
         public String getType() {
@@ -93,6 +95,10 @@ public class ThingEventFactory extends AbstractEventFactory {
 
         public String getValue() {
             return value;
+        }
+
+        public String getChannel() {
+            return channel;
         }
     }
 
@@ -104,10 +110,11 @@ public class ThingEventFactory extends AbstractEventFactory {
      * @return Created trigger event.
      */
     public static ChannelTriggeredEvent createTriggerEvent(Type event, ChannelUID channel) {
-        TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event.getClass().getSimpleName(), event.toString());
+        TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event.getClass().getSimpleName(), event.toString(),
+                channel.getAsString());
         String payload = serializePayload(bean);
         String topic = buildTopic(CHANNEL_TRIGGERED_EVENT_TOPIC, channel);
-        return new ChannelTriggeredEvent(topic, payload, null, event);
+        return new ChannelTriggeredEvent(topic, payload, null, event, channel);
     }
 
     /**
@@ -122,7 +129,9 @@ public class ThingEventFactory extends AbstractEventFactory {
         TriggerEventPayloadBean bean = deserializePayload(payload, TriggerEventPayloadBean.class);
 
         Type event = TypeParser.parseType(bean.getType(), bean.getValue());
-        return new ChannelTriggeredEvent(topic, payload, source, event);
+        ChannelUID channel = new ChannelUID(bean.getChannel());
+
+        return new ChannelTriggeredEvent(topic, payload, source, event, channel);
     }
 
     private Event createStatusInfoEvent(String topic, String payload) throws Exception {
