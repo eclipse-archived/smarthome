@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Describes event options and gives information how to interpret it.
  *
- * @author Moritz Kammerer
+ * @author Moritz Kammerer - Initial contribution and API
  */
 public class EventDescription {
     private final List<EventOption> options;

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.Command;
@@ -47,7 +46,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -438,8 +436,6 @@ public class RuleTriggerManager {
      * @param rule the rule to add
      */
     public void removeRule(TriggerTypes type, Rule rule) {
-        // TODO MKA: This doesn't seem right, most collections are maps from String -> x, and remove(Rule) is
-        // called.
         switch (type) {
             case STARTUP:
                 systemStartupTriggeredRules.remove(rule);
