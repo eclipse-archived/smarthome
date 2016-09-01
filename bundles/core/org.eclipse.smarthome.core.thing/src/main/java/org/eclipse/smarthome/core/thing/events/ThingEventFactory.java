@@ -29,9 +29,6 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Added status changed event
  */
 public class ThingEventFactory extends AbstractEventFactory {
-
-    private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
-
     private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
 
     private static final String THING_STATUS_INFO_CHANGED_EVENT_TOPIC = "smarthome/things/{thingUID}/statuschanged";
