@@ -8,16 +8,13 @@
 package org.eclipse.smarthome.core.persistence.internal;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceServiceConfiguration;
 import org.eclipse.smarthome.core.persistence.SimpleItemConfiguration;
 import org.eclipse.smarthome.core.persistence.strategy.SimpleStrategy;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,42 +24,39 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class PersistItemsJob implements Job {
+public class PersistItemsJob implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(PersistItemsJob.class);
 
-    public static final String JOB_DATA_PERSISTMODEL = "model";
-    public static final String JOB_DATA_STRATEGYNAME = "strategy";
+    private final PersistenceManagerImpl manager;
+    private final String dbId;
+    private final String strategyName;
+
+    public PersistItemsJob(final PersistenceManagerImpl manager, final String dbId, final String strategyName) {
+        this.manager = manager;
+        this.dbId = dbId;
+        this.strategyName = strategyName;
+    }
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-        final JobDataMap jdm = context.getJobDetail().getJobDataMap();
-        PersistenceManagerImpl persistenceManager = PersistenceManagerImpl.instance;
-        final String modelName = (String) jdm.get(JOB_DATA_PERSISTMODEL);
-        final String strategyName = (String) jdm.get(JOB_DATA_STRATEGYNAME);
+    public void run() {
+        synchronized (manager.persistenceServiceConfigs) {
+            final PersistenceService persistenceService = manager.persistenceServices.get(dbId);
+            final PersistenceServiceConfiguration config = manager.persistenceServiceConfigs.get(dbId);
 
-        if (persistenceManager != null) {
-            synchronized (persistenceManager.persistenceServiceConfigs) {
-                final PersistenceService persistenceService = persistenceManager.persistenceServices.get(modelName);
-                final PersistenceServiceConfiguration config = persistenceManager.persistenceServiceConfigs
-                        .get(modelName);
-
-                if (persistenceService != null) {
-                    for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
-                        if (hasStrategy(config.getDefaults(), itemConfig, strategyName)) {
-                            for (Item item : persistenceManager.getAllItems(itemConfig)) {
-                                long startTime = System.currentTimeMillis();
-                                persistenceService.store(item, itemConfig.getAlias());
-                                logger.trace("Storing item '{}' with persistence service '{}' took {}ms", new Object[] {
-                                        item.getName(), modelName, System.currentTimeMillis() - startTime });
-                            }
+            if (persistenceService != null) {
+                for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                    if (hasStrategy(config.getDefaults(), itemConfig, strategyName)) {
+                        for (Item item : manager.getAllItems(itemConfig)) {
+                            long startTime = System.nanoTime();
+                            persistenceService.store(item, itemConfig.getAlias());
+                            logger.trace("Storing item '{}' with persistence service '{}' took {}ms", item.getName(),
+                                    dbId, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime));
                         }
-
                     }
+
                 }
             }
-        } else {
-            logger.warn("Persistence manager is not available!");
         }
     }
 
