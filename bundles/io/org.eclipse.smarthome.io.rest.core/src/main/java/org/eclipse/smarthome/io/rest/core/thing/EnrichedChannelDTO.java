@@ -9,7 +9,6 @@ package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 
 /**
@@ -27,7 +26,7 @@ public class EnrichedChannelDTO extends ChannelDTO {
         this.id = channelDTO.id;
         this.channelTypeUID = channelDTO.channelTypeUID;
         this.itemType = channelDTO.itemType;
-        this.triggerType = channelDTO.triggerType;
+        this.kind = channelDTO.kind;
         this.label = channelDTO.label;
         this.description = channelDTO.description;
         this.properties = channelDTO.properties;

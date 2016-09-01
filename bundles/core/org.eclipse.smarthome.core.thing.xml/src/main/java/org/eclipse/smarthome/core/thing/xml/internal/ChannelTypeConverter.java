@@ -12,16 +12,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
-
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -61,8 +60,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return (String) nodeIterator.nextValue("item-type", false);
     }
 
-    private String readTriggerType(NodeIterator nodeIterator) throws ConversionException {
-        return (String) nodeIterator.nextValue("trigger-type", false);
+    private String readKind(NodeIterator nodeIterator) throws ConversionException {
+        return (String) nodeIterator.nextValue("kind", false);
     }
 
     private String readCategory(NodeIterator nodeIterator) throws ConversionException {
@@ -134,7 +133,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(uid);
 
         String itemType = readItemType(nodeIterator);
-        String triggerType = readTriggerType(nodeIterator);
+        String kind = readKind(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
@@ -145,8 +144,13 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, triggerType, label, description,
-                category, tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
+        if (kind == null) {
+            // Default for kind is 'state'
+            kind = "state";
+        }
+
+        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.parse(kind), label,
+                description, category, tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
                 (ConfigDescription) configDescriptionObjects[1], system);

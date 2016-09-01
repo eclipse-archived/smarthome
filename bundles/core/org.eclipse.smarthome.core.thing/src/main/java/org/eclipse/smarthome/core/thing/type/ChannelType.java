@@ -11,7 +11,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.types.EventDescription;
@@ -30,7 +29,7 @@ public class ChannelType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final String itemType;
-    private final String triggerType;
+    private final ChannelKind kind;
     private final Set<String> tags;
     private final String category;
     private final StateDescription state;
@@ -67,7 +66,8 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label, String description,
             String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
-        this(uid, advanced, itemType, null, label, description, category, tags, state, null, configDescriptionURI);
+        this(uid, advanced, itemType, ChannelKind.STATE, label, description, category, tags, state, null,
+                configDescriptionURI);
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");
@@ -84,7 +84,7 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
      *
-     * @param triggerType the trigger type of this Channel type
+     * @param kind the channel kind.
      *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
@@ -104,18 +104,21 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String triggerType, String label,
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelKind kind, String label,
             String description, String category, Set<String> tags, StateDescription state, EventDescription event,
             URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
-        if ((itemType == null || itemType.isEmpty()) && (triggerType == null || triggerType.isEmpty())) {
-            throw new IllegalArgumentException("Either the item type or the trigger type must be set!");
+        if (kind == ChannelKind.STATE && (itemType == null || itemType.isEmpty())) {
+            throw new IllegalArgumentException("If the kind is 'state', the item type must be set!");
+        }
+        if (kind == ChannelKind.TRIGGER && itemType != null) {
+            throw new IllegalArgumentException("If the kind is 'trigger', the item type must not be set!");
         }
 
         this.itemType = itemType;
-        this.triggerType = triggerType;
+        this.kind = kind;
         this.configDescriptionURI = configDescriptionURI;
 
         if (tags != null) {
@@ -138,19 +141,20 @@ public class ChannelType extends AbstractDescriptionType {
     /**
      * Returns the item type of this {@link ChannelType}, e.g. {@code ColorItem}.
      *
-     * @return the item type of this Channel type, e.g. {@code ColorItem}. Can be null if the channel is a trigger channel.
+     * @return the item type of this Channel type, e.g. {@code ColorItem}. Can be null if the channel is a trigger
+     *         channel.
      */
     public String getItemType() {
         return this.itemType;
     }
 
     /**
-     * Returns the trigger type of this {@link ChannelType}, e.g. {@code IncreaseDecreaseType}.
+     * Returns the kind of this {@link ChannelType}, e.g. {@code STATE}.
      *
-     * @return the trigger type of this Channel type, e.g. {@code IncreaseDecreaseType}. Can be null if the channel is not a trigger channel.
+     * @return the kind of this Channel type, e.g. {@code STATE}.
      */
-    public String getTriggerType() {
-        return triggerType;
+    public ChannelKind getKind() {
+        return kind;
     }
 
     /**

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
@@ -33,7 +34,7 @@ public class Channel {
 
     private String acceptedItemType;
 
-    private String triggerType;
+    private ChannelKind kind;
 
     private ChannelUID uid;
 
@@ -58,33 +59,34 @@ public class Channel {
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
+        this.kind = ChannelKind.STATE;
         this.configuration = new Configuration();
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
-        this(uid, null, acceptedItemType, null, configuration, new HashSet<String>(0), null, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, configuration, new HashSet<String>(0), null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
-        this(uid, null, acceptedItemType, null, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null,
-                null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null,
+                defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
             Map<String, String> properties) {
-        this(uid, null, acceptedItemType, null, null, defaultTags == null ? new HashSet<String>(0) : defaultTags,
-                properties, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null,
+                defaultTags == null ? new HashSet<String>(0) : defaultTags, properties, null, null);
     }
 
-    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, String triggerType,
+    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, ChannelKind kind,
             Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label,
             String description) {
         this.uid = uid;
         this.channelTypeUID = channelTypeUID;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
-        this.triggerType = triggerType;
+        this.kind = kind;
         this.label = label;
         this.description = description;
         this.properties = properties;
@@ -107,12 +109,12 @@ public class Channel {
     }
 
     /**
-     * Returns the trigger type.
+     * Returns the channel kind.
      *
-     * @return trigger type
+     * @return channel kind
      */
-    public String getTriggerType() {
-        return triggerType;
+    public ChannelKind getKind() {
+        return kind;
     }
 
     /**

@@ -10,10 +10,10 @@ package org.eclipse.smarthome.core.thing.binding.builder;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -28,7 +28,7 @@ public class ChannelBuilder {
 
     private ChannelUID channelUID;
     private String acceptedItemType;
-    private String triggerType;
+    private ChannelKind kind;
     private Configuration configuration;
     private Set<String> defaultTags;
     private Map<String, String> properties;
@@ -40,6 +40,7 @@ public class ChannelBuilder {
         this.channelUID = channelUID;
         this.acceptedItemType = acceptedItemType;
         this.defaultTags = defaultTags;
+        this.kind = ChannelKind.STATE;
     }
 
     /**
@@ -124,13 +125,13 @@ public class ChannelBuilder {
     }
 
     /**
-     * Sets the trigger type of the channel.
+     * Sets the kind of the channel.
      *
-     * @param triggerType trigger type.
+     * @param kind kind.
      * @return channel builder
      */
-    public ChannelBuilder withTriggerType(String triggerType) {
-        this.triggerType = triggerType;
+    public ChannelBuilder withKind(ChannelKind kind) {
+        this.kind = kind;
         return this;
     }
 
@@ -140,7 +141,7 @@ public class ChannelBuilder {
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, channelTypeUID, acceptedItemType, triggerType, configuration, defaultTags, properties, label,
-                description);
+        return new Channel(channelUID, channelTypeUID, acceptedItemType, kind, configuration, defaultTags, properties,
+                label, description);
     }
 }
