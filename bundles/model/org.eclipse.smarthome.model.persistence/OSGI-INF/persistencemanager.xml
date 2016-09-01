@@ -8,9 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.core.persistence.manager">
-   <implementation class="org.eclipse.smarthome.model.persistence.internal.PersistenceManager"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.persistence.manager">
+   <implementation class="org.eclipse.smarthome.model.persistence.internal.PersistenceModelManager"/>
    <reference bind="setModelRepository" cardinality="0..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
-   <reference bind="addPersistenceService" cardinality="0..n" interface="org.eclipse.smarthome.core.persistence.PersistenceService" name="PersistenceService" policy="dynamic" unbind="removePersistenceService"/>
-   <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="setPersistenceManager" cardinality="1..1" interface="org.eclipse.smarthome.core.persistence.PersistenceManager" name="PersistenceManager" policy="static" unbind="unsetPersistenceManager"/>
 </scr:component>

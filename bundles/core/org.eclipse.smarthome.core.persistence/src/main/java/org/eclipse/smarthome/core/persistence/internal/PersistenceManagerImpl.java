@@ -5,14 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.persistence.internal;
-
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
+package org.eclipse.smarthome.core.persistence.internal;
 
 import java.text.DateFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,9 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -32,65 +26,48 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
+import org.eclipse.smarthome.core.persistence.PersistenceManager;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
+import org.eclipse.smarthome.core.persistence.PersistenceServiceConfiguration;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
+import org.eclipse.smarthome.core.persistence.SimpleItemConfiguration;
+import org.eclipse.smarthome.core.persistence.config.SimpleAllConfig;
+import org.eclipse.smarthome.core.persistence.config.SimpleConfig;
+import org.eclipse.smarthome.core.persistence.config.SimpleGroupConfig;
+import org.eclipse.smarthome.core.persistence.config.SimpleItemConfig;
+import org.eclipse.smarthome.core.persistence.strategy.SimpleCronStrategy;
+import org.eclipse.smarthome.core.persistence.strategy.SimpleStrategy;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.eclipse.smarthome.model.core.EventType;
-import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
-import org.eclipse.smarthome.model.persistence.persistence.AllConfig;
-import org.eclipse.smarthome.model.persistence.persistence.CronStrategy;
-import org.eclipse.smarthome.model.persistence.persistence.GroupConfig;
-import org.eclipse.smarthome.model.persistence.persistence.ItemConfig;
-import org.eclipse.smarthome.model.persistence.persistence.PersistenceConfiguration;
-import org.eclipse.smarthome.model.persistence.persistence.PersistenceModel;
-import org.eclipse.smarthome.model.persistence.persistence.Strategy;
-import org.eclipse.smarthome.model.persistence.scoping.GlobalStrategies;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class is the central part of the persistence management and delegation. It reads the persistence
- * models, schedules timers and manages the invocation of {@link PersistenceService}s upon events.
- *
- * @author Kai Kreuzer - Initial contribution and API
- *
- */
-public class PersistenceManager
-        implements ModelRepositoryChangeListener, ItemRegistryChangeListener, StateChangeListener {
+public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryChangeListener, StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
-
-    private static PersistenceManager instance;
 
     // the scheduler used for timer events
     private Scheduler scheduler;
 
-    /* default */ModelRepository modelRepository;
-
     private ItemRegistry itemRegistry;
 
-    /* default */Map<String, PersistenceService> persistenceServices = new HashMap<String, PersistenceService>();
+    static PersistenceManagerImpl instance;
+    final Map<String, PersistenceService> persistenceServices = new HashMap<>();
+    final Map<String, PersistenceServiceConfiguration> persistenceServiceConfigs = new HashMap<>();
 
-    /** keeps a list of configurations for each persistence service */
-    protected Map<String, List<PersistenceConfiguration>> persistenceConfigurations = new ConcurrentHashMap<String, List<PersistenceConfiguration>>();
-
-    /** keeps a list of default strategies for each persistence service */
-    protected Map<String, List<Strategy>> defaultStrategies = Collections
-            .synchronizedMap(new HashMap<String, List<Strategy>>());
-
-    public PersistenceManager() {
-        PersistenceManager.instance = this;
+    public PersistenceManagerImpl() {
+        instance = this;
         try {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
         } catch (SchedulerException e) {
@@ -98,106 +75,68 @@ public class PersistenceManager
         }
     }
 
-    static/* default */PersistenceManager getInstance() {
-        return instance;
-    }
-
-    public void activate() {
-    }
-
-    public void deactivate() {
-    }
-
-    public void setModelRepository(ModelRepository modelRepository) {
-        this.modelRepository = modelRepository;
-        modelRepository.addModelRepositoryChangeListener(this);
-        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-            String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
-            stopEventHandling(serviceName);
-            startEventHandling(serviceName);
-        }
-    }
-
-    public void unsetModelRepository(ModelRepository modelRepository) {
-        modelRepository.removeModelRepositoryChangeListener(this);
-        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-            stopEventHandling(modelName);
-        }
-        this.modelRepository = null;
-    }
-
-    public void setItemRegistry(ItemRegistry itemRegistry) {
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
         itemRegistry.addRegistryChangeListener(this);
         allItemsChanged(null);
     }
 
-    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         itemRegistry.removeRegistryChangeListener(this);
         this.itemRegistry = null;
     }
 
-    public void addPersistenceService(PersistenceService persistenceService) {
+    protected void addPersistenceService(PersistenceService persistenceService) {
         logger.debug("Initializing {} persistence service.", persistenceService.getId());
         persistenceServices.put(persistenceService.getId(), persistenceService);
         stopEventHandling(persistenceService.getId());
         startEventHandling(persistenceService.getId());
     }
 
-    public void removePersistenceService(PersistenceService persistenceService) {
+    protected void removePersistenceService(PersistenceService persistenceService) {
         stopEventHandling(persistenceService.getId());
         persistenceServices.remove(persistenceService.getId());
     }
 
     @Override
-    public void modelChanged(String modelName, EventType type) {
-        if (modelName.endsWith(".persist")) {
-            String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
-            if (type == EventType.REMOVED || type == EventType.MODIFIED) {
-                stopEventHandling(serviceName);
-            }
-
-            if (type == EventType.ADDED || type == EventType.MODIFIED) {
-                if (itemRegistry != null && persistenceServices.containsKey(serviceName)) {
-                    startEventHandling(serviceName);
-                }
+    public void addConfig(final String dbId, final PersistenceServiceConfiguration config) {
+        synchronized (persistenceServiceConfigs) {
+            this.persistenceServiceConfigs.put(dbId, config);
+            if (itemRegistry != null && persistenceServices.containsKey(dbId)) {
+                startEventHandling(dbId);
             }
         }
     }
 
-    /**
-     * Registers a persistence model file with the persistence manager, so that it becomes active.
-     *
-     * @param modelName the name of the persistence model without file extension
-     */
-    private void startEventHandling(String modelName) {
-        if (modelRepository != null) {
-            PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
-            if (model != null) {
-                persistenceConfigurations.put(modelName, model.getConfigs());
-                defaultStrategies.put(modelName, model.getDefaults());
-                if (itemRegistry != null) {
-                    for (PersistenceConfiguration config : model.getConfigs()) {
-                        if (hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
-                            for (Item item : getAllItems(config)) {
-                                initialize(item);
-                            }
-                        }
+    @Override
+    public void removeConfig(final String dbId) {
+        synchronized (persistenceServiceConfigs) {
+            stopEventHandling(dbId);
+            this.persistenceServiceConfigs.remove(dbId);
+        }
+    }
+
+    @Override
+    public void startEventHandling(final String dbId) {
+        final PersistenceServiceConfiguration config = persistenceServiceConfigs.get(dbId);
+        if (config == null) {
+            return;
+        }
+
+        if (itemRegistry != null) {
+            for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                if (hasStrategy(dbId, itemConfig, SimpleStrategy.Globals.RESTORE)) {
+                    for (Item item : getAllItems(itemConfig)) {
+                        initialize(item);
                     }
                 }
-                createTimers(modelName);
             }
         }
+        createTimers(dbId, config.getStrategies());
     }
 
-    /**
-     * Unregisters a persistence model file from the persistence manager, so that it is not further regarded.
-     *
-     * @param modelName the name of the persistence model without file extension
-     */
-    private void stopEventHandling(String modelName) {
-        persistenceConfigurations.remove(modelName);
-        defaultStrategies.remove(modelName);
+    @Override
+    public void stopEventHandling(String modelName) {
         removeTimers(modelName);
     }
 
@@ -218,15 +157,16 @@ public class PersistenceManager
      * @param onlyChanges true, if it has the change strategy, false otherwise
      */
     private void handleStateEvent(Item item, boolean onlyChanges) {
-        synchronized (persistenceConfigurations) {
-            for (Entry<String, List<PersistenceConfiguration>> entry : persistenceConfigurations.entrySet()) {
-                String serviceName = entry.getKey();
+        synchronized (persistenceServiceConfigs) {
+            for (Entry<String, PersistenceServiceConfiguration> entry : persistenceServiceConfigs.entrySet()) {
+                final String serviceName = entry.getKey();
+                final PersistenceServiceConfiguration config = entry.getValue();
                 if (persistenceServices.containsKey(serviceName)) {
-                    for (PersistenceConfiguration config : entry.getValue()) {
-                        if (hasStrategy(serviceName, config,
-                                onlyChanges ? GlobalStrategies.CHANGE : GlobalStrategies.UPDATE)) {
-                            if (appliesToItem(config, item)) {
-                                persistenceServices.get(serviceName).store(item, config.getAlias());
+                    for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                        if (hasStrategy(serviceName, itemConfig,
+                                onlyChanges ? SimpleStrategy.Globals.CHANGE : SimpleStrategy.Globals.UPDATE)) {
+                            if (appliesToItem(itemConfig, item)) {
+                                persistenceServices.get(serviceName).store(item, itemConfig.getAlias());
                             }
                         }
                     }
@@ -239,15 +179,16 @@ public class PersistenceManager
      * Checks if a given persistence configuration entry has a certain strategy for the given service
      *
      * @param serviceName the service to check the configuration for
-     * @param config the persistence configuration entry
+     * @param itemConfig the persistence configuration entry
      * @param strategy the strategy to check for
      * @return true, if it has the given strategy
      */
-    protected boolean hasStrategy(String serviceName, PersistenceConfiguration config, Strategy strategy) {
-        if (defaultStrategies.get(serviceName).contains(strategy) && config.getStrategies().isEmpty()) {
+    private boolean hasStrategy(String serviceName, SimpleItemConfiguration itemConfig, SimpleStrategy strategy) {
+        final PersistenceServiceConfiguration config = persistenceServiceConfigs.get(serviceName);
+        if (config.getDefaults().contains(strategy) && itemConfig.getStrategies().isEmpty()) {
             return true;
         } else {
-            for (Strategy s : config.getStrategies()) {
+            for (SimpleStrategy s : itemConfig.getStrategies()) {
                 if (s.equals(strategy)) {
                     return true;
                 }
@@ -263,19 +204,19 @@ public class PersistenceManager
      * @param item to check if the configuration applies to
      * @return true, if the configuration applies to the item
      */
-    protected boolean appliesToItem(PersistenceConfiguration config, Item item) {
-        for (EObject itemCfg : config.getItems()) {
-            if (itemCfg instanceof AllConfig) {
+    protected boolean appliesToItem(SimpleItemConfiguration config, Item item) {
+        for (SimpleConfig itemCfg : config.getItems()) {
+            if (itemCfg instanceof SimpleAllConfig) {
                 return true;
             }
-            if (itemCfg instanceof ItemConfig) {
-                ItemConfig singleItemConfig = (ItemConfig) itemCfg;
+            if (itemCfg instanceof SimpleItemConfig) {
+                SimpleItemConfig singleItemConfig = (SimpleItemConfig) itemCfg;
                 if (item.getName().equals(singleItemConfig.getItem())) {
                     return true;
                 }
             }
-            if (itemCfg instanceof GroupConfig) {
-                GroupConfig groupItemCfg = (GroupConfig) itemCfg;
+            if (itemCfg instanceof SimpleGroupConfig) {
+                SimpleGroupConfig groupItemCfg = (SimpleGroupConfig) itemCfg;
                 String groupName = groupItemCfg.getGroup();
                 try {
                     Item gItem = itemRegistry.getItem(groupName);
@@ -298,19 +239,19 @@ public class PersistenceManager
      * @param config the persistence configuration entry
      * @return all items that this configuration applies to
      */
-    protected Iterable<Item> getAllItems(PersistenceConfiguration config) {
+    protected Iterable<Item> getAllItems(SimpleItemConfiguration config) {
         // first check, if we should return them all
-        for (EObject itemCfg : config.getItems()) {
-            if (itemCfg instanceof AllConfig) {
+        for (Object itemCfg : config.getItems()) {
+            if (itemCfg instanceof SimpleAllConfig) {
                 return itemRegistry.getItems();
             }
         }
 
         // otherwise, go through the detailed definitions
         Set<Item> items = new HashSet<Item>();
-        for (EObject itemCfg : config.getItems()) {
-            if (itemCfg instanceof ItemConfig) {
-                ItemConfig singleItemConfig = (ItemConfig) itemCfg;
+        for (Object itemCfg : config.getItems()) {
+            if (itemCfg instanceof SimpleItemConfig) {
+                SimpleItemConfig singleItemConfig = (SimpleItemConfig) itemCfg;
                 try {
                     Item item = itemRegistry.getItem(singleItemConfig.getItem());
                     items.add(item);
@@ -318,8 +259,8 @@ public class PersistenceManager
                     logger.debug("Item '{}' does not exist.", singleItemConfig.getItem());
                 }
             }
-            if (itemCfg instanceof GroupConfig) {
-                GroupConfig groupItemCfg = (GroupConfig) itemCfg;
+            if (itemCfg instanceof SimpleGroupConfig) {
+                SimpleGroupConfig groupItemCfg = (SimpleGroupConfig) itemCfg;
                 String groupName = groupItemCfg.getGroup();
                 try {
                     Item gItem = itemRegistry.getItem(groupName);
@@ -359,14 +300,15 @@ public class PersistenceManager
      *
      * @param item the item to restore the state for
      */
-    protected void initialize(Item item) {
+    private void initialize(Item item) {
         // get the last persisted state from the persistence service if no state is yet set
         if (item.getState().equals(UnDefType.NULL) && item instanceof GenericItem) {
-            for (Entry<String, List<PersistenceConfiguration>> entry : persistenceConfigurations.entrySet()) {
-                String serviceName = entry.getKey();
-                for (PersistenceConfiguration config : entry.getValue()) {
-                    if (hasStrategy(serviceName, config, GlobalStrategies.RESTORE)) {
-                        if (appliesToItem(config, item)) {
+            for (Entry<String, PersistenceServiceConfiguration> entry : persistenceServiceConfigs.entrySet()) {
+                final String serviceName = entry.getKey();
+                final PersistenceServiceConfiguration config = entry.getValue();
+                for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                    if (hasStrategy(serviceName, itemConfig, SimpleStrategy.Globals.RESTORE)) {
+                        if (appliesToItem(itemConfig, item)) {
                             PersistenceService service = persistenceServices.get(serviceName);
                             if (service instanceof QueryablePersistenceService) {
                                 QueryablePersistenceService queryService = (QueryablePersistenceService) service;
@@ -407,41 +349,36 @@ public class PersistenceManager
     }
 
     /**
-     * Creates and schedules a new quartz-job and trigger with model and rule name as jobData.
+     * Creates and schedules a new quartz-job.
      *
-     * @param rule the rule to schedule
-     * @param trigger the defined trigger
-     *
-     * @throws SchedulerException if there is an internal Scheduler error.
+     * @param modelName the name of the model
+     * @param strategies a collection of strategies
      */
-    private void createTimers(String modelName) {
-        PersistenceModel persistModel = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
-        if (persistModel != null) {
-            for (Strategy strategy : persistModel.getStrategies()) {
-                if (strategy instanceof CronStrategy) {
-                    CronStrategy cronStrategy = (CronStrategy) strategy;
-                    String cronExpression = cronStrategy.getCronExpression();
-                    JobKey jobKey = new JobKey(strategy.getName(), modelName);
-                    try {
-                        JobDetail job = newJob(PersistItemsJob.class)
-                                .usingJobData(PersistItemsJob.JOB_DATA_PERSISTMODEL,
-                                        cronStrategy.eResource().getURI().trimFileExtension().path())
-                                .usingJobData(PersistItemsJob.JOB_DATA_STRATEGYNAME, cronStrategy.getName())
-                                .withIdentity(jobKey).build();
+    private void createTimers(final String modelName, List<SimpleStrategy> strategies) {
+        for (SimpleStrategy strategy : strategies) {
+            if (strategy instanceof SimpleCronStrategy) {
+                SimpleCronStrategy cronStrategy = (SimpleCronStrategy) strategy;
+                String cronExpression = cronStrategy.getCronExpression();
+                JobKey jobKey = new JobKey(strategy.getName(), modelName);
+                try {
+                    JobDetail job = JobBuilder.newJob(PersistItemsJob.class)
+                            .usingJobData(PersistItemsJob.JOB_DATA_PERSISTMODEL, modelName)
+                            .usingJobData(PersistItemsJob.JOB_DATA_STRATEGYNAME, cronStrategy.getName())
+                            .withIdentity(jobKey).build();
 
-                        Trigger quartzTrigger = newTrigger()
-                                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
+                    Trigger quartzTrigger = TriggerBuilder.newTrigger()
+                            .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
 
-                        scheduler.scheduleJob(job, quartzTrigger);
+                    scheduler.scheduleJob(job, quartzTrigger);
 
-                        logger.debug("Scheduled strategy {} with cron expression {}",
-                                new Object[] { jobKey.toString(), cronExpression });
-                    } catch (SchedulerException e) {
-                        logger.error("Failed to schedule job for strategy {} with cron expression {}",
-                                new String[] { jobKey.toString(), cronExpression }, e);
-                    }
+                    logger.debug("Scheduled strategy {} with cron expression {}",
+                            new Object[] { jobKey.toString(), cronExpression });
+                } catch (SchedulerException e) {
+                    logger.error("Failed to schedule job for strategy {} with cron expression {}",
+                            new String[] { jobKey.toString(), cronExpression }, e);
                 }
             }
+
         }
     }
 
