@@ -25,9 +25,12 @@ import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
+import org.eclipse.smarthome.core.common.SafeMethodCaller
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventFilter
+import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
+import org.eclipse.smarthome.core.i18n.I18nProvider
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -96,6 +99,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
                 FW111_EN
             } else if(firmwareUID.equals(FW112_EN.getUID())) {
                 FW112_EN
+            } else if(firmwareUID.equals(FWALPHA_EN.getUID())) {
+                FWALPHA_EN
             } else {
                 null
             }
@@ -104,10 +109,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
             if(thingTypeUID.equals(THING_TYPE_UID_WITHOUT_FW) || thingTypeUID.equals(THING_TYPE_UID2) || thingTypeUID.equals(THING_TYPE_UID3)) {
                 return [] as Set
             }
-            [
-                FW009_EN,
-                FW111_EN,
-                FW112_EN] as Set
+            [FW009_EN, FW111_EN, FW112_EN] as Set
         }] as FirmwareProvider
 
     private def firmwareStatusInfoEventSubscriber = new EventSubscriber() {
@@ -298,8 +300,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
                 if(thingTypeUID.equals(THING_TYPE_UID_WITHOUT_FW) || thingTypeUID.equals(THING_TYPE_UID1)) {
                     return [] as Set
                 }
-                [
-                    FWALPHA_EN] as Set
+                [FWALPHA_EN] as Set
             }] as FirmwareProvider
 
         registerService(firmwareProvider2, FirmwareProvider.class.getName())
@@ -388,6 +389,175 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         assertFirmwareStatusInfoEvent(THING1_UID, upToDateInfo)
     }
 
+    @Test(expected=IllegalArgumentException)
+    void 'assert that cancel throws IllegalArgumentException if there is no firmware update handler for thing'(){
+        firmwareUpdateService.cancelFirmwareUpdate(new ThingUID("dummy:thing:withoutHandler"))
+    }
+
+    @Test(expected=NullPointerException)
+    void 'assert that cancel throws NullPointerExceptions if the given thing id is null'(){
+        firmwareUpdateService.cancelFirmwareUpdate(null)
+    }
+
+    @Test(expected=IllegalStateException)
+    void 'assert that cancel throws IllegalStateException if update was not started before'(){
+        firmwareUpdateService.cancelFirmwareUpdate(THING3_UID)
+    }
+
+    @Test
+    void 'assert that cancel cancels the firmware update using the correct FirmwareUpdateHandler'(){
+        firmwareUpdateService.updateFirmware(THING1_UID, FW111_EN.getUID(), defaultLocale)
+        firmwareUpdateService.updateFirmware(THING2_UID, FW111_EN.getUID(), defaultLocale)
+        firmwareUpdateService.updateFirmware(THING3_UID, FWALPHA_EN.getUID(), defaultLocale)
+
+        firmwareUpdateService.cancelFirmwareUpdate(THING3_UID)
+
+        waitForAssert{
+            assertThat thing1.getHandler().cancelCalled, is(false)
+            assertThat thing2.getHandler().cancelCalled, is(false)
+            assertThat thing3.getHandler().cancelCalled, is(true)
+        }
+    }
+
+    @Test
+    void 'assert that cancelFirmwareUpdate sets internalFailed on ProgressCallback if an exception occur'(){
+        def exception = new NullPointerException()
+        def postedEvent
+        def expectedEnglishMessage = "An unexpected error occurred during canceling of firmware update."
+        def firmwareUpdateHandler = [
+            cancel:{ throw exception },
+            isUpdateExecutable:{
+            },
+            updateFirmware:{ fw, callback ->
+            },
+            getThing: {
+                return ThingBuilder.create(THING_TYPE_UID1, THING4_UID).build()
+            }
+        ] as FirmwareUpdateHandler
+
+        def publisher = [
+            post : { event -> postedEvent = event }
+        ] as EventPublisher
+        def i18nProvider = getService(I18nProvider)
+        assertThat i18nProvider, is(notNullValue())
+        registerService(firmwareUpdateHandler)
+        def service = getService(FirmwareUpdateHandler) {
+            bundleContext.getService(it).equals(firmwareUpdateHandler)
+        }
+        assertThat service, is(not(null))
+
+        //locale null
+        def callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), null)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is(expectedEnglishMessage)
+        }
+        postedEvent = null
+
+        //locale EN
+        callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.ENGLISH)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is(expectedEnglishMessage)
+        }
+        postedEvent = null
+
+        //locale DE
+        callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.GERMANY)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is("Es ist ein unerwarteter Fehler während des Abbruchs eines Firmware-Updates aufgetreten.")
+        }
+    }
+
+    @Test
+    void 'assert that cancelFirmwareUpdate sets internalFailed on ProgressCallback if the operation took to long'(){
+        def expectedEnglishMessage = "A timeout occurred during canceling of firmware update."
+        def postedEvent
+        def firmwareUpdateHandler = [
+            cancel:{
+                Thread.sleep(SafeMethodCaller.DEFAULT_TIMEOUT+1000)
+            },
+            isUpdateExecutable:{
+            },
+            updateFirmware:{ fw, callback ->
+            },
+            getThing: {
+                return ThingBuilder.create(THING_TYPE_UID1, THING4_UID).build()
+            }
+        ] as FirmwareUpdateHandler
+        def publisher = [
+            post : { event -> postedEvent = event }
+        ] as EventPublisher
+        def i18nProvider = getService(I18nProvider)
+        assertThat i18nProvider, is(notNullValue())
+
+        registerService(firmwareUpdateHandler)
+        def service = getService(FirmwareUpdateHandler) {
+            bundleContext.getService(it).equals(firmwareUpdateHandler)
+        }
+        assertThat service, is(not(null))
+
+        //locale null
+        def callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), null)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is(expectedEnglishMessage)
+        }
+        postedEvent = null
+        
+        //locale EN
+        callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.ENGLISH)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is(expectedEnglishMessage)
+        }
+        postedEvent = null
+
+        //locale DE
+        callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.GERMANY)
+        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
+        waitForAssert{
+            assertThat postedEvent, is(notNullValue())
+            assertThat postedEvent, is(instanceOf(FirmwareUpdateResultInfoEvent))
+            FirmwareUpdateResultInfoEvent resultEvent = postedEvent as FirmwareUpdateResultInfoEvent
+            assertThat resultEvent.getThingUID(), is(THING4_UID)
+            assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.ERROR)
+            assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is("Das Abbrechen des Firmware-Updates ist aufgrund einer Zeitüberschreitung fehlgeschlagen.")
+        }
+    }
+
     @Test
     void 'assert that firmware downgrade works'() {
         assertThat firmwareUpdateService.getFirmwareStatusInfo(THING2_UID), is(upToDateInfo)
@@ -443,7 +613,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         assertThat thing4.getHandler(), is(notNullValue())
 
-        thrown.expect(IllegalStateException.class)
+        thrown.expect(IllegalArgumentException.class)
         thrown.expectMessage(is(String.format("There is no firmware update handler for thing with UID %s.", thing4.getUID())))
 
         firmwareUpdateService.updateFirmware(thing4.getUID(), FW009_EN.getUID(), null)
@@ -475,9 +645,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
                 if(thingTypeUID.equals(THING_TYPE_UID_WITHOUT_FW) || thingTypeUID.equals(THING_TYPE_UID2)) {
                     return [] as Set
                 }
-                [
-                    FW111_FIX_EN,
-                    FW113_EN] as Set
+                [FW111_FIX_EN, FW113_EN] as Set
             }] as FirmwareProvider
 
         registerService(firmwareProvider2, FirmwareProvider.class.getName())
@@ -807,8 +975,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     private void registerConfigDescriptionProvider() {
-        def configDescription = new ConfigDescription(CONFIG_URI, [
-            ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).build()] as List);
+        def configDescription = new ConfigDescription(CONFIG_URI, [ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).build()] as List);
 
         registerService([
             getConfigDescription: { uri, locale -> configDescription }
@@ -904,17 +1071,13 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     final class FirmwareUpdateThingHandler extends BaseThingHandler implements FirmwareUpdateHandler {
 
-        def sequence = [
-            ProgressStep.REBOOTING,
-            ProgressStep.DOWNLOADING,
-            ProgressStep.TRANSFERRING,
-            ProgressStep.UPDATING
-        ].toArray(new ProgressStep[0])
+        def sequence = [ProgressStep.REBOOTING, ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING, ProgressStep.UPDATING].toArray(new ProgressStep[0])
 
         int wait = 25
         boolean updateExecutable = true
         boolean exception = false
         boolean fail = false
+        boolean cancelCalled = false
 
         FirmwareUpdateThingHandler(Thing thing) {
             super(thing)
@@ -962,6 +1125,11 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         @Override
         public boolean isUpdateExecutable() {
             return updateExecutable;
+        }
+
+        @Override
+        public void cancel() {
+            cancelCalled = true
         }
     }
 
@@ -1013,6 +1181,10 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         void transferFirmware(Firmware firmware) {
             sleep wait
             updateExecutable = true
+        }
+
+        @Override
+        public void cancel() {
         }
     }
 

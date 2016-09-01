@@ -39,6 +39,11 @@ public interface FirmwareUpdateHandler {
     void updateFirmware(Firmware firmware, ProgressCallback progressCallback);
 
     /**
+     * Cancels a previous started firmware update.
+     */
+    void cancel(); 
+    
+    /**
      * Returns true, if this firmware update handler is in a state in which the firmware update can be executed,
      * otherwise false (e.g. the thing is {@link ThingStatus#OFFLINE} or its status detail is already
      * {@link ThingStatusDetail#FIRMWARE_UPDATING.)

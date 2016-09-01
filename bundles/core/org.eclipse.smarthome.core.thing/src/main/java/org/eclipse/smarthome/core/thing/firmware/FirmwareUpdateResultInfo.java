@@ -41,7 +41,7 @@ public final class FirmwareUpdateResultInfo {
         Preconditions.checkNotNull(result, "Firmware update result must not be null");
         this.result = result;
 
-        if (result == FirmwareUpdateResult.ERROR) {
+        if (result != FirmwareUpdateResult.SUCCESS) {
             Preconditions.checkArgument(errorMessage != null && !errorMessage.isEmpty(),
                     "Error message must not be null or empty for erroneous firmare updates");
             this.errorMessage = errorMessage;
