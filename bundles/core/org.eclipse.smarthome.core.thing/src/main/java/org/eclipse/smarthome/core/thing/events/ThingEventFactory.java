@@ -75,7 +75,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     /**
      * This is a java bean that is used to serialize/deserialize trigger event payload.
      */
-    private static class TriggerEventPayloadBean {
+    public static class TriggerEventPayloadBean {
         private String type;
         private String value;
 
