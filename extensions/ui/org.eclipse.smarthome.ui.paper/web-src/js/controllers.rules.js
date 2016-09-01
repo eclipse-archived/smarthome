@@ -35,8 +35,8 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
 }).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
 
-    $scope.refresh = function() {
-        ruleRepository.getAll(true);
+    $scope.refresh = function(force) {
+        ruleRepository.getAll(null, force);
     };
 
     $scope.configure = function(rule) {
@@ -53,7 +53,7 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         });
     };
 
-    ruleRepository.getAll(true);
+    $scope.refresh(false);
 
     $scope.removePart = function(opt, id) {
         sharedProperties.removeFromArray(opt, id);
@@ -63,8 +63,7 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         ruleService.setEnabled({
             ruleUID : rule.uid
         }, (!rule.enabled).toString(), function() {
-            $scope.refresh();
-            if (rule.enabled) {
+            if (!rule.enabled) {
                 toastService.showDefaultToast('Rule disabled.');
             } else {
                 toastService.showDefaultToast('Rule enabled.');
@@ -89,7 +88,7 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         $scope.setSubtitle([ rule.name ]);
         $scope.rule = rule;
     });
-}).controller('NewRuleController', function($scope, itemRepository, ruleService, toastService, $mdDialog, sharedProperties, moduleTypeService) {
+}).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService) {
     $scope.setSubtitle([ 'New Rule' ]);
     itemRepository.getAll();
     sharedProperties.reset();
@@ -97,11 +96,12 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     var ruleUID = $scope.path[3];
 
     if ($scope.path[3]) {
-        ruleService.getByUid({
-            ruleUID : ruleUID
+        ruleRepository.getOne(function(rule) {
+            return rule.uid === ruleUID;
         }, function(data) {
             $scope.name = data.name;
             $scope.description = data.description;
+            $scope.status = data.status;
             setModuleArrays(data);
         });
         $scope.setSubtitle([ 'Configure' ]);
