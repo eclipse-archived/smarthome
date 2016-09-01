@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.events;
 
 import java.util.List;
-
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -19,7 +18,6 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.TypeParser;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -105,8 +103,7 @@ public class ThingEventFactory extends AbstractEventFactory {
      * Creates a trigger event from a {@link Type}.
      *
      * @param event Event.
-     * @param thing thing, which triggered the event.
-     * @param source Source.
+     * @param channel Channel which triggered the event.
      * @return Created trigger event.
      */
     public static ThingTriggerEvent createTriggerEvent(Type event, ChannelUID channel) {

@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -108,6 +107,15 @@ public class Channel {
     }
 
     /**
+     * Returns the trigger type.
+     *
+     * @return trigger type
+     */
+    public String getTriggerType() {
+        return triggerType;
+    }
+
+    /**
      * Returns the unique id of the channel.
      *
      * @return unique id of the channel
@@ -171,14 +179,5 @@ public class Channel {
      */
     public Set<String> getDefaultTags() {
         return defaultTags;
-    }
-
-    /**
-     * Returns the trigger type.
-     *
-     * @return trigger type
-     */
-    public String getTriggerType() {
-        return triggerType;
     }
 }

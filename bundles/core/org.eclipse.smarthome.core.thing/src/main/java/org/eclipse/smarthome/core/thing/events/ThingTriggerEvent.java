@@ -29,9 +29,10 @@ public class ThingTriggerEvent extends AbstractEvent {
     /**
      * Constructs a new thing trigger event.
      *
-     * @param topic the topic. The topic includes the thing UID, see {@link ThingEventFactory#THING_TRIGGERED_EVENT_TOPIC}
+     * @param topic the topic. The topic includes the thing UID, see
+     *            {@link ThingEventFactory#THING_TRIGGERED_EVENT_TOPIC}
      * @param payload the payload. Contains a serialized {@link ThingEventFactory.TriggerEventPayloadBean}.
-     * @param source the source. Contains the UID of the channel which has been triggered.
+     * @param source the source
      */
     protected ThingTriggerEvent(String topic, String payload, String source, Type event) {
         super(topic, payload, source);
@@ -54,7 +55,7 @@ public class ThingTriggerEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return getSource() + " triggered " + getPayload();
+        return event.toString();
     }
 
 }

@@ -76,8 +76,8 @@ public interface ThingHandlerCallback {
 
     /**
      * Informs the framework that a channel has emitted an event.
-     * 
-     * @param channelUID ID of the channel over which the event has been emitted.
+     *
+     * @param channelUID UID of the channel over which the event has been emitted.
      * @param event Event.
      */
     void eventEmitted(Thing thing, ChannelUID channelUID, Type event);

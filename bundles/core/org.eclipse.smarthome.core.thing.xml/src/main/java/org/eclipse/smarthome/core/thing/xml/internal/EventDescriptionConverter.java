@@ -10,14 +10,12 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateOption;
-
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;

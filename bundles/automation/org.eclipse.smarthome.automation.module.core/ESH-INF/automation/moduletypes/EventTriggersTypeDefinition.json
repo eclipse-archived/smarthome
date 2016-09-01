@@ -112,25 +112,25 @@
          ]
       },
       {
-         "uid":"ThingEventTrigger",
-         "label":"Thing Trigger Event Trigger",
+         "uid":"ChannelEventTrigger",
+         "label":"Channel Trigger",
          "description":"This triggers a rule if a channel emits a trigger",
          "configDescriptions":[
             {
-               "name":"channelId",
+               "name":"channelUID",
                "type":"TEXT",
                "context":"channel",
-               "label":"channel ID",
+               "label":"Channel",
                "description":"the id of the channel which should be observed for triggers",
                "required":true
             }
          ],
          "children":[
             {
-               "id":"thingTriggerEventId",
+               "id":"channelEventTriggerId",
                "type":"GenericEventTrigger",
                "configuration":{
-                  "eventSource":"$channelId",
+                  "eventSource":"$channelUID",
                   "eventTopic":"smarthome/channels/*/triggered",
                   "eventTypes":"ThingTriggerEvent"
                }
@@ -140,9 +140,9 @@
             {
                "name":"event",
                "type":"org.eclipse.smarthome.core.events.Event",
-               "description":"the event of the thing trigger",
+               "description":"the event of the channel trigger",
                "label":"Event",
-               "reference":"thingTriggerEventId.event"
+               "reference":"channelEventTriggerId.event"
             }
          ]
       }
