@@ -937,3 +937,13 @@ md-dialog-content .dayParameter {
 	min-height: 35px;
 	min-width: 35px;
 }
+
+.rule .actions i {
+	margin: 10px 17px 10px 17px;
+}
+
+.rule .actions i:hover, .rules .actions span:hover {
+	cursor: pointer;
+	box-shadow: 0px 0px 4px 2px #dedede;
+	border-radius: 100%;
+}
