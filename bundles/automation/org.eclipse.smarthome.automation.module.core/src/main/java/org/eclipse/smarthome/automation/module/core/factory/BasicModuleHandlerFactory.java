@@ -23,10 +23,7 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActio
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,64 +44,15 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
                     EventConditionHandler.MODULETYPE_ID, CompareConditionHandler.MODULE_TYPE });
 
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker itemRegistryTracker;
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker eventPublisherTracker;
-
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
 
-    @Override
-    public void activate(BundleContext bundleContext) {
-        super.activate(bundleContext);
-        initializeServiceTrackers();
+    protected void activate(ComponentContext componentContext) {
+        super.activate(componentContext.getBundleContext());
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void initializeServiceTrackers() {
-        this.itemRegistryTracker = new ServiceTracker(this.bundleContext, ItemRegistry.class.getName(),
-                new ServiceTrackerCustomizer() {
-
-                    @Override
-                    public Object addingService(ServiceReference reference) {
-                        setItemRegistry((ItemRegistry) bundleContext.getService(reference));
-                        return itemRegistry;
-                    }
-
-                    @Override
-                    public void modifiedService(ServiceReference reference, Object service) {
-
-                    }
-
-                    @Override
-                    public void removedService(ServiceReference reference, Object service) {
-                        unsetItemRegistry((ItemRegistry) service);
-                    }
-                });
-        this.itemRegistryTracker.open();
-
-        this.eventPublisherTracker = new ServiceTracker(this.bundleContext, EventPublisher.class.getName(),
-                new ServiceTrackerCustomizer() {
-
-                    @Override
-                    public Object addingService(ServiceReference reference) {
-                        setEventPublisher((EventPublisher) bundleContext.getService(reference));
-                        return eventPublisher;
-                    }
-
-                    @Override
-                    public void modifiedService(ServiceReference reference, Object service) {
-
-                    }
-
-                    @Override
-                    public void removedService(ServiceReference reference, Object service) {
-                        unsetEventPublisher((EventPublisher) service);
-                    }
-
-                });
-        this.eventPublisherTracker.open();
+    protected void deactivate(ComponentContext componentContext) {
+        super.deactivate();
     }
 
     @Override
@@ -117,7 +65,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param itemRegistry
      */
-    private void setItemRegistry(ItemRegistry itemRegistry) {
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemStateConditionHandler) {
@@ -133,7 +81,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param itemRegistry
      */
-    private void unsetItemRegistry(ItemRegistry itemRegistry) {
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemStateConditionHandler) {
                 ((ItemStateConditionHandler) handler).unsetItemRegistry(this.itemRegistry);
@@ -149,7 +97,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param eventPublisher
      */
-    private void setEventPublisher(EventPublisher eventPublisher) {
+    protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemPostCommandActionHandler) {
@@ -163,7 +111,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param eventPublisher
      */
-    private void unsetEventPublisher(EventPublisher eventPublisher) {
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemPostCommandActionHandler) {
@@ -181,8 +129,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     @Override
     public void dispose() {
         super.dispose();
-        itemRegistryTracker.close();
-        eventPublisherTracker.close();
     }
 
     @Override

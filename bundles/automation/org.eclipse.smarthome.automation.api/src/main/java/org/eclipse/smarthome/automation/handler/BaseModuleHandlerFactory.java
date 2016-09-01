@@ -21,7 +21,7 @@ import org.osgi.framework.BundleContext;
  */
 abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    protected Map<String, ModuleHandler> handlers;
+    protected Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
     protected BundleContext bundleContext;
 
     public void activate(BundleContext bundleContext) {
@@ -29,7 +29,6 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
             throw new IllegalArgumentException("BundleContext must not be null.");
         }
         this.bundleContext = bundleContext;
-        handlers = new HashMap<String, ModuleHandler>();
     }
 
     public void deactivate() {
