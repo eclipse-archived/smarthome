@@ -82,6 +82,10 @@ public class Channel {
     public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, ChannelKind kind,
             Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label,
             String description) {
+        if (kind == null) {
+            throw new IllegalArgumentException("kind must not be null");
+        }
+
         this.uid = uid;
         this.channelTypeUID = channelTypeUID;
         this.acceptedItemType = acceptedItemType;

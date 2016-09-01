@@ -70,7 +70,7 @@ public class ChannelTriggeredEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return event.toString();
+        return channel + " triggered " + event;
     }
 
 }
