@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /**
  * {@link ThingHelper} provides a utility method to create and bind items.
@@ -53,17 +54,20 @@ public class ThingHelper {
         if (!a.getUID().equals(b.getUID())) {
             return false;
         }
-        if (a.getBridgeUID() == null && b.getBridgeUID() != null) {
-            return false;
-        }
-        if (a.getBridgeUID() != null && !a.getBridgeUID().equals(b.getBridgeUID())) {
+        // bridge
+        if (!Objects.equal(a.getBridgeUID(), b.getBridgeUID())) {
             return false;
         }
         // configuration
-        if (a.getConfiguration() == null && b.getConfiguration() != null) {
+        if (!Objects.equal(a.getConfiguration(), b.getConfiguration())) {
             return false;
         }
-        if (a.getConfiguration() != null && !a.getConfiguration().equals(b.getConfiguration())) {
+        // label
+        if (!Objects.equal(a.getLabel(), b.getLabel())) {
+            return false;
+        }
+        // location
+        if (!Objects.equal(a.getLocation(), b.getLocation())) {
             return false;
         }
         // channels

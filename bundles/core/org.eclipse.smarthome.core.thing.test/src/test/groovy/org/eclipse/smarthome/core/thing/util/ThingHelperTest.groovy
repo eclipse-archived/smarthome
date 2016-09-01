@@ -85,4 +85,34 @@ class ThingHelperTest {
 		assertFalse ThingHelper.equals(thingA, thingB)
 	}
 
+
+    @Test
+    void 'Two things are different after label was modified'() {
+        Thing thingA = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId"))
+                .withConfiguration(new Configuration()).withLabel("foo").build()
+
+        Thing thingB = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId"))
+                .withConfiguration(new Configuration()).withLabel("foo").build()
+
+        assertTrue ThingHelper.equals(thingA, thingB)
+
+        thingB.setLabel("bar")
+
+        assertFalse ThingHelper.equals(thingA, thingB)
+    }
+
+    @Test
+    void 'Two things are different after location was modified'() {
+        Thing thingA = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId"))
+                .withConfiguration(new Configuration()).withLocation("foo").build()
+
+        Thing thingB = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId"))
+                .withConfiguration(new Configuration()).withLocation("foo").build()
+
+        assertTrue ThingHelper.equals(thingA, thingB)
+
+        thingB.setLocation("bar")
+
+        assertFalse ThingHelper.equals(thingA, thingB)
+    }
 }
