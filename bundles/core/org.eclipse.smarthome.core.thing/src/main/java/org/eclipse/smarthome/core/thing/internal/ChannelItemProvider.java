@@ -58,7 +58,7 @@ public class ChannelItemProvider implements ItemProvider {
 
     private boolean enabled = true;
     private boolean initialized = false;
-    private long lastUpdate = new Date().getTime();
+    private long lastUpdate = System.nanoTime();
 
     @Override
     public Collection<Item> getAll() {
@@ -299,7 +299,7 @@ public class ChannelItemProvider implements ItemProvider {
         @Override
         public void added(ItemChannelLink element) {
             createItemForLink(element);
-            lastUpdate = new Date().getTime();
+            lastUpdate = System.nanoTime();
         }
 
         @Override
@@ -331,7 +331,7 @@ public class ChannelItemProvider implements ItemProvider {
                     listener.removed(ChannelItemProvider.this, oldElement);
                 }
             }
-            lastUpdate = new Date().getTime();
+            lastUpdate = System.nanoTime();
         }
 
         @Override
