@@ -16,6 +16,7 @@ import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
+import org.eclipse.smarthome.automation.RuleStatusInfo
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.module.timer.handler.TimerTriggerHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
@@ -131,8 +132,9 @@ class RuntimeRuleTest extends OSGiTest{
         logger.info("Enable rule and wait for idle status")
         ruleRegistry.setEnabled(rule.UID, true)
         waitForAssert({
-            println ruleRegistry.getStatus(rule.UID).statusDetail
-            assertThat ruleRegistry.getStatus(rule.UID).status, is(RuleStatus.IDLE)
+            final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+            println "Rule status: " + ruleStatus
+            assertThat ruleStatus.status, is(RuleStatus.IDLE)
         })
         logger.info("Rule is enabled and idle")
 
@@ -141,8 +143,9 @@ class RuntimeRuleTest extends OSGiTest{
             logger.info("Disable rule");
             ruleRegistry.setEnabled(rule.UID, false)
             waitForAssert({
-                println ruleRegistry.getStatus(rule.UID).statusDetail
-                assertThat ruleRegistry.getStatus(rule.UID).status, is(RuleStatus.DISABLED)
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                println "Rule status: " + ruleStatus
+                assertThat ruleStatus.status, is(RuleStatus.DISABLED)
             })
             logger.info("Rule is disabled");
 
