@@ -18,7 +18,7 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
-import org.eclipse.smarthome.core.thing.events.ThingTriggerEvent
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -116,7 +116,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 						parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef) 
 					}
 					if (containsEventTrigger(rule)) {
-                        val eventTypeRef = ruleModel.newTypeRef(ThingTriggerEvent)
+                        val eventTypeRef = ruleModel.newTypeRef(ChannelTriggeredEvent)
                         parameters += rule.toParameter(VAR_RECEIVED_EVENT, eventTypeRef)					    
 					}
 					

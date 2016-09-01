@@ -132,7 +132,7 @@
                "configuration":{
                   "eventSource":"$channelUID",
                   "eventTopic":"smarthome/channels/*/triggered",
-                  "eventTypes":"ThingTriggerEvent"
+                  "eventTypes":"ChannelTriggeredEvent"
                }
             }
          ],

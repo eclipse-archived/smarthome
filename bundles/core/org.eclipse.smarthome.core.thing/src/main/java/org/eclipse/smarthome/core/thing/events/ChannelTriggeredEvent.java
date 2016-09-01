@@ -11,15 +11,15 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.types.Type;
 
 /**
- * {@link ThingTriggerEvent}s can be used to deliver triggers through the Eclipse SmartHome event bus.
+ * {@link ChannelTriggeredEvent}s can be used to deliver triggers through the Eclipse SmartHome event bus.
  * Trigger events must be created with the {@link ThingEventFactory}.
  */
-public class ThingTriggerEvent extends AbstractEvent {
+public class ChannelTriggeredEvent extends AbstractEvent {
 
     /**
      * The thing trigger event type.
      */
-    public final static String TYPE = ThingTriggerEvent.class.getSimpleName();
+    public final static String TYPE = ChannelTriggeredEvent.class.getSimpleName();
 
     /**
      * The event.
@@ -34,7 +34,7 @@ public class ThingTriggerEvent extends AbstractEvent {
      * @param payload the payload. Contains a serialized {@link ThingEventFactory.TriggerEventPayloadBean}.
      * @param source the source
      */
-    protected ThingTriggerEvent(String topic, String payload, String source, Type event) {
+    protected ChannelTriggeredEvent(String topic, String payload, String source, Type event) {
         super(topic, payload, source);
         this.event = event;
     }

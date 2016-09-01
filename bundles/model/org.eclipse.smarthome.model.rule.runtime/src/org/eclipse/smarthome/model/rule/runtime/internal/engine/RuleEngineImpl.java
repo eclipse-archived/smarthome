@@ -30,7 +30,7 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
-import org.eclipse.smarthome.core.thing.events.ThingTriggerEvent;
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -226,7 +226,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         }
     }
 
-    private void receiveThingTrigger(ThingTriggerEvent event) {
+    private void receiveThingTrigger(ChannelTriggeredEvent event) {
         String channel = event.getSource();
         Type eventType = event.getEvent();
 
@@ -321,7 +321,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         }
     }
 
-    protected synchronized void executeRules(Iterable<Rule> rules, ThingTriggerEvent event) {
+    protected synchronized void executeRules(Iterable<Rule> rules, ChannelTriggeredEvent event) {
         for (Rule rule : rules) {
             RuleEvaluationContext context = new RuleEvaluationContext();
             context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_RECEIVED_EVENT), event);
@@ -362,7 +362,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
-            ThingTriggerEvent.TYPE);
+            ChannelTriggeredEvent.TYPE);
 
     @Override
     public Set<String> getSubscribedEventTypes() {
@@ -378,8 +378,8 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     public void receive(Event event) {
         if (event instanceof ItemCommandEvent) {
             receiveCommand((ItemCommandEvent) event);
-        } else if (event instanceof ThingTriggerEvent) {
-            receiveThingTrigger((ThingTriggerEvent) event);
+        } else if (event instanceof ChannelTriggeredEvent) {
+            receiveThingTrigger((ChannelTriggeredEvent) event);
         }
     }
 }
