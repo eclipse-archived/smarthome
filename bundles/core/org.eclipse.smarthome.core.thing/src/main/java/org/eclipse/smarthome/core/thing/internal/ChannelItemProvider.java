@@ -9,13 +9,13 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -150,7 +150,7 @@ public class ChannelItemProvider implements ItemProvider {
                 public void run() {
                     // we wait until no further new links or items are announced in order to avoid creation of
                     // items which then must be removed again immediately.
-                    while (lastUpdate > new Date().getTime() - 2000L) {
+                    while (lastUpdate > System.nanoTime() - TimeUnit.SECONDS.toNanos(2)) {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException e) {
