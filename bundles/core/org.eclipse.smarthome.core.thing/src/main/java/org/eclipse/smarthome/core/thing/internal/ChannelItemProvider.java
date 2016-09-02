@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -55,10 +57,12 @@ public class ChannelItemProvider implements ItemProvider {
     private Map<String, Item> items = null;
 
     private boolean enabled = true;
+    private boolean initialized = false;
+    private long lastUpdate = System.nanoTime();
 
     @Override
     public Collection<Item> getAll() {
-        if (!enabled) {
+        if (!enabled || !initialized) {
             return Collections.emptySet();
         } else {
             synchronized (this) {
@@ -141,13 +145,24 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
         if (enabled) {
-            logger.debug("Enabling channel item provider.");
-            for (ProviderChangeListener<Item> listener : listeners) {
-                for (Item item : getAll()) {
-                    listener.added(this, item);
+            Executors.newSingleThreadExecutor().submit(new Runnable() {
+                @Override
+                public void run() {
+                    // we wait until no further new links or items are announced in order to avoid creation of
+                    // items which then must be removed again immediately.
+                    while (lastUpdate > System.nanoTime() - TimeUnit.SECONDS.toNanos(2)) {
+                        try {
+                            Thread.sleep(100L);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                    logger.debug("Enabling channel item provider.");
+                    initialized = true;
+                    // simply call getAll() will create the items and notify all registered listeners automatically
+                    getAll();
+                    addRegistryChangeListeners();
                 }
-            }
-            addRegistryChangeListeners();
+            });
         } else {
             logger.debug("Disabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
@@ -162,6 +177,7 @@ public class ChannelItemProvider implements ItemProvider {
     protected void deactivate() {
         removeRegistryChangeListeners();
         synchronized (this) {
+            initialized = false;
             items = null;
         }
     }
@@ -283,6 +299,7 @@ public class ChannelItemProvider implements ItemProvider {
         @Override
         public void added(ItemChannelLink element) {
             createItemForLink(element);
+            lastUpdate = System.nanoTime();
         }
 
         @Override
@@ -301,15 +318,20 @@ public class ChannelItemProvider implements ItemProvider {
 
         @Override
         public void added(Item element) {
-            if (!items.values().contains(element)) {
-                // it is from some other provider, so remove ours, if we have one
-                Item oldElement = items.remove(element.getName());
-                if (oldElement != null) {
-                    for (ProviderChangeListener<Item> listener : listeners) {
-                        listener.removed(ChannelItemProvider.this, oldElement);
-                    }
+            // check, if it is our own item
+            for (Item item : items.values()) {
+                if (item == element) {
+                    return;
                 }
             }
+            // it is from some other provider, so remove ours, if we have one
+            Item oldElement = items.remove(element.getName());
+            if (oldElement != null) {
+                for (ProviderChangeListener<Item> listener : listeners) {
+                    listener.removed(ChannelItemProvider.this, oldElement);
+                }
+            }
+            lastUpdate = System.nanoTime();
         }
 
         @Override
