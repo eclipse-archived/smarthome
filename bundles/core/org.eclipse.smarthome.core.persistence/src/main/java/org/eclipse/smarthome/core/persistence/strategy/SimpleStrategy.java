@@ -9,6 +9,11 @@ package org.eclipse.smarthome.core.persistence.strategy;
 
 import java.util.Objects;
 
+/**
+ * This class holds a strategy to persist items.
+ *
+ * @author Markus Rathgeb - Initial contribution and API
+ */
 public class SimpleStrategy {
     public static class Globals {
         public static final SimpleStrategy UPDATE = new SimpleStrategy("everyUpdate");

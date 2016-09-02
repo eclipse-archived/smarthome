@@ -13,6 +13,11 @@ import java.util.List;
 import org.eclipse.smarthome.core.persistence.config.SimpleConfig;
 import org.eclipse.smarthome.core.persistence.strategy.SimpleStrategy;
 
+/**
+ * This class holds the configuration of a persistence strategy for specific items.
+ *
+ * @author Markus Rathgeb - Initial contribution and API
+ */
 public class SimpleItemConfiguration {
 
     private final List<SimpleConfig> items;

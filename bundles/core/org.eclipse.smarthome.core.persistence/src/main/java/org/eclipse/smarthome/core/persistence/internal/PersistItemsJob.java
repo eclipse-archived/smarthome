@@ -19,10 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of Quartz {@link Job}-Interface. It takes a PersistenceModel and a CronStrategy,
- * scans through the relevant configurations and persists the concerned items.
+ * Implementation of a persistence job that could be executed e.g. for specific cron expressions.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Separation of persistence core and model, drop Quartz usage.
  */
 public class PersistItemsJob implements Runnable {
 

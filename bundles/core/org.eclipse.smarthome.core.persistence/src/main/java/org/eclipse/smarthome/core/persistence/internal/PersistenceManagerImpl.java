@@ -46,6 +46,12 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class implements a persistence manager to manage all persistence services etc.
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Separation of persistence core and model, drop Quartz usage.
+ */
 public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryChangeListener, StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
@@ -84,58 +90,6 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     protected void removePersistenceService(PersistenceService persistenceService) {
         stopEventHandling(persistenceService.getId());
         persistenceServices.remove(persistenceService.getId());
-    }
-
-    @Override
-    public void addConfig(final String dbId, final PersistenceServiceConfiguration config) {
-        synchronized (persistenceServiceConfigs) {
-            this.persistenceServiceConfigs.put(dbId, config);
-            if (itemRegistry != null && persistenceServices.containsKey(dbId)) {
-                startEventHandling(dbId);
-            }
-        }
-    }
-
-    @Override
-    public void removeConfig(final String dbId) {
-        synchronized (persistenceServiceConfigs) {
-            stopEventHandling(dbId);
-            this.persistenceServiceConfigs.remove(dbId);
-        }
-    }
-
-    @Override
-    public void startEventHandling(final String dbId) {
-        final PersistenceServiceConfiguration config = persistenceServiceConfigs.get(dbId);
-        if (config == null) {
-            return;
-        }
-
-        if (itemRegistry != null) {
-            for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
-                if (hasStrategy(dbId, itemConfig, SimpleStrategy.Globals.RESTORE)) {
-                    for (Item item : getAllItems(itemConfig)) {
-                        initialize(item);
-                    }
-                }
-            }
-        }
-        createTimers(dbId, config.getStrategies());
-    }
-
-    @Override
-    public void stopEventHandling(String modelName) {
-        removeTimers(modelName);
-    }
-
-    @Override
-    public void stateChanged(Item item, State oldState, State newState) {
-        handleStateEvent(item, true);
-    }
-
-    @Override
-    public void stateUpdated(Item item, State state) {
-        handleStateEvent(item, false);
     }
 
     /**
@@ -192,7 +146,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
      * @param item to check if the configuration applies to
      * @return true, if the configuration applies to the item
      */
-    protected boolean appliesToItem(SimpleItemConfiguration config, Item item) {
+    private boolean appliesToItem(SimpleItemConfiguration config, Item item) {
         for (SimpleConfig itemCfg : config.getItems()) {
             if (itemCfg instanceof SimpleAllConfig) {
                 return true;
@@ -227,7 +181,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
      * @param config the persistence configuration entry
      * @return all items that this configuration applies to
      */
-    protected Iterable<Item> getAllItems(SimpleItemConfiguration config) {
+    Iterable<Item> getAllItems(SimpleItemConfiguration config) {
         // first check, if we should return them all
         for (Object itemCfg : config.getItems()) {
             if (itemCfg instanceof SimpleAllConfig) {
@@ -262,22 +216,6 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
             }
         }
         return items;
-    }
-
-    @Override
-    public void allItemsChanged(Collection<String> oldItemNames) {
-        for (Item item : itemRegistry.getItems()) {
-            added(item);
-        }
-    }
-
-    @Override
-    public void added(Item item) {
-        initialize(item);
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.addStateChangeListener(this);
-        }
     }
 
     /**
@@ -325,14 +263,6 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
                     }
                 }
             }
-        }
-    }
-
-    @Override
-    public void removed(Item item) {
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.removeStateChangeListener(this);
         }
     }
 
@@ -390,9 +320,101 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         persistenceJobs.remove(persistModelName);
     }
 
+    /*
+     * PersistenceManager
+     */
+
+    @Override
+    public void addConfig(final String dbId, final PersistenceServiceConfiguration config) {
+        synchronized (persistenceServiceConfigs) {
+            this.persistenceServiceConfigs.put(dbId, config);
+            if (itemRegistry != null && persistenceServices.containsKey(dbId)) {
+                startEventHandling(dbId);
+            }
+        }
+    }
+
+    @Override
+    public void removeConfig(final String dbId) {
+        synchronized (persistenceServiceConfigs) {
+            stopEventHandling(dbId);
+            this.persistenceServiceConfigs.remove(dbId);
+        }
+    }
+
+    @Override
+    public void startEventHandling(final String dbId) {
+        synchronized (persistenceServiceConfigs) {
+            final PersistenceServiceConfiguration config = persistenceServiceConfigs.get(dbId);
+            if (config == null) {
+                return;
+            }
+
+            if (itemRegistry != null) {
+                for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                    if (hasStrategy(dbId, itemConfig, SimpleStrategy.Globals.RESTORE)) {
+                        for (Item item : getAllItems(itemConfig)) {
+                            initialize(item);
+                        }
+                    }
+                }
+            }
+            createTimers(dbId, config.getStrategies());
+        }
+    }
+
+    @Override
+    public void stopEventHandling(String modelName) {
+        synchronized (persistenceServiceConfigs) {
+            removeTimers(modelName);
+        }
+    }
+
+    /*
+     * ItemRegistryChangeListener
+     */
+
+    @Override
+    public void allItemsChanged(Collection<String> oldItemNames) {
+        for (Item item : itemRegistry.getItems()) {
+            added(item);
+        }
+    }
+
+    @Override
+    public void added(Item item) {
+        initialize(item);
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.addStateChangeListener(this);
+        }
+    }
+
+    @Override
+    public void removed(Item item) {
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.removeStateChangeListener(this);
+        }
+    }
+
     @Override
     public void updated(Item oldItem, Item item) {
         // not needed here
+    }
+
+    /*
+     * StateChangeListener
+     */
+
+    @Override
+    public void stateChanged(Item item, State oldState, State newState) {
+        handleStateEvent(item, true);
+    }
+
+    @Override
+    public void stateUpdated(Item item, State state) {
+        handleStateEvent(item, false);
     }
 
 }

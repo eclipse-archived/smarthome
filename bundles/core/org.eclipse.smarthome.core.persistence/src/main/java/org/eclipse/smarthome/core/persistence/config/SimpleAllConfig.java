@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.core.persistence.config;
 
+/**
+ * This class represents the configuration that stand for "using all items".
+ *
+ * @author Markus Rathgeb - Initial contribution and API
+ */
 public class SimpleAllConfig extends SimpleConfig {
 
     @Override

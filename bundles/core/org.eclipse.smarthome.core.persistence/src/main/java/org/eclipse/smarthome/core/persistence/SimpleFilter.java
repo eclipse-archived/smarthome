@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.core.persistence;
 
+/**
+ *
+ *
+ * @author Markus Rathgeb - Initial contribution and API
+ */
 public class SimpleFilter {
 
 }

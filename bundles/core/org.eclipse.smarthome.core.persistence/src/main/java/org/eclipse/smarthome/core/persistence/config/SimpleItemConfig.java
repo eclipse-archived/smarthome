@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.core.persistence.config;
 
+/**
+ * This class represents the configuration that identify item(s) by name.
+ *
+ * @author Markus Rathgeb - Initial contribution and API
+ */
 public class SimpleItemConfig extends SimpleConfig {
     final String item;
 
