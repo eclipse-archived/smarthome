@@ -19,11 +19,9 @@ import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
-import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
 
@@ -193,12 +191,6 @@ public abstract class AutomationCommands {
     protected static final String ENABLE_RULE_SHORT = "enr";
 
     /**
-     * This field serves for the {@link ModuleTypeProvider} service and the {@link TemplateProvider} service
-     * registration.
-     */
-    protected BundleContext bc;
-
-    /**
      * This field holds a reference to the {@link CommandlineModuleTypeProvider} instance.
      */
     protected CommandlineModuleTypeProvider moduleTypeProvider;
@@ -323,6 +315,29 @@ public abstract class AutomationCommands {
      * @return an instance of the class corresponding to the identifier of the command.
      */
     protected abstract AutomationCommand parseCommand(String command, String[] parameterValues);
+
+    /**
+     * Initializing method.
+     *
+     * @param bundleContext bundle's context
+     */
+    public void initialize(BundleContext bundleContext) {
+        moduleTypeProvider = new CommandlineModuleTypeProvider(bundleContext);
+        templateProvider = new CommandlineTemplateProvider(bundleContext);
+        ruleImporter = new CommandlineRuleImporter(bundleContext);
+    }
+
+    /**
+     * This method closes the providers and the importer.
+     */
+    public void dispose() {
+        moduleTypeProvider.close();
+        templateProvider.close();
+        ruleImporter.close();
+        moduleTypeProvider = null;
+        templateProvider = null;
+        ruleImporter = null;
+    }
 
     /**
      * This method is responsible for exporting a set of {@link ModuleType}s in a specified file.
@@ -471,19 +486,6 @@ public abstract class AutomationCommands {
             return commandInst.execute();
         }
         return String.format("Command \"%s\" is not supported!", command);
-    }
-
-    /**
-     * This method closes the providers and the importer and unregisters the services {@link ModuleTypeProvider} and
-     * {@link TemplateProvider}.
-     */
-    public void stop() {
-        moduleTypeProvider.close();
-        templateProvider.close();
-        ruleImporter.close();
-        moduleTypeProvider = null;
-        templateProvider = null;
-        ruleImporter = null;
     }
 
 }
