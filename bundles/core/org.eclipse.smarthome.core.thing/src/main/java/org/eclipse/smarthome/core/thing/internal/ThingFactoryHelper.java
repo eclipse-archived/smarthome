@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -29,7 +28,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 
 /**
@@ -97,7 +95,7 @@ public class ThingFactoryHelper {
 
         ChannelBuilder channelBuilder = ChannelBuilder
                 .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
-                .withType(type.getUID()).withDefaultTags(type.getTags());
+                .withType(type.getUID()).withDefaultTags(type.getTags()).withKind(type.getKind());
 
         // If we want to override the label, add it...
         if (channelDefinition.getLabel() != null) {
