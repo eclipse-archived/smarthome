@@ -233,6 +233,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         targetThing.configuration.merge(sourceThing.configuration)
         targetThing.merge(sourceThing.channels)
         targetThing.location = sourceThing.location
+        targetThing.label = sourceThing.label
     }
 
     def dispatch void merge(Configuration target, Configuration source) {
@@ -436,7 +437,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                             qc.bridgeUID)
                         if (thing != null) {
                             queue.remove(qc)
-                            thing.label = qc.label
                             logger.debug("Successfully loaded '{}' during retry", qc.thingUID)
                             newThings.add(thing)
                         }
@@ -448,6 +448,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                             ]
                             val oldThing = thingsMap.get(modelName).findFirst[it.UID == newThing.UID]
                             if (oldThing != null) {
+                                newThing.merge(oldThing)
                                 thingsMap.get(modelName).remove(oldThing)
                                 thingsMap.get(modelName).add(newThing)
                                 logger.debug("Refreshing thing '{}' after successful retry", newThing.UID)
