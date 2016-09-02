@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.io.rest.RESTConstants;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.internal.Constants;
 import org.eclipse.smarthome.io.rest.internal.resources.beans.RootBean;
@@ -95,8 +96,8 @@ public class RootResource {
                 }
 
                 String rootAlias = (String) properties.get(Constants.JAXRS_CONNECTOR_ROOT_PROPERTY);
-                if (!Constants.REST_SERVLET_ALIAS.equals(rootAlias)) {
-                    properties.put(Constants.JAXRS_CONNECTOR_ROOT_PROPERTY, Constants.REST_SERVLET_ALIAS);
+                if (!RESTConstants.REST_URI.equals(rootAlias)) {
+                    properties.put(Constants.JAXRS_CONNECTOR_ROOT_PROPERTY, RESTConstants.REST_URI);
 
                     configuration.update(properties);
                 }

@@ -172,6 +172,12 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sitemap/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-io-rest-mdns" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-mdns</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.mdns/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-io-transport-mdns" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
