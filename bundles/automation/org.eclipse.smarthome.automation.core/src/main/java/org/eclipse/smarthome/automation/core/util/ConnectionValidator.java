@@ -273,9 +273,9 @@ public class ConnectionValidator {
                         }
                     }
                 }
-                throw new IllegalArgumentException(msg + " Output with name \"" + outputName
-                        + "\" not exists in the Action with ID \"" + connection.getOuputModuleId() + "\"");
             }
+            throw new IllegalArgumentException(msg + " Output with name \"" + outputName
+                    + "\" not exists in the Module with ID \"" + connection.getOuputModuleId() + "\"");
         }
     }
 }
