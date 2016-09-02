@@ -13,6 +13,7 @@
             <channel id="channel_1" typeId="channel_1"/>
             <channel id="channel_2" typeId="channel_2"/>
             <channel id="trigger_1" typeId="trigger_1"/>
+            <channel id="trigger_2" typeId="trigger_2"/>
         </channels>
     </thing-type>
 
