@@ -18,6 +18,7 @@
   <modules>
     <module>org.eclipse.smarthome.config.core</module>
     <module>org.eclipse.smarthome.config.dispatch</module>
+    <module>org.eclipse.smarthome.config.dispatch.test</module>
     <module>org.eclipse.smarthome.config.core.test</module>
     <module>org.eclipse.smarthome.config.discovery</module>
     <module>org.eclipse.smarthome.config.discovery.test</module>
