@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -70,7 +71,7 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
     public static class ExpressionThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
         private List<Runnable> running = Collections.synchronizedList(new ArrayList<Runnable>());
-        private Map<Expression, Runnable> scheduled = Collections.synchronizedMap(new HashMap<Expression, Runnable>());
+        private Map<Expression, Runnable> scheduled = new ConcurrentHashMap<>();
         private Map<Runnable, Future<?>> futures = Collections.synchronizedMap(new HashMap<Runnable, Future<?>>());
         private Map<Future<?>, Date> timestamps = Collections.synchronizedMap(new HashMap<Future<?>, Date>());
         private Thread monitor;
