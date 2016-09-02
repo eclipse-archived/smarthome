@@ -6,7 +6,13 @@ package org.eclipse.smarthome.core.thing.type;
  * @author Moritz Kammerer - Initial contribution and API.
  */
 public enum ChannelKind {
+    /**
+     * Channels which have a stage.
+     */
     STATE,
+    /**
+     * Channels which can be triggered.
+     */
     TRIGGER;
 
     /**
