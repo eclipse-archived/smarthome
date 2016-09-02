@@ -9,12 +9,16 @@ package org.eclipse.smarthome.model.thing.test.hue;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +34,13 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
     public DumbThingTypeProvider() {
         logger.debug("DumbThingTypeProvider created");
         try {
+            ChannelDefinition channel1 = new ChannelDefinition("channel1",
+                    new ChannelTypeUID(DumbThingHandlerFactory.BINDING_ID, "channel1"));
+            List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
+
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false, null,
-                            null, null, new URI("dumb", "DUMB", null)));
+                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false,
+                            channelDefinitions, null, null, new URI("dumb:DUMB")));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
