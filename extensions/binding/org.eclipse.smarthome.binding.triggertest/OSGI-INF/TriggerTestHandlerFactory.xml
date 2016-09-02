@@ -8,9 +8,9 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="binding.triggertest">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="TriggerTestHandlerFactory">
 
-   <implementation class="org.eclipse.smarthome.binding.triggertest.internal.triggerTestHandlerFactory"/>
+   <implementation class="org.eclipse.smarthome.binding.triggertest.internal.TriggerTestHandlerFactory"/>
 
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>

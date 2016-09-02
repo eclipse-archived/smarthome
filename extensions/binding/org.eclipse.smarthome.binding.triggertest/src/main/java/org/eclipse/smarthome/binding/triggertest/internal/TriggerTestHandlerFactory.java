@@ -7,24 +7,24 @@
  */
 package org.eclipse.smarthome.binding.triggertest.internal;
 
-import static org.eclipse.smarthome.binding.triggertest.triggerTestBindingConstants.*;
+import static org.eclipse.smarthome.binding.triggertest.TriggerTestBindingConstants.*;
 
 import java.util.Collections;
 import java.util.Set;
 
-import org.eclipse.smarthome.binding.triggertest.handler.triggerTestHandler;
+import org.eclipse.smarthome.binding.triggertest.handler.TriggerTestHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
 /**
- * The {@link triggerTestHandlerFactory} is responsible for creating things and thing 
+ * The {@link TriggerTestHandlerFactory} is responsible for creating things and thing 
  * handlers.
  * 
  * @author Moritz Kammerer - Initial contribution
  */
-public class triggerTestHandlerFactory extends BaseThingHandlerFactory {
+public class TriggerTestHandlerFactory extends BaseThingHandlerFactory {
     
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SAMPLE);
     
@@ -39,7 +39,7 @@ public class triggerTestHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(THING_TYPE_SAMPLE)) {
-            return new triggerTestHandler(thing);
+            return new TriggerTestHandler(thing);
         }
 
         return null;

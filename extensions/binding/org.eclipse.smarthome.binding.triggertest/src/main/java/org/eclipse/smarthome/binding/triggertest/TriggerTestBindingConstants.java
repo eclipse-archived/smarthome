@@ -15,7 +15,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Moritz Kammerer - Initial contribution
  */
-public class triggerTestBindingConstants {
+public class TriggerTestBindingConstants {
 
     public static final String BINDING_ID = "triggertest";
 
@@ -23,6 +23,7 @@ public class triggerTestBindingConstants {
     public final static ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
 
     public final static String CHANNEL_1 = "channel_1";
+    public final static String CHANNEL_2 = "channel_2";
     public final static String TRIGGER_1 = "trigger_1";
-
+    public final static String TRIGGER_2 = "trigger_2";
 }

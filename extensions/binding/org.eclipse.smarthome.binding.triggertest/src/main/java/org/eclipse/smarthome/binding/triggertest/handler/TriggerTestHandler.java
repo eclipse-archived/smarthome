@@ -9,8 +9,7 @@ package org.eclipse.smarthome.binding.triggertest.handler;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import org.eclipse.smarthome.binding.triggertest.triggerTestBindingConstants;
+import org.eclipse.smarthome.binding.triggertest.TriggerTestBindingConstants;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -21,16 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link triggerTestHandler} is responsible for handling commands, which are
+ * The {@link TriggerTestHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Moritz Kammerer - Initial contribution
  */
-public class triggerTestHandler extends BaseThingHandler {
+public class TriggerTestHandler extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(triggerTestHandler.class);
+    private Logger logger = LoggerFactory.getLogger(TriggerTestHandler.class);
 
-    public triggerTestHandler(Thing thing) {
+    public TriggerTestHandler(Thing thing) {
         super(thing);
     }
 
@@ -47,8 +46,12 @@ public class triggerTestHandler extends BaseThingHandler {
         timer = scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                updateState(triggerTestBindingConstants.CHANNEL_1, new StringType(Long.toString(System.currentTimeMillis())));
-                emitEvent(triggerTestBindingConstants.TRIGGER_1, new StringType("PRESSED"));
+                updateState(TriggerTestBindingConstants.CHANNEL_1,
+                        new StringType(Long.toString(System.currentTimeMillis())));
+                updateState(TriggerTestBindingConstants.CHANNEL_2,
+                        new StringType(Long.toString(System.currentTimeMillis())));
+                triggerChannel(TriggerTestBindingConstants.TRIGGER_1, "PRESSED");
+                triggerChannel(TriggerTestBindingConstants.TRIGGER_2);
             }
 
         }, 10, 10, TimeUnit.SECONDS);
