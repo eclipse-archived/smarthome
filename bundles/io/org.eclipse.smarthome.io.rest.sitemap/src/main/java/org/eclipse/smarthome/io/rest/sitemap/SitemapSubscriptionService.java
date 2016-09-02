@@ -21,6 +21,8 @@ import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a service that provides the possibility to manage subscriptions to sitemaps.
@@ -33,6 +35,10 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class SitemapSubscriptionService {
+
+    private static final String SITEMAP_PAGE_SEPARATOR = "#";
+
+    private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
     public interface SitemapSubscriptionCallback {
 
@@ -85,6 +91,7 @@ public class SitemapSubscriptionService {
     public String createSubscription(SitemapSubscriptionCallback callback) {
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
+        logger.debug("Created new subscription with id {}", subscriptionId);
         return subscriptionId;
     }
 
@@ -100,6 +107,7 @@ public class SitemapSubscriptionService {
         if (listener != null) {
             listener.dispose();
         }
+        logger.debug("Removed subscription with id {}", subscriptionId);
     }
 
     /**
@@ -119,7 +127,7 @@ public class SitemapSubscriptionService {
      * @return the id of the currently active page
      */
     public String getPageId(String subscriptionId) {
-        return pageOfSubscriptionMap.get(subscriptionId).split("-")[1];
+        return pageOfSubscriptionMap.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[1];
     }
 
     /**
@@ -129,7 +137,7 @@ public class SitemapSubscriptionService {
      * @return the name of the current sitemap
      */
     public String getSitemapName(String subscriptionId) {
-        return pageOfSubscriptionMap.get(subscriptionId).split("-")[0];
+        return pageOfSubscriptionMap.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[0];
     }
 
     /**
@@ -144,6 +152,8 @@ public class SitemapSubscriptionService {
             pageOfSubscriptionMap.put(subscriptionId, getValue(sitemapName, pageId));
             removeOldListener(subscriptionId);
             initNewListener(subscriptionId, sitemapName, pageId);
+            logger.debug("Subscription {} changed to page {} of sitemap {}",
+                    new Object[] { subscriptionId, pageId, sitemapName });
         } else {
             throw new IllegalArgumentException("Subscription " + subscriptionId + " does not exist!");
         }
@@ -177,7 +187,7 @@ public class SitemapSubscriptionService {
     }
 
     private String getValue(String sitemapName, String pageId) {
-        return sitemapName + "-" + pageId;
+        return sitemapName + SITEMAP_PAGE_SEPARATOR + pageId;
     }
 
     private Sitemap getSitemap(String sitemapName) {

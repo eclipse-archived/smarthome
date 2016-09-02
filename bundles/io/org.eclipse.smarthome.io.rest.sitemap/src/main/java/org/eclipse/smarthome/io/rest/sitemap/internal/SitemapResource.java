@@ -207,7 +207,6 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     public Object createEventSubscription() {
         String subscriptionId = subscriptions.createSubscription(this);
         URI uri = uriInfo.getBaseUriBuilder().path(PATH_SITEMAPS).path(SEGMENT_EVENTS).path(subscriptionId).build();
-        logger.debug("Created sitemap event subscription {}.", subscriptionId);
         return Response.created(uri);
     }
 
@@ -224,10 +223,15 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Subscription not found.") })
     public Object getSitemapEvents(
-            @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId) {
+            @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId,
+            @QueryParam("sitemap") @ApiParam(value = "sitemap name", required = false) String sitemapname,
+            @QueryParam("pageid") @ApiParam(value = "page id", required = false) String pageId) {
         if (!subscriptions.exists(subscriptionId)) {
             return JSONResponse.createResponse(Status.NOT_FOUND, null,
                     "Subscription id " + subscriptionId + " does not exist.");
+        }
+        if (sitemapname != null && pageId != null) {
+            subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
         final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
         broadcaster.add(eventOutput);

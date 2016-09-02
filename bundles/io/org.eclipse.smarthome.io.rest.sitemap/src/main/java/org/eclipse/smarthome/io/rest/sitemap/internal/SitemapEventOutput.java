@@ -12,6 +12,8 @@ import java.io.IOException;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.OutboundEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link EventOutput} implementation that takes a subscription id parameter and only writes out events that match the
@@ -23,6 +25,8 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
  *
  */
 public class SitemapEventOutput extends EventOutput {
+
+    private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
     private final String subscriptionId;
     private final SitemapSubscriptionService subscriptions;
@@ -44,6 +48,10 @@ public class SitemapEventOutput extends EventOutput {
             if (sitemapName != null && sitemapName.equals(subscriptions.getSitemapName(subscriptionId))
                     && pageId != null && pageId.equals(subscriptions.getPageId(subscriptionId))) {
                 super.write(chunk);
+                if (logger.isDebugEnabled() && event instanceof SitemapWidgetEvent) {
+                    logger.debug("Sent sitemap event for widget {} to subscription {}.",
+                            ((SitemapWidgetEvent) event).widgetId, subscriptionId);
+                }
             }
         }
     }
