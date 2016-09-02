@@ -901,28 +901,33 @@ public class RuleEngine
      * @param td {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
      */
     protected void runRule(RuntimeRule rule, RuleEngineCallbackImpl.TriggerData td) {
-        RuleStatus ruleStatus = getRuleStatus(rule.getUID());
+        final String uid = rule.getUID();
+        RuleStatus ruleStatus = getRuleStatus(uid);
         if (ruleStatus == RuleStatus.IDLE) {
             try {
 
                 // change state to RUNNING
-                setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.RUNNING));
+                setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.RUNNING));
                 clearContext(rule);
 
-                setTriggerOutputs(rule.getUID(), td);
+                setTriggerOutputs(uid, td);
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
                     executeActions(rule);
-                    logger.debug("The rule '{}' is executed.", rule.getUID());
+                    logger.debug("The rule '{}' is executed.", uid);
                 } else {
-                    logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rule.getUID());
+                    logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", uid);
                 }
             } catch (Throwable t) {
                 logger.error("Fail to execute rule '{}': {}", new Object[] { rule.getUID(), t.getMessage() }, t);
             }
 
-            // change state to IDLE
-            setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
+            // change state to IDLE only if the rule has not been DISABLED.
+            synchronized (this) {
+                if (getRuleStatus(uid) != RuleStatus.DISABLED) {
+                    setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.IDLE));
+                }
+            }
         } else {
             logger.error("Trying to execute rule ‘{}' with status '{}'",
                     new Object[] { rule.getUID(), ruleStatus.getValue() });
