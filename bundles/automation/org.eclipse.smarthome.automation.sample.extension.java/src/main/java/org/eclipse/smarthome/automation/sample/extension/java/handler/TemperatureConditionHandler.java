@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureCo
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class TemperatureConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class TemperatureConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
     public TemperatureConditionHandler(Condition module) {
         super(module);
@@ -29,15 +29,15 @@ public class TemperatureConditionHandler extends BaseModuleHandler<Condition>imp
 
     @Override
     public boolean isSatisfied(Map<String, ?> context) {
-        Integer left = (Integer) context.get(TemperatureConditionType.INPUT_CURRENT_TEMPERATURE);
-        Integer right = (Integer) module.getConfiguration().get(TemperatureConditionType.CONFIG_TEMPERATURE);
+        Number left = (Number) context.get(TemperatureConditionType.INPUT_CURRENT_TEMPERATURE);
+        Number right = (Number) module.getConfiguration().get(TemperatureConditionType.CONFIG_TEMPERATURE);
         String operator = (String) module.getConfiguration().get(TemperatureConditionType.CONFIG_OPERATOR);
         if (TemperatureConditionType.OPERATOR_HEATING.equals(operator)) {
-            if (left != null && right != null && left < right) {
+            if (left != null && right != null && left.intValue() < right.intValue()) {
                 return true;
             }
         } else if (TemperatureConditionType.OPERATOR_COOLING.equals(operator)) {
-            if (left != null && right != null && left > right) {
+            if (left != null && right != null && left.intValue() > right.intValue()) {
                 return true;
             }
         }
