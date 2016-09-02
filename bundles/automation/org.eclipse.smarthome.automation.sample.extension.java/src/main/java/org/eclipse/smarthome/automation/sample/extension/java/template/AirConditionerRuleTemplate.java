@@ -74,12 +74,12 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
         conditionInputs.put(TemperatureConditionType.INPUT_CURRENT_TEMPERATURE,
                 TRIGGER_ID + "." + TemperatureConditionType.INPUT_CURRENT_TEMPERATURE);
 
-        Condition temperatuteCondition = new Condition("AirConditionerTemperatureCondition",
+        Condition temperatureCondition = new Condition("AirConditionerTemperatureCondition",
                 TemperatureConditionType.UID, conditionConfig, conditionInputs);
 
         List<Condition> conditions = new ArrayList<Condition>();
         conditions.add(stateCondition);
-        conditions.add(temperatuteCondition);
+        conditions.add(temperatureCondition);
 
         // initialize actions - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
