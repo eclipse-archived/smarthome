@@ -73,6 +73,57 @@ class RuntimeRuleTest extends OSGiTest{
     }
 
     @Test
+    public void 'check disable and enable of timer triggered rule'() {
+        /*
+         * Create Rule
+         */
+        logger.info("Create rule");
+        def testExpression = "* * * * * ?"
+
+        def triggerConfig = new Configuration([cronExpression:testExpression])
+        def triggers = [
+            new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)
+        ]
+
+        def rule = new Rule("MyRule"+new Random().nextInt())
+        rule.triggers = triggers
+
+        rule.name = "MyTimerTriggerTestEnableDisableRule"
+        logger.info("Rule created: " + rule.getUID())
+
+        logger.info("Add rule");
+        ruleRegistry.add(rule)
+        logger.info("Rule added");
+
+        def numberOfTests = 1000
+        for (int i=0; i < numberOfTests; ++i) {
+            logger.info("Disable rule");
+            ruleRegistry.setEnabled(rule.UID, false)
+            waitForAssert({
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                println "Rule status (should be DISABLED): " + ruleStatus
+                assertThat ruleStatus.status, is(RuleStatus.DISABLED)
+            })
+            logger.info("Rule is disabled");
+
+            logger.info("Enable rule");
+            ruleRegistry.setEnabled(rule.UID, true)
+            waitForAssert({
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                println "Rule status (should be IDLE or RUNNING): " + ruleStatus
+                boolean allFine
+                if (ruleStatus.status.equals(RuleStatus.IDLE) || ruleStatus.status.equals(RuleStatus.RUNNING)) {
+                    allFine = true
+                } else {
+                    allFine = false
+                }
+                assertThat allFine, is(true)
+            })
+            logger.info("Rule is enabled");
+        }
+    }
+
+    @Test
     public void 'assert that timerTrigger works'(){
         def testItemName = "myLampItem"
 
@@ -133,7 +184,6 @@ class RuntimeRuleTest extends OSGiTest{
         ruleRegistry.setEnabled(rule.UID, true)
         waitForAssert({
             final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
-            println "Rule status: " + ruleStatus
             assertThat ruleStatus.status, is(RuleStatus.IDLE)
         })
         logger.info("Rule is enabled and idle")
@@ -144,7 +194,6 @@ class RuntimeRuleTest extends OSGiTest{
             ruleRegistry.setEnabled(rule.UID, false)
             waitForAssert({
                 final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
-                println "Rule status: " + ruleStatus
                 assertThat ruleStatus.status, is(RuleStatus.DISABLED)
             })
             logger.info("Rule is disabled");
