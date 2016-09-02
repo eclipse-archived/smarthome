@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -34,7 +33,6 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.Type;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -282,13 +280,13 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Emits an event for the given channel.
      *
-     * @param channelUID ID of the channel over which the event will be emitted
+     * @param channelUID UID of the channel over which the event will be emitted
      * @param event Event to emit
      */
-    protected void emitEvent(ChannelUID channelUID, Type event) {
+    protected void triggerChannel(ChannelUID channelUID, String event) {
         synchronized (this) {
             if (this.callback != null) {
-                this.callback.eventEmitted(this.getThing(), channelUID, event);
+                this.callback.channelTriggered(this.getThing(), channelUID, event);
             } else {
                 throw new IllegalStateException("Could not update state, because callback is missing");
             }
@@ -299,12 +297,31 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Emits an event for the given channel. Will use the thing UID to infer the
      * unique channel UID.
      *
-     * @param channelID ID of the channel over which the event will be emitted
+     * @param channelUID UID of the channel over which the event will be emitted
      * @param event Event to emit
      */
-    protected void emitEvent(String channelID, Type event) {
-        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
-        emitEvent(channelUID, event);
+    protected void triggerChannel(String channelUID, String event) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), event);
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     */
+    protected void triggerChannel(String channelUID) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), "");
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     */
+    protected void triggerChannel(ChannelUID channelUID) {
+        triggerChannel(channelUID, "");
     }
 
     /**

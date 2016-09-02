@@ -186,7 +186,7 @@ public class RuleTriggerManager {
      * @param channel
      * @return all rules for which the trigger condition is true
      */
-    public Iterable<Rule> getRules(TriggerTypes triggerType, String channel, Type type) {
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String channel, String event) {
         List<Rule> result = Lists.newArrayList();
 
         switch (triggerType) {
@@ -200,9 +200,7 @@ public class RuleTriggerManager {
                         if (t instanceof EventEmittedTrigger) {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
                             if (et.getTrigger() != null) {
-                                Type expectedType = TypeParser.parseType(type.getClass().getSimpleName(),
-                                        et.getTrigger());
-                                if (!type.equals(expectedType)) {
+                                if (!et.getTrigger().equals(event)) {
                                     continue;
                                 }
                             }

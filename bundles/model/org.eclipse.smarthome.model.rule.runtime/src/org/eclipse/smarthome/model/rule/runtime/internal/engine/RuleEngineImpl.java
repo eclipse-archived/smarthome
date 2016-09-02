@@ -31,7 +31,6 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
@@ -224,10 +223,10 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private void receiveThingTrigger(ChannelTriggeredEvent event) {
-        Type eventType = event.getEvent();
+        String triggerEvent = event.getEvent();
         String channel = event.getChannel().getAsString();
 
-        Iterable<Rule> rules = triggerManager.getRules(TRIGGER, channel, eventType);
+        Iterable<Rule> rules = triggerManager.getRules(TRIGGER, channel, triggerEvent);
         executeRules(rules, event);
     }
 

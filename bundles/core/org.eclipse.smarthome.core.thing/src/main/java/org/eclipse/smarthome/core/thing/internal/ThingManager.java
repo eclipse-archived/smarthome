@@ -23,7 +23,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener;
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -59,7 +58,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.Type;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;
@@ -69,7 +67,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -255,7 +252,7 @@ public class ThingManager extends AbstractItemEventSubscriber
         }
 
         @Override
-        public void eventEmitted(Thing thing, ChannelUID channelUID, Type event) {
+        public void channelTriggered(Thing thing, ChannelUID channelUID, String event) {
             eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
         }
 

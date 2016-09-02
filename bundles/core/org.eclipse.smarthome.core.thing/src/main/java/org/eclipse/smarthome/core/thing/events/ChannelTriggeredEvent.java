@@ -30,7 +30,7 @@ public class ChannelTriggeredEvent extends AbstractEvent {
     /**
      * The event.
      */
-    private final Type event;
+    private final String event;
 
     /**
      * Constructs a new thing trigger event.
@@ -41,7 +41,7 @@ public class ChannelTriggeredEvent extends AbstractEvent {
      * @param source the source
      * @param channel the channel which triggered the event
      */
-    protected ChannelTriggeredEvent(String topic, String payload, String source, Type event, ChannelUID channel) {
+    protected ChannelTriggeredEvent(String topic, String payload, String source, String event, ChannelUID channel) {
         super(topic, payload, source);
         this.event = event;
         this.channel = channel;
@@ -52,7 +52,7 @@ public class ChannelTriggeredEvent extends AbstractEvent {
      *
      * @return the event
      */
-    public Type getEvent() {
+    public String getEvent() {
         return event;
     }
 

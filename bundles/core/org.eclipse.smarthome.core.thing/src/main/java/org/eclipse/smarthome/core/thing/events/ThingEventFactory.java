@@ -17,7 +17,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.types.Type;
-import org.eclipse.smarthome.core.types.TypeParser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -73,8 +72,7 @@ public class ThingEventFactory extends AbstractEventFactory {
      * This is a java bean that is used to serialize/deserialize trigger event payload.
      */
     public static class TriggerEventPayloadBean {
-        private String type;
-        private String value;
+        private String event;
         private String channel;
 
         /**
@@ -83,18 +81,13 @@ public class ThingEventFactory extends AbstractEventFactory {
         protected TriggerEventPayloadBean() {
         }
 
-        public TriggerEventPayloadBean(String type, String value, String channel) {
-            this.type = type;
-            this.value = value;
+        public TriggerEventPayloadBean(String event, String channel) {
+            this.event = event;
             this.channel = channel;
         }
 
-        public String getType() {
-            return type;
-        }
-
-        public String getValue() {
-            return value;
+        public String getEvent() {
+            return event;
         }
 
         public String getChannel() {
@@ -109,9 +102,8 @@ public class ThingEventFactory extends AbstractEventFactory {
      * @param channel Channel which triggered the event.
      * @return Created trigger event.
      */
-    public static ChannelTriggeredEvent createTriggerEvent(Type event, ChannelUID channel) {
-        TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event.getClass().getSimpleName(), event.toString(),
-                channel.getAsString());
+    public static ChannelTriggeredEvent createTriggerEvent(String event, ChannelUID channel) {
+        TriggerEventPayloadBean bean = new TriggerEventPayloadBean(event, channel.getAsString());
         String payload = serializePayload(bean);
         String topic = buildTopic(CHANNEL_TRIGGERED_EVENT_TOPIC, channel);
         return new ChannelTriggeredEvent(topic, payload, null, event, channel);
@@ -128,10 +120,9 @@ public class ThingEventFactory extends AbstractEventFactory {
     public ChannelTriggeredEvent createTriggerEvent(String topic, String payload, String source) {
         TriggerEventPayloadBean bean = deserializePayload(payload, TriggerEventPayloadBean.class);
 
-        Type event = TypeParser.parseType(bean.getType(), bean.getValue());
         ChannelUID channel = new ChannelUID(bean.getChannel());
 
-        return new ChannelTriggeredEvent(topic, payload, source, event, channel);
+        return new ChannelTriggeredEvent(topic, payload, source, bean.getEvent(), channel);
     }
 
     private Event createStatusInfoEvent(String topic, String payload) throws Exception {

@@ -11,7 +11,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import org.eclipse.smarthome.core.events.Event
-import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
@@ -51,8 +50,8 @@ class ThingEventFactoryTest extends OSGiTest {
 
     def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
     def CHANNEL_TRIGGERED_EVENT_TOPIC = ThingEventFactory.CHANNEL_TRIGGERED_EVENT_TOPIC.replace("{channelUID}", CHANNEL_UID.getAsString())
-    def EVENT_TYPE = new StringType("PRESSED")
-    def CHANNEL_TRIGGERED_EVENT_PAYLOAD = new Gson().toJson(new TriggerEventPayloadBean(EVENT_TYPE.getClass().getSimpleName(), EVENT_TYPE.toString(), CHANNEL_UID.getAsString()))
+    def TRIGGER_EVENT = "PRESSED"
+    def CHANNEL_TRIGGERED_EVENT_PAYLOAD = new Gson().toJson(new TriggerEventPayloadBean(TRIGGER_EVENT, CHANNEL_UID.getAsString()))
 
     @Test
     void 'ThingEventFactory creates Event as ThingStatusInfoEvent correctly'() {
@@ -104,13 +103,13 @@ class ThingEventFactoryTest extends OSGiTest {
 
     @Test
     void 'ThingEventFactory creates ChannelTriggeredEvent correctly'() {
-        ChannelTriggeredEvent event = ThingEventFactory.createTriggerEvent(EVENT_TYPE, CHANNEL_UID)
+        ChannelTriggeredEvent event = ThingEventFactory.createTriggerEvent(TRIGGER_EVENT, CHANNEL_UID)
 
         assertThat event.getType(), is(CHANNEL_TRIGGERED_EVENT_TYPE)
         assertThat event.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC)
         assertThat event.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD)
         assertThat event.getEvent(), not(null)
-        assertThat event.getEvent(), is(EVENT_TYPE)
+        assertThat event.getEvent(), is(TRIGGER_EVENT)
     }
 
     @Test
@@ -123,6 +122,6 @@ class ThingEventFactoryTest extends OSGiTest {
         assertThat triggeredEvent.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC)
         assertThat triggeredEvent.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD)
         assertThat triggeredEvent.getEvent(), not(null)
-        assertThat triggeredEvent.getEvent(), is(EVENT_TYPE)
+        assertThat triggeredEvent.getEvent(), is(TRIGGER_EVENT)
     }
 }
