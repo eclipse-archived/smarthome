@@ -110,6 +110,10 @@ public class ChannelType extends AbstractDescriptionType {
 
         super(uid, label, description);
 
+        if (kind == null) {
+            throw new IllegalArgumentException("Kind must not be null!");
+        }
+
         if (kind == ChannelKind.STATE && (itemType == null || itemType.isEmpty())) {
             throw new IllegalArgumentException("If the kind is 'state', the item type must be set!");
         }

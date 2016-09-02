@@ -118,6 +118,11 @@ public class Channel {
      * @return channel kind
      */
     public ChannelKind getKind() {
+        if (kind == null) {
+            // STATE is the default.
+            return ChannelKind.STATE;
+        }
+
         return kind;
     }
 
