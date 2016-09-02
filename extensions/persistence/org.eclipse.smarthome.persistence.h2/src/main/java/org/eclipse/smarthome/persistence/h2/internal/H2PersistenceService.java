@@ -15,7 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -29,17 +29,21 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
-import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.library.items.ColorItem;
-import org.eclipse.smarthome.core.library.items.DimmerItem;
-import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.library.items.RollershutterItem;
+import org.eclipse.smarthome.core.library.types.DateTimeType;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
-import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
+import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.PointType;
+import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
+import org.eclipse.smarthome.core.library.types.StringListType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
 import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
@@ -67,37 +71,61 @@ import org.slf4j.LoggerFactory;
  * DecimalType before persisting to H2.
  *
  * @author Chris Jackson - Initial contribution
- * @author Markus Rathgeb - Use prepared statement and try-with-resources
+ * @author Markus Rathgeb - Use prepared statement, try-with-resources and rewrite most stuff
  */
 public class H2PersistenceService implements ModifiablePersistenceService, ManagedService {
 
     private static class SqlType {
-        public static final String TINYINT = "TINYINT";
-        public static final String DECIMAL = "DECIMAL";
+        public static final String TIMESTAMP = "TIMESTAMP";
         public static final String VARCHAR = "VARCHAR";
     }
+
+    private static class Column {
+        public static final String TIME = "time";
+        public static final String CLAZZ = "clazz";
+        public static final String VALUE = "value";
+    }
+
+    private static class Schema {
+        public static final String METAINFO = "ESH_METAINFO";
+        public static final String ITEM = "ESH_ITEM";
+    }
+
+    private final Map<String, List<Class<? extends State>>> stateClasses = new HashMap<>();
 
     private final Logger logger = LoggerFactory.getLogger(H2PersistenceService.class);
 
     private final String h2Url = "jdbc:h2:file:";
-    private final String schema = "SMARTHOME";
-
-    private final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private ItemRegistry itemRegistry;
     private I18nProvider i18nProvider;
 
     private Connection connection;
-    private final Map<Class<? extends Item>, String> sqlTypes = new HashMap<>();
     private final List<String> itemCache = new ArrayList<>();
 
     private BundleContext bundleContext;
 
     public H2PersistenceService() {
-        // Initialize the type array
-        sqlTypes.put(DimmerItem.class, SqlType.TINYINT);
-        sqlTypes.put(NumberItem.class, SqlType.DECIMAL);
-        sqlTypes.put(RollershutterItem.class, SqlType.TINYINT);
+        // Ensure that known types are accessible by the classloader
+        addStateClass(DateTimeType.class);
+        addStateClass(DecimalType.class);
+        addStateClass(HSBType.class);
+        addStateClass(OnOffType.class);
+        addStateClass(OpenClosedType.class);
+        addStateClass(PlayPauseType.class);
+        addStateClass(PointType.class);
+        addStateClass(RawType.class);
+        addStateClass(RewindFastforwardType.class);
+        addStateClass(StringListType.class);
+        addStateClass(StringType.class);
+        addStateClass(UnDefType.class);
+        addStateClass(UpDownType.class);
+    }
+
+    private void addStateClass(final Class<? extends State> stateClass) {
+        List<Class<? extends State>> list = new ArrayList<>();
+        list.add(stateClass);
+        stateClasses.put(stateClass.getSimpleName(), list);
     }
 
     protected void activate(BundleContext bundleContext) {
@@ -142,21 +170,7 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
     @Override
     public void store(Item item) {
-        // Do some type conversion to ensure we know the data type.
-        // This is necessary for items that have multiple types and may return their
-        // state in a format that's not preferred or compatible with the H2 type.
-        // eg. DimmerItem can return OnOffType (ON, OFF), or PercentType (0-100).
-        // We need to make sure we cover the best type for serialization.
-        final State state;
-        if (item instanceof DimmerItem || item instanceof RollershutterItem) {
-            state = item.getStateAs(PercentType.class);
-        } else if (item instanceof ColorItem) {
-            state = item.getStateAs(HSBType.class);
-        } else {
-            // All other items should return the best format by default
-            state = item.getState();
-        }
-        store(item, new Date(), state);
+        store(item, new Date(), item.getState());
     }
 
     @Override
@@ -174,52 +188,36 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
 
         final String tableName = getTableName(item.getName());
-        final String sqlType = getSqlType(item);
 
         if (!itemCache.contains(item.getName())) {
             itemCache.add(item.getName());
-            if (createTable(tableName, sqlType)) {
+            if (createTable(tableName)) {
             } else {
                 logger.error("H2: Could not create table for item '{}'", item.getName());
                 return;
             }
         }
 
-        final String value = getValue(sqlType, state);
-        if (value == null) {
-            logger.warn("Skip store... Don't know how to store state ({}) for item '{}' of type '{}'", state, item,
-                    item.getClass().getSimpleName());
-            return;
-        }
-
         // Firstly, try an INSERT. This will work 99.9% of the time
-        if (!insert(tableName, date, value)) {
+        if (!insert(tableName, date, state)) {
             // The INSERT failed. This might be because we tried persisting data too quickly, or it might be
             // because we really want to UPDATE the data.
             // So, let's try an update. If the reason for the exception isn't due to the primary key already
             // existing, then we'll throw another exception.
             // Note that H2 stores times using the Java Date class, so resolution is milliseconds. We really
             // shouldn't be persisting data that quickly!
-            if (!update(tableName, date, value)) {
+            if (!update(tableName, date, state)) {
                 logger.error("H2: Could not store item '{}' in database.", item.getName());
                 return;
             }
         }
-        logger.debug("H2: Stored item '{}' as '{}'", item.getName(), value);
+        logger.debug("H2: Stored item '{}' state '{}'", item.getName(), state);
     }
 
-    private String getValue(final String sqlType, final State state) {
-        if (state instanceof UnDefType) {
-            if (sqlType.equals(SqlType.DECIMAL) || sqlType.equals(SqlType.TINYINT)) {
-                return null;
-            }
-        }
-        return state.toString();
-    }
-
-    private boolean createTable(final String tableName, final String sqlType) {
-        final String sql = String.format("CREATE TABLE IF NOT EXISTS %s (Time DATETIME, Value %s, PRIMARY KEY(Time));",
-                tableName, sqlType);
+    private boolean createTable(final String tableName) {
+        final String sql = String.format("CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s,  %s %s, PRIMARY KEY(%s));",
+                tableName, Column.TIME, SqlType.TIMESTAMP, Column.CLAZZ, SqlType.VARCHAR, Column.VALUE, SqlType.VARCHAR,
+                Column.TIME);
         try (final Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
             return true;
@@ -229,11 +227,14 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
     }
 
-    private boolean insert(final String tableName, final Date date, final String value) {
-        final String sql = String.format("INSERT INTO %s (TIME, VALUE) VALUES(?,?);", tableName);
+    private boolean insert(final String tableName, final Date date, final State state) {
+        final String sql = String.format("INSERT INTO %s (%s, %s, %s) VALUES(?,?,?);", tableName, Column.TIME,
+                Column.CLAZZ, Column.VALUE);
         try (final PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, sqlDateFormat.format(date));
-            stmt.setString(2, value);
+            int i = 0;
+            stmt.setTimestamp(++i, new Timestamp(date.getTime()));
+            stmt.setString(++i, state.getClass().getSimpleName());
+            stmt.setString(++i, state.toString());
             stmt.executeUpdate();
             return true;
         } catch (final SQLException ex) {
@@ -242,11 +243,14 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
     }
 
-    private boolean update(final String tableName, final Date date, final String value) {
-        final String sql = String.format("UPDATE %s SET VALUE = ? WHERE TIME = ?", tableName);
+    private boolean update(final String tableName, final Date date, final State state) {
+        final String sql = String.format("UPDATE %s SET %s = ?, %s = ? WHERE TIME = ?", tableName, Column.CLAZZ,
+                Column.VALUE);
         try (final PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, value);
-            stmt.setString(2, sqlDateFormat.format(date));
+            int i = 0;
+            stmt.setString(++i, state.getClass().getSimpleName());
+            stmt.setString(++i, state.toString());
+            stmt.setTimestamp(++i, new Timestamp(date.getTime()));
             stmt.executeUpdate();
             return true;
         } catch (final SQLException ex) {
@@ -270,45 +274,66 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         // Get the item name from the filter
         final String itemName = filter.getItemName();
 
-        // Also get the Item object so we can determine the type
-        Item item = null;
-        if (itemRegistry != null) {
-            try {
-                item = itemRegistry.getItem(itemName);
-            } catch (final ItemNotFoundException ex) {
-                logger.error("H2: Unable to get item type for {}", itemName, ex);
-                // Set type to null - data will be returned as StringType
-                item = null;
+        final FilterWhere filterWhere = getFilterWhere(filter);
+
+        final String queryString = String.format("SELECT %s, %s, %s FROM %s%s%s%s", Column.TIME, Column.CLAZZ,
+                Column.VALUE, getTableName(filter.getItemName()), filterWhere.prepared, getFilterStringOrder(filter),
+                getFilterStringLimit(filter));
+
+        try (final PreparedStatement st = connection.prepareStatement(queryString)) {
+            int i = 0;
+            if (filterWhere.begin) {
+                st.setTimestamp(++i, new Timestamp(filter.getBeginDate().getTime()));
             }
-        }
-        if (item instanceof GroupItem) {
-            // For Group Items is BaseItem needed to get correct Type of Value.
-            item = GroupItem.class.cast(item).getBaseItem();
-        }
-
-        final String filterString = getFilterStringWhere(filter) + getFilterStringOrder(filter)
-                + getFilterStringLimit(filter);
-
-        try (final Statement st = connection.createStatement()) {
-            String queryString = "SELECT Time, Value FROM " + getTableName(filter.getItemName());
-            if (!filterString.isEmpty()) {
-                queryString += filterString;
+            if (filterWhere.end) {
+                st.setTimestamp(++i, new Timestamp(filter.getEndDate().getTime()));
             }
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
 
-            try (final ResultSet rs = st.executeQuery(queryString)) {
+            try (final ResultSet rs = st.executeQuery()) {
                 final List<HistoricItem> items = new ArrayList<>();
                 while (rs.next()) {
+                    final Date time;
+                    final String clazz;
+                    final String value;
+
+                    i = 0;
+                    time = rs.getTimestamp(++i);
+                    clazz = rs.getString(++i);
+                    value = rs.getString(++i);
+                    logger.trace("itemName: {}, time: {}, clazz: {}, value: {}", itemName, time, clazz, value);
+
                     final State state;
-                    if (item == null) {
-                        state = new StringType(rs.getString(2));
-                    } else {
-                        state = TypeParser.parseState(item.getAcceptedDataTypes(), rs.getString(2));
+                    if (!stateClasses.containsKey(clazz)) {
+                        if (itemRegistry != null) {
+                            try {
+                                final Item item = itemRegistry.getItem(itemName);
+                                if (item != null) {
+                                    for (final Class<? extends State> it : item.getAcceptedDataTypes()) {
+                                        final String key = it.getSimpleName();
+                                        if (!stateClasses.containsKey(key)) {
+                                            addStateClass(it);
+                                            logger.warn("Add new state class '{}'", clazz);
+                                        }
+                                    }
+                                }
+                            } catch (final ItemNotFoundException ex) {
+                                logger.warn("Cannot lookup state class because item '{}' is not known.", itemName, ex);
+                                continue;
+                            }
+                        }
                     }
 
-                    final H2HistoricItem sqlItem = new H2HistoricItem(itemName, state, rs.getTimestamp(1));
+                    if (stateClasses.containsKey(clazz)) {
+                        state = TypeParser.parseState(stateClasses.get(clazz), value);
+                    } else {
+                        logger.warn("Unknown state class '{}'", clazz);
+                        continue;
+                    }
+
+                    final H2HistoricItem sqlItem = new H2HistoricItem(itemName, state, time);
                     items.add(sqlItem);
                 }
                 return items;
@@ -320,9 +345,6 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Set<PersistenceItemInfo> getItemInfo() {
         // Connect to H2 server if we're not already connected
@@ -333,8 +355,9 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
 
         // Retrieve the table array
         try (final Statement st = connection.createStatement()) {
-            final String queryString = "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"
-                    + schema + "'";
+            final String queryString = String.format(
+                    "SELECT TABLE_NAME, ROW_COUNT_ESTIMATE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s';",
+                    Schema.ITEM);
 
             // Turn use of the cursor on.
             st.setFetchSize(50);
@@ -344,7 +367,8 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
                 Set<PersistenceItemInfo> items = new HashSet<PersistenceItemInfo>();
                 while (rs.next()) {
                     try (final Statement stTimes = connection.createStatement()) {
-                        final String minMax = "SELECT MIN(Time), MAX(Time) FROM " + getTableName(rs.getString(1));
+                        final String minMax = String.format("SELECT MIN(%s), MAX(%s) FROM %s", Column.TIME, Column.TIME,
+                                getTableName(rs.getString(1)));
                         try (final ResultSet rsTimes = stTimes.executeQuery(minMax)) {
 
                             final Date earliest;
@@ -371,9 +395,6 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean remove(FilterCriteria filter) throws InvalidParameterException {
         // Connect to H2 server if we're not already connected
@@ -387,11 +408,20 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
                     "Invalid filter. Filter must be specified and item name must be supplied.");
         }
 
-        final String filterString = getFilterStringWhere(filter);
+        final FilterWhere filterWhere = getFilterWhere(filter);
+
+        final String queryString = String.format("DELETE FROM %s%s;", getTableName(filter.getItemName()),
+                filterWhere.prepared);
 
         // Retrieve the table array
-        try (final Statement st = connection.createStatement()) {
-            final String queryString = "DELETE FROM " + getTableName(filter.getItemName()) + filterString;
+        try (final PreparedStatement st = connection.prepareStatement(queryString)) {
+            int i = 0;
+            if (filterWhere.begin) {
+                st.setTimestamp(++i, new Timestamp(filter.getBeginDate().getTime()));
+            }
+            if (filterWhere.end) {
+                st.setTimestamp(++i, new Timestamp(filter.getEndDate().getTime()));
+            }
 
             st.execute(queryString);
             // final int rowsDeleted = st.getUpdateCount();
@@ -463,8 +493,10 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
             logger.info("H2: Connected to database {}", databaseFileName);
 
             try (final Statement statement = connection.createStatement()) {
-                statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS " + schema + ";");
-                statement.executeUpdate("SET SCHEMA " + schema + ";");
+                for (final String schema : new String[] { Schema.ITEM, Schema.METAINFO }) {
+                    statement.execute(String.format("CREATE SCHEMA IF NOT EXISTS %s;", schema));
+                }
+                // statement.executeUpdate(String.format("SET SCHEMA %s;", Schema.ITEM));
             }
         } catch (final RuntimeException | SQLException ex) {
             logger.error("H2: Failed connecting to the database", ex);
@@ -490,46 +522,48 @@ public class H2PersistenceService implements ModifiablePersistenceService, Manag
     }
 
     private String getTableName(String itemName) {
-        return schema + ".\"" + itemName + "\"";
+        return String.format("%s.\"%s\"", Schema.ITEM, itemName);
     }
 
-    private String getSqlType(final Item item) {
-        final Class<?> itemClass = item.getClass();
-        if (sqlTypes.containsKey(itemClass)) {
-            return sqlTypes.get(itemClass);
-        } else {
-            // Default type is 'String'
-            return SqlType.VARCHAR;
+    private class FilterWhere {
+        public final boolean begin;
+        public final boolean end;
+        public String prepared;
+
+        public FilterWhere(final FilterCriteria filter) {
+            this.begin = filter.getBeginDate() != null;
+            this.end = filter.getEndDate() != null;
+            prepared = "";
         }
     }
 
-    private String getFilterStringWhere(FilterCriteria filter) {
-        String filterString = new String();
+    private FilterWhere getFilterWhere(final FilterCriteria filter) {
+        final FilterWhere filterWhere = new FilterWhere(filter);
 
-        if (filter.getBeginDate() != null) {
-            if (filterString.isEmpty()) {
-                filterString += " WHERE";
+        if (filterWhere.begin) {
+            if (filterWhere.prepared.isEmpty()) {
+                filterWhere.prepared += " WHERE";
             } else {
-                filterString += " AND";
+                filterWhere.prepared += " AND";
             }
-            filterString += " TIME>='" + sqlDateFormat.format(filter.getBeginDate()) + "'";
+            filterWhere.prepared += String.format(" %s >= ?", Column.TIME);
         }
-        if (filter.getEndDate() != null) {
-            if (filterString.isEmpty()) {
-                filterString += " WHERE";
+        if (filterWhere.end) {
+            if (filterWhere.prepared.isEmpty()) {
+                filterWhere.prepared += " WHERE";
             } else {
-                filterString += " AND";
+                filterWhere.prepared += " AND";
             }
-            filterString += " TIME<='" + sqlDateFormat.format(filter.getEndDate().getTime()) + "'";
+            filterWhere.prepared += String.format(" %s <= ?", Column.TIME);
         }
-        return filterString;
+        return filterWhere;
     }
 
     private String getFilterStringOrder(FilterCriteria filter) {
         if (filter.getOrdering() == Ordering.ASCENDING) {
-            return " ORDER BY Time ASC";
+            return String.format(" ORDER BY %s ASC", Column.TIME);
         } else {
-            return " ORDER BY Time DESC";
+            return String.format(" ORDER BY %s DESC", Column.TIME);
         }
     }
 
