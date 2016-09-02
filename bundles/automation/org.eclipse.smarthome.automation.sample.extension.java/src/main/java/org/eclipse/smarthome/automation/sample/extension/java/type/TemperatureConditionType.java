@@ -30,8 +30,8 @@ public class TemperatureConditionType extends ConditionType {
     public static final String OPERATOR_HEATING = "heating";
     public static final String OPERATOR_COOLING = "cooling";
     public static final String CONFIG_OPERATOR = "operator";
-    public static final String CONFIG_TEMPERATURE = "temperatute";
-    public static final String INPUT_CURRENT_TEMPERATURE = "currentTemperatute";
+    public static final String CONFIG_TEMPERATURE = "temperature";
+    public static final String INPUT_CURRENT_TEMPERATURE = "currentTemperature";
 
     public static TemperatureConditionType initialize() {
         final ConfigDescriptionParameter temperature = ConfigDescriptionParameterBuilder
