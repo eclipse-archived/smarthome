@@ -16,5 +16,5 @@ Import-Package: org.eclipse.smarthome.config.core,
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j
-Service-Component: OSGI-INF/h2.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
