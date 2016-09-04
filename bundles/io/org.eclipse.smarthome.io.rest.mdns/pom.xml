@@ -12,7 +12,7 @@
   <groupId>org.eclipse.smarthome.io</groupId>
   <artifactId>org.eclipse.smarthome.io.rest.mdns</artifactId>
 
-  <name>Eclipse SmartHome REST MDNS Announcer</name>
+  <name>Eclipse SmartHome REST mDNS Announcer</name>
 
   <packaging>eclipse-plugin</packaging>
 </project>
