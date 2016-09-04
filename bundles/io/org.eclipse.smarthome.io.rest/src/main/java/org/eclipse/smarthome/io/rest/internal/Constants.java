@@ -23,6 +23,4 @@ public class Constants {
 
     public static final String JAXRS_CONNECTOR_CORS_PROPERTY_ENABLE_VALUE = "enable";
 
-    public static final String REST_SERVLET_ALIAS = "/rest";
-
 }
