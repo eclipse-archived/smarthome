@@ -1308,7 +1308,10 @@
 			_t.newPage = page;
 
 			_t.showLoadingBar();
-			_t.destination = "/basicui/app?w=" + page + "&sitemap=" + smarthome.UI.sitemap;
+			_t.destination =
+				"/basicui/app?w=" + page +
+				"&sitemap=" + smarthome.UI.sitemap +
+				"&subscriptionId=" + smarthome.subscriptionId;
 
 			ajax({
 				url: _t.destination + "&__async=true",
@@ -1410,33 +1413,46 @@
 		};
 	}
 
-	function ChangeListenerEventsource() {
+	function ChangeListenerEventsource(subscribeLocation) {
 		AbstractChangeListener.call(this);
 
 		var
 			_t = this;
 
 		_t.navigate = function(){};
-		_t.source = new EventSource("/rest/events?topics=smarthome/items/*/state");
-		_t.source.addEventListener("message", function(payload) {
+		_t.source = new EventSource(subscribeLocation);
+		_t.source.addEventListener("event", function(payload) {
 			if (_t.paused) {
 				return;
 			}
 
 			var
 				data = JSON.parse(payload.data),
-				dataPayload = JSON.parse(data.payload),
-				value = dataPayload.value,
-				item = (function(topic) {
-					topic = topic.split("/");
-					return topic[topic.length - 2];
-				})(data.topic);
+				value;
 
-			if (!(item in smarthome.dataModel)) {
+			if (!(data.widgetId in smarthome.dataModel)) {
 				return;
 			}
 
-			smarthome.dataModel[item].widgets.forEach(function(widget) {
+			if (
+				(typeof(data.label) === "string") &&
+				(data.label.indexOf("[") !== -1) &&
+				(data.label.indexOf("]") !== -1)
+			) {
+				var
+					pos = data.label.indexOf("[");
+
+				value = data.label.substr(
+					pos + 1,
+					data.label.lastIndexOf("]") - (pos + 1)
+				);
+			} else {
+				value = data.item.state;
+			}
+
+			console.log(value);
+
+			smarthome.dataModel[data.widgetId].widgets.forEach(function(widget) {
 				widget.setValue(value);
 			});
 		});
@@ -1529,11 +1545,56 @@
 	}
 
 	function ChangeListener() {
-		if (featureSupport.eventSource) {
-			ChangeListenerEventsource.call(this);
-		} else {
-			ChangeListenerLongpolling.call(this);
-		}
+		var
+			_t = this;
+
+		_t.startSubscriber = function(response) {
+			var
+				responseJSON,
+				subscribeLocation,
+				subscribeLocationArray,
+				sitemap,
+				subscriptionId,
+				page;
+
+			try {
+				responseJSON = JSON.parse(response.responseText);
+			} catch (e) {
+				return;
+			}
+
+			if (responseJSON.status !== "CREATED") {
+				return;
+			}
+
+			try {
+				subscribeLocation = responseJSON.context.headers.Location[0];
+			} catch (e) {
+				return;
+			}
+
+			subscribeLocationArray = subscribeLocation.split("/");
+			subscriptionId = subscribeLocationArray[subscribeLocationArray.length - 1];
+
+			sitemap = document.body.getAttribute("data-sitemap");
+			page = document.body.getAttribute("data-page-id");
+
+			smarthome.subscriptionId = subscriptionId;
+
+			if (featureSupport.eventSource) {
+				ChangeListenerEventsource.call(_t, subscribeLocation +
+					"?sitemap=" + sitemap +
+					"&pageid=" + page);
+			} else {
+				ChangeListenerLongpolling.call(_t);
+			}
+		};
+
+		ajax({
+			url: "/rest/sitemaps/events/subscribe",
+			type: "POST",
+			callback: _t.startSubscriber
+		});
 	}
 
 	document.addEventListener("DOMContentLoaded", function() {
