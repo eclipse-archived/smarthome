@@ -5,11 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.internal;
+package org.eclipse.smarthome.io.rest.mdns.internal;
 
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.eclipse.smarthome.io.rest.RESTConstants;
 import org.eclipse.smarthome.io.transport.mdns.MDNSService;
 import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.osgi.framework.BundleContext;
@@ -68,7 +69,7 @@ public class MDNSAnnouncer {
 
     private ServiceDescription getDefaultServiceDescription() {
         Hashtable<String, String> serviceProperties = new Hashtable<String, String>();
-        serviceProperties.put("uri", Constants.REST_SERVLET_ALIAS);
+        serviceProperties.put("uri", RESTConstants.REST_URI);
         return new ServiceDescription("_" + mdnsName + "-server._tcp.local.", mdnsName, httpPort, serviceProperties);
     }
 

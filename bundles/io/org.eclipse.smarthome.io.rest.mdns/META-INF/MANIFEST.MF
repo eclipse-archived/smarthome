@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome REST mDNS Announcer
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.mdns
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.eclipse.smarthome.io.rest,
+ org.eclipse.smarthome.io.transport.mdns,
+ org.osgi.framework,
+ org.slf4j
+Bundle-ClassPath: .
+Service-Component: OSGI-INF/*.xml
