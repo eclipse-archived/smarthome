@@ -86,7 +86,9 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
         $rootScope.data[dataType].push(element);
     };
     this.remove = function(element) {
-        $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
+        if ($rootScope.data[dataType].indexOf(element) !== -1) {
+            $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
+        }
     };
     this.update = function(element) {
         var index = $rootScope.data[dataType].indexOf(element);
@@ -161,8 +163,56 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     var repository = new Repository($q, $rootScope, itemService, 'items')
     $rootScope.data.items = [];
     return repository;
-}).factory('ruleRepository', function($q, $rootScope, ruleService) {
-    var repository = new Repository($q, $rootScope, ruleService, 'rules')
+}).factory('ruleRepository', function($q, $rootScope, ruleService, eventService) {
+    var repository = new Repository($q, $rootScope, ruleService, 'rules', true)
     $rootScope.data.rules = [];
+
+    eventService.onEvent('smarthome/rules/*/updated', function(topic, ruleUpdate) {
+
+        var existing = repository.find(function(rule) {
+            return rule.uid === ruleUpdate[0].uid;
+        });
+        $rootScope.$apply(function() {
+            if (existing) {
+                existing.name = ruleUpdate[0].name;
+                existing.description = ruleUpdate[0].description;
+                existing.triggers = ruleUpdate[0].triggers;
+                existing.actions = ruleUpdate[0].actions;
+                existing.conditions = ruleUpdate[0].conditions;
+            }
+        });
+    });
+
+    eventService.onEvent('smarthome/rules/*/added', function(topic, rule) {
+        $rootScope.$apply(function() {
+            repository.add(rule);
+        });
+    });
+
+    eventService.onEvent('smarthome/rules/*/removed', function(topic, removedRule) {
+        var existing = repository.find(function(rule) {
+            return rule.uid === removedRule.uid;
+        });
+        $rootScope.$apply(function() {
+            repository.remove(existing);
+        });
+    });
+
+    eventService.onEvent('smarthome/rules/*/state', function(topic, rule) {
+        var existing = repository.find(function(rule) {
+            return rule.uid === topic.split('/')[2];
+        });
+        $rootScope.$apply(function() {
+            existing.status = {};
+            existing.status.status = rule.status;
+            existing.status.statusDetail = rule.statusDetail;
+            if (rule.status.toUpperCase() === "DISABLED") {
+                existing.enabled = false;
+            } else {
+                existing.enabled = true;
+            }
+        });
+    });
+
     return repository;
 });
