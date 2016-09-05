@@ -203,9 +203,9 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
             return rule.uid === topic.split('/')[2];
         });
         $rootScope.$apply(function() {
-            existing.status = existing.status ? existing.status : {};
+            existing.status = {};
             existing.status.status = rule.status;
-            existing.status.statusDetails = rule.status;
+            existing.status.statusDetail = rule.statusDetail;
             if (rule.status.toUpperCase() === "DISABLED") {
                 existing.enabled = false;
             } else {
