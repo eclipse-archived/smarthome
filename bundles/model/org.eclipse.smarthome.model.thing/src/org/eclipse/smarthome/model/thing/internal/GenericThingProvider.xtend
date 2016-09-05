@@ -277,7 +277,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
             if (addedChannelIds.add(id)) {
                 val kind = if (it.channelType == null) "State" else it.channelType                 
                 val parsedKind = ChannelKind.parse(kind)                
-                val channel = ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), null)
+                val channel = ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type)
                     .withKind(parsedKind)
                     .withConfiguration(createConfiguration)
                 channels += channel.build()
