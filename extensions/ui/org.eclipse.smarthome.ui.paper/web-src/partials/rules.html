@@ -17,7 +17,9 @@
 					<div class="rule fab-item text-left">
 						<div class="circle">{{rule.name.substring(0,1)}}</div>
 						<div class="item-content">
-							<h3>{{rule.name}}</h3>
+							<h3>
+								{{rule.name}} <small class="badge" ng-class="rule.status.status.toLowerCase()">{{rule.status.status}}</small>
+							</h3>
 							<p ng-bind-html="rule.description"></p>
 							<p>{{rule.uid}}</p>
 							<div class="actions">
@@ -47,7 +49,7 @@
 	</div>
 
 	<!-- Config block -->
-	<div class="rules white-bg" ng-if="page === 'configure' || page ==='new' " ng-controller="NewRuleController">
+	<div class="rules white-bg" ng-if="page === 'configure' || page ==='new'" ng-controller="NewRuleController">
 		<div class="header-toolbar">
 			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
 		</div>
@@ -68,6 +70,10 @@
 						<input type="hidden" ng-value="id" />
 					</div>
 				</div>
+				<p ng-if="status" class="ruleStatus">
+					Status:
+					<span class="badge" ng-class="status.status.toLowerCase()">{{status.status}} {{status.statusDetail !== 'NONE' ? ' - ' + status.statusDetail : ''}}</span>
+				</p>
 				<div class="row">
 					<div class="col-md-5 item-wrapper">
 						<h3 class="md-title md-title-nospace">

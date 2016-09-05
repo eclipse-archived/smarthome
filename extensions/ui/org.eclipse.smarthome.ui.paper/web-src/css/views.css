@@ -199,6 +199,10 @@ section#main.header-tabs {
 	background-color: green;
 }
 
+.badge {
+	vertical-align: bottom;
+}
+
 .thing-configure .parameter {
 	
 }

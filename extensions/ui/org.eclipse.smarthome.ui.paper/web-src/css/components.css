@@ -947,3 +947,19 @@ md-dialog-content .dayParameter {
 	box-shadow: 0px 0px 4px 2px #dedede;
 	border-radius: 100%;
 }
+
+.rules .disabled {
+background-color: #b8030c;
+}
+
+.rules .idle {
+background-color: #ebdd25;
+}
+
+.rules .running {
+background-color: green;
+}
+
+.ruleStatus {
+	padding-bottom: 10px;
+}
