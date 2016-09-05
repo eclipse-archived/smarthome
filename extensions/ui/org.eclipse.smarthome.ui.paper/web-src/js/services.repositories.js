@@ -86,7 +86,9 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
         $rootScope.data[dataType].push(element);
     };
     this.remove = function(element) {
-        $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
+        if ($rootScope.data[dataType].indexOf(element) !== -1) {
+            $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
+        }
     };
     this.update = function(element) {
         var index = $rootScope.data[dataType].indexOf(element);
@@ -170,38 +172,46 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
         var existing = repository.find(function(rule) {
             return rule.uid === ruleUpdate[0].uid;
         });
-        if (existing) {
-            existing.name = ruleUpdate[0].name;
-            existing.description = ruleUpdate[0].description;
-            existing.triggers = ruleUpdate[0].triggers;
-            existing.actions = ruleUpdate[0].actions;
-            existing.conditions = ruleUpdate[0].conditions;
-        }
+        $rootScope.$apply(function() {
+            if (existing) {
+                existing.name = ruleUpdate[0].name;
+                existing.description = ruleUpdate[0].description;
+                existing.triggers = ruleUpdate[0].triggers;
+                existing.actions = ruleUpdate[0].actions;
+                existing.conditions = ruleUpdate[0].conditions;
+            }
+        });
     });
 
     eventService.onEvent('smarthome/rules/*/added', function(topic, rule) {
-        repository.add(rule);
+        $rootScope.$apply(function() {
+            repository.add(rule);
+        });
     });
 
     eventService.onEvent('smarthome/rules/*/removed', function(topic, removedRule) {
         var existing = repository.find(function(rule) {
             return rule.uid === removedRule.uid;
         });
-        repository.remove(existing);
+        $rootScope.$apply(function() {
+            repository.remove(existing);
+        });
     });
 
     eventService.onEvent('smarthome/rules/*/state', function(topic, rule) {
         var existing = repository.find(function(rule) {
             return rule.uid === topic.split('/')[2];
         });
-        existing.status = existing.status ? existing.status : {};
-        existing.status.status = rule.status;
-        existing.status.statusDetails = rule.status;
-        if (rule.status.toUpperCase() === "DISABLED") {
-            existing.enabled = false;
-        } else {
-            existing.enabled = true;
-        }
+        $rootScope.$apply(function() {
+            existing.status = existing.status ? existing.status : {};
+            existing.status.status = rule.status;
+            existing.status.statusDetails = rule.status;
+            if (rule.status.toUpperCase() === "DISABLED") {
+                existing.enabled = false;
+            } else {
+                existing.enabled = true;
+            }
+        });
     });
 
     return repository;
