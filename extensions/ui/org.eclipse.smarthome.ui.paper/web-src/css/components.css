@@ -603,6 +603,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-top: 5px;
 }
 
+.channel .circle {
+	margin-left: 8px;
+}
+
 .showmore {
 	float: right;
 	margin-top: 0px
