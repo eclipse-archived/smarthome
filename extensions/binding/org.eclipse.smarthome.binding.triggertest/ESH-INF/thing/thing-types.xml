@@ -51,6 +51,7 @@
         <kind>trigger</kind>
         <label>Trigger 2</label>
         <description>Description of trigger 2</description>
+        <event/>
     </channel-type>
 
 </thing:thing-descriptions>
