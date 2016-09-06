@@ -6,7 +6,7 @@
 	<form name="myForm" ng-show="templateStep==1">
 		<md-select ng-invalid="" required placeholder="rule template" aria-label="Select template" ng-model="templateIndex"> <md-option ng-repeat="item in templateData" value="{{$index}}"> {{item.label?item.label:item.description}} </md-option> </md-select>
 	</form>
-	<div ng-show="templateStep==2">
+	<div ng-show="templateStep==2" ng-init="form={}">
 		<md-input-container class="col-xs-12 noPadding"> <label>Name</label> <input ng-model="name"> </md-input-container>
 		<md-input-container class="col-xs-12 noPadding"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 		<h3 class="md-title-nospace">Configurations</h3>
@@ -18,7 +18,7 @@
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>
 	<md-button ng-show="templateStep==1" ng-disabled="myForm.$invalid" ng-click="selectTemplate()">Next</md-button>
-	<md-button ng-show="templateStep==2" ng-click="saveRule()">Save</md-button>
+	<md-button ng-show="templateStep==2" ng-disabled="form.configForm.$invalid" ng-click="saveRule()">Save</md-button>
 
 </div>
 
