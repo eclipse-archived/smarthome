@@ -902,37 +902,38 @@ public class RuleEngine
      */
     protected void runRule(RuntimeRule rule, RuleEngineCallbackImpl.TriggerData td) {
         final String uid = rule.getUID();
-        RuleStatus ruleStatus = getRuleStatus(uid);
-        if (ruleStatus == RuleStatus.IDLE) {
-            try {
 
-                // change state to RUNNING
-                setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.RUNNING));
-                clearContext(rule);
-
-                setTriggerOutputs(uid, td);
-                boolean isSatisfied = calculateConditions(rule);
-                if (isSatisfied) {
-                    executeActions(rule);
-                    logger.debug("The rule '{}' is executed.", uid);
-                } else {
-                    logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", uid);
-                }
-            } catch (Throwable t) {
-                logger.error("Fail to execute rule '{}': {}", new Object[] { rule.getUID(), t.getMessage() }, t);
+        synchronized (this) {
+            final RuleStatus ruleStatus = getRuleStatus(uid);
+            if (ruleStatus != RuleStatus.IDLE) {
+                logger.error("Trying to execute rule ‘{}' with status '{}'", uid, ruleStatus.getValue());
+                return;
             }
-
-            // change state to IDLE only if the rule has not been DISABLED.
-            synchronized (this) {
-                if (getRuleStatus(uid) != RuleStatus.DISABLED) {
-                    setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.IDLE));
-                }
-            }
-        } else {
-            logger.error("Trying to execute rule ‘{}' with status '{}'",
-                    new Object[] { rule.getUID(), ruleStatus.getValue() });
+            // change state to RUNNING
+            setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.RUNNING));
         }
 
+        try {
+            clearContext(rule);
+
+            setTriggerOutputs(uid, td);
+            boolean isSatisfied = calculateConditions(rule);
+            if (isSatisfied) {
+                executeActions(rule);
+                logger.debug("The rule '{}' is executed.", uid);
+            } else {
+                logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", uid);
+            }
+        } catch (Throwable t) {
+            logger.error("Fail to execute rule '{}': {}", new Object[] { rule.getUID(), t.getMessage() }, t);
+        }
+
+        // change state to IDLE only if the rule has not been DISABLED.
+        synchronized (this) {
+            if (getRuleStatus(uid) != RuleStatus.DISABLED) {
+                setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.IDLE));
+            }
+        }
     }
 
     private void clearContext(RuntimeRule rule) {
