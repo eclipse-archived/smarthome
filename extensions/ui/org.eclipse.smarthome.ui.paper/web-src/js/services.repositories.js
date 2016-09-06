@@ -142,6 +142,17 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
             repository.add(thing);
         });
     });
+    eventService.onEvent('smarthome/things/*/updated', function(topic, thing) {
+        updateInRepository(topic.split('/')[2], true, function(existingThing) {
+            if (thing.length > 0) {
+                for ( var key in existingThing) {
+                    if (existingThing.hasOwnProperty(key)) {
+                        existingThing[key] = thing[0][key] ? thing[0][key] : existingThing[key];
+                    }
+                }
+            }
+        });
+    });
     eventService.onEvent('smarthome/things/*/removed', function(topic, thing) {
         updateInRepository(topic.split('/')[2], true, function(existingThing) {
             repository.remove(existingThing);

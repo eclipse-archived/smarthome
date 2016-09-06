@@ -573,19 +573,15 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     var originalThing = {};
 
     $scope.update = function(thing) {
-        if (!thing.item) {
-            thing.item = {};
-        }
         thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
             thing.configuration = configService.replaceEmptyValues(thing.configuration);
             thingService.updateConfig({
                 thingUID : thing.UID
-            }, thing.configuration, function() {
-                thingRepository.update(thing);
-            });
+            }, thing.configuration);
         }
-        originalThing.configuration = thing.configuration = {};
+        originalThing.configuration = thing.configuration;
+        originalThing.channels = thing.channels;
         if (JSON.stringify(originalThing) !== JSON.stringify(thing)) {
             thingService.update({
                 thingUID : thing.UID
