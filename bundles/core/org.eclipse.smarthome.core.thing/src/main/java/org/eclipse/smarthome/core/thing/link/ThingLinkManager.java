@@ -155,7 +155,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         @Override
         public void added(ItemChannelLink itemChannelLink) {
             if (itemRegistry.get(itemChannelLink.getItemName()) == null) {
-                // Don't inform about the unlink if the item does not exist.
+                // Don't inform about the link if the item does not exist.
                 // The handler will be informed on item creation.
                 return;
             }
@@ -171,11 +171,11 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
         @Override
         public void removed(ItemChannelLink itemChannelLink) {
-            if (itemRegistry.get(itemChannelLink.getItemName()) == null) {
-                // Don't inform about the unlink if the item does not exist.
-                // The handler is informed if the item has been removed.
-                return;
-            }
+            /*
+             * Don't check for item existence here.
+             * If an item and its link are removed before the registry change listener methods are called,
+             * a check for the item could prevent that the handler is informed about the unlink at all.
+             */
             ChannelUID channelUID = itemChannelLink.getUID();
             Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
