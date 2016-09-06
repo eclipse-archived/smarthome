@@ -87,7 +87,8 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvider>
+        implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
     private Logger logger;
@@ -105,6 +106,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public RuleRegistryImpl(RuleEngine ruleEngine, TemplateManager tManager, final BundleContext bc) {
+        super(null);
         logger = LoggerFactory.getLogger(getClass());
         this.ruleEngine = ruleEngine;
         this.templateManager = tManager;

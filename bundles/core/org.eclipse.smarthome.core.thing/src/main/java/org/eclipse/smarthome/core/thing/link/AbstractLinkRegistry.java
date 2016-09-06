@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -23,7 +24,12 @@ import org.eclipse.smarthome.core.thing.UID;
  * @param <L>
  *            Concrete type of the abstract link
  */
-public abstract class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L, String> {
+public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Provider<L>>
+        extends AbstractRegistry<L, String, P> {
+
+    protected AbstractLinkRegistry(final Class<P> providerClazz) {
+        super(providerClazz);
+    }
 
     /**
      * Returns if an item for a given item name is linked to a channel or thing for a

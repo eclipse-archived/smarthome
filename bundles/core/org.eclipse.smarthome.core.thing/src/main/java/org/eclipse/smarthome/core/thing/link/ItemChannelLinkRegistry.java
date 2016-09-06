@@ -24,9 +24,13 @@ import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
  * @author Dennis Nobel - Initial contribution
  *
  */
-public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink> {
+public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink, ItemChannelLinkProvider> {
 
     private ThingRegistry thingRegistry;
+
+    public ItemChannelLinkRegistry() {
+        super(ItemChannelLinkProvider.class);
+    }
 
     /**
      * Returns a set of bound channels for the given item name.
