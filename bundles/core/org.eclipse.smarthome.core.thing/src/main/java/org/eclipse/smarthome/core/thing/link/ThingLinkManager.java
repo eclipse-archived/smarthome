@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Handle item registry's all items changed notification
  * @author Kai Kreuzer - Refactored to make it a service and introduced the auto-linking (as a replacement for the
  *         ThingSetupManager)
- * @author Markus Rathgeb - Set link notification if item and link exists and unlink on the first removal
+ * @author Markus Rathgeb - Send link notification if item and link exists and unlink on the first removal
  */
 public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 

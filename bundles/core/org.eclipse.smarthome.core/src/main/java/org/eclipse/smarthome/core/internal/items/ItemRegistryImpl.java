@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
@@ -126,16 +126,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             }
         }
 
-    }
-
-    @Override
-    public boolean containsItem(String name) {
-        for (final Item item : getItems()) {
-            if (item.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /*

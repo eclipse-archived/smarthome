@@ -600,15 +600,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @Override
-    public boolean containsItem(String name) {
-        if (itemRegistry != null) {
-            return itemRegistry.containsItem(name);
-        } else {
-            return false;
-        }
-    }
-
     /**
      * {@inheritDoc}
      */

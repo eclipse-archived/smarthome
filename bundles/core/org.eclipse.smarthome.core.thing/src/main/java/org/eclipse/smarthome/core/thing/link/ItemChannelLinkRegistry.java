@@ -10,12 +10,8 @@ package org.eclipse.smarthome.core.thing.link;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -23,77 +19,19 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
-import org.osgi.service.component.ComponentContext;
 
 /**
  * {@link ItemChannelLinkRegistry} tracks all {@link ItemChannelLinkProvider}s
  * and aggregates all {@link ItemChannelLink}s.
  *
  * @author Dennis Nobel - Initial contribution
- * @author Markus Rathgeb - Respect item existence
+ * @author Markus Rathgeb - Linked items returns only existing items
  *
  */
 public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink> {
 
-    /*
-     * Methods of the AbstractRegistry does not respect the component life cycle.
-     * The method AbstractRegistry.addProvider executes logic if the component has not been activated, too.
-     * This could result in some wired runtime behavior because member variables that are injected by the service
-     * management could be present or not.
-     */
-    boolean active = false;
-    private final LinkedList<Provider<ItemChannelLink>> waitingProviders = new LinkedList<>();
-
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
-
-    protected void activate(ComponentContext context) {
-        itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
-        synchronized (this) {
-            active = true;
-            while (!waitingProviders.isEmpty()) {
-                super.addProvider(waitingProviders.removeFirst());
-            }
-        }
-    }
-
-    protected void deactivate() {
-        synchronized (this) {
-            active = false;
-        }
-        itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
-    }
-
-    private final RegistryChangeListener<Item> itemRegistryChangeListener = new RegistryChangeListener<Item>() {
-        @Override
-        public void added(Item element) {
-            final String itemName = element.getName();
-            for (final ItemChannelLink itemChannelLink : getAll()) {
-                if (itemChannelLink.getItemName().equals(itemName)) {
-                    notifyListenersAboutAddedElement(itemChannelLink, true);
-                }
-            }
-        }
-
-        @Override
-        public void removed(Item element) {
-            final String itemName = element.getName();
-            for (final ItemChannelLink itemChannelLink : getAll()) {
-                if (itemChannelLink.getItemName().equals(itemName)) {
-                    notifyListenersAboutRemovedElement(itemChannelLink, true);
-                }
-            }
-        }
-
-        @Override
-        public void updated(Item oldElement, Item element) {
-            if (!oldElement.equals(element)) {
-                this.removed(oldElement);
-                this.added(element);
-            }
-        }
-
-    };
 
     /**
      * Returns a set of bound channels for the given item name.
@@ -128,7 +66,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         final Set<String> linkedItems = new LinkedHashSet<>();
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
-            if (link.getUID().equals(uid) && itemRegistry.containsItem(itemName)) {
+            if (link.getUID().equals(uid) && itemRegistry.get(itemName) != null) {
                 linkedItems.add(itemName);
             }
         }
@@ -176,18 +114,6 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         this.itemRegistry = null;
     }
 
-    @Override
-    protected void addProvider(Provider<ItemChannelLink> provider) {
-        // Workaround for addProvider: see description of member 'active' above
-        synchronized (this) {
-            if (active) {
-                super.addProvider(provider);
-            } else {
-                waitingProviders.add(provider);
-            }
-        }
-    }
-
     public void removeLinksForThing(ThingUID thingUID) {
         if (this.managedProvider != null) {
             ((ManagedItemChannelLinkProvider) this.managedProvider).removeLinksForThing(thingUID);
@@ -198,40 +124,20 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
 
     @Override
     protected void notifyListenersAboutAddedElement(ItemChannelLink element) {
-        notifyListenersAboutAddedElement(element, itemRegistry.containsItem(element.getItemName()));
+        super.notifyListenersAboutAddedElement(element);
+        postEvent(LinkEventFactory.createItemChannelLinkAddedEvent(element));
     }
 
     @Override
     protected void notifyListenersAboutRemovedElement(ItemChannelLink element) {
-        // Workaround for removeProvider: see description of member 'active' above
-        final ItemRegistry itemRegistry = this.itemRegistry;
-        final boolean contains;
-        if (itemRegistry != null) {
-            contains = itemRegistry.containsItem(element.getItemName());
-        } else {
-            contains = true;
-        }
-        notifyListenersAboutRemovedElement(element, contains);
+        super.notifyListenersAboutRemovedElement(element);
+        postEvent(LinkEventFactory.createItemChannelLinkRemovedEvent(element));
     }
 
     @Override
     protected void notifyListenersAboutUpdatedElement(ItemChannelLink oldElement, ItemChannelLink element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         // it is not needed to send an event, because links can not be updated
-    }
-
-    protected void notifyListenersAboutAddedElement(final ItemChannelLink element, boolean itemExists) {
-        if (itemExists) {
-            super.notifyListenersAboutAddedElement(element);
-            postEvent(LinkEventFactory.createItemChannelLinkAddedEvent(element));
-        }
-    }
-
-    protected void notifyListenersAboutRemovedElement(ItemChannelLink element, boolean itemExists) {
-        if (itemExists) {
-            super.notifyListenersAboutRemovedElement(element);
-            postEvent(LinkEventFactory.createItemChannelLinkRemovedEvent(element));
-        }
     }
 
 }
