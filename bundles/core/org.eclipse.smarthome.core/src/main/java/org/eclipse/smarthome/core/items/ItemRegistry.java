@@ -25,6 +25,14 @@ import org.eclipse.smarthome.core.common.registry.Registry;
 public interface ItemRegistry extends Registry<Item, String> {
 
     /**
+     * This methods checks if an item is part of the registry.
+     *
+     * @param name the item name
+     * @return true if there is an item with given name, otherwise false
+     */
+    public boolean containsItem(String name);
+
+    /**
      * This method retrieves a single item from the registry.
      *
      * @param name the item name
