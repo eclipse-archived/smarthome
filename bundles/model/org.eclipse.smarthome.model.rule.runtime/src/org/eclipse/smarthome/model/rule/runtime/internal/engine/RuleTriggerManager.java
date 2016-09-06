@@ -7,15 +7,11 @@
  */
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.CHANGE;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.COMMAND;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.SHUTDOWN;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.STARTUP;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.TIMER;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.UPDATE;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -102,7 +98,7 @@ public class RuleTriggerManager {
 
     /**
      * Returns all rules which have a trigger of a given type
-     * 
+     *
      * @param type the trigger type of the rules to return
      * @return rules with triggers of the given type
      */
@@ -130,12 +126,20 @@ public class RuleTriggerManager {
             default:
                 result = Sets.newHashSet();
         }
-        return result;
+        List<Rule> filteredList = new ArrayList<>();
+        for (Rule rule : result) {
+            // we really only want to return rules that are still loaded
+            if (rule.eResource() != null && !rule.eIsProxy()) {
+                filteredList.add(rule);
+            }
+        }
+
+        return filteredList;
     }
 
     /**
      * Returns all rules for which the trigger condition is true for the given type, item and state.
-     * 
+     *
      * @param triggerType
      * @param item
      * @param state
@@ -147,7 +151,7 @@ public class RuleTriggerManager {
 
     /**
      * Returns all rules for which the trigger condition is true for the given type, item and states.
-     * 
+     *
      * @param triggerType
      * @param item
      * @param oldState
@@ -160,7 +164,7 @@ public class RuleTriggerManager {
 
     /**
      * Returns all rules for which the trigger condition is true for the given type, item and command.
-     * 
+     *
      * @param triggerType
      * @param item
      * @param command
@@ -261,8 +265,8 @@ public class RuleTriggerManager {
                                 final CommandEventTrigger ct = (CommandEventTrigger) t;
                                 if (ct.getItem().equals(item.getName())) {
                                     if (ct.getCommand() != null) {
-                                        final Command triggerCommand = TypeParser.parseCommand(
-                                                item.getAcceptedCommandTypes(), ct.getCommand());
+                                        final Command triggerCommand = TypeParser
+                                                .parseCommand(item.getAcceptedCommandTypes(), ct.getCommand());
                                         if (!command.equals(triggerCommand)) {
                                             continue;
                                         }
@@ -280,7 +284,7 @@ public class RuleTriggerManager {
 
     /**
      * Removes all rules with a given trigger type from the mapping tables.
-     * 
+     *
      * @param type the trigger type
      */
     public void clear(TriggerTypes type) {
@@ -323,7 +327,7 @@ public class RuleTriggerManager {
 
     /**
      * Adds a given rule to the mapping tables
-     * 
+     *
      * @param rule the rule to add
      */
     public synchronized void addRule(Rule rule) {
@@ -371,7 +375,7 @@ public class RuleTriggerManager {
 
     /**
      * Removes a given rule from the mapping tables of a certain trigger type
-     * 
+     *
      * @param type the trigger type for which the rule should be removed
      * @param rule the rule to add
      */
@@ -401,7 +405,7 @@ public class RuleTriggerManager {
 
     /**
      * Adds all rules of a model to the mapping tables
-     * 
+     *
      * @param model the rule model
      */
     public void addRuleModel(RuleModel model) {
@@ -412,7 +416,7 @@ public class RuleTriggerManager {
 
     /**
      * Removes all rules of a given model (file) from the mapping tables.
-     * 
+     *
      * @param ruleModel the rule model
      */
     public void removeRuleModel(RuleModel ruleModel) {
@@ -426,20 +430,25 @@ public class RuleTriggerManager {
 
     private void removeRules(TriggerTypes type, Collection<? extends Collection<Rule>> ruleSets, RuleModel model) {
         for (Collection<Rule> ruleSet : ruleSets) {
+            Set<Rule> clonedSet = new HashSet<Rule>(ruleSet);
             // first remove all rules of the model, if not null (=non-existent)
             if (model != null) {
-                for (Rule rule : model.getRules()) {
-                    ruleSet.remove(rule);
-                    if (type == TIMER) {
-                        removeTimerRule(rule);
+                for (Rule newRule : model.getRules()) {
+                    for (Rule oldRule : clonedSet) {
+                        if (newRule.getName().equals(oldRule.getName())) {
+                            ruleSet.remove(oldRule);
+                            if (type == TIMER) {
+                                removeTimerRule(oldRule);
+                            }
+                        }
                     }
                 }
             }
 
             // now also remove all proxified rules from the set
-            Set<Rule> clonedSet = new HashSet<Rule>(ruleSet);
+            clonedSet = new HashSet<Rule>(ruleSet);
             for (Rule rule : clonedSet) {
-                if (rule.eIsProxy()) {
+                if (rule.eResource() == null) {
                     ruleSet.remove(rule);
                     if (type == TIMER) {
                         removeTimerRule(rule);
@@ -459,10 +468,10 @@ public class RuleTriggerManager {
 
     /**
      * Creates and schedules a new quartz-job and trigger with model and rule name as jobData.
-     * 
+     *
      * @param rule the rule to schedule
      * @param trigger the defined trigger
-     * 
+     *
      * @throws SchedulerException if there is an internal Scheduler error.
      */
     private void createTimer(Rule rule, TimerTrigger trigger) throws SchedulerException {
@@ -496,7 +505,7 @@ public class RuleTriggerManager {
 
     /**
      * Delete all {@link Job}s of the DEFAULT group whose name starts with <code>rule.getName()</code>.
-     * 
+     *
      * @throws SchedulerException if there is an internal Scheduler error.
      */
     private void removeTimer(Rule rule) throws SchedulerException {
