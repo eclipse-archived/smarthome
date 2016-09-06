@@ -184,6 +184,7 @@ public class ModelRepositoryImpl implements ModelRepository {
                         // The quick & dirts solution is to reparse the whole resource.
                         // We trigger this by dummy updating the resource.
                         xtextResource.update(1, 0, "");
+                        notifyListeners(resource.getURI().lastSegment(), EventType.MODIFIED);
                     }
                 }
             }
