@@ -11,7 +11,10 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.concurrent.ConcurrentHashMap
+
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
@@ -53,9 +56,10 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
 
     def ThingRegistry thingRegistry
     def ManagedThingProvider managedThingProvider
+    def ItemRegistry itemRegistry
     def ItemChannelLinkRegistry itemChannelLinkRegistry
 
-    public static Map context = new HashMap<>()
+    private Map<String,Object> context = new ConcurrentHashMap<>()
 
     @Before
     void setup() {
@@ -64,11 +68,13 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         registerVolatileStorageService()
         thingRegistry = getService(ThingRegistry)
         managedThingProvider = getService(ManagedThingProvider)
+        itemRegistry = getService(ItemRegistry)
+        assertNotNull(itemRegistry)
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         assertThat thingRegistry, is(notNullValue())
 
         def ComponentContext componentContext = [
-            getBundleContext: { -> bundleContext}
+            getBundleContext: { -> bundleContext }
         ] as ComponentContext
 
         def thingHandlerFactory = new TestThingHandlerFactory()
@@ -98,7 +104,9 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
-        itemChannelLinkRegistry.getAll().each { itemChannelLinkRegistry.remove(it.ID) }
+        itemChannelLinkRegistry.getAll().each {
+            itemChannelLinkRegistry.remove(it.ID)
+        }
     }
 
     @Test
@@ -111,10 +119,14 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         Channel channel = channels.first()
 
         managedThingProvider.add(thing)
-        assertThat itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(1)
+        waitForAssert {
+            assertThat itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(1)
+        }
 
         managedThingProvider.remove(thingUID)
-        assertThat itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(0)
+        waitForAssert {
+            assertThat itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(0)
+        }
     }
 
 
@@ -127,15 +139,27 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         def channelUID = new ChannelUID(thingUID, "1")
 
         waitForAssert {
-            assertThat context.get("linkedChannel"), is(equalTo(channelUID))
-            assertThat context.get("unlinkedChannel"), is(null)
+            assertThat takeContext("linkedChannel"), is(equalTo(channelUID))
+            assertThat takeContext("unlinkedChannel"), is(null)
         }
 
         itemChannelLinkRegistry.removeLinksForThing(thingUID)
 
         waitForAssert {
-            assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
+            assertThat takeContext("unlinkedChannel"), is(equalTo(channelUID))
         }
+    }
+
+    private Object takeContext(final String key) {
+        final Object obj = context.remove(key)
+        println "take from context: " + key + "=" + obj
+        return obj
+    }
+
+    private Object putContext(final String key, final Object value) {
+        final Object old = context.put(key, value);
+        println "put to context: " + key + "=" + value + " [old: " + old + "]"
+        return old
     }
 
     /*
@@ -154,11 +178,12 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
                         public void handleCommand(ChannelUID channelUID, Command command) { }
 
                         void channelLinked(ChannelUID channelUID) {
-                            ThingLinkManagerOSGiTest.this.context.put("linkedChannel", channelUID)
+                            putContext("linkedChannel", channelUID)
                         }
 
                         void channelUnlinked(ChannelUID channelUID) {
-                            ThingLinkManagerOSGiTest.this.context.put("unlinkedChannel", channelUID)
+                            println "Cannel unlinked: " + channelUID
+                            putContext("unlinkedChannel", channelUID)
                         }
                     }
         }

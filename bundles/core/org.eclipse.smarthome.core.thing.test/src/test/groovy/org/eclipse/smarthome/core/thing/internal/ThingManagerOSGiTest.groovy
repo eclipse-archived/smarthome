@@ -21,9 +21,12 @@ import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
+import org.eclipse.smarthome.core.items.Item
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
+import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
@@ -73,6 +76,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
     ThingLinkManager thingLinkManager
+    ItemRegistry itemRegistry
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
 
@@ -97,6 +101,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
         managedThingProvider = getService(ManagedThingProvider)
         eventPublisher = getService(EventPublisher)
+        itemRegistry = getService(ItemRegistry)
+        assertNotNull(itemRegistry)
     }
 
     @After
@@ -251,6 +257,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingUpdatedWasCalled = false
         def callback;
 
+        // Create item
+        Item item = new StringItem(itemName)
+        itemRegistry.add(item)
+
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
@@ -312,6 +322,10 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def itemName = "name"
         def callback;
+
+        // Create item
+        Item item = new StringItem(itemName)
+        itemRegistry.add(item)
 
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
