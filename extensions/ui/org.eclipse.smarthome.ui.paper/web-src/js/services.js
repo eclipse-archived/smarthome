@@ -182,10 +182,24 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 groupsList[indexArray[group[0].name]].groupLabel = group[0].label;
                 groupsList[indexArray[group[0].name]].parameters.push(parameter);
             }
+            parameters.hasAdvanced = false;
             for (var j = 0; j < groupsList.length; j++) {
                 if (groupsList[j].groupName) {
+                    var advanced = $.grep(groupsList[j].parameters, function(parameter) {
+                        return parameter.advanced;
+                    });
+                    if (advanced.length == groupsList[j].parameters.length) {
+                        groupsList[j].hasNonAdvanced = false;
+                    } else {
+                        groupsList[j].hasNonAdvanced = true;
+                    }
+                    if (advanced.length > 0) {
+                        parameters.hasAdvanced = true;
+                    }
+
                     parameters.push(groupsList[j]);
                 }
+
             }
             return this.getItemConfigs(parameters);
         },
