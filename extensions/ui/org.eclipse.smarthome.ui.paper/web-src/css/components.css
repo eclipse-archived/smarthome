@@ -963,3 +963,8 @@ background-color: green;
 .ruleStatus {
 	padding-bottom: 10px;
 }
+
+.configAdvance {
+	margin-top: 48px;
+	float: right;
+}
