@@ -35,7 +35,7 @@ The weather information that is retrieved is available as these channels:
 demo.things:
 
 ```
-yahooweather:weather:berlin [ location="638242" ]
+yahooweather:weather:berlin [ location=638242 ]
 ```
 
 demo.items:
