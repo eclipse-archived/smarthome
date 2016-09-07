@@ -470,6 +470,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     }
 
     $scope.configChannel = function(channel, thing, event) {
+
         var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
 
         $mdDialog.show({
@@ -479,7 +480,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             hasBackdrop : true,
             locals : {
                 channelType : channelType,
-                channel : channel,
+                channelUID : channel.uid,
                 thing : thing
             }
         });
@@ -639,11 +640,14 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         $scope.thing.configuration = $scope.configuration;
     });
     $scope.getThing(false);
-}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channel, thing) {
+}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channelUID, thing) {
     $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);
-    $scope.configuration = channel.configuration;
-    $scope.channel = channel;
     $scope.thing = thing;
+    $scope.channel = $.grep(thing.channels, function(channel) {
+        return channel.uid == channelUID;
+    });
+    $scope.configuration = $scope.channel[0].configuration;
+
     $scope.close = function() {
         $mdDialog.cancel();
     }
@@ -658,7 +662,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         thingService.update({
             thingUID : thing.UID
         }, $scope.thing, function() {
-            thingRepository.update($scope.thing);
+            // thingRepository.update($scope.thing);
             $mdDialog.hide();
             toastService.showDefaultToast('Channel updated');
         });

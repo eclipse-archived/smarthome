@@ -169,6 +169,40 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
         });
     });
 
+    eventService.onEvent('smarthome/links/*/added', function(topic, link) {
+        var channelItem = link.channelUID.split(':'), thingUID;
+        if (channelItem.length > 2) {
+            thingUID = channelItem[0] + ":" + channelItem[1] + ":" + channelItem[2];
+        }
+        if (thingUID) {
+            updateInRepository(thingUID, true, function(existingThing) {
+                var channel = $.grep(existingThing.channels, function(channel) {
+                    return channel.uid == link.channelUID;
+                });
+                if (channel.length > 0) {
+                    channel[0].linkedItems.push(link.itemName);
+                }
+            });
+        }
+    });
+
+    eventService.onEvent('smarthome/links/*/removed', function(topic, link) {
+        var channelItem = link.channelUID.split(':'), thingUID;
+        if (channelItem.length > 2) {
+            thingUID = channelItem[0] + ":" + channelItem[1] + ":" + channelItem[2];
+        }
+        if (thingUID) {
+            updateInRepository(thingUID, true, function(existingThing) {
+                var channel = $.grep(existingThing.channels, function(channel) {
+                    return channel.uid == link.channelUID;
+                });
+                if (channel.length > 0) {
+                    channel[0].linkedItems = [];
+                }
+            });
+        }
+    });
+
     return repository;
 }).factory('itemRepository', function($q, $rootScope, itemService) {
     var repository = new Repository($q, $rootScope, itemService, 'items')
