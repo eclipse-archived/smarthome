@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.sonos.handler;
 import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
 import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
@@ -875,7 +876,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     url = StringUtils.replace(url, "%id", stationID);
                     url = StringUtils.replace(url, "%serial", getMACAddress());
 
-                    String response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
+                    String response = null;
+                    try {
+                        response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
+                    } catch (IOException e) {
+                        logger.debug("Request to device failed: {}", e);
+                    }
 
                     if (lastOPMLQuery == null) {
                         lastOPMLQuery = Calendar.getInstance();
