@@ -34,7 +34,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             var data = JSON.parse(event.data);
             $log.debug('Event received: ' + data.topic + ' - ' + data.payload);
             $.each(callbacks, function(index, element) {
-                if (data.topic.match(element.topic)) {
+                var match = data.topic.match(element.topic);
+                if (match != null && match == data.topic) {
                     element.callback(data.topic, JSON.parse(data.payload));
                 }
             });
