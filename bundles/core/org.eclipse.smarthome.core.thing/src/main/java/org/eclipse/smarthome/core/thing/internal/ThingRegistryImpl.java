@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -67,10 +68,12 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
     @Override
-    public Thing get(ThingUID uid) {
-        for (Thing thing : getAll()) {
-            if (thing.getUID().equals(uid)) {
-                return thing;
+    public Thing get(final ThingUID uid) {
+        for (final Map.Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
+            for (final Thing thing : entry.getValue()) {
+                if (uid.equals(thing.getUID())) {
+                    return thing;
+                }
             }
         }
         return null;

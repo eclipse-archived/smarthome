@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -142,23 +143,24 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
      */
     @Override
     public Item getItem(String name) throws ItemNotFoundException {
-
-        for (Item item : getItems()) {
-            if (item.getName().equals(name)) {
-                return item;
-            }
+        final Item item = get(name);
+        if (item == null) {
+            throw new ItemNotFoundException(name);
+        } else {
+            return item;
         }
-
-        throw new ItemNotFoundException(name);
     }
 
     @Override
-    public Item get(String itemName) {
-        try {
-            return getItem(itemName);
-        } catch (ItemNotFoundException ignored) {
-            return null;
+    public Item get(final String itemName) {
+        for (final Map.Entry<Provider<Item>, Collection<Item>> entry : elementMap.entrySet()) {
+            for (final Item item : entry.getValue()) {
+                if (itemName.equals(item.getName())) {
+                    return item;
+                }
+            }
         }
+        return null;
     }
 
     /*

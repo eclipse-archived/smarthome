@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.link;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -85,13 +86,15 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     }
 
     @Override
-    public L get(String key) {
-        Collection<L> links = getAll();
-        for (L link : links) {
-            if (link.getID().equals(key)) {
-                return link;
+    public L get(final String key) {
+        for (final Map.Entry<Provider<L>, Collection<L>> entry : elementMap.entrySet()) {
+            for (final L link : entry.getValue()) {
+                if (key.equals(link.getID())) {
+                    return link;
+                }
             }
         }
         return null;
     }
+
 }
