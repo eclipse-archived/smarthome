@@ -99,9 +99,6 @@ public class ItemResource implements RESTResource {
     @Context
     UriInfo uriInfo;
 
-    @Context
-    UriInfo localUriInfo;
-
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
     private ManagedItemProvider managedItemProvider;
