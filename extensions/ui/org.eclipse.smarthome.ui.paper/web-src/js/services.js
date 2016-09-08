@@ -124,15 +124,23 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         parameter.element = 'select';
                     } else if (parameter.context.toUpperCase() === 'DATE') {
-                        parameter.element = 'date';
+                        if (parameter.type.toUpperCase() === 'TEXT') {
+                            parameter.element = 'date';
+                        } else {
+                            parameter.element = 'input';
+                            parameter.context = "";
+                        }
                     } else if (parameter.context.toUpperCase() === 'THING') {
                         parameter.element = 'select';
                         thingList = thingList === undefined ? thingService.getAll() : thingList;
                         parameter.options = thingList;
                     } else if (parameter.context.toUpperCase() === 'TIME') {
                         parameter.element = 'input';
-                        parameter.input = "TEXT";
-                        parameter.inputType = parameter.context;
+                        if (parameter.type.toUpperCase() === 'TEXT') {
+                            parameter.inputType = parameter.context;
+                        } else {
+                            parameter.context = "";
+                        }
                     } else if (parameter.context.toUpperCase() === 'COLOR') {
                         parameter.element = 'color';
                         parameter.input = "TEXT";
