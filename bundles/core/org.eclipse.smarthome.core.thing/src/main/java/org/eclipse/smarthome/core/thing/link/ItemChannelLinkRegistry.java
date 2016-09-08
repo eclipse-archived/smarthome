@@ -28,10 +28,14 @@ import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
  * @author Markus Rathgeb - Linked items returns only existing items
  *
  */
-public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink> {
+public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink, ItemChannelLinkProvider> {
 
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
+
+    public ItemChannelLinkRegistry() {
+        super(ItemChannelLinkProvider.class);
+    }
 
     /**
      * Returns a set of bound channels for the given item name.

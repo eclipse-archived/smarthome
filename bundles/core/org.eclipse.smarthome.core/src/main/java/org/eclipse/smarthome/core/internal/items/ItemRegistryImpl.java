@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider>
+        implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
@@ -61,6 +62,10 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
 
     private Map<String, Integer> stateDescriptionProviderRanking = new ConcurrentHashMap<>();
+
+    public ItemRegistryImpl() {
+        super(ItemProvider.class);
+    }
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
@@ -391,14 +396,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
         postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
     }
 
-    protected void activate(ComponentContext componentContext) {
+    protected void activate(final ComponentContext componentContext) {
+        super.activate(componentContext.getBundleContext());
         stateDescriptionProviderTracker = new StateDescriptionProviderTracker(componentContext.getBundleContext());
         stateDescriptionProviderTracker.open();
     }
 
-    protected void deactivate(ComponentContext componentContext) {
+    @Override
+    protected void deactivate() {
         stateDescriptionProviderTracker.close();
         stateDescriptionProviderTracker = null;
+        super.deactivate();
     }
 
     private final class StateDescriptionProviderTracker
