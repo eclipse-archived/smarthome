@@ -57,7 +57,7 @@
     <feature dependency="true">esh-kat.cpy-jersey-min-2.22.2</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/publisher/5.3.1</bundle>
     <config name="com.eclipsesource.jaxrs.connector">
-        root=/rest
+      root=/rest
     </config>
   </feature>
 
@@ -113,26 +113,26 @@
     <bundle dependency="true">mvn:org.yaml/snakeyaml/1.12</bundle>
   </feature>
 
-  <feature name="esh-tp-jax-rs-provider-gson" version="${project.version}">
+  <feature name="esh-tp-jax-rs-provider-gson" description="JAX-RS provider for de/serialization using Gson" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-gson;version=2.3</capability>
     <feature dependency="true">esh-tp-jax-rs-min</feature>
     <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
     <bundle>mvn:com.eclipsesource.jaxrs/provider-gson/2.3</bundle>
   </feature>
 
-  <feature name="esh-tp-jax-rs-provider-swagger" version="${project.version}">
+  <feature name="esh-tp-jax-rs-provider-swagger" description="JAX-RS provider for Swagger integration" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-swagger;version=1.1.1</capability>
     <feature dependency="true">esh-tp-jax-rs-min</feature>
     <feature>esh-kat.cpy-swagger-jersey2-1.5.8</feature>
 
     <bundle>mvn:de.maggu2810.thirdparty.modified.com.eclipsesource.jaxrs/provider-swagger/1.1.1.201605111122</bundle>
     <config name="com.eclipsesource.jaxrs.swagger.config">
-        swagger.basePath=/rest
-        swagger.info.title=Eclipse SmartHome REST API
+      swagger.basePath=/rest
+      swagger.info.title=Eclipse SmartHome REST API
     </config>
   </feature>
 
-  <feature name="esh-tp-jupnp" description=" UPnP/DLNA library for Java" version="${project.version}">
+  <feature name="esh-tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
     <capability>esh.tp;feature=jupnp;version=2.2.0</capability>
 
     <feature dependency="true">http</feature>
