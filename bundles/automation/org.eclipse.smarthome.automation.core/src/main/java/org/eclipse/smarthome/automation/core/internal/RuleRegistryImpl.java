@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The {@link RuleRegistry} manages the status of the Rules:
  * <ul>
- * <li>To check a Rule's status info, use the {@link #getStatus(String)} method.</li>
+ * <li>To check a Rule's status info, use the {@link #getStatusInfo(String)} method.</li>
  * <li>The status of a newly added Rule, or a Rule enabled with {@link #setEnabled(String, boolean)}, or an updated
  * Rule, is first set to {@link RuleStatus#NOT_INITIALIZED}.</li>
  * <li>After a Rule is added or enabled, or updated, a verification procedure is initiated. If the verification of the
@@ -321,8 +322,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
-    public Collection<Rule> getByTags(Set<String> tags) {
-        return ruleEngine.getRulesByTags(tags);
+    public Collection<Rule> getByTags(String... tags) {
+        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
+        return ruleEngine.getRulesByTags(tagSet);
     }
 
     @Override
@@ -340,8 +342,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
-    public RuleStatusInfo getStatus(String ruleUID) {
+    public RuleStatusInfo getStatusInfo(String ruleUID) {
         return ruleEngine.getRuleStatusInfo(ruleUID);
+    }
+
+    @Override
+    public RuleStatus getStatus(String ruleUID) {
+        RuleStatusInfo statusInfo = getStatusInfo(ruleUID);
+        return statusInfo != null ? statusInfo.getStatus() : null;
     }
 
     protected void setDisabledRuleStorage(Storage<Boolean> disabledRulesStorage) {
@@ -450,7 +458,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             }
             if (rules != null) {
                 for (String rUID : rules) {
-                    RuleStatus ruleStatus = getStatus(rUID).getStatus();
+                    RuleStatus ruleStatus = getStatusInfo(rUID).getStatus();
                     if (ruleStatus == RuleStatus.NOT_INITIALIZED) {
                         Rule oldRule, newRule;
                         if ((oldRule = managedProvider.get(rUID)) != null) {

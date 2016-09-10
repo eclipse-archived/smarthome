@@ -8,11 +8,8 @@
 package org.eclipse.smarthome.automation.rest.internal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -75,27 +72,28 @@ public class ModuleTypeResource implements RESTResource {
             @QueryParam("tags") @ApiParam(value = "tags for filtering", required = false) String tagList,
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> tags = tagList != null ? new HashSet<String>(Arrays.asList(tagList.split(","))) : null;
+        final String[] tags = tagList != null ? tagList.split(",") : null;
         final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
+
         if (type == null || type.equals("trigger")) {
             if (tags == null) {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getAll(TriggerType.class, locale)));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getTriggers(locale)));
             } else {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType>getByTags(tags, locale)));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType> getByTags(locale, tags)));
             }
         }
         if (type == null || type.equals("condition")) {
             if (tags == null) {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getAll(ConditionType.class, locale)));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale)));
             } else {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType>getByTags(tags, locale)));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType> getByTags(locale, tags)));
             }
         }
         if (type == null || type.equals("action")) {
             if (tags == null) {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getAll(ActionType.class, locale)));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale)));
             } else {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType>getByTags(tags, locale)));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType> getByTags(locale, tags)));
             }
         }
         return Response.ok(modules).build();

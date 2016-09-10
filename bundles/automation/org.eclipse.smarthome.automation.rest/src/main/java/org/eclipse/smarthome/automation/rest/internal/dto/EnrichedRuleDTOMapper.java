@@ -23,7 +23,7 @@ public class EnrichedRuleDTOMapper extends RuleDTOMapper {
         final EnrichedRuleDTO enrichedRuleDto = new EnrichedRuleDTO();
         fillProperties(rule, enrichedRuleDto);
         enrichedRuleDto.enabled = ruleRegistry.isEnabled(rule.getUID());
-        enrichedRuleDto.status = ruleRegistry.getStatus(rule.getUID());
+        enrichedRuleDto.status = ruleRegistry.getStatusInfo(rule.getUID());
         return enrichedRuleDto;
     }
 

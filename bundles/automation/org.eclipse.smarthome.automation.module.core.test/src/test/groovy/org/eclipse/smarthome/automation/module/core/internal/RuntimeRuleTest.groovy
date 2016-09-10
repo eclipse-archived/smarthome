@@ -148,7 +148,7 @@ class RuntimeRuleTest extends OSGiTest{
         ruleRegistry.setEnabled(rule.UID, true)
 
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.UID).status, is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(rule.UID).status, is(RuleStatus.IDLE)
         })
         //TEST RULE
 
@@ -291,7 +291,7 @@ class RuntimeRuleTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.uid).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
         })
 
         def ruleEvent = null

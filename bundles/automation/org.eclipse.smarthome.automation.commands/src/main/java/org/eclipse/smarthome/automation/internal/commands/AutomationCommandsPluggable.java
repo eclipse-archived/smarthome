@@ -19,8 +19,11 @@ import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.osgi.service.component.ComponentContext;
@@ -236,10 +239,23 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         return null;
     }
 
-    @Override
-    public <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale) {
+    public Collection<TriggerType> getTriggers(Locale locale) {
         if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.getAll(clazz, locale);
+            return moduleTypeRegistry.getTriggers(locale);
+        }
+        return null;
+    }
+
+    public Collection<ConditionType> getConditions(Locale locale) {
+        if (moduleTypeRegistry != null) {
+            return moduleTypeRegistry.getConditions(locale);
+        }
+        return null;
+    }
+
+    public Collection<ActionType> getActions(Locale locale) {
+        if (moduleTypeRegistry != null) {
+            return moduleTypeRegistry.getActions(locale);
         }
         return null;
     }
@@ -358,7 +374,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     @Override
     public RuleStatus getRuleStatus(String ruleUID) {
         if (ruleRegistry != null) {
-            RuleStatusInfo rsi = ruleRegistry.getStatus(ruleUID);
+            RuleStatusInfo rsi = ruleRegistry.getStatusInfo(ruleUID);
             return rsi != null ? rsi.getStatus() : null;
         } else {
             return null;
