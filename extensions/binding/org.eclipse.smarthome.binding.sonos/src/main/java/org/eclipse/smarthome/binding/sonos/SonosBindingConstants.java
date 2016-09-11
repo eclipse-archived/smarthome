@@ -87,5 +87,7 @@ public class SonosBindingConstants {
     public final static String COORDINATOR = "coordinator";
     public final static String MODELID = "modelId";
     public final static String SLEEPTIMER = "sleeptimer";
+    public final static String SHUFFLE = "shuffle";
+    public final static String REPEAT = "repeat";
 
 }

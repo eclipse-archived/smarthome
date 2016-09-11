@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="sonos"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="sonos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -20,6 +19,8 @@
 			<channel id="currentartist" typeId="currentartist" />
 			<channel id="currenttitle" typeId="currenttitle" />
 			<channel id="currenttrack" typeId="currenttrack" />
+			<channel id="shuffle" typeId="shuffle" />
+			<channel id="repeat" typeId="repeat" />
 			<channel id="favorite" typeId="favorite" />
 			<channel id="led" typeId="led" />
 			<channel id="localcoordinator" typeId="localcoordinator" />
@@ -27,8 +28,8 @@
 			<channel id="notificationsound" typeId="notificationsound" />
 			<channel id="notificationvolume" typeId="notificationvolume" />
 			<channel id="playlist" typeId="playlist" />
-			<channel id="playqueue" typeId="playqueue" />			
-			<channel id="playtrack" typeId="playtrack" />			
+			<channel id="playqueue" typeId="playqueue" />
+			<channel id="playtrack" typeId="playtrack" />
 			<channel id="playuri" typeId="playuri" />
 			<channel id="publicaddress" typeId="publicaddress" />
 			<channel id="radio" typeId="radio" />
@@ -48,11 +49,11 @@
 			<channel id="coordinator" typeId="coordinator" />
 			<channel id="sleeptimer" typeId="sleeptimer" />
 		</channels>
-		
+
 		<properties>
-        	<property name="vendor">SONOS</property>
-        	<property name="modelId">PLAY:3</property>
-        </properties>
+			<property name="vendor">SONOS</property>
+			<property name="modelId">PLAY:3</property>
+		</properties>
 
 		<config-description>
 			<parameter name="udn" type="text">
