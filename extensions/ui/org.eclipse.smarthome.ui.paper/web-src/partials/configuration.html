@@ -70,14 +70,14 @@
 					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="navigateTo('things/view/' + thing.UID)">
 						<div class="circle">{{thing.UID.split(':')[1].substring(0,1).toUpperCase()}}</div>
 						<div class="cbody item-content">
-							<div flex="65">
+							<div flex="75">
 								<h3>
 									{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
 								</h3>
 								<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
 								<p>{{thing.UID}}</p>
 							</div>
-							<div class="actions" flex="35" ng-class="{'new':newThingUID==thing.UID}">
+							<div class="actions" flex="25" ng-class="{'new':newThingUID==thing.UID}">
 								<i class="material-icons" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit">edit</i> <i class="material-icons" ng-click="remove(thing, $event)" aria-label="Delete">delete</i>
 							</div>
 						</div>
