@@ -938,14 +938,28 @@ md-dialog-content .dayParameter {
 	min-width: 35px;
 }
 
-.rule .actions i {
-	margin: 10px 17px 10px 17px;
+.item-content .actions i {
+	margin: 5px 12px 5px 12px;
+	transition: box-shadow .4s;
+	border-radius: 100%;
+	border: 5px solid transparent;
+	width: initial;
+	height: initial;
+	outline: 0;
 }
 
-.rule .actions i:hover, .rules .actions span:hover {
+.item-content .actions i:hover, .rules .actions span:hover {
 	cursor: pointer;
 	box-shadow: 0px 0px 4px 2px #dedede;
+}
+
+.rules .actions span {
+	transition: box-shadow .4s;
 	border-radius: 100%;
+	border: 5px solid transparent;
+	width: initial;
+	height: initial;
+	outline: 0;
 }
 
 .rules .disabled {
