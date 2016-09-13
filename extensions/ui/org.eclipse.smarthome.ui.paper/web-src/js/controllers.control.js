@@ -160,6 +160,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (item.state === 'NULL' || item.state === 'UNDEF') {
             return '-';
         }
+        if ($scope.isOptionList(item)) {
+            for (var i = 0; i < item.stateDescription.options.length; i++) {
+                var option = item.stateDescription.options[i]
+                if (option.value === item.state) {
+                    return option.label
+                }
+            }
+        }
         var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
 
         if (item.type === 'DateTime') {
