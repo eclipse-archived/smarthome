@@ -212,15 +212,25 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             }
             return this.getItemConfigs(parameters);
         },
-        getItemConfigs : function(configParameters) {
-            var self = this;
-            var parameterItems = $.grep(configParameters[0].parameters, function(value) {
-                return value.context && value.context.toUpperCase() == "ITEM";
-            });
-            if (parameterItems.length > 0) {
+        getItemConfigs : function(configParams) {
+            var self = this, hasOneItem = false;
+            configParameters = configParams;
+            for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
+                var parameterItems = $.grep(configParameters[i].parameters, function(value) {
+                    return value.context && value.context.toUpperCase() == "ITEM";
+                });
+                if (parameterItems.length > 0) {
+                    hasOneItem = true;
+                }
+            }
+            if (hasOneItem) {
                 itemRepository.getAll(function(items) {
-                    for (var i = 0; i < parameterItems.length; i++) {
-                        parameterItems[i].options = self.filterByAttributes(items, parameterItems[i].filterCriteria);
+                    for (var g_i = 0; g_i < configParameters.length; g_i++) {
+                        for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
+                            if (configParameters[g_i].parameters[i].context && configParameters[g_i].parameters[i].context.toUpperCase() === "ITEM") {
+                                configParameters[g_i].parameters[i].options = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
+                            }
+                        }
                     }
                 });
             }
