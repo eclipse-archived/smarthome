@@ -7,31 +7,33 @@
  */
 package org.eclipse.smarthome.binding.sonos.internal;
 
-import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
+import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS;
 import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
 
-import java.util.Collection;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
-import org.osgi.service.component.ComponentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.eclipse.smarthome.binding.sonos.handler.ZonePlayerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
+import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
-
-import com.google.common.collect.Lists;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link SonosHandlerFactory} is responsible for creating things and thing
  * handlers.
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
@@ -40,10 +42,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     private UpnpIOService upnpIOService;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
+    private Map<ThingUID, ServiceRegistration<?>> audioSinkServiceRegs = new HashMap<>();
 
     // optional OPML URL that can be configured through configuration admin
     private String opmlUrl = null;
 
+    @Override
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext);
         Dictionary<String, Object> properties = componentContext.getProperties();
@@ -77,10 +81,25 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                     thing.getConfiguration().get(UDN));
-            return new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
+            ZonePlayerHandler newZonePlayer = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry,
+                    opmlUrl);
+            logger.debug("Registering the ZonePlayerHandler for think '{}' as an AudioSink", thing.getUID());
+            audioSinkServiceRegs.put(newZonePlayer.getThing().getUID(), bundleContext
+                    .registerService(AudioSink.class.getName(), newZonePlayer, new Hashtable<String, Object>()));
+            return newZonePlayer;
         }
 
         return null;
+    }
+
+    @Override
+    protected void removeHandler(ThingHandler thingHandler) {
+
+        ServiceRegistration<?> serviceRegistration = audioSinkServiceRegs.remove(thingHandler.getThing().getUID());
+
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
     }
 
     private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
