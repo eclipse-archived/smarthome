@@ -994,5 +994,16 @@ background-color: green;
 }
 
 .item-content p, .item-content h3 {
-    word-break: break-all;
+    word-wrap: normal;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+.fill-height {
+	height: 100%;
+}
+
+.rules-container {
+	margin-left: 20px;
+	margin-right: 20px;
 }
