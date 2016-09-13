@@ -228,11 +228,11 @@
 
 												<!-- default text output -->
 												<div layout="row" layout-align="start center" ng-show="isReadOnly(item) || (!isReadOnyl(item) && !isOptionList(item))">
-													<div ng-show="isReadOnly(item)" layout="row" layout-align="end center" flex>
+													<div ng-show="isReadOnly(item)" layout="row" layout-align="center center" flex>
 														<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
 													</div>
 													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center" flex="100">
-														<h2 class="state editable text-center" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
+														<h2 class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</h2>
 														<md-input-container ng-show="editMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
 														<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
 													</div>
