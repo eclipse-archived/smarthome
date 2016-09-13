@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SitemapEventOutput extends EventOutput {
 
-    private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
+    private final Logger logger = LoggerFactory.getLogger(SitemapEventOutput.class);
 
     private final String subscriptionId;
     private final SitemapSubscriptionService subscriptions;
@@ -56,9 +56,7 @@ public class SitemapEventOutput extends EventOutput {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        subscriptions.removeSubscription(subscriptionId);
-        super.close();
+    public String getSubscriptionId() {
+        return subscriptionId;
     }
 }

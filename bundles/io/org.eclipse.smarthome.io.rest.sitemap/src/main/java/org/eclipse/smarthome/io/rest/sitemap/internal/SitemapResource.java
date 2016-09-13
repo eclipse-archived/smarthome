@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.DefaultValue;
@@ -67,8 +68,12 @@ import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.OutboundEvent;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
+import org.glassfish.jersey.server.BroadcasterListener;
+import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.MapMaker;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -88,7 +93,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(SitemapResource.PATH_SITEMAPS)
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource implements RESTResource, SitemapSubscriptionCallback {
+public class SitemapResource implements RESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
@@ -97,7 +102,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private static final long TIMEOUT_IN_MS = 30000;
 
-    private final SseBroadcaster broadcaster;
+    private SseBroadcaster broadcaster;
 
     @Context
     UriInfo uriInfo;
@@ -108,8 +113,16 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
-    public SitemapResource() {
-        this.broadcaster = new SseBroadcaster();
+    private Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
+
+    protected void activate() {
+        broadcaster = new SseBroadcaster();
+        broadcaster.add(this);
+    }
+
+    protected void deactivate() {
+        broadcaster.remove(this);
+        broadcaster = null;
     }
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
@@ -206,6 +219,9 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Subscription created.") })
     public Object createEventSubscription() {
         String subscriptionId = subscriptions.createSubscription(this);
+        final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
+        broadcaster.add(eventOutput);
+        eventOutputs.put(subscriptionId, eventOutput);
         URI uri = uriInfo.getBaseUriBuilder().path(PATH_SITEMAPS).path(SEGMENT_EVENTS).path(subscriptionId).build();
         return Response.created(uri);
     }
@@ -226,15 +242,14 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId,
             @QueryParam("sitemap") @ApiParam(value = "sitemap name", required = false) String sitemapname,
             @QueryParam("pageid") @ApiParam(value = "page id", required = false) String pageId) {
-        if (!subscriptions.exists(subscriptionId)) {
+        EventOutput eventOutput = eventOutputs.get(subscriptionId);
+        if (!subscriptions.exists(subscriptionId) || eventOutput == null) {
             return JSONResponse.createResponse(Status.NOT_FOUND, null,
                     "Subscription id " + subscriptionId + " does not exist.");
         }
         if (sitemapname != null && pageId != null) {
             subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
-        final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
-        broadcaster.add(eventOutput);
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
         return eventOutput;
     }
@@ -629,6 +644,21 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         OutboundEvent outboundEvent = eventBuilder.name("event").mediaType(MediaType.APPLICATION_JSON_TYPE).data(event)
                 .build();
         broadcaster.broadcast(outboundEvent);
+    }
+
+    @Override
+    public void onClose(ChunkedOutput<OutboundEvent> event) {
+        if (event instanceof SitemapEventOutput) {
+            SitemapEventOutput sitemapEvent = (SitemapEventOutput) event;
+            logger.debug("SSE connection for subscription {} has been closed.", sitemapEvent.getSubscriptionId());
+            subscriptions.removeSubscription(sitemapEvent.getSubscriptionId());
+        }
+    }
+
+    @Override
+    public void onException(ChunkedOutput<OutboundEvent> event, Exception e) {
+        // the exception is usually "null" and onClose() is automatically called afterwards
+        // - so let's don't do anything in this method.
     }
 
 }
