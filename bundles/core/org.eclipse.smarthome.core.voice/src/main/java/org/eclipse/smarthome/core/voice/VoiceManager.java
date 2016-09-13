@@ -440,11 +440,11 @@ public class VoiceManager {
     }
 
     protected void addAudioSink(AudioSink audioSink) {
-        this.audioSinks.put(audioSink.toString(), audioSink);
+        this.audioSinks.put(audioSink.getId(), audioSink);
     }
 
     protected void removeAudioSink(AudioSink audioSink) {
-        this.audioSinks.remove(audioSink.toString());
+        this.audioSinks.remove(audioSink.getId());
     }
 
     /**
