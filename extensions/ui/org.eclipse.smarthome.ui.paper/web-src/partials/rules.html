@@ -17,12 +17,14 @@
 					<div class="rule fab-item text-left">
 						<div class="circle">{{rule.name.substring(0,1)}}</div>
 						<div class="item-content">
-							<h3>
-								{{rule.name}} <small class="badge" ng-class="rule.status.status.toLowerCase()">{{rule.status.status}}</small>
-							</h3>
-							<p ng-bind-html="rule.description"></p>
-							<p>{{rule.uid}}</p>
-							<div class="actions">
+							<div flex="60">
+								<h3>
+									{{rule.name}} <small class="badge" ng-class="rule.status.status.toLowerCase()">{{rule.status.status}}</small>
+								</h3>
+								<p ng-bind-html="rule.description"></p>
+								<p>{{rule.uid}}</p>
+							</div>
+							<div class="actions" flex="40">
 								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Configure" ng-click="configure(rule, $event)">settings</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
 							</div>
 						</div>
@@ -61,7 +63,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="container" style="margin-left: 20px;">
+		<div class="container rules-container">
 			<div class="bindings row">
 				<div class="row">
 					<div class="ruleNameDesc">
