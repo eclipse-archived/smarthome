@@ -36,11 +36,13 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(
-                new String[] { buildCommandUsage(SUBCMD_PLAY + " <filename>", "plays a sound from the sounds folder"),
-                        buildCommandUsage(SUBCMD_STREAM + " <url>", "streams a sound from the url"),
-                        buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
-                        buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
+        return Arrays.asList(new String[] {
+                buildCommandUsage(SUBCMD_PLAY + " <sink> <filename>",
+                        "plays a sound from the sounds folder through the optionally specified audio sink"),
+                buildCommandUsage(SUBCMD_STREAM + " <sink> <url>",
+                        "streams a sound from the url through the optionally specified audio sink"),
+                buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
+                buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
 
     }
 
@@ -54,7 +56,7 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         play((String[]) ArrayUtils.subarray(args, 1, args.length), console);
                     } else {
                         console.println(
-                                "Specify file to play, and optionally the sink to use (e.g. 'say hello.mp3 javasound')");
+                                "Specify file to play, and optionally the sink to use (e.g. 'play javasound hello.mp3')");
                     }
                     return;
                 case SUBCMD_STREAM:
@@ -102,12 +104,16 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
         if (args.length == 1) {
             soundManager.play(args[0]);
         } else if (args.length == 2) {
-            soundManager.play(args[0], args[1]);
+            soundManager.play(args[1], args[0]);
         }
     }
 
     private void stream(String[] args, Console console) {
-        soundManager.stream(args[0]);
+        if (args.length == 1) {
+            soundManager.stream(args[0]);
+        } else if (args.length == 2) {
+            soundManager.stream(args[1], args[0]);
+        }
     }
 
     protected void setSoundManager(SoundManager soundManager) {
