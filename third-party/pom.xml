@@ -69,6 +69,15 @@
                   <id>tec.units:unit-ri:0.8</id>
                   <transitive>false</transitive>
                 </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11900 -->
+                  <id>com.h2database:h2:1.3.176</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <id>org.osgi:org.osgi.service.jdbc:jar:1.0.0</id>
+                  <transitive>false</transitive>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
