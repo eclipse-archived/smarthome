@@ -133,19 +133,19 @@ VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
 if [ -z "${VERSION_NEW_MMR}" ]; then
   VERSION_NEW_MMR="${VERSION_OLD_MMR}"
 fi
-if [ -n "${VERSION_NEW_CLASSI}" ]; then
-  case "${VERSION_NEW_CLASSI}" in
+if [ -n "${VERSION_NEW_QUALI}" ]; then
+  case "${VERSION_NEW_QUALI}" in
     SNAPSHOT)
-      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_CLASSI}"
+      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_QUALI}"
       ;;
     *)
-      VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_CLASSI}"
+      VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_QUALI}"
       ;;
   esac
 else
-  VERSION_NEW="${VERSION_NEW_MMR}"
+  VERSION_NEW_QUALI=".qualifier"
+  VERSION_NEW="${VERSION_NEW_MMR}".{VERSION_NEW_QUALI}
 fi
-VERSION_NEW_QUALI="${VERSION_NEW_MMR}.qualifier"
 
 #
 # Print version info
