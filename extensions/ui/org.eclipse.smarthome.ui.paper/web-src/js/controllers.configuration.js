@@ -666,7 +666,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         thingService.update({
             thingUID : thing.UID
         }, $scope.thing, function() {
-            // thingRepository.update($scope.thing);
             $mdDialog.hide();
             toastService.showDefaultToast('Channel updated');
         });
