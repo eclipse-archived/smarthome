@@ -3,7 +3,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [];
     $scope.refresh = function() {
-        itemService.getNonRecursiveAll(function(items) {
+        itemService.getAll(function(items) {
             $scope.items = items;
         });
 
@@ -41,7 +41,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     if ($scope.path && $scope.path.length > 4) {
         itemName = $scope.path[4];
     }
-    itemService.getNonRecursiveAll(function(items) {
+    itemService.getAll(function(items) {
         $scope.items = items;
         if (itemName) {
             var items = $filter('filter')(items, {
