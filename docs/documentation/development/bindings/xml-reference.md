@@ -87,7 +87,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>parameter.unit</td><td>Specifies the unit of measurements. The unit declaration in the parameter definition shown above contains the set of valid units. The unit must only be set if the type of the parameter is either integer or decimal (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
-  <tr><td>context</td><td>The context of the configuration parameter (optional). [Supported contexts](#supported-contexts-in-paperui)</td></tr>
+  <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human-readable label for the configuration parameter (optional).</td></tr>
@@ -99,6 +99,16 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>limitToOptions</td><td>If true (default) will only allow the user to select items in the options list. If false, will allow the user to enter other text (optional).</td></tr>
   <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
   <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
+</table>
+
+Context is used to render different kind of input widgets on front-end. Following contexts are currently supported in PaperUI.
+
+<table><tr><th>Name</th><th>Locale</th><th>Accepted format</th><th>Unsupported browsers</th></tr>
+  <tr><td>Date</td><td>German/English</td><td>DD:MM:YYYY</td><td>n/a</td></tr>
+  <tr><td>Time</td><td>n/a</td><td>hh:mm</td><td>Firefox, Safari</td></tr>
+  <tr><td>Color</td><td>n/a</td><td>#xxxxxx (hex color)</td><td>Safari</td></tr>
+  <tr><td>Item / Thing / Script / Password</td><td>n/a</td><td>Text</td><td>n/a</td></tr>
+  <tr><td>Day of week</td><td>German/English</td><td>XXX (first three characters)</td><td>n/a</td></tr>
 </table>
 
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
@@ -406,12 +416,3 @@ The full XML schema for Thing type descriptions is specified in the <a href="htt
 
 ## Config Status Provider
 Each entity that has a configuration can provide its current configuration status for UIs or specific services to point to issues or to provide further general information of the current configuration. For this purpose the handler of the entity has to implement the interface `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` that has to be registered as OSGi service. The `org.eclipse.smarthome.config.core.status.ConfigStatusService` tracks each configuration status provider and delivers the corresponding `org.eclipse.smarthome.config.core.status.ConfigStatusInfo` by the operation `getConfigStatus(String, Locale)`.
-## Supported Contexts in PaperUI
-
-<table><tr><th>Name</th><th>Locale</th><th>Accepted format</th><th>Unsupported browsers</th></tr>
-  <tr><td>Date</td><td>German/English</td><td>DD:MM:YYYY</td><td>n/a</td></tr>
-  <tr><td>Time</td><td>n/a</td><td>hh:mm</td><td>Firefox, Safari</td></tr>
-  <tr><td>Color</td><td>n/a</td><td>#xxxxxx (hex color)</td><td>Safari</td></tr>
-  <tr><td>Item / Thing / Script / Password</td><td>n/a</td><td>Text</td><td>n/a</td></tr>
-  <tr><td>Day of week</td><td>German/English</td><td>XXX (first three characters)</td><td>n/a</td></tr>
-</table>
