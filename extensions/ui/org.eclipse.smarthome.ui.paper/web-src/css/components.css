@@ -943,8 +943,8 @@ md-dialog-content .dayParameter {
 	transition: box-shadow .4s;
 	border-radius: 100%;
 	border: 5px solid transparent;
-	width: initial;
-	height: initial;
+	width: 34px;
+	height: 34px;
 	outline: 0;
 }
 
@@ -957,8 +957,8 @@ md-dialog-content .dayParameter {
 	transition: box-shadow .4s;
 	border-radius: 100%;
 	border: 5px solid transparent;
-	width: initial;
-	height: initial;
+	width: 34px;
+	height: 34px;
 	outline: 0;
 }
 
