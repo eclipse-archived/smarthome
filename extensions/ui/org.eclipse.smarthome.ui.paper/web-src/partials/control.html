@@ -123,7 +123,7 @@
 												</div>
 												<div ng-if="!isOptionList(item) && !isReadOnly(item) && shouldRenderSlider(item)" layout="row" layout-align="start center" class="number-control-widget">
 													<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
-													<md-slider flex="70" class="md-default-theme" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-show="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
+													<md-slider flex="70" class="md-default-theme" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step!==undefined && item.stateDescription.step!==null?item.stateDescription.step:1}}" ng-model="item.state" md-discrete="true" ng-show="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
 													<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="start center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
