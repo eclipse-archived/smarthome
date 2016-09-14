@@ -5,10 +5,10 @@
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
 	<config-description uri="system:locale">
-		<parameter name="language" type="text" required="true">
+		<parameter name="language" type="text">
 			<label>Language</label>
 			<description><![CDATA[
-                 <p>The default language that should be used.</p>
+                 <p>The default language that should be used. If not specified, the system default locale is used.</p>
                  <p>The ISO 639 alpha-2 or alpha-3 language code (if there is no alpha-2 one).</p>
                  <p>Example: "en" (English), "de" (German), "ja" (Japanese), "kok" (Konkani)</p>
              ]]>
