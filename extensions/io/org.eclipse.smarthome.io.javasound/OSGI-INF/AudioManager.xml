@@ -8,12 +8,12 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" modified="modified" name="org.eclipse.smarthome.io.sound">
-   <implementation class="org.eclipse.smarthome.io.sound.SoundManager"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" modified="modified" name="org.eclipse.smarthome.io.audio">
+   <implementation class="org.eclipse.smarthome.io.audio.AudioManager"/>
    <reference bind="addAudioSource" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSource" name="AudioSource" policy="dynamic" unbind="removeAudioSource"/>
    <reference bind="addAudioSink" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSink" name="AudioSink" policy="dynamic" unbind="removeAudioSink"/>
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
 
    <service>
-      <provide interface="org.eclipse.smarthome.io.sound.SoundManager"/>
+      <provide interface="org.eclipse.smarthome.io.audio.AudioManager"/>
    </service></scr:component>

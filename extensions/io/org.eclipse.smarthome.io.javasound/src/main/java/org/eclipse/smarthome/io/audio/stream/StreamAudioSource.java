@@ -1,4 +1,11 @@
-package org.eclipse.smarthome.io.sound.stream;
+/**
+ * Copyright (c) 2014-2016 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.io.audio.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +31,12 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is an AudioSource from an URL-based audio stream
+ *
+ * @author Karel Goderis - Initial contribution and API
+ *
+ */
 public class StreamAudioSource implements AudioSource {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamAudioSource.class);

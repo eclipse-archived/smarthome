@@ -1,6 +1,15 @@
-package org.eclipse.smarthome.io.sound;
+/**
+ * Copyright (c) 2014-2016 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.io.audio;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,18 +19,29 @@ import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
-import org.eclipse.smarthome.io.sound.file.FileAudioSource;
-import org.eclipse.smarthome.io.sound.stream.StreamAudioSource;
+import org.eclipse.smarthome.io.audio.file.FileAudioSource;
+import org.eclipse.smarthome.io.audio.mac.MacAudioSink;
+import org.eclipse.smarthome.io.audio.stream.StreamAudioSource;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SoundManager {
+/**
+ * This service provides functionality around audio services and is the central service to be used directly by others.
+ *
+ * @author Karel Goderis - Initial contribution and API
+ */
+public class AudioManager {
+
+    public static final String THREAD_POOL_NAME = "audio";
 
     // constants for the configuration properties
     private static final String CONFIG_DEFAULT_SINK = "defaultSink";
     private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
 
-    private final Logger logger = LoggerFactory.getLogger(SoundManager.class);
+    private final Logger logger = LoggerFactory.getLogger(AudioManager.class);
 
     // service maps
     private Map<String, AudioSource> audioSources = new HashMap<>();
@@ -33,11 +53,22 @@ public class SoundManager {
     private String defaultSource = null;
     private String defaultSink = null;
 
+    private ServiceRegistration<?> macAudioSinkServiceRegistration = null;
+
     protected void activate(Map<String, Object> config) {
         modified(config);
+        if (System.getProperty("osgi.os").equals("macosx")) {
+            BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+            macAudioSinkServiceRegistration = bundleContext.registerService(MacAudioSink.class.getName(),
+                    new MacAudioSink(), new Hashtable<String, Object>());
+        }
+
     }
 
     protected void deactivate() {
+        if (macAudioSinkServiceRegistration != null) {
+            macAudioSinkServiceRegistration.unregister();
+        }
     }
 
     protected void modified(Map<String, Object> config) {
@@ -155,6 +186,45 @@ public class SoundManager {
             }
         }
 
+    }
+
+    public float getVolume(String sinkId) {
+        AudioSink sink = null;
+        if (sinkId == null) {
+            sink = getSink();
+        } else {
+            sink = audioSinks.get(sinkId);
+        }
+
+        if (sink != null) {
+            try {
+                return sink.getVolume();
+            } catch (IOException e) {
+                logger.error("An exception occured while getting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage());
+            }
+        }
+
+        return 0;
+
+    }
+
+    public void setVolume(String sinkId, float volume) {
+        AudioSink sink = null;
+        if (sinkId == null) {
+            sink = getSink();
+        } else {
+            sink = audioSinks.get(sinkId);
+        }
+
+        if (sink != null) {
+            try {
+                sink.setVolume(volume);
+            } catch (IOException e) {
+                logger.error("An exception occured while setting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage());
+            }
+        }
     }
 
     /**

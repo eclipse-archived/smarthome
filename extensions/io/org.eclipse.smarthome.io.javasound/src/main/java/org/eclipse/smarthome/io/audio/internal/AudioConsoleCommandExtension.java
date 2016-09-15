@@ -5,42 +5,42 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.sound.internal;
+package org.eclipse.smarthome.io.audio.internal;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.smarthome.io.audio.AudioManager;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
-import org.eclipse.smarthome.io.sound.SoundManager;
 
 /**
- * Console command extension for all sound features.
+ * Console command extension for all audio features.
  *
  * @author Karel Goderis - Initial contribution and API
  *
  */
-public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtension {
+public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_PLAY = "play";
     private static final String SUBCMD_STREAM = "stream";
     private static final String SUBCMD_SOURCES = "sources";
     private static final String SUBCMD_SINKS = "sinks";
 
-    private SoundManager soundManager;
+    private AudioManager audioManager;
 
-    public SoundConsoleCommandExtension() {
-        super("sound", "Commands around sound enablement features.");
+    public AudioConsoleCommandExtension() {
+        super("audio", "Commands around audio enablement features.");
     }
 
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
                 buildCommandUsage(SUBCMD_PLAY + " <sink> <filename>",
-                        "plays a sound from the sounds folder through the optionally specified audio sink"),
+                        "plays a sound file from the sounds folder through the optionally specified audio sink"),
                 buildCommandUsage(SUBCMD_STREAM + " <sink> <url>",
-                        "streams a sound from the url through the optionally specified audio sink"),
+                        "streams the sound from the url through the optionally specified audio sink"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
                 buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
 
@@ -81,8 +81,8 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void listSources(Console console) {
-        if (soundManager.getSources().size() > 0) {
-            for (String source : soundManager.getSources()) {
+        if (audioManager.getSources().size() > 0) {
+            for (String source : audioManager.getSources()) {
                 console.println(source);
             }
         } else {
@@ -91,8 +91,8 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void listSinks(Console console) {
-        if (soundManager.getSinks().size() > 0) {
-            for (String sink : soundManager.getSinks()) {
+        if (audioManager.getSinks().size() > 0) {
+            for (String sink : audioManager.getSinks()) {
                 console.println(sink);
             }
         } else {
@@ -102,26 +102,26 @@ public class SoundConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private void play(String[] args, Console console) {
         if (args.length == 1) {
-            soundManager.play(args[0]);
+            audioManager.play(args[0]);
         } else if (args.length == 2) {
-            soundManager.play(args[1], args[0]);
+            audioManager.play(args[1], args[0]);
         }
     }
 
     private void stream(String[] args, Console console) {
         if (args.length == 1) {
-            soundManager.stream(args[0]);
+            audioManager.stream(args[0]);
         } else if (args.length == 2) {
-            soundManager.stream(args[1], args[0]);
+            audioManager.stream(args[1], args[0]);
         }
     }
 
-    protected void setSoundManager(SoundManager soundManager) {
-        this.soundManager = soundManager;
+    protected void setAudioManager(AudioManager audioManager) {
+        this.audioManager = audioManager;
     }
 
-    protected void unsetSoundManager(SoundManager soundManager) {
-        this.soundManager = null;
+    protected void unsetAudioManager(AudioManager audioManager) {
+        this.audioManager = null;
     }
 
 }
