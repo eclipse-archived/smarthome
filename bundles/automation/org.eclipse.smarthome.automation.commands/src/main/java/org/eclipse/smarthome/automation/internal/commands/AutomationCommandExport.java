@@ -14,12 +14,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
-import org.eclipse.smarthome.automation.type.ConditionType;
-import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
  * This class provides common functionality of commands:
@@ -85,27 +79,15 @@ public class AutomationCommandExport extends AutomationCommand {
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 @SuppressWarnings("rawtypes")
-                Collection collection = autoCommands.getModuleTypes(TriggerType.class, locale);
+                Collection collection = autoCommands.getTriggers(locale);
                 if (collection != null) {
                     set.addAll(collection);
                 }
-                collection = autoCommands.getModuleTypes(CompositeTriggerType.class, locale);
+                collection = autoCommands.getConditions(locale);
                 if (collection != null) {
                     set.addAll(collection);
                 }
-                collection = autoCommands.getModuleTypes(ConditionType.class, locale);
-                if (collection != null) {
-                    set.addAll(collection);
-                }
-                collection = autoCommands.getModuleTypes(CompositeConditionType.class, locale);
-                if (collection != null) {
-                    set.addAll(collection);
-                }
-                collection = autoCommands.getModuleTypes(ActionType.class, locale);
-                if (collection != null) {
-                    set.addAll(collection);
-                }
-                collection = autoCommands.getModuleTypes(CompositeActionType.class, locale);
+                collection = autoCommands.getActions(locale);
                 if (collection != null) {
                     set.addAll(collection);
                 }

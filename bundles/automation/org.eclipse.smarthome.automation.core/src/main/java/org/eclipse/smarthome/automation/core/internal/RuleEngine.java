@@ -255,7 +255,7 @@ public class RuleEngine
      * @param modules list of trigger, condition and action modules
      * @throws IllegalArgumentException when a module id contains dot.
      */
-    private void validateModules(List<Module> modules) {
+    protected void validateModules(List<Module> modules) {
         for (Module m : modules) {
             String mId = m.getId();
             if (mId == null || !mId.matches("[A-Za-z0-9_-]*")) {

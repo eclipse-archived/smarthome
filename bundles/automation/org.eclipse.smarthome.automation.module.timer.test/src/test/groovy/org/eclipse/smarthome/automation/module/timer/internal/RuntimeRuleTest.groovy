@@ -81,9 +81,7 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [
-            new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)
-        ]
+        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
@@ -100,7 +98,7 @@ class RuntimeRuleTest extends OSGiTest{
             logger.info("Disable rule");
             ruleRegistry.setEnabled(rule.UID, false)
             waitForAssert({
-                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatusInfo(rule.UID)
                 println "Rule status (should be DISABLED): " + ruleStatus
                 assertThat ruleStatus.status, is(RuleStatus.DISABLED)
             })
@@ -109,7 +107,7 @@ class RuntimeRuleTest extends OSGiTest{
             logger.info("Enable rule");
             ruleRegistry.setEnabled(rule.UID, true)
             waitForAssert({
-                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatusInfo(rule.UID)
                 println "Rule status (should be IDLE or RUNNING): " + ruleStatus
                 boolean allFine
                 if (ruleStatus.status.equals(RuleStatus.IDLE) || ruleStatus.status.equals(RuleStatus.RUNNING)) {
@@ -135,11 +133,7 @@ class RuntimeRuleTest extends OSGiTest{
          * ensure that the lamp item state if OFF after this check
          */
         logger.info("Check auto update");
-        for (state in [
-            OnOffType.OFF,
-            OnOffType.ON,
-            OnOffType.OFF
-        ]) {
+        for (state in [OnOffType.OFF, OnOffType.ON, OnOffType.OFF]) {
             lampItem.send(state);
             waitForAssert({
                 assertThat lampItem.state,is(state);
@@ -154,19 +148,13 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [
-            new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)
-        ]
+        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
 
         def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
-        def actions = [
-            new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)
-        ]
+        def actions = [new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)]
 
         def conditionConfig = new Configuration([operator:"=", itemName:testItemName, state:"OFF"])
-        def conditions = [
-            new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)
-        ]
+        def conditions = [new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
@@ -183,7 +171,7 @@ class RuntimeRuleTest extends OSGiTest{
         logger.info("Enable rule and wait for idle status")
         ruleRegistry.setEnabled(rule.UID, true)
         waitForAssert({
-            final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+            final RuleStatusInfo ruleStatus = ruleRegistry.getStatusInfo(rule.UID)
             assertThat ruleStatus.status, is(RuleStatus.IDLE)
         })
         logger.info("Rule is enabled and idle")
@@ -193,7 +181,7 @@ class RuntimeRuleTest extends OSGiTest{
             logger.info("Disable rule");
             ruleRegistry.setEnabled(rule.UID, false)
             waitForAssert({
-                final RuleStatusInfo ruleStatus = ruleRegistry.getStatus(rule.UID)
+                final RuleStatusInfo ruleStatus = ruleRegistry.getStatusInfo(rule.UID)
                 assertThat ruleStatus.status, is(RuleStatus.DISABLED)
             })
             logger.info("Rule is disabled");

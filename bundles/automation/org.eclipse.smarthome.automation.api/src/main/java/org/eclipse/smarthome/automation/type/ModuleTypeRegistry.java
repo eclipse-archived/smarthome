@@ -9,7 +9,6 @@ package org.eclipse.smarthome.automation.type;
 
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Set;
 
 /**
  * This interface provides functionality to get available {@link ModuleType}s.
@@ -64,7 +63,7 @@ public interface ModuleTypeRegistry {
      *            it is <code>null</code> then returns all ModuleTypes.
      * @return the ModuleTypes, which correspond to the filter.
      */
-    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags);
+    public <T extends ModuleType> Collection<T> getByTags(String... tags);
 
     /**
      * This method is used for getting the ModuleTypes filtered by tags.
@@ -73,24 +72,63 @@ public interface ModuleTypeRegistry {
      *            it is <code>null</code> then returns all ModuleTypes.
      * @return the ModuleTypes, which correspond to the filter.
      */
-    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags, Locale locale);
+    public <T extends ModuleType> Collection<T> getByTags(Locale locale, String... tags);
 
     /**
-     * This method is used for getting the ModuleTypes, specified by type module,
-     * i.e. {@link ActionModuleType}, {@link ConditionModuleType}, {@link TriggerModuleType} and etc.
+     * This method is used for getting the {@link TriggerType}s. The returned {@link TriggerType}s are
+     * localized by default locale.
      *
-     * @param moduleType the class of module which is looking for.
-     * @return collection of ModuleTypes, corresponding to specified type
+     * @return collection of all available {@link TriggerType}s, localized by default locale.
      */
-    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType);
+    public Collection<TriggerType> getTriggers();
 
     /**
-     * This method is used for getting the ModuleTypes, specified by type module,
-     * i.e. {@link ActionModuleType}, {@link ConditionModuleType}, {@link TriggerModuleType} and etc.
+     * This method is used for getting the {@link TriggerType}s, localized depending on passed locale parameter.
+     * When the locale parameter is not specified or such localization resources are not available the
+     * returned {@link TriggerType}s are localized by default locale
      *
-     * @param moduleType the class of module which is looking for.
-     * @return collection of ModuleTypes, corresponding to specified type
+     * @param locale defines the localization of returned {@link TriggerType}s.
+     * @return a collection of all available {@link TriggerType}s, localized by default locale or the passed locale
+     *         parameter.
      */
-    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType, Locale locale);
+    public Collection<TriggerType> getTriggers(Locale locale);
+
+    /**
+     * This method is used for getting the {@link ConditionType}s. The returned {@link ConditionType}s are
+     * localized by default locale.
+     *
+     * @return collection of all available {@link ConditionType}s, localized by default locale.
+     */
+    public Collection<ConditionType> getConditions();
+
+    /**
+     * This method is used for getting the {@link ConditionType}s, localized depending on passed locale parameter.
+     * When the locale parameter is not specified or such localization resources are not available the
+     * returned {@link ConditionType}s are localized by default locale
+     *
+     * @param locale defines the localization of returned {@link ConditionType}s.
+     * @return a collection of all available {@link ConditionType}s, localized by default locale or the passed locale
+     *         parameter.
+     */
+    public Collection<ConditionType> getConditions(Locale locale);
+
+    /**
+     * This method is used for getting the {@link ActionType}s. The returned {@link ActionType}s are
+     * localized by default locale.
+     *
+     * @return collection of all available {@link ActionType}s, localized by default locale.
+     */
+    public Collection<ActionType> getActions();
+
+    /**
+     * This method is used for getting the {@link ActionType}s, localized depending on passed locale parameter.
+     * When the locale parameter is not specified or such localization resources are not available the
+     * returned {@link ActionType}s are localized by default locale
+     *
+     * @param locale defines the localization of returned {@link ActionType}s.
+     * @return a collection of all available {@link ActionType}s, localized by default locale or the passed locale
+     *         parameter.
+     */
+    public Collection<ActionType> getActions(Locale locale);
 
 }

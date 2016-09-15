@@ -174,7 +174,7 @@ class AutomationIntegrationTest extends OSGiTest{
         })
         def Rule ruleAdded = ruleRegistry.get(rule.UID)
         assertThat ruleAdded, is(notNullValue())
-        assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.IDLE)
+        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
 
 
         //UPDATE
@@ -262,7 +262,7 @@ class AutomationIntegrationTest extends OSGiTest{
             }, is(notNullValue())
         }, 9000, 200)
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(not(RuleStatus.RUNNING))
+            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(not(RuleStatus.RUNNING))
         })
     }
     @Test
@@ -293,7 +293,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         ruleRegistry.add(rule)
 
-        assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
+        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
     }
 
     @Test
@@ -301,21 +301,21 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info('assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again')
         def Rule rule = createSimpleRule()
         ruleRegistry.add(rule)
-        assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.IDLE)
+        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
 
         def moduleBundle = FrameworkUtil.getBundle(GenericEventTriggerHandler)
         moduleBundle.stop()
         waitForAssert({
-            logger.info("RuleStatus: {}", ruleRegistry.getStatus(rule.UID).getStatus())
-            assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
+            logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID).getStatus())
+            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
         },3000,100)
 
 
         moduleBundle.start()
         ruleRegistry.setEnabled(rule.UID,true)
         waitForAssert({
-            logger.info("RuleStatus: {}", ruleRegistry.getStatus(rule.UID))
-            assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.IDLE)
+            logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID))
+            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
         },3000,100)
     }
 
@@ -379,7 +379,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.uid).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
@@ -448,7 +448,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.uid).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
@@ -526,7 +526,7 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("myRule21")} as Rule
             assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatusInfo
+            def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid) as RuleStatusInfo
             assertThat ruleStatus2.getStatus(), is(RuleStatus.IDLE)
         }, 10000, 200)
 
@@ -646,7 +646,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
         waitForAssert {
             assertThat ruleRegistry.get(templateRule.UID), is(notNullValue())
-            assertThat ruleRegistry.getStatus(templateRule.UID).status, is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(templateRule.UID).status, is(RuleStatus.IDLE)
         }
 
         //bring the rule to execution:
@@ -797,7 +797,7 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.get(rule.UID)
             assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid).status as RuleStatus
+            def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid).status as RuleStatus
             assertThat ruleStatus2, is(RuleStatus.IDLE)
         }, 10000, 200)
 
