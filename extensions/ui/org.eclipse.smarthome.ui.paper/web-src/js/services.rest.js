@@ -13,7 +13,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
         getAll : {
             method : 'GET',
             isArray : true,
-            url : restConfig.restPath + '/items?recursive=true'
+            url : restConfig.restPath + '/items?recursive=false'
         },
         getByName : {
             method : 'GET',
@@ -87,12 +87,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 tag : '@tag'
             },
             url : restConfig.restPath + '/items/:itemName/tags/:tag'
-        },
-        getNonRecursiveAll : {
-            method : 'GET',
-            isArray : true,
-            url : restConfig.restPath + '/items?recursive=false'
-        },
+        }
     });
 }).factory('bindingService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/bindings', {}, {
