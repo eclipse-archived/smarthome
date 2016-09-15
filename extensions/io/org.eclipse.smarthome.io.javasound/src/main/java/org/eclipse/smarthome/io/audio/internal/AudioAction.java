@@ -18,18 +18,18 @@ public class AudioAction {
 
     private static AudioManager audioManager;
 
-    @ActionDoc(text = "plays a sound from the sounds folder")
+    @ActionDoc(text = "plays a sound from the sounds folder to the default sink")
     static public void playSound(@ParamDoc(name = "filename", text = "the filename with extension") String filename) {
         audioManager.play(filename);
     }
 
-    @ActionDoc(text = "plays a sound from the sounds folder to the given sink")
+    @ActionDoc(text = "plays a sound from the sounds folder to the given sink(s)")
     static public void playSound(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "filename", text = "the filename with extension") String filename) {
         audioManager.play(filename, sink);
     }
 
-    @ActionDoc(text = "plays an audio stream from an url")
+    @ActionDoc(text = "plays an audio stream from an url to the default sink")
     static public synchronized void playStream(
             @ParamDoc(name = "url", text = "the url of the audio stream") String url) {
 
@@ -41,7 +41,7 @@ public class AudioAction {
         audioManager.stream(url);
     }
 
-    @ActionDoc(text = "plays an audio stream from an url t0 the ginve sink")
+    @ActionDoc(text = "plays an audio stream from an url t0 the given sink(s)")
     static public synchronized void playStream(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "url", text = "the url of the audio stream") String url) {
 

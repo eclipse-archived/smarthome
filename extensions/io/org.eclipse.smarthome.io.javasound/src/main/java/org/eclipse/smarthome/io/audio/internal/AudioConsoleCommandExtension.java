@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.audio.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.io.audio.AudioManager;
@@ -38,9 +39,9 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
                 buildCommandUsage(SUBCMD_PLAY + " <sink> <filename>",
-                        "plays a sound file from the sounds folder through the optionally specified audio sink"),
+                        "plays a sound file from the sounds folder through the optionally specified audio sink(s)"),
                 buildCommandUsage(SUBCMD_STREAM + " <sink> <url>",
-                        "streams the sound from the url through the optionally specified audio sink"),
+                        "streams the sound from the url through the optionally specified audio sink(s)"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
                 buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
 
@@ -56,14 +57,14 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         play((String[]) ArrayUtils.subarray(args, 1, args.length), console);
                     } else {
                         console.println(
-                                "Specify file to play, and optionally the sink to use (e.g. 'play javasound hello.mp3')");
+                                "Specify file to play, and optionally the sink(s) to use (e.g. 'play javasound hello.mp3')");
                     }
                     return;
                 case SUBCMD_STREAM:
                     if (args.length > 1) {
                         stream((String[]) ArrayUtils.subarray(args, 1, args.length), console);
                     } else {
-                        console.println("Specify url to stream from");
+                        console.println("Specify url to stream from, and optionally the sink(s) to use");
                     }
                     return;
                 case SUBCMD_SOURCES:
@@ -104,7 +105,10 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
         if (args.length == 1) {
             audioManager.play(args[0]);
         } else if (args.length == 2) {
-            audioManager.play(args[1], args[0]);
+            Set<String> sinks = audioManager.getSinks(args[0]);
+            for (String aSink : sinks) {
+                audioManager.play(args[1], aSink);
+            }
         }
     }
 
@@ -112,7 +116,10 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
         if (args.length == 1) {
             audioManager.stream(args[0]);
         } else if (args.length == 2) {
-            audioManager.stream(args[1], args[0]);
+            Set<String> sinks = audioManager.getSinks(args[0]);
+            for (String aSink : sinks) {
+                audioManager.stream(args[1], aSink);
+            }
         }
     }
 

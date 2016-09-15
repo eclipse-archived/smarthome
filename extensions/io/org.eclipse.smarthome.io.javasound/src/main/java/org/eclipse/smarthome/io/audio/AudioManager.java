@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.audio;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -277,8 +278,34 @@ public class AudioManager {
         return audioSources.keySet();
     }
 
+    public Set<String> getSources(String pattern) {
+        String regex = pattern.replace("?", ".?").replace("*", ".*?");
+        Set<String> matchedSources = new HashSet<String>();
+
+        for (String aSource : audioSinks.keySet()) {
+            if (aSource.matches(regex)) {
+                matchedSources.add(aSource);
+            }
+        }
+
+        return matchedSources;
+    }
+
     public Set<String> getSinks() {
         return audioSinks.keySet();
+    }
+
+    public Set<String> getSinks(String pattern) {
+        String regex = pattern.replace("?", ".?").replace("*", ".*?");
+        Set<String> matchedSinks = new HashSet<String>();
+
+        for (String aSink : audioSinks.keySet()) {
+            if (aSink.matches(regex)) {
+                matchedSinks.add(aSink);
+            }
+        }
+
+        return matchedSinks;
     }
 
     /**
