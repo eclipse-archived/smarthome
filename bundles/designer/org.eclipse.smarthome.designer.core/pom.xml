@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -23,30 +23,26 @@
   <packaging>eclipse-plugin</packaging>
 
   <build>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.xtend</groupId>
-          <artifactId>xtend-maven-plugin</artifactId>
-          <version>${xtext-version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-                <goal>xtend-install-debug-info</goal>
-                <goal>testCompile</goal>
-                <goal>xtend-test-install-debug-info</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>${basedir}/src/main/generated-sources/xtend</outputDirectory>
-                <testOutputDirectory>${basedir}/src/test/generated-sources/xtend</testOutputDirectory>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.xtend</groupId>
+        <artifactId>xtend-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>xtend-install-debug-info</goal>
+              <goal>testCompile</goal>
+              <goal>xtend-test-install-debug-info</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/src/main/generated-sources/xtend</outputDirectory>
+              <testOutputDirectory>${basedir}/src/test/generated-sources/xtend</testOutputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
 </project>
