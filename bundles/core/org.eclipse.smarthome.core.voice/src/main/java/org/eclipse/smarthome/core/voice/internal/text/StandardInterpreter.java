@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.voice.text.Expression;
  * A human language command interpretation service.
  *
  * @author Tilman Kamp - Initial contribution and API
+ * @author Kai Kreuzer - Added further German interpretation rules
  *
  */
 public class StandardInterpreter extends AbstractRuleBasedInterpreter {
