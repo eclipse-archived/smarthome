@@ -273,17 +273,37 @@ public abstract class AutomationCommands {
     public abstract ModuleType getModuleType(String typeUID, Locale locale);
 
     /**
-     * This method is used for getting the collection of {@link ModuleType}s corresponding to the specified class and
-     * locale from the manager of the {@link ModuleType}s.
+     * This method is used for getting the collection of {@link TriggerType}s corresponding to
+     * specified locale from the ModuleTypeRegistry.
      *
-     * @param clazz
-     *            can be {@link TriggerType}, {@link ConditionType} or {@link ActionType} class.
      * @param locale
      *            a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see. Can
      *            be <code>null</code> and then the default locale will be used.
      * @return a collection of {@link ModuleType}s from given class and locale.
      */
-    public abstract <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale);
+    public abstract <T extends ModuleType> Collection<T> getTriggers(Locale locale);
+
+    /**
+     * This method is used for getting the collection of {@link ConditionType}s corresponding to
+     * specified locale from the ModuleTypeRegistry.
+     *
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see. Can
+     *            be <code>null</code> and then the default locale will be used.
+     * @return a collection of {@link ModuleType}s from given class and locale.
+     */
+    public abstract <T extends ModuleType> Collection<T> getConditions(Locale locale);
+
+    /**
+     * This method is used for getting the collection of {@link ActionType}s corresponding to
+     * specified locale from the ModuleTypeRegistry.
+     *
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see. Can
+     *            be <code>null</code> and then the default locale will be used.
+     * @return a collection of {@link ModuleType}s from given class and locale.
+     */
+    public abstract <T extends ModuleType> Collection<T> getActions(Locale locale);
 
     /**
      * This method is used for removing a rule corresponding to the specified UID from the RuleEngine.

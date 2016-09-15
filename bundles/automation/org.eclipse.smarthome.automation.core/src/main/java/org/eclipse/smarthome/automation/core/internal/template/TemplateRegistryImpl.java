@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.automation.core.internal.template;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -48,13 +50,14 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTags(Set<String> tags) {
-        return getByTags(tags, null);
+    public <T extends Template> Collection<T> getByTags(String... tags) {
+        return getByTags(null, tags);
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTags(Set<String> tags, Locale locale) {
-        return templateManager.getByTags(tags, locale);
+    public <T extends Template> Collection<T> getByTags(Locale locale, String... tags) {
+        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
+        return templateManager.getByTags(tagSet, locale);
     }
 
     @Override

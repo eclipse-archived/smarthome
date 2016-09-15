@@ -7,12 +7,17 @@
  */
 package org.eclipse.smarthome.automation.core.internal.type;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
  * The implementation of {@link ModuleTypeRegistry} that is registered as a service.
@@ -49,27 +54,48 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags) {
-        return getByTags(tags, null);
+    public <T extends ModuleType> Collection<T> getByTags(String... tags) {
+        return getByTags(null, tags);
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags, Locale locale) {
-        return moduleTypeManager.getByTags(tags, locale);
+    public <T extends ModuleType> Collection<T> getByTags(Locale locale, String... tags) {
+        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
+        return moduleTypeManager.getByTags(tagSet, locale);
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType, Locale locale) {
-        return moduleTypeManager.getAll(moduleType, locale);
+    public Collection<TriggerType> getTriggers(Locale locale) {
+        return moduleTypeManager.getAll(TriggerType.class, locale);
+    }
+
+    @Override
+    public Collection<ConditionType> getConditions() {
+        return moduleTypeManager.getAll(ConditionType.class);
+    }
+
+    @Override
+    public Collection<ConditionType> getConditions(Locale locale) {
+        return moduleTypeManager.getAll(ConditionType.class, locale);
+    }
+
+    @Override
+    public Collection<ActionType> getActions() {
+        return moduleTypeManager.getAll(ActionType.class);
+    }
+
+    @Override
+    public Collection<ActionType> getActions(Locale locale) {
+        return moduleTypeManager.getAll(ActionType.class, locale);
+    }
+
+    @Override
+    public Collection<TriggerType> getTriggers() {
+        return moduleTypeManager.getAll(TriggerType.class);
     }
 
     public void dispose() {
         moduleTypeManager.dispose();
-    }
-
-    @Override
-    public <T extends ModuleType> Collection<T> getAll(Class<T> classModuleType) {
-        return moduleTypeManager.getAll(classModuleType);
     }
 
 }
