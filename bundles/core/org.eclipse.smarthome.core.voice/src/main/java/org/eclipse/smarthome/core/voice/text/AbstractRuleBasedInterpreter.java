@@ -26,11 +26,14 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A human language command interpretation service.
  *
  * @author Tilman Kamp - Initial contribution and API
+ * @author Kai Kreuzer - Improved error handling
  *
  */
 public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInterpreter {
@@ -40,11 +43,19 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
 
     private static final String OK = "ok";
     private static final String SORRY = "sorry";
+    private static final String ERROR = "error";
+
+    private static final String STATE_CURRENT = "state_current";
+    private static final String STATE_ALREADY_SINGULAR = "state_already_singular";
+    private static final String MULTIPLE_OBJECTS = "multiple_objects";
+    private static final String NO_OBJECTS = "no_objects";
 
     private static final String CMD = "cmd";
     private static final String NAME = "name";
 
     private static final String LANGUAGE_SUPPORT = "LanguageSupport";
+
+    private Logger logger = LoggerFactory.getLogger(AbstractRuleBasedInterpreter.class);
 
     private HashMap<Locale, ArrayList<Rule>> languageRules;
     private HashMap<Locale, HashSet<String>> allItemTokens = null;
@@ -468,9 +479,9 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
             throws InterpretationException {
         ArrayList<Item> items = getMatchingItems(language, labelFragments, command.getClass());
         if (items.size() < 1) {
-            throw new InterpretationException(language.getString("no_objects"));
+            throw new InterpretationException(language.getString(NO_OBJECTS));
         } else if (items.size() > 1) {
-            throw new InterpretationException(language.getString("multiple_objects"));
+            throw new InterpretationException(language.getString(MULTIPLE_OBJECTS));
         } else {
             Item item = items.get(0);
             if (command instanceof State) {
@@ -478,12 +489,19 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
                     State newState = (State) command;
                     State oldState = item.getStateAs(newState.getClass());
                     if (oldState.equals(newState)) {
-                        String template = language.getString("state_already_singular");
+                        String template = language.getString(STATE_ALREADY_SINGULAR);
                         String cmdName = "state_" + command.toString().toLowerCase();
-                        String stateText = language.getString(cmdName);
+                        String stateText = null;
+                        try {
+                            stateText = language.getString(cmdName);
+                        } catch (Exception e) {
+                            stateText = language.getString(STATE_CURRENT);
+                        }
                         return template.replace("<state>", stateText);
                     }
                 } catch (Exception ex) {
+                    logger.debug("Failed constructing response: {}", ex.getMessage());
+                    return language.getString(ERROR);
                 }
             }
             eventPublisher.post(ItemEventFactory.createCommandEvent(item.getName(), command));
