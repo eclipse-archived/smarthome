@@ -75,12 +75,12 @@
 <!-- 							</div> -->
 <!-- 						</fieldset> -->
 <!-- 					</div> -->
-					<div>
+					<div class="row includeConfig">
 						<fieldset>
 							<legend>Parent groups</legend>
-							<div class="itemSet row">
-								<md-chips class="col-xs-12" md-on-add="createChip($chip,'childItems')" md-on-remove="removeChip($index)" name="itemGroups" md-require-match="true" md-autocomplete-snap ng-show="items && items.length>0" md-on-select="setParentItem($chip)" ng-model="item.groupNames" placeholder="Assign to a group"> <md-autocomplete md-search-text="searchText" md-items="child in searchItem(searchText,true)" md-item-text="child" md-min-length="0"> <span md-highlight-text="searchText">{{child}}</span> </md-autocomplete> <md-chip-template> <span>{{$chip}}</span> </md-chip-template> </md-chips>
-								<div class="col-xs-12">
+							<div class="itemSet">
+								<md-chips class="col-xs-12 col-sm-10" md-on-add="createChip($chip,'childItems')" md-on-remove="removeChip($index)" name="itemGroups" md-require-match="true" md-autocomplete-snap ng-show="items && items.length>0" md-on-select="setParentItem($chip)" ng-model="item.groupNames" placeholder="Assign to a group"> <md-autocomplete md-search-text="searchText" md-items="child in searchItem(searchText,true)" md-item-text="child" md-min-length="0"> <span md-highlight-text="searchText">{{child}}</span> </md-autocomplete> <md-chip-template> <span>{{$chip}}</span> </md-chip-template> </md-chips>
+								<div class="col-xs-12 col-sm-2">
 									<button ng-disabled="!selectedParent" class="md-button" ng-click="openItem()">Open item</button>
 								</div>
 							</div>
