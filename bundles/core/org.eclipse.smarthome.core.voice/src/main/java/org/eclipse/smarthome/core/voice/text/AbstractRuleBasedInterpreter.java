@@ -26,6 +26,8 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A human language command interpretation service.
@@ -40,11 +42,14 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
 
     private static final String OK = "ok";
     private static final String SORRY = "sorry";
+    private static final String ERROR = "error";
 
     private static final String CMD = "cmd";
     private static final String NAME = "name";
 
     private static final String LANGUAGE_SUPPORT = "LanguageSupport";
+
+    private Logger logger = LoggerFactory.getLogger(AbstractRuleBasedInterpreter.class);
 
     private HashMap<Locale, ArrayList<Rule>> languageRules;
     private HashMap<Locale, HashSet<String>> allItemTokens = null;
@@ -480,10 +485,17 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
                     if (oldState.equals(newState)) {
                         String template = language.getString("state_already_singular");
                         String cmdName = "state_" + command.toString().toLowerCase();
-                        String stateText = language.getString(cmdName);
+                        String stateText = null;
+                        try {
+                            stateText = language.getString(cmdName);
+                        } catch (Exception e) {
+                            stateText = language.getString("state_current");
+                        }
                         return template.replace("<state>", stateText);
                     }
                 } catch (Exception ex) {
+                    logger.debug("Failed constructing response: {}", ex.getMessage());
+                    return language.getString(ERROR);
                 }
             }
             eventPublisher.post(ItemEventFactory.createCommandEvent(item.getName(), command));
