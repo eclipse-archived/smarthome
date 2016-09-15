@@ -120,7 +120,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     /**
      * Separate sound volume used for the notification
      */
-    private String notificationSoundVolume = null;
+    private float notificationSoundVolume = 0;
 
     /**
      * {@link ThingHandler} instance of the coordinator speaker used for control delegation
@@ -1033,8 +1033,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
-    public String getVolume() {
-        return stateMap.get("VolumeMaster");
+    @Override
+    public float getVolume() {
+        return (Float.valueOf(stateMap.get("VolumeMaster")).floatValue() / 100f);
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        setVolume(new DecimalType(Math.round(volume * 100f)));
     }
 
     public String getTransportState() {
@@ -1266,8 +1272,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         synchronized (stateLock) {
             if (savedState != null) {
                 // put settings back
-                if (savedState.volume != null) {
-                    setVolume(DecimalType.valueOf(savedState.volume));
+                if (savedState.volume != 0) {
+                    setVolume(savedState.volume);
                 }
 
                 if (isCoordinator()) {
@@ -1327,10 +1333,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 String newValue = null;
                 if (command instanceof IncreaseDecreaseType && command == IncreaseDecreaseType.INCREASE) {
-                    int i = Integer.valueOf(this.getVolume());
+                    int i = Math.round(this.getVolume() * 100f);
                     newValue = String.valueOf(Math.min(100, i + 1));
                 } else if (command instanceof IncreaseDecreaseType && command == IncreaseDecreaseType.DECREASE) {
-                    int i = Integer.valueOf(this.getVolume());
+                    int i = Math.round(this.getVolume() * 100f);
                     newValue = String.valueOf(Math.max(0, i - 1));
                 } else if (command instanceof OnOffType && command == OnOffType.ON) {
                     newValue = "100";
@@ -1431,7 +1437,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     public void setNotificationSoundVolume(Command command) {
         if (command != null) {
-            notificationSoundVolume = command.toString();
+            notificationSoundVolume = DecimalType.valueOf(command.toString()).floatValue();
         }
     }
 
@@ -2067,7 +2073,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void handleNotificationSound(Command notificationURL, ZonePlayerHandler coordinator) {
-        String originalVolume = coordinator.getVolume();
+        float originalVolume = coordinator.getVolume();
         coordinator.stop();
         applyNotificationSoundVolume();
         int notificationPosition = coordinator.getQueue().size() + 1;
@@ -2076,7 +2082,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         coordinator.setPositionTrack(notificationPosition);
         coordinator.play();
         waitForFinishedNotification();
-        setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        setVolumeForGroup(new DecimalType(Math.round(originalVolume * 100f)));
         coordinator.removeRangeOfTracksFromQueue(new StringType(Integer.toString(notificationPosition) + ",1"));
     }
 
@@ -2101,12 +2107,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void handleEmptyQueue(Command notificationURL, ZonePlayerHandler coordinator) {
-        String originalVolume = coordinator.getVolume();
+        float originalVolume = coordinator.getVolume();
         coordinator.applyNotificationSoundVolume();
         coordinator.playURI(notificationURL);
         waitForFinishedNotification();
         coordinator.removeAllTracksFromQueue();
-        coordinator.setVolume(DecimalType.valueOf(originalVolume));
+        coordinator.setVolume(new DecimalType(Math.round(originalVolume * 100f)));
     }
 
     /**
@@ -2116,9 +2122,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        if (notificationSoundVolume != null) {
-            setVolumeForGroup(DecimalType.valueOf(notificationSoundVolume));
-        }
+        setVolumeForGroup(new DecimalType(notificationSoundVolume));
+
     }
 
     private void waitForFinishedNotification() {
