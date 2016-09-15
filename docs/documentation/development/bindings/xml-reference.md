@@ -103,12 +103,13 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
 
 Context is used to render different kind of input widgets on front-end. Following contexts are currently supported in PaperUI.
 
-<table><tr><th>Name</th><th>Locale</th><th>Accepted format</th><th>Unsupported browsers</th></tr>
+<table><tr><th>Name</th><th>Locale</th><th>Format</th><th>Unsupported browsers</th></tr>
   <tr><td>Date</td><td>German/English</td><td>DD:MM:YYYY</td><td>n/a</td></tr>
   <tr><td>Time</td><td>n/a</td><td>hh:mm</td><td>Firefox, Safari</td></tr>
-  <tr><td>Color</td><td>n/a</td><td>#xxxxxx (hex color)</td><td>Safari</td></tr>
-  <tr><td>Item / Thing / Script / Password</td><td>n/a</td><td>Text</td><td>n/a</td></tr>
-  <tr><td>Day of week</td><td>German/English</td><td>XXX (first three characters)</td><td>n/a</td></tr>
+  <tr><td>Color</td><td>n/a</td><td>#000000 - #ffffff (hex color)</td><td>Safari</td></tr>
+  <tr><td>Item</td><td>n/a</td><td>Item name</td><td>n/a</td></tr>
+  <tr><td>Thing</td><td>n/a</td><td>UID of thing</td><td>n/a</td></tr>
+  <tr><td>Day of week</td><td>English/German</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td><td>n/a</td></tr>
 </table>
 
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
