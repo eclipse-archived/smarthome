@@ -151,7 +151,11 @@ public class WebAppServlet extends BaseServlet {
             } else if (!widgetId.equals("Colorpicker")) {
                 // we are on some subpage, so we have to render the children of the widget that has been selected
                 if (subscriptionId != null) {
-                    subscriptions.setPageId(subscriptionId, sitemap.getName(), widgetId);
+                    if (subscriptions.exists(subscriptionId)) {
+                        subscriptions.setPageId(subscriptionId, sitemap.getName(), widgetId);
+                    } else {
+                        logger.warn("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
+                    }
                 }
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
                 if (w != null) {
