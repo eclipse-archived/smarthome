@@ -59,7 +59,7 @@ public class StreamAudioSource implements AudioSource {
 
     @Override
     public String getLabel(Locale locale) {
-        return "Streamed Sound";
+        return "Streamed Audio";
     }
 
     @Override

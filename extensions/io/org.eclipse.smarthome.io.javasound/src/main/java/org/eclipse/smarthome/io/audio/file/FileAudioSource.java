@@ -55,7 +55,7 @@ public class FileAudioSource implements AudioSource {
 
     @Override
     public String getLabel(Locale locale) {
-        return "Sound File";
+        return "Audio File";
     }
 
     @Override
