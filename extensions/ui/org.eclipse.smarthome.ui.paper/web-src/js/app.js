@@ -181,7 +181,9 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         link : function(scope, element, attrs, ngModel) {
 
             element[0].addEventListener('click', function() {
-                scope.configuration[scope.parameter.name] = "#ffffff";
+                if (!scope.configuration[scope.parameter.name]) {
+                    scope.configuration[scope.parameter.name] = "#ffffff";
+                }
             });
 
         }
