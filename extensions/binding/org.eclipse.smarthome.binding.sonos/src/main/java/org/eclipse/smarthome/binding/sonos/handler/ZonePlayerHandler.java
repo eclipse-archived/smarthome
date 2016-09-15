@@ -10,8 +10,13 @@ package org.eclipse.smarthome.binding.sonos.handler;
 import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
 import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,7 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +42,16 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
+import org.eclipse.smarthome.core.audio.AudioFormat;
+import org.eclipse.smarthome.core.audio.AudioSink;
+import org.eclipse.smarthome.core.audio.AudioStream;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -62,6 +74,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
+import org.eclipse.smarthome.io.sound.file.FileAudioStream;
+import org.eclipse.smarthome.io.sound.stream.StreamAudioStream;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
@@ -76,7 +90,7 @@ import com.google.common.collect.Lists;
  * @author Karel Goderis - Initial contribution
  *
  */
-public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
+public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener, AudioSink {
 
     private Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
 
@@ -91,6 +105,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
     protected final static int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
+    private final static String CONTENT_FOLDER_NAME = "audioservlet";
 
     /**
      * Default notification timeout
@@ -196,9 +211,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return;
         }
 
-        Configuration configuration = getConfig();
-
-        if (configuration.get("udn") != null) {
+        if (getThing().getConfiguration().get(UDN) != null) {
             updateStatus(ThingStatus.ONLINE);
             this.discoveryServiceRegistry.addDiscoveryListener(this);
             this.notificationSoundVolume = getVolume();
@@ -2526,4 +2539,114 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         int seconds = Integer.parseInt(units[2]);
         return 3600 * hours + 60 * minutes + seconds;
     }
+
+    @Override
+    public String getId() {
+        return getUDN();
+    }
+
+    @Override
+    public String getLabel(Locale locale) {
+        return "Sonos " + getModelNameFromDescriptor();
+    }
+
+    @Override
+    public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
+
+        String url = null;
+
+        if (audioStream instanceof FileAudioStream) {
+            String userDataDir = System.getProperty(ConfigConstants.USERDATA_DIR_PROG_ARGUMENT);
+            if (userDataDir == null) {
+                // use current folder as default
+                userDataDir = ".";
+            }
+            String contentFolderName = userDataDir + File.separator + CONTENT_FOLDER_NAME;
+            File folder = new File(contentFolderName);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            File fileOut = null;
+            try {
+                String extension = "";
+                if (audioStream.getFormat().getContainer() == AudioFormat.CODEC_MP3) {
+                    extension = ".mp3";
+                } else if (audioStream.getFormat().getContainer() == AudioFormat.CONTAINER_WAVE) {
+                    extension = ".wav";
+                }
+
+                fileOut = File.createTempFile(getUDN(), extension, new File(contentFolderName));
+                logger.debug("Created a temporary {} file : '{}'", extension, fileOut.getAbsolutePath());
+                fileOut.deleteOnExit();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+            if (fileOut != null) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(fileOut);
+
+                    int nRead = 0;
+                    byte[] abData = new byte[65532]; // needs to be a multiple of 4 and 6, to support both 16 and 24 bit
+                                                     // stereo
+                    try {
+                        while (-1 != nRead) {
+                            nRead = audioStream.read(abData, 0, abData.length);
+                            if (nRead >= 0) {
+                                fos.write(abData, 0, nRead);
+                            }
+                        }
+                    } catch (IOException e) {
+                        logger.error("An exception occurred while playing audio: '{}'", e.getMessage());
+                    }
+
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                String ipAddress;
+                try {
+                    ipAddress = InetAddress.getLocalHost().getHostAddress();
+                    url = "http://" + ipAddress + ":8080" + "/audio/content/" + fileOut.getName();
+                } catch (UnknownHostException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else if (audioStream instanceof StreamAudioStream) {
+                // Ok folks, so, for streamed audio in fact the Sonos Zoneplayer is capable of directly playing the
+                // stream, there is no need to go through complicated byte piping. So, we just pick up the URL and pass
+                // that on
+                url = ((StreamAudioStream) audioStream).getURL();
+            }
+
+            if (url != null) {
+                playURI(new StringType(url));
+            }
+
+            if (fileOut != null) {
+                // TODO Where and when to delete the temp file? in the servlet, after serving it?
+                // when invoking this on the ZonePlayer, it seems to request the url several times in a row, so it has
+                // to be served multiple times for some reason, therefore, we can only delete it here
+
+                // logger.debug("Deleted a temporary file : '{}'", fileOut.getAbsolutePath());
+                // fileOut.delete();
+            }
+
+        }
+
+    }
+
+    @Override
+    public Set<AudioFormat> getSupportedFormats() {
+        // we accept anything that is WAVE with signed PCM codec
+        AudioFormat format = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null, null, null,
+                null);
+        return Collections.singleton(format);
+    }
+
 }

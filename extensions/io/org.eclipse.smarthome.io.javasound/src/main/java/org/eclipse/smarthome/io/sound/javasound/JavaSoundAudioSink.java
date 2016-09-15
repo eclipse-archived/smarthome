@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.javasound.internal;
+package org.eclipse.smarthome.io.sound.javasound;
 
 import java.util.Collections;
 import java.util.Locale;

@@ -44,7 +44,8 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_SAY + " <text>", "speaks a text"),
+        return Arrays.asList(new String[] {
+                buildCommandUsage(SUBCMD_SAY + " <sink> <text>", "speaks a text through the given audio sink"),
                 buildCommandUsage(SUBCMD_INTERPRET + " <command>", "interprets a human language command"),
                 buildCommandUsage(SUBCMD_VOICES, "lists available voices of the active TTS service") });
 
@@ -103,7 +104,8 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private void say(String[] args, Console console) {
         StringBuilder msg = new StringBuilder();
-        for (String word : args) {
+        String[] textArgs = (String[]) ArrayUtils.subarray(args, 1, args.length);
+        for (String word : textArgs) {
             if (word.startsWith("%") && word.endsWith("%") && word.length() > 2) {
                 String itemName = word.substring(1, word.length() - 1);
                 try {
@@ -122,7 +124,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
             }
             msg.append(" ");
         }
-        voiceManager.say(msg.toString());
+        voiceManager.say(msg.toString(), null, args[0]);
     }
 
     protected void setItemRegistry(ItemRegistry itemRegistry) {

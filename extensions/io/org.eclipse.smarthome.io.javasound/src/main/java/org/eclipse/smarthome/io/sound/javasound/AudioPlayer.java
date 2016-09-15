@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.javasound.internal;
+package org.eclipse.smarthome.io.sound.javasound;
 
 import java.io.IOException;
 
@@ -119,5 +119,6 @@ public class AudioPlayer extends Thread {
         boolean bigEndian = audioFormat.isBigEndian().booleanValue();
 
         return new AudioFormat(encoding, sampleRate, sampleSizeInBits, channels, frameSize, frameRate, bigEndian);
+
     }
 }
