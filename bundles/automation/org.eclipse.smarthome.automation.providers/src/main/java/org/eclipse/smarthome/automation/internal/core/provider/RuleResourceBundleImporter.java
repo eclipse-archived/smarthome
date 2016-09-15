@@ -10,9 +10,9 @@ package org.eclipse.smarthome.automation.internal.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +21,6 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -182,61 +181,40 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
             return;
         }
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
+        synchronized (providerPortfolio) {
+            providerPortfolio.put(vendor, Collections.<String> emptyList());
+        }
         while (urlEnum.hasMoreElements()) {
             URL url = urlEnum.nextElement();
             String parserType = getParserType(url);
             Parser<Rule> parser = parsers.get(parserType);
-            synchronized (waitingProviders) {
-                List<URL> urlList = waitingProviders.get(bundle);
-                if (parser != null) {
-                    if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
-                        waitingProviders.remove(bundle);
-                    }
-                } else if (parser == null) {
-                    if (urlList == null) {
-                        urlList = new ArrayList<URL>();
-                    }
-                    urlList.add(url);
-                    waitingProviders.put(bundle, urlList);
-                }
-            }
-            if (parser != null) {
-                // this must be outde of synch block
-                InputStreamReader reader = null;
-                try {
-                    importData(vendor, parser, reader = new InputStreamReader(url.openStream()));
-                } catch (IOException e) {
-                    logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId(), e);
-                    processAutomationProviderUninstalled(bundle);
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException ignore) {
-                        }
+            updateWaitingProviders(parser, bundle, url);
+            InputStreamReader reader = null;
+            try {
+                Set<Rule> rules = setUIDs(vendor, parseData(parser, reader = new InputStreamReader(url.openStream())));
+                addNewProvidedObjects(null, rules);
+            } catch (IOException e) {
+                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId(), e);
+                processAutomationProviderUninstalled(bundle);
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException ignore) {
                     }
                 }
-
             }
         }
     }
 
     @Override
-    protected Set<Rule> importData(Vendor vendor, Parser<Rule> parser, InputStreamReader inputStreamReader) {
-        Set<Rule> providedRules = null;
-        try {
-            providedRules = parser.parse(inputStreamReader);
-        } catch (ParsingException e) {
-        }
-        if (providedRules != null && !providedRules.isEmpty()) {
-            Iterator<Rule> i = providedRules.iterator();
+    protected void addNewProvidedObjects(List<String> newPortfolio, Set<Rule> parsedObjects) {
+        if (parsedObjects != null && !parsedObjects.isEmpty()) {
+            Iterator<Rule> i = parsedObjects.iterator();
             while (i.hasNext()) {
                 Rule rule = i.next();
                 if (rule != null) {
                     try {
-                        if (rule.getUID() == null) {
-                            rule = setUID(vendor, rule);
-                        }
                         ruleRegistry.add(rule);
                     } catch (IllegalArgumentException e) {
                         logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
@@ -245,14 +223,19 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                                 rule.getUID(), e.getMessage());
                     }
                 }
-            } // while
-            synchronized (providerPortfolio) {
-                if (providerPortfolio.get(vendor) == null) {
-                    providerPortfolio.put(vendor, Collections.<String> emptyList());
-                }
             }
         }
-        return providedRules;
+    }
+
+    private Set<Rule> setUIDs(Vendor vendor, Set<Rule> rules) {
+        Set<Rule> newRules = new HashSet<Rule>();
+        for (Rule rule : rules) {
+            if (rule.getUID() == null) {
+                rule = setUID(vendor, rule);
+            }
+            newRules.add(rule);
+        }
+        return newRules;
     }
 
     /**
@@ -272,6 +255,11 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         r.setDescription(rule.getDescription());
         r.setTags(rule.getTags());
         return r;
+    }
+
+    @Override
+    protected void updateProviderRegistration() {
+        // do nothing
     }
 
 }
