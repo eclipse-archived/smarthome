@@ -79,6 +79,7 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
             serviceConfigService.updateConfig({
                 id : $scope.serviceId
             }, configuration, function() {
+                angular.copy($scope.configuration, originalServiceConf);
                 toastService.showDefaultToast('System config updated.');
 
             });
