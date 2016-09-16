@@ -8,7 +8,7 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.audio.extensions">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.audio.action">
    <implementation class="org.eclipse.smarthome.io.audio.internal.AudioAction"/>
 
    <reference bind="setAudioManager" cardinality="1..1" interface="org.eclipse.smarthome.io.audio.AudioManager" name="AudioManager" policy="static" unbind="unsetAudioManager"/>

@@ -59,9 +59,13 @@ public class AudioManager {
     protected void activate(Map<String, Object> config) {
         modified(config);
         if (System.getProperty("osgi.os").equals("macosx")) {
+            logger.debug("Detected an macOS X host. Adding a special audiosink");
+            MacAudioSink macSink = new MacAudioSink();
+            audioSinks.put(macSink.getId(), macSink);
             BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-            macAudioSinkServiceRegistration = bundleContext.registerService(MacAudioSink.class.getName(),
-                    new MacAudioSink(), new Hashtable<String, Object>());
+            macAudioSinkServiceRegistration = bundleContext.registerService(MacAudioSink.class.getName(), macSink,
+                    new Hashtable<String, Object>());
+
         }
 
     }

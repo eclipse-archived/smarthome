@@ -9,7 +9,6 @@ package org.eclipse.smarthome.io.audio.internal;
 
 import java.io.IOException;
 
-import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.io.audio.AudioManager;
 import org.eclipse.smarthome.model.script.engine.action.ActionDoc;
 import org.eclipse.smarthome.model.script.engine.action.ParamDoc;
@@ -69,16 +68,16 @@ public class AudioAction {
             throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
         }
         if (isMacOSX()) {
-            audioManager.setVolume("macosx", volume * 100f);
+            audioManager.setVolume("macosx", volume);
         } else {
             audioManager.setVolume("javasound", volume);
         }
     }
 
-    @ActionDoc(text = "sets the master volume of the host")
-    static public void setMasterVolume(@ParamDoc(name = "percent") final PercentType percent) throws IOException {
-        setMasterVolume(percent.toBigDecimal().floatValue() / 100f);
-    }
+    // @ActionDoc(text = "sets the master volume of the host")
+    // static public void setMasterVolume(@ParamDoc(name = "percent") final PercentType percent) throws IOException {
+    // setMasterVolume(percent.toBigDecimal().floatValue() / 100f);
+    // }
 
     @ActionDoc(text = "increases the master volume of the host")
     static public void increaseMasterVolume(@ParamDoc(name = "percent") final float percent) throws IOException {

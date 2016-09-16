@@ -106,9 +106,9 @@ public class JavaZoomAudioSink implements AudioSink {
                         }, TIME_OUT);
                     } catch (ExecutionException e) {
                         logger.error("An exception occurred wile playing an audiostream : '{}'", audioStream,
-                                e.getCause());
+                                e.getMessage());
                     } catch (TimeoutException e) {
-                        logger.error("A timeout occurred while playing an audiostream : '{}'", e.getCause());
+                        logger.error("A timeout occurred while playing an audiostream : '{}'", e.getMessage());
                     }
                 }
             });

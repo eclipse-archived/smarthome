@@ -12,8 +12,8 @@
    <implementation class="org.eclipse.smarthome.io.audio.AudioManager"/>
    <reference bind="addAudioSource" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSource" name="AudioSource" policy="dynamic" unbind="removeAudioSource"/>
    <reference bind="addAudioSink" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSink" name="AudioSink" policy="dynamic" unbind="removeAudioSink"/>
-   <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
 
    <service>
       <provide interface="org.eclipse.smarthome.io.audio.AudioManager"/>
-   </service></scr:component>
+   </service>
+   </scr:component>
