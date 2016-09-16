@@ -1035,7 +1035,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public float getVolume() {
-        return (Float.valueOf(stateMap.get("VolumeMaster")).floatValue() / 100f);
+        if (stateMap.get("VolumeMaster") != null) {
+            return (Float.valueOf(stateMap.get("VolumeMaster")).floatValue() / 100f);
+        } else {
+            return 0;
+        }
     }
 
     @Override

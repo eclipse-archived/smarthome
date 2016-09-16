@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.sound.javasoundsource">
-   <implementation class="org.eclipse.smarthome.io.sound.javasound.JavaSoundAudioSource"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.audio.javasoundsource">
+   <implementation class="org.eclipse.smarthome.io.audio.javasound.JavaSoundAudioSource"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.audio.AudioSource"/>
    </service>

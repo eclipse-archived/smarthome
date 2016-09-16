@@ -10,7 +10,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.action.voice">
-   <implementation class="org.eclipse.smarthome.core.voice.internal.AudioActionService"/>
+   <implementation class="org.eclipse.smarthome.core.voice.internal.VoiceActionService"/>
    <service>
       <provide interface="org.eclipse.smarthome.model.script.engine.action.ActionService"/>
    </service>

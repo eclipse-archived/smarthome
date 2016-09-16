@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.audio.extensions">
-   <implementation class="org.eclipse.smarthome.io.sound.internal.AudioConsoleCommandExtension"/>
+   <implementation class="org.eclipse.smarthome.io.audio.internal.AudioConsoleCommandExtension"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension"/>
    </service>
