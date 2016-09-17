@@ -73,7 +73,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.eclipse.smarthome.io.audio.file.FileAudioStream;
 import org.eclipse.smarthome.io.audio.stream.StreamAudioStream;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
@@ -2563,8 +2562,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
 
         String url = null;
+        File fileOut = null;
 
-        if (audioStream instanceof FileAudioStream) {
+        if (!(audioStream instanceof StreamAudioStream)) {
             String userDataDir = System.getProperty(ConfigConstants.USERDATA_DIR_PROG_ARGUMENT);
             if (userDataDir == null) {
                 // use current folder as default
@@ -2576,7 +2576,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 folder.mkdirs();
             }
 
-            File fileOut = null;
             try {
                 String extension = "";
                 if (audioStream.getFormat().getContainer() == AudioFormat.CODEC_MP3) {
@@ -2626,26 +2625,25 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            } else if (audioStream instanceof StreamAudioStream) {
-                // Ok folks, so, for streamed audio in fact the Sonos Zoneplayer is capable of directly playing the
-                // stream, there is no need to go through complicated byte piping. So, we just pick up the URL and pass
-                // that on
-                url = ((StreamAudioStream) audioStream).getURL();
             }
+        } else {
+            // Ok folks, so, for streamed audio in fact the Sonos Zoneplayer is capable of directly playing the
+            // stream, there is no need to go through complicated byte piping. So, we just pick up the URL and pass
+            // that on
+            url = ((StreamAudioStream) audioStream).getURL();
+        }
 
-            if (url != null) {
-                playURI(new StringType(url));
-            }
+        if (url != null) {
+            playURI(new StringType(url));
+        }
 
-            if (fileOut != null) {
-                // TODO Where and when to delete the temp file? in the servlet, after serving it?
-                // when invoking this on the ZonePlayer, it seems to request the url several times in a row, so it has
-                // to be served multiple times for some reason, therefore, we can only delete it here
+        if (fileOut != null) {
+            // TODO Where and when to delete the temp file? in the servlet, after serving it?
+            // when invoking this on the ZonePlayer, it seems to request the url several times in a row, so it has
+            // to be served multiple times for some reason, therefore, we can only delete it here
 
-                // logger.debug("Deleted a temporary file : '{}'", fileOut.getAbsolutePath());
-                // fileOut.delete();
-            }
-
+            // logger.debug("Deleted a temporary file : '{}'", fileOut.getAbsolutePath());
+            // fileOut.delete();
         }
 
     }
