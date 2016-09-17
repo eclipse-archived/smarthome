@@ -10,7 +10,6 @@ package org.eclipse.smarthome.io.audio;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,11 +20,7 @@ import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.io.audio.file.FileAudioSource;
-import org.eclipse.smarthome.io.audio.mac.MacAudioSink;
 import org.eclipse.smarthome.io.audio.stream.StreamAudioSource;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,26 +49,11 @@ public class AudioManager {
     private String defaultSource = null;
     private String defaultSink = null;
 
-    private ServiceRegistration<?> macAudioSinkServiceRegistration = null;
-
     protected void activate(Map<String, Object> config) {
         modified(config);
-        if (System.getProperty("osgi.os").equals("macosx")) {
-            logger.debug("Detected an macOS X host. Adding a special audiosink");
-            MacAudioSink macSink = new MacAudioSink();
-            audioSinks.put(macSink.getId(), macSink);
-            BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-            macAudioSinkServiceRegistration = bundleContext.registerService(MacAudioSink.class.getName(), macSink,
-                    new Hashtable<String, Object>());
-
-        }
-
     }
 
     protected void deactivate() {
-        if (macAudioSinkServiceRegistration != null) {
-            macAudioSinkServiceRegistration.unregister();
-        }
     }
 
     protected void modified(Map<String, Object> config) {

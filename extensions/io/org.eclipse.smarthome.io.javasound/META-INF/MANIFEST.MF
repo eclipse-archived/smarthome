@@ -19,6 +19,7 @@ Import-Package: javax.sound.sampled,
  org.osgi.framework,
  org.slf4j
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.smarthome.io.audio.internal.AudioActivator
 Bundle-ClassPath: lib/jl1.0.1.jar,
  .
 Service-Component: OSGI-INF/*.xml
