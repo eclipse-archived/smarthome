@@ -1310,11 +1310,12 @@
 			_t.showLoadingBar();
 			_t.destination =
 				"/basicui/app?w=" + page +
-				"&sitemap=" + smarthome.UI.sitemap +
-				"&subscriptionId=" + smarthome.subscriptionId;
+				"&sitemap=" + smarthome.UI.sitemap;
 
 			ajax({
-				url: _t.destination + "&__async=true",
+				url: _t.destination +
+					"&subscriptionId=" + smarthome.subscriptionId +
+					"&__async=true",
 				callback: _t.navigateCallback
 			});
 
@@ -1325,16 +1326,20 @@
 
 		_t.initControls = function() {
 			smarthome.dataModel = {};
+			smarthome.dataModelLegacy = {};
 
 			function appendControl(control) {
+				// dataModelLegacy keeps item → widgets binding for
+				// long-polling event listener
 				if (
-					(smarthome.dataModel[control.item] === undefined) ||
-					(smarthome.dataModel[control.item].widgets === undefined)
+					(smarthome.dataModelLegacy[control.item] === undefined) ||
+					(smarthome.dataModelLegacy[control.item].widgets === undefined)
 				) {
-					smarthome.dataModel[control.item] = { widgets: [] };
+					smarthome.dataModelLegacy[control.item] = { widgets: [] };
 				}
 
-				smarthome.dataModel[control.item].widgets.push(control);
+				smarthome.dataModelLegacy[control.item].widgets.push(control);
+				smarthome.dataModel[control.id] = control;
 			}
 
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
@@ -1452,9 +1457,9 @@
 
 			console.log(value);
 
-			smarthome.dataModel[data.widgetId].widgets.forEach(function(widget) {
-				widget.setValue(value);
-			});
+			if (smarthome.dataModel[data.widgetId] !== undefined) {
+				smarthome.dataModel[data.widgetId].setValue(value);
+			}
 		});
 	}
 
@@ -1604,7 +1609,7 @@
 	});
 })({
 	itemAttribute: "data-item",
-	idAttribute: "data-id",
+	idAttribute: "data-widget-id",
 	iconAttribute: "data-icon",
 	iconTypeAttribute: "data-icon-type",
 	controlButton: "button",
