@@ -85,7 +85,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
                 if (info != null) {
                     if (eventPublisher != null) {
-                        eventPublisher.post(new ConfigStatusInfoEvent(configStatusSource.getTopic(), info, null));
+                        eventPublisher.post(new ConfigStatusInfoEvent(configStatusSource.getTopic(), info));
                     } else {
                         logger.warn("EventPublisher not available. Cannot post new config status for entity "
                                 + configStatusSource.entityId);
