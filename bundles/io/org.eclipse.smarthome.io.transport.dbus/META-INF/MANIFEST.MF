@@ -14,5 +14,5 @@ Export-Package:  org.freedesktop,
 Import-Package: 
  org.apache.commons.lang,
  org.slf4j
-Bundle-ClassPath: ., lib/unix-0.5.jar
+Bundle-ClassPath: ., lib/unix-0.5.jar, lib/libdbus-java-2.7.jar
 
