@@ -290,12 +290,12 @@
 			}
 		};
 
-		_t.setValue = function(value) {
-			_t.reloadIcon(value);
+		_t.setValue = function(value, itemState) {
+			_t.reloadIcon(itemState);
 			if (suppress) {
 				suppress = false;
 			} else {
-				_t.setValuePrivate(value);
+				_t.setValuePrivate(value, itemState);
 			}
 		};
 
@@ -596,8 +596,8 @@
 		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
 		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 
-		_t.setValuePrivate = function(value) {
-			_t.value = value * 1;
+		_t.setValuePrivate = function(value, itemState) {
+			_t.value = itemState * 1;
 			_t.valueNode.innerHTML = value;
 		};
 
@@ -1109,12 +1109,12 @@
 			_t.debounceProxy.call();
 		});
 
-		_t.setValuePrivate = function(value) {
+		_t.setValuePrivate = function(value, itemState) {
 			if (_t.locked) {
-				_t.reloadIcon(value);
+				_t.reloadIcon(itemState);
 				return;
 			}
-			_t.input.value = value;
+			_t.input.value = itemState;
 			_t.input.MaterialSlider.change();
 		};
 
@@ -1458,7 +1458,7 @@
 			console.log(value);
 
 			if (smarthome.dataModel[data.widgetId] !== undefined) {
-				smarthome.dataModel[data.widgetId].setValue(value);
+				smarthome.dataModel[data.widgetId].setValue(value, data.item.state);
 			}
 		});
 	}
@@ -1489,9 +1489,9 @@
 						item = widget.item.name,
 						value = widget.item.state;
 
-					smarthome.dataModel[item].widgets.forEach(function(w) {
+					smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
 						if (value !== "NULL") {
-							w.setValue(value);
+							w.setValue(value, value);
 						}
 					});
 				});
