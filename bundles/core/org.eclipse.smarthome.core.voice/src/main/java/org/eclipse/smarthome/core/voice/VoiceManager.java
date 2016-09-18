@@ -253,7 +253,7 @@ public class VoiceManager {
             if (null == format.getBitDepth() || null == format.getBitRate() || null == format.getFrequency()) {
                 // Define default values
                 int defaultBitDepth = 16;
-                long defaultFrequency = 16384;
+                long defaultFrequency = 44100;
 
                 // Obtain current values
                 Integer bitRate = format.getBitRate();

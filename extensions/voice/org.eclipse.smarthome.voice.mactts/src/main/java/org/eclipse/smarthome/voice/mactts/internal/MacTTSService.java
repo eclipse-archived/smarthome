@@ -111,7 +111,7 @@ public class MacTTSService implements TTSService {
      */
     private final Set<AudioFormat> initAudioFormats() {
         AudioFormat audioFormat = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, false, 16,
-                null, null);
+                null, (long) 44100);
         return Collections.singleton(audioFormat);
     }
 

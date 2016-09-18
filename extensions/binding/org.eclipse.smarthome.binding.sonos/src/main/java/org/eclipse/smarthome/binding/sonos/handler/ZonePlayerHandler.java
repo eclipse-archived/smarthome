@@ -2651,8 +2651,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     @Override
     public Set<AudioFormat> getSupportedFormats() {
         // we accept anything that is WAVE with signed PCM codec
-        AudioFormat format = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null, null, null,
-                null);
+        AudioFormat format = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null, 16, null,
+                (long) 44100);
         return Collections.singleton(format);
     }
 
