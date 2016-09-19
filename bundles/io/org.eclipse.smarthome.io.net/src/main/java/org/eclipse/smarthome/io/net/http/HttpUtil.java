@@ -223,7 +223,9 @@ public class HttpUtil {
                 logger.debug("Method failed: {}", statusLine);
             }
 
-            String responseBody = response.getContentAsString();
+            byte[] rawResponse = response.getContent();
+            String encoding = response.getEncoding().replaceAll("\"", "").trim();
+            String responseBody = new String(rawResponse, encoding);
             if (!responseBody.isEmpty()) {
                 logger.trace(responseBody);
             }
@@ -233,7 +235,7 @@ public class HttpUtil {
             throw new IOException(e);
         } finally {
             if (proxy != null) {
-                //Remove the proxy, that has been added for this request
+                // Remove the proxy, that has been added for this request
                 client.getProxyConfiguration().getProxies().remove(proxy);
             }
         }
