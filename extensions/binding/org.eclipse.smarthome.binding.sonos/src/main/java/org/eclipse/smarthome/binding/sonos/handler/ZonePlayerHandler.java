@@ -2007,6 +2007,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private boolean isPlayingStream(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
         return currentURI.contains("x-sonosapi-stream:");
     }
 
