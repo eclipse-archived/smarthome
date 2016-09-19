@@ -22,7 +22,7 @@ import org.eclipse.smarthome.io.net.http.HttpUtil;
 
 public class WemoHttpCall {
 
-    static String contentHeader = "text/xml; charset=\"utf-8\"";
+    static String contentHeader = "text/xml; charset=utf-8";
 
     public static String executeCall(String wemoURL, String soapHeader, String content) {
 
