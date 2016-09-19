@@ -1455,8 +1455,6 @@
 				value = data.item.state;
 			}
 
-			console.log(value);
-
 			if (smarthome.dataModel[data.widgetId] !== undefined) {
 				smarthome.dataModel[data.widgetId].setValue(value, data.item.state);
 			}
