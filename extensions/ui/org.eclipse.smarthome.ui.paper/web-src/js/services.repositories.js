@@ -142,6 +142,32 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
             repository.add(thing);
         });
     });
+    eventService.onEvent('smarthome/things/*/updated', function(topic, thing) {
+        updateInRepository(topic.split('/')[2], true, function(existingThing) {
+            if (thing.length > 0) {
+                existingThing.label = thing[0].label;
+                existingThing.configuration = existingThing.configuration;
+                var updatedArr = [];
+                if (thing[0].channels) {
+                    angular.forEach(thing[0].channels, function(newChannel) {
+                        var channel = $.grep(existingThing.channels, function(existingChannel) {
+                            return existingChannel.uid == newChannel.uid;
+                        });
+                        if (channel.length == 0) {
+                            channel[0] = newChannel;
+                            channel[0].linkedItems = [];
+
+                        } else {
+                            channel[0].configuration = newChannel.configuration;
+                            channel[0].itemType = newChannel.itemType;
+                        }
+                        updatedArr.push(channel[0]);
+                    });
+                    existingThing.channels = updatedArr;
+                }
+            }
+        });
+    });
     eventService.onEvent('smarthome/things/*/removed', function(topic, thing) {
         updateInRepository(topic.split('/')[2], true, function(existingThing) {
             repository.remove(existingThing);
@@ -156,6 +182,40 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
         updateInRepository(itemNameToThingUID(topic.split('/')[2]), true, function(existingThing) {
             existingThing.item = itemUpdate[0]
         });
+    });
+
+    eventService.onEvent('smarthome/links/*/added', function(topic, link) {
+        var channelItem = link.channelUID.split(':'), thingUID;
+        if (channelItem.length > 2) {
+            thingUID = channelItem[0] + ":" + channelItem[1] + ":" + channelItem[2];
+        }
+        if (thingUID) {
+            updateInRepository(thingUID, true, function(existingThing) {
+                var channel = $.grep(existingThing.channels, function(channel) {
+                    return channel.uid == link.channelUID;
+                });
+                if (channel.length > 0) {
+                    channel[0].linkedItems.push(link.itemName);
+                }
+            });
+        }
+    });
+
+    eventService.onEvent('smarthome/links/*/removed', function(topic, link) {
+        var channelItem = link.channelUID.split(':'), thingUID;
+        if (channelItem.length > 2) {
+            thingUID = channelItem[0] + ":" + channelItem[1] + ":" + channelItem[2];
+        }
+        if (thingUID) {
+            updateInRepository(thingUID, true, function(existingThing) {
+                var channel = $.grep(existingThing.channels, function(channel) {
+                    return channel.uid == link.channelUID;
+                });
+                if (channel.length > 0) {
+                    channel[0].linkedItems = [];
+                }
+            });
+        }
     });
 
     return repository;

@@ -1,4 +1,4 @@
-<section ng-class="{'configMain':page!=='services'}">
+<section ng-class="{'configMain':page!=='services'}" class="fill-height">
 	<div class="bindings tab-panel content" ng-if="page === 'bindings'" ng-controller="BindingController">
 		<div class="header-toolbar">
 			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
@@ -24,7 +24,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="services" ng-if="page === 'services'" ng-controller="ServicesController">
+	<div class="services fill-height" ng-if="page === 'services'" ng-controller="ServicesController">
 
 		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs | orderBy:'-category' | filter: {'category':'!system'}:true" label="{{tab.category}}" layout-fill> <md-tab-content layout-fill="">
 
@@ -70,14 +70,15 @@
 					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="navigateTo('things/view/' + thing.UID)">
 						<div class="circle">{{thing.UID.split(':')[1].substring(0,1).toUpperCase()}}</div>
 						<div class="cbody item-content">
-							<h3>
-								{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
-							</h3>
-							<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
-							<p>{{thing.UID}}</p>
-							<div class="actions" ng-class="{'new':newThingUID==thing.UID}">
-								<md-button ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
-								<md-button ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+							<div flex="70">
+								<h3>
+									{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
+								</h3>
+								<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
+								<p>{{thing.UID}}</p>
+							</div>
+							<div class="actions" flex="30" ng-class="{'new':newThingUID==thing.UID}">
+								<i class="material-icons" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit">edit</i> <i class="material-icons" ng-click="remove(thing, $event)" aria-label="Delete">delete</i>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -142,7 +143,7 @@
 									<p ng-if="getChannelById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
 									<p ng-if="!getChannelById(channel.id).description && getChannelTypeById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
 									<div class="actions">
-										<md-button ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
+										<i ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit" class="material-icons">edit</i>
 									</div>
 								</div>
 								<hr class="border-line" />
@@ -198,10 +199,12 @@
 							<span class="itemIcon-text">{{item.label?item.label.substring(0,1).toUpperCase():item.name.substring(0,1).toUpperCase()}}</span>
 						</div>
 						<div class="cbody item-content">
-							<h3>{{item.label}}&nbsp;</h3>
-							<p>{{item.name}}</p>
-							<div class="actions">
-								<md-button ng-click="remove(item, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+							<div flex="85">
+								<h3>{{item.label}}&nbsp;</h3>
+								<p>{{item.name}}</p>
+							</div>
+							<div class="actions" flex="15">
+								<i class="material-icons" ng-click="remove(item, $event)" aria-label="Delete">delete</i>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />

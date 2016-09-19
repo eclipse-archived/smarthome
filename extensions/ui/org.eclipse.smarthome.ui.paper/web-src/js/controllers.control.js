@@ -160,6 +160,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (item.state === 'NULL' || item.state === 'UNDEF') {
             return '-';
         }
+        if ($scope.isOptionList(item)) {
+            for (var i = 0; i < item.stateDescription.options.length; i++) {
+                var option = item.stateDescription.options[i]
+                if (option.value === item.state) {
+                    return option.label
+                }
+            }
+        }
         var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
 
         if (item.type === 'DateTime') {
@@ -401,52 +409,34 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.pending = false;
 
     $scope.setBrightness = function(brightness) {
-        // send updates every 300 ms only
-        if (!$scope.pending) {
-            $timeout(function() {
-                var stateObject = getStateAsObject($scope.item.state);
-                stateObject.b = brightness === 0 ? '0' : brightness;
-                stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
-                stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
-                $scope.item.state = toState(stateObject);
-                $scope.sendCommand($scope.item.state);
-                $scope.pending = false;
-            }, 300);
-            $scope.pending = true;
-        }
+        $scope.brightness = brightness;
+        setColor();
     }
 
     $scope.setHue = function(hue) {
+        $scope.hue = hue;
+        setColor();
+    }
+
+    $scope.setSaturation = function(saturation) {
+        $scope.saturation = saturation;
+        setColor();
+    }
+
+    function setColor() {
         // send updates every 300 ms only
         if (!$scope.pending) {
             $timeout(function() {
                 var stateObject = getStateAsObject($scope.item.state);
-                stateObject.h = hue === 0 ? '0' : hue;
-                stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
-                stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
-                if ($scope.item.state == "UNDEF" || $scope.item.state === 'NULL') {
+                stateObject.b = isNaN($scope.brightness) ? '0' : $scope.brightness;
+                stateObject.s = isNaN($scope.saturation) ? '0' : $scope.saturation;
+                stateObject.h = isNaN($scope.hue) ? '0' : $scope.hue;
+                if ($scope.item.state == "UNDEF" || $scope.item.state === 'NULL' || $scope.item.state === '-') {
                     stateObject.b = 100;
                     stateObject.s = 100;
                     $scope.brightness = stateObject.b;
                     $scope.saturation = stateObject.s;
                 }
-                $scope.item.state = toState(stateObject);
-                $scope.sendCommand($scope.item.state);
-                $scope.pending = false;
-            }, 300);
-            $scope.pending = true;
-        }
-
-    }
-
-    $scope.setSaturation = function(saturation) {
-        // send updates every 300 ms only
-        if (!$scope.pending) {
-            $timeout(function() {
-                var stateObject = getStateAsObject($scope.item.state);
-                stateObject.s = saturation === 0 ? '0' : saturation;
-                stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
-                stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
                 $scope.item.state = toState(stateObject);
                 $scope.sendCommand($scope.item.state);
                 $scope.pending = false;

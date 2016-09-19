@@ -595,6 +595,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	border: 0px;
 }
 
+.includeConfig .advButton {
+    margin-left: 15px;
+}
+
 .channels>div>div>.channel {
 	margin-left: 20px;
 }
@@ -938,14 +942,28 @@ md-dialog-content .dayParameter {
 	min-width: 35px;
 }
 
-.rule .actions i {
-	margin: 10px 17px 10px 17px;
+.item-content .actions i {
+	margin: 5px 12px 5px 12px;
+	transition: box-shadow .4s;
+	border-radius: 100%;
+	border: 5px solid transparent;
+	width: 34px;
+	height: 34px;
+	outline: 0;
 }
 
-.rule .actions i:hover, .rules .actions span:hover {
+.item-content .actions i:hover, .rules .actions span:hover {
 	cursor: pointer;
 	box-shadow: 0px 0px 4px 2px #dedede;
+}
+
+.rules .actions span {
+	transition: box-shadow .4s;
 	border-radius: 100%;
+	border: 5px solid transparent;
+	width: 34px;
+	height: 34px;
+	outline: 0;
 }
 
 .rules .disabled {
@@ -967,4 +985,29 @@ background-color: green;
 .configAdvance {
 	margin-top: 48px;
 	float: right;
+}
+
+@media all and (max-width: 600px) {
+    .rule .actions i,.item-content .actions i{
+        margin:1px;
+    }
+    .container {
+    padding-left:8px;
+    padding-right:4px;
+    }   
+}
+
+.item-content p, .item-content h3 {
+    word-wrap: normal;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+.fill-height {
+	height: 100%;
+}
+
+.rules-container {
+	margin-left: 20px;
+	margin-right: 20px;
 }

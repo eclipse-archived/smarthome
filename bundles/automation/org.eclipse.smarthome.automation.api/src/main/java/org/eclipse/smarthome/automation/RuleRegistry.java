@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.automation;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.Registry;
 
@@ -31,7 +30,7 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * <p>
  * The {@link RuleRegistry} manages the status of the Rules:
  * <ul>
- * <li>To check a Rule's status info, use the {@link #getStatus(String)} method.</li>
+ * <li>To check a Rule's status info, use the {@link #getStatusInfo(String)} method.</li>
  * <li>The status of a Rule enabled with {@link #setEnabled(String, boolean)}, is first set to
  * {@link RuleStatus#NOT_INITIALIZED}.</li>
  * <li>After a Rule is enabled, a verification procedure is initiated. If the verification of the modules IDs,
@@ -62,7 +61,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @param tags set of {@link Rule}'s tags
      * @return collection of {@link Rule}s having specified tags.
      */
-    public Collection<Rule> getByTags(Set<String> tags);
+    public Collection<Rule> getByTags(String... tags);
 
     /**
      * This method is used for changing <b>enabled</b> state of the {@link Rule}.
@@ -79,9 +78,19 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * This method gets {@link RuleStatusInfo} of the specified {@link Rule}.
      *
      * @param ruleUID UID of the {@link Rule}
-     * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule}.
+     * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule} or null when the rule with
+     *         specified uid does not exists.
      */
-    public RuleStatusInfo getStatus(String ruleUID);
+    public RuleStatusInfo getStatusInfo(String ruleUID);
+
+    /**
+     * Utility method which gets {@link RuleStatus} of the specified {@link Rule}.
+     *
+     * @param ruleUID UID of the {@link Rule}
+     * @return {@link RuleStatus} object containing status of the looking {@link Rule} or null when the rule with
+     *         specified uid does not exists..
+     */
+    public RuleStatus getStatus(String ruleUID);
 
     /**
      * This method gets <b>enabled</b> {@link RuleStatus} for a {@link Rule}.

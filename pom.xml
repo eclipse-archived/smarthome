@@ -133,13 +133,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.eclipse.xtend</groupId>
-        <artifactId>xtend-maven-plugin</artifactId>
-        <configuration>
-          <javaSourceVersion>1.7</javaSourceVersion>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
@@ -300,6 +293,9 @@
           <groupId>org.eclipse.xtend</groupId>
           <artifactId>xtend-maven-plugin</artifactId>
           <version>${xtext-version}</version>
+          <configuration>
+            <javaSourceVersion>1.7</javaSourceVersion>
+          </configuration>
           <executions>
             <execution>
               <goals>

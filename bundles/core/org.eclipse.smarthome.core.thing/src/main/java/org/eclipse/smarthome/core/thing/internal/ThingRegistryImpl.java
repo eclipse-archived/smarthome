@@ -14,10 +14,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -36,13 +38,17 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - ensure thing added event is sent before linked events
  * @auther Thomas Höfer - Added config description validation exception to updateConfiguration operation
  */
-public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implements ThingRegistry {
+public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingProvider> implements ThingRegistry {
 
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 
     private List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
+
+    public ThingRegistryImpl() {
+        super(ThingProvider.class);
+    }
 
     /**
      * Adds a thing tracker.
@@ -62,10 +68,12 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implemen
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
     @Override
-    public Thing get(ThingUID uid) {
-        for (Thing thing : getAll()) {
-            if (thing.getUID().equals(uid)) {
-                return thing;
+    public Thing get(final ThingUID uid) {
+        for (final Map.Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
+            for (final Thing thing : entry.getValue()) {
+                if (uid.equals(thing.getUID())) {
+                    return thing;
+                }
             }
         }
         return null;

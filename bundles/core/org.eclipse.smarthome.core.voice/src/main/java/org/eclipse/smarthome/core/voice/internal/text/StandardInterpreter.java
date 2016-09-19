@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.voice.text.Expression;
  * A human language command interpretation service.
  *
  * @author Tilman Kamp - Initial contribution and API
+ * @author Kai Kreuzer - Added further German interpretation rules
  *
  */
 public class StandardInterpreter extends AbstractRuleBasedInterpreter {
@@ -112,10 +113,60 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
         Expression einAnAus = alt(cmd("ein", OnOffType.ON), cmd("an", OnOffType.ON), cmd("aus", OnOffType.OFF));
         Expression denDieDas = opt(alt("den", "die", "das"));
+        Expression schalte = alt("schalt", "schalte", "mach");
+        Expression pause = alt("pause", "stoppe");
+        Expression mache = alt("mach", "mache", "fahre");
+        Expression spiele = alt("spiele", "spiel", "starte");
+        Expression zu = alt("zu", "zum", "zur");
+        Expression naechste = alt("nächste", "nächstes", "nächster");
+        Expression vorherige = alt("vorherige", "vorheriges", "vorheriger");
+        Expression farbe = alt(cmd("weiß", HSBType.WHITE), cmd("pink", HSBType.fromRGB(255, 96, 208)),
+                cmd("gelb", HSBType.fromRGB(255, 224, 32)), cmd("orange", HSBType.fromRGB(255, 160, 16)),
+                cmd("lila", HSBType.fromRGB(128, 0, 128)), cmd("rot", HSBType.RED), cmd("grün", HSBType.GREEN),
+                cmd("blau", HSBType.BLUE));
 
-        addRules(Locale.GERMAN, itemRule(seq(alt("schalt", "schalte", "mach"), denDieDas), /* item */ einAnAus),
+        addRules(Locale.GERMAN,
+
+                /* OnOffType */
+
+                itemRule(seq(schalte, denDieDas), /* item */ einAnAus),
+
+                /* OpenCloseType */
+
                 itemRule(seq(cmd("öffne", OpenClosedType.OPEN), denDieDas) /* item */),
-                itemRule(seq(cmd(alt("schließ", "schließe"), OpenClosedType.OPEN), denDieDas) /* item */));
+
+                itemRule(seq(cmd(alt("schließ", "schließe"), OpenClosedType.OPEN), denDieDas) /* item */),
+
+                /* IncreaseDecreaseType */
+
+                itemRule(seq(cmd(alt("dimme"), IncreaseDecreaseType.DECREASE), denDieDas) /* item */),
+
+                itemRule(seq(schalte, denDieDas),
+                        /* item */ cmd(alt("dunkler", "weniger"), IncreaseDecreaseType.DECREASE)),
+
+                itemRule(seq(schalte, denDieDas), /* item */ cmd(alt("heller", "mehr"), IncreaseDecreaseType.INCREASE)),
+
+                /* ColorType */
+
+                itemRule(seq(schalte, denDieDas), /* item */ seq(opt("auf"), farbe)),
+
+                /* UpDownType */
+
+                itemRule(seq(mache, denDieDas), /* item */ cmd("hoch", UpDownType.UP)),
+
+                itemRule(seq(mache, denDieDas), /* item */ cmd("runter", UpDownType.DOWN)),
+
+                /* NextPreviousType */
+
+                itemRule("wechsle",
+                        /* item */ seq(opt(zu),
+                                alt(cmd(naechste, NextPreviousType.NEXT), cmd(vorherige, NextPreviousType.PREVIOUS)))),
+
+                /* PlayPauseType */
+
+                itemRule(seq(cmd(spiele, PlayPauseType.PLAY), the) /* item */),
+
+                itemRule(seq(cmd(pause, PlayPauseType.PAUSE), the) /* item */));
 
     }
 

@@ -18,13 +18,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
-import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
-import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
  * This class provides common functionality of commands:
@@ -232,17 +226,11 @@ public class AutomationCommandList extends AutomationCommand {
      */
     private String listModuleTypes() {
         Map<String, ModuleType> moduleTypes = new Hashtable<String, ModuleType>();
-        Collection<? extends ModuleType> collection = autoCommands.getModuleTypes(TriggerType.class, locale);
+        Collection<? extends ModuleType> collection = autoCommands.getTriggers(locale);
         addCollection(collection, moduleTypes);
-        collection = autoCommands.getModuleTypes(ConditionType.class, locale);
+        collection = autoCommands.getConditions(locale);
         addCollection(collection, moduleTypes);
-        collection = autoCommands.getModuleTypes(ActionType.class, locale);
-        addCollection(collection, moduleTypes);
-        collection = autoCommands.getModuleTypes(CompositeTriggerType.class, locale);
-        addCollection(collection, moduleTypes);
-        collection = autoCommands.getModuleTypes(CompositeConditionType.class, locale);
-        addCollection(collection, moduleTypes);
-        collection = autoCommands.getModuleTypes(CompositeActionType.class, locale);
+        collection = autoCommands.getActions(locale);
         addCollection(collection, moduleTypes);
         Map<String, String> listModuleTypes = null;
         if (!moduleTypes.isEmpty()) {

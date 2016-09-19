@@ -7,9 +7,9 @@
 		<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
 		<p>{{discoveryResult.thingUID}}</p>
 		<div class="actions">
-			<md-button ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore"> <i class="material-icons">visibility</i></md-button>
-			<md-button ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore"> <i class="material-icons">visibility_off</i></md-button>
-			<md-button ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+			<i class="material-icons" ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore">visibility</i>
+			<i class="material-icons" ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore">visibility_off</i>
+		    <i class="material-icons" ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete">delete</i>
 		</div>
 	</div>
 	<hr class="border-line" ng-show="!$last" />

@@ -9,9 +9,11 @@ package org.eclipse.smarthome.core.thing.link;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -23,7 +25,12 @@ import org.eclipse.smarthome.core.thing.UID;
  * @param <L>
  *            Concrete type of the abstract link
  */
-public abstract class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L, String> {
+public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Provider<L>>
+        extends AbstractRegistry<L, String, P> {
+
+    protected AbstractLinkRegistry(final Class<P> providerClazz) {
+        super(providerClazz);
+    }
 
     /**
      * Returns if an item for a given item name is linked to a channel or thing for a
@@ -79,13 +86,15 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
     }
 
     @Override
-    public L get(String key) {
-        Collection<L> links = getAll();
-        for (L link : links) {
-            if (link.getID().equals(key)) {
-                return link;
+    public L get(final String key) {
+        for (final Map.Entry<Provider<L>, Collection<L>> entry : elementMap.entrySet()) {
+            for (final L link : entry.getValue()) {
+                if (key.equals(link.getID())) {
+                    return link;
+                }
             }
         }
         return null;
     }
+
 }
