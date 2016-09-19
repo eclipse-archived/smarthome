@@ -23,7 +23,7 @@ Thing yahooweather:weather:berlin [ location="638242" ]
 Thing yahooweather:weather:losangeles "Los Angeles" @ "home" [ location="2442047", unit="us", refresh=120 ]
 ```
 
-The first keyword defines whether the entry is a bridge or a thing. The next statement defines the UID of the thing which contains of the following three segments: binding id, thing type id, thing id. So the first two segments must match to thing type supported by a binding (e.g. `yahooweather:weatheryahooweather`), whereas the thing id can be freely defined. Optionally, you may provide a label in order to recognize it easily, otherwise the default label from the thing type will be displayed. 
+The first keyword defines whether the entry is a bridge or a thing. The next statement defines the UID of the thing which contains of the following three segments: binding id, thing type id, thing id. So the first two segments must match to thing type supported by a binding (e.g. `yahooweather:weatheryahooweather`), whereas the thing id can be freely defined. Optionally, you may provide a label in order to recognize it easily, otherwise the default label from the thing type will be displayed.
 
 To help organizing your things, you also may define a location (here: "home"), which should point to an item. This item can either be a simple String item carrying e.g. the room name, or you may of course also use a Location item containing some geo coordinates.  
 
@@ -62,6 +62,22 @@ The referenced bridge is specified in the parentheses. Please notice that the UI
 
 It is also possible to manually define channels in the DSL. Usually this is not needed, as channels will be automatically created by the binding based on the thing type description. But there might be some bindings, that require the manual definition of channels.
 
+### State channels
+
+```
+Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ] {
+	Channels:
+		State String : customChannel1 [
+			configParameter="Value"
+		]
+		State Number : customChannel2 []
+}
+```
+
+Each channel definition must be placed inside the curly braces and begin with the keyword `State` followed by the accepted item type (e.g. String). After this the channel ID follows with the configuration of a channel. The framework will merge the list of channels coming from the binding and the user-defined list in the DSL.
+
+As state channels are the default channels, you can omit the `State` keyword, the following example creates the same channels as the example above:
+
 ```
 Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ] {
 	Channels:
@@ -72,4 +88,15 @@ Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=1
 }
 ```
 
-Each channel definition must be placed inside the curly braces and begin with the accepted item type (e.g. String). After this the channel ID follows with the configuration of a channel. The framework will merge the list of channels coming from the binding and the user-defined list in the DSL.
+### Trigger channels
+
+```
+Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ] {
+	Channels:
+		Trigger String : customChannel1 [
+			configParameter="Value"
+		]
+}
+```
+
+Trigger channels are defined with the keyword `Trigger` and only support the type String.
