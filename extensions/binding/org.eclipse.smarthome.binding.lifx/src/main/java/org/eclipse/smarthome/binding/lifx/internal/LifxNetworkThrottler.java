@@ -7,17 +7,21 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link LifxNetworkThrottler} is helper class that regulates the frequency at which messages/packets are sent to
- * LIFX bulbs. the LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more
+ * The {@link LifxNetworkThrottler} is a helper class that regulates the frequency at which messages/packets are sent to
+ * LIFX bulbs. The LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more.
  *
  * @author Karel Goderis - Initial Contribution
+ * @author Wouter Born - Deadlock fix
  */
 public class LifxNetworkThrottler {
 
@@ -25,54 +29,69 @@ public class LifxNetworkThrottler {
 
     public final static long PACKET_INTERVAL = 50;
 
-    private static ConcurrentHashMap<String, ReentrantLock> locks = new ConcurrentHashMap<String, ReentrantLock>();
-    private static ConcurrentHashMap<String, Long> timestamps = new ConcurrentHashMap<String, Long>();
+    /**
+     * Tracks when the last packet was sent to a LIFX bulb. The packet is sent after obtaining the lock and before
+     * releasing the lock.
+     */
+    private static class LifxLightCommunicationTracker {
 
-    public static void lock(String key) {
-        if (!locks.containsKey(key)) {
-            locks.put(key, new ReentrantLock());
+        private long timestamp;
+
+        private ReentrantLock lock = new ReentrantLock();
+
+        public void lock() {
+            lock.lock();
         }
 
-        locks.get(key).lock();
+        public void unlock() {
+            // When iterating over all trackers another thread may have inserted this object so this thread may not
+            // have a lock on it. When the thread does not have the lock, it also did not send a packet.
+            if (lock.isHeldByCurrentThread()) {
+                timestamp = System.currentTimeMillis();
+                lock.unlock();
+            }
+        }
 
-        if (timestamps.get(key) != null) {
+        public long getTimestamp() {
+            return timestamp;
+        }
+    }
 
-            long lastStamp = timestamps.get(key);
-            long timeToWait = Math.max(PACKET_INTERVAL - (System.currentTimeMillis() - lastStamp), 0);
-            if (timeToWait > 0) {
-                try {
-                    Thread.sleep(timeToWait);
-                } catch (InterruptedException e) {
-                    logger.error("An exception occurred while putting the thread to sleep : '{}'", e.getMessage());
+    /**
+     * A separate list of trackers is maintained when locking all lights in case of a broadcast. Iterators of
+     * {@link ConcurrentHashMap}s may behave non-linear when inserts take place to obtain more concurrency. When the
+     * iterator of {@code values()} of {@link #macTrackerMapping} is used for locking all lights, it could sometimes
+     * cause deadlock.
+     */
+    private static List<LifxLightCommunicationTracker> trackers = new CopyOnWriteArrayList<>();
+
+    private static Map<String, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<String, LifxLightCommunicationTracker>();
+
+    public static void lock(String mac) {
+        LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
+        tracker.lock();
+        waitForNextPacketInterval(tracker.getTimestamp());
+    }
+
+    private static LifxLightCommunicationTracker getOrCreateTracker(String mac) {
+        LifxLightCommunicationTracker tracker = macTrackerMapping.get(mac);
+        if (tracker == null) {
+            // for better performance only synchronize when necessary
+            synchronized (trackers) {
+                // another thread may just have added a tracker in this synchronized block, so reevaluate
+                tracker = macTrackerMapping.get(mac);
+                if (tracker == null) {
+                    tracker = new LifxLightCommunicationTracker();
+                    trackers.add(tracker);
+                    macTrackerMapping.put(mac, tracker);
                 }
             }
         }
-
+        return tracker;
     }
 
-    public static void unlock(String key) {
-
-        if (locks.containsKey(key)) {
-            timestamps.put(key, System.currentTimeMillis());
-            locks.get(key).unlock();
-        }
-    }
-
-    public static void lock() {
-
-        for (ReentrantLock aLock : locks.values()) {
-            aLock.lock();
-        }
-
-        long lastStamp = 0;
-
-        for (Long aStamp : timestamps.values()) {
-            if (aStamp > lastStamp) {
-                lastStamp = aStamp;
-            }
-        }
-
-        long timeToWait = Math.max(PACKET_INTERVAL - (System.currentTimeMillis() - lastStamp), 0);
+    private static void waitForNextPacketInterval(long timestamp) {
+        long timeToWait = Math.max(PACKET_INTERVAL - (System.currentTimeMillis() - timestamp), 0);
         if (timeToWait > 0) {
             try {
                 Thread.sleep(timeToWait);
@@ -82,15 +101,25 @@ public class LifxNetworkThrottler {
         }
     }
 
-    public static void unlock() {
-
-        for (String key : locks.keySet()) {
-            if (locks.get(key).isHeldByCurrentThread()) {
-                timestamps.put(key, System.currentTimeMillis());
-                locks.get(key).unlock();
-            }
+    public static void unlock(String mac) {
+        if (macTrackerMapping.containsKey(mac)) {
+            macTrackerMapping.get(mac).unlock();
         }
+    }
 
+    public static void lock() {
+        long lastStamp = 0;
+        for (LifxLightCommunicationTracker tracker : trackers) {
+            tracker.lock();
+            lastStamp = Math.max(lastStamp, tracker.getTimestamp());
+        }
+        waitForNextPacketInterval(lastStamp);
+    }
+
+    public static void unlock() {
+        for (LifxLightCommunicationTracker tracker : trackers) {
+            tracker.unlock();
+        }
     }
 
 }
