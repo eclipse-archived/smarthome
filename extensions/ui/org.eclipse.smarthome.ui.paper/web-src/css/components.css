@@ -950,7 +950,7 @@ md-dialog-content .dayParameter {
 	min-width: 35px;
 }
 
-.item-content .actions i {
+.item-content .actions i, .linkedItems .action i {
 	margin: 5px 12px 5px 12px;
 	transition: box-shadow .4s;
 	border-radius: 100%;
@@ -960,7 +960,7 @@ md-dialog-content .dayParameter {
 	outline: 0;
 }
 
-.item-content .actions i:hover, .rules .actions span:hover {
+.item-content .actions i:hover, .rules .actions span:hover, .linkedItems .action i:hover {
 	cursor: pointer;
 	box-shadow: 0px 0px 4px 2px #dedede;
 }
@@ -1019,3 +1019,49 @@ background-color: green;
 	margin-left: 20px;
 	margin-right: 20px;
 }
+
+.linkedItems {
+	
+/*     background-color:#e6e6e6 */
+}
+
+.linkedItems>div{
+	border-bottom: 1px solid #ccc;
+    margin: 5px;
+}
+
+.linkedItems .circle {
+	width:34px;
+	height:34px;
+	line-height:34px;
+	font-size:15px;
+}
+
+.fab-item .linkedItems button.md-fab {
+	position:relative;
+}
+
+.linkedItems>.row {
+	padding-bottom: 10px;
+	margin-top: 10px;
+}
+
+.linkedItems>.row>.action {
+	text-align: right;
+	margin-top:2px;
+}
+
+.linkedItems>.row>.action>i {
+	text-align: center;
+	   width:32px;
+    height:32px;
+    margin:0px;
+    font-size:20px;
+}
+
+.linkedItems>.row>.name{
+    margin-top:7px;
+    color:#777;
+}
+
+

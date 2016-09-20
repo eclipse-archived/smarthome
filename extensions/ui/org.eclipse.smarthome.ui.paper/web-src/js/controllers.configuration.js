@@ -287,7 +287,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
-
+    $scope.advancedMode;
     $scope.thing;
     $scope.thingType;
     $scope.thingChannels = [];
@@ -338,11 +338,11 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }
     };
 
-    $scope.disableChannel = function(thingUID, channelID, event) {
+    $scope.disableChannel = function(thingUID, channelID, itemName, event) {
         var channel = $scope.getChannelById(channelID);
         var linkedItem = channel.linkedItems[0];
         if ($scope.advancedMode) {
-            $scope.unlinkChannel(channelID, event);
+            $scope.unlinkChannel(channelID, itemName, event);
         } else {
             linkService.unlink({
                 itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
@@ -362,21 +362,23 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             templateUrl : 'partials/dialog.linkchannel.html',
             targetEvent : event,
             hasBackdrop : true,
-            linkedItem : channel.linkedItems.length > 0 ? channel.linkedItems[0] : '',
+            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : ""
         }).then(function(itemName) {
-            linkService.link({
-                itemName : itemName,
-                channelUID : $scope.thing.UID + ':' + channelID
-            }, function() {
-                $scope.getThing(true);
-                toastService.showDefaultToast('Channel linked');
-            });
+            if (itemName) {
+                linkService.link({
+                    itemName : itemName,
+                    channelUID : $scope.thing.UID + ':' + channelID
+                }, function() {
+                    $scope.getThing(true);
+                    toastService.showDefaultToast('Channel linked');
+                });
+            }
         });
     }
 
-    $scope.unlinkChannel = function(channelID, event) {
+    $scope.unlinkChannel = function(channelID, itemName, event) {
         var channel = $scope.getChannelById(channelID);
         $mdDialog.show({
             controller : 'UnlinkChannelDialogController',
@@ -384,16 +386,18 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             targetEvent : event,
             hasBackdrop : true,
             locals : {
-                itemName : channel.linkedItems[0]
+                itemName : itemName
             }
-        }).then(function(itemName) {
-            linkService.unlink({
-                itemName : channel.linkedItems[0],
-                channelUID : $scope.thing.UID + ':' + channelID
-            }, function() {
-                $scope.getThing(true);
-                toastService.showDefaultToast('Channel unlinked');
-            });
+        }).then(function() {
+            if (itemName) {
+                linkService.unlink({
+                    itemName : itemName,
+                    channelUID : $scope.thing.UID + ':' + channelID
+                }, function() {
+                    $scope.getThing(true);
+                    toastService.showDefaultToast('Channel unlinked');
+                });
+            }
         });
     }
     $scope.getChannelById = function(channelId) {
@@ -444,6 +448,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         thingRepository.getOne(function(thing) {
             return thing.UID === thingUID;
         }, function(thing) {
+            angular.forEach(thing.channels, function(value, i) {
+                value.showItems = $scope.thing ? $scope.thing.channels[i].showItems : false;
+            });
             $scope.thing = thing;
             $scope.thingTypeUID = thing.thingTypeUID;
             getThingType();
@@ -513,8 +520,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $mdDialog.hide();
         });
     }
-}).controller('LinkChannelDialogController', function($scope, $mdDialog, $filter, toastService, itemRepository, itemService, linkedItem, acceptedItemType, category) {
-    $scope.itemName = linkedItem;
+}).controller('LinkChannelDialogController', function($scope, $mdDialog, $filter, toastService, itemRepository, itemService, linkedItems, acceptedItemType, category) {
+    $scope.itemName;
+    $scope.linkedItems = linkedItems;
     $scope.acceptedItemType = acceptedItemType;
     $scope.category = category;
     $scope.itemFormVisible = false;
@@ -523,6 +531,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         $scope.items = $filter('filter')($scope.items, {
             type : $scope.acceptedItemType
         });
+        $scope.items = $.grep($scope.items, function(item) {
+            return $scope.linkedItems.indexOf(item.name) == -1;
+        });
+
         $scope.items = $filter('orderBy')($scope.items, "name");
         $scope.items.push({
             name : "_createNew",
