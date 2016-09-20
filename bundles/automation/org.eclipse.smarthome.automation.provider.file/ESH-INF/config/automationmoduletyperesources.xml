@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+
+	<config-description uri="system:automationresources:moduletypes">
+		<parameter name="roots" type="text" required="true">
+			<label>Automation Module Type Resource File Directories</label>
+			<description><![CDATA[
+                 <p>A string containing relative paths to the local directories with automation resource files, comma separated.</p>
+                 <p>Example: "automation/team1,automation/team2"</p>
+             ]]>
+			</description>
+		</parameter>
+	</config-description>
+
+</config-description:config-descriptions>
