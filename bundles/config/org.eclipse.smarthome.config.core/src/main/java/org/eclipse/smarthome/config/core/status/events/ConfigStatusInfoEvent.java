@@ -21,6 +21,8 @@ public final class ConfigStatusInfoEvent extends AbstractEvent {
 
     static final String TYPE = "ConfigStatusInfoEvent";
 
+    private final ConfigStatusInfo configStatusInfo;
+
     private static final Gson gson = new Gson();
 
     /**
@@ -28,25 +30,19 @@ public final class ConfigStatusInfoEvent extends AbstractEvent {
      *
      * @param topic the topic of the event
      * @param configStatusInfo the corresponding configuration status information to be put as payload into the event
-     * @param source the source of the event
      */
-    public ConfigStatusInfoEvent(String topic, ConfigStatusInfo configStatusInfo, String source) {
-        this(topic, gson.toJson(configStatusInfo), source);
-    }
-
-    /**
-     * Creates a new {@link ConfigStatusInfoEvent}.
-     *
-     * @param topic the topic of the event
-     * @param payload the payload of the event
-     * @param source the source of the event
-     */
-    ConfigStatusInfoEvent(String topic, String payload, String source) {
-        super(topic, payload, source);
+    public ConfigStatusInfoEvent(String topic, ConfigStatusInfo configStatusInfo) {
+        super(topic, gson.toJson(configStatusInfo), null);
+        this.configStatusInfo = configStatusInfo;
     }
 
     @Override
     public String getType() {
         return TYPE;
+    }
+
+    @Override
+    public String toString() {
+        return configStatusInfo.toString();
     }
 }

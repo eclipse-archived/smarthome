@@ -9,6 +9,7 @@ package org.eclipse.smarthome.config.core.status.events;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 
@@ -31,10 +32,19 @@ public final class ConfigStatusEventFactory extends AbstractEventFactory {
         super(SUPPORTED_EVENT_TYPES);
     }
 
+    private Event createStatusInfoEvent(String topic, String payload) throws Exception {
+        String[] topicElements = getTopicElements(topic);
+        if (topicElements.length != 5) {
+            throw new IllegalArgumentException("ConfigStatusInfoEvent creation failed, invalid topic: " + topic);
+        }
+        ConfigStatusInfo thingStatusInfo = deserializePayload(payload, ConfigStatusInfo.class);
+        return new ConfigStatusInfoEvent(topic, thingStatusInfo);
+    }
+
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         if (ConfigStatusInfoEvent.TYPE.equals(eventType)) {
-            return new ConfigStatusInfoEvent(topic, payload, source);
+            return createStatusInfoEvent(topic, payload);
         }
         throw new IllegalArgumentException(
                 eventType + " not supported by " + ConfigStatusEventFactory.class.getSimpleName());
