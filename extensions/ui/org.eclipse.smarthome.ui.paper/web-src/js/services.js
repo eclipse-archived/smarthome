@@ -6,8 +6,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
     $httpProvider.interceptors.push(function($q, $injector) {
         return {
             'responseError' : function(rejection) {
-                var showError = !!rejection.showError;
-                if (showError) {
+                var showError = rejection.showError;
+                if (showError !== false) {
                     $injector.get('toastService').showErrorToast('ERROR: ' + rejection.status + ' - ' + rejection.statusText);
                 }
                 return $q.reject(rejection);
