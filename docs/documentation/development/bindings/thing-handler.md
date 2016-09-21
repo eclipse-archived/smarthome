@@ -139,7 +139,7 @@ If an event payload is needed, use the overloaded version:
 triggerChannel("channelId", "PRESSED")
 ```
 
-The call will be delegated to the framewort. It is binding specific when the channel should be triggered.
+The call will be delegated to the framework. It is binding specific when the channel should be triggered.
 
 ## Updating the Thing Status
 
