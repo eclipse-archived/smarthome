@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
  */
 class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
-    static private final Logger logger = LoggerFactory.getLogger(RulesJvmModelInferrer)
+    private final Logger logger = LoggerFactory.getLogger(RulesJvmModelInferrer)
 
     /** Variable name for the previous state of an item in a "changed state triggered" rule */
     public static final String VAR_PREVIOUS_STATE = "previousState";
