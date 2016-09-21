@@ -68,7 +68,7 @@
 			<div class="things">
 				<div class="clickable" ng-class="{'new':newThingUID==thing.UID,'lastThing':$last}" ng-repeat="thing in data.things | filter:search | orderBy:'label'">
 					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="navigateTo('things/view/' + thing.UID)">
-						<div class="circle">{{thing.UID.split(':')[1].substring(0,1).toUpperCase()}}</div>
+						<div class="circle">{{thing.thingTypeUID.split(':')[1].substring(0,1).toUpperCase()}}</div>
 						<div class="cbody item-content">
 							<div flex="70">
 								<h3>
