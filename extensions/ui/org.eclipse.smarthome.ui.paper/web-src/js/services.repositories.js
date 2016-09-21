@@ -195,6 +195,7 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
                     return channel.uid == link.channelUID;
                 });
                 if (channel.length > 0) {
+                    channel[0].linkedItems = channel[0].linkedItems ? channel[0].linkedItems : [];
                     channel[0].linkedItems.push(link.itemName);
                 }
             });
