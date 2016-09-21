@@ -333,6 +333,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case SLEEPTIMER:
                 setSleepTimer(command);
                 break;
+            case SHUFFLE:
+                setShuffle(command);
+                break;
+            case REPEAT:
+                setRepeat(command);
+                break;
             default:
                 break;
 
@@ -418,6 +424,19 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             }
                         }
                     }
+                    break;
+                }
+                case "CurrentPlayMode": {
+                    State newState = UnDefType.UNDEF;
+                    if (stateMap.get("CurrentPlayMode") != null) {
+                        newState = isShuffleActive() ? OnOffType.ON : OnOffType.OFF;
+                    }
+                    updateState(SHUFFLE, newState);
+                    newState = UnDefType.UNDEF;
+                    if (stateMap.get("CurrentPlayMode") != null) {
+                        newState = new StringType(getRepeatMode());
+                    }
+                    updateState(REPEAT, newState);
                     break;
                 }
                 case "CurrentLEDState": {
@@ -1532,6 +1551,113 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public void pause() {
         Map<String, String> result = service.invokeAction(this, "AVTransport", "Pause", null);
+
+        for (String variable : result.keySet()) {
+            this.onValueReceived(variable, result.get(variable), "AVTransport");
+        }
+    }
+
+    public void setShuffle(Command command) {
+        if ((command != null) && (command instanceof OnOffType || command instanceof OpenClosedType
+                || command instanceof UpDownType)) {
+
+            try {
+                ZonePlayerHandler coordinator = getCoordinatorHandler();
+
+                if (command.equals(OnOffType.ON) || command.equals(UpDownType.UP)
+                        || command.equals(OpenClosedType.OPEN)) {
+                    switch (coordinator.getRepeatMode()) {
+                        case "ALL":
+                            coordinator.updatePlayMode("SHUFFLE");
+                            break;
+                        case "ONE":
+                            coordinator.updatePlayMode("SHUFFLE_REPEAT_ONE");
+                            break;
+                        case "OFF":
+                            coordinator.updatePlayMode("SHUFFLE_NOREPEAT");
+                            break;
+                    }
+                } else if (command.equals(OnOffType.OFF) || command.equals(UpDownType.DOWN)
+                        || command.equals(OpenClosedType.CLOSED)) {
+                    switch (coordinator.getRepeatMode()) {
+                        case "ALL":
+                            coordinator.updatePlayMode("REPEAT_ALL");
+                            break;
+                        case "ONE":
+                            coordinator.updatePlayMode("REPEAT_ONE");
+                            break;
+                        case "OFF":
+                            coordinator.updatePlayMode("NORMAL");
+                            break;
+                    }
+                }
+
+            } catch (IllegalStateException e) {
+                logger.warn("Cannot handle shuffle command ({})", e.getMessage());
+            }
+        }
+    }
+
+    public void setRepeat(Command command) {
+        if ((command != null) && (command instanceof StringType)) {
+            try {
+                ZonePlayerHandler coordinator = getCoordinatorHandler();
+
+                switch (command.toString()) {
+                    case "ALL":
+                        coordinator.updatePlayMode(coordinator.isShuffleActive() ? "SHUFFLE" : "REPEAT_ALL");
+                        break;
+                    case "ONE":
+                        coordinator.updatePlayMode(coordinator.isShuffleActive() ? "SHUFFLE_REPEAT_ONE" : "REPEAT_ONE");
+                        break;
+                    case "OFF":
+                        coordinator.updatePlayMode(coordinator.isShuffleActive() ? "SHUFFLE_NOREPEAT" : "NORMAL");
+                        break;
+                    default:
+                        logger.warn("{}: unexpected repeat command; accepted values are ALL, ONE and OFF",
+                                command.toString());
+                        break;
+                }
+
+            } catch (IllegalStateException e) {
+                logger.warn("Cannot handle repeat command ({})", e.getMessage());
+            }
+        }
+    }
+
+    public Boolean isShuffleActive() {
+        return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
+                ? true : false;
+    }
+
+    public String getRepeatMode() {
+        String mode = "OFF";
+        if (stateMap.get("CurrentPlayMode") != null) {
+            switch (stateMap.get("CurrentPlayMode")) {
+                case "REPEAT_ALL":
+                case "SHUFFLE":
+                    mode = "ALL";
+                    break;
+                case "REPEAT_ONE":
+                case "SHUFFLE_REPEAT_ONE":
+                    mode = "ONE";
+                    break;
+                case "NORMAL":
+                case "SHUFFLE_NOREPEAT":
+                default:
+                    mode = "OFF";
+                    break;
+            }
+        }
+        return mode;
+    }
+
+    protected void updatePlayMode(String playMode) {
+        Map<String, String> inputs = new HashMap<String, String>();
+        inputs.put("InstanceID", "0");
+        inputs.put("NewPlayMode", playMode);
+
+        Map<String, String> result = service.invokeAction(this, "AVTransport", "SetPlayMode", inputs);
 
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "AVTransport");
