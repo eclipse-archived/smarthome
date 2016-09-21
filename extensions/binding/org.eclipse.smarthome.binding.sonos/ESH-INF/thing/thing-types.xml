@@ -18,6 +18,8 @@
 			<channel id="currentartist" typeId="currentartist" />
 			<channel id="currenttitle" typeId="currenttitle" />
 			<channel id="currenttrack" typeId="currenttrack" />
+			<channel id="shuffle" typeId="shuffle" />
+			<channel id="repeat" typeId="repeat" />
 			<channel id="favorite" typeId="favorite" />
 			<channel id="led" typeId="led" />
 			<channel id="linein" typeId="linein" />

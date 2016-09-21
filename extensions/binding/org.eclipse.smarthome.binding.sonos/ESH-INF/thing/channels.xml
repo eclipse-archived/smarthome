@@ -14,7 +14,6 @@
 		<item-type>Switch</item-type>
 		<label>Set Alarm</label>
 		<description>Set the first occurring alarm either ON or OFF. Alarms have first have to be defined through the Sonos Controller app</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="alarmproperties" advanced="true">
@@ -27,7 +26,6 @@
 		<item-type>Switch</item-type>
 		<label>Alarm is running</label>
 		<description>Set to ON if the alarm was triggered</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="control">
@@ -71,21 +69,18 @@
 		<item-type>Switch</item-type>
 		<label>Led</label>
 		<description>Set or get the status of the white led on the front of the Zone Player </description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="localcoordinator" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Local Coordinator</label>
 		<description>Indicator set to ON if the this Zone Player is the Zone Group Coordinator</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="mute" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Mute</label>
 		<description>Set or get the mute state of the master volume of the Zone Player</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="notificationsound" advanced="true">
@@ -111,7 +106,6 @@
 		<item-type>Switch</item-type>
 		<label>Play Queue</label>
 		<description>Play the songs from the current queue</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="playtrack" advanced="true">
@@ -130,7 +124,6 @@
 		<item-type>Switch</item-type>
 		<label>Public Address</label>
 		<description>Put all Zone Players in one group, and stream audio from the line-in from the Zone Player that triggered the command</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="radio" advanced="true">
@@ -149,28 +142,24 @@
 		<item-type>Switch</item-type>
 		<label>Restore</label>
 		<description>Restore the state of the Zone Player</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="restoreall" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Restore All</label>
 		<description>Restore the state of all the Zone Players</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="save" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Save</label>
 		<description>Save the state of the Zone Player</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="saveall" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Save All</label>
 		<description>Save the state of all the Zone Players</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="snooze" advanced="true">
@@ -183,7 +172,6 @@
 		<item-type>Switch</item-type>
 		<label>Stand Alone</label>
 		<description>Make the Zone Player leave its Group and become a standalone Zone Player</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<!-- The Sonos State Type -->
@@ -197,7 +185,6 @@
 		<item-type>Switch</item-type>
 		<label>Stop</label>
 		<description>Stop the Zone Player</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="volume">
@@ -236,7 +223,6 @@
 		<item-type>Switch</item-type>
 		<label>Line-in connected</label>
 		<description>Indicator set to ON when the line-in of the Zone Player is connected</description>
-		<category>Switch</category>
 	</channel-type>
 
 	<channel-type id="playlinein" advanced="true">
@@ -252,4 +238,17 @@
 		<state min="0" max="68399" step="1" readOnly="false">
 		</state>
 	</channel-type>
+
+	<channel-type id="shuffle" advanced="true">
+		<item-type>Switch</item-type>
+		<label>Shuffle</label>
+		<description>Shuffle queue playback</description>
+	</channel-type>
+
+	<channel-type id="repeat" advanced="true">
+		<item-type>String</item-type>
+		<label>Repeat</label>
+		<description>Repeat track or queue playback</description>
+	</channel-type>
+
 </thing:thing-descriptions>
