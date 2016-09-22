@@ -4,10 +4,8 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
     var triggersArray = [];
     var actionsArray = [];
     var conditionsArray = [];
-    var tId = 1, aId = 1, cId = 1;
     var params = [];
     var moduleTypes = [];
-    var isDirty = false;
     return {
         updateParams : function(elem) {
             params.push(elem);
@@ -31,16 +29,14 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
             var modArr = this.getModuleArray(type);
 
             if (!value.id) {
-                value.id = type + "_" + tId;
+                value.id = type.substring(0, 1) + "_" + Date.now();
                 modArr.push(value);
-                tId++;
             } else {
                 var index = this.searchArray(modArr, value.id);
                 if (index != -1) {
                     modArr[index] = value;
                 } else {
                     modArr.push(value);
-                    tId++;
                 }
             }
         },
@@ -61,7 +57,7 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
             angular.forEach(modArr, function(value) {
                 var type = typeof value.uid === "undefined" ? value.type : value.uid;
                 $moduleJSON.push({
-                    "id" : value.id ? value.id : modArr.mtype + "_" + i,
+                    "id" : value.id ? value.id : modArr.mtype.substring(0, 1) + "_" + Date.now(),
                     "label" : value.label,
                     "description" : value.description,
                     "type" : type,
@@ -76,10 +72,6 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
             triggersArray = [];
             actionsArray = [];
             conditionsArray = [];
-            tId = 1;
-            aId = 1;
-            cId = 1;
-
         },
         removeFromArray : function(opt, id) {
             var arr = null;
