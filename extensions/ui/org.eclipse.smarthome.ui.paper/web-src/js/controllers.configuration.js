@@ -376,7 +376,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
 
-    $scope.unlinkChannel = function(channelID) {
+    $scope.unlinkChannel = function(channelID, event) {
         var channel = $scope.getChannelById(channelID);
         $mdDialog.show({
             controller : 'UnlinkChannelDialogController',
