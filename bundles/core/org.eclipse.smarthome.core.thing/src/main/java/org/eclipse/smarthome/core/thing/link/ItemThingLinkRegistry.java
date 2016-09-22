@@ -22,7 +22,11 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @author Dennis Nobel - Initial contribution
  */
 @Deprecated
-public class ItemThingLinkRegistry extends AbstractLinkRegistry<ItemThingLink> {
+public class ItemThingLinkRegistry extends AbstractLinkRegistry<ItemThingLink, ItemThingLinkProvider> {
+
+    public ItemThingLinkRegistry() {
+        super(ItemThingLinkProvider.class);
+    }
 
     /**
      * Returns the list of linked thing UIDs, which are linked to the given item name.
