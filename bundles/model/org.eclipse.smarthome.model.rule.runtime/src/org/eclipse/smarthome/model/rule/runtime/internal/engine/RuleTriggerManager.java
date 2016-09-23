@@ -10,7 +10,6 @@ package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.Command;
@@ -46,7 +44,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -388,13 +385,19 @@ public class RuleTriggerManager {
                 systemShutdownTriggeredRules.remove(rule);
                 break;
             case UPDATE:
-                updateEventTriggeredRules.remove(rule);
+                for (Set<Rule> rules : updateEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
             case CHANGE:
-                changedEventTriggeredRules.remove(rule);
+                for (Set<Rule> rules : changedEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
             case COMMAND:
-                commandEventTriggeredRules.remove(rule);
+                for (Set<Rule> rules : commandEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
             case TIMER:
                 timerEventTriggeredRules.remove(rule);
