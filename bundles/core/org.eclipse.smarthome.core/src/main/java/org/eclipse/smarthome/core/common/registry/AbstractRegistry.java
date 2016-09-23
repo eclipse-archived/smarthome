@@ -96,7 +96,7 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
          * @param providerClazz the class that implementing services should be tracked
          */
         public ProviderTracker(final BundleContext context, final Class<P> providerClazz) {
-            super(context, providerClazz, null);
+            super(context, providerClazz.getName(), null);
             this.context = context;
         }
 
