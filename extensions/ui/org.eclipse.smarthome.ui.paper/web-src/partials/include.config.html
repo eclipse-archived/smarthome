@@ -17,12 +17,8 @@
 											<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
 											<div ng-message="required">Field is required</div>
 										</div>
-										<span ng-show="focus">
-											<p class="hint">
-												<small>&nbsp;</small>
-											</p>
-										</span> <span ng-show="!focus">
-											<p class="hint">
+										<span>
+											<p class="hint" ng-class="{'invisible':focus}">
 												<small ng-bind-html="parameter.description"></small>
 											</p>
 										</span> </md-input-container>
@@ -35,13 +31,9 @@
 											<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
 											<div ng-message="required">Field is required</div>
 										</div>
-										<span ng-show="!focus">
-											<p class="hint">
+										<span>
+											<p class="hint" ng-class="{'invisible':focus}">
 												<small ng-bind-html="parameter.description"></small>
-											</p>
-										</span> <span ng-show="focus">
-											<p class="hint">
-												<small>&nbsp;</small>
 											</p>
 										</span> </md-input-container>
 									</div>
@@ -62,15 +54,11 @@
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>
-									<span ng-show="focus">
-										<p class="hint">
-											<small style="visibility: hidden;">{{parameter.description}}</small>
-										</p>
-									</span> <span ng-show="!focus">
-										<p class="hint">
+									<span>
+										<p class="hint" ng-class="{'invisible':focus}">
 											<small ng-bind-html="parameter.description"></small>
 										</p>
-									</span> </md-input-container>
+									</span></md-input-container>
 								</div>
 								<div ng-switch-when="date" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
@@ -79,13 +67,8 @@
 										<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 											<div ng-message="required" class="customMessage">Field is required</div>
 										</div>
-										<span ng-show="focus">
-											<p class="hint">
-												<small>&nbsp;</small>
-											</p>
-										</span>
-										<span ng-show="!focus">
-											<p class="hint">
+										<span>
+											<p class="hint" ng-class="{'invisible':focus}">
 												<small ng-bind-html="parameter.description"></small>
 											</p>
 										</span>
@@ -99,13 +82,9 @@
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>
-									<span ng-show="!focus">
-										<p class="hint">
+									<span>
+										<p class="hint" ng-class="{'invisible':focus}">
 											<small ng-bind-html="parameter.description"></small>
-										</p>
-									</span> <span ng-show="focus">
-										<p class="hint">
-											<small>&nbsp;</small>
 										</p>
 									</span> </md-input-container>
 									<div style="float: left;">

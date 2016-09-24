@@ -566,6 +566,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	padding-bottom: 5px;
 }
 
+.parameter>div p.hint {
+	margin-top: 0px;
+}
+
 .includeConfig legend {
 	display: initial;
 	width: initial;
