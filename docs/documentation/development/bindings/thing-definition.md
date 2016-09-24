@@ -31,7 +31,7 @@ Bindings may optionally set the listing of a thing type. By doing do, they indic
     <thing-type id="thingTypeID" listed="false">
         ...
     </thing-type>
-``` 
+```
 
 Thing types are listed by default, unless specified otherwise. Hiding thing types potentially makes sense if they are deprecated and should not be used anymore. Also, this can be useful if users should not be bothered with distinguishing similar devices which for technical reasons have to have separate thing types. In that way, a generic thing type could be listed for users and a corresponding thing handler would change the thing type immediately to a more concrete one, handing over control to the correct specialized handler.
 
@@ -41,7 +41,7 @@ A channel describes a specific functionality of a thing and can be linked to an 
 
 The following XML snippet shows a thing type definition with 2 channels and one referenced channel type:
 
-```xml 
+```xml
 <thing-type id="thingTypeID">
     <label>Sample Thing</label>
     <description>Some sample description</description>
@@ -66,7 +66,7 @@ In order to reuse identical channels in different bindings a channeltype can be 
 
 The following XML snippet shows a system channel-type definition and thing-type definition that references it:
 
-```xml 
+```xml
 <thing-type id="thingTypeID">
     <label>Sample Thing</label>
     <description>Some sample description</description>
@@ -92,13 +92,48 @@ There exist systemwide channels that are available by default:
 
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
+The following XML snippet shows a trigger channel:
+
+```xml
+<thing-type id="thingTypeID">
+    <label>Sample Thing</label>
+    <description>Some sample description</description>
+    <channels>
+      <channel id="s" typeId="trigger-channel" />
+    </channels>
+</thing-type>
+<channel-type id="trigger-channel">
+    <kind>trigger</kind>
+    <label>Trigger Channel</label>
+    <event>
+      <options>
+        <option value="PRESSED">pressed</option>
+        <option value="RELEASED">released</option>
+        <option value="DOUBLE_PRESSED">double pressed</option>
+      </options>
+    </event>
+</channel-type>
+```
+
+This channel can emit the event payloads `PRESSED`, `RELEASED` and `DOUBLE_PRESSED`.
+
+If no `<event>` tag is speficied, the channel can be triggered, but has no event payload. If an empty `<event>` tag is specified, the channel can trigger any event payload.
+
+There exist systemwide trigger channels that are available by default:
+
+| Channel Type ID | Reference typeId       | Description  |
+|-----------------|------------------------|------------- |
+| trigger         | system.trigger         | Can only trigger, no event payload |
+| rawbutton       | system.rawbutton       | Can trigger `PRESSED` and `RELEASED` |
+| button          | system.button          | Can trigger `SHORT_PRESSED`, `DOUBLE_PRESSED` and `LONG_PRESSED` |
+
 In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](xml-reference.html).
 
 ### Default Tags
 
 The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a weather tag definition:
 
-```xml 
+```xml
 <tags>
     <tag>weather</tag>
 </tags>
@@ -108,7 +143,7 @@ The XML definition of a ThingType allows to assign default tags to channels. All
 
 The state description allows to specify restrictions and additional information for the state of an item, that is linked to the channel. Some configuration options are only valid for specific item types. The following XML snippet shows the definition for a temperature actuator channel:
 
-```xml 
+```xml
 <state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false"></state>
 ```
 
@@ -116,7 +151,7 @@ The attributes `min` and `max` can only be declared for channel with the item ty
 
 Some channels might have only a limited and countable set of states. These states can be specified as options. A `String` item must be used as item type. The following XML snippet defines a list of predefined state options:
 
-```xml 
+```xml
 <state readOnly="true">
     <options>
         <option value="HIGH">High Pressure</option>
@@ -179,7 +214,7 @@ Some devices might have a lot of channels. There are also complex devices like a
 
 Inside the thing types XML file channel groups can be defined like this:
 
-```xml 
+```xml
 <thing-type id="multiChannelSwitchActor">
     <!-- ... -->
     <channel-groups>
@@ -199,13 +234,13 @@ The channel group type is defined on the same level as the thing types and chann
     <channels>
         <channel id="switch" typeId="switch" />
     </channels>
-</channel-group-type> 
+</channel-group-type>
 ```
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
 
 ## Properties
-Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include: 
+Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include:
 
 - general device information, e.g. the device vendor, the device series or the model ID, ...
 - device characteristics, e.g. if it is battery based, which home automation protocol is used, what is the current firmware version or the serial number, ...
@@ -214,7 +249,7 @@ Solutions based on Eclipse SmartHome might require meta data from a device. Thes
 
 Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on a user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called `properties`:
 
-```xml 
+```xml
     <thing-type id="thingTypeId">
         ...
         <properties>
