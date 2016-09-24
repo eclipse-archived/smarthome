@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -276,6 +275,53 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void updateState(String channelID, State state) {
         ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
         updateState(channelUID, state);
+    }
+
+    /**
+     * Emits an event for the given channel.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     * @param event Event to emit
+     */
+    protected void triggerChannel(ChannelUID channelUID, String event) {
+        synchronized (this) {
+            if (this.callback != null) {
+                this.callback.channelTriggered(this.getThing(), channelUID, event);
+            } else {
+                throw new IllegalStateException("Could not update state, because callback is missing");
+            }
+        }
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     * @param event Event to emit
+     */
+    protected void triggerChannel(String channelUID, String event) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), event);
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     */
+    protected void triggerChannel(String channelUID) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), "");
+    }
+
+    /**
+     * Emits an event for the given channel. Will use the thing UID to infer the
+     * unique channel UID.
+     *
+     * @param channelUID UID of the channel over which the event will be emitted
+     */
+    protected void triggerChannel(ChannelUID channelUID) {
+        triggerChannel(channelUID, "");
     }
 
     /**

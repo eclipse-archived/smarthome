@@ -93,7 +93,6 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
         if (callback != null) {
             logger.trace("Received Event: Source: " + event.getSource() + " Topic: " + event.getTopic() + " Type: "
                     + event.getType() + " Payload: " + event.getPayload());
-
             if (!event.getTopic().contains(source)) {
                 return;
             }

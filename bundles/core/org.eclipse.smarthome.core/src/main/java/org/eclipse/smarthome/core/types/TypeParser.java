@@ -17,7 +17,34 @@ import java.util.List;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class TypeParser {
+public final class TypeParser {
+
+    /**
+     * No instances allowed.
+     */
+    private TypeParser() {}
+
+    private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
+
+    /**
+     * Parses a string into a type.
+     *
+     * @param typeName name of the type, for example StringType.
+     * @param input input string to parse.
+     * @return Parsed type or null, if the type couldn't be parsed.
+     */
+    public static Type parseType(String typeName, String input) {
+        try {
+            Class<?> stateClass = Class.forName(CORE_LIBRARY_PACKAGE + typeName);
+            Method valueOfMethod = stateClass.getMethod("valueOf", String.class);
+            return (Type) valueOfMethod.invoke(stateClass, input);
+        } catch (ClassNotFoundException e) {
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+        }
+        return null;
+    }
 
     /**
      * <p>

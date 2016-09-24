@@ -23,6 +23,11 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActio
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +44,10 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(BasicModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays
-            .asList(new String[] { ItemStateConditionHandler.ITEM_STATE_CONDITION,
-                    ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
-                    EventConditionHandler.MODULETYPE_ID, CompareConditionHandler.MODULE_TYPE });
+    private static final Collection<String> types = Arrays.asList(new String[] {
+            ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION,
+            GenericEventTriggerHandler.MODULE_TYPE_ID, EventConditionHandler.MODULETYPE_ID,
+            CompareConditionHandler.MODULE_TYPE });
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;

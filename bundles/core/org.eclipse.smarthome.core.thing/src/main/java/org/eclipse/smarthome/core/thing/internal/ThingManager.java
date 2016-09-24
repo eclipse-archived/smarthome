@@ -23,7 +23,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener;
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -68,7 +67,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -98,9 +96,9 @@ public class ThingManager extends AbstractItemEventSubscriber
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
 
     private final Multimap<Bundle, Object> initializerVetoes = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object>create());
+            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
     private final Multimap<Long, ThingHandler> initializerQueue = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler>create());
+            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler> create());
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -251,6 +249,11 @@ public class ThingManager extends AbstractItemEventSubscriber
         public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
                 final Configuration configuration) {
             ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
+        }
+
+        @Override
+        public void channelTriggered(Thing thing, ChannelUID channelUID, String event) {
+            eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
         }
 
     };

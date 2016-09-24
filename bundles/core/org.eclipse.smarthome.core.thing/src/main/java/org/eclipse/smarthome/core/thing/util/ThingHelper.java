@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -24,7 +23,6 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 
@@ -85,7 +83,7 @@ public class ThingHelper {
     private static String toString(List<Channel> channels) {
         List<String> strings = new ArrayList<>(channels.size());
         for (Channel channel : channels) {
-            strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType());
+            strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType() + '#' + channel.getKind());
         }
         Collections.sort(strings);
         return Joiner.on(',').join(strings);

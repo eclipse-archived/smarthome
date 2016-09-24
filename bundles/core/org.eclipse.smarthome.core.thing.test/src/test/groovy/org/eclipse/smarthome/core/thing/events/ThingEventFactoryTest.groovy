@@ -10,17 +10,17 @@ package org.eclipse.smarthome.core.thing.events;
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-
 import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory.TriggerEventPayloadBean
 import org.eclipse.smarthome.core.thing.internal.ThingImpl
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Test
-
 import com.google.gson.Gson
 
 /**
@@ -40,6 +40,7 @@ class ThingEventFactoryTest extends OSGiTest {
 
     def THING_STATUS_EVENT_TYPE = ThingStatusInfoEvent.TYPE
     def THING_ADDED_EVENT_TYPE = ThingAddedEvent.TYPE
+    def CHANNEL_TRIGGERED_EVENT_TYPE = ChannelTriggeredEvent.TYPE
 
     def THING_STATUS_EVENT_TOPIC = ThingEventFactory.THING_STATUS_INFO_EVENT_TOPIC.replace("{thingUID}", THING_UID.getAsString())
     def THING_ADDED_EVENT_TOPIC = ThingEventFactory.THING_ADDED_EVENT_TOPIC.replace("{thingUID}", THING_UID.getAsString())
@@ -47,6 +48,10 @@ class ThingEventFactoryTest extends OSGiTest {
     def THING_STATUS_EVENT_PAYLOAD = new Gson().toJson(THING_STATUS_INFO)
     def THING_ADDED_EVENT_PAYLOAD = new Gson().toJson(ThingDTOMapper.map(THING))
 
+    def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
+    def CHANNEL_TRIGGERED_EVENT_TOPIC = ThingEventFactory.CHANNEL_TRIGGERED_EVENT_TOPIC.replace("{channelUID}", CHANNEL_UID.getAsString())
+    def TRIGGER_EVENT = "PRESSED"
+    def CHANNEL_TRIGGERED_EVENT_PAYLOAD = new Gson().toJson(new TriggerEventPayloadBean(TRIGGER_EVENT, CHANNEL_UID.getAsString()))
 
     @Test
     void 'ThingEventFactory creates Event as ThingStatusInfoEvent correctly'() {
@@ -94,5 +99,29 @@ class ThingEventFactoryTest extends OSGiTest {
         assertThat event.getPayload(), is(THING_ADDED_EVENT_PAYLOAD)
         assertThat event.getThing(), not(null)
         assertThat event.getThing().UID, is(THING_UID.getAsString())
+    }
+
+    @Test
+    void 'ThingEventFactory creates ChannelTriggeredEvent correctly'() {
+        ChannelTriggeredEvent event = ThingEventFactory.createTriggerEvent(TRIGGER_EVENT, CHANNEL_UID)
+
+        assertThat event.getType(), is(CHANNEL_TRIGGERED_EVENT_TYPE)
+        assertThat event.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC)
+        assertThat event.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD)
+        assertThat event.getEvent(), not(null)
+        assertThat event.getEvent(), is(TRIGGER_EVENT)
+    }
+
+    @Test
+    void 'ThingEventFactory creates Event as ChannelTriggeredEvent correctly'() {
+        Event event = factory.createEvent(CHANNEL_TRIGGERED_EVENT_TYPE, CHANNEL_TRIGGERED_EVENT_TOPIC, CHANNEL_TRIGGERED_EVENT_PAYLOAD, null)
+
+        assertThat event, is(instanceOf(ChannelTriggeredEvent))
+        ChannelTriggeredEvent triggeredEvent = event as ChannelTriggeredEvent
+        assertThat triggeredEvent.getType(), is(CHANNEL_TRIGGERED_EVENT_TYPE)
+        assertThat triggeredEvent.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC)
+        assertThat triggeredEvent.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD)
+        assertThat triggeredEvent.getEvent(), not(null)
+        assertThat triggeredEvent.getEvent(), is(TRIGGER_EVENT)
     }
 }

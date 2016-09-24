@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.List;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
@@ -24,8 +23,8 @@ import org.eclipse.smarthome.config.xml.util.NodeListConverter;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
-
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -39,6 +38,7 @@ import com.thoughtworks.xstream.XStream;
  * @author Alex Tugarev - Extended by options and filter criteria
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Chris Jackson - Added parameter groups and channel properties
+ * @author Moritz Kammerer - Added triggers
  */
 public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
 
@@ -61,6 +61,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.registerConverter(new ChannelTypeConverter());
         xstream.registerConverter(new ChannelGroupTypeConverter());
         xstream.registerConverter(new StateDescriptionConverter());
+        xstream.registerConverter(new EventDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
         xstream.registerConverter(new ConfigDescriptionParameterGroupConverter());
@@ -77,6 +78,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("supported-bridge-type-refs", NodeList.class);
         xstream.alias("bridge-type-ref", NodeAttributes.class);
         xstream.alias("item-type", NodeValue.class);
+        xstream.alias("kind", NodeValue.class);
         xstream.alias("label", NodeValue.class);
         xstream.alias("description", NodeValue.class);
         xstream.alias("channels", NodeList.class);
@@ -87,6 +89,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("tags", NodeList.class);
         xstream.alias("tag", NodeValue.class);
         xstream.alias("state", StateDescription.class);
+        xstream.alias("event", EventDescription.class);
         xstream.alias("options", NodeList.class);
         xstream.alias("option", NodeValue.class);
         xstream.alias("config-descriptions", NodeList.class);

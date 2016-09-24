@@ -8,24 +8,27 @@
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
-import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -42,7 +45,7 @@ import org.eclipse.smarthome.model.script.engine.ScriptExecutionThread;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 
@@ -56,8 +59,8 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
-public class RuleEngineImpl extends AbstractItemEventSubscriber
-        implements ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener, RuleEngine {
+public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener,
+        RuleEngine, EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 
@@ -204,8 +207,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
         }
     }
 
-    @Override
-    protected void receiveCommand(ItemCommandEvent commandEvent) {
+    private void receiveCommand(ItemCommandEvent commandEvent) {
         if (!starting && triggerManager != null && itemRegistry != null) {
             String itemName = commandEvent.getItemName();
             Command command = commandEvent.getItemCommand();
@@ -218,6 +220,14 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
                 // ignore commands for non-existent items
             }
         }
+    }
+
+    private void receiveThingTrigger(ChannelTriggeredEvent event) {
+        String triggerEvent = event.getEvent();
+        String channel = event.getChannel().getAsString();
+
+        Iterable<Rule> rules = triggerManager.getRules(TRIGGER, channel, triggerEvent);
+        executeRules(rules, event);
     }
 
     private void internalItemAdded(Item item) {
@@ -307,6 +317,14 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
         }
     }
 
+    protected synchronized void executeRules(Iterable<Rule> rules, ChannelTriggeredEvent event) {
+        for (Rule rule : rules) {
+            RuleEvaluationContext context = new RuleEvaluationContext();
+            context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_RECEIVED_EVENT), event);
+            executeRule(rule, context);
+        }
+    }
+
     protected synchronized void executeRules(Iterable<Rule> rules, Command command) {
         for (Rule rule : rules) {
             RuleEvaluationContext context = new RuleEvaluationContext();
@@ -337,5 +355,27 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
     public void updated(Item oldItem, Item item) {
         removed(oldItem);
         added(item);
+    }
+
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
+            ChannelTriggeredEvent.TYPE);
+
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return subscribedEventTypes;
+    }
+
+    @Override
+    public EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ItemCommandEvent) {
+            receiveCommand((ItemCommandEvent) event);
+        } else if (event instanceof ChannelTriggeredEvent) {
+            receiveThingTrigger((ChannelTriggeredEvent) event);
+        }
     }
 }

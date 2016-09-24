@@ -43,6 +43,7 @@ import java.util.ArrayList
 import org.eclipse.smarthome.core.thing.type.TypeResolver
 import java.util.Locale
 import org.eclipse.smarthome.core.i18n.LocaleProvider
+import org.eclipse.smarthome.core.thing.type.ChannelKind
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -274,9 +275,12 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         val List<Channel> channels = newArrayList
         modelChannels.forEach [
             if (addedChannelIds.add(id)) {
-                channels +=
-                    ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type).withConfiguration(
-                        createConfiguration).build
+                val kind = if (it.channelType == null) "State" else it.channelType                 
+                val parsedKind = ChannelKind.parse(kind)                
+                val channel = ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type)
+                    .withKind(parsedKind)
+                    .withConfiguration(createConfiguration)
+                channels += channel.build()
             }
         ]
         channelDefinitions.forEach [

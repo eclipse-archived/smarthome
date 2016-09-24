@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -36,7 +35,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -63,6 +61,7 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
@@ -71,7 +70,6 @@ import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -249,6 +247,12 @@ public class ThingResource implements RESTResource {
                     uriInfo.getPath(), channel, thingUID);
             String message = "Channel " + channelId + " for Thing " + thingUID + " does not exist!";
             return JSONResponse.createResponse(Status.NOT_FOUND, null, message);
+        }
+        if (channel.getKind() != ChannelKind.STATE) {
+            logger.info("Tried to link channel '{}' of thing '{}', which is not of kind 'state'", channel, thingUID);
+            String message = "Channel " + channelId + " for Thing " + thingUID
+                    + " is not linkable, as it is not of kind 'state'!";
+            return JSONResponse.createResponse(Status.FORBIDDEN, null, message);
         }
 
         try {
