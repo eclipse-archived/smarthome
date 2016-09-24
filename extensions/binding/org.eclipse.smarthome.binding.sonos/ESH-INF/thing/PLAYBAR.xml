@@ -47,6 +47,8 @@
 			<channel id="zonename" typeId="zonename" />
 			<channel id="coordinator" typeId="coordinator" />
 			<channel id="sleeptimer" typeId="sleeptimer" />
+			<channel id="currenttransporturi" typeId="currenttransporturi" />
+			<channel id="currenttrackuri" typeId="currenttrackuri" />
 		</channels>
 
 		<properties>

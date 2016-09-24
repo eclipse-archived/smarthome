@@ -89,5 +89,7 @@ public class SonosBindingConstants {
     public final static String SLEEPTIMER = "sleeptimer";
     public final static String SHUFFLE = "shuffle";
     public final static String REPEAT = "repeat";
+    public final static String CURRENTTRANSPORTURI = "currenttransporturi";
+    public final static String CURRENTTRACKURI = "currenttrackuri";
 
 }

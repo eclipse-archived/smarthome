@@ -46,6 +46,8 @@
 			<channel id="zonegroupid" typeId="zonegroupid" />
 			<channel id="zonename" typeId="zonename" />
 			<channel id="sleeptimer" typeId="sleeptimer" />
+			<channel id="currenttransporturi" typeId="currenttransporturi" />
+			<channel id="currenttrackuri" typeId="currenttrackuri" />
 		</channels>
 
 		<config-description>

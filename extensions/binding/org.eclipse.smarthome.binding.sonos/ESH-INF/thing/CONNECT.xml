@@ -50,6 +50,8 @@
 			<channel id="linein" typeId="linein" />
 			<channel id="playlinein" typeId="playlinein" />
 			<channel id="sleeptimer" typeId="sleeptimer" />
+			<channel id="currenttransporturi" typeId="currenttransporturi" />
+			<channel id="currenttrackuri" typeId="currenttrackuri" />
 		</channels>
 
 		<properties>
