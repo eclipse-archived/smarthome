@@ -49,7 +49,7 @@ ModelThing:
 ;
 
 ModelChannel:
-	type=ModelItemType ':' id=UID_SEGMENT
+	(channelType= ('State' | 'Trigger'))? type=ModelItemType ':' id=UID_SEGMENT
 	('['
 		properties+=ModelProperty (',' properties+=ModelProperty)*
 	']')?

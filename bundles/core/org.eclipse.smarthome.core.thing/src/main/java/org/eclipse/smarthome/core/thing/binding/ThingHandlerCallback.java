@@ -73,4 +73,12 @@ public interface ThingHandlerCallback {
      */
     void migrateThingType(Thing thing, ThingTypeUID thingTypeUID, Configuration configuration);
 
+    /**
+     * Informs the framework that a channel has been triggered.
+     *
+     * @param channelUID UID of the channel over which has been triggered.
+     * @param event Event.
+     */
+    void channelTriggered(Thing thing, ChannelUID channelUID, String event);
+
 }

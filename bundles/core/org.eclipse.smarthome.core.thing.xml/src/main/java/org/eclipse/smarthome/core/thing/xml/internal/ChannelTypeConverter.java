@@ -12,15 +12,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
-
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -33,7 +33,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * <p>
  * This converter converts {@code channel-type} XML tags. It uses the {@link AbstractDescriptionTypeConverter} which
  * offers base functionality for each type definition.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Ivan Iliev - Added support for system wide channel types
  */
@@ -42,8 +42,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     public ChannelTypeConverter() {
         super(ChannelTypeXmlResult.class, "channel-type");
 
-        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "advanced", "false" }, { "system", "false" } });
+        super.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "advanced", "false" }, { "system", "false" } });
     }
 
     private boolean readBoolean(Map<String, String> attributes, String attributeName, boolean defaultValue) {
@@ -57,7 +57,11 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     }
 
     private String readItemType(NodeIterator nodeIterator) throws ConversionException {
-        return (String) nodeIterator.nextValue("item-type", true);
+        return (String) nodeIterator.nextValue("item-type", false);
+    }
+
+    private String readKind(NodeIterator nodeIterator) throws ConversionException {
+        return (String) nodeIterator.nextValue("kind", false);
     }
 
     private String readCategory(NodeIterator nodeIterator) throws ConversionException {
@@ -104,6 +108,20 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return null;
     }
 
+    private EventDescription readEventDescription(NodeIterator nodeIterator) {
+        Object nextNode = nodeIterator.next();
+
+        if (nextNode != null) {
+            if (nextNode instanceof EventDescription) {
+                return (EventDescription) nextNode;
+            }
+
+            nodeIterator.revert();
+        }
+
+        return null;
+    }
+
     @Override
     protected ChannelTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
@@ -115,17 +133,24 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(uid);
 
         String itemType = readItemType(nodeIterator);
+        String kind = readKind(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
 
         StateDescription stateDescription = readStateDescription(nodeIterator);
+        EventDescription eventDescription = readEventDescription(nodeIterator);
 
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, label, description, category,
-                tags, stateDescription, (URI) configDescriptionObjects[0]);
+        if (kind == null) {
+            // Default for kind is 'state'
+            kind = "state";
+        }
+
+        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.parse(kind), label,
+                description, category, tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
                 (ConfigDescription) configDescriptionObjects[1], system);

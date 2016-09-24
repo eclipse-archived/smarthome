@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
@@ -205,10 +206,13 @@ public class ChannelItemProvider implements ItemProvider {
         Channel channel = thingRegistry.getChannel(link.getUID());
         if (channel != null) {
             Item item = null;
-            for (ItemFactory itemFactory : itemFactories) {
-                item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
-                if (item != null) {
-                    break;
+            // Only create an item for state channels
+            if (channel.getKind() == ChannelKind.STATE) {
+                for (ItemFactory itemFactory : itemFactories) {
+                    item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
+                    if (item != null) {
+                        break;
+                    }
                 }
             }
             if (item != null) {

@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 
 /**
  * This is a data transfer object that is used to serialize channels.
@@ -28,6 +28,7 @@ public class ChannelDTO {
     public String id;
     public String channelTypeUID;
     public String itemType;
+    public String kind;
     public String label;
     public String description;
     public Set<String> defaultTags;
@@ -37,8 +38,8 @@ public class ChannelDTO {
     public ChannelDTO() {
     }
 
-    public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, String label, String description,
-            Map<String, String> properties, Configuration configuration, Set<String> defaultTags) {
+    public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, ChannelKind kind, String label,
+            String description, Map<String, String> properties, Configuration configuration, Set<String> defaultTags) {
         this.uid = uid.toString();
         this.id = uid.getId();
         this.channelTypeUID = channelTypeUID;
@@ -48,6 +49,7 @@ public class ChannelDTO {
         this.properties = properties;
         this.configuration = toMap(configuration);
         this.defaultTags = new HashSet<>(defaultTags);
+        this.kind = kind.toString();
     }
 
     private Map<String, Object> toMap(Configuration configuration) {

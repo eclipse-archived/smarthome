@@ -6,6 +6,8 @@ bin/
 .metadata/
 */plugin.xml_gen
 .DS_Store
+*.iml
+.idea/
 
 distribution/smarthome/logs/*.log
 distribution/smarthome/*.zip

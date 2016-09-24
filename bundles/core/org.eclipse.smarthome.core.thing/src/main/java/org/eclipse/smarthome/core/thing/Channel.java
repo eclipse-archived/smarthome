@@ -13,9 +13,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
@@ -33,6 +33,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 public class Channel {
 
     private String acceptedItemType;
+
+    private ChannelKind kind;
 
     private ChannelUID uid;
 
@@ -57,31 +59,38 @@ public class Channel {
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
+        this.kind = ChannelKind.STATE;
         this.configuration = new Configuration();
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
-        this(uid, null, acceptedItemType, configuration, new HashSet<String>(0), null, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, configuration, new HashSet<String>(0), null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
-        this(uid, null, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null,
-                null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null,
+                defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
             Map<String, String> properties) {
-        this(uid, null, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, properties,
-                null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null,
+                defaultTags == null ? new HashSet<String>(0) : defaultTags, properties, null, null);
     }
 
-    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, Configuration configuration,
-            Set<String> defaultTags, Map<String, String> properties, String label, String description) {
+    public Channel(ChannelUID uid, ChannelTypeUID channelTypeUID, String acceptedItemType, ChannelKind kind,
+            Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label,
+            String description) {
+        if (kind == null) {
+            throw new IllegalArgumentException("kind must not be null");
+        }
+
         this.uid = uid;
         this.channelTypeUID = channelTypeUID;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
+        this.kind = kind;
         this.label = label;
         this.description = description;
         this.properties = properties;
@@ -101,6 +110,20 @@ public class Channel {
      */
     public String getAcceptedItemType() {
         return this.acceptedItemType;
+    }
+
+    /**
+     * Returns the channel kind.
+     *
+     * @return channel kind
+     */
+    public ChannelKind getKind() {
+        if (kind == null) {
+            // STATE is the default.
+            return ChannelKind.STATE;
+        }
+
+        return kind;
     }
 
     /**
