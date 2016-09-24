@@ -560,6 +560,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     updateCurrentURIFormatted(value);
                     break;
                 }
+                case "AVTransportURI": {
+                    updateState(CURRENTTRANSPORTURI, (stateMap.get("AVTransportURI") != null)
+                            ? new StringType(stateMap.get("AVTransportURI")) : UnDefType.UNDEF);
+                    break;
+                }
+                case "CurrentTrackURI": {
+                    updateState(CURRENTTRACKURI, (stateMap.get("CurrentTrackURI") != null)
+                            ? new StringType(stateMap.get("CurrentTrackURI")) : UnDefType.UNDEF);
+                    break;
+                }
 
                 case "CurrentSleepTimerGeneration": {
                     if (value.equals("0")) {
@@ -587,6 +597,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
         }
+
     }
 
     @Override

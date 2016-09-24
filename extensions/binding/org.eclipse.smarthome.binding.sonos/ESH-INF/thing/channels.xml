@@ -251,4 +251,16 @@
 		<description>Repeat track or queue playback</description>
 	</channel-type>
 
+	<channel-type id="currenttransporturi" advanced="true">
+		<item-type>String</item-type>
+		<label>Current AV transport URI</label>
+		<description>URI of the current AV transport</description>
+	</channel-type>
+
+	<channel-type id="currenttrackuri" advanced="true">
+		<item-type>String</item-type>
+		<label>Current track URI</label>
+		<description>URI of the current track</description>
+	</channel-type>
+
 </thing:thing-descriptions>
