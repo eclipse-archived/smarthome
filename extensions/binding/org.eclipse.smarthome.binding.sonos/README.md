@@ -48,6 +48,8 @@ The devices support the following channels:
 | currentartist | String | Name of the artist currently playing | all |
 | currenttitle | String | Title of the song currently playing | all |
 | currenttrack | String       | This channel indicates the name of the track or radio station currently playing | all |
+| currenttrackuri | String | URI of the current track | all |
+| currenttransporturi | String | URI of the current AV transport | all |
 | favorite | String | Play the given favorite entry. The favorite entry has to be predefined in the Sonos Controller app | all |
 | led | Switch | Set or get the status of the white led on the front of the Zone Player | all |
 | localcoordinator | Switch | Indicator set to ON if the this Zone Player is the Zone Group Coordinator | all |
