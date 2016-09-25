@@ -133,15 +133,16 @@
 						</div>
 						<div class="channel fab-item" ng-init="index=1" ng-repeat="channel in group.channels">
 							<div ng-show="!collapsed">
-								<md-button ng-if="channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
-								<md-button ng-if="channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
-								<div class="item-content">
-									<h3 ng-if="getChannelById(channel.id).label">{{getChannelById(channel.id).label}}</h3>
-									<h3 ng-if="!getChannelById(channel.id).label && getChannelTypeById(channel.id).label">{{getChannelTypeById(channel.id).label}}</h3>
-									<h3 ng-if="!getChannelById(channel.id).label && !getChannelTypeById(channel.id).label">{{channel.id}}</h3>
+								<md-button ng-if="channel.kind!='TRIGGER' && channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
+								<md-button ng-if="channel.kind!='TRIGGER' && channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
+								<div ng-if="channel.kind=='TRIGGER'" class="circle" aria-label="Trigger">{{channel.channelType.label?channel.channelType.label.substring(0,1).toUpperCase():'T'}}</div>
+                                <div class="item-content">
+									<h3 ng-if="channel.label">{{channel.label}}</h3>
+									<h3 ng-if="!channel.label && channel.channelType.label">{{channel.channelType.label}}</h3>
+									<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
 									<p>{{thing.UID + ':' + channel.id}}</p>
-									<p ng-if="getChannelById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
-									<p ng-if="!getChannelById(channel.id).description && getChannelTypeById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
+									<p ng-if="channel.description" ng-bind-html="channel.channelType.description"></p>
+									<p ng-if="!channel.description && channel.channelType.description" ng-bind-html="channel.channelType.description"></p>
 									<div class="actions">
 										<i ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit" class="material-icons">edit</i>
 									</div>
