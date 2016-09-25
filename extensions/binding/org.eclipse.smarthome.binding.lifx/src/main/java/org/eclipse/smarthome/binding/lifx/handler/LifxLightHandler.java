@@ -24,6 +24,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -85,9 +86,9 @@ public class LifxLightHandler extends BaseThingHandler {
     private static long NETWORK_INTERVAL = 50;
     private static int ECHO_POLLING_INTERVAL = 15;
     private static int STATE_POLLING_INTERVAL = 3;
-    private static int MAXIMUM_POLLING_RETRIES = 2;
+    private static int MAXIMUM_POLLING_RETRIES = 4;
     private static int lightCounter = 1;
-    private static ReentrantLock lighCounterLock = new ReentrantLock();
+    private static ReentrantLock lightCounterLock = new ReentrantLock();
 
     private long source;
     private int service;
@@ -121,38 +122,58 @@ public class LifxLightHandler extends BaseThingHandler {
 
     @Override
     public void dispose() {
-        if (networkJob != null && !networkJob.isCancelled()) {
-            networkJob.cancel(true);
-            networkJob = null;
-        }
-
-        currentColorState = null;
-        currentPowerState = null;
-
         try {
-            if (selector != null) {
-                selector.close();
-            }
-        } catch (IOException e) {
-            logger.warn("An exception occurred while closing the selector : '{}'", e.getMessage());
-        }
+            lock.lock();
 
-        if (broadcastKey != null) {
-            try {
-                broadcastKey.channel().close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (networkJob != null && !networkJob.isCancelled()) {
+                networkJob.cancel(true);
+                networkJob = null;
             }
-        }
 
-        if (unicastKey != null) {
+            currentColorState = null;
+            currentPowerState = null;
+
             try {
-                unicastKey.channel().close();
+                if (selector != null) {
+
+                    selector.wakeup();
+
+                    boolean isContinue = true;
+                    while (isContinue) {
+                        try {
+                            for (SelectionKey selectionKey : selector.keys()) {
+                                selectionKey.channel().close();
+                                selectionKey.cancel();
+                            }
+                            isContinue = false; // continue till all keys are cancelled
+                        } catch (ConcurrentModificationException e) {
+                            logger.warn("An exception occurred while closing a selector key : '{}'", e.getMessage());
+                        }
+                    }
+
+                    selector.close();
+                }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.warn("An exception occurred while closing the selector : '{}'", e.getMessage());
             }
+
+            if (broadcastKey != null) {
+                try {
+                    broadcastKey.channel().close();
+                } catch (IOException e) {
+                    logger.warn("An exception occurred while closing the broadcast channel : '{}'", e.getMessage());
+                }
+            }
+
+            if (unicastKey != null) {
+                try {
+                    unicastKey.channel().close();
+                } catch (IOException e) {
+                    logger.warn("An exception occurred while closing the unicast channel : '{}'", e.getMessage());
+                }
+            }
+        } finally {
+            lock.unlock();
         }
 
     }
@@ -160,6 +181,9 @@ public class LifxLightHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         try {
+
+            lock.lock();
+
             macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
             logger.debug("Initializing the LIFX handler for bulb '{}'.", this.macAddress.getHex());
 
@@ -209,14 +233,15 @@ public class LifxLightHandler extends BaseThingHandler {
                     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                     .setOption(StandardSocketOptions.SO_BROADCAST, true);
             broadcastChannel.configureBlocking(false);
-            lighCounterLock.lock();
+            lightCounterLock.lock();
             logger.debug("Binding the broadcast channel on port {}", BROADCAST_PORT + lightCounter);
             broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + lightCounter));
             lightCounter++;
-            lighCounterLock.unlock();
+            lightCounterLock.unlock();
             broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
             updateStatus(ThingStatus.OFFLINE);
+            sentPackets.clear();
 
             // look for lights on the network
             GetServiceRequest packet = new GetServiceRequest();
@@ -224,6 +249,8 @@ public class LifxLightHandler extends BaseThingHandler {
 
         } catch (Exception ex) {
             logger.error("Error occured while initializing LIFX handler: " + ex.getMessage(), ex);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -423,11 +450,22 @@ public class LifxLightHandler extends BaseThingHandler {
                         logger.error("An exception occurred while selecting: {}", e.getMessage());
                     }
 
-                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
 
                     while (keyIterator.hasNext()) {
-                        SelectionKey key = keyIterator.next();
+
+                        SelectionKey key;
+
+                        try {
+                            key = keyIterator.next();
+                        } catch (ConcurrentModificationException e) {
+                            // when a StateServiceResponse packet is handled a new unicastChannel may be registered
+                            // in the selector which causes this exception, recover from it by restarting the iteration
+                            logger.debug("{} : Restarting iteration after ConcurrentModificationException",
+                                    macAddress.getHex());
+                            keyIterator = selector.selectedKeys().iterator();
+                            continue;
+                        }
 
                         if (key.isValid() && key.isAcceptable()) {
                             // a connection was accepted by a ServerSocketChannel.
@@ -498,7 +536,7 @@ public class LifxLightHandler extends BaseThingHandler {
                     }
                 }
             } catch (Exception e) {
-                logger.error("An exception orccurred while communicating with the bulb : '{}'", e.getMessage());
+                logger.error("An exception occurred while receiving a packet from the bulb : '{}'", e.getMessage());
             } finally {
                 lock.unlock();
             }
@@ -569,9 +607,9 @@ public class LifxLightHandler extends BaseThingHandler {
             }
             packet.setSequence(sequenceNumber);
 
-            LifxNetworkThrottler.lock(macAddress.getAsLabel());
+            LifxNetworkThrottler.lock(macAddress.getHex());
             sendPacket(packet, ipAddress, unicastKey);
-            LifxNetworkThrottler.unlock(macAddress.getAsLabel());
+            LifxNetworkThrottler.unlock(macAddress.getHex());
 
             sequenceNumber++;
             if (sequenceNumber > 255) {
@@ -662,7 +700,7 @@ public class LifxLightHandler extends BaseThingHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("An exception occurred while communicating with the bulb : '{}'", e.getMessage());
+            logger.error("An exception occurred while sending a packet to the bulb : '{}'", e.getMessage());
         } finally {
             lock.unlock();
         }
@@ -709,6 +747,7 @@ public class LifxLightHandler extends BaseThingHandler {
                         if (port == 0) {
                             logger.warn("The service with ID '{}' is currently not available", service);
                             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                            sentPackets.clear();
                         } else {
 
                             if (unicastChannel != null && unicastKey != null) {
@@ -734,6 +773,7 @@ public class LifxLightHandler extends BaseThingHandler {
                                 logger.warn("An exception occurred while connectin to the bulb's IP address : '{}'",
                                         e.getMessage());
                                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                                sentPackets.clear();
                                 return;
                             }
 
