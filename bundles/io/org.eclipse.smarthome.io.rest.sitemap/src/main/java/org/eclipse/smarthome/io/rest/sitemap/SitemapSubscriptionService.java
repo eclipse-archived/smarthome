@@ -45,11 +45,17 @@ public class SitemapSubscriptionService {
         void onEvent(SitemapEvent event);
     }
 
-    private final Map<String, String> pageOfSubscriptionMap = new ConcurrentHashMap<>();
     private ItemUIRegistry itemUIRegistry;
-    private Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
-    private Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
     private List<SitemapProvider> sitemapProviders = new ArrayList<>();
+
+    /* subscription id -> sitemap+page */
+    private final Map<String, String> pageOfSubscription = new ConcurrentHashMap<>();
+
+    /* subscription id -> callback */
+    private Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
+
+    /* sitemap+page -> listener */
+    private Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
 
     public SitemapSubscriptionService() {
     }
@@ -58,7 +64,7 @@ public class SitemapSubscriptionService {
     }
 
     protected void deactivate() {
-        pageOfSubscriptionMap.clear();
+        pageOfSubscription.clear();
         callbacks.clear();
         for (PageChangeListener listener : pageChangeListeners.values()) {
             listener.dispose();
@@ -101,11 +107,15 @@ public class SitemapSubscriptionService {
      * @param subscriptionId the id of the subscription to remove
      */
     public void removeSubscription(String subscriptionId) {
-        pageOfSubscriptionMap.remove(subscriptionId);
         callbacks.remove(subscriptionId);
-        PageChangeListener listener = pageChangeListeners.remove(subscriptionId);
-        if (listener != null) {
-            listener.dispose();
+        String sitemapPage = pageOfSubscription.remove(subscriptionId);
+        if (sitemapPage != null && !pageOfSubscription.values().contains(sitemapPage)) {
+            // this was the only subscription listening on this page, so we can dispose the listener
+            PageChangeListener listener = pageChangeListeners.get(sitemapPage);
+            if (listener != null) {
+                pageChangeListeners.remove(listener);
+                listener.dispose();
+            }
         }
         logger.debug("Removed subscription with id {}", subscriptionId);
     }
@@ -127,7 +137,7 @@ public class SitemapSubscriptionService {
      * @return the id of the currently active page
      */
     public String getPageId(String subscriptionId) {
-        return pageOfSubscriptionMap.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[1];
+        return pageOfSubscription.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[1];
     }
 
     /**
@@ -137,7 +147,7 @@ public class SitemapSubscriptionService {
      * @return the name of the current sitemap
      */
     public String getSitemapName(String subscriptionId) {
-        return pageOfSubscriptionMap.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[0];
+        return pageOfSubscription.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[0];
     }
 
     /**
@@ -148,10 +158,15 @@ public class SitemapSubscriptionService {
      * @param pageId the current page id
      */
     public void setPageId(String subscriptionId, String sitemapName, String pageId) {
-        if (exists(subscriptionId)) {
-            pageOfSubscriptionMap.put(subscriptionId, getValue(sitemapName, pageId));
-            removeOldListener(subscriptionId);
-            initNewListener(subscriptionId, sitemapName, pageId);
+        SitemapSubscriptionCallback callback = callbacks.get(subscriptionId);
+        if (callback != null) {
+            String oldSitemapPage = pageOfSubscription.remove(subscriptionId);
+            if (oldSitemapPage != null) {
+                removeCallbackFromListener(oldSitemapPage, callback);
+            }
+            addCallbackToListener(sitemapName, pageId, callback);
+            pageOfSubscription.put(subscriptionId, getValue(sitemapName, pageId));
+
             logger.debug("Subscription {} changed to page {} of sitemap {}",
                     new Object[] { subscriptionId, pageId, sitemapName });
         } else {
@@ -159,30 +174,40 @@ public class SitemapSubscriptionService {
         }
     }
 
-    private void initNewListener(String subscriptionId, String sitemapName, String pageId) {
-        EList<Widget> widgets = null;
-        Sitemap sitemap = getSitemap(sitemapName);
-        if (sitemap != null) {
-            if (pageId.equals(sitemap.getName())) {
-                widgets = sitemap.getChildren();
-            } else {
-                Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
-                if (pageWidget instanceof LinkableWidget) {
-                    widgets = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
+    private void addCallbackToListener(String sitemapName, String pageId, SitemapSubscriptionCallback callback) {
+        PageChangeListener listener = pageChangeListeners.get(getValue(sitemapName, pageId));
+        if (listener == null) {
+            // there is no listener for this page yet, so let's try to create one
+            EList<Widget> widgets = null;
+            Sitemap sitemap = getSitemap(sitemapName);
+            if (sitemap != null) {
+                if (pageId.equals(sitemap.getName())) {
+                    widgets = sitemap.getChildren();
+                } else {
+                    Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
+                    if (pageWidget instanceof LinkableWidget) {
+                        widgets = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
+                    }
                 }
             }
+            if (widgets != null) {
+                listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, widgets);
+                pageChangeListeners.put(getValue(sitemapName, pageId), listener);
+            }
         }
-        if (widgets != null) {
-            PageChangeListener listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, widgets,
-                    callbacks.get(subscriptionId));
-            pageChangeListeners.put(subscriptionId, listener);
+        if (listener != null) {
+            listener.addCallback(callback);
         }
     }
 
-    private void removeOldListener(String subscriptionId) {
-        PageChangeListener oldListener = pageChangeListeners.get(subscriptionId);
+    private void removeCallbackFromListener(String sitemapPage, SitemapSubscriptionCallback callback) {
+        PageChangeListener oldListener = pageChangeListeners.get(sitemapPage);
         if (oldListener != null) {
-            oldListener.dispose();
+            oldListener.removeCallback(callback);
+            if (!pageOfSubscription.values().contains(sitemapPage)) {
+                // no other callbacks are left here, so we can safely dispose the listener
+                oldListener.dispose();
+            }
         }
     }
 

@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap.internal;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +38,8 @@ public class PageChangeListener implements StateChangeListener {
     private final ItemUIRegistry itemUIRegistry;
     private final EList<Widget> widgets;
     private final Set<GenericItem> items;
-    private final SitemapSubscriptionCallback callback;
+    private final List<SitemapSubscriptionCallback> callbacks = Collections
+            .synchronizedList(new ArrayList<SitemapSubscriptionCallback>());
 
     /**
      * Creates a new instance.
@@ -45,19 +48,32 @@ public class PageChangeListener implements StateChangeListener {
      * @param pageId the id of the page for which events are created
      * @param itemUIRegistry the ItemUIRegistry which is needed for the functionality
      * @param widgets the list of widgets that are part of the page.
-     * @param callback the instance that should receive the created sitemap events
      */
-    public PageChangeListener(String sitemapName, String pageId, ItemUIRegistry itemUIRegistry, EList<Widget> widgets,
-            SitemapSubscriptionCallback callback) {
+    public PageChangeListener(String sitemapName, String pageId, ItemUIRegistry itemUIRegistry, EList<Widget> widgets) {
         this.sitemapName = sitemapName;
         this.pageId = pageId;
         this.itemUIRegistry = itemUIRegistry;
         this.widgets = widgets;
-        this.callback = callback;
         items = getAllItems(widgets);
         for (GenericItem item : items) {
             item.addStateChangeListener(this);
         }
+    }
+
+    public String getSitemapName() {
+        return sitemapName;
+    }
+
+    public String getPageId() {
+        return pageId;
+    }
+
+    public void addCallback(SitemapSubscriptionCallback callback) {
+        callbacks.add(callback);
+    }
+
+    public void removeCallback(SitemapSubscriptionCallback callback) {
+        callbacks.remove(callback);
     }
 
     /**
@@ -105,7 +121,10 @@ public class PageChangeListener implements StateChangeListener {
     public void stateChanged(Item item, State oldState, State newState) {
         Set<SitemapEvent> events = constructSitemapEvents(item, oldState, newState, widgets);
         for (SitemapEvent event : events) {
-            callback.onEvent(event);
+            // we transform the list of callbacks to a set in order to remove duplicates
+            for (SitemapSubscriptionCallback callback : new HashSet<>(callbacks)) {
+                callback.onEvent(event);
+            }
         }
     }
 
