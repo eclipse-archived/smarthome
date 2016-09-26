@@ -27,9 +27,9 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
         },
         updateModule : function(type, value) {
             var modArr = this.getModuleArray(type);
-
+            var maxId = this.getMaxModuleId(modArr);
             if (!value.id) {
-                value.id = type.substring(0, 1) + "_" + Date.now();
+                value.id = type + "_" + maxId;
                 modArr.push(value);
             } else {
                 var index = this.searchArray(modArr, value.id);
@@ -57,7 +57,7 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
             angular.forEach(modArr, function(value) {
                 var type = typeof value.uid === "undefined" ? value.type : value.uid;
                 $moduleJSON.push({
-                    "id" : value.id ? value.id : modArr.mtype.substring(0, 1) + "_" + Date.now(),
+                    "id" : value.id,
                     "label" : value.label,
                     "description" : value.description,
                     "type" : type,
@@ -125,6 +125,16 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
 
         setModuleTypes : function(mTypes) {
             moduleTypes = mTypes;
+        },
+        getMaxModuleId : function(modArr) {
+            var max_id = 0;
+            for (var i = 0; i < modArr.length; i++) {
+                var id = modArr[i].id.split("_");
+                if (id.length > 0 && !isNaN(parseInt(id[1])) && parseInt(id[1]) > max_id) {
+                    max_id = parseInt(id[1]);
+                }
+            }
+            return ++max_id;
         }
     }
 });
