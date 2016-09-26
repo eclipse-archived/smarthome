@@ -31,6 +31,8 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
+import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTO;
+import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingTypeDTO;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
@@ -60,6 +62,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - Added parameter groups, advanced, multipleLimit,
  *         limitToOptions
  * @author Yordan Zhelev - Added Swagger annotations
+ * @author Miki Jankov - Introducing StrippedThingTypeDTO
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
@@ -91,13 +94,14 @@ public class ThingTypeResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Gets all available things types.", response = ThingTypeDTO.class, responseContainer = "Set")
+    @ApiOperation(value = "Gets all available thing types without config description, channels and properties.", response = StrippedThingTypeDTO.class, responseContainer = "Set")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK") )
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Set<ThingTypeDTO> thingTypeDTOs = convertToThingTypeDTOs(thingTypeRegistry.getThingTypes(locale), locale);
-        return Response.ok(thingTypeDTOs).build();
+        Set<StrippedThingTypeDTO> strippedThingTypeDTOs = convertToStrippedThingTypeDTOs(
+                thingTypeRegistry.getThingTypes(locale), locale);
+        return Response.ok(strippedThingTypeDTOs).build();
     }
 
     @GET
@@ -115,13 +119,6 @@ public class ThingTypeResource implements RESTResource {
         } else {
             return Response.noContent().build();
         }
-    }
-
-    public Set<ThingTypeDTO> getThingTypeDTOs(String bindingId, Locale locale) {
-
-        List<ThingType> thingTypes = thingTypeRegistry.getThingTypes(bindingId);
-        Set<ThingTypeDTO> thingTypeDTOs = convertToThingTypeDTOs(thingTypes, locale);
-        return thingTypeDTOs;
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
@@ -211,19 +208,18 @@ public class ThingTypeResource implements RESTResource {
         return channelDefinitionDTOs;
     }
 
-    private Set<ThingTypeDTO> convertToThingTypeDTOs(List<ThingType> thingTypes, Locale locale) {
-        Set<ThingTypeDTO> thingTypeDTOs = new HashSet<>();
+    private Set<StrippedThingTypeDTO> convertToStrippedThingTypeDTOs(List<ThingType> thingTypes, Locale locale) {
+        Set<StrippedThingTypeDTO> strippedThingTypeDTOs = new HashSet<>();
 
         for (ThingType thingType : thingTypes) {
-            final ThingTypeDTO thingTypeDTO = convertToThingTypeDTO(thingType, locale);
-            if (thingTypeDTO != null) {
-                thingTypeDTOs.add(thingTypeDTO);
+            final StrippedThingTypeDTO strippedThingTypeDTO = StrippedThingTypeDTOMapper.map(thingType, locale);
+            if (strippedThingTypeDTO != null) {
+                strippedThingTypeDTOs.add(strippedThingTypeDTO);
             } else {
                 logger.warn("Cannot create DTO for thingType '{}'. Skip it.", thingType);
             }
         }
 
-        return thingTypeDTOs;
+        return strippedThingTypeDTOs;
     }
-
 }
