@@ -27,9 +27,9 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
         },
         updateModule : function(type, value) {
             var modArr = this.getModuleArray(type);
-            var maxId = this.getMaxModuleId(modArr);
+            var maxId = this.getMaxModuleId();
             if (!value.id) {
-                value.id = type + "_" + maxId;
+                value.id = maxId;
                 modArr.push(value);
             } else {
                 var index = this.searchArray(modArr, value.id);
@@ -126,12 +126,15 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
         setModuleTypes : function(mTypes) {
             moduleTypes = mTypes;
         },
-        getMaxModuleId : function(modArr) {
+        getMaxModuleId : function() {
             var max_id = 0;
-            for (var i = 0; i < modArr.length; i++) {
-                var id = modArr[i].id.split("_");
-                if (id.length > 0 && !isNaN(parseInt(id[1])) && parseInt(id[1]) > max_id) {
-                    max_id = parseInt(id[1]);
+            var modules = [ 'trigger', 'action', 'condition' ];
+            for (var m = 0; m < modules.length; m++) {
+                var modArr = this.getModuleArray(modules[m]);
+                for (var i = 0; i < modArr.length; i++) {
+                    if (modArr[i].id && !isNaN(parseInt(modArr[i].id)) && parseInt(modArr[i].id) > max_id) {
+                        max_id = parseInt(modArr[i].id);
+                    }
                 }
             }
             return ++max_id;
