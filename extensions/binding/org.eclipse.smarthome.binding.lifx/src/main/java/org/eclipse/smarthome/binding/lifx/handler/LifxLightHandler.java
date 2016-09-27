@@ -288,6 +288,8 @@ public class LifxLightHandler extends BaseThingHandler {
                             handlePercentCommand((PercentType) command);
                         } else if (command instanceof OnOffType) {
                             handleColorOnOffCommand((OnOffType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
                         }
                         break;
                     case CHANNEL_BRIGHTNESS:
