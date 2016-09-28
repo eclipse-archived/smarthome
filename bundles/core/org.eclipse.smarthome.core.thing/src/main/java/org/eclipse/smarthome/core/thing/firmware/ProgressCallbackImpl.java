@@ -33,6 +33,11 @@ import com.google.common.base.Preconditions;
  */
 final class ProgressCallbackImpl implements ProgressCallback {
 
+    private static String UPDATE_CANCELED_MESSAGE_KEY = "update-canceled"; 
+    
+    /**
+     * Handler instance is needed to retrieve the error messages from the correct bundle.
+     */
     private final FirmwareUpdateHandler firmwareUpdateHandler;
     private final EventPublisher eventPublisher;
     private final I18nProvider i18nProvider;
@@ -42,6 +47,8 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     private Collection<ProgressStep> sequence;
     private Iterator<ProgressStep> progressIterator;
+    private ProgressStep current;
+    private boolean finished;
 
     ProgressCallbackImpl(FirmwareUpdateHandler firmwareUpdateHandler, EventPublisher eventPublisher,
             I18nProvider i18nProvider, ThingUID thingUID, FirmwareUID firmwareUID, Locale locale) {
@@ -64,9 +71,9 @@ final class ProgressCallbackImpl implements ProgressCallback {
     public void next() {
         Preconditions.checkState(sequence != null, "No sequence defined.");
         if (progressIterator.hasNext()) {
-            ProgressStep next = progressIterator.next();
+            this.current = progressIterator.next();
             post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
-                    new FirmwareUpdateProgressInfo(firmwareUID, next, sequence), thingUID));
+                    new FirmwareUpdateProgressInfo(firmwareUID, current, sequence, false), thingUID));
         } else {
             throw new IllegalStateException("There is no further progress step to be executed.");
         }
@@ -74,23 +81,42 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void failed(String errorMessageKey, Object... arguments) {
+        Preconditions.checkState(!finished, "Update is finished.");
+        finished = true;
         Preconditions.checkArgument(errorMessageKey != null && !errorMessageKey.isEmpty(),
                 "The error message key must not be null or empty.");
         String errorMessage = getErrorMessage(FrameworkUtil.getBundle(firmwareUpdateHandler.getClass()),
                 errorMessageKey, arguments);
-        postError(errorMessage);
+        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
     }
 
     @Override
     public void success() {
-        post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(
-                new FirmwareUpdateResultInfo(FirmwareUpdateResult.SUCCESS, null), thingUID));
+        Preconditions.checkState(!finished, "Update is finished.");
+        finished = true;
+        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.SUCCESS, null);
+    }
+
+    @Override
+    public void pending() {
+        Preconditions.checkState(!finished, "Update is finished.");
+        post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
+                new FirmwareUpdateProgressInfo(firmwareUID, getCurrentStep(), sequence, true), thingUID));
+    }
+
+    @Override
+    public void canceled() {
+        Preconditions.checkState(!finished, "Update is finished.");
+        finished = true;
+        String cancelMessage = getErrorMessage(FrameworkUtil.getBundle(ProgressCallbackImpl.class), UPDATE_CANCELED_MESSAGE_KEY);
+        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.CANCELED, cancelMessage);
     }
 
     void failedInternal(String errorMessageKey) {
+        finished = true; 
         String errorMessage = getErrorMessage(FrameworkUtil.getBundle(ProgressCallbackImpl.class), errorMessageKey,
                 new Object[] {});
-        postError(errorMessage);
+        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
     }
 
     private String getErrorMessage(Bundle bundle, String errorMessageKey, Object... arguments) {
@@ -98,13 +124,24 @@ final class ProgressCallbackImpl implements ProgressCallback {
         return errorMessage;
     }
 
-    private void postError(String errorMessage) {
-        post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(
-                new FirmwareUpdateResultInfo(FirmwareUpdateResult.ERROR, errorMessage), thingUID));
+    private void postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult result, String message) {
+        post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(new FirmwareUpdateResultInfo(result, message),
+                thingUID));
     }
 
     private void post(Event event) {
         eventPublisher.post(event);
     }
 
+    private ProgressStep getCurrentStep() {
+        Preconditions.checkState(sequence != null, "No sequence defined.");
+        if (current != null) {
+            return current;
+        }
+        Iterator<ProgressStep> tempIter = this.sequence.iterator();
+        if (tempIter.hasNext()) {
+            return tempIter.next();
+        }
+        throw new IllegalStateException("There is no progress step defined.");
+    }
 }

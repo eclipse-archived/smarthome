@@ -18,5 +18,8 @@ public enum FirmwareUpdateResult {
     SUCCESS,
 
     /** Indicates that the firmware update has failed. */
-    ERROR;
+    ERROR,
+    
+    /** Indicates that the firmware update was canceled. */
+    CANCELED;
 }

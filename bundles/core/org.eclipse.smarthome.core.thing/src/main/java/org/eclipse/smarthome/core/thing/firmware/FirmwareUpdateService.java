@@ -81,6 +81,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingStatusInfoChangedEvent.TYPE);
 
     private final Map<ThingUID, FirmwareStatusInfo> firmwareStatusInfoMap = new ConcurrentHashMap<>();
+    private final Map<ThingUID, ProgressCallbackImpl> progressCallbackMap = new ConcurrentHashMap<>();
 
     private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
     private FirmwareRegistry firmwareRegistry;
@@ -138,6 +139,8 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     protected void deactivate() {
         cancelFirmwareUpdateStatusInfoJob();
+        firmwareStatusInfoMap.clear();
+        progressCallbackMap.clear();
     }
 
     /**
@@ -204,7 +207,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         final FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
 
         if (firmwareUpdateHandler == null) {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     String.format("There is no firmware update handler for thing with UID %s.", thingUID));
         }
 
@@ -214,13 +217,15 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
         final Locale loc = locale != null ? locale : localeProvider.getLocale();
 
+        final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler, eventPublisher,
+                i18nProvider, thingUID, firmwareUID, loc);
+        progressCallbackMap.put(thingUID, progressCallback);
+
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
 
         getPool().submit(new Runnable() {
             @Override
             public void run() {
-                final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler,
-                        eventPublisher, i18nProvider, thingUID, firmwareUID, loc);
                 try {
                     SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                         @Override
@@ -239,6 +244,46 @@ public final class FirmwareUpdateService implements EventSubscriber {
                             "Timeout occurred for firmware update of thing with UID %s and firmware with UID %s.",
                             thingUID, firmwareUID), e);
                     progressCallback.failedInternal("timeout-error");
+                }
+            }
+        });
+    }
+
+    /**
+     * Cancels the firmware update of the thing having the given thing UID by invoking the operation
+     * {@link FirmwareUpdateHandler#cancel()} of the thing´s firmware update handler.
+     * 
+     * @param thingUID the thing UID (must not be null)
+     */
+    public void cancelFirmwareUpdate(final ThingUID thingUID) {
+        Preconditions.checkNotNull(thingUID, "Thing UID must not be null.");
+        final FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
+        if (firmwareUpdateHandler == null) {
+            throw new IllegalArgumentException(
+                    String.format("There is no firmware update handler for thing with UID %s.", thingUID));
+        }
+        final ProgressCallbackImpl progressCallback = getProgressCallback(thingUID);
+        getPool().submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                        @Override
+                        public Void call() {
+                            logger.debug("Canceling firmware update for thing with UID {}.", thingUID);
+                            firmwareUpdateHandler.cancel();
+                            return null;
+                        }
+                    });
+                } catch (ExecutionException e) {
+                    logger.error(String.format(
+                            "Unexpected exception occurred while canceling firmware update of thing with UID %s.",
+                            thingUID), e.getCause());
+                    progressCallback.failedInternal("unexpected-handler-error-during-cancel");
+                } catch (TimeoutException e) {
+                    logger.error(String.format("Timeout occurred while canceling firmware update of thing with UID %s.",
+                            thingUID), e);
+                    progressCallback.failedInternal("timeout-error-during-cancel");
                 }
             }
         });
@@ -268,6 +313,14 @@ public final class FirmwareUpdateService implements EventSubscriber {
                 initializeFirmwareStatus(firmwareUpdateHandler);
             }
         }
+    }
+
+    private ProgressCallbackImpl getProgressCallback(ThingUID thingUID) {
+        if (!progressCallbackMap.containsKey(thingUID)) {
+            throw new IllegalStateException(
+                    String.format("No ProgressCallback available for thing with UID %s.", thingUID));
+        }
+        return progressCallbackMap.get(thingUID);
     }
 
     private FirmwareStatusInfo getFirmwareStatusInfo(FirmwareUpdateHandler firmwareUpdateHandler,
@@ -434,6 +487,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         if (firmwareUpdateHandlers.isEmpty()) {
             cancelFirmwareUpdateStatusInfoJob();
         }
+        progressCallbackMap.remove(firmwareUpdateHandler.getThing().getUID());
     }
 
     protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
@@ -467,4 +521,5 @@ public final class FirmwareUpdateService implements EventSubscriber {
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = null;
     }
+
 }
