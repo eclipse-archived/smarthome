@@ -19,6 +19,7 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Port;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioStream;
@@ -35,6 +36,8 @@ import org.slf4j.LoggerFactory;
 public class JavaSoundAudioSink implements AudioSink {
 
     private final Logger logger = LoggerFactory.getLogger(JavaSoundAudioSink.class);
+
+    private Float macVolumeValue = null;
 
     @Override
     public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
@@ -67,34 +70,49 @@ public class JavaSoundAudioSink implements AudioSink {
 
     @Override
     public float getVolume() throws IOException {
-        final Float[] volumes = new Float[1];
-        runVolumeCommand(new Closure() {
-            @Override
-            public void execute(Object input) {
-                FloatControl volumeControl = (FloatControl) input;
-                volumes[0] = volumeControl.getValue();
+        if (!isMacOS()) {
+            final Float[] volumes = new Float[1];
+            runVolumeCommand(new Closure() {
+                @Override
+                public void execute(Object input) {
+                    FloatControl volumeControl = (FloatControl) input;
+                    volumes[0] = volumeControl.getValue();
+                }
+            });
+            if (volumes[0] != null) {
+                return volumes[0];
+            } else {
+                throw new IOException("Cannot determine master volume level");
             }
-        });
-        if (volumes[0] != null) {
-            return volumes[0];
         } else {
-            throw new IOException("Cannot determine master volume level");
+            // we use a cache of the value as the script execution is pretty slow
+            if (macVolumeValue == null) {
+                Process p = Runtime.getRuntime()
+                        .exec(new String[] { "osascript", "-e", "output volume of (get volume settings)" });
+                String value = IOUtils.toString(p.getInputStream()).trim();
+                macVolumeValue = Float.valueOf(value) / 100f;
+            }
+            return macVolumeValue;
         }
-
     }
 
     @Override
-    public void setVolume(final float volume) {
+    public void setVolume(final float volume) throws IOException {
         if (volume < 0 || volume > 1) {
             throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
         }
-        runVolumeCommand(new Closure() {
-            @Override
-            public void execute(Object input) {
-                FloatControl volumeControl = (FloatControl) input;
-                volumeControl.setValue(volume);
-            }
-        });
+        if (!isMacOS()) {
+            runVolumeCommand(new Closure() {
+                @Override
+                public void execute(Object input) {
+                    FloatControl volumeControl = (FloatControl) input;
+                    volumeControl.setValue(volume);
+                }
+            });
+        } else {
+            Runtime.getRuntime()
+                    .exec(new String[] { "osascript", "-e", "set volume output volume " + (volume * 100f) });
+        }
     }
 
     private void runVolumeCommand(Closure closure) {
@@ -118,4 +136,7 @@ public class JavaSoundAudioSink implements AudioSink {
         }
     }
 
+    private boolean isMacOS() {
+        return System.getProperty("osgi.os").equals("macosx");
+    }
 }

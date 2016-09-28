@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.voice.internal.DialogProcessor;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
+import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +172,16 @@ public class VoiceManager {
         } catch (TTSException e) {
             logger.error("Error saying '{}'", text);
         }
+    }
+
+    /**
+     * Interprets the passed string using the default services for HLI locale.
+     *
+     * @param text The text to interpret
+     * @throws InterpretationException
+     */
+    public void interpret(String text) throws InterpretationException {
+        getHLI().interpret(localeProvider.getLocale(), text);
     }
 
     private Voice getVoice(Set<Voice> voices, String id) {
