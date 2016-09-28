@@ -283,7 +283,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -293,9 +293,13 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.thingChannels = [];
     $scope.showAdvanced = false;
     $scope.channelTypes;
+    $scope.items;
     channelTypeService.getAll().$promise.then(function(channels) {
         $scope.channelTypes = channels;
         $scope.refreshChannels(false);
+    });
+    itemRepository.getAll(function(items) {
+        $scope.items = items;
     });
     $scope.edit = function(thing, event) {
         $mdDialog.show({
@@ -340,6 +344,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 
     $scope.disableChannel = function(thingUID, channelID, itemName, event) {
         var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
         var linkedItem = channel.linkedItems[0];
         if ($scope.advancedMode) {
             $scope.unlinkChannel(channelID, itemName, event);
@@ -372,6 +377,12 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                     channelUID : $scope.thing.UID + ':' + channelID
                 }, function() {
                     $scope.getThing(true);
+                    var item = $.grep($scope.items, function(item) {
+                        return item.name == itemName;
+                    });
+                    if (item.length > 0) {
+                        channel.items.push(item[0]);
+                    }
                     toastService.showDefaultToast('Channel linked');
                 });
             }
@@ -395,6 +406,12 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                     channelUID : $scope.thing.UID + ':' + channelID
                 }, function() {
                     $scope.getThing(true);
+                    var item = $.grep(channel.items, function(item) {
+                        return item.name == itemName;
+                    });
+                    if (item.length > 0) {
+                        channel.items.splice(channel.items.indexOf(item[0]), 1);
+                    }
                     toastService.showDefaultToast('Channel unlinked');
                 });
             }
@@ -450,6 +467,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, function(thing) {
             angular.forEach(thing.channels, function(value, i) {
                 value.showItems = $scope.thing ? $scope.thing.channels[i].showItems : false;
+                value.items = $scope.thing ? $scope.thing.channels[i].items : null;
             });
             $scope.thing = thing;
             $scope.thingTypeUID = thing.thingTypeUID;
@@ -492,6 +510,17 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             }
         });
     };
+
+    $scope.getLinkedItems = function(channel) {
+        channel.showItems = !channel.showItems;
+        if (channel.showItems && channel.items === null || channel.items === undefined) {
+            channel.items = $.grep($scope.items, function(item) {
+                return $.grep(channel.linkedItems, function(linkedItemName) {
+                    return linkedItemName == item.name;
+                }).length > 0;
+            });
+        }
+    }
 
     $scope.hasProperties = function(properties) {
         return util.hasProperties(properties);

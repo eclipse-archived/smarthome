@@ -595,7 +595,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	font-weight: 400;
 }
 
-.includeConfig .borderhidden {
+.includeConfig .borderhidden, .linkedItems>div.borderhidden {
 	border: 0px;
 }
 
@@ -1026,7 +1026,7 @@ background-color: green;
 }
 
 .linkedItems>div{
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
     margin: 5px;
 }
 
