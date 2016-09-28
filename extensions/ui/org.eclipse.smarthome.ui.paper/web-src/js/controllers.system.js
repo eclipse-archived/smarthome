@@ -23,7 +23,7 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
         event.preventDefault();
     });
     $scope.refresh();
-}).controller('ConfigureSystemServiceController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService) {
+}).controller('ConfigureSystemServiceController', function($rootScope, $scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService) {
 
     $scope.service = null;
     $scope.parameters = [];
@@ -42,11 +42,9 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
             }, function(configDescription) {
                 if (configDescription) {
                     $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
-                    if (!jQuery.isEmptyObject($scope.configuration)) {
-                        $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-                        $scope.configuration = replaceUndefWithEmpty($scope.configuration);
-                        angular.copy($scope.configuration, originalServiceConf);
-                    }
+                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+                    $scope.configuration = replaceUndefWithEmpty($scope.configuration);
+                    angular.copy($scope.configuration, originalServiceConf);
                 }
             }, function() {
                 $scope.$emit('noConfigDesc', serviceId);
@@ -80,8 +78,10 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
                 id : $scope.serviceId
             }, configuration, function() {
                 angular.copy($scope.configuration, originalServiceConf);
+                if ($scope.serviceId === "org.eclipse.smarthome.links") {
+                    $rootScope.advancedMode = !jQuery.isEmptyObject($scope.configuration) ? !$scope.configuration.autoLinks : $rootScope.advancedMode;
+                }
                 toastService.showDefaultToast('System config updated.');
-
             });
         }
         $scope.editing = false;
