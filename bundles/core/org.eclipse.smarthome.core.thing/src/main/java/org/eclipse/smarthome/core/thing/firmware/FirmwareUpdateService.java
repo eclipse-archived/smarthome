@@ -340,7 +340,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         }
 
         String firmwareVersion = getThingFirmwareVersion(firmwareUpdateHandler);
-        if (firmware.getPrerequisiteVersion() != null && !firmware.isPrerequisteVersion(firmwareVersion)) {
+        if (firmware.getPrerequisiteVersion() != null && !firmware.isPrerequisiteVersion(firmwareVersion)) {
             throw new IllegalArgumentException(String.format(
                     "Firmware with UID %s requires at least firmware version %s to get installed. But the current firmware version of the thing with UID %s is %s.",
                     firmware.getUID(), firmware.getPrerequisiteVersion(), thing.getUID(), firmwareVersion));
