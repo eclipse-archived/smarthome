@@ -132,30 +132,30 @@ final class FirmwareTest extends OSGiTest {
 
     @Test
     void 'test firmware prerequisite version'() {
-        assertThat valpha.isPrerequisteVersion(vbeta.getVersion()), is(false)
-        assertThat valpha.isPrerequisteVersion(null), is(false)
+        assertThat valpha.isPrerequisiteVersion(vbeta.getVersion()), is(false)
+        assertThat valpha.isPrerequisiteVersion(null), is(false)
 
-        assertThat vbeta.isPrerequisteVersion(valpha1.getVersion()), is(true)
-        assertThat vbeta.isPrerequisteVersion(valpha.getVersion()), is(false)
+        assertThat vbeta.isPrerequisiteVersion(valpha1.getVersion()), is(true)
+        assertThat vbeta.isPrerequisiteVersion(valpha.getVersion()), is(false)
 
-        assertThat vgamma.isPrerequisteVersion(vbetafix.getVersion()), is(true)
-        assertThat vgamma.isPrerequisteVersion(vbeta.getVersion()), is(false)
+        assertThat vgamma.isPrerequisiteVersion(vbetafix.getVersion()), is(true)
+        assertThat vgamma.isPrerequisiteVersion(vbeta.getVersion()), is(false)
 
-        assertThat vdelta.isPrerequisteVersion(vgamma.getVersion()), is(false)
+        assertThat vdelta.isPrerequisiteVersion(vgamma.getVersion()), is(false)
 
-        assertThat v1dot0dot2.isPrerequisteVersion(v1dot0dot1.getVersion()), is(true)
-        assertThat v1dot0dot2.isPrerequisteVersion(v1dot0dot0.getVersion()), is(false)
-        assertThat v1dot0dot2.isPrerequisteVersion(v0dot0dot9.getVersion()), is(false)
+        assertThat v1dot0dot2.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(true)
+        assertThat v1dot0dot2.isPrerequisiteVersion(v1dot0dot0.getVersion()), is(false)
+        assertThat v1dot0dot2.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false)
 
-        assertThat v1dot1dot0.isPrerequisteVersion(v1dash1.getVersion()), is(true)
-        assertThat v1dot1dot0.isPrerequisteVersion(v1dot0dot3.getVersion()), is(true)
-        assertThat v1dot1dot0.isPrerequisteVersion(v1dot0dot2dashfix.getVersion()), is(true)
-        assertThat v1dot1dot0.isPrerequisteVersion(v1dot0dot2.getVersion()), is(false)
-        assertThat v1dot1dot0.isPrerequisteVersion(v1dot0dot1.getVersion()), is(false)
-        assertThat v1dot1dot0.isPrerequisteVersion(v0dot0dot9.getVersion()), is(false)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v1dash1.getVersion()), is(true)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v1dot0dot3.getVersion()), is(true)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v1dot0dot2dashfix.getVersion()), is(true)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v1dot0dot2.getVersion()), is(false)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(false)
+        assertThat v1dot1dot0.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false)
 
-        assertThat v2dot0dot0.isPrerequisteVersion(v1dot11_2dasha.getVersion()), is(true)
-        assertThat v2dot0dot0.isPrerequisteVersion(v1dash11dot2_1.getVersion()), is(false)
+        assertThat v2dot0dot0.isPrerequisiteVersion(v1dot11_2dasha.getVersion()), is(true)
+        assertThat v2dot0dot0.isPrerequisiteVersion(v1dash11dot2_1.getVersion()), is(false)
     }
 
     @Test(expected=IllegalArgumentException)
