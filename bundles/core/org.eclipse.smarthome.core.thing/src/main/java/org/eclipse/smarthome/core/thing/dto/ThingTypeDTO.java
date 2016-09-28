@@ -19,22 +19,16 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Chris Jackson - Added parameter groups
+ * @author Miki Jankov - Introducing StrippedThingTypeDTO
  *
  */
-public class ThingTypeDTO {
+public class ThingTypeDTO extends StrippedThingTypeDTO {
 
     public List<ChannelDefinitionDTO> channels;
     public List<ChannelGroupDefinitionDTO> channelGroups;
     public List<ConfigDescriptionParameterDTO> configParameters;
-    public List<String> supportedBridgeTypeUIDs;
     public List<ConfigDescriptionParameterGroupDTO> parameterGroups;
     public Map<String, String> properties;
-    public String description;
-    public String label;
-    public boolean listed;
-
-    public String UID;
-    boolean bridge;
 
     public ThingTypeDTO() {
     }
