@@ -251,7 +251,7 @@ public final class Firmware implements Comparable<Firmware> {
      *
      * @return true, if this firmware is valid prerequisite version of the given firmware version, otherwise false
      */
-    public boolean isPrerequisteVersion(String firmwareVersion) {
+    public boolean isPrerequisiteVersion(String firmwareVersion) {
         if (internalPrerequisiteVersion == null || firmwareVersion == null) {
             return false;
         }
