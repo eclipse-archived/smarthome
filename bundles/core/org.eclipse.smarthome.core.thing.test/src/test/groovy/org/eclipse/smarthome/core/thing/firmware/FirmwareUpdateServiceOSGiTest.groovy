@@ -448,7 +448,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         //locale null
         def callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), null)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
@@ -462,7 +462,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         //locale EN
         callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.ENGLISH)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
@@ -476,7 +476,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         //locale DE
         callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.GERMANY)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
@@ -518,7 +518,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         //locale null
         def callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), null)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
@@ -532,7 +532,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         
         //locale EN
         callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.ENGLISH)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
@@ -546,7 +546,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         //locale DE
         callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.GERMANY)
-        firmwareUpdateService.progessCallbackMap.put(THING4_UID, callback)
+        firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
         firmwareUpdateService.cancelFirmwareUpdate(THING4_UID)
         waitForAssert{
             assertThat postedEvent, is(notNullValue())
