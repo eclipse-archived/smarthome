@@ -63,4 +63,14 @@ public interface ProgressCallback {
      * Callback operation to indicate that the firmware update was successful.
      */
     void success();
+    
+    /**
+     * Callback operation to indicate that the firmware update is pending.
+     */
+    void pending(); 
+    
+    /**
+     * Callback operation to indicate that the firmware update was canceled.
+     */
+    void canceled(); 
 }
