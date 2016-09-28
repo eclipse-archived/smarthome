@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.audio.AudioFormat;
+import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
@@ -42,8 +43,6 @@ public class VoiceManager {
     private static final String CONFIG_DEFAULT_KS = "defaultKS";
     private static final String CONFIG_DEFAULT_STT = "defaultSTT";
     private static final String CONFIG_DEFAULT_TTS = "defaultTTS";
-    private static final String CONFIG_DEFAULT_SINK = "defaultSink";
-    private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
     private static final String CONFIG_PREFIX_DEFAULT_VOICE = "defaultVoice.";
 
     private final Logger logger = LoggerFactory.getLogger(VoiceManager.class);
@@ -53,8 +52,6 @@ public class VoiceManager {
     private Map<String, STTService> sttServices = new HashMap<>();
     private Map<String, TTSService> ttsServices = new HashMap<>();
     private Map<String, HumanLanguageInterpreter> humanLanguageInterpreters = new HashMap<>();
-    private Map<String, AudioSource> audioSources = new HashMap<>();
-    private Map<String, AudioSink> audioSinks = new HashMap<>();
 
     private LocaleProvider localeProvider = null;
 
@@ -62,13 +59,12 @@ public class VoiceManager {
      * default settings filled through the service configuration
      */
     private String keyword = DEFAULT_KEYWORD;
-    private String defaultSource = null;
-    private String defaultSink = null;
     private String defaultTTS = null;
     private String defaultSTT = null;
     private String defaultKS = null;
     private String defaultHLI = null;
     private Map<String, String> defaultVoices = new HashMap<>();
+    private AudioManager audioManager;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
@@ -80,10 +76,6 @@ public class VoiceManager {
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
-            this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
-                    ? config.get(CONFIG_DEFAULT_SOURCE).toString() : null;
-            this.defaultSink = config.containsKey(CONFIG_DEFAULT_SINK) ? config.get(CONFIG_DEFAULT_SINK).toString()
-                    : null;
             this.defaultTTS = config.containsKey(CONFIG_DEFAULT_TTS) ? config.get(CONFIG_DEFAULT_TTS).toString() : null;
             this.defaultSTT = config.containsKey(CONFIG_DEFAULT_STT) ? config.get(CONFIG_DEFAULT_STT).toString() : null;
             this.defaultKS = config.containsKey(CONFIG_DEFAULT_KS) ? config.get(CONFIG_DEFAULT_KS).toString() : null;
@@ -147,16 +139,19 @@ public class VoiceManager {
                 tts = getTTS();
                 voice = getVoice(tts.getAvailableVoices(), voiceId);
             }
-            if (null == voice) {
+            if (voice == null) {
                 throw new TTSException(
                         "Unable to find a voice for language " + localeProvider.getLocale().getLanguage());
+            }
+            if (tts == null) {
+                throw new TTSException("No TTS service can be found for voice " + voiceId);
             }
             Set<AudioFormat> audioFormats = tts.getSupportedFormats();
             AudioSink sink = null;
             if (sinkId == null) {
-                sink = getSink();
+                sink = audioManager.getSink();
             } else {
-                sink = audioSinks.get(sinkId);
+                sink = audioManager.getSink(sinkId);
             }
             if (sink != null) {
                 AudioFormat audioFormat = getBestMatch(audioFormats, sink.getSupportedFormats());
@@ -253,7 +248,7 @@ public class VoiceManager {
             if (null == format.getBitDepth() || null == format.getBitRate() || null == format.getFrequency()) {
                 // Define default values
                 int defaultBitDepth = 16;
-                long defaultFrequency = 16384;
+                long defaultFrequency = 44100;
 
                 // Obtain current values
                 Integer bitRate = format.getBitRate();
@@ -376,8 +371,8 @@ public class VoiceManager {
         stt = (stt == null) ? getSTT() : stt;
         tts = (tts == null) ? getTTS() : tts;
         hli = (hli == null) ? getHLI() : hli;
-        source = (source == null) ? getSource() : source;
-        sink = (sink == null) ? getSink() : sink;
+        source = (source == null) ? audioManager.getSource() : source;
+        sink = (sink == null) ? audioManager.getSink() : sink;
         locale = (locale == null) ? localeProvider.getLocale() : locale;
 
         if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null) {
@@ -431,20 +426,12 @@ public class VoiceManager {
         this.humanLanguageInterpreters.remove(humanLanguageInterpreter.getId());
     }
 
-    protected void addAudioSource(AudioSource audioSource) {
-        this.audioSources.put(audioSource.getId(), audioSource);
+    protected void setAudioManager(AudioManager audioManager) {
+        this.audioManager = audioManager;
     }
 
-    protected void removeAudioSource(AudioSource audioSource) {
-        this.audioSources.remove(audioSource.getId());
-    }
-
-    protected void addAudioSink(AudioSink audioSink) {
-        this.audioSinks.put(audioSink.getId(), audioSink);
-    }
-
-    protected void removeAudioSink(AudioSink audioSink) {
-        this.audioSinks.remove(audioSink.getId());
+    protected void unsetAudioManager(AudioManager audioManager) {
+        this.audioManager = null;
     }
 
     /**
@@ -537,52 +524,6 @@ public class VoiceManager {
             logger.debug("No HumanLanguageInterpreter available!");
         }
         return hli;
-    }
-
-    /**
-     * Retrieves an AudioSink.
-     * If a default name is configured and the service available, this is returned. Otherwise, the first available
-     * service is returned.
-     *
-     * @return an AudioSink or null, if no service is available or if a default is configured, but no according service
-     *         is found
-     */
-    public AudioSink getSink() {
-        AudioSink sink = null;
-        if (defaultSink != null) {
-            sink = audioSinks.get(defaultSink);
-            if (sink == null) {
-                logger.warn("Default AudioSink service '{}' not available!", defaultSink);
-            }
-        } else if (!audioSinks.isEmpty()) {
-            sink = audioSinks.values().iterator().next();
-        } else {
-            logger.debug("No AudioSink service available!");
-        }
-        return sink;
-    }
-
-    /**
-     * Retrieves an AudioSource.
-     * If a default name is configured and the service available, this is returned. Otherwise, the first available
-     * service is returned.
-     *
-     * @return an AudioSource or null, if no service is available or if a default is configured, but no according
-     *         service is found
-     */
-    public AudioSource getSource() {
-        AudioSource source = null;
-        if (defaultSource != null) {
-            source = audioSources.get(defaultSource);
-            if (source == null) {
-                logger.warn("Default AudioSource service '{}' not available!", defaultSource);
-            }
-        } else if (!audioSources.isEmpty()) {
-            source = audioSources.values().iterator().next();
-        } else {
-            logger.debug("No AudioSource service available!");
-        }
-        return source;
     }
 
     /**

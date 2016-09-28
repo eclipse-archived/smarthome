@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.audio;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
@@ -50,4 +51,20 @@ public interface AudioSink {
      * @return A Set containing all supported audio formats
      */
     public Set<AudioFormat> getSupportedFormats();
+
+    /**
+     * Gets the volume
+     *
+     * @return a float value between 0 and 100 representing the actual volume
+     * @throws IOException if the volume can not be determined
+     */
+    public float getVolume() throws IOException;
+
+    /**
+     * Sets the volume
+     *
+     * @param volume a float value between 0 and 1 representing the wanted volume
+     * @throws IOException if the volume can not be set
+     */
+    public void setVolume(float volume) throws IOException;
 }

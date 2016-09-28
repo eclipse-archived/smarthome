@@ -10,12 +10,11 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" modified="modified" name="org.eclipse.smarthome.voice">
    <implementation class="org.eclipse.smarthome.core.voice.VoiceManager"/>
+   <reference bind="setAudioManager" cardinality="1..1" interface="org.eclipse.smarthome.core.audio.AudioManager" name="AudioManager" policy="static" unbind="unsetAudioManager"/>
    <reference bind="addKSService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.KSService" name="KSService" policy="dynamic" unbind="removeKSService"/>
    <reference bind="addSTTService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.STTService" name="STTService" policy="dynamic" unbind="removeSTTService"/>
    <reference bind="addTTSService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.TTSService" name="TTSService" policy="dynamic" unbind="removeTTSService"/>
    <reference bind="addHumanLanguageInterpreter" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter" name="HumanLanguageInterpreter" policy="dynamic" unbind="removeHumanLanguageInterpreter"/>
-   <reference bind="addAudioSource" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSource" name="AudioSource" policy="dynamic" unbind="removeAudioSource"/>
-   <reference bind="addAudioSink" cardinality="0..n" interface="org.eclipse.smarthome.core.audio.AudioSink" name="AudioSink" policy="dynamic" unbind="removeAudioSink"/>
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
 
    <service>

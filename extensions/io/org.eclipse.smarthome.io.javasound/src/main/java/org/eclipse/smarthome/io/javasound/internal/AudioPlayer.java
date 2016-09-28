@@ -53,6 +53,10 @@ public class AudioPlayer extends Thread {
     public void run() {
         SourceDataLine line;
         AudioFormat audioFormat = convertAudioFormat(this.audioStream.getFormat());
+        if (audioFormat == null) {
+            logger.warn("Audio format is unsupported or does not have enough details in order to be played");
+            return;
+        }
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         try {
             line = (SourceDataLine) AudioSystem.getLine(info);
@@ -101,6 +105,7 @@ public class AudioPlayer extends Thread {
      * @param audioFormat The AudioFormat to convert
      * @return The corresponding AudioFormat
      */
+    @SuppressWarnings("null")
     protected AudioFormat convertAudioFormat(org.eclipse.smarthome.core.audio.AudioFormat audioFormat) {
         AudioFormat.Encoding encoding = new AudioFormat.Encoding(audioFormat.getCodec());
         if (audioFormat.getCodec().equals(org.eclipse.smarthome.core.audio.AudioFormat.CODEC_PCM_SIGNED)) {
@@ -110,14 +115,17 @@ public class AudioPlayer extends Thread {
         } else if (audioFormat.getCodec().equals(org.eclipse.smarthome.core.audio.AudioFormat.CODEC_PCM_ALAW)) {
             encoding = AudioFormat.Encoding.ALAW;
         }
-        float sampleRate = audioFormat.getFrequency().floatValue();
-        int sampleSizeInBits = audioFormat.getBitDepth().intValue();
-        int channels = 1; // TODO: Is this always true?
-        int frameSize = audioFormat.getBitDepth().intValue() / 8; // As channels == 1, thus sampleSizeInBits ==
-                                                                  // frameSize
-        float frameRate = audioFormat.getFrequency().floatValue();
-        boolean bigEndian = audioFormat.isBigEndian().booleanValue();
-
-        return new AudioFormat(encoding, sampleRate, sampleSizeInBits, channels, frameSize, frameRate, bigEndian);
+        Float sampleRate = audioFormat.getFrequency() != null ? audioFormat.getFrequency().floatValue() : null;
+        Integer sampleSizeInBits = audioFormat.getBitDepth() != null ? audioFormat.getBitDepth().intValue() : null;
+        Integer channels = 1; // TODO: Is this always true?
+        Integer frameSize = audioFormat.getBitDepth() != null ? audioFormat.getBitDepth().intValue() / 8 : null;
+        // frameSize
+        Float frameRate = (sampleRate != null && frameSize != null) ? (sampleRate / frameSize) : null;
+        Boolean bigEndian = audioFormat.isBigEndian() != null ? audioFormat.isBigEndian().booleanValue() : null;
+        try {
+            return new AudioFormat(encoding, sampleRate, sampleSizeInBits, channels, frameSize, frameRate, bigEndian);
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 }
