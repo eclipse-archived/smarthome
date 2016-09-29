@@ -1,8 +1,9 @@
-angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingService, thingTypeService, channelTypeService, thingConfigService) {
+angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService) {
     $scope.items = [];
     $scope.selectedIndex = 0;
     $scope.tabs = [];
     $scope.things = [];
+    var thingTypes = [];
 
     $scope.next = function() {
         var newIndex = $scope.selectedIndex + 1;
@@ -29,40 +30,57 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.thingTypes = [];
     $scope.thingChannels = [];
     $scope.isLoadComplete = false;
+    var thingList, thingCounter = 0;
     function getThings() {
         thingService.getAll().$promise.then(function(things) {
-            $scope.things = things;
+            thingList = things;
             $scope.isLoadComplete = false;
             thingTypeService.getAll().$promise.then(function(thingTypes) {
                 $scope.thingTypes = thingTypes;
                 channelTypeService.getAll().$promise.then(function(channels) {
                     $scope.channelTypes = channels;
-                    for (var i = 0; i < $scope.things.length;) {
-                        var thingType = $.grep($scope.thingTypes, function(thingType, j) {
-                            return thingType.UID == $scope.things[i].thingTypeUID;
-                        })[0];
-                        $scope.things[i].thingChannels = thingConfigService.getThingChannels($scope.things[i], thingType, $scope.channelTypes, true);
-                        angular.forEach($scope.things[i].thingChannels, function(value, key) {
-                            $scope.things[i].thingChannels[key].channels = $.grep($scope.things[i].thingChannels[key].channels, function(channel, i) {
-                                return channel.linkedItems.length > 0;
-                            });
-                        });
-                        if (!thingHasChannels(i)) {
-                            $scope.things.splice(i, 1);
-                        } else {
-                            i++;
-                        }
+                    for (var i = 0; i < thingList.length; i++) {
+                        var thingTypeUIDs = thingList[i].thingTypeUID;
+                        var enclosed = (function() {
+                            var thingTypeUID = thingTypeUIDs;
+                            var index = i;
+                            return function() {
+                                var thingTypeComplete = getThingTypeLocal(thingTypeUID);
+                                if (!thingTypeComplete) {
+                                    thingTypeService.getByUid({
+                                        thingTypeUID : thingTypeUID
+                                    }, function(thingType) {
+                                        thingTypes.push(thingType);
+                                        renderThing(thingList[index], thingType, $scope.channelTypes);
+                                    });
+                                } else {
+                                    renderThing(thingList[index], thingTypeComplete, $scope.channelTypes);
+                                }
+                            }
+                        })();
+                        enclosed();
                     }
-                    getTabs();
-                    $scope.isLoadComplete = true;
                 });
             });
 
         });
     }
-    function thingHasChannels(index) {
-        for (var i = 0; i < $scope.things[index].thingChannels.length; i++) {
-            if ($scope.things[index].thingChannels[i].channels && $scope.things[index].thingChannels[i].channels.length > 0) {
+    function renderThing(thing, thingType, channelTypes) {
+        thing.thingChannels = thingConfigService.getThingChannels(thing, thingType, channelTypes, true);
+        angular.forEach(thing.thingChannels, function(value, key) {
+            thing.thingChannels[key].channels = $.grep(thing.thingChannels[key].channels, function(channel, i) {
+                return channel.linkedItems.length > 0;
+            });
+        });
+        thingCounter++;
+        if (thingHasChannels(thing)) {
+            $scope.things.push(thing);
+        }
+        getTabs();
+    }
+    function thingHasChannels(thing) {
+        for (var i = 0; i < thing.thingChannels.length; i++) {
+            if (thing.thingChannels[i].channels && thing.thingChannels[i].channels.length > 0) {
                 return true;
             }
         }
@@ -70,7 +88,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     function getTabs() {
-        if (!$scope.things) {
+        if (!$scope.things || (thingList.length != thingCounter)) {
             return;
         }
         var arr = [], otherTab = false;
@@ -93,6 +111,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                 name : "OTHER"
             });
         }
+        $scope.isLoadComplete = true;
+    }
+
+    function getThingTypeLocal(thingTypeUID) {
+        var thingTypeComplete = $.grep(thingTypes, function(thingType) {
+            return thingType.UID == thingTypeUID;
+        });
+        return thingTypeComplete.length > 0 ? thingTypeComplete : null;
     }
 
     $scope.tabComparator = function(actual, expected) {

@@ -283,7 +283,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -482,8 +482,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.getThing(true);
 
     function getThingType() {
-        thingTypeRepository.getOne(function(thingType) {
-            return thingType.UID === $scope.thingTypeUID;
+        thingTypeService.getByUid({
+            thingTypeUID : $scope.thingTypeUID
         }, function(thingType) {
             $scope.thingType = thingType;
             if (thingType) {
@@ -606,7 +606,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.unlink = function() {
         $mdDialog.hide();
     }
-}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, configService, thingService) {
+}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, configService, thingService) {
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
     var thingUID = $scope.path[4];
@@ -654,8 +654,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     };
     $scope.getThingType = function() {
-        thingTypeRepository.getOne(function(thingType) {
-            return thingType.UID === $scope.thingTypeUID;
+        thingTypeService.getByUid({
+            thingTypeUID : $scope.thingTypeUID
         }, function(thingType) {
             $scope.thingType = thingType;
             $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
