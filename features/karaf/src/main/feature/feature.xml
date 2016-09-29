@@ -41,6 +41,7 @@
 
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.transform/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.audio/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.voice/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>

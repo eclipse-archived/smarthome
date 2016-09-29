@@ -7,6 +7,7 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: javax.sound.sampled,
+ org.apache.commons.collections,
  org.eclipse.smarthome.core.audio,
  org.slf4j
 Bundle-ActivationPolicy: lazy

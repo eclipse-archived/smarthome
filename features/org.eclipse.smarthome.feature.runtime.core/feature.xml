@@ -19,7 +19,7 @@
    </description>
 
    <copyright>
-      Copyright (C) 2014 openHAB UG (haftungsbeschränkt) and others
+      Copyright (C) 2014-2016 the respective copyright holders
    </copyright>
 
    <license url="%licenseURL">
@@ -224,6 +224,13 @@
 
    <plugin
          id="org.eclipse.smarthome.transform.jsonpath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.core.audio"
          download-size="0"
          install-size="0"
          version="0.0.0"
