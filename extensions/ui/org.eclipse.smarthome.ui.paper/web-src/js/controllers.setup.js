@@ -159,7 +159,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             groupNames : selectedGroupNames
         });
     }
-}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, $location, toastService, bindingRepository, thingTypeRepository, thingService, thingRepository, configService, linkService) {
+}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, $location, toastService, bindingRepository, thingTypeService, thingService, thingRepository, configService, linkService) {
 
     var thingTypeUID = $routeParams.thingTypeUID;
 
@@ -213,8 +213,8 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         });
     };
 
-    thingTypeRepository.getOne(function(thingType) {
-        return thingType.UID === thingTypeUID;
+    thingTypeService.getByUid({
+        thingTypeUID : thingTypeUID
     }, function(thingType) {
         $scope.setTitle('Configure ' + thingType.label);
         $scope.setHeaderText(thingType.description);
