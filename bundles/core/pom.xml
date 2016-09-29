@@ -17,6 +17,7 @@
 
   <modules>
     <module>org.eclipse.smarthome.core</module>
+    <module>org.eclipse.smarthome.core.audio</module>
     <module>org.eclipse.smarthome.core.autoupdate</module>
     <module>org.eclipse.smarthome.core.extension.sample</module>
     <module>org.eclipse.smarthome.core.id</module>
