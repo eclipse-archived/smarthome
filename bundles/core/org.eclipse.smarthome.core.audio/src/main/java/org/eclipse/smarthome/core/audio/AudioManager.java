@@ -9,10 +9,10 @@ package org.eclipse.smarthome.core.audio;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.slf4j.Logger;
@@ -35,14 +35,14 @@ public class AudioManager {
     private final Logger logger = LoggerFactory.getLogger(AudioManager.class);
 
     // service maps
-    private Map<String, AudioSource> audioSources = new HashMap<>();
-    private Map<String, AudioSink> audioSinks = new HashMap<>();
+    private Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();
+    private Map<String, AudioSink> audioSinks = new ConcurrentHashMap<>();
 
     /**
      * default settings filled through the service configuration
      */
-    private String defaultSource = null;
-    private String defaultSink = null;
+    private String defaultSource;
+    private String defaultSink;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
@@ -72,17 +72,12 @@ public class AudioManager {
     /**
      * Plays the passed audio stream on the given sink.
      *
-     * @param audioStream The filename to play
+     * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
      */
     public void play(AudioStream audioStream, String sinkId) {
         if (audioStream != null) {
-            AudioSink sink = null;
-            if (sinkId == null) {
-                sink = getSink();
-            } else {
-                sink = audioSinks.get(sinkId);
-            }
+            AudioSink sink = getSink(sinkId);
 
             if (sink != null) {
                 try {
@@ -111,8 +106,8 @@ public class AudioManager {
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     public void playFile(String fileName, String sink) throws AudioException {
-        File file = new File(System.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT) + File.separator + SOUND_DIR
-                + File.separator + fileName);
+        File file = new File(
+                ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
         FileAudioStream is = new FileAudioStream(file);
         play(is, sink);
     }
@@ -134,15 +129,9 @@ public class AudioManager {
      * @throws AudioException in case the url stream cannot be opened
      */
     public void stream(String url, String sinkId) throws AudioException {
-
         AudioStream audioStream = new URLAudioStream(url);
 
-        AudioSink sink = null;
-        if (sinkId == null) {
-            sink = getSink();
-        } else {
-            sink = audioSinks.get(sinkId);
-        }
+        AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
             try {
@@ -160,12 +149,7 @@ public class AudioManager {
      * @return the volume as a value between 0 and 1
      */
     public float getVolume(String sinkId) {
-        AudioSink sink = null;
-        if (sinkId == null) {
-            sink = getSink();
-        } else {
-            sink = audioSinks.get(sinkId);
-        }
+        AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
             try {
@@ -177,7 +161,6 @@ public class AudioManager {
         }
 
         return 0;
-
     }
 
     /**
@@ -187,12 +170,7 @@ public class AudioManager {
      * @param volume the volume to set as a value between 0 and 1
      */
     public void setVolume(String sinkId, float volume) {
-        AudioSink sink = null;
-        if (sinkId == null) {
-            sink = getSink();
-        } else {
-            sink = audioSinks.get(sinkId);
-        }
+        AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
             try {
@@ -206,8 +184,9 @@ public class AudioManager {
 
     /**
      * Retrieves an AudioSource.
-     * If a default name is configured and the service available, this is returned. Otherwise, the first available
-     * service is returned.
+     * If a default name is configured and the service available, this is returned. If no default name is configured,
+     * the first available service is returned, if one exists. If no service with the default name is found, null is
+     * returned.
      *
      * @return an AudioSource or null, if no service is available or if a default is configured, but no according
      *         service is found
@@ -229,8 +208,9 @@ public class AudioManager {
 
     /**
      * Retrieves an AudioSink.
-     * If a default name is configured and the service available, this is returned. Otherwise, the first available
-     * service is returned.
+     * If a default name is configured and the service available, this is returned. If no default name is configured,
+     * the first available service is returned, if one exists. If no service with the default name is found, null is
+     * returned.
      *
      * @return an AudioSink or null, if no service is available or if a default is configured, but no according service
      *         is found
@@ -256,7 +236,7 @@ public class AudioManager {
      * @return ids of all sources
      */
     public Set<String> getSourceIds() {
-        return audioSources.keySet();
+        return new HashSet<>(audioSources.keySet());
     }
 
     /**
@@ -265,7 +245,7 @@ public class AudioManager {
      * @return ids of all sources
      */
     public Set<String> getSinkIds() {
-        return audioSinks.keySet();
+        return new HashSet<>(audioSinks.keySet());
     }
 
     /**
@@ -290,11 +270,17 @@ public class AudioManager {
     /**
      * Retrieves the sink for a given id
      *
-     * @param sinkId the id of the sink
-     * @return the sink instance for the id
+     * @param sinkId the id of the sink or null for the default
+     * @return the sink instance for the id or the default sink
      */
     public AudioSink getSink(String sinkId) {
-        return audioSinks.get(sinkId);
+        AudioSink sink = null;
+        if (sinkId == null) {
+            sink = getSink();
+        } else {
+            sink = audioSinks.get(sinkId);
+        }
+        return sink;
     }
 
     /**

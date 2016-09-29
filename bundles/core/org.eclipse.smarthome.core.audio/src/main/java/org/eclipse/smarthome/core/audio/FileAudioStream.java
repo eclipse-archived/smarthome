@@ -29,7 +29,7 @@ public class FileAudioStream extends AudioStream {
         this.audioFormat = getAudioFormat(file);
     }
 
-    private AudioFormat getAudioFormat(File file) throws AudioException {
+    private static AudioFormat getAudioFormat(File file) throws AudioException {
         if (file.getName().toLowerCase().endsWith(".wav")) {
             return new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, false, 16, 705600, 44100L);
         } else if (file.getName().toLowerCase().endsWith(".mp3")) {
@@ -39,7 +39,7 @@ public class FileAudioStream extends AudioStream {
         }
     }
 
-    private InputStream getInputStream(File file) throws AudioException {
+    private static InputStream getInputStream(File file) throws AudioException {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
