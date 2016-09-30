@@ -65,9 +65,7 @@ public class Voice {
     /**
      * Interprets the given text.
      *
-     * <p>
      * This method uses the default Human Language Interpreter and passes the text to it.
-     * </p>
      *
      * @param text the text to interpret
      */

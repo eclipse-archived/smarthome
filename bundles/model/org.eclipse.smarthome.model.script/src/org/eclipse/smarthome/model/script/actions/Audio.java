@@ -37,7 +37,7 @@ public class Audio {
     }
 
     @ActionDoc(text = "plays a sound from the sounds folder to the given sink(s)")
-    static public void playSound(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
+    public static void playSound(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "filename", text = "the filename with extension") String filename) {
         try {
             AudioActionService.audioManager.playFile(filename, sink);
@@ -47,7 +47,7 @@ public class Audio {
     }
 
     @ActionDoc(text = "plays an audio stream from an url to the default sink")
-    static public synchronized void playStream(
+    public static synchronized void playStream(
             @ParamDoc(name = "url", text = "the url of the audio stream") String url) {
         try {
             AudioActionService.audioManager.stream(url);
@@ -57,7 +57,7 @@ public class Audio {
     }
 
     @ActionDoc(text = "plays an audio stream from an url to the given sink(s)")
-    static public synchronized void playStream(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
+    public static synchronized void playStream(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "url", text = "the url of the audio stream") String url) {
         try {
             AudioActionService.audioManager.stream(url, sink);
@@ -67,12 +67,12 @@ public class Audio {
     }
 
     @ActionDoc(text = "gets the master volume", returns = "volume as a float in the range [0,1]")
-    static public float getMasterVolume() throws IOException {
+    public static float getMasterVolume() throws IOException {
         return AudioActionService.audioManager.getVolume(null);
     }
 
     @ActionDoc(text = "sets the master volume")
-    static public void setMasterVolume(
+    public static void setMasterVolume(
             @ParamDoc(name = "volume", text = "volume in the range [0,1]") final float volume) throws IOException {
         if (volume < 0 || volume > 1) {
             throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
@@ -81,12 +81,12 @@ public class Audio {
     }
 
     @ActionDoc(text = "sets the master volume")
-    static public void setMasterVolume(@ParamDoc(name = "percent") final PercentType percent) throws IOException {
+    public static void setMasterVolume(@ParamDoc(name = "percent") final PercentType percent) throws IOException {
         setMasterVolume(percent.toBigDecimal().floatValue() / 100f);
     }
 
     @ActionDoc(text = "increases the master volume")
-    static public void increaseMasterVolume(@ParamDoc(name = "percent") final float percent) throws IOException {
+    public static void increaseMasterVolume(@ParamDoc(name = "percent") final float percent) throws IOException {
         if (percent <= 0 || percent > 100) {
             throw new IllegalArgumentException("Percent must be in the range (0,100]!");
         }
@@ -108,7 +108,7 @@ public class Audio {
     }
 
     @ActionDoc(text = "decreases the master volume")
-    static public void decreaseMasterVolume(@ParamDoc(name = "percent") final float percent) throws IOException {
+    public static void decreaseMasterVolume(@ParamDoc(name = "percent") final float percent) throws IOException {
         if (percent <= 0 || percent > 100) {
             throw new IllegalArgumentException("Percent must be in the range (0,100]!");
         }
