@@ -24,6 +24,8 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,15 @@ public class JavaSoundAudioSink implements AudioSink {
 
     private final Logger logger = LoggerFactory.getLogger(JavaSoundAudioSink.class);
 
+    private boolean isMac = false;
     private Float macVolumeValue = null;
+
+    protected void activate(BundleContext context) {
+        String os = context.getProperty(Constants.FRAMEWORK_OS_NAME);
+        if (os != null && os.toLowerCase().startsWith("macos")) {
+            isMac = true;
+        }
+    }
 
     @Override
     public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
@@ -70,7 +80,7 @@ public class JavaSoundAudioSink implements AudioSink {
 
     @Override
     public float getVolume() throws IOException {
-        if (!isMacOS()) {
+        if (!isMac) {
             final Float[] volumes = new Float[1];
             runVolumeCommand(new Closure() {
                 @Override
@@ -101,7 +111,7 @@ public class JavaSoundAudioSink implements AudioSink {
         if (volume < 0 || volume > 1) {
             throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
         }
-        if (!isMacOS()) {
+        if (!isMac) {
             runVolumeCommand(new Closure() {
                 @Override
                 public void execute(Object input) {
@@ -134,9 +144,5 @@ public class JavaSoundAudioSink implements AudioSink {
                 }
             }
         }
-    }
-
-    private boolean isMacOS() {
-        return System.getProperty("osgi.os").equals("macosx");
     }
 }
