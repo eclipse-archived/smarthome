@@ -11,7 +11,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 
 public enum IncreaseDecreaseType implements PrimitiveType, Command {
-    INCREASE, DECREASE;
+    INCREASE,
+    DECREASE;
 
     @Override
     public String format(String pattern) {

@@ -18,7 +18,8 @@ import org.eclipse.smarthome.core.types.State;
  * @author Alex Tugarev
  */
 public enum PlayPauseType implements PrimitiveType, State, Command {
-    PLAY, PAUSE;
+    PLAY,
+    PAUSE;
 
     @Override
     public String format(String pattern) {

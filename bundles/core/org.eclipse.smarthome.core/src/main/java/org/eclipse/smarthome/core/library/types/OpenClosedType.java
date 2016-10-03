@@ -12,7 +12,8 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
 public enum OpenClosedType implements PrimitiveType, State, Command {
-    OPEN, CLOSED;
+    OPEN,
+    CLOSED;
 
     @Override
     public String format(String pattern) {

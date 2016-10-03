@@ -90,18 +90,23 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof DecimalType))
+        }
+        if (!(obj instanceof DecimalType)) {
             return false;
+        }
         DecimalType other = (DecimalType) obj;
         if (value == null) {
-            if (other.value != null)
+            if (other.value != null) {
                 return false;
-        } else if (value.compareTo(other.value) != 0)
+            }
+        } else if (value.compareTo(other.value) != 0) {
             return false;
+        }
         return true;
     }
 

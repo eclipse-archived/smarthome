@@ -18,7 +18,8 @@ package org.eclipse.smarthome.core.types;
  *
  */
 public enum UnDefType implements PrimitiveType, State {
-    UNDEF, NULL;
+    UNDEF,
+    NULL;
 
     @Override
     public String format(String pattern) {
