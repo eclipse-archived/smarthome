@@ -26,4 +26,14 @@ public enum UnDefType implements PrimitiveType, State {
         return String.format(pattern, this.toString());
     }
 
+    @Override
+    public String toString() {
+        return toFullTypeString();
+    }
+
+    @Override
+    public String toFullTypeString() {
+        return super.toString();
+    }
+
 }

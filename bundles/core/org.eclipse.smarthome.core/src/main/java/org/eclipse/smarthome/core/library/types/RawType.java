@@ -42,12 +42,17 @@ public class RawType implements PrimitiveType, State {
 
     @Override
     public String toString() {
+        return String.format("raw type: %d bytes", bytes.length);
+    }
+
+    @Override
+    public String toFullTypeString() {
         return PortableBase64.getEncoder().encode(bytes);
     }
 
     @Override
     public String format(String pattern) {
-        return toString();
+        return toFullTypeString();
     }
 
     @Override

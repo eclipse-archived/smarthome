@@ -51,6 +51,11 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
 
     @Override
     public String toString() {
+        return toFullTypeString();
+    }
+
+    @Override
+    public String toFullTypeString() {
         return value.toPlainString();
     }
 

@@ -67,7 +67,7 @@ public class ItemStateEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return itemName + " updated to " + itemState.toString();
+        return String.format("%s updated to %s", itemName, itemState);
     }
 
 }
