@@ -165,10 +165,10 @@ public class AudioManager {
     /**
      * Sets the volume for a sink.
      *
-     * @param sinkId the sink to set the volume
      * @param volume the volume to set as a value between 0 and 1
+     * @param sinkId the sink to set the volume
      */
-    public void setVolume(String sinkId, float volume) {
+    public void setVolume(float volume, String sinkId) {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {

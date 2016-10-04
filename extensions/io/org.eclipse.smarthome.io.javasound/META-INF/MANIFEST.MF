@@ -8,7 +8,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: javax.sound.sampled,
  org.apache.commons.collections,
+ org.apache.commons.io,
  org.eclipse.smarthome.core.audio,
+ org.osgi.framework,
  org.slf4j
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml

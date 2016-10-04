@@ -15,12 +15,14 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
+import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
 import org.eclipse.smarthome.model.script.actions.Exec;
 import org.eclipse.smarthome.model.script.actions.HTTP;
 import org.eclipse.smarthome.model.script.actions.LogAction;
 import org.eclipse.smarthome.model.script.actions.Ping;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
+import org.eclipse.smarthome.model.script.actions.Voice;
 import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
@@ -40,7 +42,7 @@ import com.google.inject.Singleton;
  *
  */
 
-@SuppressWarnings({ "restriction", "deprecation" })
+@SuppressWarnings("restriction")
 @Singleton
 public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
 
@@ -66,6 +68,8 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Exec.class);
         result.add(HTTP.class);
         result.add(Ping.class);
+        result.add(Audio.class);
+        result.add(Voice.class);
         return result;
     }
 
@@ -78,6 +82,8 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Ping.class);
         result.add(ScriptExecution.class);
         result.add(LogAction.class);
+        result.add(Audio.class);
+        result.add(Voice.class);
 
         // jodatime static functions
         result.add(DateTime.class);
