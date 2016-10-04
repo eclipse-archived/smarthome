@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.voice;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -469,6 +470,26 @@ public class VoiceManager {
     }
 
     /**
+     * Retrieves a TTS service with the given id.
+     *
+     * @param id the id of the TTS service
+     *
+     * @return a TTS service or null, if no service with this id exists
+     */
+    public TTSService getTTS(String id) {
+        return ttsServices.get(id);
+    }
+
+    /**
+     * Retrieves all TTS services.
+     *
+     * @return a set of TTS services
+     */
+    public Collection<TTSService> getTTSs() {
+        return Collections.unmodifiableCollection(ttsServices.values());
+    }
+
+    /**
      * Retrieves a STT service.
      * If a default name is configured and the service available, this is returned. Otherwise, the first available
      * service is returned.
@@ -489,6 +510,26 @@ public class VoiceManager {
             logger.debug("No STT service available!");
         }
         return stt;
+    }
+
+    /**
+     * Retrieves a STT service with the given id.
+     *
+     * @param id the id of the STT service
+     *
+     * @return a STT service or null, if no service with this id exists
+     */
+    public STTService getSTT(String id) {
+        return sttServices.get(id);
+    }
+
+    /**
+     * Retrieves all STT services.
+     *
+     * @return a set of STT services
+     */
+    public Collection<STTService> getSTTs() {
+        return Collections.unmodifiableCollection(sttServices.values());
     }
 
     /**
@@ -515,6 +556,26 @@ public class VoiceManager {
     }
 
     /**
+     * Retrieves a KS service with the given id.
+     *
+     * @param id the id of the KS service
+     *
+     * @return a KS service or null, if no service with this id exists
+     */
+    public KSService getKS(String id) {
+        return ksServices.get(id);
+    }
+
+    /**
+     * Retrieves all KS services.
+     *
+     * @return a set of KS services
+     */
+    public Collection<KSService> getKSs() {
+        return Collections.unmodifiableCollection(ksServices.values());
+    }
+
+    /**
      * Retrieves a HumanLanguageInterpreter.
      * If a default name is configured and the service available, this is returned. Otherwise, the first available
      * service is returned.
@@ -535,6 +596,26 @@ public class VoiceManager {
             logger.debug("No HumanLanguageInterpreter available!");
         }
         return hli;
+    }
+
+    /**
+     * Retrieves a HumanLanguageInterpreter with the given id.
+     *
+     * @param id the id of the HumanLanguageInterpreter
+     *
+     * @return a HumanLanguageInterpreter or null, if no interpreter with this id exists
+     */
+    public HumanLanguageInterpreter getHLI(String id) {
+        return humanLanguageInterpreters.get(id);
+    }
+
+    /**
+     * Retrieves all HumanLanguageInterpreters.
+     *
+     * @return a set of HumanLanguageInterpreters
+     */
+    public Collection<HumanLanguageInterpreter> getHLIs() {
+        return Collections.unmodifiableCollection(humanLanguageInterpreters.values());
     }
 
     /**
