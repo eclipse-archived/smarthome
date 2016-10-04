@@ -33,14 +33,23 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes" />
 
+<noscript>
+	<div class="jsDisabled">Sorry! PaperUI requires JavaScript to run. Please enable it in your browser.</div>
+	<style>
+.jsEnabled {
+	display: none;
+}
+</style>
+</noscript>
 </head>
 
-<body ng-controller="BodyController">
+<body ng-controller="BodyController" ng-class="{'eventSourceWarning':!eventSourceDefined}">
 	<div id="authentication" data-access-token="{{ACCESS_TOKEN}}"></div>
-	<div ng-include="'partials/include.extension.html'"></div>
-	<div ng-include="'partials/navigation.menu.html'"></div>
+	<div ng-show="!eventSourceDefined">PaperUI works best with modern browsers. Please use Chrome, Firefox, Opera or Safari instead.</div>
+	<div class="jsEnabled" ng-include="'partials/include.extension.html'"></div>
+	<div class="jsEnabled" ng-include="'partials/navigation.menu.html'"></div>
 
-	<div id="wrapper">
+	<div class="jsEnabled" id="wrapper">
 		<header>
 			<a href="#" class="open-menu">&#x2261;</a>
 			<div class="title">

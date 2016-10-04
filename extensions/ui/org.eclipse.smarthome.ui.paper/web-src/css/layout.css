@@ -443,3 +443,27 @@ md-toast {
 		font-weight: 400;
 	}
 }
+
+.eventSourceWarning, .eventSourceWarning .header-toolbar,
+	.eventSourceWarning .section-header, .eventSourceWarning header {
+	margin-top: 20px;
+}
+
+@media all and (max-width: 721px) {
+	.eventSourceWarning, .eventSourceWarning .header-toolbar,
+		.eventSourceWarning .section-header, .eventSourceWarning header {
+		margin-top: 40px;
+	}
+}
+
+.jsDisabled {
+	position: absolute;
+	top: 0px;
+	background-color: #AE0000;
+	color: white;
+	z-index: 100;
+	font-weight: bold;
+	font-size: 120%;
+	width: 100%;
+	text-align: center;
+}
