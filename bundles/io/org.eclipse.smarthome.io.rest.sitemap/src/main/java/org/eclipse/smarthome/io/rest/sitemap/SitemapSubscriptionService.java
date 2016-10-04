@@ -207,6 +207,7 @@ public class SitemapSubscriptionService {
             if (!pageOfSubscription.values().contains(sitemapPage)) {
                 // no other callbacks are left here, so we can safely dispose the listener
                 oldListener.dispose();
+                pageChangeListeners.remove(sitemapPage);
             }
         }
     }
