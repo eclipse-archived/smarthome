@@ -681,7 +681,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, refresh);
     }
     $scope.$watch('configuration', function() {
-        $scope.thing.configuration = $scope.configuration;
+        if ($scope.configuration) {
+            $scope.thing.configuration = $scope.configuration;
+        }
     });
     $scope.getThing(false);
 }).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channelUID, thing) {
