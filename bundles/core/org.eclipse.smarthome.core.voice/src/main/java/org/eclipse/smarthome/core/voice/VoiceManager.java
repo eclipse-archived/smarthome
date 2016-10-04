@@ -170,7 +170,7 @@ public class VoiceManager {
                 }
             }
         } catch (TTSException e) {
-            logger.error("Error saying '{}'", text);
+            logger.error("Error saying '{}': {}", text, e.getMessage());
         }
     }
 
