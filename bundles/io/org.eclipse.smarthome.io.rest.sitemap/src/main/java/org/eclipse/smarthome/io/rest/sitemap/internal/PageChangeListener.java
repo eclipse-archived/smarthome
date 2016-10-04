@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
@@ -37,7 +38,7 @@ public class PageChangeListener implements StateChangeListener {
     private final String pageId;
     private final ItemUIRegistry itemUIRegistry;
     private final EList<Widget> widgets;
-    private final Set<GenericItem> items;
+    private final Set<Item> items;
     private final List<SitemapSubscriptionCallback> callbacks = Collections
             .synchronizedList(new ArrayList<SitemapSubscriptionCallback>());
 
@@ -55,8 +56,12 @@ public class PageChangeListener implements StateChangeListener {
         this.itemUIRegistry = itemUIRegistry;
         this.widgets = widgets;
         items = getAllItems(widgets);
-        for (GenericItem item : items) {
-            item.addStateChangeListener(this);
+        for (Item item : items) {
+            if (item instanceof GenericItem) {
+                ((GenericItem) item).addStateChangeListener(this);
+            } else if (item instanceof GroupItem) {
+                ((GroupItem) item).addStateChangeListener(this);
+            }
         }
     }
 
@@ -80,8 +85,12 @@ public class PageChangeListener implements StateChangeListener {
      * Disposes this instance and releases all resources.
      */
     public void dispose() {
-        for (GenericItem item : items) {
-            item.removeStateChangeListener(this);
+        for (Item item : items) {
+            if (item instanceof GenericItem) {
+                ((GenericItem) item).removeStateChangeListener(this);
+            } else if (item instanceof GroupItem) {
+                ((GroupItem) item).removeStateChangeListener(this);
+            }
         }
     }
 
@@ -92,18 +101,15 @@ public class PageChangeListener implements StateChangeListener {
      *            the widget list to get the items for added to all bundles containing REST resources
      * @return all items that are represented by the list of widgets
      */
-    private Set<GenericItem> getAllItems(EList<Widget> widgets) {
-        Set<GenericItem> items = new HashSet<GenericItem>();
+    private Set<Item> getAllItems(EList<Widget> widgets) {
+        Set<Item> items = new HashSet<Item>();
         if (itemUIRegistry != null) {
             for (Widget widget : widgets) {
                 String itemName = widget.getItem();
                 if (itemName != null) {
                     try {
                         Item item = itemUIRegistry.getItem(itemName);
-                        if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
-                        }
+                        items.add(item);
                     } catch (ItemNotFoundException e) {
                         // ignore
                     }
