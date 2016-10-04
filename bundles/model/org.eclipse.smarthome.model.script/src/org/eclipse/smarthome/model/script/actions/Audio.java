@@ -28,7 +28,7 @@ public class Audio {
     private static final Logger logger = LoggerFactory.getLogger(Audio.class);
 
     @ActionDoc(text = "plays a sound from the sounds folder to the default sink")
-    static public void playSound(@ParamDoc(name = "filename", text = "the filename with extension") String filename) {
+    public static void playSound(@ParamDoc(name = "filename", text = "the filename with extension") String filename) {
         try {
             AudioActionService.audioManager.playFile(filename);
         } catch (AudioException e) {

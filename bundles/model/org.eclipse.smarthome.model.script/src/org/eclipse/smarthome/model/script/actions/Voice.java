@@ -27,7 +27,7 @@ public class Voice {
      * @param text the text to speak
      */
     @ActionDoc(text = "says a given text with the default voice")
-    static public void say(@ParamDoc(name = "text") Object text) {
+    public static void say(@ParamDoc(name = "text") Object text) {
         say(text.toString(), null);
     }
 
@@ -40,7 +40,7 @@ public class Voice {
      *            voiceId is assumed to be available on the default TTS service.
      */
     @ActionDoc(text = "says a given text with a given voice")
-    static public void say(@ParamDoc(name = "text") String text, @ParamDoc(name = "voice") String voice) {
+    public static void say(@ParamDoc(name = "text") String text, @ParamDoc(name = "voice") String voice) {
         say(text, voice, null);
     }
 
@@ -55,7 +55,7 @@ public class Voice {
      *            be used
      */
     @ActionDoc(text = "says a given text through the default TTS service with a given voice")
-    static public void say(@ParamDoc(name = "text") String text, @ParamDoc(name = "voice") String voice,
+    public static void say(@ParamDoc(name = "text") String text, @ParamDoc(name = "voice") String voice,
             @ParamDoc(name = "sink") String sink) {
         if (StringUtils.isNotBlank(text.toString())) {
             VoiceActionService.voiceManager.say(text, voice, sink);
@@ -70,7 +70,7 @@ public class Voice {
      * @param text the text to interpret
      */
     @ActionDoc(text = "interprets a given text by the default human language interpreter")
-    static public void interpret(@ParamDoc(name = "text") Object text) {
+    public static void interpret(@ParamDoc(name = "text") Object text) {
         try {
             VoiceActionService.voiceManager.interpret(text.toString());
         } catch (InterpretationException e) {
