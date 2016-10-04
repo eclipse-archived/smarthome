@@ -128,7 +128,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
         var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
-        configuration = configService.replaceEmptyValues(configuration);
         bindingService.updateConfig({
             id : bindingId
         }, configuration, function() {
