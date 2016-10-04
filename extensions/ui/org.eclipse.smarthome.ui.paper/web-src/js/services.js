@@ -41,7 +41,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             });
         });
     }
-    initializeEventService();
+    if (typeof (EventSource) !== "undefined") {
+        initializeEventService();
+    }
 
     return new function() {
         this.onEvent = function(topic, callback) {
