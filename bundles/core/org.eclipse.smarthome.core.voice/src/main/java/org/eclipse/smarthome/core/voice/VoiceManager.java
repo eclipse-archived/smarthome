@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.voice;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -485,7 +484,7 @@ public class VoiceManager {
      * @return a collection of TTS services
      */
     public Collection<TTSService> getTTSs() {
-        return Collections.unmodifiableCollection(ttsServices.values());
+        return new HashSet<>(ttsServices.values());
     }
 
     /**
@@ -527,7 +526,7 @@ public class VoiceManager {
      * @return a collection of STT services
      */
     public Collection<STTService> getSTTs() {
-        return Collections.unmodifiableCollection(sttServices.values());
+        return new HashSet<>(sttServices.values());
     }
 
     /**
@@ -569,7 +568,7 @@ public class VoiceManager {
      * @return a collection of KS services
      */
     public Collection<KSService> getKSs() {
-        return Collections.unmodifiableCollection(ksServices.values());
+        return new HashSet<>(ksServices.values());
     }
 
     /**
@@ -611,7 +610,7 @@ public class VoiceManager {
      * @return a collection of HumanLanguageInterpreters
      */
     public Collection<HumanLanguageInterpreter> getHLIs() {
-        return Collections.unmodifiableCollection(humanLanguageInterpreters.values());
+        return new HashSet<>(humanLanguageInterpreters.values());
     }
 
     /**
