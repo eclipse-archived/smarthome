@@ -11,10 +11,16 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
+import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
+import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -35,6 +41,22 @@ class GenericThingProviderTest extends OSGiTest {
         modelRepository = getService ModelRepository
         assertThat modelRepository, is(notNullValue())
         modelRepository.removeModel(TESTMODEL_NAME)
+
+        def configDescriptions = ["hue:bridge":new ConfigDescription(new URI("hue:bridge"), [
+                ConfigDescriptionParameterBuilder.create("ip", ConfigDescriptionParameter.Type.TEXT).withRequired(false).build(),
+                ConfigDescriptionParameterBuilder.create("username", ConfigDescriptionParameter.Type.TEXT).withRequired(false).build(),
+                ConfigDescriptionParameterBuilder.create("secret", ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()
+            ] as List),
+            "hue:LCT001":new ConfigDescription(new URI("hue:LCT001"), [
+                ConfigDescriptionParameterBuilder.create("lightId", ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()
+            ] as List)
+
+        ];
+        registerService([
+            getConfigDescription: {uri, locale ->
+                configDescriptions[uri.toString()]
+            }
+        ] as ConfigDescriptionProvider)
     }
 
     @After
@@ -50,20 +72,20 @@ class GenericThingProviderTest extends OSGiTest {
 
         String model =
                 '''
-			Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ] {
-				LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
-				Bridge bridge myBridge2 [ ] {
-					LCT001 bulb2 [ ]
-				}
-			}
+            Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ] {
+                LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+                Bridge bridge myBridge2 [ ] {
+                    LCT001 bulb2 [ ]
+                }
+            }
             hue:TEST:bulb4 [ lightId = "5"]{
                 Switch : notification [ duration = "5" ]
             }
 
-			hue:LCT001:bulb3 @ "livingroom" [ lightId = "4" ] {
-				Switch : notification [ duration = "5" ]
-			}
-			'''
+            hue:LCT001:bulb3 @ "livingroom" [ lightId = "4" ] {
+                Switch : notification [ duration = "5" ]
+            }
+            '''
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         def actualThings = thingRegistry.getAll()
 
@@ -156,28 +178,28 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat modelRepository, is(notNullValue())
         String model =
                 '''
-			Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
-				LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
-				Bridge bridge myBridge2 [ ] {
-					LCT001 bulb2 [ ]
-				}
-			}
+            Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
+                LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+                Bridge bridge myBridge2 [ ] {
+                    LCT001 bulb2 [ ]
+                }
+            }
 
-			hue:LCT001:bulb3 [ lightId = "4" ] {
-				Switch : notification [ duration = "5" ]
-			}
-			'''
+            hue:LCT001:bulb3 [ lightId = "4" ] {
+                Switch : notification [ duration = "5" ]
+            }
+            '''
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         String newModel =
                 '''
-			Bridge hue:bridge:myBridge [ ip = "5.6.7.8", secret = "123" ] {
-				LCT001 bulb1 [ ]
-			}
+            Bridge hue:bridge:myBridge [ ip = "5.6.7.8", secret = "123" ] {
+                LCT001 bulb1 [ ]
+            }
 
-			hue:LCT001:bulb2 [ lightId = "2" ] {
-				Color : color
-			}
-			'''
+            hue:LCT001:bulb2 [ lightId = "2" ] {
+                Color : color
+            }
+            '''
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(newModel.bytes))
         def actualThings = thingRegistry.getAll()
 
@@ -228,6 +250,24 @@ class GenericThingProviderTest extends OSGiTest {
 
     @Test
     void 'assert that thingid can contain all characters allowed in config-description XSD'() {
+        def ThingType thingType = new ThingType("hue", "1-thing-id-with-5-dashes_and_3_underscores", "Character Test")
+        thingType.configDescriptionURI = new URI(thingType.getUID().asString)
+        registerService([
+            getThingTypes: {locale -> [thingType]},
+            getThingType: {thingTypeUID, locale ->
+                if (thingTypeUID.equals(thingType.getUID())) {
+                    return thingType
+                } else {
+                    throw new IllegalArgumentException()
+                }
+            }
+        ] as ThingTypeProvider)
+        def configDescription = new ConfigDescription(thingType.configDescriptionURI, [
+            ConfigDescriptionParameterBuilder.create("lightId", ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()
+        ] as List);
+        registerService([
+            getConfigDescription: {uri, locale -> configDescription}
+        ] as ConfigDescriptionProvider)
 
         def things = thingRegistry.getAll()
         assertThat things.size(), is(0)
@@ -237,7 +277,7 @@ class GenericThingProviderTest extends OSGiTest {
             hue:1-thing-id-with-5-dashes_and_3_underscores:thing1 [ lightId = "1"]{
                 Switch : notification [ duration = "5" ]
             }
-			'''
+            '''
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         def actualThings = thingRegistry.getAll()
 
@@ -278,5 +318,34 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat thing.bridgeUID.toString(), is("hue:bridge:bridge1")
         assertThat bridge.things.contains(thing), is(true)
     }
+
+    @Test
+    void 'assert config and properties are separated'() {
+
+        def things = thingRegistry.getAll()
+        assertThat things.size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123", something_else = "Hello World!" ] {
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(1)
+
+        def bridge1 = actualThings.find {
+            "hue:bridge:myBridge".equals(it.UID.toString())
+        }
+
+        assertThat bridge1, isA(Bridge)
+        assertThat bridge1.configuration.values().size(), is(2)
+        assertThat bridge1.configuration.get("ip"), is("1.2.3.4")
+        assertThat bridge1.configuration.get("username"), is("123")
+        assertThat bridge1.properties.values().size(), is(1)
+        assertThat bridge1.properties.get("something_else"), is("Hello World!")
+    }
+
 
 }

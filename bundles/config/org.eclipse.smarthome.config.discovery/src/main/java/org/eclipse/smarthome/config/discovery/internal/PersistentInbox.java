@@ -7,10 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,8 +21,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
@@ -51,6 +47,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
+import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,11 +139,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             throw new IllegalArgumentException("No Thing with UID " + thingUID.getAsString() + " in inbox");
         }
         DiscoveryResult result = results.get(0);
+
+        ThingTypeUID thingTypeUID = result.getThingTypeUID();
+        ThingType thingType = thingTypeRegistry.getThingType(result.getThingTypeUID());
         final Map<String, String> properties = new HashMap<>();
         final Map<String, Object> configParams = new HashMap<>();
-        getPropsAndConfigParams(result, properties, configParams);
         final Configuration config = new Configuration(configParams);
-        ThingTypeUID thingTypeUID = result.getThingTypeUID();
+        ThingHelper.splitConfigAndProperties(result.getProperties(), configDescRegistry, thingType, config, properties);
         Thing newThing = ThingFactory.createThing(thingUID, config, properties, result.getBridgeUID(), thingTypeUID,
                 this.thingHandlerFactories);
         if (newThing == null) {
@@ -467,47 +466,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             }
         }
         return thingsForBridge;
-    }
-
-    /**
-     * Get the properties and configuration parameters for the thing with the given {@link DiscoveryResult}.
-     *
-     * @param discoveryResult the DiscoveryResult
-     * @param props the location the properties should be stored to.
-     * @param configParams the location the configuration parameters should be stored to.
-     */
-    private void getPropsAndConfigParams(final DiscoveryResult discoveryResult, final Map<String, String> props,
-            final Map<String, Object> configParams) {
-        final Set<String> paramNames = getConfigDescParamNames(discoveryResult);
-        final Map<String, Object> resultProps = discoveryResult.getProperties();
-        for (String resultKey : resultProps.keySet()) {
-            if (paramNames.contains(resultKey)) {
-                configParams.put(resultKey, resultProps.get(resultKey));
-            } else {
-                props.put(resultKey, String.valueOf(resultProps.get(resultKey)));
-            }
-        }
-    }
-
-    private Set<String> getConfigDescParamNames(DiscoveryResult discoveryResult) {
-        List<ConfigDescriptionParameter> confDescParams = getConfigDescParams(discoveryResult);
-        Set<String> paramNames = new HashSet<>();
-        for (ConfigDescriptionParameter param : confDescParams) {
-            paramNames.add(param.getName());
-        }
-        return paramNames;
-    }
-
-    private List<ConfigDescriptionParameter> getConfigDescParams(DiscoveryResult discoveryResult) {
-        ThingType type = thingTypeRegistry.getThingType(discoveryResult.getThingTypeUID());
-        if (type != null && type.getConfigDescriptionURI() != null) {
-            URI descURI = type.getConfigDescriptionURI();
-            ConfigDescription desc = configDescRegistry.getConfigDescription(descURI);
-            if (desc != null) {
-                return desc.getParameters();
-            }
-        }
-        return Collections.emptyList();
     }
 
     private void addThingSafely(Thing thing) {

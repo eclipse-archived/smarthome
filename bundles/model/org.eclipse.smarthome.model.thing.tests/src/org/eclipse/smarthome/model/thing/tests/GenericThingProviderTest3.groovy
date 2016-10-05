@@ -59,6 +59,15 @@ class GenericThingProviderTest3 extends OSGiTest{
         // create a "dumb" thing handler that acts as if the XML config was not yet loaded
         dumbThingHandlerFactory = new DumbThingHandlerFactory(componentContextMock, true)
 
+        def configDescription = new ConfigDescription(new URI("test:test"), [
+            ConfigDescriptionParameterBuilder.create("testAdditional", ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("hello world").build(),
+            ConfigDescriptionParameterBuilder.create("testConf", ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("bar").build()
+        ] as List);
+
+        registerService([
+            getConfigDescription: {uri, locale -> configDescription}
+        ] as ConfigDescriptionProvider)
+
         def things = thingRegistry.getAll()
         assertThat things.size(), is(0)
 
@@ -74,16 +83,6 @@ class GenericThingProviderTest3 extends OSGiTest{
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         registerService(dumbThingHandlerFactory, ThingHandlerFactory.class.name)
 
-        def configDescription = new ConfigDescription(new URI("test:test"), [
-            ConfigDescriptionParameterBuilder.create("testAdditional", ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("hello world").build(),
-            ConfigDescriptionParameterBuilder.create("testConf", ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("bar").build()
-        ] as List);
-
-        registerService([
-            getConfigDescription: {uri, locale -> configDescription}
-        ] as ConfigDescriptionProvider)
-
-
     }
 
     @After
@@ -94,6 +93,17 @@ class GenericThingProviderTest3 extends OSGiTest{
 
     @Test
     public void 'assert that things are updated once the xml files have been processed'() {
+        ChannelType channelType1 = new ChannelType(new ChannelTypeUID(DumbThingHandlerFactory.BINDING_ID, "channel1"), false, "String", "Channel 1", null, null, null, null, null)
+        def channelTypeProvider = [
+            getChannelType: {ChannelTypeUID channelTypeUID, Locale locale ->
+                if (channelType1.getUID().id.equals("channel1")) {
+                    return channelType1
+                }
+                return null
+            }
+        ] as ChannelTypeProvider
+        registerService(channelTypeProvider)
+
         assertThat thingRegistry.getAll().size(), is(1)
         assertThat thingRegistry.getAll().first().UID.toString(), is("dumb:DUMB:boo")
         assertThat thingRegistry.getAll().first().getChannels().size(), is(1)
@@ -105,16 +115,6 @@ class GenericThingProviderTest3 extends OSGiTest{
 
         // now become smart again...
         dumbThingHandlerFactory.setDumb(false)
-        ChannelType channelType1 = new ChannelType(new ChannelTypeUID(DumbThingHandlerFactory.BINDING_ID, "channel1"), false, "String", "Channel 1", null, null, null, null, null)
-        def channelTypeProvider = [
-            getChannelType: {ChannelTypeUID channelTypeUID, Locale locale ->
-                if (channelType1.getUID().id.equals("channel1")) {
-                    return channelType1
-                }
-                return null
-            }
-        ] as ChannelTypeProvider
-        registerService(channelTypeProvider)
 
         // ensure thing type was considered and manual and predefined values are there.
         waitForAssert({
