@@ -25,7 +25,7 @@ import java.util.Set;
  * @author Alex Tugarev - Added options, filter criteria, and more parameter
  *         attributes
  * @author Chris Jackson - Added groupId, limitToOptions, advanced,
- *         multipleLimit attributes
+ *         multipleLimit, critical attributes
  * @author Christoph Knauf - Added default constructor, changed Boolean
  *         getter to return primitive types
  * @author Thomas Höfer - Added unit
@@ -90,6 +90,7 @@ public class ConfigDescriptionParameter {
 
     private boolean limitToOptions = false;
     private boolean advanced = false;
+    private boolean critical = false;
 
     private static final Set<String> UNITS = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
@@ -118,7 +119,7 @@ public class ConfigDescriptionParameter {
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
         this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, false,
-                true, null, null, null);
+                true, null, null, null, false);
     }
 
     /**
@@ -197,7 +198,7 @@ public class ConfigDescriptionParameter {
             String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context, String defaultValue,
             String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
             String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
-            String unitLabel) throws IllegalArgumentException {
+            String unitLabel, Boolean critical) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
@@ -229,6 +230,7 @@ public class ConfigDescriptionParameter {
         this.multipleLimit = multipleLimit;
         this.unit = unit;
         this.unitLabel = unitLabel;
+        this.critical = critical;
 
         if (readOnly != null) {
             this.readOnly = readOnly;
@@ -456,6 +458,16 @@ public class ConfigDescriptionParameter {
         return unitLabel;
     }
 
+    /**
+     * Returns the critical flag for this parameter. Critical parameters are considered dangerous and the user should be
+     * alerted with an "Are you sure" flag in the UI.
+     *
+     * @return true if the parameter is considered critical
+     */
+    public Boolean isCritical() {
+        return critical;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -537,5 +549,4 @@ public class ConfigDescriptionParameter {
         sb.append("]");
         return sb.toString();
     }
-
 }

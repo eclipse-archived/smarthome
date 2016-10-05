@@ -61,7 +61,8 @@ public class ConfigDescriptionDTOMapper {
                     mapFilterCriteria(configDescriptionParameter.getFilterCriteria()),
                     configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
                     configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit(),
-                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel());
+                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel(),
+                    configDescriptionParameter.isCritical());
             configDescriptionParameterBeans.add(configDescriptionParameterBean);
         }
         return configDescriptionParameterBeans;
