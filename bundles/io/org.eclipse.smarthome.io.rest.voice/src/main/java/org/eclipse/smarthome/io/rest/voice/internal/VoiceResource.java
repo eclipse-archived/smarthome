@@ -48,7 +48,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = VoiceResource.PATH_SITEMAPS)
 public class VoiceResource implements RESTResource {
 
-    public static final String PATH_SITEMAPS = "voice";
+    static final String PATH_SITEMAPS = "voice";
 
     @Context
     UriInfo uriInfo;

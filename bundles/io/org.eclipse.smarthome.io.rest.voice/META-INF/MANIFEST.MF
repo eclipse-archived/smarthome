@@ -12,5 +12,5 @@ Import-Package: io.swagger.annotations;resolution:=optional,
  org.eclipse.smarthome.core.voice.text,
  org.eclipse.smarthome.io.rest,
  org.slf4j
-Service-Component: OSGI-INF/voicerest.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
