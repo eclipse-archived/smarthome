@@ -76,10 +76,36 @@ public final class ProgressCallbackTest {
         sut.pending()
         assertThatProgressInfoEventIsValid(postedEvents.get(2), ProgressStep.DOWNLOADING, true)
         sut.next()
-        assertThatProgressInfoEventIsValid(postedEvents.get(3), ProgressStep.TRANSFERRING, false)
-        assertThat postedEvents.size(), is(4)
+        assertThatProgressInfoEventIsValid(postedEvents.get(3), ProgressStep.DOWNLOADING, false)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(4), ProgressStep.TRANSFERRING, false)
+        sut.pending()
+        assertThatProgressInfoEventIsValid(postedEvents.get(5), ProgressStep.TRANSFERRING, true)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(6), ProgressStep.TRANSFERRING, false)
+        assertThat postedEvents.size(), is(7)
     }
-    
+
+    @Test
+    void 'assert that next changes ProgressStep if not pending'(){
+        sut.defineSequence(ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING, ProgressStep.UPDATING)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(0), ProgressStep.DOWNLOADING, false)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(1), ProgressStep.TRANSFERRING, false)
+        sut.pending()
+        assertThatProgressInfoEventIsValid(postedEvents.get(2), ProgressStep.TRANSFERRING, true)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(3), ProgressStep.TRANSFERRING, false)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(4), ProgressStep.UPDATING, false)
+        sut.pending()
+        assertThatProgressInfoEventIsValid(postedEvents.get(5), ProgressStep.UPDATING, true)
+        sut.next()
+        assertThatProgressInfoEventIsValid(postedEvents.get(6), ProgressStep.UPDATING, false)
+        assertThat postedEvents.size(), is(7)
+    }
+        
     @Test(expected=IllegalStateException)
     void 'assert that cancel throws IllegalStateException if update is finished'(){
         sut.defineSequence(ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING)
@@ -152,6 +178,21 @@ public final class ProgressCallbackTest {
         sut.defineSequence(ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING)
         sut.failed("DummyMessageKey")
         sut.pending()
+    }
+    
+    @Test(expected=IllegalStateException)
+    void 'assert that next throws IllegalStateException if update is not pending and no further steps available'(){
+        sut.defineSequence(ProgressStep.DOWNLOADING)
+        sut.next()
+        sut.next()
+    }
+    
+    void 'assert that next throws no IllegalStateException if update is pending and no further steps available'(){
+        sut.defineSequence(ProgressStep.DOWNLOADING)
+        sut.next()
+        sut.pending()
+        sut.next()
+        assertThat sut.getCurrentStep(), is(ProgressStep.DOWNLOADING)
     }
 
     @Test(expected=IllegalStateException)
