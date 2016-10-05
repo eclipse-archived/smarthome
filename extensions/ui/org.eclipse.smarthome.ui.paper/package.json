@@ -15,6 +15,7 @@
     "bootstrap": "3.3.2",
     "browser-sync": "~2.7.12",
     "del": "^2.0.0",
+    "eventsource-polyfill": "^0.9.6",
     "gulp": "^3.9.0",
     "gulp-angular-filesort": "~1.1.1",
     "gulp-concat": "^2.6.0",
