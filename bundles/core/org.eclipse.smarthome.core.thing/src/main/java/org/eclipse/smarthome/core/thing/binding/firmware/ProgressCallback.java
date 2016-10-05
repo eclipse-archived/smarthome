@@ -39,11 +39,12 @@ public interface ProgressCallback {
      * {@link ProgressCallback#defineSequence(ProgressStep...)} operation then the first invocation of this operation
      * will indicate that firmware update handler is going to download the firmware, the second invocation will indicate
      * that the handler is going to transfer the firmware to the device and consequently the third invocation will
-     * indicate that the handler is going to trigger the update.
+     * indicate that the handler is going to trigger the update. If the update is pending calling next indicates that
+     * the update is continued.
      *
      * @throws IllegalStateException if
      *             <ul>
-     *             <li>there is no further step to be executed</li>
+     *             <li>update is not pending and there is no further step to be executed</li>
      *             <li>if no sequence was defined</li>
      *             </ul>
      */
@@ -63,14 +64,14 @@ public interface ProgressCallback {
      * Callback operation to indicate that the firmware update was successful.
      */
     void success();
-    
+
     /**
      * Callback operation to indicate that the firmware update is pending.
      */
-    void pending(); 
-    
+    void pending();
+
     /**
      * Callback operation to indicate that the firmware update was canceled.
      */
-    void canceled(); 
+    void canceled();
 }
