@@ -115,4 +115,17 @@ class ThingHelperTest {
 
         assertFalse ThingHelper.equals(thingA, thingB)
     }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that no duplicate channels can be added'() {
+        ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test")
+        ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test")
+
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID).withChannels(
+                new Channel(new ChannelUID(THING_UID, "channel1"), ""),
+                new Channel(new ChannelUID(THING_UID, "channel2"), "")
+                ).build();
+
+        ThingHelper.addChannelsToThing(thing, [new Channel(new ChannelUID(THING_UID, "channel2"), ""), new Channel(new ChannelUID(THING_UID, "channel3"), "")])
+    }
 }

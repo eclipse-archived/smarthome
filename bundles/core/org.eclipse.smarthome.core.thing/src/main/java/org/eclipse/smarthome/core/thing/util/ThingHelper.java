@@ -10,12 +10,17 @@ package org.eclipse.smarthome.core.thing.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.collections.iterators.ArrayIterator;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
@@ -23,6 +28,7 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 
@@ -90,7 +96,68 @@ public class ThingHelper {
     }
 
     public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {
-        ((ThingImpl) thing).getChannelsMutable().addAll(channels);
+        List<Channel> mutableChannels = ((ThingImpl) thing).getChannelsMutable();
+        ensureUniqueChannels(mutableChannels, channels);
+        mutableChannels.addAll(channels);
+    }
+
+    public static void ensureUnique(Collection<Channel> channels) {
+        HashSet<UID> ids = new HashSet<>();
+        for (Channel channel : channels) {
+            if (!ids.add(channel.getUID())) {
+                throw new IllegalArgumentException("Duplicate channels " + channel.getUID().getAsString());
+            }
+        }
+    }
+
+    /**
+     * Ensures that there are no duplicate channels in the array (i.e. not using the same ChannelUID)
+     *
+     * @param channels the channels to check
+     * @throws IllegalArgumentException in case there are duplicate channels found
+     */
+    public static void ensureUniqueChannels(final Channel[] channels) {
+        @SuppressWarnings("unchecked")
+        final Iterator<Channel> it = new ArrayIterator(channels);
+
+        ensureUniqueChannels(it, new HashSet<UID>(channels.length));
+    }
+
+    /**
+     * Ensures that there are no duplicate channels in the collection (i.e. not using the same ChannelUID)
+     *
+     * @param channels the channels to check
+     * @throws IllegalArgumentException in case there are duplicate channels found
+     */
+    public static void ensureUniqueChannels(final Collection<Channel> channels) {
+        ensureUniqueChannels(channels.iterator(), new HashSet<UID>(channels.size()));
+    }
+
+    /**
+     * Ensures that there are no duplicate channels in the collection plus the additional one (i.e. not using the same
+     * ChannelUID)
+     *
+     * @param channels the {@link List} of channels to check
+     * @param channel an additional channel
+     * @throws IllegalArgumentException in case there are duplicate channels found
+     */
+    public static void ensureUniqueChannels(final Collection<Channel> channels, final Channel channel) {
+        ensureUniqueChannels(channels, Collections.singleton(channel));
+    }
+
+    private static void ensureUniqueChannels(final Collection<Channel> channels1, final Collection<Channel> channels2) {
+        ensureUniqueChannels(channels1.iterator(),
+                ensureUniqueChannels(channels2.iterator(), new HashSet<UID>(channels1.size() + channels2.size())));
+    }
+
+    private static HashSet<UID> ensureUniqueChannels(final Iterator<Channel> channels, final HashSet<UID> ids) {
+        while (channels.hasNext()) {
+            final Channel channel = channels.next();
+            if (!ids.add(channel.getUID())) {
+                throw new IllegalArgumentException("Duplicate channels " + channel.getUID().getAsString());
+            }
+        }
+        return ids;
     }
 
     /**

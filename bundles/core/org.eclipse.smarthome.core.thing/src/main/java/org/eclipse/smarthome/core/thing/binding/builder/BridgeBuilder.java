@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
@@ -72,6 +73,11 @@ public class BridgeBuilder extends ThingBuilder {
     @Override
     public BridgeBuilder withChannels(List<Channel> channels) {
         return (BridgeBuilder) super.withChannels(channels);
+    }
+
+    @Override
+    public BridgeBuilder withoutChannel(ChannelUID channelUID) {
+        return (BridgeBuilder) super.withoutChannel(channelUID);
     }
 
     @Override
