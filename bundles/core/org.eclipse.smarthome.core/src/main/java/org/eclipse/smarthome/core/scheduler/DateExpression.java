@@ -174,4 +174,9 @@ public class DateExpression extends AbstractExpression<DateExpressionPart> {
         }
     }
 
+    @Override
+    public boolean hasFloatingStartDate() {
+        return false;
+    }
+
 }

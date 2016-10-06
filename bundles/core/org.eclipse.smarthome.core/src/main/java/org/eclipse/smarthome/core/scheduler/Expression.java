@@ -43,7 +43,7 @@ public interface Expression {
     /**
      * Returns the final time that the <code>Expression</code> will match.
      *
-     * @return the last date the expression will fire
+     * @return the last date the expression will fire, or null when the final time can not be calculated
      */
     Date getFinalFireTime();
 
@@ -81,17 +81,25 @@ public interface Expression {
     /**
      * Returns the start date of the expression.
      *
-     * @return the start date.
+     * @return the start date, as from which the expression will be evaluated
      */
 
     Date getStartDate();
 
     /**
-     * Sets the start date of the rule.
+     * Sets the start date of the rule
      *
      * @param startTime the start date to set
      * @throws ParseException when the expression can not be parsed correctly after the start date was set
      */
     void setStartDate(Date startTime) throws ParseException;
+
+    /**
+     * Indicates whether the expression does not need an explicit start date in order to be evaluated. 'infinite' style
+     * expression types, e.g. without an explicit start date part of their definition, like cron, should return true
+     *
+     * @return true, if the start date does not matter for evaluating the expression
+     */
+    boolean hasFloatingStartDate();
 
 }
