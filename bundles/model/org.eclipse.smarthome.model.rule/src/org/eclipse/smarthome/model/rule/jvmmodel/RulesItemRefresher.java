@@ -85,7 +85,9 @@ public class RulesItemRefresher implements ItemRegistryChangeListener {
         @Override
         public void run() {
             try {
-                modelRepository.reloadAllModelsOfType("rules");
+                if (modelRepository != null) {
+                    modelRepository.reloadAllModelsOfType("rules");
+                }
             } catch (Exception e) {
                 logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
             }
