@@ -32,9 +32,11 @@ public class HLIMapper {
         HumanLanguageInterpreterDTO dto = new HumanLanguageInterpreterDTO();
         dto.id = hli.getId();
         dto.label = hli.getLabel(locale);
-        dto.locales = new HashSet<String>(hli.getSupportedLocales().size());
-        for (Locale l : hli.getSupportedLocales()) {
-            dto.locales.add(l.toString());
+        if (hli.getSupportedLocales() != null) {
+            dto.locales = new HashSet<String>(hli.getSupportedLocales().size());
+            for (Locale l : hli.getSupportedLocales()) {
+                dto.locales.add(l.toString());
+            }
         }
         return dto;
     }
