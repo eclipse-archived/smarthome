@@ -54,7 +54,7 @@ public interface HumanLanguageInterpreter {
     /**
      * Gets all supported languages of the interpreter by their {@link Locale}s
      *
-     * @return Set of supported languages (each given by a {@link Locale})
+     * @return Set of supported languages (each given by a {@link Locale}) or null, if there is no constraint
      */
     Set<Locale> getSupportedLocales();
 
