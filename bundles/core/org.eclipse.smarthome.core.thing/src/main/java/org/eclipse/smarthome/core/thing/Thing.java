@@ -17,9 +17,9 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 /**
  * A {@link Thing} is a representation of a connected part (e.g. physical device or cloud service) from the real world.
  * It contains a list of {@link Channel}s, which can be bound to {@link Item}s.
- * </p>
+ * <p>
  * A {@link Thing} might be connected through a {@link Bridge}.
- * </p>
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Thomas Höfer - Added thing and thing type properties

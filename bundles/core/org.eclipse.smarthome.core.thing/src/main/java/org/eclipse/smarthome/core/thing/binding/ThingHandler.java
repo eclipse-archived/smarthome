@@ -21,11 +21,11 @@ import org.eclipse.smarthome.core.types.State;
 /**
  * A {@link ThingHandler} handles the communication between the Eclipse SmartHome framework and an entity from the real
  * world, e.g. a physical device, a web service, etc. represented by a {@link Thing}.
- * </p>
+ * <p>
  * The communication is bidirectional. The framework informs a thing handler about commands, state and configuration
  * updates, and so on, by the corresponding handler methods. The handler can notify the framework about changes like
  * state and status updates, updates of the whole thing, by a {@link ThingHandlerCallback}.
- * </p>
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Michael Grammling - Added dynamic configuration update
@@ -43,13 +43,13 @@ public interface ThingHandler {
 
     /**
      * Initializes the thing handler, e.g. update thing status, allocate resources, transfer configuration.
-     * </p>
+     * <p>
      * This method is only called, if the {@link Thing} contains all required configuration parameters.
-     * </p>
+     * <p>
      * Only {@link Thing}s with status {@link ThingStatus#ONLINE} or {@link ThingStatus#OFFLINE} are
      * considered as <i>initialized</i> by the framework. To achieve that, the status must be reported
      * via {@link ThingHandlerCallback#statusUpdated(Thing, ThingStatusInfo)}.
-     * </p>
+     * <p>
      * The framework expects this method to be non-blocking and return quickly. For longer running initializations,
      * the implementation has to take care of scheduling a separate job which must the status at the end.
      */
@@ -57,7 +57,7 @@ public interface ThingHandler {
 
     /**
      * Disposes the thing handler, e.g. deallocate resources.
-     * </p>
+     * <p>
      * The framework expects this method to be non-blocking and return quickly. For longer running disposals,
      * the implementation has to take care of scheduling a separate job.
      */
@@ -65,11 +65,11 @@ public interface ThingHandler {
 
     /**
      * Sets the {@link ThingHandlerCallback} of the handler, which must be used to inform the framework about changes.
-     * </p>
+     * <p>
      * The callback is added after the handler instance has been tracked by the framework and before
      * {@link #initialize()} is called. The callback is removed (set to null) after the handler
      * instance is no longer tracked and before {@link #dispose()} is called.
-     * </p>
+     * <p>
      *
      * @param thingHandlerCallback the callback (can be null)
      */
@@ -77,9 +77,9 @@ public interface ThingHandler {
 
     /**
      * Handles a command for a given channel.
-     * </p>
+     * <p>
      * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
-     * </p>
+     * <p>
      *
      * @param channelUID the {@link ChannelUID} of the channel to which the command was sent
      * @param command the {@link Command}
@@ -88,9 +88,9 @@ public interface ThingHandler {
 
     /**
      * Handles a {@link State} update for a given channel.
-     * </p>
+     * <p>
      * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
-     * </p>
+     * <p>
      *
      * @param channelUID the {@link ChannelUID} of the channel on which the update was performed
      * @param newState the new {@link State}
@@ -99,9 +99,9 @@ public interface ThingHandler {
 
     /**
      * Handles a configuration update.
-     * </p>
+     * <p>
      * Note: An implementing class needs to persist the configuration changes if necessary.
-     * </p>
+     * <p>
      *
      * @param configurationParameters map of changed configuration parameters
      *
@@ -112,9 +112,9 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler about an updated {@link Thing}.
-     * </p>
+     * <p>
      * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
-     * </p>
+     * <p>
      *
      * @param thing the {@link Thing}, that has been updated
      */
@@ -122,9 +122,9 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler that a channel was linked.
-     * </p>
+     * <p>
      * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
-     * </p>
+     * <p>
      *
      * @param channelUID UID of the linked channel
      */
@@ -132,9 +132,9 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler that a channel was unlinked.
-     * </p>
+     * <p>
      * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
-     * </p>
+     * <p>
      *
      * @param channelUID UID of the unlinked channel
      */
@@ -144,11 +144,11 @@ public interface ThingHandler {
      * This method is called, when the status of the bridge has been changed to {@link ThingStatus#ONLINE} or
      * {@link ThingStatus#OFFLINE} after a bridge has been initialized. If the thing of this handler does not have a
      * bridge, this method is never called.
-     * </p>
+     * <p>
      * If the bridge status has changed to OFFLINE, the status of the handled thing must be updated to OFFLINE with
      * detail {@link ThingStatusDetail#BRIDGE_OFFLINE}. If the bridge returns to ONLINE, the thing status must be
      * changed at least to OFFLINE with detail {@link ThingStatusDetail#NONE}.
-     * </p>
+     * <p>
      *
      * @param thingStatusInfo the status info of the bridge
      */

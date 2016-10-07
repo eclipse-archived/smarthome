@@ -17,9 +17,9 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 /**
  * The {@link BaseBridgeHandler} implements the {@link BridgeHandler} interface and adds some convenience methods for
  * bridges to the {@link BaseThingHandler}.
- * </p>
+ * <p>
  * It is recommended to extend this abstract base class.
- * </p>
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added implementation of BridgeHandler interface

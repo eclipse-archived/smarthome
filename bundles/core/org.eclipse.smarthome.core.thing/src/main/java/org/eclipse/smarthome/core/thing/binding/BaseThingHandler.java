@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -47,9 +48,9 @@ import com.google.common.base.Preconditions;
  * The default behavior for {@link Thing} updates is to {@link #dispose()} this handler first, exchange the
  * {@link Thing} and {@link #initialize()} it again. Override the method {@link #thingUpdated(Thing)} to change the
  * default behavior.
- * </p>
+ * <p>
  * It is recommended to extend this abstract base class, because it covers a lot of common logic.
- * </p>
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update

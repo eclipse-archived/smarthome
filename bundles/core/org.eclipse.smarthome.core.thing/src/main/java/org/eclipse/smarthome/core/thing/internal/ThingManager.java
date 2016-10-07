@@ -860,9 +860,9 @@ public class ThingManager extends AbstractItemEventSubscriber
         } catch (TimeoutException ex) {
             logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeMethodCaller.DEFAULT_TIMEOUT);
-        } catch (Exception ex) {
-            logger.error("Exception occured while disposing handler of thing '" + thingHandler.getThing().getUID()
-                    + "': " + ex.getMessage(), ex);
+        } catch (Exception e) {
+            logger.error("Exception occured while disposing handler of thing '{}': {}",
+                    thingHandler.getThing().getUID(), e.getMessage(), e);
         }
     }
 
@@ -902,9 +902,10 @@ public class ThingManager extends AbstractItemEventSubscriber
                             if (handler != null && isInitialized(child)) {
                                 handler.bridgeStatusChanged(bridgeStatus);
                             }
-                        } catch (Exception ex) {
-                            logger.error("Exception occured during notification about bridge status change on thing '"
-                                    + child.getUID() + "': " + ex.getMessage(), ex);
+                        } catch (Exception e) {
+                            logger.error(
+                                    "Exception occured during notification about bridge status change on thing '{}': {}",
+                                    child.getUID(), e.getMessage(), e);
                         }
                     }
                 });
@@ -923,10 +924,10 @@ public class ThingManager extends AbstractItemEventSubscriber
                         if (bridgeHandler != null) {
                             bridgeHandler.childHandlerInitialized(thing.getHandler(), thing);
                         }
-                    } catch (Exception ex) {
-                        logger.error("Exception occured during bridge handler notification ('" + bridge.getUID()
-                                + "') about handler initialization of child '{}' '" + thing.getUID() + "': "
-                                + ex.getMessage(), ex);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Exception occured during bridge handler ('{}') notification about handler initialization of child '{}': {}",
+                                bridge.getUID(), thing.getUID(), e.getMessage(), e);
                     }
                 }
             });
@@ -945,9 +946,9 @@ public class ThingManager extends AbstractItemEventSubscriber
                             bridgeHandler.childHandlerDisposed(thingHandler, thing);
                         }
                     } catch (Exception ex) {
-                        logger.error("Exception occured during bridge handler notification ('" + bridge.getUID()
-                                + "') about handler disposal of child '{}' '" + thing.getUID() + "': "
-                                + ex.getMessage(), ex);
+                        logger.error(
+                                "Exception occured during bridge handler ('{}') notification about handler disposal of child '{}': {}",
+                                bridge.getUID(), thing.getUID(), ex.getMessage(), ex);
                     }
                 }
             });

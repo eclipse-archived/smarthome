@@ -34,11 +34,11 @@ public interface ThingHandlerFactory {
     /**
      * Creates a new {@link ThingHandler} instance. In addition, the handler can be registered as a service if it is
      * required, e.g. as {@link FirmwareUpdateHandler}, {@link ConfigStatusProvider}.
-     * </p>
+     * <p>
      * This method is only called if the {@link ThingHandlerFactory} supports the type of the given thing.
-     * </p>
+     * <p>
      * The framework expects this method to be non-blocking and return quickly.
-     * </p>
+     * <p>
      *
      * @param thing the thing for which a new handler must be registered
      *
@@ -50,7 +50,7 @@ public interface ThingHandlerFactory {
 
     /**
      * Unregisters a {@link ThingHandler} instance.
-     * </p>
+     * <p>
      * The framework expects this method to be non-blocking and return quickly.
      * <p>
      *

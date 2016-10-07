@@ -28,9 +28,9 @@ import com.google.common.base.Preconditions;
 
 /**
  * The {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface.
- * </p>
+ * <p>
  * It is recommended to extend this abstract base class, because it covers a lot of common logic.
- * </p>
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
@@ -108,9 +108,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     /**
      * Creates a {@link ThingHandler} for the given thing.
      *
-     * @param thing
-     *            thing
-     * @return thing handler
+     * @param thing the thing
+     * @return thing the created handler
      */
     protected abstract ThingHandler createHandler(Thing thing);
 
