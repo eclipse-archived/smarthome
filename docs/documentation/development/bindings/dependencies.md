@@ -40,7 +40,10 @@ You might also have the need to use other libraries for specific use cases like 
  - com.google.gson.*  
  
 ### For HTTP operations  
- - org.apache.http.*  
+ - org.eclipse.jetty.client.*  
+ - org.eclipse.jetty.client.api.*  
+ - org.eclipse.jetty.http.*  
+ - org.eclipse.jetty.util.*  
  
 ## 3rd Party Libraries
 
