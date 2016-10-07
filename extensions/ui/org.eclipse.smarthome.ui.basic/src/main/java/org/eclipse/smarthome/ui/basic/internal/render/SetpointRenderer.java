@@ -15,7 +15,6 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Setpoint;
 import org.eclipse.smarthome.model.sitemap.Widget;
-import org.eclipse.smarthome.ui.basic.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 
@@ -80,16 +79,10 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
         String snippetName = "setpoint";
         String snippet = getSnippet(snippetName);
 
-        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
-        snippet = StringUtils.replace(snippet, "%item%", w.getItem());
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%newlowerstate%", newLowerState);
         snippet = StringUtils.replace(snippet, "%newhigherstate%", newHigherState);
-        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%value%", getValue(w));
-        snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%minValue%", minValue.toString());
         snippet = StringUtils.replace(snippet, "%maxValue%", maxValue.toString());
         snippet = StringUtils.replace(snippet, "%step%", step.toString());
