@@ -19,7 +19,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Widget;
-import org.eclipse.smarthome.ui.basic.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 import org.slf4j.Logger;
@@ -76,15 +75,9 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
         State state = itemUIRegistry.getState(w);
         String value = getValue(w);
 
-        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%value%", value);
         snippet = StringUtils.replace(snippet, "%has_value%", new Boolean(value != "").toString());
-        snippet = StringUtils.replace(snippet, "%item%", w.getItem());
-        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%count%", Integer.toString(s.getMappings().size()));
 
         if (s.getMappings().size() == 0) {

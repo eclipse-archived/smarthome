@@ -40,13 +40,8 @@ public class TextRenderer extends AbstractWidgetRenderer {
         Text text = (Text) w;
         String snippet = (text.getChildren().size() > 0) ? getSnippet("text_link") : getSnippet("text");
 
+        snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
-        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
-        snippet = StringUtils.replace(snippet, "%item%", w.getItem());
 
         // Process the color tags
         snippet = processColor(w, snippet);

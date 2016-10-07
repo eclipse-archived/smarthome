@@ -11,9 +11,10 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sitemap">
    <implementation class="org.eclipse.smarthome.io.rest.sitemap.internal.SitemapResource"/>
    <reference bind="setItemUIRegistry" cardinality="1..1" interface="org.eclipse.smarthome.ui.items.ItemUIRegistry" name="ItemUIRegistry" policy="dynamic" unbind="unsetItemUIRegistry"/>
+   <reference bind="setSitemapSubscriptionService" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService" name="SitemapSubscriptions" policy="static" unbind="unsetSitemapSubscriptionService"/>
+   <reference bind="addSitemapProvider" cardinality="0..n" interface="org.eclipse.smarthome.model.sitemap.SitemapProvider" name="SitemapProvider" policy="dynamic" unbind="removeSitemapProvider"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.sitemap.internal.SitemapResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="addSitemapProvider" cardinality="0..n" interface="org.eclipse.smarthome.model.sitemap.SitemapProvider" name="SitemapProvider" policy="dynamic" unbind="removeSitemapProvider"/>
 </scr:component>

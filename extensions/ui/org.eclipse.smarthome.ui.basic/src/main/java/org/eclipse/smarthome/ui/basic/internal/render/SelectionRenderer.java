@@ -58,12 +58,9 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         String snippet = getSnippet("selection");
 
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%value_map%", getMappingsJSON((Selection) w));
         snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
 
         String state = itemUIRegistry.getState(w).toString();
         Selection selection = (Selection) w;

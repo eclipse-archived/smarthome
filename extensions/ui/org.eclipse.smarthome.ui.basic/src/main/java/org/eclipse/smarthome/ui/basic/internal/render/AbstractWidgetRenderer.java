@@ -73,6 +73,24 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     }
 
     /**
+     * Replace some common values in the widget template
+     *
+     * @param snippet snippet html code
+     * @param w corresponding widget
+     * @return
+     */
+    protected String preprocessSnippet(String snippet, Widget w) {
+        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
+        snippet = StringUtils.replace(snippet, "%widget_id%", itemUIRegistry.getWidgetId(w));
+        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
+        snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
+        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
+        return snippet;
+    }
+
+    /**
      * This method provides the html snippet for a given elementType of the sitemap model.
      *
      * @param elementType the name of the model type (e.g. "Group" or "Switch")

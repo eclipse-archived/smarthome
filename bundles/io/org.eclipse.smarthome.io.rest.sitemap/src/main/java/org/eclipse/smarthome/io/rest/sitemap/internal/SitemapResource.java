@@ -14,11 +14,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -28,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -38,9 +41,12 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
+import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
+import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
 import org.eclipse.smarthome.model.sitemap.Chart;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Image;
@@ -58,8 +64,16 @@ import org.eclipse.smarthome.model.sitemap.Video;
 import org.eclipse.smarthome.model.sitemap.Webview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.glassfish.jersey.media.sse.EventOutput;
+import org.glassfish.jersey.media.sse.OutboundEvent;
+import org.glassfish.jersey.media.sse.SseBroadcaster;
+import org.glassfish.jersey.media.sse.SseFeature;
+import org.glassfish.jersey.server.BroadcasterListener;
+import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.MapMaker;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -79,20 +93,37 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(SitemapResource.PATH_SITEMAPS)
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource implements RESTResource {
+public class SitemapResource implements RESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
     public static final String PATH_SITEMAPS = "sitemaps";
+    private static final String SEGMENT_EVENTS = "events";
 
     private static final long TIMEOUT_IN_MS = 30000;
+
+    private SseBroadcaster broadcaster;
 
     @Context
     UriInfo uriInfo;
 
     private ItemUIRegistry itemUIRegistry;
 
+    private SitemapSubscriptionService subscriptions;
+
     private java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
+
+    private Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
+
+    protected void activate() {
+        broadcaster = new SseBroadcaster();
+        broadcaster.add(this);
+    }
+
+    protected void deactivate() {
+        broadcaster.remove(this);
+        broadcaster = null;
+    }
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
@@ -100,6 +131,14 @@ public class SitemapResource implements RESTResource {
 
     public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = null;
+    }
+
+    public void setSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public void unsetSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
+        this.subscriptions = null;
     }
 
     public void addSitemapProvider(SitemapProvider provider) {
@@ -141,13 +180,23 @@ public class SitemapResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Polls the data for a sitemap.", response = PageDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Sitemap with requested name does not exist or page does not exist, or page refers to a non-linkable widget") })
+            @ApiResponse(code = 404, message = "Sitemap with requested name does not exist or page does not exist, or page refers to a non-linkable widget"),
+            @ApiResponse(code = 400, message = "Invalid subscription id has been provided.") })
     public Response getPageData(@Context HttpHeaders headers,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
-            @PathParam("pageid") @ApiParam(value = "page id") String pageId) {
+            @PathParam("pageid") @ApiParam(value = "page id") String pageId,
+            @QueryParam("subscriptionid") @ApiParam(value = "subscriptionid", required = false) String subscriptionId) {
         final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+
+        if (subscriptionId != null) {
+            try {
+                subscriptions.setPageId(subscriptionId, sitemapname, pageId);
+            } catch (IllegalArgumentException e) {
+                return JSONResponse.createErrorResponse(Response.Status.BAD_REQUEST, e.getMessage());
+            }
+        }
 
         if (headers.getRequestHeader("X-Atmosphere-Transport") != null) {
             // Make the REST-API pseudo-compatible with openHAB 1.x
@@ -157,6 +206,52 @@ public class SitemapResource implements RESTResource {
         }
         Object responseObject = getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build(), locale);
         return Response.ok(responseObject).build();
+    }
+
+    /**
+     * Creates a subscription for the stream of sitemap events.
+     *
+     * @return a subscription id
+     */
+    @POST
+    @Path(SEGMENT_EVENTS + "/subscribe")
+    @ApiOperation(value = "Creates a sitemap event subscription.")
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Subscription created.") })
+    public Object createEventSubscription() {
+        String subscriptionId = subscriptions.createSubscription(this);
+        final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
+        broadcaster.add(eventOutput);
+        eventOutputs.put(subscriptionId, eventOutput);
+        URI uri = uriInfo.getBaseUriBuilder().path(PATH_SITEMAPS).path(SEGMENT_EVENTS).path(subscriptionId).build();
+        return Response.created(uri);
+    }
+
+    /**
+     * Subscribes the connecting client to the stream of sitemap events.
+     *
+     * @return {@link EventOutput} object associated with the incoming
+     *         connection.
+     */
+    @GET
+    @Path(SEGMENT_EVENTS + "/{subscriptionid: [a-zA-Z_0-9-]*}/")
+    @Produces(SseFeature.SERVER_SENT_EVENTS)
+    @ApiOperation(value = "Get sitemap events.", response = EventOutput.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Subscription not found.") })
+    public Object getSitemapEvents(
+            @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId,
+            @QueryParam("sitemap") @ApiParam(value = "sitemap name", required = false) String sitemapname,
+            @QueryParam("pageid") @ApiParam(value = "page id", required = false) String pageId) {
+        EventOutput eventOutput = eventOutputs.get(subscriptionId);
+        if (!subscriptions.exists(subscriptionId) || eventOutput == null) {
+            return JSONResponse.createResponse(Status.NOT_FOUND, null,
+                    "Subscription id " + subscriptionId + " does not exist.");
+        }
+        if (sitemapname != null && pageId != null) {
+            subscriptions.setPageId(subscriptionId, sitemapname, pageId);
+        }
+        logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
+        return eventOutput;
     }
 
     private PageDTO getPageBean(String sitemapName, String pageId, URI uri, Locale locale) {
@@ -541,6 +636,29 @@ public class SitemapResource implements RESTResource {
         public void stateUpdated(Item item, State state) {
             // ignore if the state did not change
         }
+    }
+
+    @Override
+    public void onEvent(SitemapEvent event) {
+        OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
+        OutboundEvent outboundEvent = eventBuilder.name("event").mediaType(MediaType.APPLICATION_JSON_TYPE).data(event)
+                .build();
+        broadcaster.broadcast(outboundEvent);
+    }
+
+    @Override
+    public void onClose(ChunkedOutput<OutboundEvent> event) {
+        if (event instanceof SitemapEventOutput) {
+            SitemapEventOutput sitemapEvent = (SitemapEventOutput) event;
+            logger.debug("SSE connection for subscription {} has been closed.", sitemapEvent.getSubscriptionId());
+            subscriptions.removeSubscription(sitemapEvent.getSubscriptionId());
+        }
+    }
+
+    @Override
+    public void onException(ChunkedOutput<OutboundEvent> event, Exception e) {
+        // the exception is usually "null" and onClose() is automatically called afterwards
+        // - so let's don't do anything in this method.
     }
 
 }

@@ -290,12 +290,12 @@
 			}
 		};
 
-		_t.setValue = function(value) {
-			_t.reloadIcon(value);
+		_t.setValue = function(value, itemState) {
+			_t.reloadIcon(itemState);
 			if (suppress) {
 				suppress = false;
 			} else {
-				_t.setValuePrivate(value);
+				_t.setValuePrivate(value, itemState);
 			}
 		};
 
@@ -596,8 +596,8 @@
 		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
 		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 
-		_t.setValuePrivate = function(value) {
-			_t.value = value * 1;
+		_t.setValuePrivate = function(value, itemState) {
+			_t.value = itemState * 1;
 			_t.valueNode.innerHTML = value;
 		};
 
@@ -1109,12 +1109,12 @@
 			_t.debounceProxy.call();
 		});
 
-		_t.setValuePrivate = function(value) {
+		_t.setValuePrivate = function(value, itemState) {
 			if (_t.locked) {
-				_t.reloadIcon(value);
+				_t.reloadIcon(itemState);
 				return;
 			}
-			_t.input.value = value;
+			_t.input.value = itemState;
 			_t.input.MaterialSlider.change();
 		};
 
@@ -1308,10 +1308,14 @@
 			_t.newPage = page;
 
 			_t.showLoadingBar();
-			_t.destination = "/basicui/app?w=" + page + "&sitemap=" + smarthome.UI.sitemap;
+			_t.destination =
+				"/basicui/app?w=" + page +
+				"&sitemap=" + smarthome.UI.sitemap;
 
 			ajax({
-				url: _t.destination + "&__async=true",
+				url: _t.destination +
+					"&subscriptionId=" + smarthome.subscriptionId +
+					"&__async=true",
 				callback: _t.navigateCallback
 			});
 
@@ -1322,16 +1326,20 @@
 
 		_t.initControls = function() {
 			smarthome.dataModel = {};
+			smarthome.dataModelLegacy = {};
 
 			function appendControl(control) {
+				// dataModelLegacy keeps item → widgets binding for
+				// long-polling event listener
 				if (
-					(smarthome.dataModel[control.item] === undefined) ||
-					(smarthome.dataModel[control.item].widgets === undefined)
+					(smarthome.dataModelLegacy[control.item] === undefined) ||
+					(smarthome.dataModelLegacy[control.item].widgets === undefined)
 				) {
-					smarthome.dataModel[control.item] = { widgets: [] };
+					smarthome.dataModelLegacy[control.item] = { widgets: [] };
 				}
 
-				smarthome.dataModel[control.item].widgets.push(control);
+				smarthome.dataModelLegacy[control.item].widgets.push(control);
+				smarthome.dataModel[control.id] = control;
 			}
 
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
@@ -1410,35 +1418,46 @@
 		};
 	}
 
-	function ChangeListenerEventsource() {
+	function ChangeListenerEventsource(subscribeLocation) {
 		AbstractChangeListener.call(this);
 
 		var
 			_t = this;
 
 		_t.navigate = function(){};
-		_t.source = new EventSource("/rest/events?topics=smarthome/items/*/state");
-		_t.source.addEventListener("message", function(payload) {
+		_t.source = new EventSource(subscribeLocation);
+		_t.source.addEventListener("event", function(payload) {
 			if (_t.paused) {
 				return;
 			}
 
 			var
 				data = JSON.parse(payload.data),
-				dataPayload = JSON.parse(data.payload),
-				value = dataPayload.value,
-				item = (function(topic) {
-					topic = topic.split("/");
-					return topic[topic.length - 2];
-				})(data.topic);
+				value;
 
-			if (!(item in smarthome.dataModel)) {
+			if (!(data.widgetId in smarthome.dataModel)) {
 				return;
 			}
 
-			smarthome.dataModel[item].widgets.forEach(function(widget) {
-				widget.setValue(value);
-			});
+			if (
+				(typeof(data.label) === "string") &&
+				(data.label.indexOf("[") !== -1) &&
+				(data.label.indexOf("]") !== -1)
+			) {
+				var
+					pos = data.label.indexOf("[");
+
+				value = data.label.substr(
+					pos + 1,
+					data.label.lastIndexOf("]") - (pos + 1)
+				);
+			} else {
+				value = data.item.state;
+			}
+
+			if (smarthome.dataModel[data.widgetId] !== undefined) {
+				smarthome.dataModel[data.widgetId].setValue(value, data.item.state);
+			}
 		});
 	}
 
@@ -1468,9 +1487,9 @@
 						item = widget.item.name,
 						value = widget.item.state;
 
-					smarthome.dataModel[item].widgets.forEach(function(w) {
+					smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
 						if (value !== "NULL") {
-							w.setValue(value);
+							w.setValue(value, value);
 						}
 					});
 				});
@@ -1529,11 +1548,56 @@
 	}
 
 	function ChangeListener() {
-		if (featureSupport.eventSource) {
-			ChangeListenerEventsource.call(this);
-		} else {
-			ChangeListenerLongpolling.call(this);
-		}
+		var
+			_t = this;
+
+		_t.startSubscriber = function(response) {
+			var
+				responseJSON,
+				subscribeLocation,
+				subscribeLocationArray,
+				sitemap,
+				subscriptionId,
+				page;
+
+			try {
+				responseJSON = JSON.parse(response.responseText);
+			} catch (e) {
+				return;
+			}
+
+			if (responseJSON.status !== "CREATED") {
+				return;
+			}
+
+			try {
+				subscribeLocation = responseJSON.context.headers.Location[0];
+			} catch (e) {
+				return;
+			}
+
+			subscribeLocationArray = subscribeLocation.split("/");
+			subscriptionId = subscribeLocationArray[subscribeLocationArray.length - 1];
+
+			sitemap = document.body.getAttribute("data-sitemap");
+			page = document.body.getAttribute("data-page-id");
+
+			smarthome.subscriptionId = subscriptionId;
+
+			if (featureSupport.eventSource) {
+				ChangeListenerEventsource.call(_t, subscribeLocation +
+					"?sitemap=" + sitemap +
+					"&pageid=" + page);
+			} else {
+				ChangeListenerLongpolling.call(_t);
+			}
+		};
+
+		ajax({
+			url: "/rest/sitemaps/events/subscribe",
+			type: "POST",
+			callback: _t.startSubscriber
+		});
 	}
 
 	document.addEventListener("DOMContentLoaded", function() {
@@ -1543,7 +1607,7 @@
 	});
 })({
 	itemAttribute: "data-item",
-	idAttribute: "data-id",
+	idAttribute: "data-widget-id",
 	iconAttribute: "data-icon",
 	iconTypeAttribute: "data-icon-type",
 	controlButton: "button",
