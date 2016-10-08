@@ -22,11 +22,11 @@ public enum UpDownType implements PrimitiveType, State, Command {
 
     @Override
     public String toString() {
-        return toFullTypeString();
+        return toFullString();
     }
 
     @Override
-    public String toFullTypeString() {
+    public String toFullString() {
         return super.toString();
     }
 

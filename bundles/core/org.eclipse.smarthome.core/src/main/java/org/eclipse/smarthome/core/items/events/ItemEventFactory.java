@@ -219,7 +219,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         assertValidArguments(itemName, state, "state");
         String topic = buildTopic(ITEM_STATE_EVENT_TOPIC, itemName);
         ItemEventPayloadBean bean = new ItemEventPayloadBean(state.getClass().getSimpleName(),
-                state.toFullTypeString());
+                state.toFullString());
         String payload = serializePayload(bean);
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
@@ -253,8 +253,8 @@ public class ItemEventFactory extends AbstractEventFactory {
         assertValidArguments(itemName, newState, "state");
         String topic = buildTopic(ITEM_STATE_CHANGED_EVENT_TOPIC, itemName);
         ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(
-                newState.getClass().getSimpleName(), newState.toFullTypeString(), oldState.getClass().getSimpleName(),
-                oldState.toFullTypeString());
+                newState.getClass().getSimpleName(), newState.toFullString(), oldState.getClass().getSimpleName(),
+                oldState.toFullString());
         String payload = serializePayload(bean);
         return new ItemStateChangedEvent(topic, payload, itemName, newState, oldState);
     }

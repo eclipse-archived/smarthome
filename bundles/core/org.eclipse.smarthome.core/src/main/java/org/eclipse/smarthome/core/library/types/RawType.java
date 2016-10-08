@@ -46,13 +46,13 @@ public class RawType implements PrimitiveType, State {
     }
 
     @Override
-    public String toFullTypeString() {
+    public String toFullString() {
         return PortableBase64.getEncoder().encode(bytes);
     }
 
     @Override
     public String format(String pattern) {
-        return toFullTypeString();
+        return toFullString();
     }
 
     @Override

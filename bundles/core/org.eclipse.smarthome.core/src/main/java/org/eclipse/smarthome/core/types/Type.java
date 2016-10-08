@@ -39,6 +39,6 @@ public interface Type {
      *
      * @return a full string representation of the type to be consumed by 'valueOf(String)'
      */
-    String toFullTypeString();
+    String toFullString();
 
 }

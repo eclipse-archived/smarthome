@@ -156,11 +156,11 @@ public class PointType implements ComplexType, Command, State {
 
     @Override
     public String toString() {
-        return toFullTypeString();
+        return toFullString();
     }
 
     @Override
-    public String toFullTypeString() {
+    public String toFullString() {
         StringBuilder sb = new StringBuilder(latitude.toPlainString());
         sb.append(',');
         sb.append(longitude.toPlainString());

@@ -162,11 +162,11 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     @Override
     public String toString() {
-        return toFullTypeString();
+        return toFullString();
     }
 
     @Override
-    public String toFullTypeString() {
+    public String toFullString() {
         return getHue() + "," + getSaturation() + "," + getBrightness();
     }
 

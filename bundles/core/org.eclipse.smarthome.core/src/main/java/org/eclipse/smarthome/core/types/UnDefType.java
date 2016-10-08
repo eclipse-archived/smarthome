@@ -28,11 +28,11 @@ public enum UnDefType implements PrimitiveType, State {
 
     @Override
     public String toString() {
-        return toFullTypeString();
+        return toFullString();
     }
 
     @Override
-    public String toFullTypeString() {
+    public String toFullString() {
         return super.toString();
     }
 
