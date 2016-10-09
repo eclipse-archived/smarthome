@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="103">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="104">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -161,5 +161,6 @@
 <unit id="org.eclipse.jetty.xml" version="9.2.9.v20150224"/>
 <repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.2.9.v20150224"/>
 </location>
+<location path="${project_loc:targetplatform}/third-party" type="Directory"/>
 </locations>
 </target>
