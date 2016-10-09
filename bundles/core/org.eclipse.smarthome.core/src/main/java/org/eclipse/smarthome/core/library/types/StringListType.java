@@ -84,6 +84,11 @@ public class StringListType implements Command, State {
 
     @Override
     public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
         StringBuilder sb = new StringBuilder();
         for (String row : typeDetails) {
             sb.append(row.replace(DELIMITER, ESCAPED_DELIMITER));

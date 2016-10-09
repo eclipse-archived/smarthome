@@ -84,6 +84,11 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
         return new SimpleDateFormat(DATE_PATTERN_WITH_TZ_AND_MS).format(calendar.getTime());
     }
 

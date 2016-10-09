@@ -16,4 +16,14 @@ public enum RefreshType implements PrimitiveType, Command {
         return String.format(pattern, this.toString());
     }
 
+    @Override
+    public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
+        return super.toString();
+    }
+
 }
