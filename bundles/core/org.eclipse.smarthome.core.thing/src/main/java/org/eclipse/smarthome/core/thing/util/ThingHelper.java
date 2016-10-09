@@ -7,10 +7,18 @@
  */
 package org.eclipse.smarthome.core.thing.util;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -23,6 +31,8 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 
@@ -178,4 +188,56 @@ public class ThingHelper {
 
         return mergedThing;
     }
+
+    /**
+     * Split the given "mixed" map into configuration and properties.
+     *
+     * Therefore it uses the given {@link ThingType} in order to determine the associated {@link ConfigDescription}.
+     * If a parameter is defined by the {@link ConfigDescription}, then it will get added to the {@link Configuration}
+     * object, otherwise it will end up in the properties map.
+     *
+     * @param mixed the input containing the parameters to split
+     * @param configDescriptionRegistry the {@link ConfigDescriptionRegistry}
+     * @param thingType the {@link ThingType}
+     * @param configuration output: the parameters which are defined by the configuration description
+     * @param properties output: all other parameters
+     */
+    public static void splitConfigAndProperties(Map<String, Object> mixed,
+            ConfigDescriptionRegistry configDescriptionRegistry, ThingType thingType, Configuration configuration,
+            Map<String, String> properties) {
+        final Set<String> paramNames = getConfigDescParamNames(configDescriptionRegistry, thingType);
+        for (String resultKey : mixed.keySet()) {
+            if (resultKey == null || resultKey.isEmpty()) {
+                continue;
+            }
+            if (paramNames.contains(resultKey)) {
+                configuration.put(resultKey, mixed.get(resultKey));
+            } else {
+                properties.put(resultKey, String.valueOf(mixed.get(resultKey)));
+            }
+        }
+    }
+
+    private static Set<String> getConfigDescParamNames(ConfigDescriptionRegistry configDescriptionRegistry,
+            ThingType thingType) {
+        List<ConfigDescriptionParameter> confDescParams = getConfigDescParams(configDescriptionRegistry, thingType);
+        Set<String> paramNames = new HashSet<>();
+        for (ConfigDescriptionParameter param : confDescParams) {
+            paramNames.add(param.getName());
+        }
+        return paramNames;
+    }
+
+    private static List<ConfigDescriptionParameter> getConfigDescParams(
+            ConfigDescriptionRegistry configDescriptionRegistry, ThingType thingType) {
+        if (thingType != null && thingType.getConfigDescriptionURI() != null && configDescriptionRegistry != null) {
+            URI descURI = thingType.getConfigDescriptionURI();
+            ConfigDescription desc = configDescriptionRegistry.getConfigDescription(descURI);
+            if (desc != null) {
+                return desc.getParameters();
+            }
+        }
+        return Collections.emptyList();
+    }
+
 }

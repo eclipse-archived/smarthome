@@ -42,7 +42,7 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         try {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_BRIDGE,
                     new BridgeType(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", false,
-                            null, null, null, null));
+                            null, null, null, new URI(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.getAsString())));
 
             ChannelDefinition color = new ChannelDefinition("color", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID);
 

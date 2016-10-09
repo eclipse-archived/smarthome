@@ -41,9 +41,15 @@ import java.util.concurrent.CopyOnWriteArrayList
 import org.eclipse.smarthome.model.thing.internal.GenericThingProvider.QueueContent
 import java.util.ArrayList
 import org.eclipse.smarthome.core.thing.type.TypeResolver
-import java.util.Locale
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+import org.eclipse.smarthome.config.core.ConfigDescription
+import java.util.Collections
+import java.net.URI
+import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import java.util.HashMap
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -64,6 +70,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private ModelRepository modelRepository
 
     private ThingTypeRegistry thingTypeRegistry
+    
+    private ConfigDescriptionRegistry configDescRegistry
 
     private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
 
@@ -129,15 +137,20 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
 
         logger.trace("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
-        val configuration = modelThing.createConfiguration
+        val configuration = new Configuration
+        val properties = new HashMap<String, String>();
+        val thingType = thingTypeUID.thingType
+        
+        val propMap = new HashMap<String, Object>
+        modelThing.properties.forEach[propMap.put(key, value)]
+        
+        ThingHelper.splitConfigAndProperties(propMap, configDescRegistry, thingType, configuration, properties)
         val uid = thingUID
         if (thingList.exists[UID.equals(uid)]) {
             // the thing is already in the list and nothing will be done!
             logger.debug("Thing already exists {}", uid.toString)
             return
         }
-
-        val thingType = thingTypeUID.thingType
 
         val label = if(modelThing.label != null) modelThing.label else thingType?.label
         
@@ -153,6 +166,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
             }
 
         thingBuilder.withConfiguration(configuration)
+        thingBuilder.withProperties(properties)
         thingBuilder.withBridge(bridgeUID)
         thingBuilder.withLabel(label)
         thingBuilder.withLocation(location)
@@ -232,9 +246,18 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     def dispatch void merge(Thing targetThing, Thing sourceThing) {
         targetThing.bridgeUID = sourceThing.bridgeUID
         targetThing.configuration.merge(sourceThing.configuration)
+        targetThing.merge(sourceThing.properties)
         targetThing.merge(sourceThing.channels)
         targetThing.location = sourceThing.location
         targetThing.label = sourceThing.label
+    }
+    
+    def dispatch void merge(Thing targetThing, Map<String, String> source) {
+        val result = new HashMap(targetThing.properties)
+        source.forEach[key, value | 
+            result.put(key, value)
+        ]
+        targetThing.properties = result 
     }
 
     def dispatch void merge(Configuration target, Configuration source) {
@@ -307,7 +330,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ]
         configuration
     }
-
+    
     def private getThingType(ThingTypeUID thingTypeUID) {
         thingTypeRegistry?.getThingType(thingTypeUID, localeProvider.getLocale())
     }
@@ -382,6 +405,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null
+    }
+
+    def protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = configDescriptionRegistry
+    }
+
+    def protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = null
     }
 
     def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
