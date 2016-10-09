@@ -12,11 +12,22 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
 public enum OnOffType implements PrimitiveType, State, Command {
-    ON, OFF;
+    ON,
+    OFF;
 
     @Override
     public String format(String pattern) {
         return String.format(pattern, this.toString());
+    }
+
+    @Override
+    public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
+        return super.toString();
     }
 
 }

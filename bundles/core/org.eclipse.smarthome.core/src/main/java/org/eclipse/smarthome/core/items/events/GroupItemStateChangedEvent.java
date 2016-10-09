@@ -46,8 +46,6 @@ public class GroupItemStateChangedEvent extends ItemStateChangedEvent {
 
     @Override
     public String toString() {
-        return itemName + " changed from " + oldItemState.toString() + " to " + itemState.toString() + " through "
-                + memberName;
-
+        return String.format("%s through %s", super.toString(), memberName);
     }
 }
