@@ -13,6 +13,7 @@ import java.util.Collection;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -21,13 +22,9 @@ import org.eclipse.smarthome.automation.module.core.handler.EventConditionHandle
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.RuleEnableHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +44,11 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     private static final Collection<String> types = Arrays.asList(new String[] {
             ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION,
             GenericEventTriggerHandler.MODULE_TYPE_ID, EventConditionHandler.MODULETYPE_ID,
-            CompareConditionHandler.MODULE_TYPE });
+            EventConditionHandler.MODULETYPE_ID, CompareConditionHandler.MODULE_TYPE, RuleEnableHandler.UID });
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
+    private RuleRegistry ruleRegistry;
 
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext.getBundleContext());
@@ -58,6 +56,14 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     protected void deactivate(ComponentContext componentContext) {
         super.deactivate();
+    }
+
+    protected void setRuleRegistry(RuleRegistry ruleRegistry) {
+        this.ruleRegistry = ruleRegistry;
+    }
+
+    protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
+        this.ruleRegistry = null;
     }
 
     @Override
@@ -196,6 +202,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     postCommandActionHandler.setItemRegistry(itemRegistry);
                     return postCommandActionHandler;
                 }
+            } else if (RuleEnableHandler.UID.equals(moduleTypeUID)) {
+                return new RuleEnableHandler((Action) module, ruleRegistry);
             }
         }
 
