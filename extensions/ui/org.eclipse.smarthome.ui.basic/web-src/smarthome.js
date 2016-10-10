@@ -391,7 +391,7 @@
 		var
 			_t = this;
 
-		_t.setValue = function(value) {
+		_t.setValuePrivate = function(value) {
 			parentNode.innerHTML = value;
 		};
 	}
