@@ -87,6 +87,9 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%value%", getValue(w));
+        snippet = StringUtils.replace(snippet, "%visibility_class%",
+                itemUIRegistry.getVisiblity(w) ? "" : "mdl-form__row--hidden");
+
         return snippet;
     }
 

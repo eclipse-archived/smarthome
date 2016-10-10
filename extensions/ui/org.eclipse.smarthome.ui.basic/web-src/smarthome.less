@@ -194,6 +194,9 @@
 				height: auto;
 			}
 		}
+		&--hidden {
+			display: none;
+		}
 		html.ui-layout-condensed & {
 			height: @form-row-desktop-height-condensed;
 		}
@@ -364,6 +367,11 @@
 		overflow: hidden;
 		flex-shrink: 2;
 		text-overflow: ellipsis;
+	}
+	&__webview, &__video {
+		padding-left: 0px;
+		padding-right: 0px;
+		width: 100%;
 	}
 	&--no-label {
 		.mdl-form__title {

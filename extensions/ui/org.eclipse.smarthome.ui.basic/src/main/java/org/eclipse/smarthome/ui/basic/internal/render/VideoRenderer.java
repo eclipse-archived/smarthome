@@ -52,6 +52,7 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         }
         String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
         snippet = StringUtils.replace(snippet, "%url%", url);
+        snippet = preprocessSnippet(snippet, videoWidget);
 
         sb.append(snippet);
         return null;
