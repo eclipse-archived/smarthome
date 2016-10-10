@@ -72,6 +72,7 @@
 
         <channels>
             <channel id="motionDetection" typeId="motionDetection"/>
+            <channel id="lastMotionDetected" typeId="lastMotionDetected"/>
         </channels>
 
         <config-description>
@@ -144,11 +145,16 @@
         <state readOnly="true"></state>
     </channel-type>
     
+     <channel-type id="lastMotionDetected" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>Last Activity (Date/Time)</label>
+        <description>Date/time when last motion was detected</description>
+    </channel-type>
+
      <channel-type id="lastChangedAt" advanced="true">
         <item-type>DateTime</item-type>
         <label>Last Activity (Date/Time)</label>
         <description>Date/time when the state last changed</description>
-        <category>Date</category>
     </channel-type>
 
      <channel-type id="lastOnFor" advanced="true">
