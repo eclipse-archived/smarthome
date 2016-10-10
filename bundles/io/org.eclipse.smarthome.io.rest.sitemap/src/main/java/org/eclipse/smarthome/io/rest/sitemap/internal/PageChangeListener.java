@@ -41,6 +41,7 @@ public class PageChangeListener implements StateChangeListener {
     private final Set<Item> items;
     private final List<SitemapSubscriptionCallback> callbacks = Collections
             .synchronizedList(new ArrayList<SitemapSubscriptionCallback>());
+    private Set<SitemapSubscriptionCallback> distinctCallbacks = Collections.emptySet();
 
     /**
      * Creates a new instance.
@@ -75,10 +76,13 @@ public class PageChangeListener implements StateChangeListener {
 
     public void addCallback(SitemapSubscriptionCallback callback) {
         callbacks.add(callback);
+        // we transform the list of callbacks to a set in order to remove duplicates
+        distinctCallbacks = new HashSet<>(callbacks);
     }
 
     public void removeCallback(SitemapSubscriptionCallback callback) {
         callbacks.remove(callback);
+        distinctCallbacks = new HashSet<>(callbacks);
     }
 
     /**
@@ -127,8 +131,7 @@ public class PageChangeListener implements StateChangeListener {
     public void stateChanged(Item item, State oldState, State newState) {
         Set<SitemapEvent> events = constructSitemapEvents(item, oldState, newState, widgets);
         for (SitemapEvent event : events) {
-            // we transform the list of callbacks to a set in order to remove duplicates
-            for (SitemapSubscriptionCallback callback : new HashSet<>(callbacks)) {
+            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
                 callback.onEvent(event);
             }
         }
