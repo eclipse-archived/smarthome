@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.model.script.actions;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -68,7 +69,7 @@ public class Audio {
 
     @ActionDoc(text = "gets the master volume", returns = "volume as a float in the range [0,1]")
     public static float getMasterVolume() throws IOException {
-        return AudioActionService.audioManager.getVolume(null);
+        return AudioActionService.audioManager.getVolume(null).floatValue() / 100f;
     }
 
     @ActionDoc(text = "sets the master volume")
@@ -77,12 +78,12 @@ public class Audio {
         if (volume < 0 || volume > 1) {
             throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
         }
-        AudioActionService.audioManager.setVolume(volume, null);
+        setMasterVolume(new PercentType(new BigDecimal(volume * 100f)));
     }
 
     @ActionDoc(text = "sets the master volume")
     public static void setMasterVolume(@ParamDoc(name = "percent") final PercentType percent) throws IOException {
-        setMasterVolume(percent.toBigDecimal().floatValue() / 100f);
+        AudioActionService.audioManager.setVolume(percent, null);
     }
 
     @ActionDoc(text = "increases the master volume")

@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,9 +146,9 @@ public class AudioManager {
      * Retrieves the current volume of a sink
      *
      * @param sinkId the sink to get the volume for
-     * @return the volume as a value between 0 and 1
+     * @return the volume as a value between 0 and 100
      */
-    public float getVolume(String sinkId) {
+    public PercentType getVolume(String sinkId) {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
@@ -159,16 +160,16 @@ public class AudioManager {
             }
         }
 
-        return 0;
+        return PercentType.ZERO;
     }
 
     /**
      * Sets the volume for a sink.
      *
-     * @param volume the volume to set as a value between 0 and 1
+     * @param volume the volume to set as a value between 0 and 100
      * @param sinkId the sink to set the volume
      */
-    public void setVolume(float volume, String sinkId) {
+    public void setVolume(PercentType volume, String sinkId) {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {

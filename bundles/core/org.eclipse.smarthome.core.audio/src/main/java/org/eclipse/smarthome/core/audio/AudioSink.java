@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.library.types.PercentType;
+
 /**
  * Definition of an audio output like headphones, a speaker or for writing to
  * a file / clip.
@@ -58,16 +60,16 @@ public interface AudioSink {
     /**
      * Gets the volume
      *
-     * @return a float value between 0 and 100 representing the actual volume
+     * @return a PercentType value between 0 and 100 representing the actual volume
      * @throws IOException if the volume can not be determined
      */
-    public float getVolume() throws IOException;
+    public PercentType getVolume() throws IOException;
 
     /**
      * Sets the volume
      *
-     * @param volume a float value between 0 and 1 representing the wanted volume
+     * @param volume a PercentType value between 0 and 100 representing the desired volume
      * @throws IOException if the volume can not be set
      */
-    public void setVolume(float volume) throws IOException;
+    public void setVolume(PercentType volume) throws IOException;
 }
