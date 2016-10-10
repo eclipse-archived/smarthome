@@ -158,7 +158,7 @@
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
 
-														<i class="md-button control-button material-icons" ng-click="sendCommand('PREVIOUS')">skip_previous</i> <i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i> <i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i> <i class="md-button control-button material-icons" ng-click="sendCommand('NEXT')">skip_next</i>
+														<i class="md-button control-button material-icons" ng-mousedown="onPrevDown()" ng-mouseup="onPrevUp()" >skip_previous</i> <i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i> <i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i> <i class="md-button control-button material-icons" ng-mousedown="onNextDown()" ng-mouseup="onNextUp()">skip_next</i>
 
 													</div>
 												</div>
