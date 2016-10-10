@@ -344,7 +344,7 @@ class RuntimeRuleTest extends OSGiTest{
 
     }
 
-    @Test
+    @Test @Ignore
     public void 'assert that RuleEnableHandlerWorks'() {
         def ruleRegistry = getService(RuleRegistry)
         def firstRuleUID = "FirstTestRule"
