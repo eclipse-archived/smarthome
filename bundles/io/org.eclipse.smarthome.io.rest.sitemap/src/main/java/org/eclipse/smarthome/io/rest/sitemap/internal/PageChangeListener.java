@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
 import org.eclipse.smarthome.model.sitemap.Frame;
+import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 
@@ -111,20 +112,31 @@ public class PageChangeListener implements StateChangeListener {
             for (Widget widget : widgets) {
                 String itemName = widget.getItem();
                 if (itemName != null) {
-                    try {
-                        Item item = itemUIRegistry.getItem(itemName);
-                        items.add(item);
-                    } catch (ItemNotFoundException e) {
-                        // ignore
-                    }
+                    addItemWithName(items, itemName);
                 } else {
                     if (widget instanceof Frame) {
                         items.addAll(getAllItems(((Frame) widget).getChildren()));
                     }
                 }
+                // now scan visibility rules
+                for (VisibilityRule vr : widget.getVisibility()) {
+                    String ruleItemName = vr.getItem();
+                    addItemWithName(items, ruleItemName);
+                }
             }
         }
         return items;
+    }
+
+    private void addItemWithName(Set<Item> items, String itemName) {
+        if (itemName != null) {
+            try {
+                Item item = itemUIRegistry.getItem(itemName);
+                items.add(item);
+            } catch (ItemNotFoundException e) {
+                // ignore
+            }
+        }
     }
 
     @Override
@@ -147,7 +159,8 @@ public class PageChangeListener implements StateChangeListener {
             if (w instanceof Frame) {
                 events.addAll(constructSitemapEvents(item, oldState, newState, ((Frame) w).getChildren()));
             } else {
-                if (w.getItem() != null && w.getItem().equals(item.getName())) {
+                if ((w.getItem() != null && w.getItem().equals(item.getName()))
+                        || definesVisibility(w, item.getName())) {
                     SitemapWidgetEvent event = new SitemapWidgetEvent();
                     event.sitemapName = sitemapName;
                     event.pageId = pageId;
@@ -162,6 +175,15 @@ public class PageChangeListener implements StateChangeListener {
             }
         }
         return events;
+    }
+
+    private boolean definesVisibility(Widget w, String name) {
+        for (VisibilityRule vr : w.getVisibility()) {
+            if (name.equals(vr.getItem())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
