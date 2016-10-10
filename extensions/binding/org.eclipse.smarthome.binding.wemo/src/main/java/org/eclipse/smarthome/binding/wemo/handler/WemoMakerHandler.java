@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
@@ -144,7 +145,14 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         logger.trace("Command '{}' received for channel '{}'", command, channelUID);
-        if (channelUID.getId().equals(CHANNEL_RELAY)) {
+
+        if (command instanceof RefreshType) {
+            try {
+                updateWemoState();
+            } catch (Exception e) {
+                logger.debug("Exception during poll : {}", e);
+            }
+        } else if (channelUID.getId().equals(CHANNEL_RELAY)) {
             if (command instanceof OnOffType) {
 
                 try {

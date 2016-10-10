@@ -45,6 +45,8 @@ Devices support some of the following channels:
 
 | Channel Type ID | Item Type    | Description  |
 |-----------------|------------------------|--------------|----------------- |------------- |
+| motionDetection | Switch | On if motion is detected, off otherwise. (Motion Sensor only) |
+| lastMotionDetected | DateTime | Representing the Date and Time when the last motion was detected. (Motion Sensor only) |
 | state | Switch       | This channel controls the actual binary State of a Device or represents Motion Detection. |
 | lastChangedAt | DateTime | Representing the Date and Time the device was last turned on or of. |
 | lastOnFor | Number       | Time in seconds an Insight device was last turned on for. |
@@ -78,6 +80,7 @@ demo.items:
 Switch DemoSwitch    { channel="wemo:socket:Switch1:state" }
 Switch LightSwitch   { channel="wemo:lightswitch:Lightswitch1:state" }
 Switch MotionSensor  { channel="wemo:Motion:Sensor1:motionDetection" }
+Switch MotionDetected  { channel="wemo:Motion:Sensor1:lastMotionDetected" }
 Number InsightPower  { channel="wemo:insight:Insight1:currentPower" }
 Number InsightLastOn { channel="wemo:insight:Insight1:lastOnFor" }
 Number InsightToday  { channel="wemo:insight:Insight1:onToday" }
