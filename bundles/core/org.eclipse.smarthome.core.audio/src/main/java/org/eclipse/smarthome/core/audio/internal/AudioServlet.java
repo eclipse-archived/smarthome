@@ -102,7 +102,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         } else {
             logger.debug("Stream to serve is {}", streamId);
 
-            AudioStream stream = streams.get(streamId);
+            AudioStream stream = streams.remove(streamId);
 
             // try to set the content-type, if possible
             String mimeType = null;
