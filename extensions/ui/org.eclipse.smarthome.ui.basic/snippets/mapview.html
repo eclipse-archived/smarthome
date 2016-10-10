@@ -1,3 +1,9 @@
-<div class="mdl-form__row mdl-form__row--height-auto mdl-cell mdl-cell--12-col">
-	<iframe width=90% height=%height% marginheight="0" marginwidth="0" src="//www.openstreetmap.org/export/embed.html?bbox=%lonminus%,%latminus%,%lonplus%,%latplus%&marker=%lat%,%lon%"></iframe>
+<div class="mdl-form__row mdl-form__row--height-auto mdl-cell mdl-cell--12-col %visibility_class%">
+	<div
+		class="mdl-form__control mdl-form__webview"
+		data-control-type="mapview"
+		data-widget-id="%widget_id%"
+	>
+		<iframe width=90% height=%height% marginheight="0" marginwidth="0" src="//www.openstreetmap.org/export/embed.html?bbox=%lonminus%,%latminus%,%lonplus%,%latplus%&marker=%lat%,%lon%"></iframe>
+	</div>
 </div>
