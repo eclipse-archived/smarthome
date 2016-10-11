@@ -17,7 +17,9 @@ import nl.q42.jue.exceptions.LinkButtonException
 import nl.q42.jue.exceptions.UnauthorizedException
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
+import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
@@ -223,6 +225,48 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
 
         assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
         assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
+    }
+	
+    @Test
+    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is null)'() {
+    	Configuration configuration = new Configuration().with {
+            put(HOST, null)
+            put(SERIAL_NUMBER, "testSerialNumber")
+            it
+        }
+
+        createBridgeThing(configuration)
+
+        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+                
+        def expected = ConfigStatusMessage.Builder.error(HOST)
+                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                    .build()
+
+        waitForAssert {
+            assertThat hueBridgeHandler.getConfigStatus().first(), is(expected)
+        }
+    }
+    
+    @Test
+    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is an empty string)'() {
+        Configuration configuration = new Configuration().with {
+            put(HOST, "")
+            put(SERIAL_NUMBER, "testSerialNumber")
+            it
+        }
+
+        createBridgeThing(configuration)
+
+        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+                
+        def expected = ConfigStatusMessage.Builder.error(HOST)
+                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                    .build()
+
+        waitForAssert {
+            assertThat hueBridgeHandler.getConfigStatus().first(), is(expected)
+        }
     }
 
     private Bridge createBridgeThing(Configuration configuration){
