@@ -58,7 +58,7 @@ public class JSONResponse {
     /**
      * setup JSON depending on the content
      *
-     * @param message
+     * @param message a message (may be null)
      * @param status
      * @param entity
      * @param ex
@@ -120,7 +120,7 @@ public class JSONResponse {
      *
      * @param status
      * @param entity
-     * @param errormessage
+     * @param errormessage an optional error message (may be null), ignored if the status family is successful
      * @return Response configure for error or success
      */
     public static Response createResponse(Response.Status status, Object entity, String errormessage) {
