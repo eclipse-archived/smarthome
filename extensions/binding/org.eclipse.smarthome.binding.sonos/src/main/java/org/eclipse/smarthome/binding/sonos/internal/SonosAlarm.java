@@ -7,17 +7,15 @@
  */
 package org.eclipse.smarthome.binding.sonos.internal;
 
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * The {@link SonosAlarm} is a datastructure to describe
  * alarms in the Sonos ecosystem
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SonosAlarm implements Cloneable {
 
+    @Override
     public Object clone() {
         try {
             return super.clone();
