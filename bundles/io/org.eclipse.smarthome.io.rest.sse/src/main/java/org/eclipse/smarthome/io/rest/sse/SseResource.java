@@ -51,6 +51,8 @@ public class SseResource {
 
     public final static String PATH_EVENTS = "events";
 
+    private static final String X_ACCEL_BUFFERING_HEADER = "X-Accel-Buffering";
+
     private final SseBroadcaster broadcaster;
 
     private final ExecutorService executorService;
@@ -95,6 +97,10 @@ public class SseResource {
         // the given filter
         final EventOutput eventOutput = new SseEventOutput(eventFilter);
         broadcaster.add(eventOutput);
+
+        // Disables proxy buffering when using an nginx http server proxy for this response.
+        // This allows you to not disable proxy buffering in nginx and still have working sse
+        response.addHeader(X_ACCEL_BUFFERING_HEADER, "no");
 
         if (!SseUtil.SERVLET3_SUPPORT) {
             // if we don't have sevlet 3.0 async support, we want to make sure
