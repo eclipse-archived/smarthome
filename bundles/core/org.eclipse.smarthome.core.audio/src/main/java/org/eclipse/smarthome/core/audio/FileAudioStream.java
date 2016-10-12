@@ -85,7 +85,7 @@ public class FileAudioStream extends FixedLengthAudioStream {
     }
 
     @Override
-    public AudioStream getClonedStream() throws AudioException {
-        return new FileAudioStream(file);
+    public InputStream getClonedStream() throws AudioException {
+        return getInputStream(file);
     }
 }

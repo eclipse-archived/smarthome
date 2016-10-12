@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.audio;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This is an implementation of a {@link FixedLengthAudioStream}, which is based on a simple byte array.
@@ -49,7 +50,7 @@ public class ByteArrayAudioStream extends FixedLengthAudioStream {
     }
 
     @Override
-    public AudioStream getClonedStream() {
+    public InputStream getClonedStream() {
         return new ByteArrayAudioStream(bytes, format);
     }
 
