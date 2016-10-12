@@ -950,7 +950,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
 
             if (currentURI.contains("x-sonosapi-stream") && opmlUrl == null) {
-                if (currentUriMetaData != null) {
+                if (currentUriMetaData != null && currentTrack != null) {
                     resultString = currentUriMetaData.getTitle() + " - " + currentTrack.getStreamContent();
                     needsUpdating = true;
                 }
@@ -1456,6 +1456,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (command != null) {
             notificationSoundVolume = command.toString();
         }
+    }
+
+    /**
+     * Gets the volume level for a notification sound
+     */
+    public PercentType getNotificationSoundVolume() {
+        return new PercentType(new BigDecimal(notificationSoundVolume));
     }
 
     public void addURIToQueue(String URI, String meta, int desiredFirstTrack, boolean enqueueAsNext) {
@@ -2140,6 +2147,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private boolean isPlayingQueue(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
         return currentURI.contains("x-rincon-queue:");
     }
 
@@ -2274,15 +2284,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void waitForTransportState(String state) {
-        long start = System.currentTimeMillis();
-        while (!stateMap.get("TransportState").equals(state)) {
-            try {
-                Thread.sleep(50);
-                if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
-                    break;
+        if (stateMap.get("TransportState") != null) {
+            long start = System.currentTimeMillis();
+            while (!stateMap.get("TransportState").equals(state)) {
+                try {
+                    Thread.sleep(50);
+                    if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("InterruptedException during playing a notification sound");
                 }
-            } catch (InterruptedException e) {
-                logger.error("InterruptedException during playing a notification sound");
             }
         }
     }
@@ -2634,9 +2646,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 inputs.put("InstanceID", "0");
                 inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(Integer.parseInt(command.toString())));
 
-                Map<String, String> result = this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer",
-                        inputs);
-
+                this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer", inputs);
             }
         }
     }
