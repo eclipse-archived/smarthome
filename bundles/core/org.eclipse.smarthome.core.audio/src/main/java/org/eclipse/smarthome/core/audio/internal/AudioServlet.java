@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
@@ -37,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A servlet that serves audio streams via HTTP.
+ * A servlet that serves audio oneTimeStreams via HTTP.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -50,7 +52,9 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private final Logger logger = LoggerFactory.getLogger(AudioServlet.class);
 
-    private Map<String, AudioStream> streams = new ConcurrentHashMap<>();
+    private Map<String, AudioStream> oneTimeStreams = new ConcurrentHashMap<>();
+    private Map<String, FixedLengthAudioStream> multiTimeStreams = new ConcurrentHashMap<>();
+    private Map<String, Long> streamTimeouts = new ConcurrentHashMap<>();
 
     protected HttpService httpService;
     private BundleContext bundleContext;
@@ -96,14 +100,23 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        removeTimedOutStreams();
+
         String streamId = StringUtils.substringBefore(StringUtils.substringAfterLast(req.getRequestURI(), "/"), ".");
-        if (!streams.containsKey(streamId)) {
+
+        boolean multiAccess = false;
+        AudioStream stream = oneTimeStreams.remove(streamId);
+        if (stream == null) {
+            stream = multiTimeStreams.get(streamId);
+            if (stream != null) {
+                multiAccess = true;
+            }
+        }
+        if (stream == null) {
             logger.debug("Received request for invalid stream id at {}", req.getRequestURI());
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             logger.debug("Stream to serve is {}", streamId);
-
-            AudioStream stream = streams.remove(streamId);
 
             // try to set the content-type, if possible
             String mimeType = null;
@@ -127,32 +140,50 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
             }
 
             ServletOutputStream os = resp.getOutputStream();
-            IOUtils.copy(stream, os);
+
+            InputStream is = null;
+            if (multiAccess) {
+                // we need to care about concurrent access and have a separate stream for each thread
+                try {
+                    is = ((FixedLengthAudioStream) stream).getClonedStream();
+                } catch (AudioException e) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                }
+            } else {
+                is = stream;
+            }
+            IOUtils.copy(is, os);
             resp.flushBuffer();
             IOUtils.closeQuietly(stream);
+        }
+    }
+
+    private synchronized void removeTimedOutStreams() {
+        for (String streamId : multiTimeStreams.keySet()) {
+            if (streamTimeouts.get(streamId) < System.currentTimeMillis()) {
+                // the stream has expired, we need to remove it!
+                FixedLengthAudioStream stream = multiTimeStreams.remove(streamId);
+                streamTimeouts.remove(streamId);
+                IOUtils.closeQuietly(stream);
+                stream = null;
+                logger.debug("Removed timed out stream {}", streamId);
+            }
         }
     }
 
     @Override
     public URL serve(AudioStream stream) {
         String streamId = UUID.randomUUID().toString();
-        streams.put(streamId, stream);
+        oneTimeStreams.put(streamId, stream);
         return getURL(streamId);
     }
 
     @Override
-    public URL serveWithSize(AudioStream stream) {
-        if (stream instanceof FixedLengthAudioStream) {
-            return serve(stream);
-        } else if (stream.markSupported()) {
-            DiscreteAudioStream streamWithSize = new DiscreteAudioStream(stream);
-            return serve(streamWithSize);
-        } else {
-            // TODO: We should also support streams without mark support, but this will mean that we have to read it
-            // first to memory or file system and create a new AudioStream from there.
-            logger.warn("Stream cannot be reset, so it is served without size through HTTP");
-            return serve(stream);
-        }
+    public URL serve(FixedLengthAudioStream stream, int seconds) {
+        String streamId = UUID.randomUUID().toString();
+        multiTimeStreams.put(streamId, stream);
+        streamTimeouts.put(streamId, System.currentTimeMillis() + (seconds * 1000L));
+        return getURL(streamId);
     }
 
     private URL getURL(String streamId) {
@@ -169,65 +200,4 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         }
     }
 
-    /**
-     * This is a wrapper class around {@link AudioStream}, which additionally provides information about its size.
-     * Currently, it only support mark-supporting AudioStreams, which are read and reset in order to dertermine the
-     * stream size.
-     */
-    class DiscreteAudioStream extends FixedLengthAudioStream {
-
-        private Long length;
-        private AudioStream stream;
-
-        public DiscreteAudioStream(AudioStream stream) {
-            this.stream = stream;
-        }
-
-        private Long calculateSize() {
-            if (stream.markSupported()) {
-                return readStreamAndReset(stream);
-            }
-            return null;
-        }
-
-        private Long readStreamAndReset(AudioStream s) {
-            long bytes = 0;
-            int avail = 0;
-            try {
-                while ((avail = s.available()) > 0) {
-                    bytes += avail;
-                    s.skip(avail);
-                }
-                s.reset();
-            } catch (IOException e) {
-                logger.warn("Cannot determine size of audio stream!", e);
-                return null;
-            }
-            return bytes;
-        }
-
-        @Override
-        public AudioFormat getFormat() {
-            return stream.getFormat();
-        }
-
-        @Override
-        public int read() throws IOException {
-            return stream.read();
-        }
-
-        @Override
-        public void close() throws IOException {
-            stream.close();
-        }
-
-        @Override
-        public long length() {
-            if (length == null) {
-                length = calculateSize();
-            }
-            return length;
-        }
-
-    }
 }
