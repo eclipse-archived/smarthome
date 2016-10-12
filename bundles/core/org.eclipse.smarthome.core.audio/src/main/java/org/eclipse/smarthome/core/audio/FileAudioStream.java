@@ -83,4 +83,9 @@ public class FileAudioStream extends FixedLengthAudioStream {
             throw new IOException("Cannot reset file input stream: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public InputStream getClonedStream() throws AudioException {
+        return getInputStream(file);
+    }
 }
