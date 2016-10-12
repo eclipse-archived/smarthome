@@ -202,7 +202,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (configuration.get("udn") != null) {
             updateStatus(ThingStatus.ONLINE);
             this.discoveryServiceRegistry.addDiscoveryListener(this);
-            this.notificationSoundVolume = getVolume();
             onUpdate();
             super.initialize();
         } else {
@@ -1462,6 +1461,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Gets the volume level for a notification sound
      */
     public PercentType getNotificationSoundVolume() {
+        if (notificationSoundVolume == null) {
+            // we need to initialize the value for the first time
+            notificationSoundVolume = getVolume();
+            if (notificationSoundVolume != null) {
+                updateState(SonosBindingConstants.NOTIFICATIONVOLUME,
+                        new PercentType(new BigDecimal(notificationSoundVolume)));
+            }
+        }
         return new PercentType(new BigDecimal(notificationSoundVolume));
     }
 
@@ -2253,14 +2260,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     /**
-     * Applies the volume level set for {@link #notificationSoundVolume}
-     * by {@link ZonePlayerHandler#setNotificationSoundVolume(Command)} (if not null)
+     * Applies the notification sound volume level to the group (if not null)
      *
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        if (notificationSoundVolume != null) {
-            setVolumeForGroup(DecimalType.valueOf(notificationSoundVolume));
+        PercentType volume = getNotificationSoundVolume();
+        if (volume != null) {
+            setVolumeForGroup(volume);
         }
     }
 
