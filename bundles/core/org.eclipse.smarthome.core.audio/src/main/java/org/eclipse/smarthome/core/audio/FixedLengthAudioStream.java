@@ -10,7 +10,8 @@ package org.eclipse.smarthome.core.audio;
 import java.io.InputStream;
 
 /**
- * This is an {@link AudioStream}, which can provide information about its absolute length and is able to
+ * This is an {@link AudioStream}, which can provide information about its absolute length and is able to provide
+ * cloned streams.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *

@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -39,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A servlet that serves audio oneTimeStreams via HTTP.
+ * A servlet that serves audio streams via HTTP.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -154,13 +155,13 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
             }
             IOUtils.copy(is, os);
             resp.flushBuffer();
-            IOUtils.closeQuietly(stream);
+            IOUtils.closeQuietly(is);
         }
     }
 
     private synchronized void removeTimedOutStreams() {
         for (String streamId : multiTimeStreams.keySet()) {
-            if (streamTimeouts.get(streamId) < System.currentTimeMillis()) {
+            if (streamTimeouts.get(streamId) < System.nanoTime()) {
                 // the stream has expired, we need to remove it!
                 FixedLengthAudioStream stream = multiTimeStreams.remove(streamId);
                 streamTimeouts.remove(streamId);
@@ -182,7 +183,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
     public URL serve(FixedLengthAudioStream stream, int seconds) {
         String streamId = UUID.randomUUID().toString();
         multiTimeStreams.put(streamId, stream);
-        streamTimeouts.put(streamId, System.currentTimeMillis() + (seconds * 1000L));
+        streamTimeouts.put(streamId, System.nanoTime() + (seconds * TimeUnit.SECONDS.toNanos(1)));
         return getURL(streamId);
     }
 
