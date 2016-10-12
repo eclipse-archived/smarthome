@@ -23,6 +23,9 @@ public interface AudioHTTPServer {
 
     /**
      * Creates a url for a given {@link AudioStream} where it can be requested a single time.
+     * Note that the HTTP header only contains "Content-length", if the passed stream is an instance of
+     * {@link FixedLengthAudioStream}.
+     * If the client that requests the url expects this header field to be present, make sure to pass such an instance.
      *
      * @param stream the stream to serve on HTTP
      * @return the absolute URL to access the stream (using the primary network interface)
@@ -30,14 +33,15 @@ public interface AudioHTTPServer {
     URL serve(AudioStream stream);
 
     /**
-     * Creates a url for a given {@link AudioStream} where it can be requested a single time.
-     * This method makes sure that the HTTP response contains the "Content-Length" header as some clients require this.
-     * Note that this should only be used if really needed, since it might mean that the whole stream has to be read
-     * locally first in order to determine its length.
+     * Creates a url for a given {@link AudioStream} where it can be requested multiple times within the given time
+     * frame.
+     * This method only accepts {@link FixedLengthAudioStream}s, since it needs to be able to create multiple concurrent
+     * streams from it, which isn't possible with a regular {@link AudioStream}.
      *
      * @param stream the stream to serve on HTTP
+     * @param seconds number of seconds for which the stream is available through HTTP
      * @return the absolute URL to access the stream (using the primary network interface)
      */
-    URL serveWithSize(AudioStream stream);
+    URL serve(FixedLengthAudioStream stream, int seconds);
 
 }
