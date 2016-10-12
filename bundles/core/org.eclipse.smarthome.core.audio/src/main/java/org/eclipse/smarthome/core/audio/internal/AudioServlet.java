@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
+import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -95,9 +96,9 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String streamId = StringUtils.substringAfterLast(req.getRequestURI(), "/");
+        String streamId = StringUtils.substringBefore(StringUtils.substringAfterLast(req.getRequestURI(), "/"), ".");
         if (!streams.containsKey(streamId)) {
-            logger.debug("Received request for invalid stream id at  {}", req.getRequestURI());
+            logger.debug("Received request for invalid stream id at {}", req.getRequestURI());
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             logger.debug("Stream to serve is {}", streamId);
@@ -118,10 +119,10 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
             }
 
             // try to set the content-length, if possible
-            if (stream instanceof DiscreteAudioStream) {
-                Integer size = ((DiscreteAudioStream) stream).size();
+            if (stream instanceof FixedLengthAudioStream) {
+                Long size = ((FixedLengthAudioStream) stream).length();
                 if (size != null) {
-                    resp.setContentLength(size);
+                    resp.setContentLength(size.intValue());
                 }
             }
 
@@ -141,7 +142,9 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     @Override
     public URL serveWithSize(AudioStream stream) {
-        if (stream.markSupported()) {
+        if (stream instanceof FixedLengthAudioStream) {
+            return serve(stream);
+        } else if (stream.markSupported()) {
             DiscreteAudioStream streamWithSize = new DiscreteAudioStream(stream);
             return serve(streamWithSize);
         } else {
@@ -171,31 +174,24 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
      * Currently, it only support mark-supporting AudioStreams, which are read and reset in order to dertermine the
      * stream size.
      */
-    class DiscreteAudioStream extends AudioStream {
+    class DiscreteAudioStream extends FixedLengthAudioStream {
 
-        private Integer size;
+        private Long length;
         private AudioStream stream;
 
         public DiscreteAudioStream(AudioStream stream) {
             this.stream = stream;
         }
 
-        public Integer size() {
-            if (size == null) {
-                size = calculateSize();
-            }
-            return size;
-        }
-
-        private Integer calculateSize() {
+        private Long calculateSize() {
             if (stream.markSupported()) {
                 return readStreamAndReset(stream);
             }
             return null;
         }
 
-        private Integer readStreamAndReset(AudioStream s) {
-            int bytes = 0;
+        private Long readStreamAndReset(AudioStream s) {
+            long bytes = 0;
             int avail = 0;
             try {
                 while ((avail = s.available()) > 0) {
@@ -223,6 +219,14 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         @Override
         public void close() throws IOException {
             stream.close();
+        }
+
+        @Override
+        public long length() {
+            if (length == null) {
+                length = calculateSize();
+            }
+            return length;
         }
 
     }
