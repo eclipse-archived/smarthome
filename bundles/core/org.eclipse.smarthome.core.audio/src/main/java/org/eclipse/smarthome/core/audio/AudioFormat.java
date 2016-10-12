@@ -16,6 +16,14 @@ package org.eclipse.smarthome.core.audio;
  */
 public class AudioFormat {
 
+    // generic mp3 format without any further constraints
+    public static AudioFormat MP3 = new AudioFormat(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3, null, null, null,
+            null);
+
+    // generic wav format without any further constraints
+    public static AudioFormat WAV = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null,
+            null, null, null);
+
     /**
      * {@link AudioCodec} encoded data without any container header or footer,
      * e.g. MP3 is a non-container format
