@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -103,30 +101,38 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         removeTimedOutStreams();
 
-        String streamId = StringUtils.substringBefore(StringUtils.substringAfterLast(req.getRequestURI(), "/"), ".");
+        final String streamId = StringUtils.substringBefore(StringUtils.substringAfterLast(req.getRequestURI(), "/"),
+                ".");
 
-        boolean multiAccess = false;
-        AudioStream stream = oneTimeStreams.remove(streamId);
-        if (stream == null) {
-            stream = multiTimeStreams.get(streamId);
-            if (stream != null) {
-                multiAccess = true;
+        final AudioStream stream;
+        if (oneTimeStreams.containsKey(streamId)) {
+            stream = oneTimeStreams.remove(streamId);
+        } else if (multiTimeStreams.containsKey(streamId)) {
+            try {
+                stream = multiTimeStreams.get(streamId).getClonedStream();
+            } catch (final AudioException ex) {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+                return;
             }
-        }
-        if (stream == null) {
+        } else {
             logger.debug("Received request for invalid stream id at {}", req.getRequestURI());
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        } else {
+            return;
+        }
+
+        try {
             logger.debug("Stream to serve is {}", streamId);
 
             // try to set the content-type, if possible
-            String mimeType = null;
+            final String mimeType;
             if (stream.getFormat().getCodec() == AudioFormat.CODEC_MP3) {
                 mimeType = "audio/mpeg";
             } else if (stream.getFormat().getContainer() == AudioFormat.CONTAINER_WAVE) {
                 mimeType = "audio/wav";
             } else if (stream.getFormat().getContainer() == AudioFormat.CONTAINER_OGG) {
                 mimeType = "audio/ogg";
+            } else {
+                mimeType = null;
             }
             if (mimeType != null) {
                 resp.setContentType(mimeType);
@@ -140,22 +146,10 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
                 }
             }
 
-            ServletOutputStream os = resp.getOutputStream();
-
-            InputStream is = null;
-            if (multiAccess) {
-                // we need to care about concurrent access and have a separate stream for each thread
-                try {
-                    is = ((FixedLengthAudioStream) stream).getClonedStream();
-                } catch (AudioException e) {
-                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-                }
-            } else {
-                is = stream;
-            }
-            IOUtils.copy(is, os);
+            IOUtils.copy(stream, resp.getOutputStream());
             resp.flushBuffer();
-            IOUtils.closeQuietly(is);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
     }
 
