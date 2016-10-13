@@ -80,6 +80,9 @@ class MacTTSAudioStream extends FixedLengthAudioStream {
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
             file = new File(outputFile);
+            if (file != null) {
+                this.length = file.length();
+            }
             return getFileInputStream(file);
         } catch (IOException e) {
             throw new AudioException("Error while executing '" + command + "'", e);
@@ -93,7 +96,6 @@ class MacTTSAudioStream extends FixedLengthAudioStream {
             throw new IllegalArgumentException("file must not be null");
         }
         if (file.exists()) {
-            this.length = file.length();
             try {
                 return new FileInputStream(file);
             } catch (FileNotFoundException e) {
