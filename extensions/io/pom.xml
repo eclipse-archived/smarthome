@@ -17,6 +17,7 @@
 
   <modules>
     <module>org.eclipse.smarthome.io.javasound</module>
+    <module>org.eclipse.smarthome.io.webaudio</module>
   </modules>
 
 </project>
