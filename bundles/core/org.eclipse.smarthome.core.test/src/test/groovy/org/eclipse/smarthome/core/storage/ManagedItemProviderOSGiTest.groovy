@@ -18,9 +18,11 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem
+import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.StringType
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.Avg
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -289,4 +291,24 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
             unregisterService(factory)
         }
     }
+
+    @Test
+    void 'assert functions are stored and retrieved as well'() {
+
+        assertThat itemProvider.getAll().size(), is(0)
+
+        def item1 = new GroupItem('GroupItem', new NumberItem(), new Avg())
+        itemProvider.add item1
+
+        def items = itemProvider.getAll()
+        assertThat items.size(), is(1)
+
+        GroupItem result1 = itemProvider.remove 'GroupItem'
+
+        assertThat result1.name, is('GroupItem')
+        assertThat result1.function, is(Avg)
+
+        assertThat itemProvider.getAll().size(), is(0)
+    }
+
 }

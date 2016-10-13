@@ -194,7 +194,7 @@ public class ItemDTOMapper {
         itemDTO.groupNames = item.getGroupNames();
     }
 
-    private static GroupFunctionDTO mapFunction(GroupFunction function) {
+    public static GroupFunctionDTO mapFunction(GroupFunction function) {
         GroupFunctionDTO dto = new GroupFunctionDTO();
         dto.name = function.getClass().getSimpleName().toUpperCase();
         List<String> params = new ArrayList<>();
