@@ -80,9 +80,7 @@ class MacTTSAudioStream extends FixedLengthAudioStream {
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
             file = new File(outputFile);
-            if (file != null) {
-                this.length = file.length();
-            }
+            this.length = file.length();
             return getFileInputStream(file);
         } catch (IOException e) {
             throw new AudioException("Error while executing '" + command + "'", e);
