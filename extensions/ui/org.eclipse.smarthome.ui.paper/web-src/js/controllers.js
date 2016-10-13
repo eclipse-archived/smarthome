@@ -41,9 +41,9 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     });
     eventService.onEvent('smarthome/webaudio/playurl', function(topic, audioUrl) {
         if (audioUrl) {
-            angular.element("#audioSource").attr('src', audioUrl);
-            angular.element("#audioControl").get(0).load();
-            angular.element("#audioControl").get(0).play();
+            var audio = new Audio(audioUrl);
+            audio.load();
+            audio.play();
         }
     });
     eventService.onEvent('smarthome/items/*/state', function(topic, stateObject) {
