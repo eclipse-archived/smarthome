@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Web Audio Support
+Bundle-SymbolicName: org.eclipse.smarthome.io.webaudio
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: javax.sound.sampled,
+ org.apache.commons.collections,
+ org.apache.commons.io,
+ org.eclipse.smarthome.core.audio,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.library.types,
+ org.osgi.framework,
+ org.slf4j
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
