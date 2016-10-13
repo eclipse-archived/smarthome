@@ -39,6 +39,13 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     eventService.onEvent('smarthome/inbox/*/added', function(topic, discoveryResult) {
         toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/search');
     });
+    eventService.onEvent('smarthome/webaudio/playurl', function(topic, discoveryResult) {
+        if (discoveryResult) {
+            angular.element("#audioSource").attr('src', discoveryResult);
+            angular.element("#audioControl").get(0).load();
+            angular.element("#audioControl").get(0).play();
+        }
+    });
     eventService.onEvent('smarthome/items/*/state', function(topic, stateObject) {
 
         var itemName = topic.split('/')[2];
