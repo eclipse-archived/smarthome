@@ -101,19 +101,30 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
 </table>
 
-### Supported contexts
+### Supported Contexts
 
-Context is used to provide some semantic details about the parameter. The UI use it to render different kind of input widgets. Currently, PaperUI supports following contexts:
+Context is used to provide some semantic details about the parameter. The UI use it to render different kind of input widgets. The following contexts require a specific format of the content:
 
 <table><tr><th>Name</th><th>Type</th><th>Format</th></tr>
   <tr><td>Date</td><td>Text</td><td>DD:MM:YYYY</td></tr>
-  <tr><td>Time</td><td>Text/Integer</td><td>hh:mm</td></tr>
+  <tr><td>Time</td><td>Text/Integer</td><td>hh:mm/number</td></tr>
   <tr><td>Color</td><td>Text</td><td>#000000 - #ffffff (hex color)</td></tr>
   <tr><td>Item</td><td>Text</td><td>Item name</td></tr>
   <tr><td>Thing</td><td>Text</td><td>UID of thing</td></tr>
   <tr><td>Day of week</td><td>Text</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td></tr>
 </table>
 
+Further, the <strong>item</strong> context can contain criteria to filter the list of items. For example:
+```xml
+<filter>
+  <criteria name="type">Switch,Dimmer</criteria>
+  <criteria name="tag">Light,Heating</criteria>
+</filter>
+```
+In the case of above filter only those items will be shown that satisfy the filter's coniditions. The above filter is evaluated as follows: 
+```
+(type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
+```
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
