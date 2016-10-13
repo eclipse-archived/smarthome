@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
@@ -52,10 +53,7 @@ public class SSEAudioSink implements AudioSink {
             // it is an external URL, so we can directly pass this on.
             URLAudioStream urlAudioStream = (URLAudioStream) audioStream;
             sendEvent(urlAudioStream.getURL());
-            try {
-                audioStream.close();
-            } catch (IOException e) {
-            }
+            IOUtils.closeQuietly(audioStream);
         } else {
             // we serve it on our own HTTP server
             if (audioStream instanceof FixedLengthAudioStream) {
@@ -64,7 +62,8 @@ public class SSEAudioSink implements AudioSink {
                 String url = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
                 sendEvent(url);
             } else {
-                logger.warn("Only FixedLengthAudioStream are supported for web audio sink");
+                logger.warn("Only FixedLengthAudioStream are supported for the web audio sink.");
+                IOUtils.closeQuietly(audioStream);
             }
         }
     }
