@@ -14,6 +14,6 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.channel.ChannelTypeResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
-   <reference bind="setChannelTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry" name="ChannelTypeRegistry" policy="static" unbind="unsetChannelTypeRegistry"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setChannelTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry" name="ChannelTypeRegistry" policy="dynamic" unbind="unsetChannelTypeRegistry"/>
 </scr:component>

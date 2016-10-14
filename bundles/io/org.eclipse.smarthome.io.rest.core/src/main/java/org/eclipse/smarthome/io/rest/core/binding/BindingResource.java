@@ -37,7 +37,7 @@ import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceResource;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(BindingResource.PATH_BINDINGS)
 @Api(value = BindingResource.PATH_BINDINGS)
-public class BindingResource implements RESTResource {
+public class BindingResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_BINDINGS = "bindings";
@@ -204,6 +204,11 @@ public class BindingResource implements RESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = null;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return configurationService != null && configDescRegistry != null && bindingInfoRegistry != null;
     }
 
 }
