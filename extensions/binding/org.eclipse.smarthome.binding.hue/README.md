@@ -14,11 +14,11 @@ The integration happens through the Hue bridge, which acts as an IP gateway to t
 
 ## Supported Things
 
-The Hue bridge is required as a "bridge" for accessing any other Hue devies.
+The Hue bridge is required as a "bridge" for accessing any other Hue devices.
 
 Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify bulbs as well as other ZigBee LightLink compatible products like e.g. the [GE bulb](http://gelinkbulbs.com/). Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
 
-The hue binding supports all five types of lights of the Hue system: [Supported lights](http://www.developers.meethue.com/documentation/supported-lights). These are:
+The Hue binding supports all five types of lights of the Hue system: [Supported lights](http://www.developers.meethue.com/documentation/supported-lights). These are:
 
 | Light type              | ZigBee Device ID | Thing type |
 |-------------------------|------------------|------------|
@@ -26,9 +26,9 @@ The hue binding supports all five types of lights of the Hue system: [Supported 
 | Dimmable light          | 0x0100           | 0100       |
 | Color light             | 0x0200           | 0200       |
 | Extended Color light    | 0x0210           | 0210       |
-| Color temperature light | 0x0220           | 0220       |
+| Color Temperature light | 0x0220           | 0220       |
 
-All different models of Hue or Osram bulbs nicely fit into one of these five types. This type also determines the capability  of a bulb and with that the possible ways of interacting with the bulb. The following matrix lists the capabilities (channels) for each type:
+All different models of Hue or Osram bulbs nicely fit into one of these five types. This type also determines the capability of a bulb and with that the possible ways of interacting with the bulb. The following matrix lists the capabilities (channels) for each type:
 
 | Thing type  | On/Off | Brightness | Color | Color Temperature |
 |-------------|:------:|:----------:|:-----:|:-----------------:|
@@ -38,13 +38,13 @@ All different models of Hue or Osram bulbs nicely fit into one of these five typ
 |  0210       |    X   |            |   X   |          X        |
 |  0220       |    X   |     X      |       |          X        |
 
-The type of a specific bulb can found in the configuration section for things in the PaperUI. It is part of the unique thing id which could look like:
+The type of a specific bulb can be found in the configuration section for things in the PaperUI. It is part of the unique thing id which could look like:
 
 ```
 hue:0210:00178810d0dc:1
 ```
 
-The thing type is the second string behind the first colon and in this example **0210**.
+The thing type is the second string behind the first colon and in this example it is **0210**.
 
 ## Discovery
 
@@ -67,7 +67,7 @@ Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxc
 ```
 
 The bulbs are identified by the number that the Hue bridge assigns to them (also shown in the Hue app as an identifier).
-Thus, all if needs for manual configuration is this single value like
+Thus, all it needs for manual configuration is this single value like
 
 ```
 0210 bulb1 [ lightId="1" ]
@@ -87,7 +87,7 @@ All devices support some of the following channels:
 
 ## Full Example
 
-In this example **Bulb1** is a standard Philips HUE bulb (LCT001) which supports color and color_temperature. Therefore it is a thing of type _0210_. **Bulb2** is a OSRAM tunable white bulb (PAR16 50 TW) supporting color_temperature and so the type is _0220_.
+In this example **Bulb1** is a standard Philips HUE bulb (LCT001) which supports color and color_temperature. Therefore it is a thing of type _0210_. **Bulb2** is an OSRAM tunable white bulb (PAR16 50 TW) supporting color_temperature and so the type is _0220_.
 
 ### demo.things:
 
