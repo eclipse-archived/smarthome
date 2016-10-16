@@ -32,6 +32,9 @@ import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -198,13 +201,69 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
             String ipAddress = InetAddress.getLocalHost().getHostAddress(); // we use the primary interface; if a client
                                                                             // knows it any better, he can himself
                                                                             // change the url according to his needs.
-            String port = bundleContext.getProperty("org.osgi.service.http.port"); // we do not use SSL as it can cause
-                                                                                   // certificate validation issues.
+            final int port = getHttpServicePort(bundleContext); // we do not use SSL as it can cause certificate
+                                                                // validation issues.
+            if (port == -1) {
+                return null;
+            }
             return new URL("http://" + ipAddress + ":" + port + SERVLET_NAME + "/" + streamId);
         } catch (UnknownHostException | MalformedURLException e) {
             logger.error("Failed to construct audio stream URL: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    private final int getHttpServicePort(final BundleContext bc) {
+        Object value;
+        int port = -1;
+
+        // Try to find the port by using the service property (respect service ranking).
+        try {
+            int candidate = Integer.MIN_VALUE;
+            final ServiceReference[] refs = bc.getAllServiceReferences("org.osgi.service.http.HttpService", null);
+            for (final ServiceReference ref : refs) {
+                value = ref.getProperty("org.osgi.service.http.port");
+                if (value == null) {
+                    continue;
+                }
+                final int servicePort;
+                try {
+                    servicePort = Integer.parseInt(value.toString());
+                } catch (final NumberFormatException ex) {
+                    continue;
+                }
+                value = ref.getProperty(Constants.SERVICE_RANKING);
+                final int serviceRanking;
+                if (value == null || !(value instanceof Integer)) {
+                    serviceRanking = 0;
+                } else {
+                    serviceRanking = (Integer) value;
+                }
+                if (serviceRanking >= candidate) {
+                    candidate = serviceRanking;
+                    port = servicePort;
+                }
+            }
+        } catch (final InvalidSyntaxException ex) {
+        }
+        if (port > 0) {
+            return port;
+        }
+
+        // If the service does not provide the port, try to use the system property.
+        value = bc.getProperty("org.osgi.service.http.port");
+        if (value != null) {
+            if (value instanceof String) {
+                try {
+                    return Integer.parseInt(value.toString());
+                } catch (final NumberFormatException ex) {
+                }
+            } else if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        }
+
+        return -1;
     }
 
 }
