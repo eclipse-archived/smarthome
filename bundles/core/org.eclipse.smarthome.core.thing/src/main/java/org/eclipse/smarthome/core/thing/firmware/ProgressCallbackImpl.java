@@ -30,6 +30,7 @@ import com.google.common.base.Preconditions;
  * The callback implementation for the {@link ProgressCallback}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Christoph Knauf - Introduced pending, canceled, update and InternalState
  */
 final class ProgressCallbackImpl implements ProgressCallback {
 
@@ -48,8 +49,16 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private Collection<ProgressStep> sequence;
     private Iterator<ProgressStep> progressIterator;
     private ProgressStep current;
-    private boolean finished;
-    private boolean pending;
+    private Integer progress;
+
+    private enum InternalState {
+        FINISHED,
+        PENDING,
+        RUNNING,
+        INITIALIZED
+    };
+
+    private InternalState state;
 
     ProgressCallbackImpl(FirmwareUpdateHandler firmwareUpdateHandler, EventPublisher eventPublisher,
             I18nProvider i18nProvider, ThingUID thingUID, FirmwareUID firmwareUID, Locale locale) {
@@ -59,7 +68,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
         this.thingUID = thingUID;
         this.firmwareUID = firmwareUID;
         this.locale = locale;
-        this.pending = false;
+        this.progress = null;
     }
 
     @Override
@@ -67,75 +76,103 @@ final class ProgressCallbackImpl implements ProgressCallback {
         Preconditions.checkArgument(sequence != null && sequence.length > 0, "Sequence must not be null or empty.");
         this.sequence = Collections.unmodifiableCollection(Arrays.asList(sequence));
         progressIterator = this.sequence.iterator();
+        this.state = InternalState.INITIALIZED;
     }
 
     @Override
     public void next() {
-        Preconditions.checkState(sequence != null, "No sequence defined.");
-        if (pending) {
-            this.pending = false;
-            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
-                    new FirmwareUpdateProgressInfo(firmwareUID, getCurrentStep(), sequence, this.pending), thingUID));
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        if (this.state == InternalState.PENDING) {
+            state = InternalState.RUNNING;
+            postProgressInfoEvent();
         } else if (progressIterator.hasNext()) {
-            this.pending = false;
+            state = InternalState.RUNNING;
             this.current = progressIterator.next();
-            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
-                    new FirmwareUpdateProgressInfo(firmwareUID, current, sequence, this.pending), thingUID));
+            postProgressInfoEvent();
         } else {
+            state = InternalState.FINISHED;
             throw new IllegalStateException("There is no further progress step to be executed.");
         }
     }
 
     @Override
     public void failed(String errorMessageKey, Object... arguments) {
-        Preconditions.checkState(!finished, "Update is finished.");
-        finished(); 
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
         Preconditions.checkArgument(errorMessageKey != null && !errorMessageKey.isEmpty(),
                 "The error message key must not be null or empty.");
-        String errorMessage = getErrorMessage(FrameworkUtil.getBundle(firmwareUpdateHandler.getClass()),
-                errorMessageKey, arguments);
-        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
+        this.state = InternalState.FINISHED;
+        String errorMessage = getMessage(firmwareUpdateHandler.getClass(), errorMessageKey, arguments);
+        postResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
     }
 
     @Override
     public void success() {
-        Preconditions.checkState(!finished, "Update is finished.");
-        finished(); 
-        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.SUCCESS, null);
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        Preconditions.checkState((this.progress != null && this.progress == 100) || (this.progressIterator!=null && !progressIterator.hasNext()),
+                "Update can't be successfully finished until progress is 100% or last progress step is reached");
+        this.state = InternalState.FINISHED;
+        postResultInfoEvent(FirmwareUpdateResult.SUCCESS, null);
     }
 
     @Override
     public void pending() {
-        Preconditions.checkState(!finished, "Update is finished.");
-        this.pending = true;
-        post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
-                new FirmwareUpdateProgressInfo(firmwareUID, getCurrentStep(), sequence, this.pending), thingUID));
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        this.state = InternalState.PENDING;
+        postProgressInfoEvent();
     }
 
     @Override
     public void canceled() {
-        Preconditions.checkState(!finished, "Update is finished.");
-        finished(); 
-        String cancelMessage = getErrorMessage(FrameworkUtil.getBundle(ProgressCallbackImpl.class),
-                UPDATE_CANCELED_MESSAGE_KEY);
-        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.CANCELED, cancelMessage);
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        this.state = InternalState.FINISHED;
+        String cancelMessage = getMessage(this.getClass(), UPDATE_CANCELED_MESSAGE_KEY);
+        postResultInfoEvent(FirmwareUpdateResult.CANCELED, cancelMessage);
+    }
+
+    @Override
+    public void update(int progress) {
+        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        Preconditions.checkArgument(progress >= 0 && progress <= 100, "The progress must be between 0 and 100.");
+        if (this.progress == null) {
+            updateProgress(progress);
+        } else if (progress < this.progress) {
+            throw new IllegalArgumentException("The new progress must not be smaller than the old progress.");
+        } else if (this.progress != progress) {
+            updateProgress(progress);
+        }
+    }
+
+    private void updateProgress(int progress) {
+        this.progress = progress;
+        this.state = InternalState.RUNNING;
+        postProgressInfoEvent();
     }
 
     void failedInternal(String errorMessageKey) {
-        finished(); 
-        String errorMessage = getErrorMessage(FrameworkUtil.getBundle(ProgressCallbackImpl.class), errorMessageKey,
-                new Object[] {});
-        postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
+        this.state = InternalState.FINISHED;
+        String errorMessage = getMessage(ProgressCallbackImpl.class, errorMessageKey, new Object[] {});
+        postResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
     }
 
-    private String getErrorMessage(Bundle bundle, String errorMessageKey, Object... arguments) {
+    private String getMessage(Class<?> clazz, String errorMessageKey, Object... arguments) {
+        Bundle bundle = FrameworkUtil.getBundle(clazz);
         String errorMessage = i18nProvider.getText(bundle, errorMessageKey, null, locale, arguments);
         return errorMessage;
     }
 
-    private void postFirmwareUpdateResultInfoEvent(FirmwareUpdateResult result, String message) {
+    private void postResultInfoEvent(FirmwareUpdateResult result, String message) {
         post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(new FirmwareUpdateResultInfo(result, message),
                 thingUID));
+    }
+
+    private void postProgressInfoEvent() {
+        if (this.progress == null) {
+            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(new FirmwareUpdateProgressInfo(firmwareUID,
+                    getCurrentStep(), sequence, this.state == InternalState.PENDING), thingUID));
+        } else {
+            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(new FirmwareUpdateProgressInfo(firmwareUID,
+                    getCurrentStep(), sequence, this.state == InternalState.PENDING, progress), thingUID));
+        }
     }
 
     private void post(Event event) {
@@ -143,19 +180,13 @@ final class ProgressCallbackImpl implements ProgressCallback {
     }
 
     private ProgressStep getCurrentStep() {
-        Preconditions.checkState(sequence != null, "No sequence defined.");
         if (current != null) {
             return current;
         }
-        if (progressIterator.hasNext()) {
+        if (sequence != null && progressIterator.hasNext()) {
             this.current = progressIterator.next();
-            return current; 
+            return current;
         }
-        throw new IllegalStateException("There is no progress step defined.");
-    }
-    
-    private void finished(){
-        finished = true; 
-        pending = false; 
+        return null;
     }
 }
