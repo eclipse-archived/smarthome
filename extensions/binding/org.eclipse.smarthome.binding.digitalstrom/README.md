@@ -21,8 +21,8 @@ The digitalSTROM-Server is required for accessing any other digitalSTROM-Devices
 
 ### digitalSTROM-Devices
 
-At this point almost all available **GE**, **SW** and **GR** digitalSTROM-Devices with an set output-mode, unequal *disabled* or *PWM*, are supported by this binding.  
-For that there are identically named thing types. Only the *GR* type has a channel (shade), which cannot be changed. The other two types adds their channels dynamically affected by the set color-group and output-mode. They also automatically change or add the channels, if the color-group or output-mode has changed through the dSS-web-configuration or the configured sensor priorities of the thing has changed.
+At this point almost all available **GE**, **SW** and **GR** digitalSTROM-Devices with a set output-mode, unequal *disabled* or *PWM*, are supported by this binding.  
+For that there are identically named thing types. Only the *GR* type has a channel (shade), which cannot be changed. The other two types add their channels dynamically affected by the set color-group and output-mode. They also automatically change or add the channels, if the color-group or output-mode has changed through the dSS-web-configuration or the configured sensor priorities of the thing have changed.
 
 The following table shows all tested digitalSTROM-Devices with their output-modes.
 
@@ -42,14 +42,14 @@ The following table shows all tested digitalSTROM-Devices with their output-mode
 
 ### digitalSTROM-Scenes
 
-Furthermore the digitalSTROM-Scene concept is part of the digitalSTROM-Binding. This scenes are implemented as virtual things. The difference scene thing types are list in the following table.
+Furthermore the digitalSTROM-Scene concept is part of the digitalSTROM-Binding. These scenes are implemented as virtual things. The different scene thing types are listed in the following table.
 
 | Thing-Type-ID | Label    | Description |
 |-----------------|------------------------|--------------|----------------- |------------- |
 | appScene  | Apartment-Scene | Represents a digitalSTROM Apartment-Scene.  |
 | zoneScene  | Zone-Scene | Represents a digitalSTROM Zone-Scene.  |
 | groupScene  | Group-Scene | Represents a digitalSTROM Group-Scene.  |
-| namedScene  | Named-Scene | Represents a digitalSTROM Scene, which has a user defined name.  |
+| namedScene  | Named-Scene | Represents a digitalSTROM Scene, which has a user-defined name.  |
  
 ## Discovery
 
@@ -59,26 +59,26 @@ digitalSTROM-Scenes can be discovered, too. The background scene-discovery is de
  
 Discoverable scenes are all user named scenes, group scenes that are reachable by local push-buttons, zone scenes and apartment scenes. The discovery also will discover all called scenes, if they aren't automatically discovered yet.
 
-If you only want to discover one of the thing types, you can start a discovery scan on the thing type you wish have discovered. You can use the command line command, e.g.: ``smarthome:discovery start digitalstrom:namedScene`` to start the scan. What thing types this binding supports please have a look at **Supported Things**.
+If you only want to discover one of the thing types, you can start a discovery scan on the thing type you wish have discovered. You can use the command line command, e.g.: ``smarthome:discovery start digitalstrom:namedScene`` to start the scan. To find out what thing types this binding supports please have a look at the **Supported Things** section.
 
 ## digitalSTROM-Scenes
 
 ### General
 
-The device scene configuration will be saved persistently to the things to update the device state faster. For that each scene configuration of each device has to read out first, because of the digitalSTROM-rule 9 that requires a waiting period of one minute, that take some time so that at the first start a scene call can be take some time to read it out and update the device state. To read it out faster only the discovered or called scenes will be red out. 
+The device scene configuration will be saved persistently to the things to update the device state faster. For that each scene configuration of each device has to read out first, because of the digitalSTROM-rule 9 that requires a waiting period of one minute, that take some time so that at the first start a scene call can take some time to read it out and update the device state. To read it out faster only the discovered or called scenes will be read out. 
  
 **Note:**
 Because the digitalSTROM-Server can't inform the binding about save scene events at this time, the persistently saved scene configurations can't be updated. The current troubleshooting to read out the new scene configuration after a save scene action at the digitalSTROM-Server is the following:
 
 1. delete the thing to delete the persistently saved scene configuration
 2. restart the server to delete the temporary saved scene configuration 
-3. add the thing again to red out the scene configuration again.   
+3. add the thing again to read out the scene configuration again.   
 
 ## Thing Configuration
 
 ### digitalSTROM-Server
 
-The digitalSTROM-Server thing has the following configuration parameter groups *Connection configuration*, *Server information* and *General configurations*.
+The digitalSTROM-Server thing has the following configuration parameter groups: *Connection configuration*, *Server information* and *General configurations*.
 
 #### Connection configuration
 
@@ -93,7 +93,7 @@ If the digitalSTROM-Server isn’t found automatically, e.g. because the server 
 
 #### Server information
  
-The group parameters *Server information* only includes informative parameters, which have no special functionality.
+The parameter group *Server information* only includes informative parameters, which have no special functionality.
 
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced 
@@ -103,7 +103,7 @@ The group parameters *Server information* only includes informative parameters, 
 
 #### General configuration:
 
-Here you can set general binding configuration parameters, which shown in following table: 
+Here you can set general binding configuration parameters, which are shown in following table: 
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced | default 
 |-----------------|------------------------|--------------|----------------- |------------- | ----------------- |
@@ -124,7 +124,7 @@ The digitalSTROM-Device things have the following configuration parameter groups
    
 #### Device information
 
-Each digitalSTROM-Device needs the device ID named dSID as configuration parameter. The device ID is printed as serial number at the digitalSTOM-Device and can also be found within the web-interface of the digitalSTROM-Server. 
+Each digitalSTROM-Device needs the device ID named dSID as a configuration parameter. The device ID is printed as a serial number at the digitalSTOM-Device and can also be found within the web-interface of the digitalSTROM-Server. 
 Furthermore a supported digitalSTROM-Device has only informative parameter at this point.
 The following table shows all parameters: 
 
@@ -132,7 +132,7 @@ The following table shows all parameters:
 |-----------------|------------------------|--------------|----------------- |------------- |
 | ID | dSID| The unique identifier of a digitalSTOM-device. | true | false |
 | UID | dSUID | The unique identifier of a digitalSTOM-device with virtual devices. | false | false | 
-| Name | deviceName | he name of a digitalSTROM-Device. | false | false |   
+| Name | deviceName | The name of a digitalSTROM-Device. | false | false |   
 | Meter dSID | meterDSID | Identifier of the meter to which the device is connected. | false | false |   
 | Device hardware type | hwInfo | The hardware type from this digitalSTROM-Device. | false | false |   
 | Zone ID | zoneID |The digitalSTROM-Device is part of this zone. | false | false |   
@@ -142,7 +142,7 @@ The following table shows all parameters:
 
 #### Sensor setup
 
-The GE and SW digitalSTROM-Devices have usually sensors to capture power consumption data. So these devices have the following parameters to read them out.  
+The GE and SW digitalSTROM-Devices usually have sensors to capture power consumption data. So these devices have the following parameters to read them out.  
 
 | Parameter Label | Parameter ID| Description  | Required | Advanced | Default |
 |-----------------|------------------------|--------------|----------------- |------------- | -----------|
@@ -161,9 +161,9 @@ The digitalSTROM-Scenes can be defined with following parameters.
 | Group ID or name | groupID | The group ID or group name of the called scene. 0 or empty is broadcast to all. | false | false | 
 | Scene ID or name | sceneID |The call scene ID or scene name, e.g. preset 1 for scene ID 5. Callable scenes are from 0 to 126. | false | false | 
 
-The Scene-Thing-Type *Named-Scene* and *Group-Scene* have all parameters. The *Apartment-Scene* have only the parameters *Scene name* and *Scene ID* an the *Zone-Scene* have all parameters without *Group ID or name*. 
+The Scene-Thing-Type *Named-Scene* and *Group-Scene* have all parameters. The *Apartment-Scene* only has the parameters *Scene name* and *Scene ID* an the *Zone-Scene* has all parameters without *Group ID or name*. 
 
-Usually the discovery works reliable, so that a manual configuration is not needed.
+Usually the discovery works reliably, so that a manual configuration is not needed.
 
 However, at the thing file, a manual configuration looks e.g. like 
 
@@ -181,17 +181,17 @@ All devices support some of the following channels:
 |-----------------|------------------------|--------------|----------------- |------------- |
 | brightness| Dimmer | The brightness channel allows to dimm a light device.  | GE, SW | 
 | lightSwitch | Switch | The light switch channel allows to turn a light device on or off. | GE, SW | 
-| combined2StageSwitch | String| The 2 stage light switch channel allows to turn both light devices on or off or switch only 1 of the both light device on or off. | SW-UMR200 | 
+| combined2StageSwitch | String| The 2 stage light switch channel allows to turn both light devices on or off or switch only 1 of the both light devices on or off. | SW-UMR200 | 
 | combined3StageSwitch | String | The 3 stage light switch channel allows to turn both light devices on or off or switch both light devices separated from each other on or off. | SW-UMR200 | 
 | shade | Rollershutter | The shade control channel allows to control shade device e.g. a roller shutter or awnings. | GR |
 | shadeAngle | Dimmer | The slat control channel allows to control the relative slat position in percent of blinds. | GR | 
 | generalDimm | Dimmer | The device power control channel allows to control the power of a device e.g. a ceiling fan. | SW | 
 | generalSwitch | Switch | The device switch channel allows to turn a device on or off e.g. a HIFI-System. | SW | 
-| generalCombined3StageSwitch  | String | The 2 stage device switch channel allows to turn both relais of the device on or off or switch only 1 of the both relais on or off. | SW-UMR200 | 
-| generalCombined3StageSwitch  | String | The 3 stage device device channel allows to turn both relais of the device on or off or switch both relais of the device separated from each other on or off. | SW-UMR200 | 
-| activePower | Number | The active power channel indicates the current active power in watt (W) of the device." | GE, SW | 
-| outputCurrent | Number | The output current channel indicates the current output current in amper (A) of the device." | GE, SW | 
-| electricMeter | Number | The electric meter channel indicates the current electric meter value in killowatts hours (kWh) of the device. | GE, SW | 
+| generalCombined3StageSwitch  | String | The 2 stage device switch channel allows to turn both relays of the device on or off or switch only 1 of the both relais on or off. | SW-UMR200 | 
+| generalCombined3StageSwitch  | String | The 3 stage device channel allows to turn both relays of the device on or off or switch both relais of the device separated from each other on or off. | SW-UMR200 | 
+| activePower | Number | The active power channel indicates the current active power in watt (W) of the device. | GE, SW | 
+| outputCurrent | Number | The output current channel indicates the current output current in ampere (A) of the device. | GE, SW | 
+| electricMeter | Number | The electric meter channel indicates the current electric meter value in kilowatts hours (kWh) of the device. | GE, SW | 
 | totalActivePower |  | The total power consumption channel indicates the current consumption power in watt (W)  of all connected circuits to the digitalSTROM-System. | dssBridge | 
 | totalElectricMeter | Number | The total electric meter channel indicates the current electric meter value in killowatt hours of all connected circuits to the digitalSTROM-System. | dssBridge  | 
 | scene | Switch | The scene channel allows to call or undo a scene from digitalSTROM. | Scene | 
