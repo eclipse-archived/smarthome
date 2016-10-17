@@ -35,4 +35,5 @@ die() {
 	exit 1
 }
 
+git rebase eclipse/master || die "Rebase failed"
 git merge ${REMOTE_BRANCHES} || die "Merge failed"
