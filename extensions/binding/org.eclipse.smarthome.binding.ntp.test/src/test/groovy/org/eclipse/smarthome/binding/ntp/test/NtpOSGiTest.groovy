@@ -49,6 +49,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.junit.Ignore
 import org.junit.Test
 =======
@@ -72,7 +73,23 @@ import org.junit.Ignore
 import org.junit.Ignore
 import org.junit.Test
 >>>>>>> increase timeout for NTP channel updates
+<<<<<<< HEAD
 >>>>>>> a93e1df... increase timeout for NTP channel updates
+=======
+=======
+import org.junit.Ignore
+import org.junit.Test
+=======
+<<<<<<< HEAD
+import org.junit.Ignore
+import org.junit.Test
+=======
+import org.junit.Test
+import org.junit.Ignore
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -111,6 +128,7 @@ class NtpOSGiTest extends OSGiTest {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> Initial Release
@@ -118,6 +136,8 @@ class NtpOSGiTest extends OSGiTest {
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 =======
 >>>>>>> a93e1df... increase timeout for NTP channel updates
+=======
+>>>>>>> 5f96bfd... Initial Release
 
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
@@ -136,6 +156,11 @@ class NtpOSGiTest extends OSGiTest {
 =======
     
 =======
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> Initial Release
+>>>>>>> Initial Release
 
 >>>>>>> increase timeout for NTP channel updates
     enum UpdateEventType{
@@ -158,8 +183,29 @@ class NtpOSGiTest extends OSGiTest {
 =======
 =======
 
+<<<<<<< HEAD
 >>>>>>> increase timeout for NTP channel updates
+<<<<<<< HEAD
 >>>>>>> a93e1df... increase timeout for NTP channel updates
+=======
+=======
+<<<<<<< HEAD
+=======
+=======
+    
+    enum UpdateEventType{
+        HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
+        
+        private String updateEventType
+        
+        public UpdateEventType(String updateEventType){
+            this.updateEventType = updateEventType
+        }
+        
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
         public String getUpdateEventType(){
             return updateEventType
         }
@@ -520,6 +566,7 @@ class NtpOSGiTest extends OSGiTest {
         def ManagedItemChannelLinkProvider itemChannelLinkProvider
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< HEAD
@@ -538,7 +585,20 @@ class NtpOSGiTest extends OSGiTest {
 =======
 
 >>>>>>> increase timeout for NTP channel updates
+<<<<<<< HEAD
 >>>>>>> a93e1df... increase timeout for NTP channel updates
+=======
+=======
+
+=======
+<<<<<<< HEAD
+
+=======
+        
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
         // Wait for the item , linked to the NTP thing to be added to the ManagedThingProvider.
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -572,11 +632,20 @@ class NtpOSGiTest extends OSGiTest {
             }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Initial Release
         }, 30000, 100)
 =======
 <<<<<<< HEAD
         }, 30000, 100)
 =======
+<<<<<<< HEAD
+<<<<<<< HEAD
+        }, 30000, 100)
+=======
+=======
+>>>>>>> 5f96bfd... Initial Release
         })
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
@@ -594,10 +663,19 @@ class NtpOSGiTest extends OSGiTest {
     private String getStringChannelTimeZoneFromItemRegistry(){
         String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString()
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
         /* This method is used only in tests for the string channel,
          where we have set the format for the date in advance.
          Because of that format, we know that the time zone will be the
 =======
+<<<<<<< HEAD
+>>>>>>> 5f96bfd... Initial Release
+        /* This method is used only in tests for the string channel,
+         where we have set the format for the date in advance.
+         Because of that format, we know that the time zone will be the
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
         /* This method is used only in tests for the string channel,
          where we have set the format for the date in advance.
@@ -610,6 +688,8 @@ class NtpOSGiTest extends OSGiTest {
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
 =======
+=======
+>>>>>>> 5f96bfd... Initial Release
         })
 =======
         }, 30000, 100)
@@ -633,7 +713,17 @@ class NtpOSGiTest extends OSGiTest {
          where we have set the format for the date in advance.
          Because of that format, we know that the time zone will be the
 >>>>>>> increase timeout for NTP channel updates
+<<<<<<< HEAD
 >>>>>>> a93e1df... increase timeout for NTP channel updates
+=======
+=======
+        /* This method is used only in tests for the string channel, 
+         where we have set the format for the date in advance. 
+         Because of that format, we know that the time zone will be the 
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
          last word of the string from the item registry.*/
         // FIXME: This can happen a lot easier with Java 8 date time API, so tests can be adapted, if there is an upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ")
