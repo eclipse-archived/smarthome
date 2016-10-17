@@ -9,10 +9,8 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -31,10 +29,9 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+import org.eclipse.smarthome.core.net.HttpServiceUtil;
+import org.eclipse.smarthome.core.net.NetUtil;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -198,72 +195,24 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private URL getURL(String streamId) {
         try {
-            String ipAddress = InetAddress.getLocalHost().getHostAddress(); // we use the primary interface; if a client
-                                                                            // knows it any better, he can himself
-                                                                            // change the url according to his needs.
-            final int port = getHttpServicePort(bundleContext); // we do not use SSL as it can cause certificate
-                                                                // validation issues.
-            if (port == -1) {
+            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
+            if (ipAddress == null) {
+                logger.warn("No network interface could be found.");
                 return null;
             }
+
+            // we do not use SSL as it can cause certificate validation issues.
+            final int port = HttpServiceUtil.getHttpServicePort(bundleContext);
+            if (port == -1) {
+                logger.warn("Cannot find port of the http service.");
+                return null;
+            }
+
             return new URL("http://" + ipAddress + ":" + port + SERVLET_NAME + "/" + streamId);
-        } catch (UnknownHostException | MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             logger.error("Failed to construct audio stream URL: {}", e.getMessage(), e);
             return null;
         }
-    }
-
-    private final int getHttpServicePort(final BundleContext bc) {
-        Object value;
-        int port = -1;
-
-        // Try to find the port by using the service property (respect service ranking).
-        try {
-            int candidate = Integer.MIN_VALUE;
-            final ServiceReference[] refs = bc.getAllServiceReferences("org.osgi.service.http.HttpService", null);
-            for (final ServiceReference ref : refs) {
-                value = ref.getProperty("org.osgi.service.http.port");
-                if (value == null) {
-                    continue;
-                }
-                final int servicePort;
-                try {
-                    servicePort = Integer.parseInt(value.toString());
-                } catch (final NumberFormatException ex) {
-                    continue;
-                }
-                value = ref.getProperty(Constants.SERVICE_RANKING);
-                final int serviceRanking;
-                if (value == null || !(value instanceof Integer)) {
-                    serviceRanking = 0;
-                } else {
-                    serviceRanking = (Integer) value;
-                }
-                if (serviceRanking >= candidate) {
-                    candidate = serviceRanking;
-                    port = servicePort;
-                }
-            }
-        } catch (final InvalidSyntaxException ex) {
-        }
-        if (port > 0) {
-            return port;
-        }
-
-        // If the service does not provide the port, try to use the system property.
-        value = bc.getProperty("org.osgi.service.http.port");
-        if (value != null) {
-            if (value instanceof String) {
-                try {
-                    return Integer.parseInt(value.toString());
-                } catch (final NumberFormatException ex) {
-                }
-            } else if (value instanceof Integer) {
-                return (Integer) value;
-            }
-        }
-
-        return -1;
     }
 
 }
