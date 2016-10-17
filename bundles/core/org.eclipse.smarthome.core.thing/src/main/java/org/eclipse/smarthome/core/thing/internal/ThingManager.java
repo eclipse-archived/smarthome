@@ -23,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener;
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -32,6 +33,8 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -67,6 +70,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -84,7 +88,7 @@ import com.google.common.collect.Multimaps;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism,
  *         refactorings thing life cycle
- * @author Simon Kaufmann - Added remove handling
+ * @author Simon Kaufmann - Added remove handling, type conversion
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  */
@@ -164,15 +168,17 @@ public class ThingManager extends AbstractItemEventSubscriber
 
         @Override
         public void stateUpdated(ChannelUID channelUID, State state) {
-            Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
-            for (String item : items) {
-                eventPublisher.post(ItemEventFactory.createStateEvent(item, state, channelUID.toString()));
+            Set<Item> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
+            for (Item item : items) {
+                State acceptedState = ItemUtil.convertToAcceptedState(state, item);
+                eventPublisher
+                        .post(ItemEventFactory.createStateEvent(item.getName(), acceptedState, channelUID.toString()));
             }
         }
 
         @Override
         public void postCommand(ChannelUID channelUID, Command command) {
-            Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
+            Set<String> items = itemChannelLinkRegistry.getLinkedItemNames(channelUID);
             for (String item : items) {
                 eventPublisher.post(ItemEventFactory.createCommandEvent(item, command, channelUID.toString()));
             }
