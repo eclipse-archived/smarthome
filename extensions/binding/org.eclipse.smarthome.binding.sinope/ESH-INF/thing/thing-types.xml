@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="sinope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	<bridge-type id="gateway">
+		<label>Sinope Gateway</label>
+		<description>Sinoper Gateway Configuration</description>
+
+		<config-description>
+			<parameter name="hostname" type="text">
+				<label>hostname</label>
+				<description>hostname of the Sinope Gateway</description>
+				<required>true</required>
+			</parameter>
+
+			<parameter name="port" type="integer">
+				<label>port</label>
+				<description>ip port</description>
+				<required>true</required>
+				<default>4550</default>
+			</parameter>
+
+			<parameter name="gatewayId" type="text">
+				<label>Gateway ID</label>
+				<description>Behind your Sinope Gateway(xxxx xxxx xxxx xxxx)</description>
+				<required>true</required>
+				<default>0000 0000 0000 0000</default>
+			</parameter>
+
+
+			<parameter name="apiKey" type="text">
+				<label>API Key returned by the Gateway</label>
+				<description>Use java core program to generate your api key</description>
+				<required>true</required>
+				<default>
+                0000 0000 0000 0000
+            </default>
+			</parameter>
+
+			<parameter name="refresh" type="integer" required="false">
+				<label>Refresh Interval</label>
+				<description>The number of milliseconds between fetches of Sinope Gateway.</description>
+				<default>60000</default>
+			</parameter>
+		</config-description>
+	</bridge-type>
+	<!-- Sample Thing Type -->
+	<thing-type id="thermostat">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="gateway" />
+		</supported-bridge-type-refs>
+		<label>Sinope Binding Thing</label>
+		<description>Sample thing for sinope Binding</description>
+
+		<channels>
+			<channel id="insideTemperature" typeId="insideTemperature" />
+			<channel id="outsideTemperature" typeId="outsideTemperature" />
+			<channel id="setPointTemperature" typeId="setPointTemperature" />
+			<channel id="mode" typeId="mode" />
+		</channels>
+		<config-description>
+
+			<parameter name="deviceId" type="text" required="true">
+				<label>Thermostat device ID</label>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+
+	<channel-type id="insideTemperature">
+		<item-type>Number</item-type>
+		<label>Temperature</label>
+		<description>Current inside temperature in degrees celsius</description>
+		<category>Temperature</category>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="outsideTemperature">
+		<item-type>Number</item-type>
+		<label>Temperature</label>
+		<description>Current outside temperature in degrees celsius</description>
+		<category>Temperature</category>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="setPointTemperature">
+		<item-type>Number</item-type>
+		<label>Temperature</label>
+		<description>Set point temperature</description>
+		<category>Temperature</category>
+		<state readOnly="false" />
+	</channel-type>
+
+	<channel-type id="mode">
+		<item-type>Switch</item-type>
+		<label>Temperature</label>
+		<description>Current outside temperature in degrees celsius</description>
+		<category>Temperature</category>
+		<state readOnly="true" />
+	</channel-type>
+
+
+</thing:thing-descriptions>
