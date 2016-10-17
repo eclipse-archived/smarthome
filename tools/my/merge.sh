@@ -12,7 +12,7 @@ for REMOTE in ${REMOTES}; do
 	git remote | grep ^${REMOTE}$ &>/dev/null
 	if [ ${?} -ne 0 ]; then
 		git remote add "${REMOTE}" "git@github.com:${REMOTE}/smarthome.git"
-		git fetch "${REMOTE}"
+		git fetch --tags --prune "${REMOTE}"
 	fi
 done
 
@@ -26,7 +26,6 @@ REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/npm-tempdirs"
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/servlet-port"
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/qivicon/thing-bridge-lifecycle" # https://github.com/eclipse/smarthome/pull/2087
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kgoderis/cron-fix" # https://github.com/eclipse/smarthome/pull/2270
-REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kaikreuzer/network" # https://github.com/eclipse/smarthome/pull/2323
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kaikreuzer/sonosaudio" # https://github.com/eclipse/smarthome/pull/2306
 
 die() {
