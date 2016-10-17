@@ -1,4 +1,4 @@
-<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-form__link">
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-form__link %visibility_class%">
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
@@ -6,7 +6,13 @@
 		%label%
 	</span>
 	<div %valuestyle% class="mdl-form__value">%value%</div>
-	<div class="mdl-form__control mdl-form__text-link" data-control-type="text-link" data-target="%id%" data-item="%item%">
+	<div
+		class="mdl-form__control mdl-form__text-link"
+		data-control-type="text-link"
+		data-target="%id%"
+		data-item="%item%"
+		data-widget-id="%widget_id%"
+	>
 		<!-- chevron_right -->
 		<i class="material-icons">&#xea6b;</i>
 	</div>

@@ -67,14 +67,11 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
         String purelabel = itemUIRegistry.getLabel(w);
         purelabel = purelabel.replaceAll("\\\"", "\\\\'");
 
-        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(cp));
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
-        snippet = StringUtils.replace(snippet, "%item%", w.getItem());
-        snippet = StringUtils.replace(snippet, "%label%", label);
-        snippet = StringUtils.replace(snippet, "%purelabel%", purelabel);
+        // Should be called before preprocessSnippet
         snippet = StringUtils.replace(snippet, "%state%", hexValue);
+
+        snippet = preprocessSnippet(snippet, w);
+        snippet = StringUtils.replace(snippet, "%purelabel%", purelabel);
         snippet = StringUtils.replace(snippet, "%frequency%", frequency);
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
 

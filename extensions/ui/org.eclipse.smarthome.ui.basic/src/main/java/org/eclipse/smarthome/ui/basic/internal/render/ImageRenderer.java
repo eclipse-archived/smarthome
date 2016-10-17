@@ -50,6 +50,7 @@ public class ImageRenderer extends AbstractWidgetRenderer {
 
         String widgetId = itemUIRegistry.getWidgetId(w);
         snippet = StringUtils.replace(snippet, "%id%", widgetId);
+        snippet = preprocessSnippet(snippet, w);
 
         String sitemap = w.eResource().getURI().path();
 

@@ -202,7 +202,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (configuration.get("udn") != null) {
             updateStatus(ThingStatus.ONLINE);
             this.discoveryServiceRegistry.addDiscoveryListener(this);
-            this.notificationSoundVolume = getVolume();
             onUpdate();
             super.initialize();
         } else {
@@ -950,7 +949,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
 
             if (currentURI.contains("x-sonosapi-stream") && opmlUrl == null) {
-                if (currentUriMetaData != null) {
+                if (currentUriMetaData != null && currentTrack != null) {
                     resultString = currentUriMetaData.getTitle() + " - " + currentTrack.getStreamContent();
                     needsUpdating = true;
                 }
@@ -1456,6 +1455,21 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (command != null) {
             notificationSoundVolume = command.toString();
         }
+    }
+
+    /**
+     * Gets the volume level for a notification sound
+     */
+    public PercentType getNotificationSoundVolume() {
+        if (notificationSoundVolume == null) {
+            // we need to initialize the value for the first time
+            notificationSoundVolume = getVolume();
+            if (notificationSoundVolume != null) {
+                updateState(SonosBindingConstants.NOTIFICATIONVOLUME,
+                        new PercentType(new BigDecimal(notificationSoundVolume)));
+            }
+        }
+        return new PercentType(new BigDecimal(notificationSoundVolume));
     }
 
     public void addURIToQueue(String URI, String meta, int desiredFirstTrack, boolean enqueueAsNext) {
@@ -2140,6 +2154,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private boolean isPlayingQueue(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
         return currentURI.contains("x-rincon-queue:");
     }
 
@@ -2243,14 +2260,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     /**
-     * Applies the volume level set for {@link #notificationSoundVolume}
-     * by {@link ZonePlayerHandler#setNotificationSoundVolume(Command)} (if not null)
+     * Applies the notification sound volume level to the group (if not null)
      *
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        if (notificationSoundVolume != null) {
-            setVolumeForGroup(DecimalType.valueOf(notificationSoundVolume));
+        PercentType volume = getNotificationSoundVolume();
+        if (volume != null) {
+            setVolumeForGroup(volume);
         }
     }
 
@@ -2274,15 +2291,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void waitForTransportState(String state) {
-        long start = System.currentTimeMillis();
-        while (!stateMap.get("TransportState").equals(state)) {
-            try {
-                Thread.sleep(50);
-                if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
-                    break;
+        if (stateMap.get("TransportState") != null) {
+            long start = System.currentTimeMillis();
+            while (!stateMap.get("TransportState").equals(state)) {
+                try {
+                    Thread.sleep(50);
+                    if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("InterruptedException during playing a notification sound");
                 }
-            } catch (InterruptedException e) {
-                logger.error("InterruptedException during playing a notification sound");
             }
         }
     }
@@ -2634,9 +2653,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 inputs.put("InstanceID", "0");
                 inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(Integer.parseInt(command.toString())));
 
-                Map<String, String> result = this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer",
-                        inputs);
-
+                this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer", inputs);
             }
         }
     }

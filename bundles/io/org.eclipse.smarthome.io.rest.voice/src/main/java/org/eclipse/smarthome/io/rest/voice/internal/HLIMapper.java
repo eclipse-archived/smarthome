@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.voice.internal;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 
@@ -32,9 +33,12 @@ public class HLIMapper {
         HumanLanguageInterpreterDTO dto = new HumanLanguageInterpreterDTO();
         dto.id = hli.getId();
         dto.label = hli.getLabel(locale);
-        dto.locales = new HashSet<String>(hli.getSupportedLocales().size());
-        for (Locale l : hli.getSupportedLocales()) {
-            dto.locales.add(l.toString());
+        final Set<Locale> supportedLocales = hli.getSupportedLocales();
+        if (supportedLocales != null) {
+            dto.locales = new HashSet<String>(supportedLocales.size());
+            for (final Locale supportedLocale : supportedLocales) {
+                dto.locales.add(supportedLocale.toString());
+            }
         }
         return dto;
     }

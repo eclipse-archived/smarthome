@@ -524,7 +524,52 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
-}).controller('PlayerItemController', function($scope) {
+}).controller('PlayerItemController', function($scope, $timeout) {
+
+    var isInterrupted, time;
+    $scope.onPrevDown = function() {
+        isInterrupted = false;
+        time = new Date().getTime();
+        $timeout(function() {
+            if (!isInterrupted) {
+                $scope.sendCommand('REWIND');
+            }
+        }, 300);
+    }
+
+    $scope.onPrevUp = function() {
+        var newTime = new Date().getTime();
+        if (time + 300 > newTime) {
+            isInterrupted = true;
+            $scope.sendCommand('PREVIOUS');
+        } else {
+            $timeout(function() {
+                $scope.sendCommand('PLAY');
+            });
+        }
+    }
+
+    $scope.onNextDown = function() {
+        isInterrupted = false;
+        time = new Date().getTime();
+        $timeout(function() {
+            if (!isInterrupted) {
+                $scope.sendCommand('FASTFORWARD');
+            }
+        }, 300);
+    }
+
+    $scope.onNextUp = function() {
+        var newTime = new Date().getTime();
+        if (time + 300 > newTime) {
+            isInterrupted = true;
+            $scope.sendCommand('NEXT');
+        } else {
+            $timeout(function() {
+                $scope.sendCommand('PLAY');
+            });
+        }
+    }
 
 }).controller('LocationItemController', function($scope, $sce) {
     $scope.init = function() {

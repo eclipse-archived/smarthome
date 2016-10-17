@@ -1,11 +1,16 @@
-<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet %visibility_class%">
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
 	<span class="mdl-form__label">
 		%label%
 	</span>
-	<span class="mdl-form__control mdl-form__slider" data-control-type="slider" data-item="%item%">
+	<span
+		class="mdl-form__control mdl-form__slider"
+		data-control-type="slider"
+		data-item="%item%"
+		data-widget-id="%widget_id%"
+	>
 		<input 
 			data-freq="%frequency%" 
 			data-state="%state%"

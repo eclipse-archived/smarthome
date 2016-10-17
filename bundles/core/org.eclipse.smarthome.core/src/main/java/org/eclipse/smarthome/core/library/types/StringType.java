@@ -27,6 +27,11 @@ public class StringType implements PrimitiveType, State, Command {
 
     @Override
     public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
         return value;
     }
 

@@ -46,7 +46,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import com.google.common.collect.Sets
-
 /**
  * this tests the RuleEngine
  *
@@ -344,4 +343,73 @@ class RuntimeRuleTest extends OSGiTest{
         })
 
     }
+
+    @Test @Ignore
+    public void 'assert that RuleEnableHandlerWorks'() {
+        def ruleRegistry = getService(RuleRegistry)
+        def firstRuleUID = "FirstTestRule"
+        def secondRuleUID = "SecondTestRule"
+        def thirdRuleUID = "ThirdTestRule"
+        def firstConfig = ["FirstTestRule", "SecondTestRule"]
+        def secondConfig = ["FirstTestRule"]
+
+        def firstRuleAction = "firstRuleAction"
+        def secondRuleAction = "secondRuleAction"
+
+        try {
+            def triggerConfig = new Configuration([itemName:"myMotionItem3"])
+            def actionConfig = new Configuration([enable:false, ruleUIDs:firstConfig])
+            def triggers = [new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)]
+            def actions = [new Action("RuleAction", "RuleEnablementAction", actionConfig, null)]
+            def rule = new Rule(firstRuleAction)
+            rule.triggers = triggers
+            rule.actions = actions
+
+            ruleRegistry.add(new Rule(firstRuleUID))
+            ruleRegistry.add(new Rule(secondRuleUID))
+            ruleRegistry.add(new Rule(thirdRuleUID))
+            ruleRegistry.add(rule)
+
+            def ItemRegistry itemRegistry = getService(ItemRegistry)
+            def EventPublisher eventPublisher = getService(EventPublisher)
+            SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem3")
+            Command commandObjMotion = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
+            eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3", commandObjMotion))
+
+
+            waitForAssert({
+                assertThat ruleRegistry.getStatus(firstRuleUID), is(RuleStatus.DISABLED)
+                assertThat ruleRegistry.getStatus(secondRuleUID), is(RuleStatus.DISABLED)
+                assertThat ruleRegistry.getStatus(thirdRuleUID), is(RuleStatus.IDLE)
+            },1000,100)
+
+            triggerConfig = new Configuration([itemName:"myMotionItem3"])
+            actionConfig = new Configuration([enable:true, ruleUIDs:secondConfig])
+            triggers = [new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)]
+            actions = [new Action("RuleAction", "RuleEnablementAction", actionConfig, null)]
+            rule = new Rule(secondRuleAction)
+            rule.triggers = triggers
+            rule.actions = actions
+            ruleRegistry.add(rule)
+
+            myMotionItem = itemRegistry.getItem("myMotionItem3")
+            commandObjMotion = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "OFF")
+            eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3", commandObjMotion))
+
+            waitForAssert({
+                assertThat ruleRegistry.getStatus(firstRuleUID), is(RuleStatus.IDLE)
+                assertThat ruleRegistry.getStatus(secondRuleUID), is(RuleStatus.DISABLED)
+                assertThat ruleRegistry.getStatus(thirdRuleUID), is(RuleStatus.IDLE)
+
+            },1000,100)
+
+        } finally {
+            ruleRegistry.remove(firstRuleUID)
+            ruleRegistry.remove(secondRuleUID)
+            ruleRegistry.remove(thirdRuleUID)
+            ruleRegistry.remove(firstRuleAction)
+            ruleRegistry.remove(secondRuleAction)
+        }
+    }
+
 }

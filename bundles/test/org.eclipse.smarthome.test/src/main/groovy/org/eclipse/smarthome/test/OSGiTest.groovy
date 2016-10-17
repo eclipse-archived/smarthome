@@ -32,7 +32,7 @@ import org.osgi.framework.ServiceRegistration
 abstract class OSGiTest {
 
     BundleContext bundleContext
-    Map<String, ServiceRegistration<?>> registeredServices = [:]
+    Map<String, ServiceRegistration> registeredServices = [:]
 
     @Before
     public void bindBundleContext() {

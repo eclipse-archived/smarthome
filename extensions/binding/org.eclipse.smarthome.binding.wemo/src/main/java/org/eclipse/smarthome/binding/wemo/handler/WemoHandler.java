@@ -38,6 +38,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
@@ -152,7 +153,14 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         logger.trace("Command '{}' received for channel '{}'", command, channelUID);
-        if (channelUID.getId().equals(CHANNEL_STATE)) {
+
+        if (command instanceof RefreshType) {
+            try {
+                updateWemoState();
+            } catch (Exception e) {
+                logger.debug("Exception during poll : {}", e);
+            }
+        } else if (channelUID.getId().equals(CHANNEL_STATE)) {
             if (command instanceof OnOffType) {
 
                 try {
@@ -317,6 +325,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             if (state != null) {
                 if (getThing().getThingTypeUID().getId().equals("motion")) {
                     updateState(CHANNEL_MOTIONDETECTION, state);
+                    if (state.equals(OnOffType.ON)) {
+                        State lastMotionDetected = new DateTimeType();
+                        updateState(CHANNEL_LASTMOTIONDETECTED, lastMotionDetected);
+                    }
                 } else {
                     updateState(CHANNEL_STATE, state);
                 }

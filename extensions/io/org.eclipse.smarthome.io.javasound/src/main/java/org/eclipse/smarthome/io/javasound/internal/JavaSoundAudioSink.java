@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.javasound.internal;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.slf4j.Logger;
@@ -40,7 +42,7 @@ public class JavaSoundAudioSink implements AudioSink {
     private final Logger logger = LoggerFactory.getLogger(JavaSoundAudioSink.class);
 
     private boolean isMac = false;
-    private Float macVolumeValue = null;
+    private PercentType macVolumeValue = null;
 
     protected void activate(BundleContext context) {
         String os = context.getProperty(Constants.FRAMEWORK_OS_NAME);
@@ -79,7 +81,7 @@ public class JavaSoundAudioSink implements AudioSink {
     }
 
     @Override
-    public float getVolume() throws IOException {
+    public PercentType getVolume() throws IOException {
         if (!isMac) {
             final Float[] volumes = new Float[1];
             runVolumeCommand(new Closure() {
@@ -90,7 +92,7 @@ public class JavaSoundAudioSink implements AudioSink {
                 }
             });
             if (volumes[0] != null) {
-                return volumes[0];
+                return new PercentType(new BigDecimal(volumes[0] * 100f));
             } else {
                 throw new IOException("Cannot determine master volume level");
             }
@@ -100,28 +102,28 @@ public class JavaSoundAudioSink implements AudioSink {
                 Process p = Runtime.getRuntime()
                         .exec(new String[] { "osascript", "-e", "output volume of (get volume settings)" });
                 String value = IOUtils.toString(p.getInputStream()).trim();
-                macVolumeValue = Float.valueOf(value) / 100f;
+                macVolumeValue = new PercentType(value);
             }
             return macVolumeValue;
         }
     }
 
     @Override
-    public void setVolume(final float volume) throws IOException {
-        if (volume < 0 || volume > 1) {
-            throw new IllegalArgumentException("Volume value must be in the range [0,1]!");
+    public void setVolume(final PercentType volume) throws IOException {
+        if (volume.intValue() < 0 || volume.intValue() > 100) {
+            throw new IllegalArgumentException("Volume value must be in the range [0,100]!");
         }
         if (!isMac) {
             runVolumeCommand(new Closure() {
                 @Override
                 public void execute(Object input) {
                     FloatControl volumeControl = (FloatControl) input;
-                    volumeControl.setValue(volume);
+                    volumeControl.setValue(volume.floatValue() / 100f);
                 }
             });
         } else {
             Runtime.getRuntime()
-                    .exec(new String[] { "osascript", "-e", "set volume output volume " + (volume * 100f) });
+                    .exec(new String[] { "osascript", "-e", "set volume output volume " + volume.intValue() });
         }
     }
 

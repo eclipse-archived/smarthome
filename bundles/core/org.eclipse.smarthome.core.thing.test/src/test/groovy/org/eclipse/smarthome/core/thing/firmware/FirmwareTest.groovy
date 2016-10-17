@@ -14,7 +14,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Test
 
@@ -55,6 +55,11 @@ final class FirmwareTest extends OSGiTest {
     Firmware v1dash11dot2_1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1-11.2_1")).build()
     Firmware v1dot11_2dasha = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.11_2-a")).build()
     Firmware v2dot0dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "2.0.0")).withPrerequisiteVersion(v1dot11_2dasha.getVersion()).build()
+
+    Firmware combined1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.2.3-2.3.4")).build()
+    Firmware combined2 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.2.3-2.4.1")).build()
+    Firmware combined3 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.3.1-2.3.4")).build()
+    Firmware combined4 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.3.1-2.4.1")).build()
 
     @Test
     void 'test builder'() {
@@ -128,6 +133,15 @@ final class FirmwareTest extends OSGiTest {
         assertThat vdelta.isSuccessorVersion(vgamma.getVersion()), is(false)
 
         assertThat vdelta.isSuccessorVersion(null), is(false)
+
+        assertThat combined4.isSuccessorVersion(combined3.getVersion()), is(true)
+        assertThat combined3.isSuccessorVersion(combined4.getVersion()), is(false)
+
+        assertThat combined3.isSuccessorVersion(combined2.getVersion()), is(true)
+        assertThat combined2.isSuccessorVersion(combined3.getVersion()), is(false)
+
+        assertThat combined2.isSuccessorVersion(combined1.getVersion()), is(true)
+        assertThat combined1.isSuccessorVersion(combined2.getVersion()), is(false)
     }
 
     @Test

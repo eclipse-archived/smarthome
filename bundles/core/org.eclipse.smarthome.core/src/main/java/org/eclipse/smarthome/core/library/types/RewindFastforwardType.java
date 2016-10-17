@@ -18,11 +18,22 @@ import org.eclipse.smarthome.core.types.State;
  * @author Alex Tugarev
  */
 public enum RewindFastforwardType implements PrimitiveType, State, Command {
-    REWIND, FASTFORWARD;
+    REWIND,
+    FASTFORWARD;
 
     @Override
     public String format(String pattern) {
         return String.format(pattern, this.toString());
+    }
+
+    @Override
+    public String toString() {
+        return toFullString();
+    }
+
+    @Override
+    public String toFullString() {
+        return super.toString();
     }
 
 }

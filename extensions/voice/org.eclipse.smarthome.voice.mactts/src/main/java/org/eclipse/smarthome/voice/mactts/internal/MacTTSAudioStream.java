@@ -9,12 +9,14 @@ package org.eclipse.smarthome.voice.mactts.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioStream;
+import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.eclipse.smarthome.core.voice.Voice;
 
 /**
@@ -23,7 +25,7 @@ import org.eclipse.smarthome.core.voice.Voice;
  * @author Kelly Davis - Initial contribution and API
  * @author Kai Kreuzer - Refactored to use AudioStream and fixed audio format to produce
  */
-class MacTTSAudioStream extends AudioStream {
+class MacTTSAudioStream extends FixedLengthAudioStream {
 
     /**
      * {@link Voice} this {@link AudioStream} speaks in
@@ -44,6 +46,9 @@ class MacTTSAudioStream extends AudioStream {
      * The raw input stream
      */
     private InputStream inputStream;
+
+    private long length;
+    private File file;
 
     /**
      * Constructs an instance with the passed properties.
@@ -74,16 +79,28 @@ class MacTTSAudioStream extends AudioStream {
         try {
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
-            File file = new File(outputFile);
-            if (file.exists()) {
-                return new FileInputStream(file);
-            } else {
-                throw new AudioException("Temporary file '" + outputFile + "' not found!");
-            }
+            file = new File(outputFile);
+            this.length = file.length();
+            return getFileInputStream(file);
         } catch (IOException e) {
             throw new AudioException("Error while executing '" + command + "'", e);
         } catch (InterruptedException e) {
             throw new AudioException("The '" + command + "' has been interrupted", e);
+        }
+    }
+
+    private InputStream getFileInputStream(File file) throws AudioException {
+        if (file == null) {
+            throw new IllegalArgumentException("file must not be null");
+        }
+        if (file.exists()) {
+            try {
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new AudioException("Cannot open temporary audio file '" + file.getName() + ".");
+            }
+        } else {
+            throw new AudioException("Temporary file '" + file.getName() + "' not found!");
         }
     }
 
@@ -127,5 +144,19 @@ class MacTTSAudioStream extends AudioStream {
     @Override
     public int read() throws IOException {
         return inputStream.read();
+    }
+
+    @Override
+    public long length() {
+        return length;
+    }
+
+    @Override
+    public InputStream getClonedStream() throws AudioException {
+        if (file != null) {
+            return getFileInputStream(file);
+        } else {
+            throw new AudioException("No temporary audio file available.");
+        }
     }
 }

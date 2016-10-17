@@ -7,15 +7,19 @@
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
+import org.eclipse.smarthome.core.thing.util.ThingHelper;
 
 import com.google.common.collect.Lists;
 
@@ -56,18 +60,31 @@ public class ThingBuilder {
     }
 
     public ThingBuilder withChannel(Channel channel) {
-        List<Channel> channels = this.thing.getChannelsMutable();
-        channels.add(channel);
+        final Collection<Channel> mutableThingChannels = this.thing.getChannelsMutable();
+        ThingHelper.ensureUniqueChannels(mutableThingChannels, channel);
+        mutableThingChannels.add(channel);
         return this;
     }
 
     public ThingBuilder withChannels(Channel... channels) {
+        ThingHelper.ensureUniqueChannels(channels);
         this.thing.setChannels(Lists.newArrayList(channels));
         return this;
     }
 
     public ThingBuilder withChannels(List<Channel> channels) {
+        ThingHelper.ensureUniqueChannels(channels);
         this.thing.setChannels(Lists.newArrayList(channels));
+        return this;
+    }
+
+    public ThingBuilder withoutChannel(ChannelUID channelUID) {
+        Iterator<Channel> iterator = this.thing.getChannelsMutable().iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getUID().equals(channelUID)) {
+                iterator.remove();
+            }
+        }
         return this;
     }
 

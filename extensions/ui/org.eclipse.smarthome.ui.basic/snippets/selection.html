@@ -1,4 +1,4 @@
-<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-form__link">
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-form__link %visibility_class%">
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
@@ -8,7 +8,13 @@
 	<span class="mdl-form__value">
         %value%
     </span>
-	<div class="mdl-form__control mdl-form__selection" data-control-type="selection" data-item="%item%" data-value-map="%value_map%">
+	<div
+		class="mdl-form__control mdl-form__selection"
+		data-control-type="selection"
+		data-item="%item%"
+		data-value-map="%value_map%"
+		data-widget-id="%widget_id%"
+	>
 		<!-- arrow_drop_down -->
 		<i class="material-icons">&#xea64;</i>
 		<script type="text/html" class="mdl-form__selection-rows">

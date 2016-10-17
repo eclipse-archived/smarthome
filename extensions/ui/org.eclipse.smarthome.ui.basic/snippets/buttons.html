@@ -1,11 +1,20 @@
-<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet %visibility_class%">
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
 	<span class="mdl-form__label">
 		%label%
 	</span>
-	<div class="mdl-form__control" data-control-type="buttons" data-item="%item%" data-count="%count%">
+	<span class="mdl-form__value mdl-form__value--group">
+		%value%
+	</span>
+	<div
+		class="mdl-form__control mdl-form__buttons"
+		data-control-type="buttons"
+		data-item="%item%"
+		data-count="%count%"
+		data-widget-id="%widget_id%"
+	>
 		%buttons%
 	</div>
 </div>

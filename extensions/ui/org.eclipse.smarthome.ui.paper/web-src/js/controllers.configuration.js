@@ -554,17 +554,18 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.acceptedItemType = acceptedItemType;
     $scope.category = category;
     $scope.itemFormVisible = false;
+    $scope.itemsList = [];
     itemRepository.getAll(function(items) {
         $scope.items = items;
-        $scope.items = $filter('filter')($scope.items, {
+        $scope.itemsList = $filter('filter')(items, {
             type : $scope.acceptedItemType
         });
-        $scope.items = $.grep($scope.items, function(item) {
+        $scope.itemsList = $.grep($scope.itemsList, function(item) {
             return $scope.linkedItems.indexOf(item.name) == -1;
         });
 
-        $scope.items = $filter('orderBy')($scope.items, "name");
-        $scope.items.push({
+        $scope.itemsList = $filter('orderBy')($scope.itemsList, "name");
+        $scope.itemsList.push({
             name : "_createNew",
             type : $scope.acceptedItemType
         });

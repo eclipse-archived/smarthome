@@ -9,8 +9,6 @@ package org.eclipse.smarthome.ui.basic.internal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -21,12 +19,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.StateChangeListener;
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.model.sitemap.Frame;
+import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
@@ -50,12 +43,6 @@ public class WebAppServlet extends BaseServlet {
 
     private final Logger logger = LoggerFactory.getLogger(WebAppServlet.class);
 
-    /**
-     * timeout for polling requests in milliseconds; if no state changes during this time,
-     * an empty response is returned.
-     */
-    private static final long TIMEOUT_IN_MS = 30000L;
-
     /** the name of the servlet to be used in the URL */
     public static final String SERVLET_NAME = "app";
 
@@ -63,8 +50,17 @@ public class WebAppServlet extends BaseServlet {
     private static final String CONTENT_TYPE = "text/html;charset=UTF-8";
 
     private PageRenderer renderer;
+    private SitemapSubscriptionService subscriptions;
     private WebAppConfig config = new WebAppConfig();
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
+
+    public void setSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public void unsetSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
+        this.subscriptions = null;
+    }
 
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
@@ -121,8 +117,8 @@ public class WebAppServlet extends BaseServlet {
         // read request parameters
         String sitemapName = req.getParameter("sitemap");
         String widgetId = req.getParameter("w");
+        String subscriptionId = req.getParameter("subscriptionId");
         boolean async = "true".equalsIgnoreCase(req.getParameter("__async"));
-        boolean poll = "true".equalsIgnoreCase(req.getParameter("poll"));
 
         if (sitemapName == null) {
             sitemapName = config.getDefaultSitemap();
@@ -147,16 +143,20 @@ public class WebAppServlet extends BaseServlet {
             logger.debug("reading sitemap {}", sitemap.getName());
             if (widgetId == null || widgetId.isEmpty() || widgetId.equals(sitemapName)) {
                 // we are at the homepage, so we render the children of the sitemap root node
-                String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
-                EList<Widget> children = sitemap.getChildren();
-                if (poll && waitForChanges(children) == false) {
-                    // we have reached the timeout, so we do not return any content as nothing has changed
-                    res.getWriter().append(getTimeoutResponse()).close();
-                    return;
+                if (subscriptionId != null) {
+                    subscriptions.setPageId(subscriptionId, sitemap.getName(), sitemapName);
                 }
+                String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
                 result.append(renderer.processPage(sitemapName, sitemapName, label, sitemap.getChildren(), async));
             } else if (!widgetId.equals("Colorpicker")) {
                 // we are on some subpage, so we have to render the children of the widget that has been selected
+                if (subscriptionId != null) {
+                    if (subscriptions.exists(subscriptionId)) {
+                        subscriptions.setPageId(subscriptionId, sitemap.getName(), widgetId);
+                    } else {
+                        logger.warn("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
+                    }
+                }
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
                 if (w != null) {
                     String label = renderer.getItemUIRegistry().getLabel(w);
@@ -167,11 +167,6 @@ public class WebAppServlet extends BaseServlet {
                         throw new RenderException("Widget '" + w + "' can not have any content");
                     }
                     EList<Widget> children = renderer.getItemUIRegistry().getChildren((LinkableWidget) w);
-                    if (poll && waitForChanges(children) == false) {
-                        // we have reached the timeout, so we do not return any content as nothing has changed
-                        res.getWriter().append(getTimeoutResponse()).close();
-                        return;
-                    }
                     result.append(renderer.processPage(renderer.getItemUIRegistry().getWidgetId(w), sitemapName, label,
                             children, async));
                 }
@@ -186,112 +181,6 @@ public class WebAppServlet extends BaseServlet {
         }
         res.getWriter().append(result);
         res.getWriter().close();
-    }
-
-    /**
-     * Defines the response to return on a polling timeout.
-     *
-     * @return the response of the servlet on a polling timeout
-     */
-    private String getTimeoutResponse() {
-        return "<root><part><destination mode=\"replace\" zone=\"timeout\" create=\"false\"/><data/></part></root>";
-    }
-
-    /**
-     * This method only returns when a change has occurred to any item on the page to display
-     *
-     * @param widgets the widgets of the page to observe
-     */
-    private boolean waitForChanges(EList<Widget> widgets) {
-        long startTime = (new Date()).getTime();
-        boolean timeout = false;
-        BlockingStateChangeListener listener = new BlockingStateChangeListener();
-        // let's get all items for these widgets
-        Set<GenericItem> items = getAllItems(widgets);
-        for (GenericItem item : items) {
-            item.addStateChangeListener(listener);
-        }
-        while (!listener.hasChangeOccurred() && !timeout) {
-            timeout = (new Date()).getTime() - startTime > TIMEOUT_IN_MS;
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                timeout = true;
-                break;
-            }
-        }
-        for (GenericItem item : items) {
-            item.removeStateChangeListener(listener);
-        }
-        return !timeout;
-    }
-
-    /**
-     * Collects all items that are represented by a given list of widgets
-     *
-     * @param widgets the widget list to get the items for
-     * @return all items that are represented by the list of widgets
-     */
-    private Set<GenericItem> getAllItems(EList<Widget> widgets) {
-        Set<GenericItem> items = new HashSet<GenericItem>();
-        if (itemRegistry != null) {
-            for (Widget widget : widgets) {
-                String itemName = widget.getItem();
-                if (itemName != null) {
-                    try {
-                        Item item = itemRegistry.getItem(itemName);
-                        if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
-                        }
-                    } catch (ItemNotFoundException e) {
-                        // ignore
-                    }
-                } else {
-                    if (widget instanceof Frame) {
-                        items.addAll(getAllItems(((Frame) widget).getChildren()));
-                    }
-                }
-            }
-        }
-        return items;
-    }
-
-    /**
-     * This is a state change listener, which is merely used to determine, if a state
-     * change has occurred on one of a list of items.
-     *
-     * @author Kai Kreuzer - Initial contribution and API
-     *
-     */
-    private static class BlockingStateChangeListener implements StateChangeListener {
-
-        private boolean changed = false;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void stateChanged(Item item, State oldState, State newState) {
-            changed = true;
-        }
-
-        /**
-         * determines, whether a state change has occurred since its creation
-         *
-         * @return true, if a state has changed
-         */
-        public boolean hasChangeOccurred() {
-            return changed;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void stateUpdated(Item item, State state) {
-            // ignore if the state did not change
-        }
     }
 
 }

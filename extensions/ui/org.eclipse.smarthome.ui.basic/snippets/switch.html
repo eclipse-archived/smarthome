@@ -1,11 +1,17 @@
-<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet %visibility_class%">
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
 	<div class="mdl-form__label">
 		%label%
 	</div>
-	<label class="mdl-form__control mdl-switch mdl-js-switch mdl-js-ripple-effect" data-control-type="checkbox" data-item="%item%" for="oh-checkbox-%item%">
+	<label
+		class="mdl-form__control mdl-switch mdl-js-switch mdl-js-ripple-effect"
+		data-control-type="checkbox"
+		data-item="%item%"
+		data-widget-id="%widget_id%"
+		for="oh-checkbox-%item%"
+	>
 		<input type="checkbox" %checked% id="oh-checkbox-%item%" class="mdl-switch__input" />
 	</label>
 </div>
