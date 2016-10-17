@@ -24,9 +24,10 @@ REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/persistence-model"
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/ref-tag-tool"
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/npm-tempdirs"
 REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/maggu2810/servlet-port"
-REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/qivicon/thing-bridge-lifecycle"
-REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kgoderis/cron-fix"
-REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kaikreuzer/sonosaudio"
+REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/qivicon/thing-bridge-lifecycle" # https://github.com/eclipse/smarthome/pull/2087
+REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kgoderis/cron-fix" # https://github.com/eclipse/smarthome/pull/2270
+REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kaikreuzer/network" # https://github.com/eclipse/smarthome/pull/2323
+REMOTE_BRANCHES="${REMOTE_BRANCHES} remotes/kaikreuzer/sonosaudio" # https://github.com/eclipse/smarthome/pull/2306
 
 die() {
 	if [ ${#} -gt 0 ]; then
