@@ -32,6 +32,10 @@ public class HttpServiceUtil {
         return getHttpServicePortProperty(bc, "org.osgi.service.http.port");
     }
 
+    public static int getHttpServicePortSecure(final BundleContext bc) {
+        return getHttpServicePortProperty(bc, "org.osgi.service.http.port.secure");
+    }
+
     // Utility class that could be used for non-secure and secure port.
     private static int getHttpServicePortProperty(final BundleContext bc, final String propertyName) {
         Object value;
