@@ -26,7 +26,11 @@ import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem;
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
@@ -52,7 +56,11 @@ import org.junit.Ignore
 import org.eclipse.smarthome.core.types.RefreshType
 import org.junit.After
 import org.junit.Before
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 import org.junit.Test
 
 /**
@@ -71,7 +79,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 =======
     def BRIDGE_HANDLER_INITIALIZE_TIMEOUT = 1000;
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     @Before
     public void setUp() {
         setUpServices()
@@ -86,7 +98,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         // The default timeout is 15 seconds, for this test 1 second timeout is enough
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         WemoLightHandler.DEFAULT_REFRESH_INITIAL_DELAY = 1
     }
 
@@ -115,7 +131,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
@@ -148,7 +168,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         waitForAssert ({
 =======
         waitForAssert{
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
@@ -173,7 +197,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     @Test
@@ -202,7 +230,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         // Set brightness value to 20 Percent
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         Command command = new PercentType(20);
         String channelID = WemoBindingConstants.CHANNEL_BRIGHTNESS
         String acceptedItemType = "Dimmer"
@@ -225,7 +257,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         // The value is increased by 5 Percents by default
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         Command command = IncreaseDecreaseType.INCREASE;
         String channelID = WemoBindingConstants.CHANNEL_BRIGHTNESS
         String acceptedItemType = "Dimmer"
@@ -288,7 +324,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
         assertRequestForCommand(channelID, command, action, value, capitability)
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     private assertRequestForCommand(String channelID, Command command, String action, String value, String capitability) {
@@ -302,7 +342,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
@@ -325,7 +369,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         waitForAssert ({
 =======
         waitForAssert {
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
@@ -340,7 +388,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, DEVICE_MODEL_NAME)
@@ -369,7 +421,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
             assertThat "No request received for capitability: ${servlet.capitability}, after command ${command}", servlet.capitability, is(capitability)
             assertThat "Incorrect value recevied for capitability ${servlet.capitability} ", servlet.value, is(value)
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     class WemoLightHttpServlet extends GenericWemoHttpServlet {
@@ -402,7 +458,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             if (getActions.size() > 0) {
                 super.setResponseStatus(HttpServletResponse.SC_OK)
 
@@ -426,7 +486,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
                 def innerXML = setAction.DeviceStatusList.text()
                 def innerRoot
                 synchronized(parser) {
@@ -442,7 +506,11 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
                 return "";
             } else  if (getAllDevices.size() > 0) {
                 // Do not answer requests of the discovery service

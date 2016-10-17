@@ -59,7 +59,11 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     @Test
     public void 'assert supported thing is discovered'() {
         def thingType = WemoBindingConstants.THING_TYPE_INSIGHT
@@ -75,7 +79,11 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         waitForAssert {
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             Collection<Device> devices =  mockUpnpService.getRegistry().getDevices()
             assertThat "Not exactly one UPnP device is  added to the UPnP Registry: ${devices}", devices.size(), is(1)
             Device device = devices.getAt(0)
@@ -101,7 +109,11 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 
         ThingUID thingUID = new ThingUID(thingType, DEVICE_UDN);
 
@@ -120,6 +132,10 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 }

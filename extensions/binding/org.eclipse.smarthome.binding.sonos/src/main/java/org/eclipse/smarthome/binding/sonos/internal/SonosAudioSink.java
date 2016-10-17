@@ -25,7 +25,11 @@ import org.eclipse.smarthome.core.library.types.StringType;
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +61,11 @@ public class SonosAudioSink implements AudioSink {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
     private String callbackUrl;
 
     public SonosAudioSink(ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer, String callbackUrl) {
@@ -105,7 +113,11 @@ public class SonosAudioSink implements AudioSink {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
                 if (callbackUrl != null) {
                     String relativeUrl = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
                     String url = callbackUrl + relativeUrl;
@@ -139,7 +151,11 @@ public class SonosAudioSink implements AudioSink {
 =======
                 } else {
                     logger.warn("We do not have any callback url, so Sonos cannot play the audio stream!");
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
                 }
             }
         }

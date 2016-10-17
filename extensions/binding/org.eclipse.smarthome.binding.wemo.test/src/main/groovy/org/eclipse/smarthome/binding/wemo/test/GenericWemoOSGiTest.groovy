@@ -27,7 +27,11 @@ import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.items.StringItem
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -73,7 +77,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     //This port is included in the run configuration
     def ORG_OSGI_SERVICE_HTTP_PORT = 8080
 
@@ -91,6 +99,24 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2d760c6... Wemo Tests back to default timeout. (#2416)
+    ManagedThingProvider managedThingProvider
+=======
+    ManagedThingProvider mangedThingProvider
+>>>>>>> 44cece0... Implemented tests for the Wemo Binding. (#2247)
+=======
+    ManagedThingProvider managedThingProvider
+>>>>>>> 36f150f... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+>>>>>>> Initial Release
     ManagedThingProvider managedThingProvider
 =======
     def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
@@ -98,11 +124,23 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 <<<<<<< HEAD
     ManagedThingProvider mangedThingProvider
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> upstream/master
     ManagedThingProvider managedThingProvider
 >>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+<<<<<<< HEAD
+>>>>>>> 207d46e... Upstream pull
+=======
+=======
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+    ManagedThingProvider managedThingProvider
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
     static MockUpnpService mockUpnpService
     UpnpIOServiceImpl upnpIOService
     ThingRegistry thingRegistry
@@ -124,16 +162,43 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 207d46e... Upstream pull
+=======
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
         managedThingProvider = getService(ManagedThingProvider.class);
         assertThat managedThingProvider, is (notNullValue())
 =======
         mangedThingProvider = getService(ManagedThingProvider.class);
         assertThat mangedThingProvider, is (notNullValue())
+<<<<<<< HEAD
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+<<<<<<< HEAD
+>>>>>>> 44cece0... Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider = getService(ManagedThingProvider.class);
+        assertThat managedThingProvider, is (notNullValue())
+>>>>>>> 36f150f... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+<<<<<<< HEAD
+>>>>>>> 207d46e... Upstream pull
+=======
+>>>>>>> Initial Release
 =======
         managedThingProvider = getService(ManagedThingProvider.class);
         assertThat managedThingProvider, is (notNullValue())
 >>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+<<<<<<< HEAD
+=======
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
 
         thingRegistry = getService(ThingRegistry.class)
         assertThat(thingRegistry, is (notNullValue()))
@@ -173,13 +238,38 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+        managedThingProvider.add(thing)
+=======
+        mangedThingProvider.add(thing)
+>>>>>>> 44cece0... Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(thing)
+>>>>>>> 36f150f... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+=======
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
         managedThingProvider.add(thing)
 =======
         mangedThingProvider.add(thing)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+<<<<<<< HEAD
 =======
         managedThingProvider.add(thing)
 >>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+<<<<<<< HEAD
+>>>>>>> 207d46e... Upstream pull
+=======
+=======
+        managedThingProvider.add(thing)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
@@ -197,7 +287,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -214,7 +308,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 
     protected addUpnpDevice(def serviceTypeID, def serviceNumber, def modelName) {
         UDN udn = new UDN(DEVICE_UDN);
@@ -254,7 +352,11 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     def soapNamespace
     def uNamespace
     def responseStatus
@@ -296,7 +398,11 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
         if(responseStatus == HttpServletResponse.SC_OK) {
             response.getOutputStream().print(responseContent)
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     protected void setResponseStatus(int status) {
@@ -310,7 +416,11 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     abstract protected String handleRequest (Node root);
 }
 

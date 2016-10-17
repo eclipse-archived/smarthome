@@ -14,7 +14,11 @@ import static org.hamcrest.CoreMatchers.*
 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import groovy.xml.XmlUtil
@@ -52,7 +56,11 @@ import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.junit.After
 import org.junit.Before
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 import org.junit.Test
 
 /**
@@ -90,7 +98,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     @After
     public void tearDown() {
         removeThing()
@@ -128,7 +140,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, MODEL_NAME)
 
@@ -143,7 +159,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     @Test
@@ -160,7 +180,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
@@ -197,7 +221,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         waitForAssert({
 =======
         waitForAssert{
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was updated at start.", item.getState(), is(UnDefType.NULL)
@@ -224,7 +252,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 =======
         }
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     @Test
@@ -260,7 +292,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 =======
 
         waitForAssert{
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
         }
 
@@ -273,7 +309,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 
     private void removeThing() {
@@ -301,7 +341,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         waitForAssert ({
 =======
         waitForAssert {
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             assertThat upnpIOService.participants.keySet().size(), is(0)
         }
 
@@ -313,7 +357,11 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 }
 
@@ -328,7 +376,11 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     def actions = [] as Set
     def binaryState
 
@@ -350,7 +402,11 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
         
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         def getActions = root[soapNamespace.Body][uNamespace.GetBinaryState];
         if (getActions.size() > 0) {
             def getAction = getActions.get(0);
@@ -361,7 +417,11 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             getAction.replaceNode { BinaryState(this.binaryState) }
             return XmlUtil.serialize(root)
         }

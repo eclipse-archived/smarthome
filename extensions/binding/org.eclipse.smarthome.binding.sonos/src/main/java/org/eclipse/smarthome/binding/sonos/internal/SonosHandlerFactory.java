@@ -29,7 +29,11 @@ import org.eclipse.smarthome.core.net.NetUtil;
 =======
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
 import org.eclipse.smarthome.core.net.NetUtil;
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -112,7 +116,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 =======
             String callbackUrl = createCallbackUrl();
             SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer, callbackUrl);
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
             @SuppressWarnings("unchecked")
             ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
                     .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
@@ -143,7 +151,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
     private String createCallbackUrl() {
         if (callbackUrl != null) {
             return callbackUrl;
@@ -169,7 +181,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 =======
 >>>>>>> initial contribution of Sonos AudioSink support (#2306)
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> 54648d0... improved the implementation for the Sonos callbackUri configuration parameter (#2386)
+>>>>>>> Initial Release
     @Override
     public void unregisterHandler(Thing thing) {
         super.unregisterHandler(thing);

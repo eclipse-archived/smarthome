@@ -54,7 +54,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         inbox = getService(Inbox.class)
         assertThat inbox, is(notNullValue())
 
@@ -66,7 +70,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     @After
     void tearDown() {
         unregisterServlet(SERVLET_URL)
@@ -94,7 +102,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 =======
 
         // This is needed, because the WemoLinkDiscoveryService is registered from the
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         // WemoHandlerFactory, when a handler for a bridge is created
         createBridge(bridgeTypeUID)
 
@@ -107,7 +119,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         waitForAssert{
             assertThat servlet.hasReceivedRequest, is(true)
         }
@@ -127,7 +143,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
             List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
             assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox. However found:" + Arrays.toString(results.toArray()), results.isEmpty()
         }
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 
     }
 
@@ -139,7 +159,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
         def hasReceivedRequest = false
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
         def deviceIndex
         def deviceId
         def friendlyName
@@ -168,7 +192,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 =======
                 hasReceivedRequest = true
 
+<<<<<<< HEAD
 >>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
                 // Add information about a single device
                 endDeviceNode.replaceNode {
                     DeviceLists {
