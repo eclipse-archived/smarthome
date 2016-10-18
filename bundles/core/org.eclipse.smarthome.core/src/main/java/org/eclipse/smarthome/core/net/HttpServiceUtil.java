@@ -11,6 +11,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Some utility functions related to the http service
@@ -36,7 +38,7 @@ public class HttpServiceUtil {
         return getHttpServicePortProperty(bc, "org.osgi.service.http.port.secure");
     }
 
-    // Utility class that could be used for non-secure and secure port.
+    // Utility method that could be used for non-secure and secure port.
     private static int getHttpServicePortProperty(final BundleContext bc, final String propertyName) {
         Object value;
         int port = -1;
@@ -69,6 +71,9 @@ public class HttpServiceUtil {
                 }
             }
         } catch (final InvalidSyntaxException ex) {
+            // This point of code should never be reached.
+            final Logger logger = LoggerFactory.getLogger(HttpServiceUtil.class);
+            logger.warn("This error should only be thrown if a filter could not be parsed. We don't use a filter...");
         }
         if (port > 0) {
             return port;
@@ -81,6 +86,7 @@ public class HttpServiceUtil {
                 try {
                     return Integer.parseInt(value.toString());
                 } catch (final NumberFormatException ex) {
+                    // If the property could not be parsed, the HTTP servlet itself has to care and warn about.
                 }
             } else if (value instanceof Integer) {
                 return (Integer) value;
