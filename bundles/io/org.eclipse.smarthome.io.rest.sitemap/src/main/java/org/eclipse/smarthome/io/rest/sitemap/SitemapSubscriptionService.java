@@ -111,9 +111,8 @@ public class SitemapSubscriptionService {
         String sitemapPage = pageOfSubscription.remove(subscriptionId);
         if (sitemapPage != null && !pageOfSubscription.values().contains(sitemapPage)) {
             // this was the only subscription listening on this page, so we can dispose the listener
-            PageChangeListener listener = pageChangeListeners.get(sitemapPage);
+            PageChangeListener listener = pageChangeListeners.remove(sitemapPage);
             if (listener != null) {
-                pageChangeListeners.remove(listener);
                 listener.dispose();
             }
         }
