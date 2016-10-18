@@ -39,11 +39,8 @@
 															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Switch')}}
 														</p>
 													</div>
-													<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="!isOptionList(item) && !isReadOnly(item)">
+													<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="!isOptionList(item)">
 														<md-switch class="md-default-theme" ng-disabled="isReadOnly(item)" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
-													</div>
-													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget" ng-if="isReadOnly(item)">
-														<h2>{{item.state}}</h2>
 													</div>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
