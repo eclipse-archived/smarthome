@@ -25,9 +25,12 @@
 	<natures>
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
 	</buildSpec>
 	<natures>
 =======
+=======
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 		<buildCommand>
 			<name>org.eclipse.m2e.core.maven2Builder</name>
 			<arguments>
@@ -36,8 +39,12 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+<<<<<<< HEAD
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
+=======
+>>>>>>> Implemented tests for NTP Binding (#2243)
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>

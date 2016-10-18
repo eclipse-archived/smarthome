@@ -52,6 +52,7 @@ import org.junit.Ignore
 import org.junit.Test
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.junit.Ignore
 import org.junit.Test
 =======
@@ -59,6 +60,11 @@ import org.junit.Test
 import org.junit.Ignore
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
+=======
+import org.junit.Test
+import org.junit.Ignore
+>>>>>>> Implemented tests for NTP Binding (#2243)
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -68,7 +74,10 @@ import org.junit.Ignore
  */
 class NtpOSGiTest extends OSGiTest {
     private static TimeZone systemTimeZone
+<<<<<<< HEAD
     private static Locale locale
+=======
+>>>>>>> Implemented tests for NTP Binding (#2243)
 
     private EventSubscriberMock eventSubscriberMock
 
@@ -92,9 +101,12 @@ class NtpOSGiTest extends OSGiTest {
     private def final ACCEPTED_ITEM_TYPE_STRING = "String"
     private def final ACCEPTED_ITEM_TYPE_DATE_TIME = "DateTime"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> Initial Release
+=======
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
@@ -106,7 +118,10 @@ class NtpOSGiTest extends OSGiTest {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 =======
     
     enum UpdateEventType{
@@ -118,8 +133,12 @@ class NtpOSGiTest extends OSGiTest {
             this.updateEventType = updateEventType
         }
         
+<<<<<<< HEAD
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
+=======
+>>>>>>> Implemented tests for NTP Binding (#2243)
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
         public String getUpdateEventType(){
             return updateEventType
         }
@@ -127,6 +146,7 @@ class NtpOSGiTest extends OSGiTest {
 
     @BeforeClass
     public static void setUpClass(){
+<<<<<<< HEAD
         /* Store the initial system time zone and locale value,
          so that we can restore them at the test end.*/
         systemTimeZone = TimeZone.getDefault()
@@ -136,6 +156,15 @@ class NtpOSGiTest extends OSGiTest {
          which will be used during the tests execution.*/
         TimeZone.setDefault(TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID))
         Locale.setDefault(Locale.US)
+=======
+        /* Store the initial system time zone value,
+         so that we can restore it at the test end.*/
+        systemTimeZone = TimeZone.getDefault()
+
+        /* Set new default time zone,
+         which will be used during the tests execution.*/
+        TimeZone.setDefault(TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID))
+>>>>>>> Implemented tests for NTP Binding (#2243)
     }
 
     @Before
@@ -175,15 +204,24 @@ class NtpOSGiTest extends OSGiTest {
 
     @AfterClass
     public static void tearDownClass(){
+<<<<<<< HEAD
         // Set the default time zone and locale to their initial value.
         TimeZone.setDefault(systemTimeZone)
         Locale.setDefault(locale)
+=======
+        // Set the default time zone to its initial value.
+        TimeZone.setDefault(systemTimeZone)
+>>>>>>> Implemented tests for NTP Binding (#2243)
     }
 
     @Test
     public void 'the string channel is updated with the right time zone'(){
+<<<<<<< HEAD
         def expectedTimeZonePDT = "PDT"
         def expectedTimeZonePST = "PST"
+=======
+        def expectedTimeZone = "PDT"
+>>>>>>> Implemented tests for NTP Binding (#2243)
 
         Configuration configuration = new Configuration()
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID)
@@ -199,7 +237,11 @@ class NtpOSGiTest extends OSGiTest {
 
         assertThat "The string channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
+<<<<<<< HEAD
                 is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST)))
+=======
+                is(equalTo(expectedTimeZone))
+>>>>>>> Implemented tests for NTP Binding (#2243)
     }
 
     @Ignore("the dateTime channel is updated with a time from the system timezone")
@@ -245,9 +287,14 @@ class NtpOSGiTest extends OSGiTest {
 
     @Test
     public void 'if no time zone is set in the configuration, the string channel is updated with the default one'(){
+<<<<<<< HEAD
         def expectedTimeZoneEEST = "EEST"
         def expectedTimeZoneEET = "EET"
         
+=======
+        def expectedTimeZone = "EEST"
+
+>>>>>>> Implemented tests for NTP Binding (#2243)
         Configuration configuration = new Configuration()
 
         Configuration channelConfig  = new Configuration()
@@ -257,32 +304,56 @@ class NtpOSGiTest extends OSGiTest {
 
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_STRING, ACCEPTED_ITEM_TYPE_STRING, null)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> Implemented tests for NTP Binding (#2243)
         String timeZoneFromItemRegistry = getStringChannelTimeZoneFromItemRegistry()
 
         assertThat "The string channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
+<<<<<<< HEAD
                 is(anyOf(equalTo(expectedTimeZoneEEST), equalTo(expectedTimeZoneEET)))
+=======
+                is(equalTo(expectedTimeZone))
+>>>>>>> Implemented tests for NTP Binding (#2243)
     }
 
     @Test
     public void 'if no time zone is set in the configuration, the dateTime channel is updated with the default one'(){
+<<<<<<< HEAD
         Calendar systemCalendar = Calendar.getInstance()
         String expectedTimeZone = getDateTimeChannelTimeZone(new DateTimeType(systemCalendar).toString())
         
+=======
+        def expectedTimeZone = "+0300"
+
+>>>>>>> Implemented tests for NTP Binding (#2243)
         Configuration configuration = new Configuration()
 
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> Implemented tests for NTP Binding (#2243)
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString()
         /* There is no way to format the date in the dateTime channel
          in advance(there is no property for formatting in the dateTime channel),
          so we will rely on the format, returned by the toString() method of the DateTimeType.*/
         //FIXME: Adapt the tests if property for formatting in the dateTime channel is added.
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)
+<<<<<<< HEAD
         
         String timeZoneFromItemRegistry = getDateTimeChannelTimeZone(testItemState)
+=======
+        /* Because of the format from the toString() method,
+         the time zone will be the last five symbols of
+         the string from the item registry(e.g. "+0300" or "-0700").*/
+        String timeZoneFromItemRegistry = testItemState.substring(testItemState.length() - expectedTimeZone.length())
+>>>>>>> Implemented tests for NTP Binding (#2243)
 
         assertThat "The dateTime channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
@@ -430,11 +501,16 @@ class NtpOSGiTest extends OSGiTest {
 
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
+=======
+        
+>>>>>>> Implemented tests for NTP Binding (#2243)
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
         // Wait for the item , linked to the NTP thing to be added to the ManagedThingProvider.
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -498,11 +574,25 @@ class NtpOSGiTest extends OSGiTest {
          where we have set the format for the date in advance.
          Because of that format, we know that the time zone will be the
 =======
+<<<<<<< HEAD
         /* This method is used only in tests for the string channel, 
          where we have set the format for the date in advance. 
          Because of that format, we know that the time zone will be the 
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
+=======
+        })
+
+        return testItemState
+    }
+
+    private String getStringChannelTimeZoneFromItemRegistry(){
+        String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString()
+        /* This method is used only in tests for the string channel, 
+         where we have set the format for the date in advance. 
+         Because of that format, we know that the time zone will be the 
+>>>>>>> Implemented tests for NTP Binding (#2243)
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
          last word of the string from the item registry.*/
         // FIXME: This can happen a lot easier with Java 8 date time API, so tests can be adapted, if there is an upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ")
