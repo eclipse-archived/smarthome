@@ -113,7 +113,7 @@ public class SitemapSubscriptionService {
             // this was the only subscription listening on this page, so we can dispose the listener
             PageChangeListener listener = pageChangeListeners.get(sitemapPage);
             if (listener != null) {
-                pageChangeListeners.remove(listener);
+                pageChangeListeners.remove(sitemapPage);
                 listener.dispose();
             }
         }
