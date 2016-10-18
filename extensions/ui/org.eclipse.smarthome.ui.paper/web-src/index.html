@@ -45,7 +45,7 @@
 
 <body ng-controller="BodyController" ng-class="{'eventSourceWarning':!eventSourceDefined}">
 	<div id="authentication" data-access-token="{{ACCESS_TOKEN}}"></div>
-	<div ng-show="!eventSourceDefined">PaperUI works best with modern browsers. Please use Chrome, Firefox, Opera or Safari instead.</div>
+	<div ng-class="{'jsDisabled':!eventSourceDefined}" ng-show="!eventSourceDefined">PaperUI works best with modern browsers. Please use Chrome, Firefox, Opera or Safari instead.</div>
 	<div class="jsEnabled" ng-include="'partials/include.extension.html'"></div>
 	<div class="jsEnabled" ng-include="'partials/navigation.menu.html'"></div>
 
