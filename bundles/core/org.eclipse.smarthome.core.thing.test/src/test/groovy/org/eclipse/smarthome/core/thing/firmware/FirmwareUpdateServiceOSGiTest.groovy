@@ -109,7 +109,10 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
             if(thingTypeUID.equals(THING_TYPE_UID_WITHOUT_FW) || thingTypeUID.equals(THING_TYPE_UID2) || thingTypeUID.equals(THING_TYPE_UID3)) {
                 return [] as Set
             }
-            [FW009_EN, FW111_EN, FW112_EN] as Set
+            [
+                FW009_EN,
+                FW111_EN,
+                FW112_EN] as Set
         }] as FirmwareProvider
 
     private def firmwareStatusInfoEventSubscriber = new EventSubscriber() {
@@ -232,13 +235,14 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         managedThingProvider.add(thing2)
         managedThingProvider.add(thing3)
 
-        def expectedInitializedFirmwareStatusInfoEvents = 3
-
         waitForAssert {
             assertThat thing1.getStatus(), is(ThingStatus.ONLINE)
             assertThat thing2.getStatus(), is(ThingStatus.ONLINE)
             assertThat thing3.getStatus(), is(ThingStatus.ONLINE)
+        }
 
+        def expectedInitializedFirmwareStatusInfoEvents = 3
+        waitForAssert {
             assertThat firmwareStatusInfoEventSubscriber.events.size(), is(expectedInitializedFirmwareStatusInfoEvents)
         }
     }
@@ -529,7 +533,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
             assertThat resultEvent.firmwareUpdateResultInfo.errorMessage, is(expectedEnglishMessage)
         }
         postedEvent = null
-        
+
         //locale EN
         callback = new ProgressCallbackImpl(firmwareUpdateHandler, publisher, i18nProvider, THING4_UID, FW111_EN.getUID(), Locale.ENGLISH)
         firmwareUpdateService.progressCallbackMap.put(THING4_UID, callback)
@@ -975,7 +979,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     private void registerConfigDescriptionProvider() {
-        def configDescription = new ConfigDescription(CONFIG_URI, [ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).build()] as List);
+        def configDescription = new ConfigDescription(CONFIG_URI, [
+            ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).build()] as List);
 
         registerService([
             getConfigDescription: { uri, locale -> configDescription }
@@ -1071,7 +1076,12 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     final class FirmwareUpdateThingHandler extends BaseThingHandler implements FirmwareUpdateHandler {
 
-        def sequence = [ProgressStep.REBOOTING, ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING, ProgressStep.UPDATING].toArray(new ProgressStep[0])
+        def sequence = [
+            ProgressStep.REBOOTING,
+            ProgressStep.DOWNLOADING,
+            ProgressStep.TRANSFERRING,
+            ProgressStep.UPDATING
+        ].toArray(new ProgressStep[0])
 
         int wait = 25
         boolean updateExecutable = true
