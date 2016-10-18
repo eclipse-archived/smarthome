@@ -128,12 +128,12 @@ public class NtpHandler extends BaseThingHandler {
                 logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
-            stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STING);
+            stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
             try {
                 Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
                 Configuration cfg = stringChannel.getConfiguration();
                 String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
-                if (dateTimeFormatString == null || dateTimeFormatString.isEmpty()) {
+                if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
                     dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
                     logger.debug("Could not format {} with DateFormat '{}', using default format.",
                             getThing().getUID().toString(), dateTimeFormatString);
