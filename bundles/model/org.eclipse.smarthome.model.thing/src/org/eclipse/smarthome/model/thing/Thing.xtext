@@ -49,8 +49,12 @@ ModelThing:
 ;
 
 ModelChannel:
+<<<<<<< HEAD
 	(((channelKind= ('State' | 'Trigger'))? type=ModelItemType) | 'Type' channelType=UID_SEGMENT) ':' id=UID_SEGMENT
     (label=STRING)?
+=======
+	(channelKind= ('State' | 'Trigger'))? type=ModelItemType ':' id=UID_SEGMENT
+>>>>>>> renamed channelType to channelKind in the model (#2342)
 	('['
 		properties+=ModelProperty (',' properties+=ModelProperty)*
 	']')?

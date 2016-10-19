@@ -276,6 +276,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         val List<Channel> channels = newArrayList
         modelChannels.forEach [
             if (addedChannelIds.add(id)) {
+<<<<<<< HEAD
                 var ChannelKind parsedKind = ChannelKind.STATE
                 
                 var ChannelTypeUID channelTypeUID
@@ -301,6 +302,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 }
                 
                 var channel = ChannelBuilder.create(new ChannelUID(thingUID, id), itemType)
+=======
+                val kind = if (it.channelKind == null) "State" else it.channelKind                 
+                val parsedKind = ChannelKind.parse(kind)                
+                val channel = ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type)
+>>>>>>> renamed channelType to channelKind in the model (#2342)
                     .withKind(parsedKind)
                     .withConfiguration(createConfiguration)
                     .withType(channelTypeUID)
