@@ -88,7 +88,7 @@
 		<label>Temperature</label>
 		<description>Set point temperature</description>
 		<category>Temperature</category>
-		<state readOnly="false" />
+		<state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false" />
 	</channel-type>
 
 	<channel-type id="mode">

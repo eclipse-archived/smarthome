@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.binding.sinope.SinopeBindingConstants;
 import org.eclipse.smarthome.binding.sinope.handler.SinopeGatewayHandler;
+import org.eclipse.smarthome.binding.sinope.handler.SinopeThermostatHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -30,8 +31,10 @@ public class SinopeHandlerFactory extends BaseThingHandlerFactory {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (supportsThingType(thingTypeUID)) {
+        if (SinopeBindingConstants.THING_TYPE_GATEWAY.equals(thingTypeUID)) {
             return new SinopeGatewayHandler(thing);
+        } else if (SinopeBindingConstants.THING_TYPE_THERMO.equals(thingTypeUID)) {
+            return new SinopeThermostatHandler(thing);
         }
 
         return null;

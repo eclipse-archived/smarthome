@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.sinope.handler;
 
 import org.eclipse.smarthome.binding.sinope.SinopeBindingConstants;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -29,7 +30,8 @@ import org.slf4j.LoggerFactory;
 public class SinopeThermostatHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(SinopeThermostatHandler.class);
-    private Object deviceId;
+    private String deviceId;
+
     private org.eclipse.smarthome.binding.sinope.handler.SinopeGatewayHandler gatewayHandler;
 
     public SinopeThermostatHandler(Thing thing) {
@@ -43,7 +45,8 @@ public class SinopeThermostatHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        logger.debug("Initializing Sinope Gateway");
+        logger.debug("Initializing Sinope Thermostat");
+        super.initialize();
         initializeThing((getBridge() == null) ? null : getBridge().getStatus());
 
     }
@@ -57,7 +60,7 @@ public class SinopeThermostatHandler extends BaseThingHandler {
     private void initializeThing(ThingStatus bridgeStatus) {
         logger.debug("initializeThing thing {} bridge status {}", getThing().getUID(), bridgeStatus);
         String configDeviceId = (String) getConfig().get(SinopeBindingConstants.CONFIG_PROPERTY_DEVICE_ID);
-        if (deviceId != null) {
+        if (configDeviceId != null) {
             this.deviceId = configDeviceId;
             // note: this call implicitly registers our handler as a listener on
             // the bridge
@@ -92,4 +95,19 @@ public class SinopeThermostatHandler extends BaseThingHandler {
         }
         return this.gatewayHandler;
     }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void updateOutsideTemp(double temp) {
+        updateState(SinopeBindingConstants.CHANNEL_OUTTEMP, new DecimalType(temp));
+
+    }
+
+    public void updateRoomTemp(double temp) {
+        updateState(SinopeBindingConstants.CHANNEL_INTEMP, new DecimalType(temp));
+
+    }
+
 }
