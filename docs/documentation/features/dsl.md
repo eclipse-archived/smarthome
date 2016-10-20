@@ -100,3 +100,34 @@ Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120
 ```
 
 Trigger channels are defined with the keyword `Trigger` and only support the type String.
+
+### Referencing existing channel types
+
+Many bindings provide standalone channel type definitions like this:  
+
+```
+<thing:thing-descriptions bindingId="yahooweather" [...]>
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Current temperature in degrees celsius</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f °C">
+        </state>
+    </channel-type>
+    [...]
+</thing:thing-descriptions>
+``` 
+
+They can be referenced within a thing's channel definition, so that they need to be defined only once and can be reused for many channels. You may do so in the DSL as well:
+
+```
+Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120 ] {
+    Channels:
+        Type temperature : my_yesterday_temperature
+}
+``` 
+
+The `Type` keyword indicates a reference to an existing channel definition. The channel kind and accepted item types of course are takes from the channel definition, therefore they don't need to be specified here again. 
+
+
