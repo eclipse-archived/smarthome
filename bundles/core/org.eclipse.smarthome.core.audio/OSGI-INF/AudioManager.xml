@@ -16,4 +16,8 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.audio.AudioManager"/>
    </service>
-   </scr:component>
+   <property name="service.pid" type="String" value="audio"/>
+   <property name="service.config.description.uri" type="String" value="system:audio"/>
+   <property name="service.config.label" type="String" value="Audio"/>
+   <property name="service.config.category" type="String" value="system"/>
+</scr:component>

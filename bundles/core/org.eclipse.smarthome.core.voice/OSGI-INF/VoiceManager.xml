@@ -19,4 +19,9 @@
 
    <service>
       <provide interface="org.eclipse.smarthome.core.voice.VoiceManager"/>
-   </service></scr:component>
+   </service>
+   <property name="service.pid" type="String" value="voice"/>
+   <property name="service.config.description.uri" type="String" value="system:voice"/>
+   <property name="service.config.label" type="String" value="Voice"/>
+   <property name="service.config.category" type="String" value="system"/>
+</scr:component>
