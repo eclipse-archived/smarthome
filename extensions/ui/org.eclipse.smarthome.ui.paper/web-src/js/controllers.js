@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, restConfig) {
+angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, $location, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, restConfig) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {
@@ -35,15 +35,37 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         return uuid;
     };
 
-    var numberOfInboxEntries = -1;
+    var numberOfInboxEntries = -1, prevAudioUrl = '';
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (typeof (window.AudioContext) != "undefined") {
+        var context = new AudioContext();
+    }
     eventService.onEvent('smarthome/inbox/*/added', function(topic, discoveryResult) {
         toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/search');
     });
     eventService.onEvent('smarthome/webaudio/playurl', function(topic, audioUrl) {
-        if (audioUrl) {
-            var audio = new Audio(audioUrl);
-            audio.load();
-            audio.play();
+        if (prevAudioUrl !== audioUrl) {
+            if (context) {
+                var audioBuffer = null;
+                var arr = audioUrl.split('/');
+                var url = $location.protocol() + '://' + $location.host() + ($location.port() ? ':' + $location.port() : '') + "/audio/" + arr[arr.length - 1];
+                $http({
+                    url : url,
+                    method : 'GET',
+                    responseType : 'arraybuffer'
+                }).then(function(response) {
+                    context.decodeAudioData(response.data, function(buffer) {
+                        audioBuffer = buffer;
+                        var source = context.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(context.destination);
+                        source.start(0);
+                    });
+                });
+            } else {
+                angular.element("#audioSink").attr('src', audioUrl);
+            }
+            prevAudioUrl = audioUrl;
         }
     });
     eventService.onEvent('smarthome/items/*/state', function(topic, stateObject) {
