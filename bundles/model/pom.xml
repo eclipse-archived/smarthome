@@ -18,6 +18,7 @@
   <modules>
     <module>org.eclipse.smarthome.model.lazygen</module>
     <module>org.eclipse.smarthome.model.core</module>
+    <module>org.eclipse.smarthome.model.core.test</module>
     <module>org.eclipse.smarthome.model.item</module>
     <module>org.eclipse.smarthome.model.item.runtime</module>
     <module>org.eclipse.smarthome.model.item.ui</module>
