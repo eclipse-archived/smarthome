@@ -41,7 +41,7 @@
   <description>This is the Eclipse SmartHome project</description>
 
   <properties>
-    <tycho-version>0.23.1</tycho-version>
+    <tycho-version>0.25.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.9.2</xtext-version>
     <karaf.version>4.0.3</karaf.version>
@@ -58,10 +58,10 @@
     <module>bundles</module>
     <module>extensions</module>
     <module>features</module>
-    <module>products</module>
+    <!--<module>products</module>-->
     <module>tools</module>
     <module>targetplatform</module>
-    <module>distribution</module>
+    <!--<module>distribution</module>-->
   </modules>
 
   <build>
@@ -448,26 +448,10 @@
       <url>https://oss.sonatype.org/content/groups/public/</url>
     </pluginRepository>
     <pluginRepository>
-      <id>cbi-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-    </pluginRepository>
-    <pluginRepository>
       <id>buchen-maven-repo</id>
       <url>http://buchen.github.io/maven-repo</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>
-
-  <repositories>
-    <repository>
-      <id>eclipse</id>
-      <name>Eclipse Snapshot Repository</name>
-      <layout>default</layout>
-      <url>https://repo.eclipse.org/content/repositories/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>

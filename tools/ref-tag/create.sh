@@ -116,6 +116,9 @@ git clean -q -x -d -f || die "Git clean failed."
 VERSION_OLD="$(cat pom.xml | grep '<version>.*</version>' | head -n1 | sed 's:<version>\(.*\)</version>:\1:g' | awk '{print $1}')"
 case "${VERSION_OLD}" in
   *-SNAPSHOT) log "version old: ${VERSION_OLD}"
+    VERSION_OLD_CLASSI=SNAPSHOT
+    VERSION_OLD_MMR=${VERSION_OLD%-SNAPSHOT}
+    VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
     ;;
   *) die "version old is no snapshot"
     ;;
@@ -124,8 +127,6 @@ esac
 #
 # Prepare some version old variables
 #
-VERSION_OLD_MMR=${VERSION_OLD%-SNAPSHOT}
-VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
 
 #
 # Generate new version
@@ -133,19 +134,19 @@ VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
 if [ -z "${VERSION_NEW_MMR}" ]; then
   VERSION_NEW_MMR="${VERSION_OLD_MMR}"
 fi
-if [ -n "${VERSION_NEW_QUALI}" ]; then
-  case "${VERSION_NEW_QUALI}" in
-    SNAPSHOT)
-      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_QUALI}"
-      ;;
-    *)
-      VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_QUALI}"
-      ;;
-  esac
-else
-  VERSION_NEW_QUALI=".qualifier"
-  VERSION_NEW="${VERSION_NEW_MMR}".{VERSION_NEW_QUALI}
+if [ -z "${VERSION_NEW_CLASSI}" ]; then
+  VERSION_NEW_CLASSI="${VERSION_OLD_CLASSI}"
 fi
+case "${VERSION_NEW_CLASSI}" in
+  SNAPSHOT)
+    VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_CLASSI}"
+    VERSION_NEW_QUALI="${VERSION_NEW_MMR}.qualifier"
+    ;;
+  *)
+    VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_CLASSI}"
+    VERSION_NEW_QUALI="${VERSION_NEW}"
+    ;;
+esac
 
 #
 # Print version info

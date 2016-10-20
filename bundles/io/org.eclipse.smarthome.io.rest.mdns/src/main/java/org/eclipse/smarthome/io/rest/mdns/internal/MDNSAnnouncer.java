@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.mdns.internal;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.eclipse.smarthome.core.net.HttpServiceUtil;
 import org.eclipse.smarthome.io.rest.RESTConstants;
 import org.eclipse.smarthome.io.transport.mdns.MDNSService;
 import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
@@ -20,6 +21,7 @@ import org.osgi.framework.BundleContext;
  * discover it.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Use HTTP service utility functions
  */
 public class MDNSAnnouncer {
 
@@ -47,13 +49,17 @@ public class MDNSAnnouncer {
                     mdnsName = "smarthome";
                 }
                 try {
-                    httpPort = Integer.parseInt(bundleContext.getProperty("org.osgi.service.http.port"));
-                    mdnsService.registerService(getDefaultServiceDescription());
+                    httpPort = HttpServiceUtil.getHttpServicePort(bundleContext);
+                    if (httpPort != -1) {
+                        mdnsService.registerService(getDefaultServiceDescription());
+                    }
                 } catch (NumberFormatException e) {
                 }
                 try {
-                    httpSSLPort = Integer.parseInt(bundleContext.getProperty("org.osgi.service.http.port.secure"));
-                    mdnsService.registerService(getSSLServiceDescription());
+                    httpSSLPort = HttpServiceUtil.getHttpServicePortSecure(bundleContext);
+                    if (httpSSLPort != -1) {
+                        mdnsService.registerService(getSSLServiceDescription());
+                    }
                 } catch (NumberFormatException e) {
                 }
             }

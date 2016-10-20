@@ -39,7 +39,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
-import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
 import org.junit.Test
@@ -53,7 +52,7 @@ import org.junit.Test
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
  * @author Andre Fuechsel - modified tests after introducing the generic thing types
  */
-class HueLightHandlerOSGiTest extends OSGiTest {
+class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
     private static final int MIN_COLOR_TEMPERATURE = 153;
     private static final int MAX_COLOR_TEMPERATURE = 500;
@@ -126,46 +125,17 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that HueLightHandler is registered and unregistered'() {
-        Bridge hueBridge = createBridge()
-
-        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
-        assertThat hueLightHandler, is(nullValue())
-
-        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
-
-        // wait for HueLightHandler to be registered
-        waitForAssert({
-            hueLightHandler = getService(ThingHandler, HueLightHandler)
-            assertThat hueLightHandler, is(notNullValue())
-        }, 10000)
-
-        thingRegistry.remove(hueLight.getUID())
-
-        // wait for HueLightHandler to be unregistered
-        waitForAssert({
-            hueLightHandler = getService(ThingHandler, HueLightHandler)
-            assertThat hueLightHandler, is(nullValue())
-        }, 10000)
-
-        thingRegistry.forceRemove(hueBridge.getUID())
-    }
-
-    @Test
     void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
         Bridge hueBridge = createBridge()
-
-        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
-        assertThat hueLightHandler, is(nullValue())
-
+        simulateBridgeInitialization()
         Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
 
         try {
-            // wait for HueLightHandler to be registered
-            waitForAssert({
-                hueLightHandler = getService(ThingHandler, HueLightHandler)
+            HueLightHandler hueLightHandler
+            waitForAssert {
+                hueLightHandler = getThingHandler(HueLightHandler)
                 assertThat hueLightHandler, is(notNullValue())
-            }, 10000)
+            }
 
             def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
             def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
@@ -203,7 +173,6 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             waitForAssert({
                 assertThat(hueLight.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.BRIDGE_OFFLINE))
             }, 10000)
-
         } finally {
             thingRegistry.forceRemove(hueLight.getUID())
             thingRegistry.forceRemove(hueBridge.getUID())
@@ -507,18 +476,16 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply, String expectedModel = "LCT001", String expectedVendor = "Philips") {
         Bridge hueBridge = createBridge()
-
-        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
-        assertThat hueLightHandler, is(nullValue())
+        simulateBridgeInitialization()
 
         Thing hueLight = createLight(hueBridge, hueLightUID)
 
         try {
-            // wait for HueLightHandler to be registered
-            waitForAssert({
-                hueLightHandler = getService(ThingHandler, HueLightHandler)
+            HueLightHandler hueLightHandler
+            waitForAssert {
+                hueLightHandler = getThingHandler(HueLightHandler)
                 assertThat hueLightHandler, is(notNullValue())
-            }, 10000)
+            }
 
             def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
             def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
@@ -563,6 +530,17 @@ class HueLightHandlerOSGiTest extends OSGiTest {
                 assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
             }, 10000)
         }
+    }
+
+    private void simulateBridgeInitialization() {
+        HueBridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }
+        HueBridgeHandler bridgeHandler
+        waitForAssert {
+            bridgeHandler = getThingHandler(HueBridgeHandler)
+            assertThat bridgeHandler, is(notNullValue())
+        }
+        bridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }
+        bridgeHandler.initialize()
     }
 
     private assertBridgeOnline(Bridge bridge){

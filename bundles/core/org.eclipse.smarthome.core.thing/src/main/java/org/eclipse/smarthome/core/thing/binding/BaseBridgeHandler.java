@@ -15,11 +15,16 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 
 /**
- * {@link BaseBridgeHandler} adds some convenience methods for bridges to the {@link BaseThingHandler}.
+ * The {@link BaseBridgeHandler} implements the {@link BridgeHandler} interface and adds some convenience methods for
+ * bridges to the {@link BaseThingHandler}.
+ * <p>
+ * It is recommended to extend this abstract base class.
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Stefan Bußweiler - Added implementation of BridgeHandler interface
  */
-public abstract class BaseBridgeHandler extends BaseThingHandler {
+public abstract class BaseBridgeHandler extends BaseThingHandler implements BridgeHandler {
 
     /**
      * @see BaseThingHandler
@@ -31,8 +36,7 @@ public abstract class BaseBridgeHandler extends BaseThingHandler {
     /**
      * Finds and returns a child thing for a given UID of this bridge.
      *
-     * @param uid
-     *            uid of the child thing
+     * @param uid uid of the child thing
      * @return child thing with the given uid or null if thing was not found
      */
     public Thing getThingByUID(ThingUID uid) {
@@ -67,6 +71,16 @@ public abstract class BaseBridgeHandler extends BaseThingHandler {
                 .withBridge(this.thing.getBridgeUID()).withChannels(this.thing.getChannels())
                 .withConfiguration(this.thing.getConfiguration()).withLabel(this.thing.getLabel())
                 .withLocation(this.thing.getLocation()).withProperties(this.thing.getProperties());
+    }
+
+    @Override
+    public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
+    @Override
+    public void childHandlerDisposed(ThingHandler childHandler, Thing childThing) {
+        // do nothing by default, can be overridden by subclasses
     }
 
 }
