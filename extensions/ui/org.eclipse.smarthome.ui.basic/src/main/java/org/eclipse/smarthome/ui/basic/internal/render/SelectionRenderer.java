@@ -83,7 +83,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             rowSB.append(rowSnippet);
         }
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
-        snippet = StringUtils.replace(snippet, "%value%", mappingLabel != null ? mappingLabel : "");
+        snippet = StringUtils.replace(snippet, "%value_header%", mappingLabel != null ? mappingLabel : "");
 
         // Process the color tags
         snippet = processColor(w, snippet);
