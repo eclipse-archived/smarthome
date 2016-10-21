@@ -77,7 +77,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
     def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
 
-    ManagedThingProvider mangedThingProvider
+    ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
     UpnpIOServiceImpl upnpIOService
     ThingRegistry thingRegistry
@@ -97,8 +97,8 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         mockUpnpService.startup()
         registerService(mockUpnpService, UpnpService.class.getName())
 
-        mangedThingProvider = getService(ManagedThingProvider.class);
-        assertThat mangedThingProvider, is (notNullValue())
+        managedThingProvider = getService(ManagedThingProvider.class);
+        assertThat managedThingProvider, is (notNullValue())
 
         thingRegistry = getService(ThingRegistry.class)
         assertThat(thingRegistry, is (notNullValue()))
@@ -136,7 +136,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
                 .withChannel(channel)
                 .build();
 
-        mangedThingProvider.add(thing)
+        managedThingProvider.add(thing)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
