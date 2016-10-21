@@ -64,10 +64,14 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .build();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider.add(bridge)
 =======
         mangedThingProvider.add(bridge)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(bridge)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
     }
 
     protected void createDefaultThing(ThingTypeUID thingTypeUID) {
@@ -93,10 +97,14 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .build();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider.add(thing)
 =======
         mangedThingProvider.add(thing)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(thing)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }

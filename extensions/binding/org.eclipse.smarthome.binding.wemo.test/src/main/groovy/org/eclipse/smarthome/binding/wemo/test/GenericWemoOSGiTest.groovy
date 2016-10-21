@@ -87,8 +87,12 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 =======
     def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
 
+<<<<<<< HEAD
     ManagedThingProvider mangedThingProvider
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+    ManagedThingProvider managedThingProvider
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
     static MockUpnpService mockUpnpService
     UpnpIOServiceImpl upnpIOService
     ThingRegistry thingRegistry
@@ -109,12 +113,17 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         registerService(mockUpnpService, UpnpService.class.getName())
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider = getService(ManagedThingProvider.class);
         assertThat managedThingProvider, is (notNullValue())
 =======
         mangedThingProvider = getService(ManagedThingProvider.class);
         assertThat mangedThingProvider, is (notNullValue())
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider = getService(ManagedThingProvider.class);
+        assertThat managedThingProvider, is (notNullValue())
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
 
         thingRegistry = getService(ThingRegistry.class)
         assertThat(thingRegistry, is (notNullValue()))
@@ -153,10 +162,14 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
                 .build();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider.add(thing)
 =======
         mangedThingProvider.add(thing)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(thing)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
