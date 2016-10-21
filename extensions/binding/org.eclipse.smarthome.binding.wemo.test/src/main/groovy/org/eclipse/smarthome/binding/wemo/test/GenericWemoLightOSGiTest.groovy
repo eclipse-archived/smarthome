@@ -63,7 +63,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .withConfiguration(configuration)
                 .build();
 
-        mangedThingProvider.add(bridge)
+        managedThingProvider.add(bridge)
     }
 
     protected void createDefaultThing(ThingTypeUID thingTypeUID) {
@@ -88,7 +88,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .withBridge(bridgeUID)
                 .build();
 
-        mangedThingProvider.add(thing)
+        managedThingProvider.add(thing)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
