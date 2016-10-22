@@ -56,7 +56,8 @@
 			<channel id="insideTemperature" typeId="insideTemperature" />
 			<channel id="outsideTemperature" typeId="outsideTemperature" />
 			<channel id="setPointTemperature" typeId="setPointTemperature" />
-			<channel id="mode" typeId="mode" />
+			<channel id="setPointMode" typeId="setPointMode" />
+			<channel id="heatLevel" typeId="heatLevel" />
 		</channels>
 		<config-description>
 
@@ -72,7 +73,7 @@
 		<label>Temperature</label>
 		<description>Current inside temperature in degrees celsius</description>
 		<category>Temperature</category>
-		<state readOnly="true" />
+		<state min="-10" max="70" step="0.01" pattern="%.2f °C" readOnly="true" />
 	</channel-type>
 
 	<channel-type id="outsideTemperature">
@@ -80,7 +81,7 @@
 		<label>Temperature</label>
 		<description>Current outside temperature in degrees celsius</description>
 		<category>Temperature</category>
-		<state readOnly="true" />
+		<state step="0.01" pattern="%.2f °C" readOnly="true" />
 	</channel-type>
 
 	<channel-type id="setPointTemperature">
@@ -88,16 +89,28 @@
 		<label>Temperature</label>
 		<description>Set point temperature</description>
 		<category>Temperature</category>
-		<state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false" />
+		<state min="5" max="30" step="0.01" pattern="%.1f °C" readOnly="false" />
 	</channel-type>
 
-	<channel-type id="mode">
-		<item-type>Switch</item-type>
-		<label>Temperature</label>
-		<description>Current outside temperature in degrees celsius</description>
-		<category>Temperature</category>
-		<state readOnly="true" />
+	<channel-type id="setPointMode">
+		<item-type>String</item-type>
+		<label>Set Point Mode</label>
+		<description>Thermostat set point mode</description>
+		<category>String</category>
+		<state readOnly="false">
+			<options>
+				<option value="2">Manual</option>
+				<option value="3">Auto</option>
+				<option value="5">Away</option>
+			</options>
+		</state>
 	</channel-type>
 
-
+    <channel-type id="heatLevel">
+        <item-type>Number</item-type>
+        <label>Heat Level</label>
+        <description>Heat Level</description>
+        <category>Energy</category>
+        <state min="0" max="100" step="1" pattern="%d %%" readOnly="true" />
+    </channel-type>
 </thing:thing-descriptions>

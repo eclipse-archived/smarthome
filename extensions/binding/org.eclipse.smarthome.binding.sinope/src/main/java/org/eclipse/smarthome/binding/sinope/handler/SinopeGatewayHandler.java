@@ -7,9 +7,9 @@
  */
 package org.eclipse.smarthome.binding.sinope.handler;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -32,8 +32,12 @@ import org.slf4j.LoggerFactory;
 import ca.tulip.sinope.core.SinopeApiLoginAnswer;
 import ca.tulip.sinope.core.SinopeApiLoginRequest;
 import ca.tulip.sinope.core.SinopeDataReadRequest;
+import ca.tulip.sinope.core.SinopeDataWriteRequest;
+import ca.tulip.sinope.core.appdata.SinopeHeatLevelData;
 import ca.tulip.sinope.core.appdata.SinopeOutTempData;
 import ca.tulip.sinope.core.appdata.SinopeRoomTempData;
+import ca.tulip.sinope.core.appdata.SinopeSetPointModeData;
+import ca.tulip.sinope.core.appdata.SinopeSetPointTempData;
 import ca.tulip.sinope.core.internal.SinopeAnswer;
 import ca.tulip.sinope.core.internal.SinopeDataAnswer;
 import ca.tulip.sinope.core.internal.SinopeDataRequest;
@@ -53,19 +57,10 @@ public class SinopeGatewayHandler extends BaseThingHandler {
     private long refreshInterval;
     private List<SinopeThermostatHandler> thermostatHandlers = new CopyOnWriteArrayList<>();
     private int seq = 1;
+    private Socket clientSocket;
 
     public SinopeGatewayHandler(Thing thing) {
         super(thing);
-    }
-
-    @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
-        // Channel channel = getThing().getChannel(channelUID.getId());
-        // if (channel != null && sceneChannelTypeUID.equals(channel.getChannelTypeUID())) {
-        // if (command.equals(OnOffType.ON)) {
-        // webTargets.activateScene(Integer.parseInt(channelUID.getId()));
-        // }
-        // }
     }
 
     @Override
@@ -124,26 +119,21 @@ public class SinopeGatewayHandler extends BaseThingHandler {
     }
 
     private synchronized void poll() {
-        SinopeConfig config = getConfigAs(SinopeConfig.class);
 
         if (thermostatHandlers.size() > 0) {
             logger.debug("Polling for state");
-            Socket clientSocket = null;
+
             try {
 
-                clientSocket = new Socket(config.hostname, config.port);
-                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-                SinopeApiLoginRequest loginRequest = new SinopeApiLoginRequest(convert(config.gatewayId),
-                        convert(config.apiKey));
-                SinopeApiLoginAnswer loginAnswer = (SinopeApiLoginAnswer) execute(outToServer,
-                        clientSocket.getInputStream(), loginRequest);
-
-                if (loginAnswer.getStatus() == 0) {
+                if (connectToBridge()) {
                     logger.debug("Connected to bridge");
                     for (SinopeThermostatHandler sinopeThermostatHandler : thermostatHandlers) {
                         byte[] deviceId = convert(sinopeThermostatHandler.getDeviceId());
-                        sinopeThermostatHandler.updateOutsideTemp(readOutsideTemp(clientSocket, outToServer, deviceId));
-                        sinopeThermostatHandler.updateRoomTemp(readRoomTemp(clientSocket, outToServer, deviceId));
+                        sinopeThermostatHandler.updateOutsideTemp(readOutsideTemp(clientSocket, deviceId));
+                        sinopeThermostatHandler.updateRoomTemp(readRoomTemp(clientSocket, deviceId));
+                        sinopeThermostatHandler.updateSetPointTemp(readSetPointTemp(clientSocket, deviceId));
+                        sinopeThermostatHandler.updateSetPointMode(readSetPointMode(clientSocket, deviceId));
+                        sinopeThermostatHandler.updateHeatLevel(readHeatLevel(clientSocket, deviceId));
                     }
                 }
 
@@ -167,27 +157,66 @@ public class SinopeGatewayHandler extends BaseThingHandler {
         }
     }
 
-    private double readRoomTemp(Socket clientSocket, DataOutputStream outToServer, byte[] deviceId)
-            throws UnknownHostException, IOException {
-        SinopeDataReadRequest req;
-        SinopeDataAnswer answ;
+    private boolean connectToBridge() throws UnknownHostException, IOException {
+        SinopeConfig config = getConfigAs(SinopeConfig.class);
+        this.clientSocket = new Socket(config.hostname, config.port);
+        SinopeApiLoginRequest loginRequest = new SinopeApiLoginRequest(convert(config.gatewayId),
+                convert(config.apiKey));
+        SinopeApiLoginAnswer loginAnswer = (SinopeApiLoginAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), loginRequest);
+        return loginAnswer.getStatus() == 0;
+    }
+
+    private double readRoomTemp(Socket clientSocket, byte[] deviceId) throws UnknownHostException, IOException {
+
         logger.debug("Reading room temp for device id : {}", ByteUtil.toString(deviceId));
-        req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeRoomTempData());
-        answ = (SinopeDataAnswer) execute(outToServer, clientSocket.getInputStream(), req);
+        SinopeDataReadRequest req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeRoomTempData());
+        SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), req);
         double temp = ((SinopeRoomTempData) answ.getAppData()).getRoomTemp() / 100.0;
         logger.debug(String.format("Room temp is : %2.2f C", temp));
         return temp;
     }
 
-    private double readOutsideTemp(Socket clientSocket, DataOutputStream outToServer, byte[] deviceId)
-            throws UnknownHostException, IOException {
+    private double readOutsideTemp(Socket clientSocket, byte[] deviceId) throws UnknownHostException, IOException {
         SinopeDataReadRequest req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeOutTempData());
         logger.debug("Reading outside temp for device id: {}", ByteUtil.toString(deviceId));
-        SinopeDataAnswer answ = (SinopeDataAnswer) execute(outToServer, clientSocket.getInputStream(), req);
+        SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), req);
         double temp = ((SinopeOutTempData) answ.getAppData()).getOutTemp() / 100.0;
         logger.debug(String.format("Outside temp is : %2.2f C", temp));
         return temp;
 
+    }
+
+    private double readSetPointTemp(Socket clientSocket, byte[] deviceId) throws UnknownHostException, IOException {
+        SinopeDataReadRequest req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeSetPointTempData());
+        logger.debug("Reading Set Point temp for device id: {}", ByteUtil.toString(deviceId));
+        SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), req);
+        double temp = ((SinopeSetPointTempData) answ.getAppData()).getSetPointTemp() / 100.0;
+        logger.debug(String.format("Set Point temp is : %2.2f C", temp));
+        return temp;
+    }
+
+    private int readSetPointMode(Socket clientSocket, byte[] deviceId) throws UnknownHostException, IOException {
+        SinopeDataReadRequest req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeSetPointModeData());
+        logger.debug("Reading Set Point mode for device id: {}", ByteUtil.toString(deviceId));
+        SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), req);
+        byte mode = ((SinopeSetPointModeData) answ.getAppData()).getSetPointMode();
+        logger.debug(String.format("Set Point mode is : %d", mode));
+        return mode & 0xFF;
+    }
+
+    private int readHeatLevel(Socket clientSocket, byte[] deviceId) throws UnknownHostException, IOException {
+        SinopeDataReadRequest req = new SinopeDataReadRequest(newSeq(), deviceId, new SinopeHeatLevelData());
+        logger.debug("Reading Heat Level for device id: {}", ByteUtil.toString(deviceId));
+        SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                clientSocket.getInputStream(), req);
+        int level = ((SinopeHeatLevelData) answ.getAppData()).getHeatLevel();
+        logger.debug(String.format("Heat level is  : %d", level));
+        return level;
     }
 
     private synchronized byte[] newSeq() {
@@ -213,7 +242,7 @@ public class SinopeGatewayHandler extends BaseThingHandler {
         }
     }
 
-    private synchronized static SinopeAnswer execute(DataOutputStream outToServer, InputStream inputStream,
+    private synchronized static SinopeAnswer execute(OutputStream outToServer, InputStream inputStream,
             SinopeRequest command) throws UnknownHostException, IOException {
 
         outToServer.write(command.getPayload());
@@ -224,8 +253,8 @@ public class SinopeGatewayHandler extends BaseThingHandler {
 
     }
 
-    private static SinopeAnswer execute(DataOutputStream outToServer, InputStream inputStream,
-            SinopeDataRequest command) throws UnknownHostException, IOException {
+    private static SinopeAnswer execute(OutputStream outToServer, InputStream inputStream, SinopeDataRequest command)
+            throws UnknownHostException, IOException {
 
         outToServer.write(command.getPayload());
 
@@ -248,19 +277,13 @@ public class SinopeGatewayHandler extends BaseThingHandler {
 
     };
 
-    public boolean registerThermostatHandler(SinopeThermostatHandler lightStatusListener) {
-        if (lightStatusListener == null) {
-            throw new NullPointerException("It's not allowed to pass a null LightStatusListener.");
+    public boolean registerThermostatHandler(SinopeThermostatHandler thermostatHandler) {
+        if (thermostatHandler == null) {
+            throw new NullPointerException("It's not allowed to pass a null thermostatHandler.");
         }
-        boolean result = thermostatHandlers.add(lightStatusListener);
+        boolean result = thermostatHandlers.add(thermostatHandler);
         if (result) {
             schedulePoll();
-            // inform the listener initially about all lights and their states
-            /*
-             * for (FullLight light : lastLightStates.values()) {
-             * lightStatusListener.onLightAdded(bridge, light);
-             * }
-             */
         }
         return result;
     }
@@ -271,5 +294,75 @@ public class SinopeGatewayHandler extends BaseThingHandler {
             schedulePoll();
         }
         return result;
+    }
+
+    public void setSetPointTemp(SinopeThermostatHandler sinopeThermostatHandler, float temp)
+            throws UnknownHostException, IOException {
+        int newTemp = (int) (temp * 100.0);
+
+        if (pollFuture != null) {
+            pollFuture.cancel(false);
+        }
+        try {
+            if (connectToBridge()) {
+                logger.debug("Connected to bridge");
+                byte[] deviceId = convert(sinopeThermostatHandler.getDeviceId());
+                SinopeDataWriteRequest req = new SinopeDataWriteRequest(newSeq(), deviceId,
+                        new SinopeSetPointTempData());
+                ((SinopeSetPointTempData) req.getAppData()).setSetPointTemp(newTemp);
+
+                SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                        clientSocket.getInputStream(), req);
+
+                if (answ.getStatus() == 0) {
+                    logger.debug(String.format("Set Point temp is now : %2.2f C", newTemp));
+                } else {
+                    logger.debug("Cannot Set Point temp, status: {}", answ.getStatus());
+                }
+            } else {
+                logger.error("Could not connect to bridge to update Set Point Temp");
+            }
+        } finally {
+            clientSocket.close();
+            clientSocket = null;
+            schedulePoll();
+        }
+    }
+
+    public void setSetPointMode(SinopeThermostatHandler sinopeThermostatHandler, int mode)
+            throws UnknownHostException, IOException {
+
+        if (pollFuture != null) {
+            pollFuture.cancel(false);
+        }
+        try {
+            if (connectToBridge()) {
+                logger.debug("Connected to bridge");
+                byte[] deviceId = convert(sinopeThermostatHandler.getDeviceId());
+                SinopeDataWriteRequest req = new SinopeDataWriteRequest(newSeq(), deviceId,
+                        new SinopeSetPointModeData());
+                ((SinopeSetPointModeData) req.getAppData()).setSetPointMode((byte) mode);
+
+                SinopeDataAnswer answ = (SinopeDataAnswer) execute(clientSocket.getOutputStream(),
+                        clientSocket.getInputStream(), req);
+
+                if (answ.getStatus() == 0) {
+                    logger.debug(String.format("Set Point mode is now : %d", mode));
+                } else {
+                    logger.debug("Cannot Set Point mode, status: {}", answ.getStatus());
+                }
+            } else {
+                logger.error("Could not connect to bridge to update Set Point Mode");
+            }
+        } finally {
+            clientSocket.close();
+            clientSocket = null;
+            schedulePoll();
+        }
+    }
+
+    @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
+
     }
 }

@@ -27,8 +27,9 @@ public class SinopeBindingConstants {
     public final static ThingTypeUID THING_TYPE_GATEWAY = new ThingTypeUID(BINDING_ID, "gateway");
 
     // List of all Channel ids
-    public final static String CHANNEL_MODE = "mode";
+    public final static String CHANNEL_HEATLEVEL = "heatLevel";
     public final static String CHANNEL_SETTEMP = "setPointTemperature";
+    public final static String CHANNEL_SETMODE = "setPointMode";
     public final static String CHANNEL_INTEMP = "insideTemperature";
     public final static String CHANNEL_OUTTEMP = "outsideTemperature";
 

@@ -7,9 +7,13 @@
  */
 package org.eclipse.smarthome.binding.sinope.handler;
 
+import java.io.IOException;
+
 import org.eclipse.smarthome.binding.sinope.SinopeBindingConstants;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -40,7 +44,26 @@ public class SinopeThermostatHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        Channel channel = getThing().getChannel(channelUID.getId());
+        if (channel != null && SinopeBindingConstants.CHANNEL_SETTEMP.equals(channelUID.getId())) {
+            try {
+                if (command instanceof DecimalType) {
+                    this.gatewayHandler.setSetPointTemp(this, ((DecimalType) command).floatValue());
+                }
+            } catch (IOException e) {
+                logger.error("Cannot set point temp: {}", e.getLocalizedMessage());
+            }
+        }
 
+        if (channel != null && SinopeBindingConstants.CHANNEL_SETMODE.equals(channelUID.getId())) {
+            try {
+                if (command instanceof StringType) {
+                    this.gatewayHandler.setSetPointMode(this, Integer.parseInt(((StringType) command).toString()));
+                }
+            } catch (IOException e) {
+                logger.error("Cannot set point mode: {}", e.getLocalizedMessage());
+            }
+        }
     }
 
     @Override
@@ -62,8 +85,6 @@ public class SinopeThermostatHandler extends BaseThingHandler {
         String configDeviceId = (String) getConfig().get(SinopeBindingConstants.CONFIG_PROPERTY_DEVICE_ID);
         if (configDeviceId != null) {
             this.deviceId = configDeviceId;
-            // note: this call implicitly registers our handler as a listener on
-            // the bridge
             if (getSinopeGatewayHandler() != null) {
                 if (bridgeStatus == ThingStatus.ONLINE) {
                     updateStatus(ThingStatus.ONLINE);
@@ -107,7 +128,18 @@ public class SinopeThermostatHandler extends BaseThingHandler {
 
     public void updateRoomTemp(double temp) {
         updateState(SinopeBindingConstants.CHANNEL_INTEMP, new DecimalType(temp));
+    }
 
+    public void updateSetPointTemp(double temp) {
+        updateState(SinopeBindingConstants.CHANNEL_SETTEMP, new DecimalType(temp));
+    }
+
+    public void updateSetPointMode(int mode) {
+        updateState(SinopeBindingConstants.CHANNEL_SETMODE, new StringType(Integer.toString(mode)));
+    }
+
+    public void updateHeatLevel(int heatLevel) {
+        updateState(SinopeBindingConstants.CHANNEL_HEATLEVEL, new DecimalType(heatLevel));
     }
 
 }
