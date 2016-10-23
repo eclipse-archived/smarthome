@@ -21,6 +21,7 @@
 			</arguments>
 		</buildCommand>
 <<<<<<< HEAD
+<<<<<<< HEAD
 	</buildSpec>
 	<natures>
 =======
@@ -44,7 +45,14 @@
 >>>>>>> Initial Release
 =======
 >>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+=======
+	</buildSpec>
+	<natures>
+>>>>>>> fix NTP test Eclipse's project settings
+>>>>>>> 8031023... fix NTP test Eclipse's project settings
 		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
