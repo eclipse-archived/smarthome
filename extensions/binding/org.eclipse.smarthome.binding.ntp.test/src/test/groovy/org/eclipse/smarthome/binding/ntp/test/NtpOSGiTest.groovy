@@ -48,6 +48,7 @@ import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.junit.Ignore
 import org.junit.Test
 =======
@@ -64,7 +65,14 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.Ignore
 >>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+=======
+import org.junit.Ignore
+import org.junit.Test
+>>>>>>> increase timeout for NTP channel updates
+>>>>>>> a93e1df... increase timeout for NTP channel updates
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -102,11 +110,14 @@ class NtpOSGiTest extends OSGiTest {
     private def final ACCEPTED_ITEM_TYPE_DATE_TIME = "DateTime"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> Initial Release
 =======
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+>>>>>>> a93e1df... increase timeout for NTP channel updates
 
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
@@ -124,21 +135,31 @@ class NtpOSGiTest extends OSGiTest {
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
 =======
     
+=======
+
+>>>>>>> increase timeout for NTP channel updates
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
-        
+
         private String updateEventType
-        
+
         public UpdateEventType(String updateEventType){
             this.updateEventType = updateEventType
         }
+<<<<<<< HEAD
         
 <<<<<<< HEAD
 >>>>>>> e879552... Implemented tests for NTP Binding (#2243)
 >>>>>>> Initial Release
 =======
 >>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+=======
+
+>>>>>>> increase timeout for NTP channel updates
+>>>>>>> a93e1df... increase timeout for NTP channel updates
         public String getUpdateEventType(){
             return updateEventType
         }
@@ -498,6 +519,7 @@ class NtpOSGiTest extends OSGiTest {
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< HEAD
@@ -510,7 +532,13 @@ class NtpOSGiTest extends OSGiTest {
 =======
         
 >>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+=======
+
+>>>>>>> increase timeout for NTP channel updates
+>>>>>>> a93e1df... increase timeout for NTP channel updates
         // Wait for the item , linked to the NTP thing to be added to the ManagedThingProvider.
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -542,6 +570,7 @@ class NtpOSGiTest extends OSGiTest {
                         testItemState,
                         is(instanceOf(DateTimeType))
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
         }, 30000, 100)
 =======
@@ -582,17 +611,29 @@ class NtpOSGiTest extends OSGiTest {
 >>>>>>> Initial Release
 =======
         })
+=======
+        }, 30000, 100)
+>>>>>>> increase timeout for NTP channel updates
 
         return testItemState
     }
 
     private String getStringChannelTimeZoneFromItemRegistry(){
         String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString()
+<<<<<<< HEAD
         /* This method is used only in tests for the string channel, 
          where we have set the format for the date in advance. 
          Because of that format, we know that the time zone will be the 
 >>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
 >>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+=======
+        /* This method is used only in tests for the string channel,
+         where we have set the format for the date in advance.
+         Because of that format, we know that the time zone will be the
+>>>>>>> increase timeout for NTP channel updates
+>>>>>>> a93e1df... increase timeout for NTP channel updates
          last word of the string from the item registry.*/
         // FIXME: This can happen a lot easier with Java 8 date time API, so tests can be adapted, if there is an upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ")
