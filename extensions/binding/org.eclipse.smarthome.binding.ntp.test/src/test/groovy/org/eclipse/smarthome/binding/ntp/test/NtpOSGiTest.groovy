@@ -47,8 +47,8 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
-import org.junit.Test
 import org.junit.Ignore
+import org.junit.Test
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -80,16 +80,16 @@ class NtpOSGiTest extends OSGiTest {
     // No bundle in ESH is exporting a package from which we can use item types as constants, so we will use String.
     private def final ACCEPTED_ITEM_TYPE_STRING = "String"
     private def final ACCEPTED_ITEM_TYPE_DATE_TIME = "DateTime"
-    
+
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
-        
+
         private String updateEventType
-        
+
         public UpdateEventType(String updateEventType){
             this.updateEventType = updateEventType
         }
-        
+
         public String getUpdateEventType(){
             return updateEventType
         }
@@ -392,7 +392,7 @@ class NtpOSGiTest extends OSGiTest {
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider
-        
+
         // Wait for the item , linked to the NTP thing to be added to the ManagedThingProvider.
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -424,16 +424,16 @@ class NtpOSGiTest extends OSGiTest {
                         testItemState,
                         is(instanceOf(DateTimeType))
             }
-        })
+        }, 30000, 100)
 
         return testItemState
     }
 
     private String getStringChannelTimeZoneFromItemRegistry(){
         String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString()
-        /* This method is used only in tests for the string channel, 
-         where we have set the format for the date in advance. 
-         Because of that format, we know that the time zone will be the 
+        /* This method is used only in tests for the string channel,
+         where we have set the format for the date in advance.
+         Because of that format, we know that the time zone will be the
          last word of the string from the item registry.*/
         // FIXME: This can happen a lot easier with Java 8 date time API, so tests can be adapted, if there is an upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ")
