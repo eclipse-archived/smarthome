@@ -125,7 +125,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 parameter.locale = window.localStorage.getItem('paperui.language');
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
-                        parameter.element = 'multiSelect';
+                        parameter.element = 'select';
                     } else if (parameter.context.toUpperCase() === 'DATE') {
                         if (parameter.type.toUpperCase() === 'TEXT') {
                             parameter.element = 'date';
