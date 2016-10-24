@@ -22,9 +22,12 @@ import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+<<<<<<< HEAD
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+=======
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
 
 /**
  * This makes a Sonos speaker to serve as an {@link AudioSink}-
@@ -34,8 +37,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SonosAudioSink implements AudioSink {
 
+<<<<<<< HEAD
     private final Logger logger = LoggerFactory.getLogger(SonosAudioSink.class);
 
+=======
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
     private static HashSet<AudioFormat> supportedFormats = new HashSet<>();
 
     static {
@@ -45,12 +51,19 @@ public class SonosAudioSink implements AudioSink {
 
     private AudioHTTPServer audioHTTPServer;
     private ZonePlayerHandler handler;
+<<<<<<< HEAD
     private String callbackUrl;
 
     public SonosAudioSink(ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer, String callbackUrl) {
         this.handler = handler;
         this.audioHTTPServer = audioHTTPServer;
         this.callbackUrl = callbackUrl;
+=======
+
+    public SonosAudioSink(ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer) {
+        this.handler = handler;
+        this.audioHTTPServer = audioHTTPServer;
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
     }
 
     @Override
@@ -83,6 +96,7 @@ public class SonosAudioSink implements AudioSink {
                 // FixedLengthAudioStream, but this might be dangerous as we have no clue, how much data to expect from
                 // the stream.
             } else {
+<<<<<<< HEAD
                 if (callbackUrl != null) {
                     String relativeUrl = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
                     String url = callbackUrl + relativeUrl;
@@ -102,6 +116,16 @@ public class SonosAudioSink implements AudioSink {
                     }
                 } else {
                     logger.warn("We do not have any callback url, so Sonos cannot play the audio stream!");
+=======
+                String url = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
+                AudioFormat format = audioStream.getFormat();
+                if (AudioFormat.WAV.isCompatible(format)) {
+                    handler.playNotificationSoundURI(new StringType(url + ".wav"));
+                } else if (AudioFormat.MP3.isCompatible(format)) {
+                    handler.playNotificationSoundURI(new StringType(url + ".mp3"));
+                } else {
+                    throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
                 }
             }
         }

@@ -20,8 +20,11 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
+<<<<<<< HEAD
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
 import org.eclipse.smarthome.core.net.NetUtil;
+=======
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -52,9 +55,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     // optional OPML URL that can be configured through configuration admin
     private String opmlUrl = null;
 
+<<<<<<< HEAD
     // url (scheme+server+port) to use for playing notification sounds
     private String callbackUrl = null;
 
+=======
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
     @Override
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext);
@@ -90,6 +96,22 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                     thing.getConfiguration().get(UDN));
+<<<<<<< HEAD
+=======
+
+            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
+
+            // register the speaker as an audio sink
+            SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer);
+            @SuppressWarnings("unchecked")
+            ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
+                    .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
+            audioSinkRegistrations.put(thing.getUID().toString(), reg);
+
+            return handler;
+
+        }
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
 
             ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
 
@@ -106,6 +128,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
+<<<<<<< HEAD
     private String createCallbackUrl() {
         if (callbackUrl != null) {
             return callbackUrl;
@@ -127,6 +150,8 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         }
     }
 
+=======
+>>>>>>> initial contribution of Sonos AudioSink support (#2306)
     @Override
     public void unregisterHandler(Thing thing) {
         super.unregisterHandler(thing);
