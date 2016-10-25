@@ -94,7 +94,7 @@ thermostat room [ deviceId = "0x00 0x00 0x35 0x86" ]
 
 ## Channels
 
-All devices support some of the following channels:
+Thermostat devices support some of the following channels:
 
  Channel Type ID     | Item Type   | Description                                                                                                                            
 ---------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
