@@ -5,8 +5,6 @@ This binding supports [OpenHab 2](<http://www.openhab.org/>) and [Eclipse SmartH
 This binding supports multiple gateways with multiple devices.
 
 ---
-layout: documentation
----
 
 
 
