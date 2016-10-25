@@ -56,10 +56,15 @@ describe('factory configService', function() {
             var params=ConfigService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("select");
         });
-        it('should return date widget for context DATE', function() {
-            var inputParams=[{context:'date'}];
+        it('should return date widget for context DATE type=Text', function() {
+            var inputParams=[{context:'date',type:'text'}];
             var params=ConfigService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("date");
+        });
+        it('should return date widget for context DATE type!=text', function() {
+            var inputParams=[{context:'date',type:''}];
+            var params=ConfigService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("input");
         });
         it('should return dropdown widget for context THING', function() {
             var inputParams=[{context:'thing'}];
@@ -73,12 +78,17 @@ describe('factory configService', function() {
             $httpBackend.flush();
             expect(params[0].parameters[0].options.length).toEqual(1);
         });
-        it('should return input time widget for context TIME', function() {
-            var inputParams=[{context:'time'}];
+        it('should return input time widget for context TIME type=text', function() {
+            var inputParams=[{context:'time',type:'text'}];
             var params=ConfigService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("input");
-            expect(params[0].parameters[0].input).toEqual("TEXT");
             expect(params[0].parameters[0].inputType).toEqual("time");
+        });
+        it('should return input time widget for context TIME type!=text', function() {
+            var inputParams=[{context:'time',type:''}];
+            var params=ConfigService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("input");
+            expect(params[0].parameters[0].inputType).toBeUndefined();
         });
         it('should return color widget for context COLOR', function() {
             var inputParams=[{context:'color'}];
