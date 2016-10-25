@@ -15,6 +15,7 @@ import java.io.IOException;
  *
  * @author Rainer Ostendorf
  * @author Patrick Koenemann
+ * @author Mihaela Memova - removed duplicated check for the percent value range
  */
 public class FrontierSiliconRadio {
 
@@ -132,8 +133,7 @@ public class FrontierSiliconRadio {
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
     public void setVolumePercent(int volume) throws IOException {
-        final int newVolumePercent = volume < 0 ? 0 : volume > 100 ? 100 : volume;
-        final int newVolumeAbsolute = (newVolumePercent * 32) / 100;
+        final int newVolumeAbsolute = (volume * 32) / 100;
         final String params = "value=" + newVolumeAbsolute;
         conn.doRequest(REQUEST_SET_VOLUME, params);
         currentVolume = volume;
