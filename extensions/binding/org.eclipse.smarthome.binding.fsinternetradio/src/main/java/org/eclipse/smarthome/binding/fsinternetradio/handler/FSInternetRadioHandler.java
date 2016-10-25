@@ -31,11 +31,14 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The {@link FSInternetRadioHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Patrick Koenemann - Initial contribution
+ * @author Mihaela Memova - removed the unused boolean parameter, changed the check for the PIN
  */
 public class FSInternetRadioHandler extends BaseThingHandler {
 
@@ -56,7 +59,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
                     updateState(channel.getUID(), UnDefType.UNDEF);
                 }
                 // now let's silently check if it's back online
-                radioLogin(false);
+                radioLogin();
                 return; // if login is successful, this method is called again :-)
             }
             try {
@@ -113,7 +116,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         // Long running initialization should be done asynchronously in background
-        radioLogin(true);
+        radioLogin();
 
         // also schedule a thread for polling with configured refresh rate
         final BigDecimal period = (BigDecimal) getThing().getConfiguration().get(CONFIG_PROPERTY_REFRESH);
@@ -122,13 +125,13 @@ public class FSInternetRadioHandler extends BaseThingHandler {
         }
     }
 
-    private void radioLogin(boolean logFailure) {
+    private void radioLogin() {
         // read configuration and spawn thread to establish connection to device
         final String ip = (String) getThing().getConfiguration().get(CONFIG_PROPERTY_IP);
         final BigDecimal port = (BigDecimal) getThing().getConfiguration().get(CONFIG_PROPERTY_PORT);
         final String pin = (String) getThing().getConfiguration().get(CONFIG_PROPERTY_PIN);
 
-        if (ip == null || pin == null || port.intValue() == 0) {
+        if (ip == null || StringUtils.isEmpty(pin) || port.intValue() == 0) {
             // configuration incomplete
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Configuration incomplete");
         } else {
