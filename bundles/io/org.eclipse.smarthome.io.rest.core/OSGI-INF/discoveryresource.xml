@@ -14,5 +14,5 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.discovery.DiscoveryResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setDiscoveryServiceRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry" name="DiscoveryServiceRegistry" policy="static" unbind="unsetDiscoveryServiceRegistry"/>
+   <reference bind="setDiscoveryServiceRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry" name="DiscoveryServiceRegistry" policy="dynamic" unbind="unsetDiscoveryServiceRegistry"/>
 </scr:component>

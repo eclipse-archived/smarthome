@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.extension.Extension;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
-public class ExtensionResource implements RESTResource {
+public class ExtensionResource implements SatisfiableRESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
 
@@ -174,6 +174,11 @@ public class ExtensionResource implements RESTResource {
             Event event = ExtensionEventFactory.createExtensionFailureEvent(extensionId, msg);
             eventPublisher.post(event);
         }
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return extensionService != null;
     }
 
 }

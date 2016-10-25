@@ -13,5 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setRuleRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry" policy="static" unbind="unsetRuleRegistry"/>
+   <reference bind="setRuleRegistry" cardinality="0..1" interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry" policy="dynamic" unbind="unsetRuleRegistry"/>
 </scr:component>

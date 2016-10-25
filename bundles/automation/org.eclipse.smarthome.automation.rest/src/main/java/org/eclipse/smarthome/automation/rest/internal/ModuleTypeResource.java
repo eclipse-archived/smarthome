@@ -33,7 +33,7 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("module-types")
 @Api("module-types")
-public class ModuleTypeResource implements RESTResource {
+public class ModuleTypeResource implements SatisfiableRESTResource {
 
     private ModuleTypeRegistry moduleTypeRegistry;
 
@@ -127,6 +127,11 @@ public class ModuleTypeResource implements RESTResource {
             throw new IllegalArgumentException(
                     String.format("Cannot handle given module type class (%s)", moduleType.getClass()));
         }
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return moduleTypeRegistry != null;
     }
 
 }

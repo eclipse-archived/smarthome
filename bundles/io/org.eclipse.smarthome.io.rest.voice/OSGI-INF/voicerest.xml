@@ -13,5 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setVoiceManager" cardinality="1..1" interface="org.eclipse.smarthome.core.voice.VoiceManager" name="VoiceManager" policy="static" unbind="unsetVoiceManager"/>
+   <reference bind="setVoiceManager" cardinality="0..1" interface="org.eclipse.smarthome.core.voice.VoiceManager" name="VoiceManager" policy="dynamic" unbind="unsetVoiceManager"/>
 </scr:component>

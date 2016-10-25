@@ -23,7 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,7 +38,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("templates")
 @Api("templates")
-public class TemplateResource implements RESTResource {
+public class TemplateResource implements SatisfiableRESTResource {
 
     private TemplateRegistry templateRegistry;
 
@@ -77,5 +77,10 @@ public class TemplateResource implements RESTResource {
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return templateRegistry != null;
     }
 }

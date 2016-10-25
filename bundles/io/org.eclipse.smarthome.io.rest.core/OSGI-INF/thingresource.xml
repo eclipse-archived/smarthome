@@ -14,15 +14,15 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.thing.ThingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
-   <reference bind="setItemFactory" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="static" unbind="unsetItemFactory"/>
-   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static" unbind="unsetItemRegistry"/>
-   <reference bind="setManagedItemChannelLinkProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider" name="ManagedItemChannelLinkProvider" policy="static" unbind="unsetManagedItemChannelLinkProvider"/>
-   <reference bind="setManagedItemProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="static" unbind="unsetManagedItemProvider"/>
-   <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
-   <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
-   <reference bind="setConfigStatusService" cardinality="1..1" interface="org.eclipse.smarthome.config.core.status.ConfigStatusService" name="ConfigStatusService" policy="static" unbind="unsetConfigStatusService"/>
-   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
-   <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static"/>
+   <reference bind="setItemChannelLinkRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="dynamic" unbind="unsetItemChannelLinkRegistry"/>
+   <reference bind="setItemFactory" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="dynamic" unbind="unsetItemFactory"/>
+   <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="setManagedItemChannelLinkProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider" name="ManagedItemChannelLinkProvider" policy="dynamic" unbind="unsetManagedItemChannelLinkProvider"/>
+   <reference bind="setManagedItemProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="dynamic" unbind="unsetManagedItemProvider"/>
+   <reference bind="setManagedThingProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="dynamic" unbind="unsetManagedThingProvider"/>
+   <reference bind="setThingRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="dynamic" unbind="unsetThingRegistry"/>
+   <reference bind="setConfigStatusService" cardinality="0..1" interface="org.eclipse.smarthome.config.core.status.ConfigStatusService" name="ConfigStatusService" policy="dynamic" unbind="unsetConfigStatusService"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic"/>
    
 </scr:component>
