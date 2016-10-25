@@ -14,8 +14,8 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.item.ItemResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
-   <reference bind="addItemFactory" cardinality="1..n" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="static" unbind="removeItemFactory"/>
-   <reference bind="setManagedItemProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="static" unbind="unsetManagedItemProvider"/>
-   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
+   <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="addItemFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="dynamic" unbind="removeItemFactory"/>
+   <reference bind="setManagedItemProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="dynamic" unbind="unsetManagedItemProvider"/>
+   <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
 </scr:component>

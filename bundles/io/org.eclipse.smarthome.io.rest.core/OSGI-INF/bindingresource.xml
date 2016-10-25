@@ -14,7 +14,7 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.binding.BindingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setBindingInfoRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.binding.BindingInfoRegistry" name="BindingInfoRegistry" policy="static" unbind="unsetBindingInfoRegistry"/>
-   <reference bind="setConfigurationService" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.core.config.ConfigurationService" name="ConfigurationService" policy="static" unbind="unsetConfigurationService"/>
-   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setBindingInfoRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.binding.BindingInfoRegistry" name="BindingInfoRegistry" policy="dynamic" unbind="unsetBindingInfoRegistry"/>
+   <reference bind="setConfigurationService" cardinality="0..1" interface="org.eclipse.smarthome.io.rest.core.config.ConfigurationService" name="ConfigurationService" policy="dynamic" unbind="unsetConfigurationService"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
 </scr:component>

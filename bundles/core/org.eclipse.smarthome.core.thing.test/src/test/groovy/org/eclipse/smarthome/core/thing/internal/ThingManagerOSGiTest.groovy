@@ -465,7 +465,10 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def bridgeHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
-            getThing: { return bridge }
+            getThing: { return bridge },
+            initialize: {},
+            dispose: {
+            }
         ] as ThingHandler
 
         registerService(bridgeHandler,[
@@ -903,8 +906,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         def bridgeHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {
-            }
+            dispose: {}
         ] as ThingHandler
         registerService(bridgeHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): bridge.getUID(),

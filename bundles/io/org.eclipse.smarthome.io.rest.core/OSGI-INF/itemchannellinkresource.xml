@@ -14,6 +14,6 @@
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.core.link.ItemChannelLinkResource"/>
    </service>
-   <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
-   <reference bind="setThingLinkManager" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ThingLinkManager" name="ThingLinkManager" policy="static" unbind="unsetThingLinkManager"/>
+   <reference bind="setItemChannelLinkRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="dynamic" unbind="unsetItemChannelLinkRegistry"/>
+   <reference bind="setThingLinkManager" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ThingLinkManager" name="ThingLinkManager" policy="dynamic" unbind="unsetThingLinkManager"/>
 </scr:component>

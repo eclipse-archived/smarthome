@@ -34,7 +34,7 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(InboxResource.PATH_INBOX)
 @Api(value = InboxResource.PATH_INBOX)
-public class InboxResource implements RESTResource {
+public class InboxResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_INBOX = "inbox";
@@ -146,6 +146,11 @@ public class InboxResource implements RESTResource {
             discoveryResultBeans.add(DiscoveryResultDTOMapper.map(discoveryResult));
         }
         return discoveryResultBeans;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return inbox != null;
     }
 
 }

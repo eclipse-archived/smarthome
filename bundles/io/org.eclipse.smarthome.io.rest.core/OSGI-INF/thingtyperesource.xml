@@ -14,6 +14,6 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
-   <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic" unbind="unsetThingTypeRegistry"/>
 </scr:component>

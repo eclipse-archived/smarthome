@@ -14,5 +14,5 @@
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.core.config.ConfigDescriptionResource"/>
    </service>
-   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
 </scr:component>

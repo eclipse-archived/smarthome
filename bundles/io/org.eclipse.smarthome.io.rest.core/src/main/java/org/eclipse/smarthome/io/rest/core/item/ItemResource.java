@@ -55,7 +55,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
-public class ItemResource implements RESTResource {
+public class ItemResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
 
@@ -558,5 +558,11 @@ public class ItemResource implements RESTResource {
             }
         }
         return beans;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return itemRegistry != null && managedItemProvider != null && eventPublisher != null
+                && !itemFactories.isEmpty();
     }
 }

@@ -13,5 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setTemplateRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.template.TemplateRegistry" name="TemplateRegistry" policy="static" unbind="unsetTemplateRegistry"/>
+   <reference bind="setTemplateRegistry" cardinality="0..1" interface="org.eclipse.smarthome.automation.template.TemplateRegistry" name="TemplateRegistry" policy="dynamic" unbind="unsetTemplateRegistry"/>
 </scr:component>
