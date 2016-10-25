@@ -9,10 +9,8 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +29,8 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+import org.eclipse.smarthome.core.net.HttpServiceUtil;
+import org.eclipse.smarthome.core.net.NetUtil;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -195,13 +195,21 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private URL getURL(String streamId) {
         try {
-            String ipAddress = InetAddress.getLocalHost().getHostAddress(); // we use the primary interface; if a client
-                                                                            // knows it any better, he can himself
-                                                                            // change the url according to his needs.
-            String port = bundleContext.getProperty("org.osgi.service.http.port"); // we do not use SSL as it can cause
-                                                                                   // certificate validation issues.
+            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
+            if (ipAddress == null) {
+                logger.warn("No network interface could be found.");
+                return null;
+            }
+
+            // we do not use SSL as it can cause certificate validation issues.
+            final int port = HttpServiceUtil.getHttpServicePort(bundleContext);
+            if (port == -1) {
+                logger.warn("Cannot find port of the http service.");
+                return null;
+            }
+
             return new URL("http://" + ipAddress + ":" + port + SERVLET_NAME + "/" + streamId);
-        } catch (UnknownHostException | MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             logger.error("Failed to construct audio stream URL: {}", e.getMessage(), e);
             return null;
         }
