@@ -9,6 +9,11 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+<<<<<<< HEAD
+=======
+import java.net.MalformedURLException;
+import java.net.URL;
+>>>>>>> improve "get port" mechanism (#2331)
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +32,12 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+<<<<<<< HEAD
+=======
+import org.eclipse.smarthome.core.net.HttpServiceUtil;
+import org.eclipse.smarthome.core.net.NetUtil;
+import org.osgi.framework.BundleContext;
+>>>>>>> improve "get port" mechanism (#2331)
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -179,8 +190,31 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         return getRelativeURL(streamId);
     }
 
+<<<<<<< HEAD
     private String getRelativeURL(String streamId) {
         return SERVLET_NAME + "/" + streamId;
+=======
+    private URL getURL(String streamId) {
+        try {
+            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
+            if (ipAddress == null) {
+                logger.warn("No network interface could be found.");
+                return null;
+            }
+
+            // we do not use SSL as it can cause certificate validation issues.
+            final int port = HttpServiceUtil.getHttpServicePort(bundleContext);
+            if (port == -1) {
+                logger.warn("Cannot find port of the http service.");
+                return null;
+            }
+
+            return new URL("http://" + ipAddress + ":" + port + SERVLET_NAME + "/" + streamId);
+        } catch (final MalformedURLException e) {
+            logger.error("Failed to construct audio stream URL: {}", e.getMessage(), e);
+            return null;
+        }
+>>>>>>> improve "get port" mechanism (#2331)
     }
 
 }
