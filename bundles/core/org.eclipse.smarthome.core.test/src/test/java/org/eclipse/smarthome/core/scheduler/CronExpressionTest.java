@@ -13,7 +13,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.eclipse.smarthome.core.scheduler.CronExpression;
 import org.junit.Test;
 
 public class CronExpressionTest {
@@ -63,4 +62,22 @@ public class CronExpressionTest {
 
         assertEquals(checkDate, nextDate);
     }
+
+    @Test
+    public void runForever() throws ParseException, InterruptedException {
+
+        final CronExpression expression;
+        expression = new CronExpression("* * * * * ?");
+
+        Date nextDate = expression.getTimeAfter(Calendar.getInstance().getTime());
+        int counter = 1;
+
+        while (nextDate != null && counter <= 150) {
+            System.out.println("value " + counter + " is " + nextDate);
+            nextDate = expression.getTimeAfter(nextDate);
+            counter++;
+        }
+
+    }
+
 }
