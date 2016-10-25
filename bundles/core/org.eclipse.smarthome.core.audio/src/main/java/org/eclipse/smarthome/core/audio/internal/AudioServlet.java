@@ -9,10 +9,13 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
-import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -195,14 +198,48 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private URL getURL(String streamId) {
         try {
-            String ipAddress = InetAddress.getLocalHost().getHostAddress(); // we use the primary interface; if a client
-                                                                            // knows it any better, he can himself
-                                                                            // change the url according to his needs.
+            String ipAddress = getLocalNetworkInterface();
+            if (ipAddress == null) {
+                logger.warn("No network interface could be found.");
+                return null;
+            }
             String port = bundleContext.getProperty("org.osgi.service.http.port"); // we do not use SSL as it can cause
                                                                                    // certificate validation issues.
             return new URL("http://" + ipAddress + ":" + port + SERVLET_NAME + "/" + streamId);
-        } catch (UnknownHostException | MalformedURLException e) {
+        } catch (MalformedURLException e) {
             logger.error("Failed to construct audio stream URL: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Finds the (non loopback, non localhost) local network interface.
+     */
+    public String getLocalNetworkInterface() {
+        try {
+            String localInterface = null;
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface current = interfaces.nextElement();
+                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                    continue;
+                }
+                Enumeration<InetAddress> addresses = current.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress current_addr = addresses.nextElement();
+                    if (current_addr.isLoopbackAddress() || (current_addr instanceof Inet6Address)) {
+                        continue;
+                    }
+                    if (localInterface != null) {
+                        logger.warn("Found multiple local interfaces - ignoring {}", current_addr.getHostAddress());
+                    } else {
+                        localInterface = current_addr.getHostAddress();
+                    }
+                }
+            }
+            return localInterface;
+        } catch (SocketException ex) {
+            logger.error("Could not retrieve network interface: " + ex.getMessage(), ex);
             return null;
         }
     }
