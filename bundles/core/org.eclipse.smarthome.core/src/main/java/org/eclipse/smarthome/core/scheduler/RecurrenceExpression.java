@@ -326,7 +326,7 @@ import org.slf4j.LoggerFactory;
  * arrive at "every other year". Then, "BYMONTH=1" would be applied
  * to arrive at "every January, every other year". Then, "BYDAY=SU"
  * would be applied to arrive at "every Sunday in January, every
- * other year".  Then, "BYHOUR=8,9" would be applied to arrive at
+ * other year". Then, "BYHOUR=8,9" would be applied to arrive at
  * "every Sunday in January at 8 AM and 9 AM, every other year".
  * Then, "BYMINUTE=30" would be applied to arrive at "every Sunday in
  * January at 8:30 AM and 9:30 AM, every other year". Then, lacking
@@ -551,23 +551,8 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
         if (!(isUntil || isCount)) {
             return null;
         } else {
-
-            if (getCandidates().isEmpty()) {
-                try {
-                    parseExpression(getExpression());
-                } catch (ParseException e) {
-                    logger.error("An exception occurred while parsing the expression : '{}'", e.getMessage());
-                }
-            }
-
-            if (!getCandidates().isEmpty()) {
-
-                Collections.sort(getCandidates());
-
-                return getCandidates().get(getCandidates().size() - 1);
-            }
+            return super.getFinalFireTime();
         }
-        return null;
     }
 
     @Override
@@ -1845,6 +1830,11 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
         public int order() {
             return 13;
         }
+    }
+
+    @Override
+    public boolean hasFloatingStartDate() {
+        return false;
     }
 
 }
