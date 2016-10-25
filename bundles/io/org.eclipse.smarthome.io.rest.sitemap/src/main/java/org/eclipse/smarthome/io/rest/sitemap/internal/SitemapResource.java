@@ -44,6 +44,10 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
+<<<<<<< HEAD
+=======
+import org.eclipse.smarthome.io.rest.RESTResource;
+>>>>>>> Added SatisfiableRESTResource and SatisfiableResourceFilter and refactored all ESH RESTResource that have mandatory static dependencies to optional and dynamic and made them implement the new interface. (#2320)
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
