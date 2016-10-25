@@ -33,6 +33,7 @@ import org.jupnp.model.meta.RemoteDeviceIdentity;
  * add further supported devices!
  *
  * @author Patrick Koenemann - Initial contribution
+ * @author Mihaela Memova - removed the getLabel(RemoteDevice device) method due to its unreachable code lines
  */
 public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
@@ -100,25 +101,10 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                 }
 
                 final DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                        .withLabel(getLabel(device)).build();
+                        .withLabel(device.getDisplayString()).build();
                 return result;
             }
         }
-        return null;
-    }
-
-    private String getLabel(RemoteDevice device) {
-        if (device.getDisplayString() != null)
-            return device.getDisplayString();
-        final DeviceDetails details = device.getDetails();
-        if (details != null) {
-            if (details.getModelDetails() != null && details.getModelDetails().getModelDescription() != null) {
-                return details.getModelDetails().getModelDescription();
-            }
-            if (details.getFriendlyName() != null)
-                return details.getFriendlyName();
-        }
-        // we did not find anything meaningful...
         return null;
     }
 
