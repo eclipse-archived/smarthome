@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(VoiceResource.PATH_SITEMAPS)
 @Api(value = VoiceResource.PATH_SITEMAPS)
-public class VoiceResource implements RESTResource {
+public class VoiceResource implements SatisfiableRESTResource {
 
     static final String PATH_SITEMAPS = "voice";
 
@@ -143,5 +143,10 @@ public class VoiceResource implements RESTResource {
         } else {
             return JSONResponse.createErrorResponse(Status.NOT_FOUND, "No interpreter found");
         }
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return voiceManager != null;
     }
 }

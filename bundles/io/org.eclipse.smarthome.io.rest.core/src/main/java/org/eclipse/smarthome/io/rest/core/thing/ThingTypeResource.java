@@ -43,7 +43,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
-public class ThingTypeResource implements RESTResource {
+public class ThingTypeResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_THINGS_TYPES = "thing-types";
@@ -221,5 +221,10 @@ public class ThingTypeResource implements RESTResource {
         }
 
         return strippedThingTypeDTOs;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return thingTypeRegistry != null && configDescriptionRegistry != null;
     }
 }

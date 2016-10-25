@@ -14,6 +14,6 @@
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.core.extensions.ExtensionResource"/>
    </service>
-   <reference bind="setExtensionService" cardinality="1..1" interface="org.eclipse.smarthome.core.extension.ExtensionService" name="ExtensionService" policy="static" unbind="unsetExtensionService"/>
+   <reference bind="setExtensionService" cardinality="0..1" interface="org.eclipse.smarthome.core.extension.ExtensionService" name="ExtensionService" policy="dynamic" unbind="unsetExtensionService"/>
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
 </scr:component>

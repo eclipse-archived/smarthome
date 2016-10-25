@@ -14,5 +14,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
-   <reference bind="setPersistenceServiceRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry" name="PersistenceServiceRegistry" policy="static" unbind="unsetPersistenceServiceRegistry"/>
+   <reference bind="setPersistenceServiceRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry" name="PersistenceServiceRegistry" policy="dynamic" unbind="unsetPersistenceServiceRegistry"/>
 </scr:component>

@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
@@ -93,7 +94,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(SitemapResource.PATH_SITEMAPS)
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource implements RESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
+public class SitemapResource implements SatisfiableRESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
@@ -659,6 +660,11 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     public void onException(ChunkedOutput<OutboundEvent> event, Exception e) {
         // the exception is usually "null" and onClose() is automatically called afterwards
         // - so let's don't do anything in this method.
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return itemUIRegistry != null && subscriptions != null;
     }
 
 }
