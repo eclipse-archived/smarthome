@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Pascal Larin - Initial contribution
-*/
+ */
 public class SinopeBindingConstants {
 
     public static final String BINDING_ID = "sinope";
