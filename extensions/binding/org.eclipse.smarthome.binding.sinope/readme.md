@@ -1,3 +1,9 @@
+---
+layout: documentation
+---
+
+{% include base.html %}
+
 # OpenHab2 / Eclipse SmartHome Bindings for Sinope device. 
 
 This binding supports [OpenHab 2](<http://www.openhab.org/>) and [Eclipse SmartHome API] (<https://www.eclipse.org/smarthome/index.html>). The integration happens through the Sinope (GT150) bridge, which acts as an IP gateway to the Sinope devices on the 916 Mhz ISM band.
