@@ -8,13 +8,13 @@
 
 		<config-description>
 			<parameter name="hostname" type="text">
-				<label>hostname</label>
-				<description>hostname of the Sinope Gateway</description>
+				<label>Hostname</label>
+				<description>Hostname of the Sinope Gateway</description>
 				<required>true</required>
 			</parameter>
 
 			<parameter name="port" type="integer">
-				<label>port</label>
+				<label>Port</label>
 				<description>ip port</description>
 				<required>true</required>
 				<default>4550</default>

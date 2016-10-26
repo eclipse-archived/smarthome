@@ -1,10 +1,17 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+ *
+ *  Copyright (c) 2016 by the respective copyright holders.
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  @author Pascal Larin
+ *  https://github.com/chaton78
+ *
+*/
+
 package org.eclipse.smarthome.binding.sinope.internal;
 
 import java.util.Set;
@@ -16,6 +23,12 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+
+/**
+ * {@link HueHandlerFactory} is a factory for {@link SinopeThermostatHandler}s and {@link SinopeGatewayHandler}s
+ *
+ * @author Pascal Larin - Initial contribution
+ */
 
 public class SinopeHandlerFactory extends BaseThingHandlerFactory {
 
