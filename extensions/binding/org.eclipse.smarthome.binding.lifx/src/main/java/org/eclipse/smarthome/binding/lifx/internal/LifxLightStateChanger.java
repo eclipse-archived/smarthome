@@ -162,9 +162,12 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         // previous value
         packet.setResponseRequired(false);
 
-        lock.lock();
-        pendingPacketMap.put(packet.packetType(), new PendingPacket(packet));
-        lock.unlock();
+        try {
+            lock.lock();
+            pendingPacketMap.put(packet.packetType(), new PendingPacket(packet));
+        } finally {
+            lock.unlock();
+        }
     }
 
     private PendingPacket findPacketToSend() {
@@ -239,9 +242,14 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         if (packet instanceof AcknowledgementResponse) {
             long ackTimestamp = System.currentTimeMillis();
 
-            lock.lock();
-            PendingPacket pendingPacket = removeAcknowledgedPacket(packet.getSequence());
-            lock.unlock();
+            PendingPacket pendingPacket;
+
+            try {
+                lock.lock();
+                pendingPacket = removeAcknowledgedPacket(packet.getSequence());
+            } finally {
+                lock.unlock();
+            }
 
             if (pendingPacket != null) {
                 logger.debug("{} : {} packet was acknowledged in {}ms", macAsHex,
