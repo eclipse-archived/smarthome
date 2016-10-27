@@ -247,7 +247,8 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                 logger.debug("{} : {} packet was acknowledged in {}ms", macAsHex,
                         pendingPacket.packet.getClass().getSimpleName(), ackTimestamp - pendingPacket.lastSend);
 
-                // when these packets get lost the current state will still be updated by the CurrentLightStatePoller
+                // when these packets get lost the current state will still be updated by the
+                // LifxLightCurrentStateUpdater
                 if (pendingPacket.packet instanceof SetPowerRequest) {
                     GetLightPowerRequest powerPacket = new GetLightPowerRequest();
                     communicationHandler.sendPacket(powerPacket);
