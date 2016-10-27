@@ -36,7 +36,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.IntUnaryOperator;
 
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
@@ -92,18 +91,6 @@ public class LifxLightCommunicationHandler {
 
     private final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
-
-    private final IntUnaryOperator incSequenceNumber = new IntUnaryOperator() {
-
-        @Override
-        public int applyAsInt(int value) {
-            int result = value + 1;
-            if (result > 255) {
-                result = 1;
-            }
-            return result;
-        }
-    };
 
     public LifxLightCommunicationHandler(MACAddress macAddress, CurrentLightState currentLightState) {
         this.macAddress = macAddress;
@@ -421,11 +408,27 @@ public class LifxLightCommunicationHandler {
         }
     }
 
+    /**
+     * Atomically increases the sequence number. When Java 8 is available this can be replaced by using the
+     * {@code getAndUpdate} method.
+     */
+    private int getAndIncreaseSequenceNumber() {
+        int prev, next;
+        do {
+            prev = sequenceNumber.get();
+            next = prev + 1;
+            if (next > 255) {
+                next = 1;
+            }
+        } while (!sequenceNumber.compareAndSet(prev, next));
+        return prev;
+    }
+
     public void sendPacket(Packet packet) {
         if (ipAddress != null) {
             packet.setSource(source);
             packet.setTarget(macAddress);
-            packet.setSequence(sequenceNumber.getAndUpdate(incSequenceNumber));
+            packet.setSequence(getAndIncreaseSequenceNumber());
             sendPacket(packet, ipAddress, unicastKey);
         }
     }
@@ -441,7 +444,7 @@ public class LifxLightCommunicationHandler {
     public void broadcastPacket(Packet packet) {
 
         packet.setSource(source);
-        packet.setSequence(sequenceNumber.getAndUpdate(incSequenceNumber));
+        packet.setSequence(getAndIncreaseSequenceNumber());
 
         for (InetSocketAddress address : broadcastAddresses) {
             boolean result = false;
