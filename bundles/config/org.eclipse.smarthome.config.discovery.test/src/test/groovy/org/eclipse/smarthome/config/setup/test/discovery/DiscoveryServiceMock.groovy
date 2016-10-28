@@ -47,6 +47,6 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
         if (faulty) {
             throw new Exception()
         }
-        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, generator((('A'..'Z')+('0'..'9')).join(), 9)), null, null, null, null, DEFAULT_TTL))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, generator((('A'..'Z')+('0'..'9')).join(), 9)), null, null, null, null, DEFAULT_TTL, this))
     }
 }

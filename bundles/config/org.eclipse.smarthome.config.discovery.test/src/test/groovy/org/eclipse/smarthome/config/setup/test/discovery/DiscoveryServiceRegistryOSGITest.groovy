@@ -258,6 +258,62 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     }
 
     @Test
+    void 'assert that removeOlderResults removes only the entries of the same discovery service' () {
+        AsyncResultWrapper<Boolean> scanListenerResult1 = new AsyncResultWrapper<Boolean>()
+        AsyncResultWrapper<DiscoveryResult> discoveryListenerResult = new AsyncResultWrapper<Boolean>()
+        DiscoveryListener discoveryListenerMock = [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
+                discoveryListenerResult.set result
+            },
+            removeOlderThings: { DiscoveryService source, long timestamp, Collection<ThingTypeUID> thingTypeUIDs ->
+                []
+            }
+        ] as DiscoveryListener
+
+        discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
+        discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), [
+            onFinished: {
+                scanListenerResult1.set(Void.TYPE)
+            },
+            onErrorOccurred: {
+            }
+        ] as ScanListener)
+
+        waitForAssert({ assertTrue scanListenerResult1.isSet }, 2000)
+        assertTrue discoveryListenerResult.isSet
+
+        Inbox inbox = getService(Inbox)
+        assertThat inbox.getAll().size(), is(1)
+
+        // register another discovery service for the same thing type
+        DiscoveryService anotherDiscoveryServiceMockForBinding1 = new DiscoveryServiceMock(
+                new ThingTypeUID(ANY_BINDING_ID_1,ANY_THING_TYPE_1), 1)
+        serviceRegs.add(registerService(anotherDiscoveryServiceMockForBinding1, DiscoveryService.class.name))
+
+        // start discovery again
+        discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), [
+            onFinished: {scanListenerResult1.set(Void.TYPE)},
+            onErrorOccurred: {
+            }
+        ] as ScanListener)
+        waitForAssert({ assertTrue scanListenerResult1.isSet }, 2000)
+        assertTrue discoveryListenerResult.isSet
+
+        assertThat inbox.getAll().size(), is(3)
+
+        // should remove no entry, as there is no older entry discovery of this specific discovery service
+        anotherDiscoveryServiceMockForBinding1.removeOlderResults(anotherDiscoveryServiceMockForBinding1.getTimestampOfLastScan())
+        assertThat inbox.getAll().size(), is(3)
+
+        // should remove only one entry
+        discoveryServiceMockForBinding1.removeOlderResults(discoveryServiceMockForBinding1.getTimestampOfLastScan())
+        assertThat inbox.getAll().size(), is(2)
+
+        anotherDiscoveryServiceMockForBinding1.abortScan()
+    }
+
+
+    @Test
     void 'assert that a removed listener is not notified about DiscoveryResults anymore' () {
         AsyncResultWrapper<DiscoveryResult> discoveryResult = new AsyncResultWrapper<Boolean>()
         boolean discoveryFinished = false;

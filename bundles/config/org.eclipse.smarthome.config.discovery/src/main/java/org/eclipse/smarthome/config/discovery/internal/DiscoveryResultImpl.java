@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -23,6 +24,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     private ThingUID thingUID;
     private ThingTypeUID thingTypeUID;
 
+    private DiscoveryService discoveredBy;
     private Map<String, Object> properties;
     private String representationProperty;
     private DiscoveryResultFlag flag;
@@ -49,6 +51,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      * @param label the human readable label to set (could be null or empty)
      * @param bridgeUID the unique bridge ID to be set
      * @param timeToLive time to live in seconds
+     * @param discoveredBy {@link DiscoveryService}, that created this result
      *
      * @throws IllegalArgumentException
      *             if the Thing type UID or the Thing UID is null
@@ -57,8 +60,10 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     @Deprecated
     public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties,
-            String representationProperty, String label, long timeToLive) throws IllegalArgumentException {
-        this(thingUID.getThingTypeUID(), thingUID, bridgeUID, properties, representationProperty, label, timeToLive);
+            String representationProperty, String label, long timeToLive, DiscoveryService discoveredBy)
+            throws IllegalArgumentException {
+        this(thingUID.getThingTypeUID(), thingUID, bridgeUID, properties, representationProperty, label, timeToLive,
+                discoveredBy);
     }
 
     /**
@@ -73,13 +78,14 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      * @param label the human readable label to set (could be null or empty)
      * @param bridgeUID the unique bridge ID to be set
      * @param timeToLive time to live in seconds
+     * @param discoveredBy {@link DiscoveryService}, that created this result
      *
      * @throws IllegalArgumentException
      *             if the Thing type UID or the Thing UID is null
      */
     public DiscoveryResultImpl(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
-            Map<String, Object> properties, String representationProperty, String label, long timeToLive)
-                    throws IllegalArgumentException {
+            Map<String, Object> properties, String representationProperty, String label, long timeToLive,
+            DiscoveryService discoveredBy) throws IllegalArgumentException {
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
@@ -97,6 +103,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
         this.timestamp = new Date().getTime();
         this.timeToLive = timeToLive;
+        this.discoveredBy = discoveredBy;
 
         this.flag = DiscoveryResultFlag.NEW;
     }
@@ -196,25 +203,31 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DiscoveryResultImpl other = (DiscoveryResultImpl) obj;
         if (thingUID == null) {
-            if (other.thingUID != null)
+            if (other.thingUID != null) {
                 return false;
-        } else if (!thingUID.equals(other.thingUID))
+            }
+        } else if (!thingUID.equals(other.thingUID)) {
             return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
         return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", flag=" + flag + ", label="
-                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp + "]";
+                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp
+                + ", discoveredBy = " + (discoveredBy != null ? discoveredBy.getClass().getSimpleName() : "") + "]";
     }
 
     @Override
@@ -225,5 +238,15 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     @Override
     public long getTimeToLive() {
         return timeToLive;
+    }
+
+    @Override
+    public void discoveredBy(DiscoveryService discoveryService) {
+        this.discoveredBy = discoveryService;
+    }
+
+    @Override
+    public DiscoveryService isDiscoveredBy() {
+        return discoveredBy;
     }
 }

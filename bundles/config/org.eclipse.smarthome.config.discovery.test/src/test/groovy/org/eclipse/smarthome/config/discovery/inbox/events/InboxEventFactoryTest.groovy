@@ -29,7 +29,7 @@ class InboxEventFactoryTest {
 
     def THING_UID = new ThingUID("binding:type:id")
 
-    def DISCOVERY_RESULT = new DiscoveryResultImpl(THING_UID, null, null, null, null, 60)
+    def DISCOVERY_RESULT = new DiscoveryResultImpl(THING_UID, null, null, null, null, 60, null)
 
     def INBOX_ADDED_EVENT_TYPE = InboxAddedEvent.TYPE
 
