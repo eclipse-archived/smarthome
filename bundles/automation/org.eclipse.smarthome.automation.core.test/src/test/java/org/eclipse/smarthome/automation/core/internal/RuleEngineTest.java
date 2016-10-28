@@ -42,14 +42,14 @@ public class RuleEngineTest {
     Logger log = LoggerFactory.getLogger(RuleEngineTest.class);
 
     private RuleEngine createRuleEngine() {
-        BundleContextMockup bc = new BundleContextMockup();
-        RuleEngine ruleEngine = new RuleEngine(bc);
-        ruleEngine.setModuleTypeManager(new ModuleTypeManagerMockup(bc, ruleEngine));
+        RuleEngine ruleEngine = new RuleEngine();
+        ruleEngine.setModuleTypeRegistry(new ModuleTypeRegistryMockup());
         return ruleEngine;
     }
 
     /**
      * test adding and retrieving rules
+     *
      */
     @Test
     public void testAddRetrieveRules() {
@@ -71,6 +71,7 @@ public class RuleEngineTest {
 
     /**
      * test auto map connections of the rule
+     *
      */
     @Test
     public void testAutoMapRuleConnections() {
@@ -119,6 +120,7 @@ public class RuleEngineTest {
 
     /**
      * test editing rule tags
+     *
      */
     @Test
     public void testRuleTags() {
@@ -150,6 +152,7 @@ public class RuleEngineTest {
 
     /**
      * test get rules by tags
+     *
      */
     @Test
     public void testGetRuleByTags() {
@@ -183,6 +186,7 @@ public class RuleEngineTest {
 
     /**
      * test rule configurations with null
+     *
      */
     @Test
     public void testRuleConfigNull() {
@@ -199,6 +203,7 @@ public class RuleEngineTest {
 
     /**
      * test rule configurations with real values
+     *
      */
     @Test
     public void testRuleConfigValue() {
@@ -235,6 +240,7 @@ public class RuleEngineTest {
 
     /**
      * test rule actions
+     *
      */
     @Test
     public void testRuleActions() {
@@ -266,6 +272,7 @@ public class RuleEngineTest {
 
     /**
      * test rule triggers
+     *
      */
     @Test
     public void testRuleTriggers() {
@@ -292,7 +299,7 @@ public class RuleEngineTest {
     }
 
     /**
-     * test rule conditions
+     * test rule condition
      */
     @Test
     public void testRuleConditions() {
@@ -328,9 +335,9 @@ public class RuleEngineTest {
 
     private Rule createAutoMapRule() {
         Rule rule = new Rule("rule1");
-        rule.setTriggers(createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE));
-        rule.setConditions(createConditions(ModuleTypeManagerMockup.CONDITION_TYPE));
-        rule.setActions(createActions(ModuleTypeManagerMockup.ACTION_TYPE));
+        rule.setTriggers(createTriggers(ModuleTypeRegistryMockup.TRIGGER_TYPE));
+        rule.setConditions(createConditions(ModuleTypeRegistryMockup.CONDITION_TYPE));
+        rule.setActions(createActions(ModuleTypeRegistryMockup.ACTION_TYPE));
         return rule;
 
     }

@@ -5,12 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.core.internal;
+package org.eclipse.smarthome.automation;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
-import org.eclipse.smarthome.core.storage.StorageService;
 
 /**
  * Implementation of a rule provider that uses the storage service for persistence
@@ -19,11 +18,7 @@ import org.eclipse.smarthome.core.storage.StorageService;
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, String>implements RuleProvider {
-
-    public ManagedRuleProvider(StorageService storage) {
-        setStorageService(storage);
-    }
+public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, String> implements RuleProvider {
 
     @Override
     protected String getKey(Rule element) {

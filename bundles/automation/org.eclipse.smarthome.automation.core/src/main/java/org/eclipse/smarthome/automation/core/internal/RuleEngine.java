@@ -10,7 +10,6 @@ package org.eclipse.smarthome.automation.core.internal;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
@@ -50,6 +48,8 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -57,11 +57,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +79,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class RuleEngine
-        implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */, ManagedService {
+public class RuleEngine {
 
     /**
      * Constant defining separator between module uid and output name.
@@ -109,7 +104,7 @@ public class RuleEngine
     /**
      * Delay between rule's re-initialization tries.
      */
-    private long scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
+    private long scheduleReinitializationDelay;
 
     /**
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
@@ -129,17 +124,6 @@ public class RuleEngine
     private Map<String, RuntimeRule> rules;
 
     /**
-     * Tracker of module handler factories. Each factory has a type which can evaluate. This type corresponds to the
-     * system module type of the module.
-     */
-    private ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */ mhfTracker;
-
-    /**
-     * Bundle context field.
-     */
-    BundleContext bc;
-
-    /**
      * {@link Map} system module type to corresponding module handler factories.
      */
     private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
@@ -154,13 +138,13 @@ public class RuleEngine
      */
     private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
 
-    protected Logger logger;
+    protected Logger logger = LoggerFactory.getLogger(RuleEngine.class.getName());
 
     private StatusInfoCallback statusInfoCallback;
 
     private Map<String, Map<String, Object>> contextMap;
 
-    private ModuleTypeManager mtManager;
+    private ModuleTypeRegistry mtRegistry;
 
     private CompositeModuleHandlerFactory compositeFactory;
 
@@ -175,20 +159,68 @@ public class RuleEngine
      * services.
      *
      * @param bc {@link BundleContext} used for tracker registration and rule engine logger creation.
+     * @throws InvalidSyntaxException
      */
-    @SuppressWarnings("unchecked")
-    public RuleEngine(BundleContext bc) {
-        this.bc = bc;
-        logger = LoggerFactory.getLogger(getClass());
-        contextMap = new HashMap<String, Map<String, Object>>();
-        if (rules == null) {
-            rules = new HashMap<String, RuntimeRule>(20);
-        }
-        moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
-        mhfTracker = new ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */(bc,
-                ModuleHandlerFactory.class.getName(), this);
-        mhfTracker.open();
+    public RuleEngine() {
+        this.rules = new HashMap<String, RuntimeRule>(20);
+        this.contextMap = new HashMap<String, Map<String, Object>>();
+        this.moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
+    }
 
+    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
+        this.mtRegistry = moduleTypeRegistry;
+        ConnectionValidator.setRegistry(mtRegistry);
+    }
+
+    protected void setCompositeModuleHandlerFactory(CompositeModuleHandlerFactory compositeFactory) {
+        this.compositeFactory = compositeFactory;
+    }
+
+    protected void addModuleTypeProvider(ModuleTypeProvider moduleTypeProvider) {
+        logger.debug("ModuleTypeProvider added.");
+        moduleTypeUpdated(moduleTypeProvider.getModuleTypes(null));
+    }
+
+    protected void updatedModuleTypeProvider(ModuleTypeProvider moduleTypeProvider) {
+        logger.debug("ModuleTypeProvider updated.");
+        moduleTypeUpdated(moduleTypeProvider.getModuleTypes(null));
+    }
+
+    protected void addModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
+        logger.debug("ModuleHandlerFactory added.");
+        Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+        addNewModuleTypes(moduleHandlerFactory, moduleTypes);
+    }
+
+    protected void updatedModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
+        logger.debug("ModuleHandlerFactory updated, updating handlers");
+        Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
+        HashSet<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
+        ArrayList<String> removedTypes = new ArrayList<String>();
+
+        for (Map.Entry<String, ModuleHandlerFactory> entry : moduleHandlerFactories.entrySet()) {
+            if (entry.getValue().equals(moduleHandlerFactory)) {
+                String key = entry.getKey();
+                if (types.contains(key)) {
+                    newTypes.remove(key);
+                } else {
+                    removedTypes.add(key);
+                }
+            }
+        }
+
+        if (removedTypes.size() > 0) {
+            removeMissingModuleTypes(removedTypes);
+        }
+
+        if (newTypes.size() > 0) {
+            addNewModuleTypes(moduleHandlerFactory, newTypes);
+        }
+    }
+
+    protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
+        Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+        removeMissingModuleTypes(moduleTypes);
     }
 
     /**
@@ -537,7 +569,7 @@ public class RuleEngine
     public ModuleHandler getModuleHandler(Module m, String ruleUID) {
         String moduleTypeId = m.getTypeUID();
         ModuleHandlerFactory mhf = getModuleHandlerFactory(moduleTypeId);
-        if (mhf == null || mtManager.get(moduleTypeId) == null) {
+        if (mhf == null || mtRegistry.get(moduleTypeId) == null) {
             return null;
         }
         return mhf.getHandler(m, ruleUID);
@@ -546,7 +578,7 @@ public class RuleEngine
     public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
         ModuleHandlerFactory mhf = moduleHandlerFactories.get(moduleTypeId);
         if (mhf == null) {
-            ModuleType mt = mtManager.get(moduleTypeId);
+            ModuleType mt = mtRegistry.get(moduleTypeId);
             if (mt instanceof CompositeTriggerType || //
                     mt instanceof CompositeConditionType || //
                     mt instanceof CompositeActionType) {
@@ -730,22 +762,6 @@ public class RuleEngine
         return rules.get(rUID) != null;
     }
 
-    /**
-     * This method tracks for {@link ModuleHandlerFactory}s. When a new factory is appeared it is added to the
-     * {@link #moduleHandlerFactories} map and all rules which are waiting for handlers handled by this factory are
-     * tried to be initialized.
-     *
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
-     */
-    @Override
-    public ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */ reference) {
-        @SuppressWarnings("unchecked")
-        ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
-        Collection<String> moduleTypes = mhf.getTypes();
-        addNewModuleTypes(mhf, moduleTypes);
-        return mhf;
-    }
-
     private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
@@ -787,57 +803,6 @@ public class RuleEngine
             }, scheduleReinitializationDelay, TimeUnit.MILLISECONDS);
             scheduleTasks.put(rUID, f);
         }
-    }
-
-    /**
-     * This method tracks for modification of {@link ModuleHandlerFactory} service. This is used if the factory can
-     * dynamically change its supported ModuleHandlers.
-     *
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
-    @Override
-    public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
-            /* ModuleHandlerFactory */Object service) {
-        logger.debug("ModuleHandlerFactory modified, updating handlers");
-        ModuleHandlerFactory moduleHandlerFactory = ((ModuleHandlerFactory) service);
-
-        Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
-        HashSet<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
-        ArrayList<String> removedTypes = new ArrayList<String>();
-
-        for (Map.Entry<String, ModuleHandlerFactory> entry : moduleHandlerFactories.entrySet()) {
-            if (entry.getValue().equals(moduleHandlerFactory)) {
-                String key = entry.getKey();
-                if (types.contains(key)) {
-                    newTypes.remove(key);
-                } else {
-                    removedTypes.add(key);
-                }
-            }
-        }
-
-        if (removedTypes.size() > 0) {
-            removeMissingModuleTypes(removedTypes);
-        }
-
-        if (newTypes.size() > 0) {
-            addNewModuleTypes(moduleHandlerFactory, newTypes);
-        }
-    }
-
-    /**
-     * This method tracks for disappearing of {@link ModuleHandlerFactory} service. It unregister all rules using module
-     * handlers handled by this factory.
-     *
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
-    @Override
-    public void removedService(ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
-            Object service) {
-        Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
-        removeMissingModuleTypes(moduleTypes);
     }
 
     private void removeMissingModuleTypes(Collection<String> moduleTypes) {
@@ -1060,10 +1025,6 @@ public class RuleEngine
     public synchronized void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            if (mhfTracker != null) {
-                mhfTracker.close();
-                mhfTracker = null;
-            }
             for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
                 RuntimeRule r = it.next();
                 removeRuleEntry(r);
@@ -1184,14 +1145,6 @@ public class RuleEngine
         this.statusInfoCallback = statusInfoCallback;
     }
 
-    protected void setModuleTypeManager(ModuleTypeManager mtManager) {
-        this.mtManager = mtManager;
-    }
-
-    protected void setCompositeModuleFactory(CompositeModuleHandlerFactory compositeFactory) {
-        this.compositeFactory = compositeFactory;
-    }
-
     private void resolveDefaultValues(RuntimeRule r) {
         setDefaultAndNormalizeConfigValues(r.getUID(), r.getTriggers());
         setDefaultAndNormalizeConfigValues(r.getUID(), r.getConditions());
@@ -1202,7 +1155,7 @@ public class RuleEngine
         for (T module : modules) {
             Configuration moduleConfiguration = module.getConfiguration();
             String typeId = module.getTypeUID();
-            ModuleType mt = mtManager.get(typeId);
+            ModuleType mt = mtRegistry.get(typeId);
             List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
             if (configDescriptions != null) {
                 for (ConfigDescriptionParameter configDescription : configDescriptions) {
@@ -1249,10 +1202,9 @@ public class RuleEngine
         return executor;
     }
 
-    @Override
-    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-        if (properties != null) {
-            Object value = properties.get(CONFIG_PROPERTY_REINITIALIZATION_DELAY);
+    protected void scheduleRulesConfigurationUpdated(Map<String, Object> config) {
+        if (config != null) {
+            Object value = config.get(CONFIG_PROPERTY_REINITIALIZATION_DELAY);
             if (value != null) {
                 if (value instanceof Number) {
                     scheduleReinitializationDelay = ((Number) value).longValue();
@@ -1281,12 +1233,12 @@ public class RuleEngine
     private void setDefaultConfigurationValues(List<Module> modules) {
         for (Module module : modules) {
             String type = module.getTypeUID();
-            if (mtManager != null) {
+            if (mtRegistry != null) {
                 Configuration mConfig = module.getConfiguration();
                 if (mConfig == null) {
                     mConfig = new Configuration();
                 }
-                ModuleType mt = mtManager.get(type);
+                ModuleType mt = mtRegistry.get(type);
                 if (mt != null) {
                     List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
                     for (ConfigDescriptionParameter cftDesc : configDescriptions) {
@@ -1353,14 +1305,14 @@ public class RuleEngine
     private void autoMapConnections(RuntimeRule r) {
         Map<Set<String>, OutputRef> triggerOutputTags = new HashMap<Set<String>, OutputRef>(11);
         for (Trigger t : r.getTriggers()) {
-            TriggerType tt = mtManager.get(t.getTypeUID());
+            TriggerType tt = mtRegistry.get(t.getTypeUID());
             if (tt != null) {
                 initTagsMap(t.getId(), tt.getOutputs(), triggerOutputTags);
             }
         }
         Map<Set<String>, OutputRef> actionOutputTags = new HashMap<Set<String>, OutputRef>(11);
         for (Action a : r.getActions()) {
-            ActionType at = mtManager.get(a.getTypeUID());
+            ActionType at = mtRegistry.get(a.getTypeUID());
             if (at != null) {
                 initTagsMap(a.getId(), at.getOutputs(), actionOutputTags);
             }
@@ -1370,7 +1322,7 @@ public class RuleEngine
         if (!triggerOutputTags.isEmpty()) {
             for (Condition c : r.getConditions()) {
                 boolean isConnectionChanged = false;
-                ConditionType ct = mtManager.get(c.getTypeUID());
+                ConditionType ct = mtRegistry.get(c.getTypeUID());
                 if (ct != null) {
                     Set<Connection> connections = ((RuntimeCondition) c).getConnections();
 
@@ -1396,7 +1348,7 @@ public class RuleEngine
         if (!triggerOutputTags.isEmpty() || !actionOutputTags.isEmpty()) {
             for (Action a : r.getActions()) {
                 boolean isConnectionChanged = false;
-                ActionType at = mtManager.get(a.getTypeUID());
+                ActionType at = mtRegistry.get(a.getTypeUID());
                 if (at != null) {
                     Set<Connection> connections = ((RuntimeAction) a).getConnections();
                     for (Input input : at.getInputs()) {
