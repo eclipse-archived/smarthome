@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.percentTypeToKelvin;
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -227,9 +227,9 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     private void addSetColorRequestToMap() {
         HSBType hsb = pendingLightState.getHSB();
         PercentType temperature = pendingLightState.getTemperature();
-        SetColorRequest packet = new SetColorRequest((int) (hsb.getHue().floatValue() / 360 * 65535.0f),
-                (int) (hsb.getSaturation().floatValue() / 100 * 65535.0f),
-                (int) (hsb.getBrightness().floatValue() / 100 * 65535.0f), percentTypeToKelvin(temperature), fadeTime);
+        SetColorRequest packet = new SetColorRequest(decimalTypeToHue(hsb.getHue()),
+                percentTypeToSaturation(hsb.getSaturation()), percentTypeToBrightness(hsb.getBrightness()),
+                percentTypeToKelvin(temperature), fadeTime);
         addPacketToMap(packet);
     }
 

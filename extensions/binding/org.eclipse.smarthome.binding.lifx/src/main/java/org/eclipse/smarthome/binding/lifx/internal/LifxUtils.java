@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -18,6 +19,30 @@ public final class LifxUtils {
 
     private LifxUtils() {
         // hidden utility class constructor
+    }
+
+    public static DecimalType hueToDecimalType(int hue) {
+        return new DecimalType(hue * 360 / 65535.0f);
+    }
+
+    public static int decimalTypeToHue(DecimalType hue) {
+        return (int) (hue.floatValue() / 360 * 65535.0f);
+    }
+
+    public static PercentType saturationToPercentType(int saturation) {
+        return new PercentType(Math.round((saturation / 65535.0f) * 100));
+    }
+
+    public static int percentTypeToSaturation(PercentType saturation) {
+        return (int) (saturation.floatValue() / 100 * 65535.0f);
+    }
+
+    public static PercentType brightnessToPercentType(int brightness) {
+        return new PercentType(Math.round((brightness / 65535.0f) * 100));
+    }
+
+    public static int percentTypeToBrightness(PercentType brightness) {
+        return (int) (brightness.floatValue() / 100 * 65535.0f);
     }
 
     public static PercentType kelvinToPercentType(int kelvin) {

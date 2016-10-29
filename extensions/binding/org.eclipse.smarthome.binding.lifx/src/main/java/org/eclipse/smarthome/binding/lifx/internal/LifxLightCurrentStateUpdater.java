@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.kelvinToPercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -125,9 +125,9 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     }
 
     public void handleLightStatus(StateResponse packet) {
-        DecimalType hue = new DecimalType(packet.getHue() * 360 / 65535.0f);
-        PercentType saturation = new PercentType(Math.round((packet.getSaturation() / 65535.0f) * 100));
-        PercentType brightness = new PercentType(Math.round((packet.getBrightness() / 65535.0f) * 100));
+        DecimalType hue = hueToDecimalType(packet.getHue());
+        PercentType saturation = saturationToPercentType(packet.getSaturation());
+        PercentType brightness = brightnessToPercentType(packet.getBrightness());
         PercentType temperature = kelvinToPercentType(packet.getKelvin());
 
         currentLightState.setHSB(new HSBType(hue, saturation, brightness));
