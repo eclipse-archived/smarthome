@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -17,8 +18,28 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  */
 public final class LifxUtils {
 
+    private static final double INCREASE_DECREASE_STEP = 0.10;
+
     private LifxUtils() {
         // hidden utility class constructor
+    }
+
+    public static PercentType increaseDecreasePercentType(IncreaseDecreaseType increaseDecreaseType, PercentType old) {
+        double delta = 0;
+        if (increaseDecreaseType == IncreaseDecreaseType.INCREASE) {
+            delta = INCREASE_DECREASE_STEP;
+        } else if (increaseDecreaseType == IncreaseDecreaseType.DECREASE) {
+            delta = -INCREASE_DECREASE_STEP;
+        }
+
+        if (delta != 0) {
+            double newValue = (old.doubleValue() / 100) + delta;
+            newValue = Math.min(newValue, 1);
+            newValue = Math.max(newValue, 0);
+            return new PercentType((int) Math.round(newValue * 100));
+        } else {
+            return old;
+        }
     }
 
     public static DecimalType hueToDecimalType(int hue) {

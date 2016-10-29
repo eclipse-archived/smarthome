@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.percentTypeToKelvin;
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -53,7 +53,6 @@ public class LifxLightHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
-    private static final double INCREASE_DECREASE_STEP = 0.10;
     private static final long FADE_TIME_DEFAULT = 300;
     private static final int MAX_STATE_CHANGE_DURATION = 2000;
 
@@ -61,12 +60,17 @@ public class LifxLightHandler extends BaseThingHandler {
     private PercentType powerOnBrightness;
 
     private MACAddress macAddress = null;
+    private String macAsHex;
 
     private ReentrantLock lock = new ReentrantLock();
 
-    public LifxLightHandler(Thing thing) {
-        super(thing);
-    }
+    private CurrentLightState currentLightState;
+    private LifxLightState pendingLightState;
+
+    private LifxLightCommunicationHandler communicationHandler;
+    private LifxLightCurrentStateUpdater currentStateUpdater;
+    private LifxLightStateChanger lightStateChanger;
+    private LifxLightOnlineStateUpdater onlineStateUpdater;
 
     public class CurrentLightState extends LifxLightState {
 
@@ -131,52 +135,8 @@ public class LifxLightHandler extends BaseThingHandler {
         }
     }
 
-    private CurrentLightState currentLightState = new CurrentLightState();
-
-    private LifxLightState pendingLightState = new LifxLightState();
-
-    private LifxLightCommunicationHandler communicationHandler;
-
-    private String macAsHex;
-
-    private LifxLightOnlineStateUpdater onlineStateUpdater;
-
-    private LifxLightCurrentStateUpdater currentStateUpdater;
-
-    private LifxLightStateChanger lightStateChanger;
-
-    @Override
-    public void dispose() {
-        try {
-            lock.lock();
-
-            if (communicationHandler != null) {
-                communicationHandler.stop();
-                communicationHandler = null;
-            }
-
-            if (currentStateUpdater != null) {
-                currentStateUpdater.stop();
-                currentStateUpdater = null;
-            }
-
-            if (onlineStateUpdater != null) {
-                onlineStateUpdater.stop();
-                onlineStateUpdater = null;
-            }
-
-            if (lightStateChanger != null) {
-                lightStateChanger.stop();
-                lightStateChanger = null;
-            }
-
-            currentLightState = null;
-            pendingLightState = null;
-
-        } finally {
-            lock.unlock();
-        }
-
+    public LifxLightHandler(Thing thing) {
+        super(thing);
     }
 
     @Override
@@ -207,6 +167,39 @@ public class LifxLightHandler extends BaseThingHandler {
             lightStateChanger.start();
         } catch (Exception ex) {
             logger.error("Error occured while initializing LIFX handler: " + ex.getMessage(), ex);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        try {
+            lock.lock();
+
+            if (communicationHandler != null) {
+                communicationHandler.stop();
+                communicationHandler = null;
+            }
+
+            if (currentStateUpdater != null) {
+                currentStateUpdater.stop();
+                currentStateUpdater = null;
+            }
+
+            if (onlineStateUpdater != null) {
+                onlineStateUpdater.stop();
+                onlineStateUpdater = null;
+            }
+
+            if (lightStateChanger != null) {
+                lightStateChanger.stop();
+                lightStateChanger = null;
+            }
+
+            currentLightState = null;
+            pendingLightState = null;
+
         } finally {
             lock.unlock();
         }
@@ -334,7 +327,6 @@ public class LifxLightHandler extends BaseThingHandler {
 
     private void handleHSBCommand(HSBType hsbType) {
         getLightStateForCommand().setHSB(hsbType);
-
         if (getLightStateForCommand().getPowerState() != PowerState.ON) {
             getLightStateForCommand().setPowerState(PowerState.ON);
         }
@@ -349,15 +341,12 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleColorOnOffCommand(OnOffType onOffType) {
-
         HSBType baseHSB = getLightStateForCommand().getHSB();
-
         if (baseHSB != null && powerOnBrightness != null) {
             PercentType percentType = onOffType == OnOffType.ON ? powerOnBrightness : new PercentType(0);
             HSBType newColorState = new HSBType(baseHSB.getHue(), baseHSB.getSaturation(), percentType);
             handleHSBCommand(newColorState);
         }
-
         getLightStateForCommand().setPowerState(onOffType);
     }
 
@@ -366,53 +355,17 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleIncreaseDecreaseCommand(IncreaseDecreaseType increaseDecreaseType) {
-
         HSBType baseHSB = getLightStateForCommand().getHSB();
-
         if (baseHSB != null) {
-            float brightness = baseHSB.getBrightness().floatValue() / 100;
-
-            if (increaseDecreaseType == IncreaseDecreaseType.INCREASE) {
-                brightness = (float) (brightness + INCREASE_DECREASE_STEP);
-                if (brightness > 1) {
-                    brightness = 1;
-                }
-
-            }
-            if (increaseDecreaseType == IncreaseDecreaseType.DECREASE) {
-                brightness = (float) (brightness - INCREASE_DECREASE_STEP);
-                if (brightness < 0) {
-                    brightness = 0;
-                }
-            }
-
-            PercentType newBrightness = new PercentType(Math.round(brightness * 100));
+            PercentType newBrightness = increaseDecreasePercentType(increaseDecreaseType, baseHSB.getBrightness());
             handlePercentCommand(newBrightness);
         }
     }
 
     private void handleIncreaseDecreaseTemperatureCommand(IncreaseDecreaseType increaseDecreaseType) {
-
         PercentType baseTemperature = getLightStateForCommand().getTemperature();
-
         if (baseTemperature != null) {
-            float temperature = baseTemperature.floatValue() / 100;
-
-            if (increaseDecreaseType == IncreaseDecreaseType.INCREASE) {
-                temperature = (float) (temperature + INCREASE_DECREASE_STEP);
-                if (temperature > 1) {
-                    temperature = 1;
-                }
-
-            }
-            if (increaseDecreaseType == IncreaseDecreaseType.DECREASE) {
-                temperature = (float) (temperature - INCREASE_DECREASE_STEP);
-                if (temperature < 0) {
-                    temperature = 0;
-                }
-            }
-
-            PercentType newTemperature = new PercentType(Math.round(temperature * 100));
+            PercentType newTemperature = increaseDecreasePercentType(increaseDecreaseType, baseTemperature);
             handleTemperatureCommand(newTemperature);
         }
     }
