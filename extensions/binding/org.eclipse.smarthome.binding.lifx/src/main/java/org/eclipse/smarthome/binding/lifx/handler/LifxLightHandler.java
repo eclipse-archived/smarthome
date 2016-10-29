@@ -306,10 +306,9 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private LifxLightState getLightStateForCommand() {
-        if (isStateChangePending()) {
-            return pendingLightState;
+        if (!isStateChangePending()) {
+            pendingLightState.copy(currentLightState);
         }
-        pendingLightState.copy(currentLightState);
         return pendingLightState;
     }
 
