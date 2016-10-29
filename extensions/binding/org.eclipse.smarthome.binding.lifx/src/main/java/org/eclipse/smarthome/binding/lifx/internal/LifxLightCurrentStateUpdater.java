@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.kelvinToPercentType;
+
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -120,11 +122,6 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
         } else if (packet instanceof StatePowerResponse) {
             handlePowerStatus((StatePowerResponse) packet);
         }
-    }
-
-    private PercentType kelvinToPercentType(int kelvin) {
-        // range is from 2500-9000K
-        return new PercentType((kelvin - 9000) / (-65));
     }
 
     public void handleLightStatus(StateResponse packet) {

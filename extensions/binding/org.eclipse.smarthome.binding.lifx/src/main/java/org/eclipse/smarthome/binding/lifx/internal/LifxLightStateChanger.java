@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.percentTypeToKelvin;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -230,11 +231,6 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                 (int) (hsb.getSaturation().floatValue() / 100 * 65535.0f),
                 (int) (hsb.getBrightness().floatValue() / 100 * 65535.0f), percentTypeToKelvin(temperature), fadeTime);
         addPacketToMap(packet);
-    }
-
-    private int percentTypeToKelvin(PercentType temperature) {
-        // range is from 2500-9000K
-        return 9000 - (temperature.intValue() * 65);
     }
 
     @Override

@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
+import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.percentTypeToKelvin;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -90,17 +91,17 @@ public class LifxLightHandler extends BaseThingHandler {
         }
 
         @Override
-        public void setHSB(HSBType newHSB) {
-            if (!isStateChangePending() || newHSB.equals(pendingLightState.getHSB())) {
+        public void setHSB(HSBType hsb) {
+            if (!isStateChangePending() || hsb.equals(pendingLightState.getHSB())) {
                 if (getPowerState() == PowerState.OFF) {
-                    updateState(CHANNEL_COLOR, new HSBType(newHSB.getHue(), newHSB.getSaturation(), PercentType.ZERO));
+                    updateState(CHANNEL_COLOR, new HSBType(hsb.getHue(), hsb.getSaturation(), PercentType.ZERO));
                     updateState(CHANNEL_BRIGHTNESS, PercentType.ZERO);
-                } else if (newHSB != null) {
-                    updateState(CHANNEL_COLOR, newHSB);
-                    updateState(CHANNEL_BRIGHTNESS, newHSB.getBrightness());
+                } else if (hsb != null) {
+                    updateState(CHANNEL_COLOR, hsb);
+                    updateState(CHANNEL_BRIGHTNESS, hsb.getBrightness());
                 }
             }
-            super.setHSB(newHSB);
+            super.setHSB(hsb);
         }
 
         @Override
@@ -414,11 +415,6 @@ public class LifxLightHandler extends BaseThingHandler {
             PercentType newTemperature = new PercentType(Math.round(temperature * 100));
             handleTemperatureCommand(newTemperature);
         }
-    }
-
-    private int percentTypeToKelvin(PercentType temperature) {
-        // range is from 2500-9000K
-        return 9000 - (temperature.intValue() * 65);
     }
 
 }
