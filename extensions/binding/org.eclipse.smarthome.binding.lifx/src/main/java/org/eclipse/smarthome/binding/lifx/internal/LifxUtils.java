@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -18,25 +21,29 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  */
 public final class LifxUtils {
 
-    private static final double INCREASE_DECREASE_STEP = 0.10;
+    private static final BigDecimal INCREASE_DECREASE_STEP = new BigDecimal(10);
+
+    private static final BigDecimal ZERO = PercentType.ZERO.toBigDecimal();
+    private static final BigDecimal HUNDRED = PercentType.HUNDRED.toBigDecimal();
 
     private LifxUtils() {
         // hidden utility class constructor
     }
 
     public static PercentType increaseDecreasePercentType(IncreaseDecreaseType increaseDecreaseType, PercentType old) {
-        double delta = 0;
+        BigDecimal delta = ZERO;
         if (increaseDecreaseType == IncreaseDecreaseType.INCREASE) {
             delta = INCREASE_DECREASE_STEP;
         } else if (increaseDecreaseType == IncreaseDecreaseType.DECREASE) {
-            delta = -INCREASE_DECREASE_STEP;
+            delta = INCREASE_DECREASE_STEP.negate();
         }
 
-        if (delta != 0) {
-            double newValue = (old.doubleValue() / 100) + delta;
-            newValue = Math.min(newValue, 1);
-            newValue = Math.max(newValue, 0);
-            return new PercentType((int) Math.round(newValue * 100));
+        if (delta != ZERO) {
+            BigDecimal newValue = old.toBigDecimal().add(delta);
+            newValue = newValue.setScale(0, RoundingMode.HALF_UP);
+            newValue = newValue.min(HUNDRED);
+            newValue = newValue.max(ZERO);
+            return new PercentType(newValue);
         } else {
             return old;
         }
