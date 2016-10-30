@@ -17,7 +17,8 @@ Import-Package:
  org.eclipse.smarthome.core.storage,
  org.osgi.framework,
  org.osgi.service.cm,
+ org.osgi.service.component,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.eclipse.smarthome.automation.core.internal.Activator
+Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.automation.core.util

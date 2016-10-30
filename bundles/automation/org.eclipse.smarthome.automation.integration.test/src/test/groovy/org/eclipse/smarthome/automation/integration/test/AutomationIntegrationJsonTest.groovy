@@ -15,6 +15,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
+import org.eclipse.smarthome.automation.ManagedRuleProvider
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
@@ -62,6 +63,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
+    def ManagedRuleProvider managedRuleProvider
     def ModuleTypeRegistry moduleTypeRegistry
     def Event ruleEvent
 
@@ -86,7 +88,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
                     new SwitchItem("myMotionItem3"),
                     new SwitchItem("templ_MotionItem"),
                     new SwitchItem("templ_LampItem")
-                ] 
+                ]
             },
             addProviderChangeListener: {},
             removeProviderChangeListener: {},
@@ -123,6 +125,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         registerService(ruleEventHandler)
 
         def StorageService storageService = getService(StorageService)
+        managedRuleProvider = getService(ManagedRuleProvider)
         eventPublisher = getService(EventPublisher)
         itemRegistry = getService(ItemRegistry)
         ruleRegistry = getService(RuleRegistry)
@@ -133,6 +136,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat eventPublisher, is(notNullValue()) //sometimes assert fails because EventPublisher service is null
             assertThat itemRegistry, is(notNullValue())
             assertThat ruleRegistry, is(notNullValue())
+            assertThat managedRuleProvider, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
         }, 9000)
         logger.info('@Before.finish');
@@ -272,7 +276,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat r, is(notNullValue())
             assertThat ruleRegistry.getStatusInfo(r.UID).getStatus(), is(RuleStatus.IDLE)
 
-        }, 3000, 200)
+        }, 9000, 200)
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem", OnOffType.ON))
         SwitchItem myLampItem = itemRegistry.getItem("myLampItem")
