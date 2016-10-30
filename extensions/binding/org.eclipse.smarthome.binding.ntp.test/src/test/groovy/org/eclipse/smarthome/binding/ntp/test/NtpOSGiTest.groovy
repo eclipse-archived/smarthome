@@ -211,8 +211,9 @@ class NtpOSGiTest extends OSGiTest {
 
     @Test
     public void 'if no time zone is set in the configuration, the string channel is updated with the default one'(){
-        def expectedTimeZone = "EEST"
-
+        def expectedTimeZoneEEST = "EEST"
+        def expectedTimeZoneEET = "EET"
+        
         Configuration configuration = new Configuration()
 
         Configuration channelConfig  = new Configuration()
@@ -222,33 +223,32 @@ class NtpOSGiTest extends OSGiTest {
 
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_STRING, ACCEPTED_ITEM_TYPE_STRING, null)
-
+        
         String timeZoneFromItemRegistry = getStringChannelTimeZoneFromItemRegistry()
 
         assertThat "The string channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
-                is(equalTo(expectedTimeZone))
+                is(anyOf(equalTo(expectedTimeZoneEEST), equalTo(expectedTimeZoneEET)))
     }
 
     @Test
     public void 'if no time zone is set in the configuration, the dateTime channel is updated with the default one'(){
-        def expectedTimeZone = "+0300"
-
+        Calendar systemCalendar = Calendar.getInstance()
+        String expectedTimeZone = getDateTimeChannelTimeZone(new DateTimeType(systemCalendar).toString())
+        
         Configuration configuration = new Configuration()
 
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null)
-
+        
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString()
         /* There is no way to format the date in the dateTime channel
          in advance(there is no property for formatting in the dateTime channel),
          so we will rely on the format, returned by the toString() method of the DateTimeType.*/
         //FIXME: Adapt the tests if property for formatting in the dateTime channel is added.
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)
-        /* Because of the format from the toString() method,
-         the time zone will be the last five symbols of
-         the string from the item registry(e.g. "+0300" or "-0700").*/
-        String timeZoneFromItemRegistry = testItemState.substring(testItemState.length() - expectedTimeZone.length())
+        
+        String timeZoneFromItemRegistry = getDateTimeChannelTimeZone(testItemState)
 
         assertThat "The dateTime channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
@@ -427,6 +427,13 @@ class NtpOSGiTest extends OSGiTest {
         }, 30000, 100)
 
         return testItemState
+    }
+    
+    private String getDateTimeChannelTimeZone(String date){
+        /* Because of the format from the toString() method,
+         the time zone will be the last five symbols of
+         the string from the item registry(e.g. "+0300" or "-0700").*/
+        return date.substring(date.length() - 5)
     }
 
     private String getStringChannelTimeZoneFromItemRegistry(){
