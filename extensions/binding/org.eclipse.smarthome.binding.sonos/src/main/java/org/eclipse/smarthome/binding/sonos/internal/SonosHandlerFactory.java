@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -44,17 +45,23 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     private UpnpIOService upnpIOService;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private AudioHTTPServer audioHTTPServer;
+    private BundleContext context;
 
     private Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
     // optional OPML URL that can be configured through configuration admin
     private String opmlUrl = null;
 
+    // url (scheme+server+port) to use for playing notification sounds
+    private String callbackUrl = null;
+
     @Override
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext);
+        this.context = componentContext.getBundleContext();
         Dictionary<String, Object> properties = componentContext.getProperties();
         opmlUrl = (String) properties.get("opmlUrl");
+        callbackUrl = (String) properties.get("callbackUrl");
     };
 
     @Override
@@ -88,7 +95,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
             ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
 
             // register the speaker as an audio sink
-            SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer);
+            SonosAudioSink audioSink = new SonosAudioSink(context, handler, audioHTTPServer, callbackUrl);
             @SuppressWarnings("unchecked")
             ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
                     .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
