@@ -20,10 +20,10 @@ import org.eclipse.smarthome.automation.core.internal.Connection;
 import org.eclipse.smarthome.automation.core.internal.RuntimeAction;
 import org.eclipse.smarthome.automation.core.internal.RuntimeCondition;
 import org.eclipse.smarthome.automation.core.internal.RuntimeRule;
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 
@@ -38,10 +38,10 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  */
 public class ConnectionValidator {
 
-    private static ModuleTypeManager mtManager;
+    private static ModuleTypeRegistry mtRegistry;
 
-    public static void setManager(ModuleTypeManager mtManager) {
-        ConnectionValidator.mtManager = mtManager;
+    public static void setRegistry(ModuleTypeRegistry mtRegistry) {
+        ConnectionValidator.mtRegistry = mtRegistry;
     }
 
     /**
@@ -94,7 +94,7 @@ public class ConnectionValidator {
      */
     private static void validateActionConnections(RuntimeAction action, List<Trigger> triggers, List<Action> actions) {
 
-        ActionType type = (ActionType) mtManager.get(action.getTypeUID()); // get module type of the condition
+        ActionType type = (ActionType) mtRegistry.get(action.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
             throw new IllegalArgumentException("Condition Type \"" + action.getTypeUID() + "\" does not exist!");
@@ -149,7 +149,7 @@ public class ConnectionValidator {
         String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
         if (moduleId != null && action != null) {
             String typeUID = action.getTypeUID();
-            ActionType actionType = mtManager.get(typeUID);
+            ActionType actionType = mtRegistry.get(typeUID);
             if (actionType == null) {
                 throw new IllegalArgumentException(msg + " Action Type with UID \"" + typeUID + "\" does not exist!");
             }
@@ -170,7 +170,7 @@ public class ConnectionValidator {
      */
     private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
 
-        ConditionType type = (ConditionType) mtManager.get(condition.getTypeUID()); // get module type of the condition
+        ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
             throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
@@ -227,7 +227,7 @@ public class ConnectionValidator {
                 throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" does not exist!");
             }
             String triggerTypeUID = trigger.getTypeUID();
-            TriggerType triggerType = mtManager.get(triggerTypeUID);
+            TriggerType triggerType = mtRegistry.get(triggerTypeUID);
             if (triggerType == null) {
                 throw new IllegalArgumentException(
                         msg + " Trigger Type with UID \"" + triggerTypeUID + "\" does not exist!");

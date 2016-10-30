@@ -13,14 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
+import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeRegistryImpl;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
-import org.osgi.framework.BundleContext;
 
 /**
  * ModuleTypeManagerMockup is a ModuleTypeManager which returns mockup module types for the following predefined module
@@ -28,14 +27,14 @@ import org.osgi.framework.BundleContext;
  *
  * @author Yordan Mihaylov - initial version
  */
-public class ModuleTypeManagerMockup extends ModuleTypeManager {
+public class ModuleTypeRegistryMockup extends ModuleTypeRegistryImpl {
 
     public static final String TRIGGER_TYPE = "triggerTypeUID";
     public static final String ACTION_TYPE = "actionTypeUID";
     public static final String CONDITION_TYPE = "conditionTypeUID";
 
-    public ModuleTypeManagerMockup(BundleContext bc, RuleEngine re) {
-        super(bc, re);
+    public ModuleTypeRegistryMockup() {
+        super();
     }
 
     @Override
