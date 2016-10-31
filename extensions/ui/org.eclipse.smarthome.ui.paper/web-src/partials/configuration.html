@@ -126,7 +126,7 @@
 			<div class="channels">
 				<div ng-repeat="group in thingChannels track by $index">
 					<div ng-init="collapsed=false">
-						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0 && group.channels && group.channels.length > 0">
+						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0 && group.channels && group.channels.length > 0" class="channelGroup">
 							<span class="md-title">{{group.name}}</span>
 							<i ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px; float: right;" class="md-raised material-icons">unfold_less</i> <i ng-show="collapsed" ng-click="collapsed=!collapsed" style="color: grey; font-size: 22px; float: right;" class="md-raised material-icons">unfold_more</i>
 							<div>{{group.description}}</div>
@@ -171,7 +171,7 @@
 										</div>
 									</div>
 								</div>
-								<hr class="border-line" />
+								<hr ng-if="!$last" class="border-line" />
 							</div>
 						</div>
 					</div>
