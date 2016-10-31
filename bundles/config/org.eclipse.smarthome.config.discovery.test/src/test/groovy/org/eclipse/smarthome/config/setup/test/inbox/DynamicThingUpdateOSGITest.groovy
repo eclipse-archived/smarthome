@@ -151,7 +151,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         final Map<String, Object> discoveryResultProps = new HashMap<>();
         discoveryResultProps.put(CFG_IP_ADDRESS_KEY, CFG_IP_ADDRESS_VALUE);
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyRepr", "DummyLabel1", DEFAULT_TTL)
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyRepr", "DummyLabel1", DEFAULT_TTL, null)
 
         inbox.add discoveryResult
 
@@ -172,7 +172,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], null, "DummyLabel", DEFAULT_TTL)
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], null, "DummyLabel", DEFAULT_TTL, null)
 
         inbox.add discoveryResult
 

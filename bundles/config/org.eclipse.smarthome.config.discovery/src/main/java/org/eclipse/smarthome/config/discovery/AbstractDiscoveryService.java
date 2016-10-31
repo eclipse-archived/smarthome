@@ -248,6 +248,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            Holds the information needed to identify the discovered device.
      */
     protected void thingDiscovered(DiscoveryResult discoveryResult) {
+        discoveryResult.discoveredBy(this);
         for (DiscoveryListener discoveryListener : discoveryListeners) {
             try {
                 discoveryListener.thingDiscovered(this, discoveryResult);

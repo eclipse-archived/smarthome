@@ -35,6 +35,6 @@ class ExtendedDiscoveryServiceMock extends DiscoveryServiceMock implements Exten
 
     @Override
     public void startScan() {
-        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, null, null, null, DEFAULT_TTL))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, null, null, null, DEFAULT_TTL, this))
     }
 }

@@ -299,8 +299,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
-            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
-                    && discoveryResult.getTimestamp() < timestamp) {
+            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
+                    && (discoveryResult.isDiscoveredBy() == null || discoveryResult.isDiscoveredBy() == source)) {
                 ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);

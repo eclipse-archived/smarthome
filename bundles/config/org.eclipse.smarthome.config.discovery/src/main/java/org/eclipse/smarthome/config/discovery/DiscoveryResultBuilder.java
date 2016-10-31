@@ -33,6 +33,7 @@ public class DiscoveryResultBuilder {
     private String label;
     private long ttl = DiscoveryResult.TTL_UNLIMITED;
     private ThingTypeUID thingTypeUID;
+    private DiscoveryService discoveredBy;
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
         this.thingTypeUID = thingUID.getThingTypeUID();
@@ -128,13 +129,24 @@ public class DiscoveryResultBuilder {
     }
 
     /**
+     * Sets the {@link DiscoveryService} that has discovered this {@link DiscoveryResult}.
+     *
+     * @param service discovery service
+     * @return the updated builder
+     */
+    public DiscoveryResultBuilder withDiscoveryService(DiscoveryService service) {
+        this.discoveredBy = service;
+        return this;
+    }
+
+    /**
      * Builds a result with the settings of this builder.
      *
      * @return the desired result
      */
     public DiscoveryResult build() {
         return new DiscoveryResultImpl(thingTypeUID, thingUID, bridgeUID, properties, representationProperty, label,
-                ttl);
+                ttl, discoveredBy);
     }
 
 }
