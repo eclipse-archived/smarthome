@@ -293,10 +293,12 @@ class GenericThingProviderTest extends OSGiTest {
                         LCT001 bulb_custom [] {
                             Channels:
                                 Type color : manual []
+                                Type color : manualWithLabel "With Label" []
                         }
                         LCT001 bulb_broken [] {
                             Channels:
                                 Type broken : manual []
+                                Type broken : manualWithLabel "With Label" []
                         }
                     }
 
@@ -311,14 +313,18 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat thingDefault.getChannels().size(), is(2)
 
         Thing thingCustom = actualThings.find { it.getUID().getId().equals("bulb_custom") }
-        assertThat thingCustom.getChannels().size(), is(3)
+        assertThat thingCustom.getChannels().size(), is(4)
         assertThat thingCustom.getChannel("manual").getChannelTypeUID(), is(equalTo(new ChannelTypeUID("hue", "color")))
+        assertThat thingCustom.getChannel("manual").getLabel(), is("colorLabel") // default from thing type
+        assertThat thingCustom.getChannel("manualWithLabel").getLabel(), is("With Label") // manual overrides default
 
         Thing thingBroken = actualThings.find { it.getUID().getId().equals("bulb_broken") }
-        assertThat thingBroken.getChannels().size(), is(3)
+        assertThat thingBroken.getChannels().size(), is(4)
         assertThat thingBroken.getChannel("manual").getChannelTypeUID(), is(equalTo(new ChannelTypeUID("hue", "broken")))
         assertThat thingBroken.getChannel("manual").getKind(), is(ChannelKind.STATE)
         assertThat thingBroken.getChannel("manual").getAcceptedItemType(), is(nullValue())
+        assertThat thingBroken.getChannel("manual").getLabel(), is(nullValue())
+        assertThat thingBroken.getChannel("manualWithLabel").getLabel(), is("With Label")
 
     }
 
