@@ -615,6 +615,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-left: 8px;
 }
 
+.channels .channelGroup {
+	margin-top: 20px;
+}
+
 .showmore {
 	float: right;
 	margin-top: 0px
