@@ -32,7 +32,7 @@ var paths = {
         'src': './web-src/js/services*.js',
         'name': 'services.js'
     }, {
-        'src': './web-src/js/controllers*.js',
+        'src': ['./web-src/js/controllers*.js','./web-src/js/widget.multiselect.js'],
         'name': 'controllers.js'
     }, {
         'src': [
