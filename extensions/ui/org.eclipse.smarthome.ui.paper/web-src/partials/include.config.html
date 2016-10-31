@@ -101,8 +101,8 @@
 										<p ng-message="maxlength" class="customMessage">Maximum length is {{parameter.max}}</p>
 										<p ng-message="required" class="customMessage">Field is required</p>
 									</div>
-									<span ng-show="!focus">
-										<p class="hint noMargin">
+									<span>
+										<p class="hint noMargin" ng-class="{'invisible':focus}">
 											<small ng-bind-html="parameter.description"></small>
 										</p>
 									</span>
