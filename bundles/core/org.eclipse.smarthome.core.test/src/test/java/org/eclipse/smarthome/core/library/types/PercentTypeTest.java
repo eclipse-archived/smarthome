@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
 /**
@@ -49,4 +50,33 @@ public class PercentTypeTest {
         assertEquals(true, pt3.equals(pt4));
         assertEquals(false, pt3.equals(pt1));
     }
+
+    @Test
+    public void testConversionToOnOffType() {
+        assertEquals(OnOffType.ON, new PercentType("100.0").as(OnOffType.class));
+        assertEquals(OnOffType.ON, new PercentType("1.0").as(OnOffType.class));
+        assertEquals(OnOffType.OFF, new PercentType("0.0").as(OnOffType.class));
+    }
+
+    @Test
+    public void testConversionToDecimalType() {
+        assertEquals(new DecimalType("1.0"), new PercentType("100.0").as(DecimalType.class));
+        assertEquals(new DecimalType("0.01"), new PercentType("1.0").as(DecimalType.class));
+        assertEquals(DecimalType.ZERO, new PercentType("0.0").as(DecimalType.class));
+    }
+
+    @Test
+    public void testConversionToOpenCloseType() {
+        assertEquals(OpenClosedType.OPEN, new PercentType("100.0").as(OpenClosedType.class));
+        assertEquals(OpenClosedType.CLOSED, new PercentType("0.0").as(OpenClosedType.class));
+        assertEquals(UnDefType.UNDEF, new PercentType("50.0").as(OpenClosedType.class));
+    }
+
+    @Test
+    public void testConversionToUpDownType() {
+        assertEquals(UpDownType.UP, new PercentType("0.0").as(UpDownType.class));
+        assertEquals(UpDownType.DOWN, new PercentType("100.0").as(UpDownType.class));
+        assertEquals(UnDefType.UNDEF, new PercentType("50.0").as(OpenClosedType.class));
+    }
+
 }

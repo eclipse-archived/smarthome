@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -66,12 +67,24 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     }
 
     @Override
-    public Set<String> getLinkedItems(UID uid) {
+    public Set<String> getLinkedItemNames(UID uid) {
         final Set<String> linkedItems = new LinkedHashSet<>();
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
             if (link.getUID().equals(uid) && itemRegistry.get(itemName) != null) {
                 linkedItems.add(itemName);
+            }
+        }
+        return linkedItems;
+    }
+
+    public Set<Item> getLinkedItems(UID uid) {
+        final Set<Item> linkedItems = new LinkedHashSet<>();
+        for (final AbstractLink link : getAll()) {
+            final String itemName = link.getItemName();
+            Item item = itemRegistry.get(itemName);
+            if (link.getUID().equals(uid) && item != null) {
+                linkedItems.add(item);
             }
         }
         return linkedItems;
