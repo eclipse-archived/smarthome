@@ -42,9 +42,6 @@
 													<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="!isOptionList(item)">
 														<md-switch class="md-default-theme" ng-disabled="isReadOnly(item)" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
 													</div>
-													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget" ng-if="isReadOnly(item)">
-														<h2>{{item.state}}</h2>
-													</div>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
@@ -136,7 +133,7 @@
 														</p>
 													</div>
 												</div>
-												<div ng-if="!isOptionList(item)" layout="row" layout-align="end center">
+												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="end center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>Control</p>
 													</div>
@@ -156,10 +153,13 @@
 															<i class="material-icons">{{getIcon(item.category, 'play_arrow')}}</i>{{getLabel(null, item.label, 'Control')}}
 														</p>
 													</div>
-													<div flex="60" layout="row" layout-align="end center">
+													<div ng-if="!isReadOnly(item)" flex="60" layout="row" layout-align="end center">
 
-														<i class="md-button control-button material-icons" ng-mousedown="onPrevDown()" ng-mouseup="onPrevUp()" >skip_previous</i> <i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i> <i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i> <i class="md-button control-button material-icons" ng-mousedown="onNextDown()" ng-mouseup="onNextUp()">skip_next</i>
+														<i class="md-button control-button material-icons" ng-mousedown="onPrevDown()" ng-mouseup="onPrevUp()">skip_previous</i> <i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i> <i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i> <i class="md-button control-button material-icons" ng-mousedown="onNextDown()" ng-mouseup="onNextUp()">skip_next</i>
 
+													</div>
+													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
+														<h2>{{item.state}}</h2>
 													</div>
 												</div>
 											</div>
