@@ -7,11 +7,11 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.text.DecimalFormatSymbols;
 
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
 /**
@@ -83,4 +83,26 @@ public class DecimalTypeTest {
         dt = new DecimalType("11.0");
         assertEquals("11" + sep + "0", dt.format("%.1f")); // "11.0"
     }
+
+    @Test
+    public void testConversionToOnOffType() {
+        assertEquals(OnOffType.ON, new DecimalType("100.0").as(OnOffType.class));
+        assertEquals(OnOffType.ON, new DecimalType("1.0").as(OnOffType.class));
+        assertEquals(OnOffType.OFF, new DecimalType("0.0").as(OnOffType.class));
+    }
+
+    @Test
+    public void testConversionToOpenCloseType() {
+        assertEquals(OpenClosedType.OPEN, new DecimalType("1.0").as(OpenClosedType.class));
+        assertEquals(OpenClosedType.CLOSED, new DecimalType("0.0").as(OpenClosedType.class));
+        assertEquals(UnDefType.UNDEF, new DecimalType("0.5").as(OpenClosedType.class));
+    }
+
+    @Test
+    public void testConversionToUpDownType() {
+        assertEquals(UpDownType.UP, new DecimalType("0.0").as(UpDownType.class));
+        assertEquals(UpDownType.DOWN, new DecimalType("1.0").as(UpDownType.class));
+        assertEquals(UnDefType.UNDEF, new DecimalType("0.5").as(OpenClosedType.class));
+    }
+
 }

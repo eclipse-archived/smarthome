@@ -39,6 +39,7 @@ public class HttpServiceUtil {
     }
 
     // Utility method that could be used for non-secure and secure port.
+    @SuppressWarnings("rawtypes")
     private static int getHttpServicePortProperty(final BundleContext bc, final String propertyName) {
         Object value;
         int port = -1;
@@ -47,27 +48,29 @@ public class HttpServiceUtil {
         try {
             int candidate = Integer.MIN_VALUE;
             final ServiceReference[] refs = bc.getAllServiceReferences("org.osgi.service.http.HttpService", null);
-            for (final ServiceReference ref : refs) {
-                value = ref.getProperty(propertyName);
-                if (value == null) {
-                    continue;
-                }
-                final int servicePort;
-                try {
-                    servicePort = Integer.parseInt(value.toString());
-                } catch (final NumberFormatException ex) {
-                    continue;
-                }
-                value = ref.getProperty(Constants.SERVICE_RANKING);
-                final int serviceRanking;
-                if (value == null || !(value instanceof Integer)) {
-                    serviceRanking = 0;
-                } else {
-                    serviceRanking = (Integer) value;
-                }
-                if (serviceRanking >= candidate) {
-                    candidate = serviceRanking;
-                    port = servicePort;
+            if (refs != null) {
+                for (final ServiceReference ref : refs) {
+                    value = ref.getProperty(propertyName);
+                    if (value == null) {
+                        continue;
+                    }
+                    final int servicePort;
+                    try {
+                        servicePort = Integer.parseInt(value.toString());
+                    } catch (final NumberFormatException ex) {
+                        continue;
+                    }
+                    value = ref.getProperty(Constants.SERVICE_RANKING);
+                    final int serviceRanking;
+                    if (value == null || !(value instanceof Integer)) {
+                        serviceRanking = 0;
+                    } else {
+                        serviceRanking = (Integer) value;
+                    }
+                    if (serviceRanking >= candidate) {
+                        candidate = serviceRanking;
+                        port = servicePort;
+                    }
                 }
             }
         } catch (final InvalidSyntaxException ex) {

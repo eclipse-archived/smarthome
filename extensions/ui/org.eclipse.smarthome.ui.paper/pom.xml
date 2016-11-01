@@ -34,8 +34,8 @@
           <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
           <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
           <environmentVariables>
-            <npm_config_cache>${project.build.directory}/npm_cache</npm_config_cache>
-            <npm_config_tmp>${project.build.directory}/npm_tmp</npm_config_tmp>
+            <npm_config_cache>${project.basedir}/npm_cache</npm_config_cache>
+            <npm_config_tmp>${project.basedir}/npm_tmp</npm_config_tmp>
           </environmentVariables>
         </configuration>
 

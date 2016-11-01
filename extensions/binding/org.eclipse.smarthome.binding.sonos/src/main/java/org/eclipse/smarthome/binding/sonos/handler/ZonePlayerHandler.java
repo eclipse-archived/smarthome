@@ -2230,7 +2230,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         coordinator.setPositionTrack(notificationPosition);
         coordinator.play();
         waitForFinishedNotification();
-        setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        if (originalVolume != null) {
+            setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        }
         coordinator.removeRangeOfTracksFromQueue(new StringType(Integer.toString(notificationPosition) + ",1"));
     }
 

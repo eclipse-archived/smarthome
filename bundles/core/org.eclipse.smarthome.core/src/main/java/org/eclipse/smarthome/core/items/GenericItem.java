@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -90,8 +91,8 @@ abstract public class GenericItem implements ActiveItem {
      */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
-        if (typeClass != null && typeClass.isInstance(state)) {
-            return state;
+        if (state instanceof Convertible) {
+            return ((Convertible) state).as(typeClass);
         } else {
             return null;
         }

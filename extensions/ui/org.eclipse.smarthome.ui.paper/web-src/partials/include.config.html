@@ -60,6 +60,32 @@
 										</p>
 									</span></md-input-container>
 								</div>
+								<div ng-switch-when="multiSelect">
+									<label class="config-textInput">{{parameter.label}}</label>
+									<dl class="dropdown" multi-select ng-init="filterText=''">
+										<dt class="col-xs-12">
+											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" isrequired="true">
+												<input class="multiSel" placeholder="{{parameter.limitToOptions?'Search':'Add or search'}}" value="" ng-model="filterText" ng-keypress="onEnterPress($event)" />
+												<i ng-if="!parameter.limitToOptions" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
+											</a>
+										</dt>
+										<dd>
+											<div class="mutliSelect col-xs-12">
+												<ul class="col-xs-12">
+													<li ng-repeat="option in parameter.options | filter:{'label':filterText} track by $index" on-finish-render>
+														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" ng-click="updateInConfig(option.value,$index)" />
+														{{option.label}}
+													</li>
+												</ul>
+											</div>
+										</dd>
+										<span>
+											<p class="hint" ng-class="{'invisible':focus}">
+												<small ng-bind-html="parameter.description"></small>
+											</p>
+										</span>
+									</dl>
+								</div>
 								<div ng-switch-when="date" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
 									<div class="col-xs-12 configContainer">
@@ -101,8 +127,8 @@
 										<p ng-message="maxlength" class="customMessage">Maximum length is {{parameter.max}}</p>
 										<p ng-message="required" class="customMessage">Field is required</p>
 									</div>
-									<span ng-show="!focus">
-										<p class="hint noMargin">
+									<span>
+										<p class="hint noMargin" ng-class="{'invisible':focus}">
 											<small ng-bind-html="parameter.description"></small>
 										</p>
 									</span>

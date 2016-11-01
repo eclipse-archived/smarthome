@@ -13,9 +13,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
-import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -54,17 +52,4 @@ public class ContactItem extends GenericItem {
         return Collections.unmodifiableList(acceptedCommandTypes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public State getStateAs(Class<? extends State> typeClass) {
-        if (typeClass == DecimalType.class) {
-            return state == OpenClosedType.OPEN ? new DecimalType(1) : DecimalType.ZERO;
-        } else if (typeClass == PercentType.class) {
-            return state == OpenClosedType.OPEN ? PercentType.HUNDRED : PercentType.ZERO;
-        } else {
-            return super.getStateAs(typeClass);
-        }
-    }
 }

@@ -280,12 +280,16 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 
                 var ChannelTypeUID channelTypeUID
                 var String itemType
+                var label = it.label
                 if (it.channelType != null) {
                     channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
                     val resolvedChannelType = TypeResolver.resolve(channelTypeUID)
                     if (resolvedChannelType != null) {
                         itemType = resolvedChannelType.itemType
                         parsedKind = resolvedChannelType.kind
+                        if (label == null) {
+                            label = resolvedChannelType.label
+                        }
                     } else {
                         logger.error("Channel type {} could not be resolved.",  channelTypeUID.asString)
                     }
@@ -300,6 +304,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                     .withKind(parsedKind)
                     .withConfiguration(createConfiguration)
                     .withType(channelTypeUID)
+                    .withLabel(label)
                 channels += channel.build()
             }
         ]

@@ -598,7 +598,7 @@ public class ThingResource implements SatisfiableRESTResource {
     private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {
         Map<String, Set<String>> linkedItemsMap = new HashMap<>();
         for (Channel channel : thing.getChannels()) {
-            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
+            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItemNames(channel.getUID());
             linkedItemsMap.put(channel.getUID().getId(), linkedItems);
         }
         return linkedItemsMap;

@@ -615,6 +615,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-left: 8px;
 }
 
+.channels .channelGroup {
+	margin-top: 20px;
+}
+
 .showmore {
 	float: right;
 	margin-top: 0px
@@ -1059,9 +1063,82 @@ background-color: green;
     font-size:20px;
 }
 
-.linkedItems>.row>.name{
-    margin-top:7px;
-    color:#777;
+.linkedItems>.row>.name {
+	margin-top: 7px;
+	color: #ccc;
 }
 
+.dropdown dt a {
+	display: block;
+	padding: 8px 20px 5px 10px;
+	min-height: 25px;
+	line-height: 24px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+	padding: 2px;
+}
 
+.dropdown dt input {
+	width: 70%;
+	outline: none;
+	border: 0px;
+	font-weight: 300;
+    font-size: 15px;
+    color: rgba(0,0,0,0.72);
+}
+
+.dropdown dt i.enableColor {
+	color: #4CAF50;
+}
+
+.dropdown dd ul {
+	background-color: #fff;
+	border: 0;
+	color: black;
+	display: none;
+	left: 0px;
+	padding: 2px 15px 2px 5px;
+	position: absolute;
+	top: 1px;
+	list-style: none;
+	max-height: 150px;
+	overflow: auto;
+	z-index: 100;
+	border: 1px solid #ccc;
+	border-top: 0px;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0
+		rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
+	font-size: 14px;
+	width:97%;
+}
+
+.dropdown dd ul li a {
+	padding: 5px;
+	display: block;
+}
+
+.dropdown dd ul li {
+	height: 32px;
+	margin-top: 8px;
+}
+
+.dropdown dd ul li input {
+	float: right;
+}
+
+.dropdown dd ul li a:hover {
+	background-color: #fff;
+}
+
+.dropdown a, .dropdown a:visited, .dropdown a:hover {
+	color: #ccc;
+	cursor: pointer;
+	text-decoration: none;
+	outline: none;
+	font-size: 12px;
+}
+
+.dropdown dd, .dropdown dt {
+	margin: 0px;
+	padding-left: 0px;
+	padding-top: 2px;
+}
