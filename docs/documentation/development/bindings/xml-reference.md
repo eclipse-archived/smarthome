@@ -115,16 +115,20 @@ Context is used to provide some semantic details about the parameter. The UI use
 </table>
 
 Further, the <strong>item</strong> context can contain criteria to filter the list of items. For example:
+
 ```xml
 <filter>
   <criteria name="type">Switch,Dimmer</criteria>
   <criteria name="tag">Light,Heating</criteria>
 </filter>
 ```
+
 In the case of above filter only those items will be shown that satisfy the filter's coniditions. The above filter is evaluated as follows: 
+
 ```
 (type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
 ```
+
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
