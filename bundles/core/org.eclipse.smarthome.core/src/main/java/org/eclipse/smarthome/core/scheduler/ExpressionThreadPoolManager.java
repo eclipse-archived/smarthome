@@ -225,11 +225,12 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
 
         @Override
         public boolean remove(Runnable task) {
-            if (futures.get(task) != null && futures.get(task).cancel(false)) {
-                running.remove(task);
+            Future<?> future = futures.get(task);
+            if (future != null && future.cancel(false)) {
+                running.remove(future);
             }
             futures.remove(task);
-            return super.remove(task);
+            return super.remove((Runnable) future);
         }
 
         public boolean remove(Expression expression) {
