@@ -47,10 +47,8 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         if (prevAudioUrl !== audioUrl) {
             if (context) {
                 var audioBuffer = null;
-                var arr = audioUrl.split('/');
-                var url = $location.protocol() + '://' + $location.host() + ($location.port() ? ':' + $location.port() : '') + "/audio/" + arr[arr.length - 1];
                 $http({
-                    url : url,
+                    url : audioUrl,
                     method : 'GET',
                     responseType : 'arraybuffer'
                 }).then(function(response) {
