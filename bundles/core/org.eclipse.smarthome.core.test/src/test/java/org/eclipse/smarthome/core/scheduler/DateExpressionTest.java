@@ -14,7 +14,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.eclipse.smarthome.core.scheduler.DateExpression;
 import org.junit.Test;
 
 public class DateExpressionTest {
@@ -29,6 +28,7 @@ public class DateExpressionTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2016, 0, 1, 0, 0, 0); // set to Jan 1st 2016, 00:00
+        cal.set(Calendar.MILLISECOND, 0);
         cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
         Date startDate = cal.getTime();
 
@@ -52,6 +52,7 @@ public class DateExpressionTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2016, 0, 1, 0, 0, 0); // set to Jan 1st 2016, 00:00
+        cal.set(Calendar.MILLISECOND, 0);
         cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
         Date startDate = cal.getTime();
 
