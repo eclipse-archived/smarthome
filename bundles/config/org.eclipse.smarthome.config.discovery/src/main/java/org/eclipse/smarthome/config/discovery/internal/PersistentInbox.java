@@ -126,6 +126,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private Storage<DiscoveryResult> discoveryResultStorage;
 
+    private Map<DiscoveryResult, String> resultDiscovererMap = new HashMap<>();
+
     private ScheduledFuture<?> timeToLiveChecker;
 
     private EventPublisher eventPublisher;
@@ -269,6 +271,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 if (!isInRegistry(thingUID)) {
                     removeResultsForBridge(thingUID);
                 }
+                resultDiscovererMap.remove(discoveryResult);
                 this.discoveryResultStorage.remove(thingUID.toString());
                 notifyListeners(discoveryResult, EventType.removed);
                 return true;
@@ -286,7 +289,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
-        add(result);
+        if (add(result)) {
+            resultDiscovererMap.put(result, source.getClass().getName());
+        }
     }
 
     @Override
@@ -298,9 +303,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
+        String sourceName = source.getClass().getName(); 
         for (DiscoveryResult discoveryResult : getAll()) {
-            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
-                    && discoveryResult.getTimestamp() < timestamp) {
+            String discovererName = resultDiscovererMap.get(discoveryResult); 
+            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
+                    && sourceName.equals(discovererName)) {
                 ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);
