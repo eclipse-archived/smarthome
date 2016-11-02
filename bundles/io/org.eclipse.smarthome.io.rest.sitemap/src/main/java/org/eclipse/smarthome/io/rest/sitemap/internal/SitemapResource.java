@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -43,7 +44,6 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
@@ -100,6 +100,7 @@ public class SitemapResource implements SatisfiableRESTResource, SitemapSubscrip
 
     public static final String PATH_SITEMAPS = "sitemaps";
     private static final String SEGMENT_EVENTS = "events";
+    private static final String X_ACCEL_BUFFERING_HEADER = "X-Accel-Buffering";
 
     private static final long TIMEOUT_IN_MS = 30000;
 
@@ -108,6 +109,9 @@ public class SitemapResource implements SatisfiableRESTResource, SitemapSubscrip
     @Context
     UriInfo uriInfo;
 
+    @Context
+    private HttpServletResponse response;
+    
     private ItemUIRegistry itemUIRegistry;
 
     private SitemapSubscriptionService subscriptions;
@@ -252,6 +256,11 @@ public class SitemapResource implements SatisfiableRESTResource, SitemapSubscrip
             subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
+        
+        // Disables proxy buffering when using an nginx http server proxy for this response.
+        // This allows you to not disable proxy buffering in nginx and still have working sse
+        response.addHeader(X_ACCEL_BUFFERING_HEADER, "no");
+        
         return eventOutput;
     }
 
