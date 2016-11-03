@@ -1147,3 +1147,9 @@ background-color: green;
 	padding-left: 0px;
 	padding-top: 2px;
 }
+
+.material-icons.copy-clipboard {
+	font-size:13px;
+	margin-left: 10px;
+	cursor:pointer;
+}
