@@ -166,7 +166,13 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     thingType.getChannelDefinitions().size());
 
             for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-                localizedChannelDefinitions.add(channelDefinition);
+                String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle,
+                        channelDefinition.getChannelTypeUID(), channelDefinition.getLabel(), locale);
+                String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle,
+                        channelDefinition.getChannelTypeUID(), channelDefinition.getDescription(), locale);
+                localizedChannelDefinitions
+                        .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
+                                channelDefinition.getProperties(), channelLabel, channelDescription));
             }
 
             List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
