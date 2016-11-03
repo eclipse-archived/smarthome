@@ -77,7 +77,8 @@ public class PersistenceExtensions {
                         .warn("There is no default persistence service configured!");
             }
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn("PersistenceServiceRegistryImpl is not available!");
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("PersistenceServiceRegistryImpl is not available!");
         }
         return null;
     }
@@ -400,13 +401,10 @@ public class PersistenceExtensions {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceId);
         Iterator<HistoricItem> it = result.iterator();
 
-        DecimalType value = (DecimalType) item.getStateAs(DecimalType.class);
-        if (value == null) {
-            value = DecimalType.ZERO;
-        }
+        DecimalType value = DecimalType.ZERO;
 
         BigDecimal total = value.toBigDecimal();
-        int quantity = 1;
+        int quantity = 0;
         while (it.hasNext()) {
             State state = it.next().getState();
             if (state instanceof DecimalType) {
@@ -415,6 +413,16 @@ public class PersistenceExtensions {
                 quantity++;
             }
         }
+
+        if (quantity == 0) {
+            quantity = 1;
+            value = (DecimalType) item.getStateAs(DecimalType.class);
+            if (value == null) {
+                value = DecimalType.ZERO;
+            }
+            total = value.toBigDecimal();
+        }
+
         BigDecimal average = total.divide(BigDecimal.valueOf(quantity), MathContext.DECIMAL64);
 
         return new DecimalType(average);
