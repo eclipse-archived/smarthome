@@ -249,6 +249,26 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             }
         }
     };
+}).directive('copyclipboard', function(toastService) {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            element[0].addEventListener('click', function() {
+                var input = document.createElement("input");
+                input.value = attrs.copyclipboard;
+                var body = document.getElementsByTagName('body')[0];
+                body.appendChild(input);
+                input.select();
+                var isCopied = document.execCommand('copy');
+                if (isCopied) {
+                    toastService.showDefaultToast('Text copied to clipboard');
+                } else {
+                    toastService.showDefaultToast('Could not copy to clipboard');
+                }
+                body.removeChild(input);
+            });
+        }
+    };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
     var original = $location.path;
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
