@@ -6,7 +6,7 @@
 		<div class="section-header"></div>
 		<div class="container">
 			<div class="bindings row">
-				<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="binding in data.bindings">
+				<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="binding in data.bindings | orderBy:'name'">
 					<div class="card binding text-left" data-binding-id="{{binding.id}}">
 						<div class="clabel">
 							<h3 class="md-title">
@@ -26,11 +26,11 @@
 	</div>
 	<div class="services fill-height" ng-if="page === 'services'" ng-controller="ServicesController">
 
-		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs | orderBy:'-category' | filter: {'category':'!system'}:true" label="{{tab.category}}" layout-fill> <md-tab-content layout-fill="">
+		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs | orderBy:'category' | filter: {'category':'!system'}:true" label="{{tab.category}}" layout-fill> <md-tab-content layout-fill="">
 
 		<div class="container">
 			<div class="services row">
-				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in tab">
+				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in tab | orderBy:'label'">
 					<div class="card text-left" data-service-id="{{service.id}}">
 						<div class="clabel">
 							<h3 class="md-title">{{service.label}}</h3>
