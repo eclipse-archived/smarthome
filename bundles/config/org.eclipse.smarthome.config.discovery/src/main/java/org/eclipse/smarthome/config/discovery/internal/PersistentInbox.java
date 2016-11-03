@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
@@ -126,7 +127,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private Storage<DiscoveryResult> discoveryResultStorage;
 
-    private Map<DiscoveryResult, String> resultDiscovererMap = new HashMap<>();
+    private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
 
     private ScheduledFuture<?> timeToLiveChecker;
 
@@ -290,7 +291,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     @Override
     public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
         if (add(result)) {
-            resultDiscovererMap.put(result, source.getClass().getName());
+            resultDiscovererMap.put(result, source.getClass());
         }
     }
 
@@ -303,11 +304,10 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
-        String sourceName = source.getClass().getName(); 
         for (DiscoveryResult discoveryResult : getAll()) {
-            String discovererName = resultDiscovererMap.get(discoveryResult); 
+            Class<?> discoverer = resultDiscovererMap.get(discoveryResult);
             if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
-                    && (discovererName == null || sourceName.equals(discovererName))) {
+                    && (discoverer == null || source.getClass() == discoverer)) {
                 ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);
