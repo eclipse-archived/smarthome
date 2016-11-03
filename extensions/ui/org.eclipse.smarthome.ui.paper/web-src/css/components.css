@@ -479,7 +479,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 }
 
 .container .md-select-value {
-	text-align: center;
 	padding: 16px 2px 1px;
 	border-bottom-style: none;
 	font-size: 18px;
