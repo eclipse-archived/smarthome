@@ -526,29 +526,34 @@
 								"id":{
 									"type":"string",
 									"pattern":"[A-Za-z0-9_-]*",
-									"title":"Condition ID",
-									"description":"Identifies uniquely the Module in scope of the Composite Condition Type."
+									"title":"Condition uid",
+									"description":"Identifies uniquely the Module in scope of the Rule."
+								},
+								"label":{
+									"type":"string",
+									"title":"Condition Label",
+									"description":"Short (one word) user friendly name of the Module."
+								},
+								"description":{
+									"type":"string",
+									"title":"Condition Description",
+									"description":"A brief description of what the Condition is and for what it is used."
 								},
 								"type":{
 									"type":"string",
 									"pattern":"[A-Za-z0-9_-]*",
 									"title":"Condition Module Type UID",
-									"description":"Identifies the Module Type used for creation of the Condition Composition. Must be unique in scope of concrete Condition Composition definition."
+									"description":"Identifies the Module Type used for creation of the Condition."
 								},
 								"configuration":{
 									"type":"object",
 									"title":"Condition Configuration",
-									"description":"Used to define values for the configuration parameters of the Condition."
+									"description":"Used to define values of the configuration parameters of the Condition."
 								},
-								"label":{
-									"type":"string",
-									"title":"Condition Label",
-									"description":"A human understandable label of the Condition."
-								},
-								"description":{
-									"type":"string",
-									"title":"Condition Description",
-									"description":"A human understandable description of the Condition."
+								"inputs":{
+									"type":"object",
+									"title":"Condition Input",
+									"description":"Contains pairs of Input Name and Output reference in format - Module ID : Output Name."
 								}
 							}
 						}
@@ -824,29 +829,40 @@
 						"properties":{
 							"id":{
 								"type":"string",
+								"pattern":"[A-Za-z0-9_-]*",
 								"title":"Action ID",
-								"description":"Identifies uniquely the Module in scope of the Composite Action Type."
+								"description":"Identifies uniquely the Module in scope of the Rule."
+							},
+							"label":{
+								"type":"string",
+								"title":"Action Label",
+								"description":"Short (one word) user friendly name of the Module."
+							},
+							"description":{
+								"type":"string",
+								"title":"Action Description",
+								"description":"A brief description of what the Action is and for what it is used."
 							},
 							"type":{
 								"type":"string",
 								"pattern":"[A-Za-z0-9_-]*",
 								"title":"Action Module Type UID",
-								"description":"Identifies the Module Type used for creation of the Action Composition. Must be unique in scope of concrete Action Composition definition."
+								"description":"Identifies the Module Type used for creation of the Action."
 							},
 							"configuration":{
 								"type":"object",
 								"title":"Action Configuration",
-								"description":"Used to define values for configuration parameters of the Action."
+								"description":"Used to define values of the configuration parameters of the Action."
 							},
-							"label":{
-								"type":"string",
-								"title":"Action Label",
-								"description":"A human understandable label of the Action."
+							"inputs":{
+								"type":"object",
+								"title":"Action Input",
+								"description":"Contains pairs of Input Name and Output reference in format - Module ID : Output Name."
 							},
-							"description":{
-								"type":"string",
-								"title":"Action Description",
-								"description":"A human understandable description of the Action."
+							"outputs":{
+								"type":"object",
+								"title":"Action Output",
+								"description":"Contains pairs of Output Name and Output reference. The reference defines what part of a complex data has to be used as value of this output."
 							}
 						}
 					}

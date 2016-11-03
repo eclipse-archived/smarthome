@@ -30,6 +30,8 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * The implementation of {@link ModuleTypeRegistry} that is registered as a service.
@@ -37,9 +39,14 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
+public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String, Provider<ModuleType>>
+        implements ModuleTypeRegistry {
 
     private Set<ModuleTypeProvider> providers = new HashSet<ModuleTypeProvider>();
+
+    public ModuleTypeRegistryImpl() {
+        super(null);
+    }
 
     protected void addModuleTypeProvider(ModuleTypeProvider moduleTypeProvider) {
         providers.add(moduleTypeProvider);
@@ -50,21 +57,19 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
-    public <T extends ModuleType> T get(String typeUID) {
+    public ModuleType get(String typeUID) {
         return get(typeUID, null);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale) {
-        ModuleType mType = null;
         for (ModuleTypeProvider provider : providers) {
-            mType = provider.getModuleType(moduleTypeUID, locale);
+            ModuleType mType = provider.getModuleType(moduleTypeUID, locale);
             if (mType != null) {
                 return (T) createCopy(mType);
             }
         }
-
         return null;
     }
 
@@ -187,45 +192,45 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
         if (mType == null) {
             return null;
         }
-
-        ModuleType result;
         if (mType instanceof CompositeTriggerType) {
             CompositeTriggerType m = (CompositeTriggerType) mType;
-            result = new CompositeTriggerType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs(),
-                    copyTriggers(m.getChildren()));
+            return new CompositeTriggerType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(),
+                    m.getDescription(), m.getTags(), m.getVisibility(), m.getOutputs(), copyTriggers(m.getChildren()));
 
-        } else if (mType instanceof TriggerType) {
+        }
+        if (mType instanceof TriggerType) {
             TriggerType m = (TriggerType) mType;
-            result = new TriggerType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs());
+            return new TriggerType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(), m.getDescription(),
+                    m.getTags(), m.getVisibility(), m.getOutputs());
 
-        } else if (mType instanceof CompositeConditionType) {
+        }
+        if (mType instanceof CompositeConditionType) {
             CompositeConditionType m = (CompositeConditionType) mType;
-            result = new CompositeConditionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(),
-                    copyConditions(m.getChildren()));
+            return new CompositeConditionType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(),
+                    m.getDescription(), m.getTags(), m.getVisibility(), m.getInputs(), copyConditions(m.getChildren()));
 
-        } else if (mType instanceof ConditionType) {
+        }
+        if (mType instanceof ConditionType) {
             ConditionType m = (ConditionType) mType;
-            result = new ConditionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs());
+            return new ConditionType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(), m.getDescription(),
+                    m.getTags(), m.getVisibility(), m.getInputs());
 
-        } else if (mType instanceof CompositeActionType) {
+        }
+        if (mType instanceof CompositeActionType) {
             CompositeActionType m = (CompositeActionType) mType;
-            result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(),
+            return new CompositeActionType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(),
+                    m.getDescription(), m.getTags(), m.getVisibility(), m.getInputs(), m.getOutputs(),
                     copyActions(m.getChildren()));
 
-        } else if (mType instanceof ActionType) {
+        }
+        if (mType instanceof ActionType) {
             ActionType m = (ActionType) mType;
-            result = new ActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
+            return new ActionType(m.getUID(), m.getConfigurationDescriptions(), m.getLabel(), m.getDescription(),
+                    m.getTags(), m.getVisibility(), m.getInputs(), m.getOutputs());
 
         } else {
             throw new IllegalArgumentException("Invalid template type:" + mType);
         }
-        return result;
     }
 
     private static List<Trigger> copyTriggers(List<Trigger> triggers) {

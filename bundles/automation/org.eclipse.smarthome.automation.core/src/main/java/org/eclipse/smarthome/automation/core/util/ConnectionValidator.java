@@ -149,7 +149,7 @@ public class ConnectionValidator {
         String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
         if (moduleId != null && action != null) {
             String typeUID = action.getTypeUID();
-            ActionType actionType = mtRegistry.get(typeUID);
+            ActionType actionType = (ActionType) mtRegistry.get(typeUID);
             if (actionType == null) {
                 throw new IllegalArgumentException(msg + " Action Type with UID \"" + typeUID + "\" does not exist!");
             }
@@ -227,7 +227,7 @@ public class ConnectionValidator {
                 throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" does not exist!");
             }
             String triggerTypeUID = trigger.getTypeUID();
-            TriggerType triggerType = mtRegistry.get(triggerTypeUID);
+            TriggerType triggerType = (TriggerType) mtRegistry.get(triggerTypeUID);
             if (triggerType == null) {
                 throw new IllegalArgumentException(
                         msg + " Trigger Type with UID \"" + triggerTypeUID + "\" does not exist!");

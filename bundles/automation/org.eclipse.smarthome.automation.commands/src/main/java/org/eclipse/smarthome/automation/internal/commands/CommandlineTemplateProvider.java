@@ -46,7 +46,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate>implements TemplateProvider {
+public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate> implements TemplateProvider {
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
