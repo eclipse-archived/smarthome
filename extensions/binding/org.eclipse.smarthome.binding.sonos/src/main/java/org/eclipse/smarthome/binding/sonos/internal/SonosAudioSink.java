@@ -22,10 +22,7 @@ import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.net.HttpServiceUtil;
-import org.eclipse.smarthome.core.net.NetUtil;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +45,9 @@ public class SonosAudioSink implements AudioSink {
 
     private AudioHTTPServer audioHTTPServer;
     private ZonePlayerHandler handler;
-    private BundleContext context;
     private String callbackUrl;
 
-    public SonosAudioSink(BundleContext context, ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer,
-            String callbackUrl) {
-        this.context = context;
+    public SonosAudioSink(ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer, String callbackUrl) {
         this.handler = handler;
         this.audioHTTPServer = audioHTTPServer;
         this.callbackUrl = callbackUrl;
@@ -89,44 +83,27 @@ public class SonosAudioSink implements AudioSink {
                 // FixedLengthAudioStream, but this might be dangerous as we have no clue, how much data to expect from
                 // the stream.
             } else {
-                String relativeUrl = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
-                String url = createAbsoluteUrl(relativeUrl);
+                if (callbackUrl != null) {
+                    String relativeUrl = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
+                    String url = callbackUrl + relativeUrl;
 
-                AudioFormat format = audioStream.getFormat();
-                if (AudioFormat.WAV.isCompatible(format)) {
-                    handler.playNotificationSoundURI(new StringType(url + ".wav"));
-                } else if (AudioFormat.MP3.isCompatible(format)) {
-                    if (handler.getThing().getStatus() == ThingStatus.ONLINE) {
-                        handler.playNotificationSoundURI(new StringType(url + ".mp3"));
+                    AudioFormat format = audioStream.getFormat();
+                    if (AudioFormat.WAV.isCompatible(format)) {
+                        handler.playNotificationSoundURI(new StringType(url + ".wav"));
+                    } else if (AudioFormat.MP3.isCompatible(format)) {
+                        if (handler.getThing().getStatus() == ThingStatus.ONLINE) {
+                            handler.playNotificationSoundURI(new StringType(url + ".mp3"));
+                        } else {
+                            logger.warn("Sonos speaker '{}' is not online - status is {}", handler.getThing().getUID(),
+                                    handler.getThing().getStatus());
+                        }
                     } else {
-                        logger.warn("Sonos speaker '{}' is not online - status is {}", handler.getThing().getUID(),
-                                handler.getThing().getStatus());
+                        throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
                     }
                 } else {
-                    throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
+                    logger.warn("We do not have any callback url, so Sonos cannot play the audio stream!");
                 }
             }
-        }
-    }
-
-    private String createAbsoluteUrl(String relativeUrl) {
-        if (callbackUrl != null) {
-            return callbackUrl + relativeUrl;
-        } else {
-            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
-            if (ipAddress == null) {
-                logger.warn("No network interface could be found.");
-                return null;
-            }
-
-            // we do not use SSL as it can cause certificate validation issues.
-            final int port = HttpServiceUtil.getHttpServicePort(context);
-            if (port == -1) {
-                logger.warn("Cannot find port of the http service.");
-                return null;
-            }
-
-            return "http://" + ipAddress + ":" + port + relativeUrl;
         }
     }
 
