@@ -1050,22 +1050,27 @@ background-color: green;
 	margin-top: 10px;
 }
 
-.linkedItems>.row>.action {
+.linkedItems>.row>.action  {
 	text-align: right;
-	margin-top:2px;
+	margin-top: 2px;
 }
 
 .linkedItems>.row>.action>i {
 	text-align: center;
-	   width:32px;
-    height:32px;
-    margin:0px;
-    font-size:20px;
+	width: 32px;
+	height: 32px;
+	margin: 0px;
+	font-size: 20px;
 }
 
 .linkedItems>.row>.name {
 	margin-top: 7px;
-	color: #ccc;
+	color: rgba(0, 0, 0, .87);
+	padding-left: 0px;
+}
+
+.linkedItems>.row>.name small {
+    color: #777;
 }
 
 .dropdown dt a {
