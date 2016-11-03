@@ -836,6 +836,17 @@ class InboxOSGITest extends OSGiTest {
         assertThat inbox.getAll().size(), is(0)
     }
 
+    @Test
+    void 'assert that removeOlderResults removes results without a source'() {
+        inbox.add testDiscoveryResult
+        long now = new Date().getTime() + 1
+        assertThat inbox.getAll().size(), is(1)
+
+        // should remove a result
+        inbox.removeOlderResults(discoveryService2, now, [testThingType.getUID()])
+        assertThat inbox.getAll().size(), is(0)
+    }
+
     class DummyThingHandlerFactory extends BaseThingHandlerFactory {
 
         public DummyThingHandlerFactory(ComponentContext context) {

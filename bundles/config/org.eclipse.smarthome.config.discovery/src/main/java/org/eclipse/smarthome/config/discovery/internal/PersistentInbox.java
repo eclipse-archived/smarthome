@@ -307,7 +307,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         for (DiscoveryResult discoveryResult : getAll()) {
             String discovererName = resultDiscovererMap.get(discoveryResult); 
             if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
-                    && sourceName.equals(discovererName)) {
+                    && (discovererName == null || sourceName.equals(discovererName))) {
                 ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);
