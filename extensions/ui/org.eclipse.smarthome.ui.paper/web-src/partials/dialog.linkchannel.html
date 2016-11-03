@@ -6,9 +6,9 @@
 		{{$last?'+ Create new item...':item.label}}
 		<span class="md-caption" style="color: grey;">{{!$last?'('+item.name+')':'' }} </span>
 	</span> </md-option> </md-select> </md-input-container>
-	<div class="row" ng-if="itemFormVisible">
+	<div class="row" ng-show="itemFormVisible">
 		<div class="parameter col-sm-6 col-xs-12">
-			<label for="newItemName" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Item name</label>
+			<label for="newItemName" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Item name {{newItemName}}</label>
 			<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-init="focus=false" required itemname name="newItemName" ng-model="newItemName" ng-focus="focus=true" />
 			<div ng-messages="linkForm.newItemName.$error" ng-show="(linkForm.newItemName.$error && focus) || (linkForm.newItemName.$dirty && focus)">
 				<div ng-message="nameValidator">Item name already exists</div>
@@ -25,7 +25,7 @@
 </md-dialog-content>
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>
-	<md-button ng-show="!itemFormVisible" ng-disabled="linkForm.itemName.$invalid" ng-click="link(itemName)">Link</md-button>
+	<md-button ng-show="!itemFormVisible" ng-disabled="linkForm.itemName.$invalid" ng-click="link(itemName,itemLabel)">Link</md-button>
 	<md-button ng-show="itemFormVisible" ng-disabled="linkForm.$invalid" ng-click="createAndLink()">Link</md-button>
 </div>
 </md-dialog>
