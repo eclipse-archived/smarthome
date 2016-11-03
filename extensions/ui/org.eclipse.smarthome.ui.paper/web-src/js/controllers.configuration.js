@@ -369,18 +369,23 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : ""
-        }).then(function(itemName) {
-            if (itemName) {
+        }).then(function(newItem) {
+            if (newItem) {
                 linkService.link({
-                    itemName : itemName,
+                    itemName : newItem.itemName,
                     channelUID : $scope.thing.UID + ':' + channelID
                 }, function() {
                     $scope.getThing(true);
                     var item = $.grep($scope.items, function(item) {
-                        return item.name == itemName;
+                        return item.name == newItem.itemName;
                     });
                     if (item.length > 0) {
                         channel.items.push(item[0]);
+                    } else {
+                        channel.items.push({
+                            name : newItem.itemName,
+                            label : newItem.label
+                        });
                     }
                     toastService.showDefaultToast('Channel linked');
                 });
@@ -589,14 +594,17 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, item).$promise.then(function() {
             toastService.showDefaultToast("Item created");
             itemRepository.setDirty(true);
-            $mdDialog.hide($scope.newItemName);
+            $scope.link($scope.newItemName, $scope.itemLabel);
         });
     }
     $scope.close = function() {
         $mdDialog.cancel();
     }
-    $scope.link = function(itemName) {
-        $mdDialog.hide(itemName);
+    $scope.link = function(itemName, label) {
+        $mdDialog.hide({
+            itemName : itemName,
+            label : label
+        });
     }
 }).controller('UnlinkChannelDialogController', function($scope, $mdDialog, toastService, linkService, itemName) {
     $scope.itemName = itemName;
