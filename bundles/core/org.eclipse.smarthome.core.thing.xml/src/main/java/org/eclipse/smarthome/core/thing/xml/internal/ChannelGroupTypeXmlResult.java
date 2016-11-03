@@ -14,7 +14,6 @@ import java.util.Map;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
@@ -49,41 +48,26 @@ public class ChannelGroupTypeXmlResult {
         return this.channelGroupTypeUID;
     }
 
-    protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences,
-            Map<String, ChannelType> channelTypes) throws ConversionException {
+    protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences)
+            throws ConversionException {
 
         List<ChannelDefinition> channelTypeDefinitions = null;
 
         if ((channelTypeReferences != null) && (channelTypeReferences.size() > 0)) {
             channelTypeDefinitions = new ArrayList<>(channelTypeReferences.size());
 
-            if (channelTypes != null) {
-                for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
-                    String id = channelTypeReference.getId();
-                    String typeId = channelTypeReference.getTypeId();
-
-                    String typeUID = String.format("%s:%s", this.channelGroupTypeUID.getBindingId(), typeId);
-
-                    ChannelType channelType = channelTypes.get(typeUID);
-                    if (channelType != null) {
-                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType.getUID());
-                        channelTypeDefinitions.add(channelDefinition);
-                    } else {
-                        throw new ConversionException("The channel type for '" + typeUID + "' is missing!");
-                    }
-                }
-            } else {
-                throw new ConversionException("Missing the definition of channel types!");
+            for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
+                channelTypeDefinitions
+                        .add(channelTypeReference.toChannelDefinition(this.channelGroupTypeUID.getBindingId()));
             }
         }
 
         return channelTypeDefinitions;
     }
 
-    public ChannelGroupType toChannelGroupType(Map<String, ChannelType> channelTypes) throws ConversionException {
-
+    public ChannelGroupType toChannelGroupType() throws ConversionException {
         ChannelGroupType channelGroupType = new ChannelGroupType(this.channelGroupTypeUID, this.advanced, this.label,
-                this.description, toChannelDefinitions(this.channelTypeReferences, channelTypes));
+                this.description, toChannelDefinitions(this.channelTypeReferences));
 
         return channelGroupType;
     }
