@@ -10,8 +10,6 @@ package org.eclipse.smarthome.binding.wemo.handler;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -26,8 +24,8 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -62,8 +60,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     private static final int DIM_STEPSIZE = 5;
 
     protected final static int SUBSCRIPTION_DURATION = 600;
-
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
     /**
      * The default refresh interval in Seconds.
@@ -102,45 +98,20 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     @Override
     public void initialize() {
+        // initialize() is only called if the required parameter 'deviceID' is available
+        wemoLightID = (String) getConfig().get(DEVICE_ID);
 
-        logger.debug("Initializing WemoLightHandler");
-
-        final String configLightId = (String) getConfig().get(DEVICE_ID);
-
-        if (DEVICE_ID != null) {
-            wemoLightID = configLightId;
+        if (getBridge() != null) {
             logger.debug("Initializing WemoLightHandler for LightID '{}'", wemoLightID);
-            WemoBridgeHandler handler = getWemoBridgeHandler();
-            if (handler != null) {
+            if (getBridge().getStatus() == ThingStatus.ONLINE) {
                 updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-                logger.debug("No WemoBridgeHandler found for LightID '{}'", wemoLightID);
-            }
-
-        }
-    }
-
-    @Override
-    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-        if (thingHandler instanceof WemoBridgeHandler) {
-            this.wemoBridgeHandler = (WemoBridgeHandler) thingHandler;
-            updateStatus(ThingStatus.ONLINE);
-            logger.debug("bridgeHandlerInitialized for WeMo LED {}", wemoLightID);
-            if (SUPPORTED_THING_TYPES.contains(this.getThing().getThingTypeUID())) {
-                logger.debug("Initialize Thing {}", this.getThing().getThingTypeUID());
                 onSubscription();
                 onUpdate();
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.BRIDGE_OFFLINE);
             }
-        }
-    }
-
-    @Override
-    public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
-        this.wemoBridgeHandler = null;
-        if (refreshJob != null && !refreshJob.isCancelled()) {
-            refreshJob.cancel(true);
-            refreshJob = null;
+        } else {
+            updateStatus(ThingStatus.OFFLINE);
         }
     }
 
@@ -151,7 +122,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
             onSubscription();
             onUpdate();
         } else {
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.BRIDGE_OFFLINE);
             if (refreshJob != null && !refreshJob.isCancelled()) {
                 refreshJob.cancel(true);
                 refreshJob = null;

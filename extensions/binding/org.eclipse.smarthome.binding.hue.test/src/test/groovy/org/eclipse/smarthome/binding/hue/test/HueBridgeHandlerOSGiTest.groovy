@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.HueBridge
 import nl.q42.jue.exceptions.ApiException
 import nl.q42.jue.exceptions.LinkButtonException
@@ -26,8 +25,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
-import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
 
@@ -38,7 +35,7 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  */
-class HueBridgeHandlerOSGiTest extends OSGiTest {
+class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
     private static final TEST_USER_NAME = "eshTestUser"
@@ -55,35 +52,6 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that HueBridgeHandler is registered and unregistered'() {
-        HueBridgeHandler hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
-        assertThat hueBridgeHandler, is(nullValue())
-
-        Configuration configuration = new Configuration().with {
-            put(HOST, DUMMY_HOST)
-            put(USER_NAME, TEST_USER_NAME)
-            put(SERIAL_NUMBER, "testSerialNumber")
-            it
-        }
-
-        Bridge hueBridge = createBridgeThing(configuration)
-
-        // wait for HueBridgeHandler to be registered
-        waitForAssert({
-            hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
-            assertThat hueBridgeHandler, is(notNullValue())
-        }, 10000)
-
-        thingRegistry.remove(hueBridge.getUID())
-
-        // wait for HueBridgeHandler to be unregistered
-        waitForAssert({
-            hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
-            assertThat hueBridgeHandler, is(nullValue())
-        }, 10000)
-    }
-
-    @Test
     void 'assert that a new user is added to config if not existing yet'() {
 
         Configuration configuration = new Configuration().with {
@@ -93,7 +61,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -118,7 +86,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -141,7 +109,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -167,7 +135,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -193,7 +161,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -218,7 +186,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
         hueBridgeHandler.thingUpdated(bridge)
 
         hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
@@ -226,10 +194,10 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
         assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
     }
-	
+
     @Test
     void 'assert that a status configuration message for missing bridge IP is properly returned (IP is null)'() {
-    	Configuration configuration = new Configuration().with {
+        Configuration configuration = new Configuration().with {
             put(HOST, null)
             put(SERIAL_NUMBER, "testSerialNumber")
             it
@@ -237,17 +205,17 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
 
         createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
-                
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
-                    .build()
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .build()
 
         waitForAssert {
             assertThat hueBridgeHandler.getConfigStatus().first(), is(expected)
         }
     }
-    
+
     @Test
     void 'assert that a status configuration message for missing bridge IP is properly returned (IP is an empty string)'() {
         Configuration configuration = new Configuration().with {
@@ -258,11 +226,11 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
 
         createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
-                
+        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
-                    .build()
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .build()
 
         waitForAssert {
             assertThat hueBridgeHandler.getConfigStatus().first(), is(expected)
@@ -279,15 +247,4 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         thingRegistry.add(bridge)
         return bridge
     }
-
-    private HueBridgeHandler getRegisteredHueBridgeHandler(){
-        HueBridgeHandler hueBridgeHandler
-        // wait for HueBridgeHandler to be registered
-        waitForAssert({
-            hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
-            assertThat hueBridgeHandler, is(notNullValue())
-        }, 10000)
-        return hueBridgeHandler
-    }
-
 }
