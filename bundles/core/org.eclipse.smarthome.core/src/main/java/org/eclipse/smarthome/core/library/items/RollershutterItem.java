@@ -81,7 +81,7 @@ public class RollershutterItem extends GenericItem {
         if (state instanceof Convertible) {
             state = ((Convertible) state).as(PercentType.class);
         }
-        super.setState(state);
+        applyState(state);
     }
 
 }
