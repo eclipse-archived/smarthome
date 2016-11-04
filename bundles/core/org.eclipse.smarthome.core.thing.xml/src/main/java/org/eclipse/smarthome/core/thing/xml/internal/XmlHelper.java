@@ -16,7 +16,7 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 public class XmlHelper {
 
     public static final String SYSTEM_NAMESPACE_PREFIX = "system.";
-    public static final String SYSTEM_NAMESPACE = "system";
+    private static final String SYSTEM_NAMESPACE = "system";
 
     /**
      * Returns a UID in the format of {1}:{2}, where {1} is {@link #SYSTEM_NAMESPACE} and {2} is the
@@ -26,12 +26,9 @@ public class XmlHelper {
      * @return system uid (e.g. "system:test")
      */
     public static String getSystemUID(String typeId) {
-        int prefixIdx = typeId.indexOf(SYSTEM_NAMESPACE_PREFIX);
-
-        if (prefixIdx != -1) {
-            typeId = typeId.substring(prefixIdx + SYSTEM_NAMESPACE_PREFIX.length());
+        if (typeId.startsWith(SYSTEM_NAMESPACE_PREFIX)) {
+            typeId = typeId.substring(SYSTEM_NAMESPACE_PREFIX.length());
         }
-
         return String.format("%s:%s", SYSTEM_NAMESPACE, typeId);
     }
 }
