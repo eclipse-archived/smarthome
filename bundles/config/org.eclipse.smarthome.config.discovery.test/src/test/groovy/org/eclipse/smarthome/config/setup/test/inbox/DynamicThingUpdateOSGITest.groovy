@@ -113,16 +113,11 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'supportsThingType' : { ThingTypeUID thingTypeUID ->
                 return THING_TYPE_UID.equals(thingTypeUID)
             },
-            'registerHandler' : { Thing thing, ThingHandlerCallback callback ->
+            'registerHandler' : { Thing thing ->
                 thingHandler = createThingHandler(thing)
-
-                Hashtable<String, Object> properties = [
-                    'thing.id': THING_UID, 'thing.type' : THING_TYPE_UID.toString() ]
-
-                registerService(thingHandler, ThingHandler.class.name, properties)
+                thingHandler
             },
             'unregisterHandler' : { Thing thing ->
-                unregisterService(thingHandler)
             },
             'createThing' : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID ->
                 return null

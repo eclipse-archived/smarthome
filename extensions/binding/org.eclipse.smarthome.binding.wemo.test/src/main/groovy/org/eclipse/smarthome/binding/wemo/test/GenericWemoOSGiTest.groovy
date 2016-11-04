@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
+import org.eclipse.smarthome.binding.wemo.internal.WemoHandlerFactory
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
@@ -27,8 +28,11 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.ThingTypeMigrationService
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
@@ -178,6 +182,28 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
         RemoteDevice localDevice = new RemoteDevice(identity, type, details, service);
         mockUpnpService.getRegistry().addDevice(localDevice)
+    }
+
+    protected <T extends ThingHandler> T getThingHandler(Class<T> clazz){
+        WemoHandlerFactory factory
+        waitForAssert({
+            factory = getService(ThingHandlerFactory, WemoHandlerFactory)
+            assertThat factory, is(notNullValue())
+        }, 10000)
+        def handlers = getThingHandlers(factory)
+
+        for(ThingHandler handler : handlers) {
+            if(clazz.isInstance(handler)) {
+                return handler
+            }
+        }
+        return null
+    }
+
+    private Set<ThingHandler> getThingHandlers(ThingHandlerFactory factory) {
+        def thingManager = getService(ThingTypeMigrationService.class, { "org.eclipse.smarthome.core.thing.internal.ThingManager" } )
+        assertThat thingManager, not(null)
+        thingManager.thingHandlersByFactory.get(factory)
     }
 }
 

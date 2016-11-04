@@ -9,6 +9,8 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.List;
 
+import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
+
 /**
  * A {@link Bridge} is a {@link Thing} that connects other {@link Thing}s.
  *
@@ -17,10 +19,17 @@ import java.util.List;
 public interface Bridge extends Thing {
 
     /**
-     * Returns the children of the bridges.
+     * Returns the children of the bridge.
      *
      * @return children
      */
     List<Thing> getThings();
 
+    /**
+     * Gets the bridge handler.
+     *
+     * @return the handler (can be null)
+     */
+    @Override
+    BridgeHandler getHandler();
 }

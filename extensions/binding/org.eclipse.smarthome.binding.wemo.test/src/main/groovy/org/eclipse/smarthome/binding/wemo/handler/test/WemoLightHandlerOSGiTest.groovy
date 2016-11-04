@@ -11,7 +11,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import groovy.xml.XmlUtil
 
-import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletResponse
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
@@ -26,7 +25,6 @@ import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.RefreshType
 import org.junit.After
@@ -74,14 +72,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         WemoLightHandler handler
         WemoBridgeHandler bridgeHandler
 
-        waitForAssert{
-            bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
+        waitForAssert {
+            bridgeHandler = getThingHandler(WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert {
-            handler = getService(ThingHandler.class, WemoLightHandler.class)
+            handler = getThingHandler(WemoLightHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -194,13 +192,13 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         WemoBridgeHandler bridgeHandler
 
         waitForAssert {
-            bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
+            bridgeHandler = getThingHandler(WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert {
-            handler = getService(ThingHandler.class, WemoLightHandler.class)
+            handler = getThingHandler(WemoLightHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
