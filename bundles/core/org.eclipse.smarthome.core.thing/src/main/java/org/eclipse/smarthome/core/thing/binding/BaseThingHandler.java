@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -39,17 +40,22 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
  * <p>
  * The default behavior for {@link Thing} updates is to {@link #dispose()} this handler first, exchange the
  * {@link Thing} and {@link #initialize()} it again. Override the method {@link #thingUpdated(Thing)} to change the
  * default behavior.
+ * <p>
+ * It is recommended to extend this abstract base class, because it covers a lot of common logic.
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties and config description validation
- * @author Stefan Bußweiler - Added new thing status handling, refactorings thing life cycle
+ * @author Stefan Bußweiler - Added new thing status handling, refactorings thing/bridge life cycle
  * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
  */
 public abstract class BaseThingHandler implements ThingHandler {
@@ -76,10 +82,12 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Creates a new instance of this class for the {@link Thing}.
      *
-     * @param thing
-     *            thing
+     * @param thing the thing that should be handled, not null
+     *
+     * @throws IllegalArgumentException if thing argument is null
      */
     public BaseThingHandler(Thing thing) {
+        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
         this.thing = thing;
     }
 
@@ -576,18 +584,13 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-        // do nothing by default, can be overridden by subclasses
-    }
-
-    @Override
-    public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
-        // do nothing by default, can be overridden by subclasses
-    }
-
-    @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        // do nothing by default, can be overridden by subclasses
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE
+                && getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
+        } else if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+        }
     }
 
     protected void changeThingType(ThingTypeUID thingTypeUID, Configuration configuration) {

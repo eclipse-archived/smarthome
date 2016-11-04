@@ -101,7 +101,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
+            ThingHandler thingHandler = getThingHandler(WemoLightHandler)
             assertThat thingHandler, is(nullValue())
         }
 
@@ -111,7 +111,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
+            ThingHandler bridgeHandler = getThingHandler(WemoBridgeHandler)
             assertThat bridgeHandler, is(nullValue())
         }
 

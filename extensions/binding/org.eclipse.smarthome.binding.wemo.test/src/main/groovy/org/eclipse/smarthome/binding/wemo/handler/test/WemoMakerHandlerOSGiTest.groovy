@@ -82,7 +82,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoMakerHandler handler = getService(ThingHandler.class, WemoMakerHandler.class)
+            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -106,7 +106,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoMakerHandler handler = getService(ThingHandler.class, WemoMakerHandler.class)
+            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -133,7 +133,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoMakerHandler handler = getService(ThingHandler.class, WemoMakerHandler.class)
+            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -168,7 +168,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getService(ThingHandler, WemoMakerHandler)
+            ThingHandler thingHandler = getThingHandler(WemoMakerHandler)
             assertThat thingHandler, is(nullValue())
         }
 

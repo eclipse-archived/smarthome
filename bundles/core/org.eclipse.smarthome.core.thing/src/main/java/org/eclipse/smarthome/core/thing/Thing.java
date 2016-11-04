@@ -15,10 +15,11 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
 /**
- * A {@link Thing} is a representation of a connected part (e.g. physical device
- * or cloud service) from the real world. It contains a list of {@link Channel} s, which can be bound to {@link Item}s.
- * A {@link Thing} might be connected
- * through a {@link Bridge}.
+ * A {@link Thing} is a representation of a connected part (e.g. physical device or cloud service) from the real world.
+ * It contains a list of {@link Channel}s, which can be bound to {@link Item}s.
+ * <p>
+ * A {@link Thing} might be connected through a {@link Bridge}.
+ * <p>
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Thomas Höfer - Added thing and thing type properties
@@ -77,6 +78,7 @@ public interface Thing {
 
     /**
      * Gets the status of a thing.
+     * </p>
      * In order to get all status information (status, status detail and status description)
      * please use {@link Thing#getStatusInfo()}.
      *
@@ -86,6 +88,7 @@ public interface Thing {
 
     /**
      * Gets the status info of a thing.
+     * </p>
      * The status info consists of the status itself, the status detail and a status description.
      *
      * @return the status info
@@ -192,4 +195,5 @@ public interface Thing {
      *            configured.
      */
     void setLocation(String location);
+
 }

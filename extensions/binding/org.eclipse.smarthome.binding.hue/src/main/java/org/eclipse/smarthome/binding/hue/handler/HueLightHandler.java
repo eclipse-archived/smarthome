@@ -25,7 +25,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -98,12 +97,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     public void initialize() {
         logger.debug("Initializing hue light handler.");
         initializeThing((getBridge() == null) ? null : getBridge().getStatus());
-    }
-
-    @Override
-    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        logger.debug("bridgeStatusChanged {}", bridgeStatusInfo);
-        initializeThing(bridgeStatusInfo.getStatus());
     }
 
     private void initializeThing(ThingStatus bridgeStatus) {

@@ -12,14 +12,11 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import groovy.xml.XmlUtil
 
-import javax.servlet.http.HttpServletResponse
-
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoOSGiTest
 import org.eclipse.smarthome.core.items.Item
-import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
@@ -28,7 +25,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.core.types.UnDefType
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -77,7 +73,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoHandler handler = getService(ThingHandler.class, WemoHandler.class)
+            WemoHandler handler = getThingHandler(WemoHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -104,7 +100,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoHandler handler = getService(ThingHandler.class, WemoHandler.class)
+            WemoHandler handler = getThingHandler(WemoHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -144,7 +140,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoHandler handler = getService(ThingHandler.class, WemoHandler.class)
+            WemoHandler handler = getThingHandler(WemoHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
@@ -167,7 +163,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getService(ThingHandler, WemoHandler)
+            ThingHandler thingHandler = getThingHandler(WemoHandler)
             assertThat thingHandler, is(nullValue())
         }
 

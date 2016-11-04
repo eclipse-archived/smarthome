@@ -291,7 +291,6 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
 
             if (handler instanceof BridgeHandler) {
                 this.bridgeHandler = (BridgeHandler) handler;
-                bridgeHandlerInitialized(bridgeHandler, this.getBridge());
             } else {
                 logger.debug("BridgeHandler cannot be found");
                 return null;
