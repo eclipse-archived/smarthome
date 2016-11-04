@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -79,27 +78,8 @@ public class ThingTypeXmlResult {
             channelTypeDefinitions = new ArrayList<>(channelTypeReferences.size());
 
             for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
-                String id = channelTypeReference.getId();
-                String typeId = channelTypeReference.getTypeId();
-
-                String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
-
-                int systemPrefixIdx = typeId.indexOf(XmlHelper.SYSTEM_NAMESPACE_PREFIX);
-                if (systemPrefixIdx != -1) {
-                    typeUID = XmlHelper.getSystemUID(typeId);
-                }
-
-                // Convert the channel properties into a map
-                Map<String, String> propertiesMap = new HashMap<>();
-                for (NodeValue property : channelTypeReference.getProperties()) {
-                    propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
-                }
-
-                ChannelDefinition channelDefinition = new ChannelDefinition(id, new ChannelTypeUID(typeUID),
-                        propertiesMap, channelTypeReference.getLabel(), channelTypeReference.getDescription());
-                channelTypeDefinitions.add(channelDefinition);
+                channelTypeDefinitions.add(channelTypeReference.toChannelDefinition(this.thingTypeUID.getBindingId()));
             }
-
         }
 
         return channelTypeDefinitions;
