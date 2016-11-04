@@ -77,19 +77,19 @@ public class ColorItem extends DimmerItem {
             PercentType saturation = ((HSBType) currentState).getSaturation();
             // we map ON/OFF values to dark/bright, so that the hue and saturation values are not changed
             if (state == OnOffType.OFF) {
-                super.setState(new HSBType(hue, saturation, PercentType.ZERO));
+                applyState(new HSBType(hue, saturation, PercentType.ZERO));
             } else if (state == OnOffType.ON) {
-                super.setState(new HSBType(hue, saturation, PercentType.HUNDRED));
+                applyState(new HSBType(hue, saturation, PercentType.HUNDRED));
             } else if (state instanceof PercentType && !(state instanceof HSBType)) {
-                super.setState(new HSBType(hue, saturation, (PercentType) state));
+                applyState(new HSBType(hue, saturation, (PercentType) state));
             } else {
-                super.setState(state);
+                applyState(state);
             }
         } else {
             if (state instanceof Convertible) {
                 state = ((Convertible) state).as(HSBType.class);
             }
-            super.setState(state);
+            applyState(state);
         }
     }
 
