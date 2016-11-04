@@ -194,12 +194,27 @@ abstract public class GenericItem implements ActiveItem {
     }
 
     /**
-     * Sets new state, notifies listeners and sends events.
+     * Set a new state.
+     *
+     * Subclasses may override this method in order to do necessary conversions upfront. Afterwards,
+     * {@link #applyState(State)} should be called by classes overriding this method.
      *
      * @param state
      *            new state of this item
      */
     public void setState(State state) {
+        applyState(state);
+    }
+
+    /**
+     * Sets new state, notifies listeners and sends events.
+     *
+     * Classes overriding the {@link #setState(State)} method should call this method in order to actually set the
+     * state, inform listeners and send the event.
+     *
+     * @param state new state of this item
+     */
+    protected final void applyState(State state) {
         State oldState = this.state;
         this.state = state;
         notifyListeners(oldState, state);
