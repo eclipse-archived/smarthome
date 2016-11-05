@@ -31,6 +31,8 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -52,6 +54,13 @@ import org.slf4j.LoggerFactory;
  * hence provide the data of the url specified in the according widget. Note that it does NOT allow
  * general access to any servers in the LAN - only urls that are specified in a sitemap are accessible.
  *
+ * However, if the Image or Video widget is associated with an item whose current State is a StringType,
+ * it will attempt to use the state of the item as the url to proxy, or fall back to the url= attribute
+ * if the state is not a valid url, so you must make sure that the item's state cannot be set to an
+ * internal image or video url that you do not wish to proxy out of your network. If you are concerned
+ * with the security aspect of using item= to proxy image or video URLs, then do not use item= with those
+ * widgets in your sitemaps.
+ *
  * It is also possible to use credentials in a url, e.g. "http://user:pwd@localserver/image.jpg" -
  * the proxy servlet will be able to access the content and provide it to the openHAB UIs through the
  * standard openHAB authentication mechanism (if enabled).
@@ -60,6 +69,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Svilen Valkanov - Replaced Apache HttpClient with Jetty
+ * @author John Cocula - added optional Image/Video item= support
  */
 public class ProxyServlet extends HttpServlet {
 
@@ -140,50 +150,15 @@ public class ProxyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String sitemapName = request.getParameter("sitemap");
         String widgetId = request.getParameter("widgetId");
+        URI uri = getURI(sitemapName, widgetId, response);
 
-        if (sitemapName == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'sitemap' must be provided!");
-        }
-        if (widgetId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'widget' must be provided!");
-        }
+        if (uri != null) {
+            Request httpRequest = httpClient.newRequest(uri);
 
-        String uriString = null;
-
-        Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapName);
-        if (sitemap != null) {
-            Widget widget = itemUIRegistry.getWidget(sitemap, widgetId);
-            if (widget instanceof Image) {
-                Image image = (Image) widget;
-                uriString = image.getUrl();
-            } else if (widget instanceof Video) {
-                Video video = (Video) widget;
-                uriString = video.getUrl();
-            } else {
-                if (widget == null) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                            "Widget '" + widgetId + "' could not be found!");
-                    return;
-                } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                            "Widget type '" + widget.getClass().getName() + "' is not supported!");
-                    return;
-                }
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sitemap '" + sitemapName + "' could not be found!");
-            return;
-        }
-
-        Request httpRequest;
-        try {
             // check if the uri uses credentials and configure the http client accordingly
-            URI uri = URI.create(uriString);
-
-            httpRequest = httpClient.newRequest(uri);
-
             if (uri.getUserInfo() != null) {
                 String[] userInfo = uri.getUserInfo().split(":");
 
@@ -193,43 +168,107 @@ public class ProxyServlet extends HttpServlet {
                 String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
                 httpRequest.header(HttpHeader.AUTHORIZATION, basicAuthentication);
             }
+
+            InputStreamResponseListener listener = new InputStreamResponseListener();
+
+            // do the client request
+            try {
+                httpRequest.send(listener);
+                // wait for the response headers to arrive or the timeout to expire
+                Response httpResponse = listener.get(TIMEOUT, TimeUnit.MILLISECONDS);
+
+                // get response headers
+                HttpFields headers = httpResponse.getHeaders();
+                Iterator<HttpField> iterator = headers.iterator();
+
+                // copy all headers
+                while (iterator.hasNext()) {
+                    HttpField header = iterator.next();
+                    response.setHeader(header.getName(), header.getValue());
+                }
+
+            } catch (Exception e) {
+                if (e instanceof TimeoutException) {
+                    logger.warn("Proxy servlet failed to stream content due to a timeout");
+                    response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
+                } else {
+                    logger.warn("Proxy servlet failed to stream content: {}", e.getMessage());
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+                }
+                return;
+            }
+            // now copy/stream the body content
+            try (InputStream responseContent = listener.getInputStream()) {
+                IOUtils.copy(responseContent, response.getOutputStream());
+            }
+        }
+    }
+
+    /**
+     * Given a sitemap and widget, return the URI referenced by the widget in the sitemap.
+     * If the widget is not an Image or Video widget, then return <code>null</code>.
+     * If the widget is associated with an item, attempt to use the item's state as a URL.
+     * If the item's state as a string does not conform to RFC 2396, attempt to use the
+     * <code>url=</code> attribute in the sitemap. If that too does not conform to RFC 2396,
+     * then return <code>null</code>. In all cases where <code>null</code> is returned,
+     * this method first sends {@link HttpServletResponse.SC_BAD_REQUEST} back to the client.
+     *
+     * @param sitemapName
+     * @param widgetId
+     * @param response the HttpServletResponse to which detailed errors are sent
+     * @return the URI referenced by the widget
+     */
+    private URI getURI(String sitemapName, String widgetId, HttpServletResponse response) throws IOException {
+
+        if (sitemapName == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'sitemap' must be provided!");
+            return null;
+        }
+        if (widgetId == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'widget' must be provided!");
+            return null;
+        }
+
+        Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapName);
+        if (sitemap == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sitemap '" + sitemapName + "' could not be found!");
+            return null;
+        }
+        Widget widget = itemUIRegistry.getWidget(sitemap, widgetId);
+        if (widget == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Widget '" + widgetId + "' could not be found!");
+            return null;
+        }
+
+        String uriString = null;
+        if (widget instanceof Image) {
+            uriString = ((Image) widget).getUrl();
+        } else if (widget instanceof Video) {
+            uriString = ((Video) widget).getUrl();
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Widget type '" + widget.getClass().getName() + "' is not supported!");
+            return null;
+        }
+
+        String itemName = widget.getItem();
+        if (itemName != null) {
+            State state = itemUIRegistry.getItemState(itemName);
+            if (state != null && state instanceof StringType) {
+                try {
+                    return URI.create(state.toString());
+                } catch (IllegalArgumentException ex) {
+                    // fall thru
+                }
+            }
+        }
+
+        try {
+            return URI.create(uriString);
         } catch (IllegalArgumentException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                     "URI '" + uriString + "' is not valid: " + e.getMessage());
-            return;
-        }
-
-        InputStreamResponseListener listener = new InputStreamResponseListener();
-
-        // do the client request
-        try {
-            httpRequest.send(listener);
-            // wait for the response headers to arrive or the timeout to expire
-            Response httpResponse = listener.get(TIMEOUT, TimeUnit.MILLISECONDS);
-
-            // get response headers
-            HttpFields headers = httpResponse.getHeaders();
-            Iterator<HttpField> iterator = headers.iterator();
-
-            // copy all headers
-            while (iterator.hasNext()) {
-                HttpField header = iterator.next();
-                response.setHeader(header.getName(), header.getValue());
-            }
-
-        } catch (Exception e) {
-            if (e instanceof TimeoutException) {
-                logger.warn("Proxy servlet failed to stream content due to a timeout");
-                response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
-            } else {
-                logger.warn("Proxy servlet failed to stream content: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-            }
-            return;
-        }
-        // now copy/stream the body content
-        try (InputStream responseContent = listener.getInputStream()) {
-            IOUtils.copy(responseContent, response.getOutputStream());
+            return null;
         }
     }
 
