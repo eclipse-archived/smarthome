@@ -153,7 +153,8 @@ class NtpOSGiTest extends OSGiTest {
 
     @Test
     public void 'the string channel is updated with the right time zone'(){
-        def expectedTimeZone = "PDT"
+        def expectedTimeZonePDT = "PDT"
+        def expectedTimeZonePST = "PST"
 
         Configuration configuration = new Configuration()
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID)
@@ -169,7 +170,7 @@ class NtpOSGiTest extends OSGiTest {
 
         assertThat "The string channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
-                is(equalTo(expectedTimeZone))
+                is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST)))
     }
 
     @Ignore("the dateTime channel is updated with a time from the system timezone")
