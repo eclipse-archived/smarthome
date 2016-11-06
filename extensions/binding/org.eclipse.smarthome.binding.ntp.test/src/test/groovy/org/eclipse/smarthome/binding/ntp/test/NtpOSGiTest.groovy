@@ -68,6 +68,7 @@ import org.junit.Ignore
  */
 class NtpOSGiTest extends OSGiTest {
     private static TimeZone systemTimeZone
+    private static Locale locale
 
     private EventSubscriberMock eventSubscriberMock
 
@@ -126,13 +127,15 @@ class NtpOSGiTest extends OSGiTest {
 
     @BeforeClass
     public static void setUpClass(){
-        /* Store the initial system time zone value,
-         so that we can restore it at the test end.*/
+        /* Store the initial system time zone and locale value,
+         so that we can restore them at the test end.*/
         systemTimeZone = TimeZone.getDefault()
+        locale = Locale.getDefault()
 
-        /* Set new default time zone,
+        /* Set new default time zone and locale,
          which will be used during the tests execution.*/
         TimeZone.setDefault(TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID))
+        Locale.setDefault(Locale.US)
     }
 
     @Before
@@ -172,8 +175,9 @@ class NtpOSGiTest extends OSGiTest {
 
     @AfterClass
     public static void tearDownClass(){
-        // Set the default time zone to its initial value.
+        // Set the default time zone and locale to their initial value.
         TimeZone.setDefault(systemTimeZone)
+        Locale.setDefault(locale)
     }
 
     @Test
