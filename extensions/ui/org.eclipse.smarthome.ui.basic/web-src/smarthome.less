@@ -123,6 +123,7 @@
 		text-overflow: ellipsis;
 		overflow: hidden;
 		max-width: 100%;
+		line-height: normal;
 	}
 }
 
@@ -332,6 +333,7 @@
 	&__title {
 		margin: 0;
 		padding-left: @form-row-desktop-padding + @mdl-grid-spacing;
+
 		html.ui-layout-condensed & {
 			padding-left: @form-row-desktop-padding-condensed + @mdl-grid-spacing;
 		}
@@ -356,11 +358,12 @@
 		html.ui-capitalize-values & {
 			text-transform: uppercase;
 		}
-		&--setpoint {
+		&--setpoint, &--rollerblind {
 			padding: 0 10px 0 5px;
 		}
-		&--rollerblind {
-			padding: 0 10px 0 5px;
+		&--group {
+			padding: 0 5px 0 5px;
+			font-weight: normal;
 		}
 	}
 	&__text {
@@ -372,6 +375,9 @@
 		padding-left: 0px;
 		padding-right: 0px;
 		width: 100%;
+	}
+	&__buttons {
+		padding-top: 2px;
 	}
 	&--no-label {
 		.mdl-form__title {

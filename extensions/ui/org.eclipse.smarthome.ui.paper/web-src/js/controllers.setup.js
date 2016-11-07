@@ -148,15 +148,8 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $mdDialog.cancel();
     }
     $scope.approve = function(label) {
-        var selectedGroupNames = [];
-        for ( var groupName in $scope.groupNames) {
-            if ($scope.groupNames[groupName]) {
-                selectedGroupNames.push(groupName);
-            }
-        }
         $mdDialog.hide({
-            label : label,
-            groupNames : selectedGroupNames
+            label : label
         });
     }
 }).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, $location, toastService, bindingRepository, thingTypeService, thingService, thingRepository, configService, linkService) {

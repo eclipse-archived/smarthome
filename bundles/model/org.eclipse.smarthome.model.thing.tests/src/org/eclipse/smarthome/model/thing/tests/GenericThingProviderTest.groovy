@@ -15,6 +15,8 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -277,6 +279,53 @@ class GenericThingProviderTest extends OSGiTest {
 
         assertThat thing.bridgeUID.toString(), is("hue:bridge:bridge1")
         assertThat bridge.things.contains(thing), is(true)
+    }
+
+    @Test
+    void 'assert that channel definitions can be referenced'() {
+        def things = thingRegistry.getAll()
+        assertThat things.size(), is(0)
+
+        String model =
+                '''
+                    Bridge hue:bridge:bridge1 [] {
+                        LCT001 bulb_default []
+                        LCT001 bulb_custom [] {
+                            Channels:
+                                Type color : manual []
+                                Type color : manualWithLabel "With Label" []
+                        }
+                        LCT001 bulb_broken [] {
+                            Channels:
+                                Type broken : manual []
+                                Type broken : manualWithLabel "With Label" []
+                        }
+                    }
+
+                '''
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(4)
+
+        Thing thingDefault = actualThings.find { it.getUID().getId().equals("bulb_default") }
+        assertThat thingDefault.getChannels().size(), is(2)
+
+        Thing thingCustom = actualThings.find { it.getUID().getId().equals("bulb_custom") }
+        assertThat thingCustom.getChannels().size(), is(4)
+        assertThat thingCustom.getChannel("manual").getChannelTypeUID(), is(equalTo(new ChannelTypeUID("hue", "color")))
+        assertThat thingCustom.getChannel("manual").getLabel(), is("colorLabel") // default from thing type
+        assertThat thingCustom.getChannel("manualWithLabel").getLabel(), is("With Label") // manual overrides default
+
+        Thing thingBroken = actualThings.find { it.getUID().getId().equals("bulb_broken") }
+        assertThat thingBroken.getChannels().size(), is(4)
+        assertThat thingBroken.getChannel("manual").getChannelTypeUID(), is(equalTo(new ChannelTypeUID("hue", "broken")))
+        assertThat thingBroken.getChannel("manual").getKind(), is(ChannelKind.STATE)
+        assertThat thingBroken.getChannel("manual").getAcceptedItemType(), is(nullValue())
+        assertThat thingBroken.getChannel("manual").getLabel(), is(nullValue())
+        assertThat thingBroken.getChannel("manualWithLabel").getLabel(), is("With Label")
+
     }
 
 }

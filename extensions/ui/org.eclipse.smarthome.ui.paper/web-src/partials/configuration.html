@@ -6,7 +6,7 @@
 		<div class="section-header"></div>
 		<div class="container">
 			<div class="bindings row">
-				<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="binding in data.bindings">
+				<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="binding in data.bindings | orderBy:'name'">
 					<div class="card binding text-left" data-binding-id="{{binding.id}}">
 						<div class="clabel">
 							<h3 class="md-title">
@@ -26,11 +26,11 @@
 	</div>
 	<div class="services fill-height" ng-if="page === 'services'" ng-controller="ServicesController">
 
-		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs | orderBy:'-category' | filter: {'category':'!system'}:true" label="{{tab.category}}" layout-fill> <md-tab-content layout-fill="">
+		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs | orderBy:'category' | filter: {'category':'!system'}:true" label="{{tab.category}}" layout-fill> <md-tab-content layout-fill="">
 
 		<div class="container">
 			<div class="services row">
-				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in tab">
+				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in tab | orderBy:'label'">
 					<div class="card text-left" data-service-id="{{service.id}}">
 						<div class="clabel">
 							<h3 class="md-title">{{service.label}}</h3>
@@ -126,7 +126,7 @@
 			<div class="channels">
 				<div ng-repeat="group in thingChannels track by $index">
 					<div ng-init="collapsed=false">
-						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0 && group.channels && group.channels.length > 0">
+						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0 && group.channels && group.channels.length > 0" class="channelGroup">
 							<span class="md-title">{{group.name}}</span>
 							<i ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px; float: right;" class="md-raised material-icons">unfold_less</i> <i ng-show="collapsed" ng-click="collapsed=!collapsed" style="color: grey; font-size: 22px; float: right;" class="md-raised material-icons">unfold_more</i>
 							<div>{{group.description}}</div>
@@ -143,7 +143,7 @@
 									<h3 ng-if="channel.label">{{channel.label}}</h3>
 									<h3 ng-if="!channel.label && channel.channelType.label">{{channel.channelType.label}}</h3>
 									<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
-									<p>{{thing.UID + ':' + channel.id}}</p>
+									<p>{{thing.UID + ':' + channel.id}}<i class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i></p>
 									<p ng-if="channel.description" ng-bind-html="channel.channelType.description"></p>
 									<p ng-if="!channel.description && channel.channelType.description" ng-bind-html="channel.channelType.description"></p>
 									<div class="actions">
@@ -160,10 +160,10 @@
 										</button>
 									</h3>
 									<div ng-repeat="item in channel.items | orderBy" class="row cursor-pointer " ng-class="{'borderhidden':$last}" ng-click="navigateTo('item/edit/' + item.name)">
-										<div class="col-xs-2">
+										<div class="col-xs-1">
 											<span class="circle">{{item.label.substring(0,1).toUpperCase()}}</span>
 										</div>
-										<div class="col-xs-8 name">
+										<div class="col-xs-9 name">
 											{{item.label}} <small><span >({{item.name}})</span></small>
 										</div>
 										<div class="col-xs-2 action">
@@ -171,7 +171,7 @@
 										</div>
 									</div>
 								</div>
-								<hr class="border-line" />
+								<hr ng-if="!$last" class="border-line" />
 							</div>
 						</div>
 					</div>

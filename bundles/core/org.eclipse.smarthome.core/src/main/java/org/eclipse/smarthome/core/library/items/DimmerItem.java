@@ -7,18 +7,16 @@
  */
 package org.eclipse.smarthome.core.library.items;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.library.CoreItemFactory;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -37,13 +35,13 @@ public class DimmerItem extends SwitchItem {
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
     static {
-        acceptedDataTypes.add(OnOffType.class);
         acceptedDataTypes.add(PercentType.class);
+        acceptedDataTypes.add(OnOffType.class);
         acceptedDataTypes.add(UnDefType.class);
 
+        acceptedCommandTypes.add(PercentType.class);
         acceptedCommandTypes.add(OnOffType.class);
         acceptedCommandTypes.add(IncreaseDecreaseType.class);
-        acceptedCommandTypes.add(PercentType.class);
         acceptedCommandTypes.add(RefreshType.class);
     }
 
@@ -74,39 +72,10 @@ public class DimmerItem extends SwitchItem {
      */
     @Override
     public void setState(State state) {
-        // we map ON/OFF values to the percent values 0 and 100
-        if (state == OnOffType.OFF) {
-            super.setState(PercentType.ZERO);
-        } else if (state == OnOffType.ON) {
-            super.setState(PercentType.HUNDRED);
-        } else if (state.getClass() == DecimalType.class) {
-            super.setState(new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100))));
-        } else {
-            super.setState(state);
+        if (state instanceof Convertible) {
+            state = ((Convertible) state).as(PercentType.class);
         }
+        applyState(state);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public State getStateAs(Class<? extends State> typeClass) {
-        if (state.getClass() == typeClass) {
-            return state;
-        } else if (typeClass == OnOffType.class) {
-            // if it is not completely off, we consider the dimmer to be on
-            return state.equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON;
-        } else if (typeClass == DecimalType.class) {
-            if (state instanceof PercentType) {
-                return new DecimalType(
-                        ((PercentType) state).toBigDecimal().divide(new BigDecimal(100), 8, RoundingMode.UP));
-            }
-        } else if (typeClass == PercentType.class) {
-            if (state instanceof DecimalType) {
-                return new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100)));
-            }
-        }
-
-        return super.getStateAs(typeClass);
-    }
 }

@@ -14,11 +14,11 @@ All available Sonos (playback) devices are supported by this binding. This inclu
 
 When being defined in a \*.things file, the specific thing types PLAY1, PLAY3, PLAY5, PLAYBAR, CONNECT and CONNECTAMP should be used.
 
-Please note that these thing types are case sensitive (you need to define them in uppper case).
+Please note that these thing types are case sensitive (you need to define them in upper case).
 
 ## Discovery
 
-The Sonos devices are discovered through UPnP in the local network and all devices are put in the Inbox. Beware that all Sonos devices have to added to the local Sonos installation as described in the Sonos setup procedure, e.g. through the Sonos Controller software or smartphone app.
+The Sonos devices are discovered through UPnP in the local network and all devices are put in the Inbox. Beware that all Sonos devices have to be added to the local Sonos installation as described in the Sonos setup procedure, e.g. through the Sonos Controller software or smartphone app.
 
 ## Binding Configuration
 
@@ -39,7 +39,7 @@ The devices support the following channels:
 | Channel Type ID | Item Type    | Description  | Thing types |
 |-----------------|------------------------|--------------|----------------- |------------- |---|
 | add | String | Add a Zone Player to the group of the given Zone Player | all |
-| alarm | Switch | Set the first occurring alarm either ON or OFF. Alarms have first have to be defined through the Sonos Controller app | all |
+| alarm | Switch | Set the first occurring alarm either ON or OFF. Alarms first have to be defined through the Sonos Controller app | all |
 | alarmproperties | String | Properties of the alarm currently running | all |
 | alarmrunning | Switch | Set to ON if the alarm was triggered | all |
 | control | Player       | This channel supports controlling the zoneplayer, e.g. start/stop/next/previous | all |
@@ -63,7 +63,7 @@ The devices support the following channels:
 | playuri | String | Play the given URI | all |
 | publicaddress | Switch | Put all Zone Players in one group, and stream audio from the line-in from the Zone Player that triggered the command | PLAY5, CONNECT, CONNECTAMP |
 | radio | String | Play the given radio station. The radio station has to be predefined in the Sonos Controller app | all |
-| remove | String | Remove the given Zone Player to the group of this Zone Player | all |
+| remove | String | Remove the given Zone Player from the group of this Zone Player | all |
 | repeat | String | Repeat the current track or queue. The accepted values are OFF, ONE and ALL | all |
 | restore | Switch | Restore the state of the Zone Player | all |
 | restoreall | Switch | Restore the state of all the Zone Players | all |

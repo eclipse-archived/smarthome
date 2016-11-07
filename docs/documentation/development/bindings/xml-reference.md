@@ -87,7 +87,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>parameter.unit</td><td>Specifies the unit of measurements. The unit declaration in the parameter definition shown above contains the set of valid units. The unit must only be set if the type of the parameter is either integer or decimal (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
-  <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
+  <tr><td>context</td><td>The context of the configuration parameter (optional). <a href='#supported-contexts'>Supported contexts</a></td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human-readable label for the configuration parameter (optional).</td></tr>
@@ -100,6 +100,34 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
   <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
 </table>
+
+### Supported Contexts
+
+Context is used to provide some semantic details about the parameter. The UI use it to render different kind of input widgets. The following contexts require a specific format of the content:
+
+<table><tr><th>Name</th><th>Type</th><th>Format</th></tr>
+  <tr><td>Date</td><td>Text</td><td>DD:MM:YYYY</td></tr>
+  <tr><td>Time</td><td>Text/Integer</td><td>hh:mm/number</td></tr>
+  <tr><td>Color</td><td>Text</td><td>#000000 - #ffffff (hex color)</td></tr>
+  <tr><td>Item</td><td>Text</td><td>Item name</td></tr>
+  <tr><td>Thing</td><td>Text</td><td>UID of thing</td></tr>
+  <tr><td>Day of week</td><td>Text</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td></tr>
+</table>
+
+Further, the <strong>item</strong> context can contain criteria to filter the list of items. For example:
+
+```xml
+<filter>
+  <criteria name="type">Switch,Dimmer</criteria>
+  <criteria name="tag">Light,Heating</criteria>
+</filter>
+```
+
+In the case of above filter only those items will be shown that satisfy the filter's coniditions. The above filter is evaluated as follows: 
+
+```
+(type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
+```
 
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
 <table>

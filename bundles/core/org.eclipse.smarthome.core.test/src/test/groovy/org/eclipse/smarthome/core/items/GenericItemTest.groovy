@@ -15,7 +15,10 @@ import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
+import org.eclipse.smarthome.core.library.types.OnOffType
+import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.RawType
+import org.eclipse.smarthome.core.library.types.StringType
 import org.junit.Before
 import org.junit.Test
 
@@ -87,4 +90,34 @@ class GenericItemTest {
         def item = new TestItem("member1")
         item.removeGroupName(null)
     }
+
+    @Test
+    void 'assert that getStateAs works with the same type for a Convertible'() {
+        def item = new TestItem("member1")
+        item.setState(PercentType.HUNDRED)
+        assertThat item.getStateAs(PercentType), isA(PercentType)
+    }
+
+    @Test
+    void 'assert that getStateAs works with a different type for a Convertible'() {
+        def item = new TestItem("member1")
+        item.setState(PercentType.HUNDRED)
+        assertThat item.getStateAs(OnOffType), isA(OnOffType)
+    }
+
+    @Test
+    void 'assert that getStateAs works with the same type for a non-Convertible'() {
+        def item = new TestItem("member1")
+        item.setState(StringType.valueOf("Hello World"))
+        assertThat item.getStateAs(StringType), isA(StringType)
+    }
+
+    @Test
+    void 'assert that getStateAs works with null'() {
+        def item = new TestItem("member1")
+        item.setState(StringType.valueOf("Hello World"))
+        assertThat item.getStateAs(null), is(nullValue())
+    }
+
+
 }

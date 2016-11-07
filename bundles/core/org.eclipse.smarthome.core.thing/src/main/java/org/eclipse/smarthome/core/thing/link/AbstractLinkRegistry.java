@@ -59,7 +59,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * @param uid UID
      * @return a non-null collection of item names that are linked to the given UID.
      */
-    public Set<String> getLinkedItems(UID uid) {
+    public Set<String> getLinkedItemNames(UID uid) {
         Set<String> linkedItems = new LinkedHashSet<>();
         for (AbstractLink link : getAll()) {
             if (link.getUID().equals(uid)) {

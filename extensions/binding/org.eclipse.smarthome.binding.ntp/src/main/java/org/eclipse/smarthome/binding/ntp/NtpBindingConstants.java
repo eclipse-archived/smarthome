@@ -28,7 +28,7 @@ public class NtpBindingConstants {
 
     // List of all Channel ids
     public final static String CHANNEL_DATE_TIME = "dateTime";
-    public final static String CHANNEL_STING = "string";
+    public final static String CHANNEL_STRING = "string";
 
     // Custom Properties
     public final static String PROPERTY_NTP_SERVER = "hostname";

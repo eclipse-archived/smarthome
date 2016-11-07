@@ -1469,7 +1469,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                         new PercentType(new BigDecimal(notificationSoundVolume)));
             }
         }
-        return new PercentType(new BigDecimal(notificationSoundVolume));
+        if (notificationSoundVolume != null) {
+            return new PercentType(new BigDecimal(notificationSoundVolume));
+        } else {
+            return null;
+        }
     }
 
     public void addURIToQueue(String URI, String meta, int desiredFirstTrack, boolean enqueueAsNext) {
@@ -2226,7 +2230,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         coordinator.setPositionTrack(notificationPosition);
         coordinator.play();
         waitForFinishedNotification();
-        setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        if (originalVolume != null) {
+            setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        }
         coordinator.removeRangeOfTracksFromQueue(new StringType(Integer.toString(notificationPosition) + ",1"));
     }
 
@@ -2280,8 +2286,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         while (System.currentTimeMillis() - playstart < NOTIFICATION_TIMEOUT) {
             try {
                 Thread.sleep(50);
-                if (!stateMap.get("CurrentTitle").equals(notificationTitle)
-                        || !stateMap.get("TransportState").equals("PLAYING")) {
+                if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
+                        || !"PLAYING".equals(stateMap.get("TransportState"))) {
                     break;
                 }
             } catch (InterruptedException e) {

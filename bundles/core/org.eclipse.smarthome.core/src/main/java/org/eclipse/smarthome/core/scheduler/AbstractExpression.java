@@ -29,7 +29,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private int minimumCandidates = 10;
+    private int minimumCandidates = 1;
     private int maximumCandidates = 100;
 
     private String expression;
@@ -207,22 +207,49 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     @Override
     public Date getTimeAfter(Date afterTime) {
-        if (getCandidates().isEmpty()) {
+
+        Date currentStartDate = getStartDate();
+
+        if (hasFloatingStartDate()) {
+            try {
+                clearCandidates();
+                setStartDate(afterTime);
+            } catch (IllegalArgumentException | ParseException e) {
+                logger.error("An exception occurred while setting the start date : '{}'", e.getMessage());
+            }
+        } else if (getCandidates().isEmpty()) {
             try {
                 setStartDate(afterTime);
-                parseExpression(expression);
             } catch (ParseException e) {
-                logger.error("An exception occurred while parsing the expression : '{}'", e.getMessage());
+                logger.error("An exception occurred while setting the start date : '{}'", e.getMessage());
             }
         }
 
         if (!getCandidates().isEmpty()) {
+            if (getCandidates().size() == 1) {
+                return getCandidates().get(0);
+            } else {
+                while (getCandidates().size() > 1) {
 
-            Collections.sort(getCandidates());
+                    Collections.sort(getCandidates());
 
-            for (Date candidate : getCandidates()) {
-                if (candidate.after(afterTime)) {
-                    return candidate;
+                    Date newStartDate = null;
+
+                    try {
+
+                        for (Date candidate : getCandidates()) {
+                            newStartDate = candidate;
+                            if (candidate.after(afterTime)) {
+                                setStartDate(currentStartDate);
+                                return candidate;
+                            }
+                        }
+
+                        clearCandidates();
+                        setStartDate(newStartDate);
+                    } catch (IllegalArgumentException | ParseException e) {
+                        logger.error("An exception occurred while parsing the expression : '{}'", e.getMessage());
+                    }
                 }
             }
         }
@@ -232,6 +259,9 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     @Override
     public Date getFinalFireTime() {
+
+        Date currentStartDate = getStartDate();
+
         if (getCandidates().isEmpty()) {
             try {
                 parseExpression(getExpression());
@@ -240,11 +270,36 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
             }
         }
 
-        if (getCandidates().isEmpty()) {
-            return null;
+        Date lastCandidate = null;
+
+        if (!getCandidates().isEmpty()) {
+            if (getCandidates().size() == 1) {
+                lastCandidate = getCandidates().get(0);
+            } else {
+
+                while (getCandidates().size() == maximumCandidates) {
+                    Collections.sort(getCandidates());
+                    lastCandidate = getCandidates().get(getCandidates().size() - 1);
+                    try {
+                        clearCandidates();
+                        setStartDate(lastCandidate);
+                    } catch (IllegalArgumentException | ParseException e) {
+                        logger.error("An exception occurred while parsing the expression : '{}'", e.getMessage());
+                    }
+
+                }
+
+                lastCandidate = getCandidates().get(getCandidates().size() - 1);
+
+                try {
+                    setStartDate(currentStartDate);
+                } catch (IllegalArgumentException | ParseException e) {
+                    logger.error("An exception occurred while setting the start date : '{}'", e.getMessage());
+                }
+            }
         }
 
-        return getCandidates().get(getCandidates().size() - 1);
+        return lastCandidate;
     }
 
     /**
@@ -273,6 +328,10 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     protected void setCandidates(ArrayList<Date> candidates) {
         this.candidates = candidates;
+    }
+
+    protected void clearCandidates() {
+        this.candidates = null;
     }
 
     public ArrayList<E> getExpressionParts() {

@@ -107,7 +107,11 @@ class HostFragmentSupportTest extends OSGiTest{
     void after() {
         logger.info('@After');
     }
-
+    
+    protected void registerVolatileStorageService() {
+        registerService(AutomationIntegrationJsonTest.VOLATILE_STORAGE_SERVICE)
+    }
+    
     @Test
     public void 'asserting that the installation of the host-fragment provides the resources correctly' () {
         logger.info('asserting that the installation of the host-fragment provides the resources correctly')

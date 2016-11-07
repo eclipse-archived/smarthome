@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
@@ -125,6 +126,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private ConfigDescriptionRegistry configDescRegistry;
 
     private Storage<DiscoveryResult> discoveryResultStorage;
+
+    private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
 
     private ScheduledFuture<?> timeToLiveChecker;
 
@@ -269,6 +272,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 if (!isInRegistry(thingUID)) {
                     removeResultsForBridge(thingUID);
                 }
+                resultDiscovererMap.remove(discoveryResult);
                 this.discoveryResultStorage.remove(thingUID.toString());
                 notifyListeners(discoveryResult, EventType.removed);
                 return true;
@@ -286,7 +290,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
-        add(result);
+        if (add(result)) {
+            resultDiscovererMap.put(result, source.getClass());
+        }
     }
 
     @Override
@@ -299,8 +305,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
-            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
-                    && discoveryResult.getTimestamp() < timestamp) {
+            Class<?> discoverer = resultDiscovererMap.get(discoveryResult);
+            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
+                    && (discoverer == null || source.getClass() == discoverer)) {
                 ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);

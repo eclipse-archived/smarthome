@@ -18,8 +18,13 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem
+import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.And
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.Avg
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.Sum
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
@@ -288,5 +293,63 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         } finally {
             unregisterService(factory)
         }
+    }
+
+    @Test
+    void 'assert functions are stored and retrieved as well'() {
+
+        assertThat itemProvider.getAll().size(), is(0)
+
+        def item1 = new GroupItem('GroupItem', new NumberItem(), new Avg())
+        itemProvider.add item1
+
+        def items = itemProvider.getAll()
+        assertThat items.size(), is(1)
+
+        GroupItem result1 = itemProvider.remove 'GroupItem'
+
+        assertThat result1.name, is('GroupItem')
+        assertThat result1.function, is(Avg)
+
+        assertThat itemProvider.getAll().size(), is(0)
+    }
+
+
+    @Test
+	void 'assert group functions are stored and retrieved as well'() {
+
+        assertThat itemProvider.getAll().size(), is(0)
+
+        def function1 = new And(OnOffType.ON, OnOffType.OFF)
+        def function2 = new Sum()
+        def item1 = new GroupItem('GroupItem1', new SwitchItem('Switch'), function1)
+        def item2 = new GroupItem('GroupItem2', new NumberItem(), function2)
+
+        assertThat item1.name, is('GroupItem1')
+        assertThat item1.function, isA(And.class)
+        assertThat item1.function.parameters, is([OnOffType.ON, OnOffType.OFF] as State[])
+
+        assertThat item2.name, is('GroupItem2')
+        assertThat item2.function, isA(Sum.class)
+        assertThat item2.function.parameters, is([] as State[])
+
+        itemProvider.add item1
+        itemProvider.add item2
+
+        def items = itemProvider.getAll()
+        assertThat items.size(), is(2)
+
+        def result1 = itemProvider.remove 'GroupItem1'
+        def result2 = itemProvider.remove 'GroupItem2'
+
+        assertThat result1.name, is('GroupItem1')
+        assertThat result1.function, isA(And.class)
+        assertThat result1.function.parameters, is([OnOffType.ON, OnOffType.OFF] as State[])
+
+        assertThat result2.name, is('GroupItem2')
+        assertThat result2.function, isA(Sum.class)
+        assertThat result2.function.parameters, is([] as State[])
+
+        assertThat itemProvider.getAll().size(), is(0)
     }
 }

@@ -233,11 +233,16 @@ public class LifxLightHandler extends BaseThingHandler {
                     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                     .setOption(StandardSocketOptions.SO_BROADCAST, true);
             broadcastChannel.configureBlocking(false);
-            lightCounterLock.lock();
-            logger.debug("Binding the broadcast channel on port {}", BROADCAST_PORT + lightCounter);
-            broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + lightCounter));
-            lightCounter++;
-            lightCounterLock.unlock();
+
+            try {
+                lightCounterLock.lock();
+                logger.debug("Binding the broadcast channel on port {}", BROADCAST_PORT + lightCounter);
+                broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + lightCounter));
+                lightCounter++;
+            } finally {
+                lightCounterLock.unlock();
+            }
+
             broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
             updateStatus(ThingStatus.OFFLINE);
@@ -864,8 +869,7 @@ public class LifxLightHandler extends BaseThingHandler {
             updateState(CHANNEL_COLOR, currentColorState);
             updateState(CHANNEL_BRIGHTNESS, currentColorState.getBrightness());
         } else {
-            updateState(CHANNEL_COLOR,
-                    new HSBType(currentColorState.getHue(), currentColorState.getSaturation(), PercentType.HUNDRED));
+            updateState(CHANNEL_COLOR, HSBType.WHITE);
             updateState(CHANNEL_BRIGHTNESS, PercentType.HUNDRED);
         }
 

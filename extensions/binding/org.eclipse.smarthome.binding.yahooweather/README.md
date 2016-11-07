@@ -25,7 +25,7 @@ The weather information that is retrieved is available as these channels:
 
 | Channel Type ID | Item Type    | Description  |
 |-----------------|------------------------|------------- |
-| temperature | Number       | The current temperature in degrees celsius |
+| temperature | Number       | The current temperature in degrees Celsius |
 | humidity | Number       | The current humidity in % |
 | pressure | Number       | The current pressure in millibar (hPa) |
 

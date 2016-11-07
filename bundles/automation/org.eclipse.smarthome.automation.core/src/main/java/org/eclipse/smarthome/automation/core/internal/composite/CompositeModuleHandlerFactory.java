@@ -19,7 +19,6 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
 import org.eclipse.smarthome.automation.core.internal.RuleEngine;
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
@@ -30,6 +29,7 @@ import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private ModuleTypeManager mtManager;
+    private ModuleTypeRegistry mtRegistry;
     private RuleEngine ruleEngine;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -60,8 +60,8 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * @param mtManager is a module type manager
      * @param re is a rule engine
      */
-    public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeManager mtManager, RuleEngine re) {
-        this.mtManager = mtManager;
+    public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeRegistry mtRegistry, RuleEngine re) {
+        this.mtRegistry = mtRegistry;
         this.ruleEngine = re;
         activate(bc);
     }
@@ -106,7 +106,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
         ModuleHandler handler = null;
         if (module != null) {
             String moduleType = module.getTypeUID();
-            ModuleType mt = mtManager.get(moduleType);
+            ModuleType mt = mtRegistry.get(moduleType);
             if (mt instanceof CompositeTriggerType) {
                 List<Trigger> childModules = ((CompositeTriggerType) mt).getChildren();
                 LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler = getChildHandlers(module.getId(),
@@ -189,7 +189,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     @Override
     public void dispose() {
         super.dispose();
-        mtManager = null;
+        mtRegistry = null;
         ruleEngine = null;
     }
 

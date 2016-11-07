@@ -31,7 +31,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.osgi.framework.Constants;
@@ -56,7 +56,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ConfigurableServiceResource.PATH_SERVICES)
 @Api(value = ConfigurableServiceResource.PATH_SERVICES)
-public class ConfigurableServiceResource implements RESTResource {
+public class ConfigurableServiceResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_SERVICES = "services";
@@ -232,6 +232,11 @@ public class ConfigurableServiceResource implements RESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = null;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return configurationService != null && configDescRegistry != null;
     }
 
 }

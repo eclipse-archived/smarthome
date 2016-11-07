@@ -69,7 +69,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
-public class ThingResource implements RESTResource {
+public class ThingResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
@@ -429,7 +429,7 @@ public class ThingResource implements RESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-            throws IOException {
+                    throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -598,7 +598,7 @@ public class ThingResource implements RESTResource {
     private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {
         Map<String, Set<String>> linkedItemsMap = new HashMap<>();
         for (Channel channel : thing.getChannels()) {
-            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
+            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItemNames(channel.getUID());
             linkedItemsMap.put(channel.getUID().getId(), linkedItems);
         }
         return linkedItemsMap;
@@ -663,6 +663,15 @@ public class ThingResource implements RESTResource {
         }
 
         return ConfigUtil.normalizeTypes(properties, configDesc);
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return itemChannelLinkRegistry != null && itemFactory != null && itemRegistry != null
+                && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
+                && thingRegistry != null && configStatusService != null && configDescRegistry != null
+                && thingTypeRegistry != null;
+
     }
 
 }

@@ -143,7 +143,6 @@ public class AudioFormat {
      */
     public AudioFormat(String container, String codec, Boolean bigEndian, Integer bitDepth, Integer bitRate,
             Long frequency) {
-        super();
         this.container = container;
         this.codec = codec;
         this.bigEndian = bigEndian;

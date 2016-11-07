@@ -10,9 +10,12 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.util.IllegalFormatConversionException;
 
+import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * The decimal type uses a BigDecimal internally and thus can be used for
@@ -21,7 +24,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType> {
+public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType>, Convertible {
 
     private static final long serialVersionUID = 4226845847123464690L;
 
@@ -139,4 +142,32 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
     public long longValue() {
         return value.longValue();
     }
+
+    @Override
+    public State as(Class<? extends State> target) {
+        if (target == OnOffType.class) {
+            return equals(ZERO) ? OnOffType.OFF : OnOffType.ON;
+        } else if (target == PercentType.class) {
+            return new PercentType(toBigDecimal().multiply(new BigDecimal(100)));
+        } else if (target == UpDownType.class) {
+            if (equals(ZERO)) {
+                return UpDownType.UP;
+            } else if (toBigDecimal().compareTo(new BigDecimal(1)) == 0) {
+                return UpDownType.DOWN;
+            } else {
+                return UnDefType.UNDEF;
+            }
+        } else if (target == OpenClosedType.class) {
+            if (equals(ZERO)) {
+                return OpenClosedType.CLOSED;
+            } else if (toBigDecimal().compareTo(new BigDecimal(1)) == 0) {
+                return OpenClosedType.OPEN;
+            } else {
+                return UnDefType.UNDEF;
+            }
+        } else {
+            return StateConverterUtil.defaultConversion(this, target);
+        }
+    }
+
 }

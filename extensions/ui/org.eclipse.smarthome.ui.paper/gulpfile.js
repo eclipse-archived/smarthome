@@ -32,7 +32,7 @@ var paths = {
         'src': './web-src/js/services*.js',
         'name': 'services.js'
     }, {
-        'src': './web-src/js/controllers*.js',
+        'src': ['./web-src/js/controllers*.js','./web-src/js/widget.multiselect.js'],
         'name': 'controllers.js'
     }, {
         'src': [
@@ -152,7 +152,7 @@ function browserSyncInit(baseDir) {
         index: "index.html"
     };
 
-    server.middleware = proxyMiddleware(['/rest','/icon'], {target: 'http://localhost:8080'});
+    server.middleware = proxyMiddleware(['/rest','/icon','/audio'], {target: 'http://localhost:8080'});
 
     browserSync.instance = browserSync.init({
         startPath: '/',

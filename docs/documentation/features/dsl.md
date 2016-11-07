@@ -67,7 +67,7 @@ It is also possible to manually define channels in the DSL. Usually this is not 
 ```
 Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120 ] {
 	Channels:
-		State String : customChannel1 [
+		State String : customChannel1 "My Custom Channel" [
 			configParameter="Value"
 		]
 		State Number : customChannel2 []
@@ -81,12 +81,15 @@ As state channels are the default channels, you can omit the `State` keyword, th
 ```
 Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120 ] {
 	Channels:
-		String : customChannel1 [
+		String : customChannel1 "My Custom Channel" [
 			configParameter="Value"
 		]
 		Number : customChannel2 []
 }
 ```
+
+You may optionally give the channel a proper label (like "My Custom Channel" in the example above) so you can distinguish the channels easily. 
+
 
 ### Trigger channels
 
@@ -100,3 +103,34 @@ Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120
 ```
 
 Trigger channels are defined with the keyword `Trigger` and only support the type String.
+
+### Referencing existing channel types
+
+Many bindings provide standalone channel type definitions like this:  
+
+```
+<thing:thing-descriptions bindingId="yahooweather" [...]>
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Current temperature in degrees celsius</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f °C">
+        </state>
+    </channel-type>
+    [...]
+</thing:thing-descriptions>
+``` 
+
+They can be referenced within a thing's channel definition, so that they need to be defined only once and can be reused for many channels. You may do so in the DSL as well:
+
+```
+Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120 ] {
+    Channels:
+        Type temperature : my_yesterday_temperature "Yesterday's Temperature"
+}
+``` 
+
+The `Type` keyword indicates a reference to an existing channel definition. The channel kind and accepted item types of course are takes from the channel definition, therefore they don't need to be specified here again. 
+
+You may optionally give the channel a proper label (like "Yesterday's Temperature" in the example above) so you can distinguish the channels easily. If you decide not to, then the label from the referenced channel type definition will be used.

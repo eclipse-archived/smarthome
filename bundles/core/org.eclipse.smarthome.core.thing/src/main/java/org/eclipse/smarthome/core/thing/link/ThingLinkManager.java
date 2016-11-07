@@ -300,7 +300,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
                 Thing thing = thingRegistry.get(event.getThingUID());
                 if (thing != null) {
                     for (Channel channel : thing.getChannels()) {
-                        if (itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size() > 0) {
+                        if (itemChannelLinkRegistry.getLinkedItemNames(channel.getUID()).size() > 0) {
                             informHandlerAboutLinkedChannel(thing, channel);
                         }
                     }

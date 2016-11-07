@@ -67,6 +67,12 @@ public interface Item {
      * the accepted data types would be in this case {@link PercentType}, {@link OnOffType} and {@link UnDefType}
      * </p>
      * 
+     * <p>
+     * The order of data types denotes the order of preference. So in case a state needs to be converted
+     * in order to be accepted, it will be attempted to convert it to a type from top to bottom. Therefore
+     * the type with the least information loss should be on top of the list - in the example above the
+     * {@link PercentType} carries more information than the {@link OnOffType}, hence it is listed first.
+     * </p>
      * @return a list of data types that can be used to update the item state
      */
     public List<Class<? extends State>> getAcceptedDataTypes();

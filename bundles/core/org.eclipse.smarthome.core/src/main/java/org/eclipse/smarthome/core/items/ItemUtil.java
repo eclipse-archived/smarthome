@@ -7,12 +7,17 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import org.eclipse.smarthome.core.types.Convertible;
+import org.eclipse.smarthome.core.types.State;
+import org.slf4j.LoggerFactory;
+
 /**
  * The {@link ItemUtil} class contains utility methods for {@link Item} objects.
  * <p>
  * This class cannot be instantiated, it only contains static methods.
  *
  * @author Michael Grammling - Initial contribution and API
+ * @author Simon Kaufmann - added type conversion
  */
 public class ItemUtil {
 
@@ -69,6 +74,25 @@ public class ItemUtil {
         if (!isValidItemName(itemName)) {
             throw new IllegalArgumentException("The specified name of the item '" + itemName + "' is not valid!");
         }
+    }
+
+    public static State convertToAcceptedState(final State state, final Item item) {
+        if (item != null && !isAccepted(item, state) && state instanceof Convertible) {
+            for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
+                State convertedState = ((Convertible) state).as(acceptedType);
+                if (convertedState != null) {
+                    LoggerFactory.getLogger(ItemUtil.class).debug("Converting {} '{}' to {} '{}' for item '{}'",
+                            state.getClass().getSimpleName(), state.toString(),
+                            convertedState.getClass().getSimpleName(), convertedState.toString(), item.getName());
+                    return convertedState;
+                }
+            }
+        }
+        return state;
+    }
+
+    private static boolean isAccepted(Item item, State state) {
+        return item.getAcceptedDataTypes().contains(state.getClass());
     }
 
 }

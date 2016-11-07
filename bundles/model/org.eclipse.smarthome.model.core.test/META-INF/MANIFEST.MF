@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Model Core Tests
+Bundle-SymbolicName: org.eclipse.smarthome.model.core.test
+Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: groovy.json,
+ groovy.lang,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.service,
+ org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.storage,
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0",
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.slf4j

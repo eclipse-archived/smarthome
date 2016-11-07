@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author Rainer Ostendorf
  * @author Patrick Koenemann
  * @author Svilen Valkanov - replaced Apache HttpClient with Jetty
+ * @author Mihaela Memova - changed the calling of the stopHttpClient() method, fixed the hardcoded URL path, fixed the for loop condition part
  */
 public class FrontierSiliconRadioConnection {
 
@@ -37,6 +38,9 @@ public class FrontierSiliconRadioConnection {
 
     /** Port number, usually 80. */
     private final int port;
+
+    /** URL path, must begin with a slash (/) */
+    private static final String path = "/fsapi";
 
     /** Access pin, passed upon login as GET parameter. */
     private final String pin;
@@ -56,6 +60,10 @@ public class FrontierSiliconRadioConnection {
         this.pin = pin;
     }
 
+    protected void deactivate() {
+        stopHttpClient(httpClient);
+    }
+
     /**
      * Perform login/establish a new session. Uses the PIN number and when successful saves the assigned sessionID for
      * future requests.
@@ -72,13 +80,11 @@ public class FrontierSiliconRadioConnection {
 
         startHttpClient(httpClient);
 
-        final String url = "http://" + hostname + ":" + port + "/fsapi/CREATE_SESSION?pin=" + pin;
+        final String url = "http://" + hostname + ":" + port + path + "/CREATE_SESSION?pin=" + pin;
 
         logger.trace("opening URL: {}", url);
 
-        Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SOCKET_TIMEOUT,
-                TimeUnit.MILLISECONDS);
-
+        Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
 
         try {
             ContentResponse response = request.send();
@@ -108,8 +114,6 @@ public class FrontierSiliconRadioConnection {
         } catch (Exception e) {
             logger.debug("Fatal transport error: {}", e.toString());
             throw new IOException(e);
-        } finally {
-            stopHttpClient(httpClient);
         }
 
         return false; // login not successful
@@ -144,12 +148,12 @@ public class FrontierSiliconRadioConnection {
     public FrontierSiliconRadioApiResult doRequest(String requestString, String params) throws IOException {
 
         // 3 retries upon failure
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             if (!isLoggedIn && !doLogin()) {
                 continue; // not logged in and login was not successful - try again!
             }
 
-            final String url = "http://" + hostname + ":" + port + "/fsapi/" + requestString + "?pin=" + pin + "&sid="
+            final String url = "http://" + hostname + ":" + port + path + "/" + requestString + "?pin=" + pin + "&sid="
                     + sessionId + (params == null || params.trim().length() == 0 ? "" : "&" + params);
 
             logger.trace("calling url: '{}'", url);
@@ -189,8 +193,6 @@ public class FrontierSiliconRadioConnection {
             } catch (Exception e) {
                 logger.error("Fatal transport error: {}", e.toString());
                 throw new IOException(e);
-            } finally {
-                stopHttpClient(httpClient);
             }
         }
         isLoggedIn = false; // 3 tries failed. log in again next time, maybe our session went invalid (radio restarted?)
@@ -216,5 +218,4 @@ public class FrontierSiliconRadioConnection {
             }
         }
     }
-    
 }

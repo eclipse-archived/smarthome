@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver
 import java.util.Locale
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -275,11 +276,35 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         val List<Channel> channels = newArrayList
         modelChannels.forEach [
             if (addedChannelIds.add(id)) {
-                val kind = if (it.channelType == null) "State" else it.channelType                 
-                val parsedKind = ChannelKind.parse(kind)                
-                val channel = ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type)
+                var ChannelKind parsedKind = ChannelKind.STATE
+                
+                var ChannelTypeUID channelTypeUID
+                var String itemType
+                var label = it.label
+                if (it.channelType != null) {
+                    channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
+                    val resolvedChannelType = TypeResolver.resolve(channelTypeUID)
+                    if (resolvedChannelType != null) {
+                        itemType = resolvedChannelType.itemType
+                        parsedKind = resolvedChannelType.kind
+                        if (label == null) {
+                            label = resolvedChannelType.label
+                        }
+                    } else {
+                        logger.error("Channel type {} could not be resolved.",  channelTypeUID.asString)
+                    }
+                } else {
+                    itemType = it.type
+                    
+                    val kind = if (it.channelKind == null) "State" else it.channelKind                 
+                    parsedKind = ChannelKind.parse(kind)
+                }
+                
+                var channel = ChannelBuilder.create(new ChannelUID(thingUID, id), itemType)
                     .withKind(parsedKind)
                     .withConfiguration(createConfiguration)
+                    .withType(channelTypeUID)
+                    .withLabel(label)
                 channels += channel.build()
             }
         ]

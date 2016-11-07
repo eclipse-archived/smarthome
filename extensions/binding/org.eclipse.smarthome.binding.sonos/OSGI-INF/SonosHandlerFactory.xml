@@ -8,7 +8,7 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" name="org.eclipse.smarthome.binding.sonos">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" name="binding.sonos">
 
    <implementation class="org.eclipse.smarthome.binding.sonos.internal.SonosHandlerFactory"/>
    <reference bind="setUpnpIOService" cardinality="1..1" interface="org.eclipse.smarthome.io.transport.upnp.UpnpIOService" name="UpnpIOService" policy="static" unbind="unsetUpnpIOService"/>
@@ -17,4 +17,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>
    </service>
+   <reference bind="setAudioHTTPServer" cardinality="1..1" interface="org.eclipse.smarthome.core.audio.AudioHTTPServer" name="AudioHTTPServer" policy="static" unbind="unsetAudioHTTPServer"/>
 </scr:component>

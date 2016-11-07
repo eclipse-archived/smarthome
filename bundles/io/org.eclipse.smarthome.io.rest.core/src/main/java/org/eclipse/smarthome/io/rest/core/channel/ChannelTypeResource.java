@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -20,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
@@ -31,7 +33,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,7 +48,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @Api(value = ChannelTypeResource.PATH_CHANNEL_TYPES)
-public class ChannelTypeResource implements RESTResource {
+public class ChannelTypeResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_CHANNEL_TYPES = "channel-types";
@@ -139,5 +142,10 @@ public class ChannelTypeResource implements RESTResource {
         }
 
         return channelTypeDTOs;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return channelTypeRegistry != null && configDescriptionRegistry != null;
     }
 }

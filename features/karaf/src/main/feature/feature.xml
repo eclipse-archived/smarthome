@@ -44,7 +44,12 @@
 
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.transform/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.audio/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.audio.AudioHTTPServer
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.voice/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
@@ -378,6 +383,11 @@
   <feature name="esh-io-javasound" description="JavaSound Audio Support" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.javasound/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-webaudio" description="Web Audio Support" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.webaudio/${project.version}</bundle>
   </feature>
 
   <feature name="esh-voice-mactts" description="MacOS Text-to-Speech" version="${project.version}">

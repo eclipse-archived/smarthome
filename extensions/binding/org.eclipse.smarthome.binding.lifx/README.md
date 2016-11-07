@@ -22,7 +22,7 @@ The binding is able to auto-discover all bulbs in a network over the LIFX UDP pr
 
 ## Thing Configuration
 
-Each bulb needs the device ID as configuration parameter. The device ID is printed as serial number on the bulb and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliable, so that a manual configuration is not needed.
+Each bulb needs the device ID as a configuration parameter. The device ID is printed as a serial number on the bulb and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
 
 However, in the thing file, a manual configuration looks e.g. like
 
