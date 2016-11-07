@@ -21,7 +21,6 @@ import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
-import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -59,7 +58,7 @@ import org.osgi.service.http.HttpService
 public abstract class GenericWemoOSGiTest extends OSGiTest{
 
     static final def DEVICE_MANUFACTURER = "Belkin"
-    
+
     //This port is included in the run configuration
     def ORG_OSGI_SERVICE_HTTP_PORT = 8080
 
@@ -74,8 +73,6 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     def DEVICE_URL = "http://127.0.0.1:${ORG_OSGI_SERVICE_HTTP_PORT}"
     def DEVICE_DESCRIPTION_PATH = "/setup.xml"
     def DEVICE_CONTROL_PATH = '/upnp/control/'
-
-    def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
 
     ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
@@ -146,7 +143,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
             testItem = new SwitchItem(itemName)
         }
         // If a new test is implemented with different Item Type testItem from this Type must be created here
-        
+
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -155,7 +152,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         ThingUID thingUID = thing.getUID()
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID))
     }
-    
+
 
     protected addUpnpDevice(def serviceTypeID, def serviceNumber, def modelName) {
         UDN udn = new UDN(DEVICE_UDN);
@@ -187,7 +184,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 abstract class GenericWemoHttpServlet extends HttpServlet{
     final static def parser = new XmlParser()
     final static def CONTENT_TYPE = "text/xml; charset=utf-8"
-    
+
     def soapNamespace
     def uNamespace
     def responseStatus
@@ -212,16 +209,16 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
 
         response.setStatus(responseStatus);
         response.setContentType(CONTENT_TYPE)
-        
+
         if(responseStatus == HttpServletResponse.SC_OK) {
             response.getOutputStream().print(responseContent)
-        } 
+        }
     }
 
     protected void setResponseStatus(int status) {
         responseStatus = status
     }
-    
+
     abstract protected String handleRequest (Node root);
 }
 

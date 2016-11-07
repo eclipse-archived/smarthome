@@ -100,29 +100,29 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
             assertThat("The thing ${thing.getUID()} cannot be deleted", removedThing, is(notNullValue()))
         }
 
-        waitForAssert ({
+        waitForAssert {
             ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
             assertThat thingHandler, is(nullValue())
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         if(bridge != null) {
             Bridge bridgeThing = thingRegistry.remove(bridge.getUID())
             assertThat "The bridge ${bridge.getUID()} cannot be deleted", bridgeThing, is(notNullValue())
         }
 
-        waitForAssert ({
+        waitForAssert {
             ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
             assertThat bridgeHandler, is(nullValue())
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert ({
+        waitForAssert {
             Set<UpnpIOParticipant> participants  = upnpIOService.participants.keySet();
             assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
-        waitForAssert ({
+        waitForAssert {
             assertThat itemRegistry.getAll().size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
     }
 }
