@@ -579,9 +579,9 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         // set bridge status to ONLINE
         bridgeHandler.updateBridgetatus(ThingStatus.ONLINE)
 
-        // child things are still OFFLINE, but with detail NONE
+        // child things are ONLINE with detail NONE
         waitForAssert({assertThat bridge.getStatus(), is(ThingStatus.ONLINE)})
-        thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
+        thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         waitForAssert({assertThat thingA.getStatusInfo(), is(thingStatusInfo)})
         waitForAssert({assertThat thingB.getStatusInfo(), is(thingStatusInfo)})
 
