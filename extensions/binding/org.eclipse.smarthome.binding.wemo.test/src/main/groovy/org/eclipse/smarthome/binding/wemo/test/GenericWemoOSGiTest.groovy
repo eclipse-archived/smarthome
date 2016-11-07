@@ -54,6 +54,8 @@ import org.jupnp.model.types.ServiceType
 import org.jupnp.model.types.UDN
 import org.osgi.service.http.HttpService
 
+import com.google.common.collect.ImmutableSet
+
 /**
  * Generic test class for all Wemo related tests that contains methods and constants used across the different test classes
  *
@@ -203,7 +205,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     private Set<ThingHandler> getThingHandlers(ThingHandlerFactory factory) {
         def thingManager = getService(ThingTypeMigrationService.class, { "org.eclipse.smarthome.core.thing.internal.ThingManager" } )
         assertThat thingManager, not(null)
-        thingManager.thingHandlersByFactory.get(factory)
+        ImmutableSet.copyOf(thingManager.thingHandlersByFactory.get(factory))
     }
 }
 
