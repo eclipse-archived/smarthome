@@ -23,4 +23,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<organization>
+		<name>Pascal Larin</name>
+	</organization>
 </project>
