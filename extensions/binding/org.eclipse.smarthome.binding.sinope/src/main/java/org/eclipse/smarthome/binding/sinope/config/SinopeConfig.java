@@ -38,7 +38,7 @@ public class SinopeConfig {
      */
     public String apiKey;
     /**
-     * The number of milliseconds between fetches of Sinope Gateway.
+     * The number of milliseconds between fetches from the sinope deivces
      */
     public Integer refresh;
 }
