@@ -49,8 +49,8 @@
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="gateway" />
 		</supported-bridge-type-refs>
-		<label>Sinope Binding Thing</label>
-		<description>Sample thing for sinope Binding</description>
+		<label>Sinope Thermostat</label>
+		<description>Sinope Thermostat control</description>
 
 		<channels>
 			<channel id="insideTemperature" typeId="insideTemperature" />
