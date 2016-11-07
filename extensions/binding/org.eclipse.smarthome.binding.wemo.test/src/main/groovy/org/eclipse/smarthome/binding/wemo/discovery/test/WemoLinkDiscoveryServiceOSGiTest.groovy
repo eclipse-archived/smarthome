@@ -40,14 +40,14 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
     @Before
     void setUp() {
         setUpServices()
-        
+
         inbox = getService(Inbox.class)
         assertThat inbox, is(notNullValue())
-        
+
         servlet = new WemoLinkDiscoveryServlet(SERVICE_ID, SERVICE_NUMBER)
         registerServlet(SERVLET_URL, servlet)
     }
-    
+
     @After
     void tearDown() {
         unregisterServlet(SERVLET_URL)
@@ -64,8 +64,8 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         servlet.deviceId = DEVICE_UDN
 
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, model)
-        
-        // This is needed, because the WemoLinkDiscovertSevice is registered from the
+
+        // This is needed, because the WemoLinkDiscoveryService is registered from the
         // WemoHandlerFactory, when a handler for a bridge is created
         createBridge(bridgeTypeUID)
 
@@ -75,14 +75,19 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         ThingUID bridgeUID = new ThingUID(bridgeTypeUID, WEMO_BRIDGE_ID);
         ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, DEVICE_UDN);
 
-        waitForAssert ({
+        waitForAssert{
+            assertThat servlet.hasReceivedRequest, is(true)
+        }
+
+        waitForAssert {
             List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
             assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox. However found:" + Arrays.toString(results.toArray()), results.isEmpty()
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
     }
 
     class WemoLinkDiscoveryServlet extends GenericWemoHttpServlet {
+        def hasReceivedRequest = false
         def deviceIndex
         def deviceId
         def friendlyName
@@ -101,6 +106,8 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 
             if (endDevices.size() > 0) {
                 def endDeviceNode = endDevices.get(0);
+
+                hasReceivedRequest = true
 
                 // Add information about a single device
                 endDeviceNode.replaceNode {

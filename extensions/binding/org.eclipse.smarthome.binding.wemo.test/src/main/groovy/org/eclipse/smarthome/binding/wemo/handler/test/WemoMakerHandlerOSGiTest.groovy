@@ -28,7 +28,6 @@ import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -88,15 +87,15 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 
-        waitForAssert({
+        waitForAssert{
             assertThat "Invalid SOAP action sent to the device: ${deviceServlet.actions}", deviceServlet.actions.contains(WemoMakerHttpServlet.GET_ACTION), is (true)
-        })
+        }
 
-        waitForAssert({
+        waitForAssert{
             Item item = itemRegistry.getItem(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
     }
 
     @Test
@@ -118,10 +117,10 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         ChannelUID channelUID = new ChannelUID(thing.getUID(), DEFAULT_TEST_CHANNEL)
         thing.getHandler().handleCommand(channelUID, command)
 
-        waitForAssert({
+        waitForAssert {
             assertThat "Invalid SOAP action sent to the device: ${basicServlet.actions}", basicServlet.actions.contains(WemoMakerHttpServlet.SET_ACTION), is(true)
             assertThat "The state of the device after the command ${command} was not updated with the expected value.", basicServlet.binaryState, is(expectedState)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
     }
 
     @Test
@@ -139,11 +138,11 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 
-        waitForAssert({
+        waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(UnDefType.NULL)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         // The Device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(BASIC_EVENT_SERVICE_ID, SERVICE_NUMBER, MODEL)
@@ -151,15 +150,15 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         ChannelUID channelUID = new ChannelUID(thing.getUID(), DEFAULT_TEST_CHANNEL)
         thing.getHandler().handleCommand(channelUID, command)
 
-        waitForAssert ({
+        waitForAssert {
             assertThat "Invalid SOAP action sent to the device:${deviceServlet.actions}", deviceServlet.actions.contains(WemoMakerHttpServlet.GET_ACTION), is(true)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert({
+        waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated after command ${command}.", item.getState(), is(expectedState)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
     }
 
     private void removeThing() {
@@ -173,14 +172,14 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat thingHandler, is(nullValue())
         }
 
-        waitForAssert ({
+        waitForAssert {
             assertThat "UPnP registry is not clear", upnpIOService.participants.keySet().size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
-        waitForAssert ({
+        waitForAssert {
             assertThat itemRegistry.getAll().size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
     }
 
     class WemoMakerHttpServlet extends GenericWemoHttpServlet {
