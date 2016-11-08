@@ -182,7 +182,7 @@ public class AutomationCommandList extends AutomationCommand {
      *         command {@link AutomationCommands#LIST_TEMPLATES}.
      */
     private String listTemplates() {
-        Collection<Template> collection = autoCommands.getTemplates(locale);
+        Collection<RuleTemplate> collection = autoCommands.getTemplates(locale);
         Map<String, Template> templates = new Hashtable<String, Template>();
         Map<String, String> listTemplates = null;
         if (collection != null && !collection.isEmpty()) {
@@ -307,9 +307,9 @@ public class AutomationCommandList extends AutomationCommand {
      * @param list is the list of {@link Template}s for reducing.
      * @return a collection of {@link Template}s that match the filter.
      */
-    private Collection<Template> getTemplateByFilter(Map<String, String> list) {
-        Collection<Template> templates = new ArrayList<Template>();
-        Template t = null;
+    private Collection<RuleTemplate> getTemplateByFilter(Map<String, String> list) {
+        Collection<RuleTemplate> templates = new ArrayList<RuleTemplate>();
+        RuleTemplate t = null;
         String uid = list.get(id);
         if (uid != null) {
             t = autoCommands.getTemplate(uid, locale);

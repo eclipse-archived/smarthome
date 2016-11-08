@@ -15,18 +15,26 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * The implementation of {@link TemplateRegistry} that is registered as a service.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - TemplateRegistry extends AbstractRegistry
  */
-public class TemplateRegistryImpl implements TemplateRegistry {
+public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String, Provider<RuleTemplate>>
+        implements TemplateRegistry<RuleTemplate> {
 
     private Collection<TemplateProvider> providers = new HashSet<TemplateProvider>();
+
+    public RuleTemplateRegistry() {
+        super(null);
+    }
 
     /**
      * Called from DS.
@@ -47,15 +55,15 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> T get(String templateUID) {
+    public RuleTemplate get(String templateUID) {
         return get(templateUID, null);
     }
 
     @Override
-    public <T extends Template> T get(String templateUID, Locale locale) {
-        T resultTemplate = null;
+    public RuleTemplate get(String templateUID, Locale locale) {
+        RuleTemplate resultTemplate = null;
         for (TemplateProvider templateProvider : providers) {
-            T template = templateProvider.getTemplate(templateUID, locale);
+            RuleTemplate template = templateProvider.getTemplate(templateUID, locale);
             if (template != null) {
                 resultTemplate = template;
                 break;
@@ -65,19 +73,19 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTag(String tag) {
+    public Collection<RuleTemplate> getByTag(String tag) {
         return getByTag(tag, null);
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTag(String tag, Locale locale) {
-        Collection<T> result = new ArrayList<T>(20);
-        Collection<T> templates = null;
+    public Collection<RuleTemplate> getByTag(String tag, Locale locale) {
+        Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
+        Collection<RuleTemplate> templates = null;
         for (TemplateProvider templateProvider : providers) {
             templates = templateProvider.getTemplates(locale);
             if (templates != null) {
-                for (Iterator<T> it = templates.iterator(); it.hasNext();) {
-                    T t = it.next();
+                for (Iterator<RuleTemplate> it = templates.iterator(); it.hasNext();) {
+                    RuleTemplate t = it.next();
                     if (tag != null) {
                         Collection<String> tags = t.getTags();
                         if (tags != null && tags.contains(tag)) {
@@ -93,20 +101,20 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTags(String... tags) {
+    public Collection<RuleTemplate> getByTags(String... tags) {
         return getByTags(null, tags);
     }
 
     @Override
-    public <T extends Template> Collection<T> getByTags(Locale locale, String... tags) {
+    public Collection<RuleTemplate> getByTags(Locale locale, String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
-        Collection<T> result = new ArrayList<T>(20);
-        Collection<T> templates = null;
+        Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
+        Collection<RuleTemplate> templates = null;
         for (TemplateProvider templateProvider : providers) {
             templates = templateProvider.getTemplates(locale);
             if (templates != null) {
-                for (Iterator<T> it = templates.iterator(); it.hasNext();) {
-                    T t = it.next();
+                for (Iterator<RuleTemplate> it = templates.iterator(); it.hasNext();) {
+                    RuleTemplate t = it.next();
                     if (tagSet != null) {
                         Collection<String> tTags = t.getTags();
                         if (tTags != null) {
@@ -124,13 +132,7 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> Collection<T> getAll() {
-        return getAll(null);
-    }
-
-    @Override
-    public <T extends Template> Collection<T> getAll(Locale locale) {
+    public Collection<RuleTemplate> getAll(Locale locale) {
         return getByTag(null, locale);
     }
-
 }

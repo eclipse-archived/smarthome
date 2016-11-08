@@ -38,15 +38,15 @@ public class ModuleTypeRegistryMockup extends ModuleTypeRegistryImpl {
     }
 
     @Override
-    public <T extends ModuleType> T get(String typeUID) {
+    public ModuleType get(String typeUID) {
         if (TRIGGER_TYPE.endsWith(typeUID)) {
-            return (T) createTriggerType();
+            return createTriggerType();
 
         } else if (CONDITION_TYPE.endsWith(typeUID)) {
-            return (T) createConditionType();
+            return createConditionType();
 
         } else if (ACTION_TYPE.endsWith(typeUID)) {
-            return (T) createActionType();
+            return createActionType();
 
         } else {
             return super.get(typeUID);

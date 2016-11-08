@@ -10,7 +10,7 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.template.templateregistry">
    
-   <implementation class="org.eclipse.smarthome.automation.core.internal.template.TemplateRegistryImpl"/>
+   <implementation class="org.eclipse.smarthome.automation.core.internal.template.RuleTemplateRegistry"/>
    
    <service>
       <provide interface="org.eclipse.smarthome.automation.template.TemplateRegistry"/>
