@@ -51,7 +51,11 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
         List<DiscoveryResult> results = inbox.getAll()
         assertThat "Inbox is not empty: ${Arrays.toString(results.toArray())}", results.size(), is(0)
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     @Test
     public void 'assert supported thing is discovered'() {
         def thingType = WemoBindingConstants.THING_TYPE_INSIGHT
@@ -59,11 +63,16 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
 
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, model)
 
+<<<<<<< HEAD
         waitForAssert {
+=======
+        waitForAssert ({
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
             Collection<Device> devices =  mockUpnpService.getRegistry().getDevices()
             assertThat "Not exactly one UPnP device is  added to the UPnP Registry: ${devices}", devices.size(), is(1)
             Device device = devices.getAt(0)
             assertThat "UPnP device ${device} has incorrect model name:", device.getDetails().getModelDetails().getModelName(), is(model)
+<<<<<<< HEAD
         }
 
         ThingUID thingUID = new ThingUID(thingType, DEVICE_UDN);
@@ -79,5 +88,22 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
             Thing thing = thingRegistry.get(thingUID)
             assertThat "Thing is not created when approved.", thing, is(notNullValue())
         }
+=======
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+
+        ThingUID thingUID = new ThingUID(thingType, DEVICE_UDN);
+
+        waitForAssert ({
+            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
+            assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox", results.isEmpty()
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+
+        inbox.approve(thingUID, DEVICE_FRIENDLY_NAME)
+
+        waitForAssert ({
+            Thing thing = thingRegistry.get(thingUID)
+            assertThat "Thing is not created when approved.", thing, is(notNullValue())
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     }
 }

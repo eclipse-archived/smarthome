@@ -21,6 +21,10 @@ import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
+<<<<<<< HEAD
+=======
+import org.eclipse.smarthome.core.library.items.StringItem
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -58,7 +62,11 @@ import org.osgi.service.http.HttpService
 public abstract class GenericWemoOSGiTest extends OSGiTest{
 
     static final def DEVICE_MANUFACTURER = "Belkin"
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     //This port is included in the run configuration
     def ORG_OSGI_SERVICE_HTTP_PORT = 8080
 
@@ -74,7 +82,13 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     def DEVICE_DESCRIPTION_PATH = "/setup.xml"
     def DEVICE_CONTROL_PATH = '/upnp/control/'
 
+<<<<<<< HEAD
     ManagedThingProvider managedThingProvider
+=======
+    def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
+
+    ManagedThingProvider mangedThingProvider
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     static MockUpnpService mockUpnpService
     UpnpIOServiceImpl upnpIOService
     ThingRegistry thingRegistry
@@ -94,8 +108,13 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         mockUpnpService.startup()
         registerService(mockUpnpService, UpnpService.class.getName())
 
+<<<<<<< HEAD
         managedThingProvider = getService(ManagedThingProvider.class);
         assertThat managedThingProvider, is (notNullValue())
+=======
+        mangedThingProvider = getService(ManagedThingProvider.class);
+        assertThat mangedThingProvider, is (notNullValue())
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
 
         thingRegistry = getService(ThingRegistry.class)
         assertThat(thingRegistry, is (notNullValue()))
@@ -133,7 +152,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
                 .withChannel(channel)
                 .build();
 
+<<<<<<< HEAD
         managedThingProvider.add(thing)
+=======
+        mangedThingProvider.add(thing)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
@@ -143,7 +166,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
             testItem = new SwitchItem(itemName)
         }
         // If a new test is implemented with different Item Type testItem from this Type must be created here
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -152,7 +179,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         ThingUID thingUID = thing.getUID()
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID))
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
 
     protected addUpnpDevice(def serviceTypeID, def serviceNumber, def modelName) {
         UDN udn = new UDN(DEVICE_UDN);
@@ -184,7 +215,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 abstract class GenericWemoHttpServlet extends HttpServlet{
     final static def parser = new XmlParser()
     final static def CONTENT_TYPE = "text/xml; charset=utf-8"
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     def soapNamespace
     def uNamespace
     def responseStatus
@@ -209,16 +244,27 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
 
         response.setStatus(responseStatus);
         response.setContentType(CONTENT_TYPE)
+<<<<<<< HEAD
 
         if(responseStatus == HttpServletResponse.SC_OK) {
             response.getOutputStream().print(responseContent)
         }
+=======
+        
+        if(responseStatus == HttpServletResponse.SC_OK) {
+            response.getOutputStream().print(responseContent)
+        } 
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     }
 
     protected void setResponseStatus(int status) {
         responseStatus = status
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     abstract protected String handleRequest (Node root);
 }
 

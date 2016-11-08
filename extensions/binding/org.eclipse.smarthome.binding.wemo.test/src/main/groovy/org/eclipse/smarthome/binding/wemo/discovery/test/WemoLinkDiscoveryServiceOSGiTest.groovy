@@ -40,6 +40,7 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
     @Before
     void setUp() {
         setUpServices()
+<<<<<<< HEAD
 
         inbox = getService(Inbox.class)
         assertThat inbox, is(notNullValue())
@@ -48,6 +49,16 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         registerServlet(SERVLET_URL, servlet)
     }
 
+=======
+        
+        inbox = getService(Inbox.class)
+        assertThat inbox, is(notNullValue())
+        
+        servlet = new WemoLinkDiscoveryServlet(SERVICE_ID, SERVICE_NUMBER)
+        registerServlet(SERVLET_URL, servlet)
+    }
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
     @After
     void tearDown() {
         unregisterServlet(SERVLET_URL)
@@ -64,8 +75,13 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         servlet.deviceId = DEVICE_UDN
 
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, model)
+<<<<<<< HEAD
 
         // This is needed, because the WemoLinkDiscoveryService is registered from the
+=======
+        
+        // This is needed, because the WemoLinkDiscovertSevice is registered from the
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
         // WemoHandlerFactory, when a handler for a bridge is created
         createBridge(bridgeTypeUID)
 
@@ -75,6 +91,7 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
         ThingUID bridgeUID = new ThingUID(bridgeTypeUID, WEMO_BRIDGE_ID);
         ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, DEVICE_UDN);
 
+<<<<<<< HEAD
         waitForAssert{
             assertThat servlet.hasReceivedRequest, is(true)
         }
@@ -83,11 +100,20 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
             List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
             assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox. However found:" + Arrays.toString(results.toArray()), results.isEmpty()
         }
+=======
+        waitForAssert ({
+            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
+            assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox. However found:" + Arrays.toString(results.toArray()), results.isEmpty()
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
 
     }
 
     class WemoLinkDiscoveryServlet extends GenericWemoHttpServlet {
+<<<<<<< HEAD
         def hasReceivedRequest = false
+=======
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
         def deviceIndex
         def deviceId
         def friendlyName
@@ -107,8 +133,11 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
             if (endDevices.size() > 0) {
                 def endDeviceNode = endDevices.get(0);
 
+<<<<<<< HEAD
                 hasReceivedRequest = true
 
+=======
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
                 // Add information about a single device
                 endDeviceNode.replaceNode {
                     DeviceLists {
