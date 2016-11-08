@@ -8,15 +8,16 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.test
-Import-Package: groovy.lang,
+Import-Package: com.google.common.collect,
+ groovy.lang,
  org.apache.commons.io,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.smarthome.config.xml.osgi,
- org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.autoupdate,
+ org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
