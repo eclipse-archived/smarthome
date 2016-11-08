@@ -257,7 +257,7 @@ public abstract class AutomationCommands {
      *            Can be <code>null</code> and then the default locale will be used.
      * @return a collection of {@link RuleTemplate}s, corresponding to the specified locale.
      */
-    public abstract Collection<Template> getTemplates(Locale locale);
+    public abstract Collection<RuleTemplate> getTemplates(Locale locale);
 
     /**
      * This method is used for getting the {@link ModuleType} corresponding to the specified UID from the manager of the

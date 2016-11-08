@@ -10,6 +10,8 @@ package org.eclipse.smarthome.automation.type;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.common.registry.Registry;
+
 /**
  * This interface provides functionality to get available {@link ModuleType}s.
  * The module types can be returned localized depending on locale parameter.
@@ -20,20 +22,13 @@ import java.util.Locale;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public interface ModuleTypeRegistry {
+public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
 
     /**
-     * This method is used to get ModuleType of specified by type.
+     * This method is used to get localized ModuleType by specified UID and locale.
      *
      * @param moduleTypeUID the an unique id in scope of registered ModuleTypes
-     * @return ModuleType instance or null.
-     */
-    public <T extends ModuleType> T get(String moduleTypeUID);
-
-    /**
-     * This method is used to get ModuleType of specified by type.
-     *
-     * @param moduleTypeUID the an unique id in scope of registered ModuleTypes
+     * @param locale used for localization of the ModuleType
      * @return ModuleType instance or null.
      */
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale);
@@ -52,6 +47,7 @@ public interface ModuleTypeRegistry {
      *
      * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
+     * @param locale used for localization of the ModuleType
      * @return the ModuleTypes, which correspond to the specified filter.
      */
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag, Locale locale);
@@ -68,6 +64,7 @@ public interface ModuleTypeRegistry {
     /**
      * This method is used for getting the ModuleTypes filtered by tags.
      *
+     * @param locale used for localization of the ModuleType
      * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
      * @return the ModuleTypes, which correspond to the filter.

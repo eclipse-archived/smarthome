@@ -1305,14 +1305,14 @@ public class RuleEngine {
     private void autoMapConnections(RuntimeRule r) {
         Map<Set<String>, OutputRef> triggerOutputTags = new HashMap<Set<String>, OutputRef>(11);
         for (Trigger t : r.getTriggers()) {
-            TriggerType tt = mtRegistry.get(t.getTypeUID());
+            TriggerType tt = (TriggerType) mtRegistry.get(t.getTypeUID());
             if (tt != null) {
                 initTagsMap(t.getId(), tt.getOutputs(), triggerOutputTags);
             }
         }
         Map<Set<String>, OutputRef> actionOutputTags = new HashMap<Set<String>, OutputRef>(11);
         for (Action a : r.getActions()) {
-            ActionType at = mtRegistry.get(a.getTypeUID());
+            ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
             if (at != null) {
                 initTagsMap(a.getId(), at.getOutputs(), actionOutputTags);
             }
@@ -1322,7 +1322,7 @@ public class RuleEngine {
         if (!triggerOutputTags.isEmpty()) {
             for (Condition c : r.getConditions()) {
                 boolean isConnectionChanged = false;
-                ConditionType ct = mtRegistry.get(c.getTypeUID());
+                ConditionType ct = (ConditionType) mtRegistry.get(c.getTypeUID());
                 if (ct != null) {
                     Set<Connection> connections = ((RuntimeCondition) c).getConnections();
 
@@ -1348,7 +1348,7 @@ public class RuleEngine {
         if (!triggerOutputTags.isEmpty() || !actionOutputTags.isEmpty()) {
             for (Action a : r.getActions()) {
                 boolean isConnectionChanged = false;
-                ActionType at = mtRegistry.get(a.getTypeUID());
+                ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
                 if (at != null) {
                     Set<Connection> connections = ((RuntimeAction) a).getConnections();
                     for (Input input : at.getInputs()) {

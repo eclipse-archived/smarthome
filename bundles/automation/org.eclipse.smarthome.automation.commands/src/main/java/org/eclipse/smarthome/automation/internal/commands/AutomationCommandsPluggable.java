@@ -17,7 +17,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
-import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -57,7 +57,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     /**
      * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
      */
-    static TemplateRegistry templateRegistry;
+    static TemplateRegistry<RuleTemplate> templateRegistry;
 
     /**
      * This field holds the reference to the {@code ModuleTypeRegistry} providing the {@code ModuleType} automation
@@ -122,7 +122,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      *
      * @param templateRegistry templateRegistry service.
      */
-    protected void setTemplateRegistry(TemplateRegistry templateRegistry) {
+    protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         AutomationCommandsPluggable.templateRegistry = templateRegistry;
     }
 
@@ -216,7 +216,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     @Override
-    public Template getTemplate(String templateUID, Locale locale) {
+    public RuleTemplate getTemplate(String templateUID, Locale locale) {
         if (templateRegistry != null) {
             return templateRegistry.get(templateUID, locale);
         }
@@ -224,7 +224,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     @Override
-    public Collection<Template> getTemplates(Locale locale) {
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
         if (templateRegistry != null) {
             return templateRegistry.getAll(locale);
         }
@@ -239,6 +239,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Collection<TriggerType> getTriggers(Locale locale) {
         if (moduleTypeRegistry != null) {
             return moduleTypeRegistry.getTriggers(locale);
@@ -246,6 +248,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Collection<ConditionType> getConditions(Locale locale) {
         if (moduleTypeRegistry != null) {
             return moduleTypeRegistry.getConditions(locale);
@@ -253,6 +257,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Collection<ActionType> getActions(Locale locale) {
         if (moduleTypeRegistry != null) {
             return moduleTypeRegistry.getActions(locale);
