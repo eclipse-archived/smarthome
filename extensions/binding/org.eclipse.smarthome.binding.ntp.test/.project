@@ -20,8 +20,120 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 29c1782... Initial Release
+>>>>>>> Initial Release
 	</buildSpec>
 	<natures>
+=======
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 49e3de5... fix NTP test Eclipse's project settings
+=======
+>>>>>>> 29c1782... Initial Release
+>>>>>>> Initial Release
+	</buildSpec>
+	<natures>
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+	</buildSpec>
+	<natures>
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+=======
+<<<<<<< HEAD
+>>>>>>> 5a72946... Initial Release
+=======
+=======
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
+>>>>>>> 4ba3e93... Implemented tests for NTP Binding (#2243)
+=======
+>>>>>>> Initial Release
+=======
+	</buildSpec>
+	<natures>
+=======
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
+<<<<<<< HEAD
+=======
+>>>>>>> 29c1782... Initial Release
+>>>>>>> Initial Release
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
+>>>>>>> Initial Release
+=======
+<<<<<<< HEAD
+=======
+	</buildSpec>
+	<natures>
+>>>>>>> f4e3bdf... fix NTP test Eclipse's project settings
+=======
+>>>>>>> Initial Release
+<<<<<<< HEAD
+>>>>>>> 5a72946... Initial Release
+=======
+>>>>>>> Initial Release
+=======
+=======
+>>>>>>> 5f96bfd... Initial Release
+>>>>>>> Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
+>>>>>>> 01cb7dc... Implemented tests for NTP Binding (#2243)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 4ba3e93... Implemented tests for NTP Binding (#2243)
+=======
+>>>>>>> Initial Release
+=======
+=======
+	</buildSpec>
+	<natures>
+>>>>>>> fix NTP test Eclipse's project settings
+<<<<<<< HEAD
+>>>>>>> 8031023... fix NTP test Eclipse's project settings
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 49e3de5... fix NTP test Eclipse's project settings
+=======
+>>>>>>> Initial Release
+=======
+=======
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
+>>>>>>> Initial Release
+>>>>>>> 5f96bfd... Initial Release
+<<<<<<< HEAD
+=======
+>>>>>>> 29c1782... Initial Release
+>>>>>>> Initial Release
 		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>

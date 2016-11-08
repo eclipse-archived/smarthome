@@ -63,7 +63,40 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .withConfiguration(configuration)
                 .build();
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider.add(bridge)
+=======
+        mangedThingProvider.add(bridge)
+>>>>>>> 44cece0... Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(bridge)
+>>>>>>> 36f150f... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+=======
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
+        managedThingProvider.add(bridge)
+=======
+        mangedThingProvider.add(bridge)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+<<<<<<< HEAD
+=======
+        managedThingProvider.add(bridge)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+<<<<<<< HEAD
+>>>>>>> 207d46e... Upstream pull
+=======
+=======
+        managedThingProvider.add(bridge)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
     }
 
     protected void createDefaultThing(ThingTypeUID thingTypeUID) {
@@ -88,7 +121,40 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .withBridge(bridgeUID)
                 .build();
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
         managedThingProvider.add(thing)
+=======
+        mangedThingProvider.add(thing)
+>>>>>>> 44cece0... Implemented tests for the Wemo Binding. (#2247)
+=======
+        managedThingProvider.add(thing)
+>>>>>>> 36f150f... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+=======
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
+        managedThingProvider.add(thing)
+=======
+        mangedThingProvider.add(thing)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+<<<<<<< HEAD
+=======
+        managedThingProvider.add(thing)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+=======
+<<<<<<< HEAD
+>>>>>>> 207d46e... Upstream pull
+=======
+=======
+        managedThingProvider.add(thing)
+>>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> 8a09b04... Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
+>>>>>>> Initial Release
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
     }
@@ -100,16 +166,36 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
             assertThat("The thing ${thing.getUID()} cannot be deleted", removedThing, is(notNullValue()))
         }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
         waitForAssert {
             ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
             assertThat thingHandler, is(nullValue())
         }
+=======
+        waitForAssert ({
+            ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
+            assertThat thingHandler, is(nullValue())
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        waitForAssert {
+            ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
+            assertThat thingHandler, is(nullValue())
+        }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
 
         if(bridge != null) {
             Bridge bridgeThing = thingRegistry.remove(bridge.getUID())
             assertThat "The bridge ${bridge.getUID()} cannot be deleted", bridgeThing, is(notNullValue())
         }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
         waitForAssert {
             ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
             assertThat bridgeHandler, is(nullValue())
@@ -124,5 +210,36 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         waitForAssert {
             assertThat itemRegistry.getAll().size(), is(0)
         }
+=======
+        waitForAssert ({
+=======
+        waitForAssert {
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
+            ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
+            assertThat bridgeHandler, is(nullValue())
+        }
+
+        waitForAssert {
+            Set<UpnpIOParticipant> participants  = upnpIOService.participants.keySet();
+            assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
+        }
+
+        itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
+        waitForAssert {
+            assertThat itemRegistry.getAll().size(), is(0)
+<<<<<<< HEAD
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 }

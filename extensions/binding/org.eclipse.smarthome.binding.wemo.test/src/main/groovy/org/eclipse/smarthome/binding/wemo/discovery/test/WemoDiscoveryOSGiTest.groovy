@@ -51,7 +51,19 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
         List<DiscoveryResult> results = inbox.getAll()
         assertThat "Inbox is not empty: ${Arrays.toString(results.toArray())}", results.size(), is(0)
     }
+<<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     @Test
     public void 'assert supported thing is discovered'() {
         def thingType = WemoBindingConstants.THING_TYPE_INSIGHT
@@ -59,11 +71,25 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
 
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, model)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
         waitForAssert {
+=======
+        waitForAssert ({
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        waitForAssert {
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
             Collection<Device> devices =  mockUpnpService.getRegistry().getDevices()
             assertThat "Not exactly one UPnP device is  added to the UPnP Registry: ${devices}", devices.size(), is(1)
             Device device = devices.getAt(0)
             assertThat "UPnP device ${device} has incorrect model name:", device.getDetails().getModelDetails().getModelName(), is(model)
+<<<<<<< HEAD
+<<<<<<< HEAD
         }
 
         ThingUID thingUID = new ThingUID(thingType, DEVICE_UDN);
@@ -79,5 +105,37 @@ class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest{
             Thing thing = thingRegistry.get(thingUID)
             assertThat "Thing is not created when approved.", thing, is(notNullValue())
         }
+=======
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+=======
+        }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
+
+        ThingUID thingUID = new ThingUID(thingType, DEVICE_UDN);
+
+        waitForAssert {
+            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
+            assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox", results.isEmpty()
+        }
+
+        inbox.approve(thingUID, DEVICE_FRIENDLY_NAME)
+
+        waitForAssert {
+            Thing thing = thingRegistry.get(thingUID)
+            assertThat "Thing is not created when approved.", thing, is(notNullValue())
+<<<<<<< HEAD
+        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+>>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> bb71aa8... Wemo Tests back to default timeout. (#2416)
+>>>>>>> Initial Release
     }
 }

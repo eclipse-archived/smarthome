@@ -44,6 +44,17 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import org.eclipse.smarthome.io.rest.RESTResource;
+>>>>>>> Added SatisfiableRESTResource and SatisfiableResourceFilter and refactored all ESH RESTResource that have mandatory static dependencies to optional and dynamic and made them implement the new interface. (#2320)
+=======
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+>>>>>>> 6692e08... Added nginx proxy buffering fix to SitemapResource.java as well. (#2388)
+>>>>>>> Initial Release
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
