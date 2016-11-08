@@ -117,6 +117,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         waitForAssert {
             ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
             assertThat thingHandler, is(nullValue())
@@ -127,12 +128,19 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
             assertThat thingHandler, is(nullValue())
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        waitForAssert {
+            ThingHandler thingHandler = getService(ThingHandler, WemoLightHandler)
+            assertThat thingHandler, is(nullValue())
+        }
+>>>>>>> upstream/master
 
         if(bridge != null) {
             Bridge bridgeThing = thingRegistry.remove(bridge.getUID())
             assertThat "The bridge ${bridge.getUID()} cannot be deleted", bridgeThing, is(notNullValue())
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         waitForAssert {
             ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
@@ -150,19 +158,26 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         }
 =======
         waitForAssert ({
+=======
+        waitForAssert {
+>>>>>>> upstream/master
             ThingHandler bridgeHandler = getService(ThingHandler, WemoBridgeHandler)
             assertThat bridgeHandler, is(nullValue())
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert ({
+        waitForAssert {
             Set<UpnpIOParticipant> participants  = upnpIOService.participants.keySet();
             assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
-        waitForAssert ({
+        waitForAssert {
             assertThat itemRegistry.getAll().size(), is(0)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
     }
 }

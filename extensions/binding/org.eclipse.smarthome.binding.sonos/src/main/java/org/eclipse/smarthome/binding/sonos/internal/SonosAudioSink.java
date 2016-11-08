@@ -23,6 +23,9 @@ import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> upstream/master
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +55,9 @@ public class SonosAudioSink implements AudioSink {
     private AudioHTTPServer audioHTTPServer;
     private ZonePlayerHandler handler;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> upstream/master
     private String callbackUrl;
 
     public SonosAudioSink(ZonePlayerHandler handler, AudioHTTPServer audioHTTPServer, String callbackUrl) {
@@ -97,6 +103,9 @@ public class SonosAudioSink implements AudioSink {
                 // the stream.
             } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> upstream/master
                 if (callbackUrl != null) {
                     String relativeUrl = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
                     String url = callbackUrl + relativeUrl;
@@ -114,6 +123,7 @@ public class SonosAudioSink implements AudioSink {
                     } else {
                         throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
                     }
+<<<<<<< HEAD
                 } else {
                     logger.warn("We do not have any callback url, so Sonos cannot play the audio stream!");
 =======
@@ -126,6 +136,10 @@ public class SonosAudioSink implements AudioSink {
                 } else {
                     throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
 >>>>>>> initial contribution of Sonos AudioSink support (#2306)
+=======
+                } else {
+                    logger.warn("We do not have any callback url, so Sonos cannot play the audio stream!");
+>>>>>>> upstream/master
                 }
             }
         }

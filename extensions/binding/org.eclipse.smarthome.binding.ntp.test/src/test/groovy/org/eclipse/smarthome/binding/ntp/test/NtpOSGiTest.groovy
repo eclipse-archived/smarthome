@@ -100,9 +100,13 @@ import org.junit.Ignore
 class NtpOSGiTest extends OSGiTest {
     private static TimeZone systemTimeZone
 <<<<<<< HEAD
+<<<<<<< HEAD
     private static Locale locale
 =======
 >>>>>>> Implemented tests for NTP Binding (#2243)
+=======
+    private static Locale locale
+>>>>>>> upstream/master
 
     private EventSubscriberMock eventSubscriberMock
 
@@ -214,6 +218,7 @@ class NtpOSGiTest extends OSGiTest {
     @BeforeClass
     public static void setUpClass(){
 <<<<<<< HEAD
+<<<<<<< HEAD
         /* Store the initial system time zone and locale value,
          so that we can restore them at the test end.*/
         systemTimeZone = TimeZone.getDefault()
@@ -226,12 +231,21 @@ class NtpOSGiTest extends OSGiTest {
 =======
         /* Store the initial system time zone value,
          so that we can restore it at the test end.*/
+=======
+        /* Store the initial system time zone and locale value,
+         so that we can restore them at the test end.*/
+>>>>>>> upstream/master
         systemTimeZone = TimeZone.getDefault()
+        locale = Locale.getDefault()
 
-        /* Set new default time zone,
+        /* Set new default time zone and locale,
          which will be used during the tests execution.*/
         TimeZone.setDefault(TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID))
+<<<<<<< HEAD
 >>>>>>> Implemented tests for NTP Binding (#2243)
+=======
+        Locale.setDefault(Locale.US)
+>>>>>>> upstream/master
     }
 
     @Before
@@ -272,6 +286,7 @@ class NtpOSGiTest extends OSGiTest {
     @AfterClass
     public static void tearDownClass(){
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Set the default time zone and locale to their initial value.
         TimeZone.setDefault(systemTimeZone)
         Locale.setDefault(locale)
@@ -279,16 +294,26 @@ class NtpOSGiTest extends OSGiTest {
         // Set the default time zone to its initial value.
         TimeZone.setDefault(systemTimeZone)
 >>>>>>> Implemented tests for NTP Binding (#2243)
+=======
+        // Set the default time zone and locale to their initial value.
+        TimeZone.setDefault(systemTimeZone)
+        Locale.setDefault(locale)
+>>>>>>> upstream/master
     }
 
     @Test
     public void 'the string channel is updated with the right time zone'(){
+<<<<<<< HEAD
 <<<<<<< HEAD
         def expectedTimeZonePDT = "PDT"
         def expectedTimeZonePST = "PST"
 =======
         def expectedTimeZone = "PDT"
 >>>>>>> Implemented tests for NTP Binding (#2243)
+=======
+        def expectedTimeZonePDT = "PDT"
+        def expectedTimeZonePST = "PST"
+>>>>>>> upstream/master
 
         Configuration configuration = new Configuration()
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID)
@@ -305,10 +330,14 @@ class NtpOSGiTest extends OSGiTest {
         assertThat "The string channel was not updated with the right timezone",
                 timeZoneFromItemRegistry,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST)))
 =======
                 is(equalTo(expectedTimeZone))
 >>>>>>> Implemented tests for NTP Binding (#2243)
+=======
+                is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST)))
+>>>>>>> upstream/master
     }
 
     @Ignore("the dateTime channel is updated with a time from the system timezone")

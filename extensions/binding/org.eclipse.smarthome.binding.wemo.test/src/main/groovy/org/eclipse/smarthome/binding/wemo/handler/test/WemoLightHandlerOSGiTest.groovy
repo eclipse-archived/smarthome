@@ -21,9 +21,12 @@ import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoLightOSGiTest
 import org.eclipse.smarthome.core.items.Item
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import org.eclipse.smarthome.core.library.items.StringItem;
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+>>>>>>> upstream/master
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
@@ -32,6 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.Command
+<<<<<<< HEAD
 <<<<<<< HEAD
 import org.eclipse.smarthome.core.types.RefreshType
 import org.junit.After
@@ -44,6 +48,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+import org.eclipse.smarthome.core.types.RefreshType
+import org.junit.After
+import org.junit.Before
+>>>>>>> upstream/master
 import org.junit.Test
 
 /**
@@ -54,21 +63,30 @@ import org.junit.Test
 class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def BRIDGE_HANDLER_INITIALIZE_TIMEOUT = 1000;
 
 =======
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+    def BRIDGE_HANDLER_INITIALIZE_TIMEOUT = 1000;
+
+>>>>>>> upstream/master
     @Before
     public void setUp() {
         setUpServices()
         servlet = new WemoLightHttpServlet(SERVICE_ID, SERVICE_NUMBER);
         registerServlet(SERVLET_URL, servlet);
 <<<<<<< HEAD
+<<<<<<< HEAD
         // The default timeout is 15 seconds, for this test 1 second timeout is enough
 =======
         // FIXME The default timeout is 15 seconds, I am not sure if this timeout is hardware related. 
         // For this test 1 second timeout is enough
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        // The default timeout is 15 seconds, for this test 1 second timeout is enough
+>>>>>>> upstream/master
         WemoLightHandler.DEFAULT_REFRESH_INITIAL_DELAY = 1
     }
 
@@ -90,15 +108,20 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         createBridge(BRIDGE_TYPE_UID)
         //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
 <<<<<<< HEAD
+<<<<<<< HEAD
         sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
 =======
         sleep(DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
+>>>>>>> upstream/master
         createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
         WemoBridgeHandler bridgeHandler
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         waitForAssert{
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
@@ -123,27 +146,34 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         }
 =======
         waitForAssert ({
+=======
+        waitForAssert{
+>>>>>>> upstream/master
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert ({
+        waitForAssert {
             handler = getService(ThingHandler.class, WemoLightHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert ({
+        waitForAssert {
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoLightHttpServlet.GET_ACTION), is(true)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT + 1000*WemoLightHandler.DEFAULT_REFRESH_INITIAL_DELAY)
-        
-        waitForAssert({
+        }
+
+        waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
     }
 
     @Test
@@ -165,10 +195,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
     @Test
     public void 'handle Percent command for BRIGHTNESS channel' () {
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Set brightness value to 20 Percent
 =======
         // Set brightness value to 20 Percent 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        // Set brightness value to 20 Percent
+>>>>>>> upstream/master
         Command command = new PercentType(20);
         String channelID = WemoBindingConstants.CHANNEL_BRIGHTNESS
         String acceptedItemType = "Dimmer"
@@ -184,10 +218,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
     @Test
     public void 'handle Increase command for BRIGHTNESS channel' () {
 <<<<<<< HEAD
+<<<<<<< HEAD
         // The value is increased by 5 Percents by default
 =======
         // The value is increased by 5 Percents by default 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        // The value is increased by 5 Percents by default
+>>>>>>> upstream/master
         Command command = IncreaseDecreaseType.INCREASE;
         String channelID = WemoBindingConstants.CHANNEL_BRIGHTNESS
         String acceptedItemType = "Dimmer"
@@ -237,6 +275,7 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         def value= null
         def capitability = null
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         assertRequestForCommand(channelID, command, action, value, capitability)
 
@@ -245,21 +284,31 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         assertRequestForCommand(channelID, command, action, value, capitability)
         
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+        assertRequestForCommand(channelID, command, action, value, capitability)
+
+>>>>>>> upstream/master
     }
 
     private assertRequestForCommand(String channelID, Command command, String action, String value, String capitability) {
         createBridge(BRIDGE_TYPE_UID)
         //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
 <<<<<<< HEAD
+<<<<<<< HEAD
         sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
 =======
         sleep(DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
+>>>>>>> upstream/master
         createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
         WemoBridgeHandler bridgeHandler
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         waitForAssert {
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
@@ -274,17 +323,24 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         }
 =======
         waitForAssert ({
+=======
+        waitForAssert {
+>>>>>>> upstream/master
             bridgeHandler = getService(ThingHandler.class, WemoBridgeHandler.class)
             assertThat bridgeHandler, is(notNullValue())
             assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
-        waitForAssert ({
+        waitForAssert {
             handler = getService(ThingHandler.class, WemoLightHandler.class)
             assertThat handler, is(notNullValue())
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, DEVICE_MODEL_NAME)
@@ -293,6 +349,7 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
         handler.handleCommand(channelUID, command)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         waitForAssert{
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(action), is(true)
@@ -306,6 +363,13 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
             assertThat "Incorrect value recevied for capitability ${servlet.capitability} ", servlet.value, is(value)
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        waitForAssert{
+            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(action), is(true)
+            assertThat "No request received for capitability: ${servlet.capitability}, after command ${command}", servlet.capitability, is(capitability)
+            assertThat "Incorrect value recevied for capitability ${servlet.capitability} ", servlet.value, is(value)
+        }
+>>>>>>> upstream/master
     }
 
     class WemoLightHttpServlet extends GenericWemoHttpServlet {
@@ -331,10 +395,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
             def setActions = root[soapNamespace.Body][uNamespace.SetDeviceStatus];
             def getAllDevices = root[soapNamespace.Body][uNamespace.GetEndDevices];
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
             
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
             if (getActions.size() > 0) {
                 super.setResponseStatus(HttpServletResponse.SC_OK)
 
@@ -351,10 +419,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
                 def setAction = setActions[0]
                 this.actions.add(setAction.name().getLocalPart())
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
                 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
                 def innerXML = setAction.DeviceStatusList.text()
                 def innerRoot
                 synchronized(parser) {
@@ -363,10 +435,14 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
                 this.capitability = innerRoot.CapabilityID.text()
                 this.value  = innerRoot.CapabilityValue.text()
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
             
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
                 return "";
             } else  if (getAllDevices.size() > 0) {
                 // Do not answer requests of the discovery service

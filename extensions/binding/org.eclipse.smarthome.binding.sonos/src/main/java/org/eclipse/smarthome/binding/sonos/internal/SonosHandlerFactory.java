@@ -21,10 +21,15 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
 import org.eclipse.smarthome.core.net.NetUtil;
 =======
 >>>>>>> initial contribution of Sonos AudioSink support (#2306)
+=======
+import org.eclipse.smarthome.core.net.HttpServiceUtil;
+import org.eclipse.smarthome.core.net.NetUtil;
+>>>>>>> upstream/master
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -102,15 +107,20 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
             ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
 
             // register the speaker as an audio sink
+<<<<<<< HEAD
             SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer);
+=======
+            String callbackUrl = createCallbackUrl();
+            SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer, callbackUrl);
+>>>>>>> upstream/master
             @SuppressWarnings("unchecked")
             ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
                     .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
             audioSinkRegistrations.put(thing.getUID().toString(), reg);
 
             return handler;
-
         }
+<<<<<<< HEAD
 >>>>>>> initial contribution of Sonos AudioSink support (#2306)
 
             ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
@@ -129,6 +139,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     }
 
 <<<<<<< HEAD
+=======
+        return null;
+    }
+
+>>>>>>> upstream/master
     private String createCallbackUrl() {
         if (callbackUrl != null) {
             return callbackUrl;
@@ -150,8 +165,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         }
     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> initial contribution of Sonos AudioSink support (#2306)
+=======
+>>>>>>> upstream/master
     @Override
     public void unregisterHandler(Thing thing) {
         super.unregisterHandler(thing);

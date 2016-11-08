@@ -22,9 +22,12 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import org.eclipse.smarthome.core.library.items.StringItem
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+>>>>>>> upstream/master
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -63,10 +66,14 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
 
     static final def DEVICE_MANUFACTURER = "Belkin"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
     //This port is included in the run configuration
     def ORG_OSGI_SERVICE_HTTP_PORT = 8080
 
@@ -83,6 +90,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     def DEVICE_CONTROL_PATH = '/upnp/control/'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     ManagedThingProvider managedThingProvider
 =======
     def DEFAULT_TEST_ASSERTION_TIMEOUT = 1000;
@@ -91,6 +99,8 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     ManagedThingProvider mangedThingProvider
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
 =======
+=======
+>>>>>>> upstream/master
     ManagedThingProvider managedThingProvider
 >>>>>>> Fixed mistyped variable for Wemo binding OSGi tests. (#2349)
     static MockUpnpService mockUpnpService
@@ -180,10 +190,14 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         }
         // If a new test is implemented with different Item Type testItem from this Type must be created here
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -193,10 +207,14 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID))
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
 
     protected addUpnpDevice(def serviceTypeID, def serviceNumber, def modelName) {
         UDN udn = new UDN(DEVICE_UDN);
@@ -229,10 +247,14 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
     final static def parser = new XmlParser()
     final static def CONTENT_TYPE = "text/xml; charset=utf-8"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
     def soapNamespace
     def uNamespace
     def responseStatus
@@ -258,6 +280,7 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
         response.setStatus(responseStatus);
         response.setContentType(CONTENT_TYPE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         if(responseStatus == HttpServletResponse.SC_OK) {
             response.getOutputStream().print(responseContent)
@@ -268,16 +291,26 @@ abstract class GenericWemoHttpServlet extends HttpServlet{
             response.getOutputStream().print(responseContent)
         } 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+        if(responseStatus == HttpServletResponse.SC_OK) {
+            response.getOutputStream().print(responseContent)
+        }
+>>>>>>> upstream/master
     }
 
     protected void setResponseStatus(int status) {
         responseStatus = status
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
     abstract protected String handleRequest (Node root);
 }
 

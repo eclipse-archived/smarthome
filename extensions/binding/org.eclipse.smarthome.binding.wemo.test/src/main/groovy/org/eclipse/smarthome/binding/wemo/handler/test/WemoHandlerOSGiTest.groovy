@@ -9,9 +9,12 @@ package org.eclipse.smarthome.binding.wemo.handler.test;
 
 import static org.hamcrest.CoreMatchers.*
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+>>>>>>> upstream/master
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import groovy.xml.XmlUtil
@@ -32,6 +35,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.State
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.junit.After
@@ -43,6 +47,12 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+import org.eclipse.smarthome.core.types.UnDefType
+import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
+import org.junit.After
+import org.junit.Before
+>>>>>>> upstream/master
 import org.junit.Test
 
 /**
@@ -73,10 +83,14 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         registerServlet(SERVLET_URL, servlet);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
     @After
     public void tearDown() {
         removeThing()
@@ -98,6 +112,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, MODEL_NAME)
@@ -111,17 +126,24 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 =======
         
+=======
+
+>>>>>>> upstream/master
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, MODEL_NAME)
-        
+
         ChannelUID channelUID = new ChannelUID(thing.getUID(), DEFAULT_TEST_CHANNEL)
         thing.getHandler().handleCommand(channelUID, command)
 
-        waitForAssert({
+        waitForAssert{
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.SET_ACTION) ,is (true)
             assertThat "The state of the device after the command ${command} was not updated with the expected value.", servlet.binaryState, is(exptectedBinaryState)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
     }
 
     @Test
@@ -131,10 +153,14 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         def expectedState = OnOffType.OFF
         def command = RefreshType.REFRESH;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
         createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
@@ -143,6 +169,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
@@ -168,28 +195,36 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 
 =======
         waitForAssert({
+=======
+        waitForAssert{
+>>>>>>> upstream/master
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was updated at start.", item.getState(), is(UnDefType.NULL)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
-        
+        }
+
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, MODEL_NAME)
-        
+
         ChannelUID channelUID = new ChannelUID(thing.getUID(), DEFAULT_TEST_CHANNEL)
         thing.getHandler().handleCommand(channelUID, command)
-        
-        waitForAssert({
+
+        waitForAssert{
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION),is (true)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
-        
-        waitForAssert({
+        }
+
+        waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated after command ${command}.", item.getState(), is(expectedState)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
         
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+
+>>>>>>> upstream/master
     }
 
     @Test
@@ -208,6 +243,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
             assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         waitForAssert{
             assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
@@ -221,15 +257,23 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 =======
         
         waitForAssert({
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+=======
 
-        waitForAssert({
+        waitForAssert{
+>>>>>>> upstream/master
+            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
+        }
+
+        waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
             assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} is not be created. Check the createItem() method.", item, is(notNullValue())
             assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
     }
 
     private void removeThing() {
@@ -244,6 +288,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         waitForAssert {
             assertThat upnpIOService.participants.keySet().size(), is(0)
         }
@@ -254,14 +299,21 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 =======
         waitForAssert ({
+=======
+        waitForAssert {
+>>>>>>> upstream/master
             assertThat upnpIOService.participants.keySet().size(), is(0)
-        }, DEFAULT_TEST_ASSERTION_TIMEOUT)
+        }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
-        waitForAssert ({
+        waitForAssert {
             assertThat itemRegistry.getAll().size(), is(0)
+<<<<<<< HEAD
         }, DEFAULT_TEST_ASSERTION_TIMEOUT)
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+        }
+>>>>>>> upstream/master
     }
 }
 
@@ -269,10 +321,14 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
     final static def GET_ACTION = "GetBinaryState"
     final static def SET_ACTION = "SetBinaryState"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
     def actions = [] as Set
     def binaryState
 
@@ -281,6 +337,7 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
     }
 
     protected String handleRequest (Node root) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         def getActions = root[soapNamespace.Body][uNamespace.GetBinaryState];
@@ -291,13 +348,20 @@ class WemoHttpServlet extends GenericWemoHttpServlet {
 
 =======
         
+=======
+
+>>>>>>> upstream/master
         def getActions = root[soapNamespace.Body][uNamespace.GetBinaryState];
         if (getActions.size() > 0) {
             def getAction = getActions.get(0);
-            
+
             this.actions.add(getAction.name().getLocalPart())
+<<<<<<< HEAD
             
 >>>>>>> Implemented tests for the Wemo Binding. (#2247)
+=======
+
+>>>>>>> upstream/master
             getAction.replaceNode { BinaryState(this.binaryState) }
             return XmlUtil.serialize(root)
         }
