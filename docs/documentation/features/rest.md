@@ -28,7 +28,7 @@ To subscribe to events a developer can listen to `/rest/events`. In general any 
 
 ### Events
 
-The framework broadcasts all events on the Eclipse SmartHome event bus also as an SEE event. A complete list of the framework event types can found in the [Core Event chapter](../concepts/events.html).
+The framework broadcasts all events on the Eclipse SmartHome event bus also as an SEE event. A complete list of the framework event types can found in the [Event chapter](events.html).
 
 All events are represented as JSON objects on the stream with the following format:
 
@@ -47,8 +47,8 @@ All events are represented as JSON objects on the stream with the following form
 }
 ```
 
-* `topic`: the event topic (see also [Runtime Events](../concepts/events.html))
-* `type`: the event type (see also [Runtime Events](../concepts/event-type-definition.html))
+* `topic`: the event topic (see also [Runtime Events](events.html))
+* `type`: the event type (see also [Runtime Events](event-type-definition.html))
 * `payload`: String, which contains the payload of the Eclipse SmartHome event. For all core events, the payload will be in the JSON format. For example the `smarthome/items/item123/added` event will include the new item that was added and the `smarthome/items/item123/updated` event will include both old and new item.
   
 ### Filtering
@@ -82,9 +82,3 @@ eventSource.addEventListener('message', function (eventPayload) {
     }
 });
 ```
-
-
-
-
-
-
