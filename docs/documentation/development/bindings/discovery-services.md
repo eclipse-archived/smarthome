@@ -8,6 +8,15 @@ layout: documentation
 
 Bindings can implement the `DiscoveryService` interface and register it as an OSGi service to inform the framework about devices and services, that can be added as things to the system (see also [Inbox & Discovery Concept](../../concepts/discovery.html)).
 
+A discovery service provides discovery results. The following table gives an overview about the main parts of a `DiscoveryResult`: 
+
+| Field | Description |
+|-------|-------------|
+| `thingUID` | The `thingUID` is the unique identifier of the specific discovered thing (e.g. a device's serial number). It  *must not* be constructed out of properties, that can change (e.g. IP addresses). A typical `thingUID` could look like this: `hue:bridge:001788141f1a` 
+| `thingTypeUID` | Contrary to the `thingUID` is the `thingTypeUID` that specifies the type the discovered thing belongs to. It could be constructed from e.g. a product number. A typical `thingTypeUID` could be the following: `hue:bridge`. 
+| `bridgeUID` | If the discovered thing belongs to a bridge, the `bridgeUID` contains the UID of that bridge. 
+| `properties` | The `properties` of a `DiscoveryResult` contain the configuration for the newly created thing. 
+
 To simplify the implementation of own discovery services, an abstract base class `AbstractDiscoveryService` implements the `DiscoveryService`, that must only be extended. Subclasses of `AbstractDiscoveryService` do not need to handle the `DiscoveryListeners` themselves, they can use the methods `thingDiscovered` and `thingRemoved` to notify the registered listeners. Most of the descriptions in this chapter refer to the `AbstractDiscoveryService`.
 
 For UPnP and mDNS there already are generic discovery services available. Bindings only need to implement a `UpnpDiscoveryParticipant` resp. `mDNSDiscoveryParticipant`. For details refer to the chapters [UPnP Discovery](#upnp-discovery) and [mDNS Discovery](#mdns-discovery). 
@@ -122,8 +131,6 @@ In some cases it might be of interest for a discovery service if the same device
         }
     }
 ``` 
-
-
 
 ## UPnP Discovery
 
