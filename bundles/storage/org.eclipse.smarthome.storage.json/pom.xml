@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>storage</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Eclipse SmartHome JSON Storage</name>
+
+  <properties>
+    <bundle.symbolicName>org.eclipse.smarthome.storage.json</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.storage.json</bundle.namespace>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome.storage</groupId>
+  <artifactId>org.eclipse.smarthome.storage.json</artifactId>
+
+  <packaging>eclipse-plugin</packaging>
+
+</project>
