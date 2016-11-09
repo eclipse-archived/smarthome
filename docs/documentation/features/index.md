@@ -53,7 +53,7 @@ Bindings can optionally include [discovery services](../concepts/discovery.html)
 
 User interfaces normally use the REST API for communication, but if they are not client-side, but served from the runtime, they also have the option to use all local Java services.
 
-Currently, there are 3 available user interface in Eclipse SmartHome: the Classic UI, the Basic UI and the Paper UI.
+Currently, there are 3 available user interfaces in Eclipse SmartHome: the Classic UI, the Basic UI and the Paper UI.
 
 All user interfaces can share icon sets, so that these do not have to be included in every single user interface.
 Eclipse SmartHome comes with the following iconsets:
@@ -64,7 +64,7 @@ Eclipse SmartHome comes with the following iconsets:
  
 Voice extensions provide implementations for Text-to-Speech, Speech-to-Text and Human Language Interpreter services.
  
-These services are often very solution specific, so that is no one-fits-all implementation in Eclipse SmartHome.
+These services are often very solution specific, so there is no one-fits-all implementation in Eclipse SmartHome.
 For easy demonstration, there is a TTS service available, which uses the built-in "say" command of MacOS (which obviously only works on Macs, though).
 Additionally, there is a basic human language interpreter implementation, which supports simple smart home commands like switching lights and controlling music both in English and German.
  
