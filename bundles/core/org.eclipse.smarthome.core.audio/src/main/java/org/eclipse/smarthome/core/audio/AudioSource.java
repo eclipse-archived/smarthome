@@ -24,7 +24,7 @@ public interface AudioSource {
      *
      * @return an id that identifies this service
      */
-    public String getId();
+    String getId();
 
     /**
      * Returns a localized human readable label that can be used within UIs.
@@ -32,21 +32,22 @@ public interface AudioSource {
      * @param locale the locale to provide the label for
      * @return a localized string to be used in UIs
      */
-    public String getLabel(Locale locale);
+    String getLabel(Locale locale);
 
     /**
-     * Obtain the audio formats supported by this TTSService
+     * Obtain the audio formats supported by this AudioSource
      *
      * @return The audio formats supported by this service
      */
-    public Set<AudioFormat> getSupportedFormats();
+    Set<AudioFormat> getSupportedFormats();
 
     /**
-     * Gets InputStream for reading audio data in supported audio format
+     * Gets an AudioStream for reading audio data in supported audio format
      *
-     * @return InputStream for reading audio data
-     * @throws AudioException If problem occurs obtaining InputStream
+     * @param format the expected audio format of the stream
+     * @return AudioStream for reading audio data
+     * @throws AudioException If problem occurs obtaining the stream
      */
-    abstract public AudioStream getInputStream() throws AudioException;
+    AudioStream getInputStream(AudioFormat format) throws AudioException;
 
 }

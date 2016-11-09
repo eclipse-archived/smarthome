@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.audio.AudioFormat;
-import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 
 /**
@@ -53,13 +52,13 @@ public interface STTService {
     /**
      * This method starts the process of speech recognition.
      *
-     * The audio data of the passed {@link AudioSource} is passed to the speech
+     * The audio data of the passed {@link AudioStream} is passed to the speech
      * recognition engine. The recognition engine attempts to recognize speech
      * as being spoken in the passed {@code Locale} and containing statements
      * specified in the passed {@code grammars}. Recognition is indicated by
      * fired {@link STTEvent} events targeting the passed {@link STTListener}.
      *
-     * The passed {@link AudioSource} must be of a supported {@link AudioFormat}.
+     * The passed {@link AudioStream} must be of a supported {@link AudioFormat}.
      * In other words a {@link AudioFormat} compatible with one returned from
      * the {@code getSupportedFormats()} method.
      *
