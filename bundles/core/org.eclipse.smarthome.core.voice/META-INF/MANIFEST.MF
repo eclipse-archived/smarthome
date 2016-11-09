@@ -9,6 +9,7 @@ Bundle-ClassPath: .
 Import-Package: org.apache.commons.collections.map,
  org.apache.commons.io,
  org.apache.commons.lang,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.audio,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,

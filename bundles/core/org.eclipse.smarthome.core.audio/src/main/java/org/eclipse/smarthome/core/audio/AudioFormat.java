@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.audio;
 
+import java.util.Set;
+
 /**
  * An audio format definition
  *
@@ -236,6 +238,134 @@ public class AudioFormat {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Determines the best match between a list of audio formats supported by a source and a sink.
+     *
+     * @param inputs the supported audio formats of an audio source
+     * @param outputs the supported audio formats of an audio sink
+     * @return the best matching format or null, if source and sink are incompatible
+     */
+    public static AudioFormat getBestMatch(Set<AudioFormat> inputs, Set<AudioFormat> outputs) {
+        AudioFormat preferredFormat = getPreferredFormat(inputs);
+        if (preferredFormat != null) {
+            for (AudioFormat output : outputs) {
+                if (output.isCompatible(preferredFormat)) {
+                    return preferredFormat;
+                } else {
+                    for (AudioFormat input : inputs) {
+                        if (output.isCompatible(input)) {
+                            return input;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the first concrete AudioFormat in the passed set or a preferred one
+     * based on 16bit, 16KHz, big endian default
+     *
+     * @param audioFormats The AudioFormats from which to choose
+     * @return The preferred AudioFormat or null if none could be determined. A passed concrete format is preferred
+     *         adding default values to an abstract AudioFormat in the passed set.
+     */
+    public static AudioFormat getPreferredFormat(Set<AudioFormat> audioFormats) {
+        // Return the first concrete AudioFormat found
+        for (AudioFormat currentAudioFormat : audioFormats) {
+            // Check if currentAudioFormat is abstract
+            if (null == currentAudioFormat.getCodec()) {
+                continue;
+            }
+            if (null == currentAudioFormat.getContainer()) {
+                continue;
+            }
+            if (null == currentAudioFormat.isBigEndian()) {
+                continue;
+            }
+            if (null == currentAudioFormat.getBitDepth()) {
+                continue;
+            }
+            if (null == currentAudioFormat.getBitRate()) {
+                continue;
+            }
+            if (null == currentAudioFormat.getFrequency()) {
+                continue;
+            }
+
+            // Prefer WAVE container
+            if (!currentAudioFormat.getContainer().equals("WAVE")) {
+                continue;
+            }
+
+            // As currentAudioFormat is concrete, use it
+            return currentAudioFormat;
+        }
+
+        // There's no concrete AudioFormat so we must create one
+        for (AudioFormat currentAudioFormat : audioFormats) {
+            // Define AudioFormat to return
+            AudioFormat format = currentAudioFormat;
+
+            // Not all Codecs and containers can be supported
+            if (null == format.getCodec()) {
+                continue;
+            }
+            if (null == format.getContainer()) {
+                continue;
+            }
+
+            // Prefer WAVE container
+            if (!format.getContainer().equals(AudioFormat.CONTAINER_WAVE)) {
+                continue;
+            }
+
+            // If required set BigEndian, BitDepth, BitRate, and Frequency to default values
+            if (null == format.isBigEndian()) {
+                format = new AudioFormat(format.getContainer(), format.getCodec(), new Boolean(true),
+                        format.getBitDepth(), format.getBitRate(), format.getFrequency());
+            }
+            if (null == format.getBitDepth() || null == format.getBitRate() || null == format.getFrequency()) {
+                // Define default values
+                int defaultBitDepth = 16;
+                long defaultFrequency = 16384;
+
+                // Obtain current values
+                Integer bitRate = format.getBitRate();
+                Long frequency = format.getFrequency();
+                Integer bitDepth = format.getBitDepth();
+
+                // These values must be interdependent (bitRate = bitDepth * frequency)
+                if (null == bitRate) {
+                    if (null == bitDepth) {
+                        bitDepth = new Integer(defaultBitDepth);
+                    }
+                    if (null == frequency) {
+                        frequency = new Long(defaultFrequency);
+                    }
+                    bitRate = new Integer(bitDepth.intValue() * frequency.intValue());
+                } else if (null == bitDepth) {
+                    if (null == frequency) {
+                        frequency = new Long(defaultFrequency);
+                    }
+                    bitDepth = new Integer(bitRate.intValue() / frequency.intValue());
+                } else if (null == frequency) {
+                    frequency = new Long(bitRate.longValue() / bitDepth.longValue());
+                }
+
+                format = new AudioFormat(format.getContainer(), format.getCodec(), format.isBigEndian(), bitDepth,
+                        bitRate, frequency);
+            }
+
+            // Return preferred AudioFormat
+            return format;
+        }
+
+        // Return null indicating failure
+        return null;
     }
 
     @Override
