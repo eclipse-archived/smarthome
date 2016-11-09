@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="org.eclipse.smarthome.config.dispatch.test">
+   <!--We need this service component in order to be able to control when the ConfigDispatcher is started.-->
+   <implementation class="org.eclipse.smarthome.config.dispatch.test.ConfigDispatchTest"/>
+</scr:component>
