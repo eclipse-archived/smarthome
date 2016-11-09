@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import org.eclipse.smarthome.core.audio.AudioException;
+import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
@@ -32,6 +33,7 @@ import org.eclipse.smarthome.core.voice.SpeechRecognitionEvent;
 import org.eclipse.smarthome.core.voice.TTSException;
 import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
+import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.slf4j.Logger;
@@ -68,6 +70,8 @@ public class DialogProcessor implements KSListener, STTListener {
     private final Locale locale;
     private final String keyword;
 
+    private final AudioFormat format;
+
     public DialogProcessor(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli,
             AudioSource source, AudioSink sink, Locale locale, String keyword) {
         this.locale = locale;
@@ -78,11 +82,12 @@ public class DialogProcessor implements KSListener, STTListener {
         this.source = source;
         this.sink = sink;
         this.keyword = keyword;
+        this.format = VoiceManager.getBestMatch(source.getSupportedFormats(), sink.getSupportedFormats());
     }
 
     public void start() {
         try {
-            ks.spot(this, source.getInputStream(), locale, this.keyword);
+            ks.spot(this, source.getInputStream(format), locale, this.keyword);
         } catch (KSException | AudioException e) {
             logger.error("Encountered error calling spot: {}", e.getMessage());
         }
@@ -96,7 +101,7 @@ public class DialogProcessor implements KSListener, STTListener {
             if (ksEvent instanceof KSpottedEvent) {
                 if (stt != null) {
                     try {
-                        this.sttServiceHandle = stt.recognize(this, source.getInputStream(), this.locale,
+                        this.sttServiceHandle = stt.recognize(this, source.getInputStream(format), this.locale,
                                 new HashSet<String>());
                     } catch (STTException | AudioException e) {
                         say("Error during recognition: " + e.getMessage());
