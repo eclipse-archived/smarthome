@@ -19,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchService;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * "pid: com.acme.smarthome.security".
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Petar Valchev - Added sort by modification time, when configuration files are read
  */
 public class ConfigDispatcher extends AbstractWatchService {
 
@@ -192,6 +195,13 @@ public class ConfigDispatcher extends AbstractWatchService {
         File dir = new File(getSourcePath());
         if (dir.exists()) {
             File[] files = dir.listFiles();
+            // Sort the files by modification time,
+            // so that the last modified file is processed last.
+            Arrays.sort(files, new Comparator<File>() {
+                public int compare(File left, File right) {
+                    return Long.valueOf(left.lastModified()).compareTo(right.lastModified());
+                }
+            });
             for (File file : files) {
                 try {
                     processConfigFile(file);
