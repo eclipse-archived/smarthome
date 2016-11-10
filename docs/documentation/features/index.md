@@ -47,15 +47,24 @@ Installation and uninstallation requests are executed by a thread pool named "ex
 
 A binding is an extension to the Eclipse SmartHome runtime that integrates an external system like a service, a protocol or a single device. Therefore the main purpose of a binding is to translate events from the Eclipse SmartHome event bus to the external system and vice versa. Learn about the internals of a binding in our [binding tutorial](../development/bindings/how-to.html).
 
-Bindings can optionally include [discovery services](../concepts/discovery.html), which allow the system to automatically find accessible devices and services.
+Bindings can optionally include [discovery services](../concepts/discovery.html), which allow the system to automatically find accessible devices and services. Furthermore, they can register devices as [audio sources and audio sinks](../concepts/audio.html), so that microphones and speakers can be made available to the audio and voice support features of the framework.
 
 ### User Interfaces
 
 User interfaces normally use the REST API for communication, but if they are not client-side, but served from the runtime, they also have the option to use all local Java services.
 
-Currently, the only available user interface in Eclipse SmartHome is the Classic UI, but further UIs will be available soon.
+Currently, there are 3 available user interfaces in Eclipse SmartHome: the Classic UI, the Basic UI and the Paper UI.
 
 All user interfaces can share icon sets, so that these do not have to be included in every single user interface.
 Eclipse SmartHome comes with the following iconsets:
 
  - `org.eclipse.smarthome.ui.iconset.classic`: [Classic Icon Set](ui/iconset/classic/readme.html)
+
+### Voice Services
+ 
+Voice extensions provide implementations for Text-to-Speech, Speech-to-Text and Human Language Interpreter services.
+ 
+These services are often very solution specific, so there is no one-fits-all implementation in Eclipse SmartHome.
+For easy demonstration, there is a TTS service available, which uses the built-in "say" command of MacOS (which obviously only works on Macs, though).
+Additionally, there is a basic human language interpreter implementation, which supports simple smart home commands like switching lights and controlling music both in English and German.
+ 
