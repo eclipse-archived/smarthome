@@ -579,7 +579,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             var bbox = (longitude - 0.01) + ',' + (latitude - 0.01) + ',' + (longitude + 0.01) + ',' + (latitude + 0.01);
             var marker = latitude + ',' + longitude;
             $scope.formattedState = latitude + '°N ' + longitude + '°E';
-            $scope.url = $sce.trustAsResourceUrl('http://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&marker=' + marker);
+            $scope.url = $sce.trustAsResourceUrl('https://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&marker=' + marker);
         } else {
             $scope.formattedState = '- °N - °E';
         }
