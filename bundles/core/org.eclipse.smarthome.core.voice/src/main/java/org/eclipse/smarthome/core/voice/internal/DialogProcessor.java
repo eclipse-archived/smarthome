@@ -33,7 +33,6 @@ import org.eclipse.smarthome.core.voice.SpeechRecognitionEvent;
 import org.eclipse.smarthome.core.voice.TTSException;
 import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
-import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class DialogProcessor implements KSListener, STTListener {
         this.source = source;
         this.sink = sink;
         this.keyword = keyword;
-        this.format = VoiceManager.getBestMatch(source.getSupportedFormats(), sink.getSupportedFormats());
+        this.format = AudioFormat.getBestMatch(source.getSupportedFormats(), sink.getSupportedFormats());
     }
 
     public void start() {

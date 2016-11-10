@@ -2,8 +2,7 @@
 <config-description:config-descriptions
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
-    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
-        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
     <config-description uri="system:voice">
         <parameter name="defaultTTS" type="text" required="false">
@@ -13,6 +12,10 @@
         <parameter name="defaultSTT" type="text" required="false">
             <label>Default Speech-to-Text</label>
             <description>The default speech-to-text service to use if no other is specified.</description>
+        </parameter>
+        <parameter name="defaultVoice" type="text" required="false">
+            <label>Default Voice</label>
+            <description>The default voice to use if no specific TTS service or voice is specified.</description>
         </parameter>
         <parameter name="defaultHLI" type="text" required="false">
             <label>Default Human Language Interpreter</label>
