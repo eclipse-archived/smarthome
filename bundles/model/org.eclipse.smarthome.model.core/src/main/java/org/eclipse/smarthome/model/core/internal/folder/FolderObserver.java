@@ -142,7 +142,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
 
         @Override
         protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
-            File toCheck = getFileByFileExtMap(folderFileExtMap, path.toString());
+            File toCheck = getFileByFileExtMap(folderFileExtMap, path.getFileName().toString());
             if (toCheck != null) {
                 checkFile(modelRepo, toCheck, kind);
             }
