@@ -102,7 +102,7 @@
 <repository location="http://download.eclipse.org/modeling/emf/emf/updates/2.11/core/R201506010402"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.2.xx-201611090643-e46"/>
+<unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.2.xx-201611092339-e46"/>
 <repository location="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
