@@ -1,43 +1,35 @@
 package org.eclipse.smarthome.core.service
 
+import static java.nio.file.StandardWatchEventKinds.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-
-import java.io.IOException;
 import java.nio.file.Path
-import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent
 import java.nio.file.WatchKey
 import java.nio.file.WatchService
 import java.nio.file.WatchEvent.Kind
-import java.util.Map
 
-import org.apache.commons.lang.SystemUtils;
-import org.eclipse.smarthome.core.service.AbstractWatchServiceTest.FullEvent;
+import org.apache.commons.lang.SystemUtils
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
-import org.junit.AfterClass;
-import org.junit.Before;
+import org.junit.AfterClass
 import org.junit.BeforeClass
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.Test
 
 /**
  * Test for {@link AbstractWatchService}.
- * 
- * @author Dimitar Ivanov
  *
+ * @author Dimitar Ivanov - Initial implementation
+ * @author Svilen Valkanov - Tests are modified to run on different Operating Systems
  */
 class AbstractWatchServiceTest extends OSGiTest {
 
     def static WATCHED_DIRECTORY = "watchDirectory"
 
     // Fail if no event has been received within the given timeout
-    def static NO_EVENT_TIMEOUT_IN_SECONDS = 3;
+    def static NO_EVENT_TIMEOUT_IN_SECONDS;
 
     RelativeWatchService watchService
 
@@ -45,6 +37,12 @@ class AbstractWatchServiceTest extends OSGiTest {
     static void setUpBeforeClass(){
         File watchDir = new File(WATCHED_DIRECTORY);
         watchDir.mkdirs()
+        // set the NO_EVENT_TIMEOUT_IN_SECONDS according to the operating system used
+        if(SystemUtils.IS_OS_MAC_OSX) {
+            NO_EVENT_TIMEOUT_IN_SECONDS = 10
+        } else {
+            NO_EVENT_TIMEOUT_IN_SECONDS = 3;
+        }
     }
 
     @AfterClass
@@ -56,6 +54,7 @@ class AbstractWatchServiceTest extends OSGiTest {
     @After
     public void tearDown(){
         watchService.deactivate()
+        waitForAssert{assertThat watchService.watchService,is(nullValue())}
         clearWatchedDir()
         watchService.allFullEvents.clear()
     }
@@ -105,18 +104,21 @@ class AbstractWatchServiceTest extends OSGiTest {
 
         // Activate the service when the subdir is also present. Else the subdir will not be registered
         watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
 
         boolean isCreated = innerfile.createNewFile()
         assertThat "The file '$innerfile.absolutePath' was not created successfully", isCreated, is(true)
 
         // Assure that the ordering of the events will be always the same
-        sleep 200
+        sleep NO_EVENT_TIMEOUT_IN_SECONDS*1000
 
         File file = new File(WATCHED_DIRECTORY + File.separatorChar + fileName)
         isCreated = file.createNewFile()
+
         assertThat "The file '$file.absolutePath' was not created successfully", isCreated, is(true)
 
-        waitForAssert({assertThat "Exactly two watch events were expected within $NO_EVENT_TIMEOUT_IN_SECONDS seconds, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(2)},NO_EVENT_TIMEOUT_IN_SECONDS*1000,1000)
+        def expectedEvents = 2
+        waitForAssert{assertThat "Exactly two watch events were expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)}
 
         FullEvent innerFileEvent = watchService.allFullEvents[0]
         assertThat "The inner file '$innerfile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents,innerFileEvent.eventKind,is(ENTRY_CREATE)
@@ -128,7 +130,7 @@ class AbstractWatchServiceTest extends OSGiTest {
     }
 
     @Test
-    void 'directory changes are watched correctly'(){
+    void 'subdirs are registered and modifications are watched'(){
         // Watch subdirectories and their modifications
         watchService = new RelativeWatchService(WATCHED_DIRECTORY,true,true)
 
@@ -142,27 +144,20 @@ class AbstractWatchServiceTest extends OSGiTest {
         innerFile.getParentFile().mkdirs()
 
         watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
+
+        if(SystemUtils.IS_OS_MAC_OSX) {
+            sleep 1000
+        }
 
         boolean isCreated = innerFile.createNewFile()
         assertThat "The file '$innerFile.absolutePath' was not created successfully", isCreated, is(true)
 
-        //This could vary across different platforms. For more information see "Platform dependencies" section in the WatchService documentation
-        def expectedEvents = SystemUtils.IS_OS_WINDOWS ? 2 : 1
-        waitForAssert({assertThat "Exactly $expectedEvents watch events were expected within $NO_EVENT_TIMEOUT_IN_SECONDS seconds, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)},NO_EVENT_TIMEOUT_IN_SECONDS*1000,1000)
-
-        FullEvent fileEvent = watchService.allFullEvents[0]
-        assertThat "File '$innerFile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents, fileEvent.eventKind, is(ENTRY_CREATE)
-        assertThat "File '$innerFile.absolutePath' name expected in the modified event. All events detected: " + watchService.allFullEvents, fileEvent.eventPath.toString(), is(innerFileName)
-
-        if(SystemUtils.IS_OS_WINDOWS){
-            FullEvent dirEvent = watchService.allFullEvents[1]
-            assertThat "Directory $subDirName modification was not detected. All events detected: " + watchService.allFullEvents, dirEvent.eventKind, is(ENTRY_MODIFY)
-            assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(subDirName)
-        }
+        assertAllEventsAreProcessed(subDirName,innerFile,innerFileName)
     }
 
     @Test
-    void 'subdirs are not registered and not watched'(){
+    void 'subdirs are not registered and modifications are not watched'(){
         // Do not watch the subdirectories of the root directory
         watchService = new RelativeWatchService(WATCHED_DIRECTORY,false,false)
 
@@ -172,6 +167,7 @@ class AbstractWatchServiceTest extends OSGiTest {
         innerFile.getParentFile().mkdirs()
 
         watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
 
         // Consequent creation and deletion in order to generate any watch events for the subdirectory
         boolean isCreated = innerFile.createNewFile()
@@ -180,14 +176,34 @@ class AbstractWatchServiceTest extends OSGiTest {
         boolean isDeleted = innerFile.delete()
         assertThat "Inner file is not deleted", isDeleted, is(true)
 
-        // Wait for a possible event for the maximum timeout
-        sleep NO_EVENT_TIMEOUT_IN_SECONDS*1000
-
-        assertThat "No watch events are expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(0)
+        assertNoEventsAreProcessed()
     }
 
     @Test
-    void 'subdirs are not watched, but dirs modifications are watched'(){
+    void 'subdirs are registered, but dirs modifications are not watched'() {
+        // Do watch the subdirectories of the root directory, but do not watch directory modifications
+        watchService = new RelativeWatchService(WATCHED_DIRECTORY,true,false)
+
+        def innerFileName = "watchRequestSubDir"+ File.separatorChar + "watchRequestInnerFile"
+        File innerFile = new File(WATCHED_DIRECTORY + File.separatorChar + innerFileName)
+        // Make all the subdirectories before running the service
+        innerFile.getParentFile().mkdirs()
+
+        watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
+
+        boolean isCreated = innerFile.createNewFile()
+        assertThat "The file '$innerFile.absolutePath' was not created successfully", isCreated, is(true)
+
+        assertFileCreateEventIsProcessed(innerFile,innerFileName)
+
+        watchService.allFullEvents.clear();
+
+        assertNoEventsAreProcessed()
+    }
+
+    @Test
+    void 'subdirs are not registered, but dirs modifications are watched'(){
         // Do not watch the subdirectories of the root directory, but watch directory modifications
         watchService = new RelativeWatchService(WATCHED_DIRECTORY,false,true)
 
@@ -198,22 +214,16 @@ class AbstractWatchServiceTest extends OSGiTest {
         innerFile.getParentFile().mkdirs()
 
         watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
+
+        if(SystemUtils.IS_OS_MAC_OSX) {
+            sleep 1000
+        }
 
         boolean isCreated = innerFile.createNewFile()
         assertThat "The file '$innerFile.absolutePath' was not created successfully", isCreated, is(true)
 
-        // Wait for possible watch event for the maximum timeout
-        sleep NO_EVENT_TIMEOUT_IN_SECONDS*1000
-
-        if(SystemUtils.IS_OS_WINDOWS){
-            // This behavior could vary depending on the Platform (see the WatchService documentation)
-            assertThat "Exactly one event is expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(1)
-            FullEvent event = watchService.allFullEvents[0]
-            assertThat "Modification event for subdir '$subDirName' on file creation within it is expected", event.eventKind , is(ENTRY_MODIFY)
-            assertThat "The watch event does not contain the path of the modified directory", event.eventPath.toString() , is(subDirName)
-        }else {
-            assertThat "No events are expected if not Windows OS" + watchService.allFullEvents, watchService.allFullEvents.size(), is(0)
-        }
+        assertDirectoryModifyEventIsProcessed(subDirName)
 
         // Clear the asserted event
         watchService.allFullEvents.clear()
@@ -221,10 +231,73 @@ class AbstractWatchServiceTest extends OSGiTest {
         boolean isDeleted = innerFile.delete()
         assertThat "Inner file '$innerFile.absolutePath' is not deleted", isDeleted, is(true)
 
+    }
+    void assertNoEventsAreProcessed(){
         // Wait for a possible event for the maximum timeout
         sleep NO_EVENT_TIMEOUT_IN_SECONDS*1000
 
-        assertThat "No event is expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(0)
+        assertThat "No watch events are expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(0)
+    }
+
+    void assertAllEventsAreProcessed(def subDirName,def innerFile, def innerFileName){
+        //This could vary across different platforms. For more information see "Platform dependencies" section in the WatchService documentation
+        def expectedEvents = SystemUtils.IS_OS_LINUX ? 1 : 2
+
+        waitForAssert({assertThat "Exactly $expectedEvents watch events were expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)},30*1000)
+
+        if(SystemUtils.IS_OS_MAC_OSX) {
+            FullEvent dirEvent = watchService.allFullEvents[0]
+            assertThat "Directory $subDirName modification was not detected. All events detected: " + watchService.allFullEvents, dirEvent.eventKind, is(ENTRY_MODIFY)
+            assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(subDirName)
+
+            FullEvent fileEvent = watchService.allFullEvents[1]
+            assertThat "File '$innerFile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents, fileEvent.eventKind, is(ENTRY_CREATE)
+            assertThat "File '$innerFile.absolutePath' name expected in the modified event. All events detected: " + watchService.allFullEvents, fileEvent.eventPath.toString(), is(innerFileName)
+
+        } else {
+            FullEvent fileEvent = watchService.allFullEvents[0]
+            assertThat "File '$innerFile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents, fileEvent.eventKind, is(ENTRY_CREATE)
+            assertThat "File '$innerFile.absolutePath' name expected in the modified event. All events detected: " + watchService.allFullEvents, fileEvent.eventPath.toString(), is(innerFileName)
+
+            if(SystemUtils.IS_OS_WINDOWS) {
+                FullEvent dirEvent = watchService.allFullEvents[1]
+                assertThat "Directory $subDirName modification was not detected. All events detected: " + watchService.allFullEvents, dirEvent.eventKind, is(ENTRY_MODIFY)
+                assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(subDirName)
+            }
+        }
+
+    }
+
+    void assertDirectoryCraeteEventIsProcessed(def subDirName) {
+        //Single event for directory creation is present
+        def expectedEvents = 1
+        waitForAssert{assertThat "Exactly $expectedEvents watch events were expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)}
+        FullEvent event = watchService.allFullEvents[0]
+        assertThat "Directory $subDirName craetion was not detected. All events detected: " + watchService.allFullEvents, event.eventKind, is(ENTRY_CREATE)
+        assertThat "Subdirectory was not found in the creation event", event.eventPath.toString(), is(subDirName)
+    }
+
+    void assertFileCreateEventIsProcessed(def innerFile, def innerFileName) {
+        //Single event for file creation is present
+        def expectedEvents = 1
+        waitForAssert{assertThat "Exactly $expectedEvents watch events were expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)}
+        FullEvent fileEvent = watchService.allFullEvents[0]
+        assertThat "File '$innerFile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents, fileEvent.eventKind, is(ENTRY_CREATE)
+        assertThat "File '$innerFile.absolutePath' name expected in the modified event. All events detected: " + watchService.allFullEvents, fileEvent.eventPath.toString(), is(innerFileName)
+    }
+
+    void assertDirectoryModifyEventIsProcessed(def subDirName) {
+        //Create file is not detected, only the modification event is detected
+        def expectedEvents = SystemUtils.IS_OS_LINUX ? 0 : 1
+        waitForAssert{assertThat "Exactly $expectedEvents watch events were expected, but were: " + watchService.allFullEvents, watchService.allFullEvents.size(), is(expectedEvents)}
+
+        if(!SystemUtils.IS_OS_LINUX){
+            FullEvent dirEvent = watchService.allFullEvents[0]
+            assertThat "Directory $subDirName modification was not detected. All events detected: " + watchService.allFullEvents, dirEvent.eventKind, is(ENTRY_MODIFY)
+            assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(subDirName)
+        } else {
+            assertThat "No events are expected in Linux OS" + watchService.allFullEvents, watchService.allFullEvents.size(), is(0)
+        }
     }
 
     void assertByRelativePath(String fileName) {
@@ -235,6 +308,7 @@ class AbstractWatchServiceTest extends OSGiTest {
 
         // We have to be sure that all the subdirectories of the watched directory are created when the watched service is activated
         watchService.activate()
+        waitForAssert {assertThat watchService.watchService,is(notNullValue())}
 
         boolean isCreated = file.createNewFile()
         assertThat "The file '$file.absolutePath' was not created successfully", isCreated, is(true)
@@ -252,10 +326,11 @@ class AbstractWatchServiceTest extends OSGiTest {
     }
 
     void fullEventAssertionsByKind(String fileName, kind, osSpecific){
-        waitForAssert({
-            assertThat "At least one watch event is expected within $NO_EVENT_TIMEOUT_IN_SECONDS seconds.",
-                            watchService.allFullEvents.size() >= 1,
-                            is(true)},NO_EVENT_TIMEOUT_IN_SECONDS*1000,1000);
+        waitForAssert{
+            assertThat "At least one watch event is expected",
+                    watchService.allFullEvents.size() >= 1,
+                    is(true)
+        }
 
         if(osSpecific && kind.equals(ENTRY_DELETE)){
             // There is possibility that one more modify event is triggered on some OS
@@ -311,16 +386,17 @@ class AbstractWatchServiceTest extends OSGiTest {
 
 
         @Override
-        protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,Map<WatchKey, Path> registeredKeys) {
-            def queueReader = new AbstractWatchQueueReader(watchService, toWatch,registeredKeys) {
-                                @Override
-                                protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
-                                    FullEvent fullEvent = new FullEvent(event,kind,path)
-                                    allFullEvents << fullEvent
-                                }
-                            };
+        protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchServiceImpl, Path toWatch,Map<WatchKey, Path> registeredKeys) {
+            def queueReader = new AbstractWatchQueueReader(watchServiceImpl, toWatch,registeredKeys) {
+                        @Override
+                        protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
+                            FullEvent fullEvent = new FullEvent(event,kind,path)
+                            allFullEvents << fullEvent
+                        }
+                    };
             queueReader.setWatchingDirectoryChanges(watchDirectoryChanges)
             return queueReader
+
         }
 
         @Override
