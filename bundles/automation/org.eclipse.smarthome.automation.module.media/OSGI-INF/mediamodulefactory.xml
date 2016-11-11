@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.automation.module.media">
+   <implementation class="org.eclipse.smarthome.automation.module.media.internal.MediaModuleHandlerFactory"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.automation.handler.ModuleHandlerFactory"/>
+   </service>
+   <reference bind="setVoiceManager" cardinality="1..1" interface="org.eclipse.smarthome.core.voice.VoiceManager" name="VoiceManager" policy="static" unbind="unsetVoiceManager"/>
+   <reference bind="setAudioManager" cardinality="1..1" interface="org.eclipse.smarthome.core.audio.AudioManager" name="AudioManager" policy="static" unbind="unsetAudioManager"/>
+</scr:component>
