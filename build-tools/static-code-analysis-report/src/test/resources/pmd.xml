@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Resource used in the test in order an .html report to be build. Does not point to real files in the file system. -->
+<pmd version="4.2.5" timestamp="2010-07-23T20:34:59.300">
+<file name="C:\Workspace\default_ant\src\org\sprunck\bee\Bee.java">
+<violation beginline="19" endline="19" begincolumn="13" endcolumn="20" rule="UselessOperationOnImmutable" ruleset="Basic Rules" package="org.sprunck.bee" class="Bee" method="toString" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#UselessOperationOnImmutable" priority="3">
+An operation on an Immutable object (String, BigDecimal or BigInteger) won't change the object itself
+</violation>
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\foo\Foo.java">
+<violation beginline="36" endline="36" begincolumn="13" endcolumn="17" rule="UnconditionalIfStatement" ruleset="Basic Rules" package="org.sprunck.foo" class="Foo" method="Went" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#UnconditionalIfStatement" priority="3">
+Do not use if statements that are always true or always false
+</violation>
+</file>
+</pmd>

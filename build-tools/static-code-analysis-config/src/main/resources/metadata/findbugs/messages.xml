@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Contains messages that will be used from the custom defined detectors and bug patterns in the findbugs.xml file-->
+<MessageCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="messagecollection.xsd">
+  <Plugin>
+    <ShortDescription>Eclipse SmartHome FindBugs Plugin</ShortDescription>
+  </Plugin>
+  <Detector class="org.eclipse.smarthome.buildtools.rules.findbugs.CustomClassNameLengthDetector">
+    <Details><![CDATA[<p>This is a class name length detector</p>]]></Details>
+  </Detector>
+  <BugPattern type="CUST_CLASS_NAME_LENGTH">
+    <ShortDescription>The name of the class exceeds the limit</ShortDescription>
+    <LongDescription>The name of the class exceeds the limit</LongDescription>
+    <Details><![CDATA[<p> Please shorten the name of the class </p>]]></Details>
+  </BugPattern>
+</MessageCollection>

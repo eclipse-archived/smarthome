@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Resource used in the test in order an .html report to be build. Does not point to real files in the file system. -->
+<checkstyle version="5.0">
+<file name="C:\Workspace\default_ant\src\org\sprunck\bee\Bee.java">
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\bee\package-info.java">
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\foo\Foo.java">
+<error line="10" severity="error" message="Line has trailing spaces." source="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck"/>
+<error line="20" severity="error" message="Line has trailing spaces." source="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck"/>
+<error line="30" column="26" severity="error" message="&apos;Went&apos; entspricht nicht dem Muster &apos;^[a-z][a-zA-Z0-9]*$&apos;." source="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck"/>
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\foo\package-info.java">
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\tests\BeeTest.java">
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\tests\FooTest.java">
+</file>
+<file name="C:\Workspace\default_ant\src\org\sprunck\tests\package-info.java">
+</file>
+</checkstyle>

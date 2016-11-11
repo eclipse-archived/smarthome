@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="POM Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>Rule set that contains custom defined rules regarding the pom.xml files</description>
+  
+  <rule name="AvoidOverridingParentPomConfiguration" message="Avoid overriding configuration inherited by parent pom"
+    class="net.sourceforge.pmd.lang.rule.XPathRule" language="pom">
+    <description>
+  Avoid overriding configuration inherited by parent pom
+  </description>
+    <properties>
+      <property name="xpath">
+        <value>
+<![CDATA[
+/project//*[@combine.self="override"]
+
+]]>
+    </value>
+      </property>
+    </properties>
+    <example>
+<![CDATA[
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  ...
+  <environments combine.self="override"></environments>
+  ...
+</project> 
+]]>
+  </example>
+  </rule>
+</ruleset>

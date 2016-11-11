@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!-- 
+    Checkstyle configuration that checks if a bundle is matching the Coding Guidelines in the Eclipse SmartHome project.
+    
+    For more information about the guidelines see - http://www.eclipse.org/smarthome/documentation/development/guidelines.html. 
+    
+    Note that some of the required checks may be provided by some of the other plugins used in the Static Code Analysis tool.
+ -->
+
+<module name="Checker">
+  <!-- Checks whether files end with a new line. -->
+  <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
+  <module name="NewlineAtEndOfFile">
+    <!-- Valid options are "ignore", "info", "warning", "error" -->
+    <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
+    <property name="severity" value="warning" />
+  </module>
+
+  <!--See http://checkstyle.sourceforge.net/config_header.html#Header -->
+  <module name="Header">
+    <property name="severity" value="info" />
+  </module>
+
+  <module name="TreeWalker">
+    <!-- See http://checkstyle.sourceforge.net/config_coding.html#IllegalThrows -->
+    <module name="IllegalThrows">
+      <property name="severity" value="warning" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_coding.html#MagicNumber -->
+    <module name="MagicNumber">
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_coding.html#OneStatementPerLine -->
+    <module name="OneStatementPerLine">
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_javadoc.html#JavadocMethod -->
+    <module name="JavadocMethod">
+      <property name="scope" value="public" />
+      <property name="allowUndeclaredRTE" value="true" />
+      <property name="allowMissingParamTags" value="true" />
+      <property name="allowMissingThrowsTags" value="true" />
+      <property name="allowMissingReturnTag" value="true" />
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_javadoc.html#JavadocType -->
+    <module name="JavadocType">
+      <property name="scope" value="public" />
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
+    <module name="TodoComment">
+      <property name="format" value="(TODO)|(FIXME)" />
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MemberName -->
+    <module name="MemberName">      
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MethodName -->
+    <module name="MethodName">
+      <property name="severity" value="info" />
+    </module>
+    <!-- http://checkstyle.sourceforge.net/config_naming.html#PackageName -->
+    <module name="PackageName">
+      <property name="severity" value="info" />
+    </module>
+  </module>
+</module>

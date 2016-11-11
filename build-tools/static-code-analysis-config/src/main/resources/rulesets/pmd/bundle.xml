@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<ruleset name="Default Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>Default set of PMD rules used for checking all bundles Eclipse SmartHome project</description>
+
+  <!-- This is a custom defined rule -->
+  <rule name="WhileLoopsMustUseBracesRule" message="Avoid using 'while' statements without curly braces" class="org.eclipse.smarthome.buildtools.rules.pmd.WhileLoopsMustUseBracesRule">
+    <description>Avoid using 'while' statements without using curly braces</description>
+    <priority>3</priority>
+  </rule>
+
+  <!-- Another custom defined rule (with XPath expression) -->
+  <rule ref="rulesets/pmd/xpath/classpath.xml/AvoidMavenPomderivedInClasspath">
+    <priority>3</priority>
+  </rule>
+  
+  <rule ref="rulesets/pmd/xpath/pom.xml/AvoidOverridingParentPomConfiguration">
+    <priority>3</priority>
+  </rule>
+  
+  <!-- See http://pmd.sourceforge.net/pmd-4.3.0/rules/basic.html for all below -->
+  <rule ref="rulesets/java/empty.xml/EmptyCatchBlock">
+    <!-- Priorities range in value from 1 to 5, with 5 being the lowest priority -->
+    <!-- 1 : high priority -->
+    <!-- 2 : medium high priority -->
+    <!-- 3 : medium priority -->
+    <!-- 4 : medium low priority -->
+    <!-- 5 : low priority -->
+    <!-- See http://pmd.github.io/pmd-5.0.1/apidocs/net/sourceforge/pmd/RulePriority.html -->
+    <priority>4</priority>
+  </rule>
+
+  <rule ref="rulesets/java/empty.xml/EmptyIfStmt">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyWhileStmt">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyTryBlock">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyFinallyBlock">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptySwitchStatements">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptySynchronizedBlock">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyStaticInitializer">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/MisplacedNullCheck">
+    <priority>3</priority>
+  </rule>
+
+  <!-- See http://pmd.sourceforge.net/pmd-4.3.0/rules/#Import_Statement_Rules -->
+  <rule ref="rulesets/java/imports.xml/DuplicateImports">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/imports.xml/UnusedImports">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/imports.xml/ImportFromSamePackage">
+    <priority>4</priority>
+  </rule>
+
+  <!-- See http://pmd.sourceforge.net/pmd-4.3.0/rules/#Java_Logging_Rules -->
+  <rule ref="rulesets/java/logging-java.xml/MoreThanOneLogger">
+    <priority>4</priority>
+  </rule>
+
+
+  <!-- See http://pmd.sourceforge.net/pmd-4.3.0/rules/#Naming_Rules -->
+  <rule ref="rulesets/java/naming.xml/MethodNamingConventions">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/ClassNamingConventions">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/VariableNamingConventions">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/PackageCase">
+    <priority>5</priority>
+  </rule>
+
+  <!-- See http://pmd.sourceforge.net/pmd-4.3.0/rules/#Strict_Exception_Rules -->
+  <rule ref="rulesets/java/strictexception.xml/AvoidCatchingNPE">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidThrowingNullPointerException">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/DoNotThrowExceptionInFinally">
+    <priority>3</priority>
+  </rule>
+
+</ruleset>

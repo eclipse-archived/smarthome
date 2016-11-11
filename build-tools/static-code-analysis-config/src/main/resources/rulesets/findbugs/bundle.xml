@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+
+<FindBugsFilter>
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD -->
+    <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD" />
+    <!-- 1 : high-priority warnings -->
+    <!-- 2 : normal-priority warnings -->
+    <!-- 3 : low-priority warnings -->
+    <!-- See http://findbugs.sourceforge.net/manual/filter.html -->
+    <Priority value="2" />
+  </Match>
+
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#ES_COMPARING_PARAMETER_STRING_WITH_EQ -->
+    <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ" />
+    <Priority value="2" />
+  </Match>
+  
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#ES_COMPARING_STRINGS_WITH_EQ -->
+    <Bug pattern="ES_COMPARING_STRINGS_WITH_EQ" />
+    <Priority value="2" />
+  </Match>
+  
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#OS_OPEN_STREAM -->
+    <Bug pattern="OS_OPEN_STREAM" />
+    <Priority value="2" />
+  </Match>
+  
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#OS_OPEN_STREAM_EXCEPTION_PATH -->
+    <Bug pattern="OS_OPEN_STREAM_EXCEPTION_PATH" />
+    <Priority value="2" />
+  </Match>
+  
+  <Match>
+    <!-- See http://findbugs.sourceforge.net/bugDescriptions.html#IJU_NO_TESTS -->
+    <Bug pattern="IJU_NO_TESTS" />
+    <Priority value="2" />
+  </Match>
+</FindBugsFilter>

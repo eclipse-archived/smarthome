@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Custom defined detectors and bug patterns have to be included in this plugin before they are used in some of the FindBugs rule sets -->
+<FindbugsPlugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="findbugsplugin.xsd"
+                pluginid="org.eclipse.smarthome.buildtools"
+                defaultenabled="true"
+                provider="Eclipse SmartHome">
+  <Detector class="org.eclipse.smarthome.buildtools.rules.findbugs.CustomClassNameLengthDetector" speed="fast" reports="CUST_CLASS_NAME_LENGTH" disabled="false"/>
+  <BugPattern type="CUST_CLASS_NAME_LENGTH" abbrev="CCNL" category="BAD_PRACTICE" />
+</FindbugsPlugin>
