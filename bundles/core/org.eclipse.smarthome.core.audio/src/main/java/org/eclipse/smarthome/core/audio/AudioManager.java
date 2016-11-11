@@ -20,6 +20,11 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 public interface AudioManager {
 
     /**
+     * Name of the sub-directory of the config folder, holding sound files.
+     */
+    static final String SOUND_DIR = "sounds";
+
+    /**
      * Plays the passed audio stream using the default audio sink.
      *
      * @param audioStream The audio stream to play
