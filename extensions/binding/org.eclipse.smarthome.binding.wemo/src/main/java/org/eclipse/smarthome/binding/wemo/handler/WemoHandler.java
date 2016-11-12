@@ -84,7 +84,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
         public void run() {
             try {
                 if (!isUpnpDeviceRegistered()) {
-                    logger.warn("WeMo UPnP device {} not yet registered", getUDN());
+                    logger.debug("WeMo UPnP device {} not yet registered", getUDN());
                     updateStatus(ThingStatus.OFFLINE);
                     return;
                 }
@@ -358,10 +358,8 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
             if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
                 subscription = "insight1";
-
             } else {
                 subscription = "basicevent1";
-                service.addSubscription(this, "basicevent1", SUBSCRIPTION_DURATION);
             }
 
             if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
@@ -371,7 +369,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             }
 
         } else {
-            logger.warn("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
+            logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
         }
     }
@@ -388,7 +386,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
             } else {
                 subscription = "basicevent1";
-                service.addSubscription(this, "basicevent1", SUBSCRIPTION_DURATION);
             }
 
             if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
@@ -403,7 +400,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     }
 
     private synchronized void onUpdate() {
-        // if (service.isRegistered(this)) {
         if (refreshJob == null || refreshJob.isCancelled()) {
             Configuration config = getThing().getConfiguration();
             int refreshInterval = DEFAULT_REFRESH_INTERVAL;
@@ -413,9 +409,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             }
             refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
-        // } else {
-        // logger.error("onUpdate FAILED for '{}' service.isRegistered(this) was FALSE", this);
-        // }
     }
 
     private boolean isUpnpDeviceRegistered() {
