@@ -13,6 +13,7 @@
 				<option value="png">Bitmap</option>
 				<option value="svg">Vector</option>
 			</options>
+			<default>svg</default>
 		</parameter>
 		<parameter name="defaultSitemap" type="text" required="false">
 			<label>Default Sitemap</label>
@@ -26,6 +27,7 @@
 				<option value="true">Yes</option>
 				<option value="false">No</option>
 			</options>
+			<default>false</default>
 		</parameter>
 	</config-description>
 
