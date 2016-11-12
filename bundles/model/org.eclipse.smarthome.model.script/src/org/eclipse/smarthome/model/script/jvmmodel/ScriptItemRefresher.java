@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,14 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         this.itemRegistry = null;
     }
 
+    protected void addActionService(ActionService actionService) {
+        scheduleScriptRefresh();
+    }
+
+    protected void removeActionService(ActionService actionService) {
+        scheduleScriptRefresh();
+    }
+
     @Override
     public void added(Item element) {
         scheduleScriptRefresh();
@@ -86,7 +95,6 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         public void run() {
             try {
                 modelRepository.reloadAllModelsOfType("script");
-                modelRepository.reloadAllModelsOfType("rules");
             } catch (Exception e) {
                 logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
             }
