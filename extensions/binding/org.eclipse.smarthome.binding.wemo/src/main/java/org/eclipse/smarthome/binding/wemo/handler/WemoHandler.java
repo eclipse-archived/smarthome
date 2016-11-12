@@ -84,7 +84,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
         public void run() {
             try {
                 if (!isUpnpDeviceRegistered()) {
-                    logger.debug("WeMo UPnP device {} not yet registered", getUDN());
+                    logger.warn("WeMo UPnP device {} not yet registered", getUDN());
                     updateStatus(ThingStatus.OFFLINE);
                     return;
                 }
@@ -119,7 +119,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
         if (configuration.get("udn") != null) {
             logger.debug("Initializing WemoHandler for UDN '{}'", configuration.get("udn"));
-            // onSubscription();
+            onSubscription();
             onUpdate();
             super.initialize();
         } else {
@@ -135,7 +135,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                 logger.trace("Discovered UDN '{}' for thing '{}'", result.getProperties().get(UDN),
                         getThing().getUID());
                 updateStatus(ThingStatus.ONLINE);
-                // onSubscription();
+                onSubscription();
                 onUpdate();
             }
         }
