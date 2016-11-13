@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,14 @@ public class RulesItemRefresher implements ItemRegistryChangeListener {
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry.removeRegistryChangeListener(this);
         this.itemRegistry = null;
+    }
+
+    protected void addActionService(ActionService actionService) {
+        scheduleRuleRefresh();
+    }
+
+    protected void removeActionService(ActionService actionService) {
+        scheduleRuleRefresh();
     }
 
     @Override
