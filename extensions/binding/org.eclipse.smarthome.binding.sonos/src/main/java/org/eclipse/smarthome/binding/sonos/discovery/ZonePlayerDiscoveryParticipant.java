@@ -7,15 +7,12 @@
  */
 package org.eclipse.smarthome.binding.sonos.discovery;
 
-import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.BINDING_ID;
-import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.IDENTIFICATION;
-import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
+import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -29,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link ZonePlayerDiscoveryParticipant} is responsible processing the
  * results of searches for UPNP devices
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant {
@@ -52,11 +49,11 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
             } catch (Exception e) {
                 // ignore and use default label
             }
-            properties.put(UDN, device.getIdentity().getUdn().getIdentifierString());
-            properties.put(IDENTIFICATION, getSonosRoomName(device));
+            properties.put(ZonePlayerConfiguration.UDN, device.getIdentity().getUdn().getIdentifierString());
+            properties.put(SonosBindingConstants.IDENTIFICATION, getSonosRoomName(device));
 
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label)
-                    .withRepresentationProperty(IDENTIFICATION).build();
+                    .withRepresentationProperty(SonosBindingConstants.IDENTIFICATION).build();
 
             logger.debug("Created a DiscoveryResult for device '{}' with UDN '{}'",
                     device.getDetails().getFriendlyName(), device.getIdentity().getUdn().getIdentifierString());
@@ -72,7 +69,7 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
             if (device.getDetails().getManufacturerDetails().getManufacturer() != null) {
                 if (device.getDetails().getManufacturerDetails().getManufacturer().toUpperCase().contains("SONOS")) {
 
-                    ThingTypeUID thingUID = new ThingTypeUID(BINDING_ID, getModelName(device));
+                    ThingTypeUID thingUID = new ThingTypeUID(SonosBindingConstants.BINDING_ID, getModelName(device));
 
                     // In case a new "unknown" Sonos player is discovered a generic ThingTypeUID will be used
                     if (!SonosBindingConstants.SUPPORTED_KNOWN_THING_TYPES_UIDS.contains(thingUID)) {
