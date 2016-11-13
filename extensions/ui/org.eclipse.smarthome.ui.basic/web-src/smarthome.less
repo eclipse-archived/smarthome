@@ -393,7 +393,7 @@
 	
 	.expand();
 	.flex-display(flex);
-	overflow-y: scroll;
+	overflow-y: auto;
 	
 	.align-items(center);
 	.align-items-2011(center);
@@ -402,14 +402,21 @@
 	&--overflow {
 		display: block;
 	}
-	&__content {
+	&__wrapper {
 		flex-grow: 2;
 		max-width: 800px;
 		width: 100%;
-		margin: 40px 100px;
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			margin: 20px;
+		margin: auto;
+		padding: 40px 100px;
+		.ui-layout-condensed & {
+			padding: 10px;
 		}
+		@media screen and (max-width: @layout-tablet-size-threshold) {
+			padding: 20px;
+		}
+	}
+	&__content {
+		margin: 0 auto;
 	}
 }
 
