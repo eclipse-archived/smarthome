@@ -15,4 +15,5 @@
  <service>
     <provide interface="org.eclipse.smarthome.model.script.jvmmodel.ScriptItemRefresher"/>
  </service>
+ <reference bind="addActionService" cardinality="0..n" interface="org.eclipse.smarthome.model.script.engine.action.ActionService" name="ActionService" policy="dynamic" unbind="removeActionService"/>
 </scr:component>
