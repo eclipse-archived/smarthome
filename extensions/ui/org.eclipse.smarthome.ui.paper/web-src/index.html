@@ -43,11 +43,11 @@
 </noscript>
 </head>
 
-<body ng-controller="BodyController" ng-class="{'eventSourceWarning':!eventSourceDefined}">
+<body ng-controller="BodyController">
 	<div id="authentication" data-access-token="{{ACCESS_TOKEN}}"></div>
-	<div ng-class="{'jsDisabled':!eventSourceDefined}" ng-show="!eventSourceDefined">PaperUI works best with modern browsers. Please use Chrome, Firefox, Opera or Safari instead.</div>
-	<div class="jsEnabled" ng-include="'partials/include.extension.html'"></div>
-	<div class="jsEnabled" ng-include="'partials/navigation.menu.html'"></div>
+
+	<div ng-include="'partials/include.extension.html'"></div>
+	<div ng-include="'partials/navigation.menu.html'"></div>
 
 	<div class="jsEnabled" id="wrapper">
 		<header>
@@ -82,6 +82,8 @@
 	<script src="js/masonry.pkgd.min.js"></script>
 
 	<script src="js/sprintf.min.js"></script>
+
+	<script src="js/eventsource.min.js"></script>
 
 	<!-- inject:js -->
 	<!-- endinject -->

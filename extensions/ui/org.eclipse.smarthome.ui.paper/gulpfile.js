@@ -67,6 +67,9 @@ var paths = {
         ],
         'name': 'jquery-ui.js'
     }],
+    JSMisc: [
+        './node_modules/eventsource-polyfill/dist/eventsource.js'  
+    ],
     CSSLibs: [
         './node_modules/bootstrap/dist/css/bootstrap.min.css',
         './node_modules/angular-material/angular-material.min.css',
@@ -78,7 +81,7 @@ var paths = {
 };
 
 gulp.task('default', ['build','inject']);
-gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyJQUI', 'copyStatic', 'copyPartials']);
+gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyJQUI', 'copyJSMisc', 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
@@ -114,6 +117,16 @@ gulp.task('copyJQUI', function() {
             .pipe(uglify())
             .pipe(gulp.dest('./web/js'));
     });
+});
+
+gulp.task('copyJSMisc', function () {
+    return gulp.src(paths.JSMisc)
+        .pipe(rename(function (path) {
+                path.basename += '.min';
+                return path;
+            }))
+        .pipe(uglify())
+        .pipe(gulp.dest('./web/js'));
 });
 
 gulp.task('copyCSSLibs', function () {
