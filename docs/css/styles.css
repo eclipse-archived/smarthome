@@ -157,22 +157,40 @@ section h2 {
 }
 
 section h3 {
-	font-size: 24px;
-	margin: 30px 0px;
+	font-size: 22px;
+	margin: 28px 0px;
+}
+
+section h4 {
+	font-size: 20px;
+	margin: 26px 0px;
+}
+
+section h5 {
+	font-size: 18px;
+	margin: 24px 0px;
 }
 
 @media only screen and (max-width: 600px) {
     section h1 {
-    	font-size: 36px;
+        font-size: 36px;
         line-height: 48px;
     }
     section h2 {
-    	font-size: 18px;
+        font-size: 18px;
         line-height: 24px;
     }
     section h3 {
-    	font-size: 18px;
-        line-height: 24px;
+        font-size: 16px;
+        line-height: 22px;
+    }
+    section h4 {
+        font-size: 14px;
+        line-height: 20px;
+    }
+    section h5 {
+        font-size: 12px;
+        line-height: 18px;
     }
 }
 
@@ -294,12 +312,12 @@ body.landing section#targets .col:last-child {
 	border-right: 0px;
 }
 
-body.landing section#targets h3, section#targets h2 {
+body.landing section#targets h3, section#targets h2, section#targets h4, section#targets h5 {
 	color: white;
 	margin: 0px;
 }
 
-body.landing section#targets h3.benefit {
+body.landing section#targets h3.benefit, section#targets h4.benefit, section#targets h5.benefit {
 	margin: 30px 0px 50px;
 	font-weight: 300;
 }
@@ -509,16 +527,31 @@ section.text h2 {
 	line-height: 2.7rem;
 	text-transform: none;
 	font-weight: normal;
-	margin: 5px 0px 20px;
+	margin: 5px 0px 18px;
 }
 
 section.text h3 {
 	font-size: 1.6rem;
-	line-height: 2.4rem; 
-    font-weight : normal;
+	line-height: 2.4rem;
+	font-weight : normal;
+	margin: 5px 0px 16px;
 	color: #01324D;
-	font-weight: normal; color : #01324D;
-	margin: 5px 0px 20px;
+}
+
+section.text h4 {
+	font-size: 1.4rem;
+	line-height: 2.1rem;
+	font-weight : normal;
+	margin: 5px 0px 12px;
+	color: #01324D;
+}
+
+section.text h5 {
+	font-size: 1.2rem;
+	line-height: 1.8rem;
+	font-weight : normal;
+	margin: 3px 0px 8px;
+	color: #01324D;
 }
 
 section.text p, section.text table, section.text ul,
@@ -527,8 +560,13 @@ section.text p, section.text table, section.text ul,
 }
 
 section.text ul {
+	margin-bottom: 5px;
 	margin-left: 40px;
-    list-style-position: outside;
+	list-style-position: outside;
+}
+
+section.text ul#markdown-toc {
+    margin-bottom: 20px;
 }
 
 section.text ul li {
@@ -683,6 +721,11 @@ section.text ul.nav ul {
     background-color: #F6F6F6;
 }
 
+section.text ul.nav hr, section.text div.content hr {
+    border: 1px solid #CCC;
+    margin: 6px 2px 4px 2px;
+}
+
 /* Documentation */
 
 body.documentation .container {
@@ -721,10 +764,12 @@ body.documentation section#documentation .content img {
 	max-width: 100%;
 	height: auto;
 }
+
 body.documentation section#documentation .content > h1:first-child {
 	margin-top: 0px;
 }
-body.documentation section#documentation h2:before, body.documentation section#documentation h3:before { 
+
+body.documentation section#documentation h2:before, body.documentation section#documentation h3:before, body.documentation section#documentation h4:before, body.documentation section#documentation h5:before {
 	display: block; 
  	content: " "; 
   	height: 100px; 
@@ -732,7 +777,7 @@ body.documentation section#documentation h2:before, body.documentation section#d
     visibility: hidden; 
 }
 
-body.documentation section#documentation h2:after, body.documentation section#documentation h3:after {
+body.documentation section#documentation h2:after, body.documentation section#documentation h3:after, body.documentation section#documentation h4:after, body.documentation section#documentation h5:after {
 	font-family: "Material-Design-Icons";
 	speak: none;
 	font-style: normal;
@@ -748,6 +793,6 @@ body.documentation section#documentation h2:after, body.documentation section#do
 	cursor: pointer;
 }
 
-body.documentation section#documentation h2:hover:after, body.documentation section#documentation h3:hover:after  {
+body.documentation section#documentation h2:hover:after, body.documentation section#documentation h3:hover:after, body.documentation section#documentation h4:hover:after, body.documentation section#documentation h5:hover:after {
 	visibility: visible;
 }
