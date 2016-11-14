@@ -1,0 +1,18 @@
+{  
+   "actions":[  
+      {  
+         "uid":"SayAction",
+         "label":"Speak Text",
+         "description":"Speaks a given text through a natural voice",
+         "configDescriptions":[  
+            {  
+               "name":"text",
+               "type":"TEXT",
+               "label":"Text",
+               "description":"The text to speak",
+               "required":true
+            }
+         ]
+      }
+   ]
+}
