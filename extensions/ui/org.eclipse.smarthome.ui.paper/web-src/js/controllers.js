@@ -36,30 +36,38 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     };
 
     var numberOfInboxEntries = -1, prevAudioUrl = '';
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (typeof (window.AudioContext) != "undefined") {
-        var context = new AudioContext();
-    }
     eventService.onEvent('smarthome/inbox/*/added', function(topic, discoveryResult) {
         toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/search');
     });
     eventService.onEvent('smarthome/webaudio/playurl', function(topic, audioUrl) {
         if (prevAudioUrl !== audioUrl) {
-            if (context) {
-                var audioBuffer = null;
-                $http({
-                    url : audioUrl,
-                    method : 'GET',
-                    responseType : 'arraybuffer'
-                }).then(function(response) {
-                    context.decodeAudioData(response.data, function(buffer) {
-                        audioBuffer = buffer;
-                        var source = context.createBufferSource();
-                        source.buffer = buffer;
-                        source.connect(context.destination);
-                        source.start(0);
+            var context;
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (typeof (window.AudioContext) != "undefined") {
+                try {
+                    context = new AudioContext();
+                    var audioBuffer = null;
+                    $http({
+                        url : audioUrl,
+                        method : 'GET',
+                        responseType : 'arraybuffer'
+                    }).then(function(response) {
+                        context.decodeAudioData(response.data, function(buffer) {
+                            audioBuffer = buffer;
+                            var source = context.createBufferSource();
+                            source.buffer = buffer;
+                            source.connect(context.destination);
+                            source.onended = function() {
+                                context.close();
+                            }
+                            source.start(0);
+                        });
                     });
-                });
+                } catch (e) {
+                    if (context) {
+                        context.close();
+                    }
+                }
             } else {
                 angular.element("#audioSink").attr('src', audioUrl);
             }
