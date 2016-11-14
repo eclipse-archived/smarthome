@@ -85,8 +85,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             try {
                 if (!isUpnpDeviceRegistered()) {
                     logger.debug("WeMo UPnP device {} not yet registered", getUDN());
-                    updateStatus(ThingStatus.OFFLINE);
-                    return;
                 }
 
                 updateWemoState();
