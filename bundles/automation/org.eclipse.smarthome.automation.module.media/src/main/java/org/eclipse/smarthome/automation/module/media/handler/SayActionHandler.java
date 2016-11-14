@@ -25,7 +25,7 @@ public class SayActionHandler extends BaseModuleHandler<Action> implements Actio
     public static final String TYPE_ID = "SayAction";
     private static final String PARAM_TEXT = "text";
 
-    private VoiceManager voiceManager;
+    private final VoiceManager voiceManager;
 
     public SayActionHandler(Action module, VoiceManager voiceManager) {
         super(module);

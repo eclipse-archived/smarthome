@@ -30,7 +30,7 @@ public class PlayActionHandler extends BaseModuleHandler<Action> implements Acti
 
     private final Logger logger = LoggerFactory.getLogger(PlayActionHandler.class);
 
-    private AudioManager audioManager;
+    private final AudioManager audioManager;
 
     public PlayActionHandler(Action module, AudioManager audioManager) {
         super(module);
