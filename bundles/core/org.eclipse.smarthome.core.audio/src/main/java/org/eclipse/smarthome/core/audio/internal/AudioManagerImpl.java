@@ -42,8 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
-    private static final String SOUND_DIR = "sounds";
-
     // constants for the configuration properties
     private static final String CONFIG_URI = "system:audio";
     private static final String CONFIG_DEFAULT_SINK = "defaultSink";
