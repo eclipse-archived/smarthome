@@ -139,7 +139,6 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         }
     });
 
-    $scope.eventSourceDefined = typeof (EventSource) !== "undefined";
     discoveryResultRepository.getAll();
     bindingRepository.getAll();
 }).controller('PreferencesPageController', function($rootScope, $scope, $window, $location, toastService) {

@@ -444,18 +444,6 @@ md-toast {
 	}
 }
 
-.eventSourceWarning, .eventSourceWarning .header-toolbar,
-	.eventSourceWarning .section-header, .eventSourceWarning header {
-	margin-top: 20px;
-}
-
-@media all and (max-width: 721px) {
-	.eventSourceWarning, .eventSourceWarning .header-toolbar,
-		.eventSourceWarning .section-header, .eventSourceWarning header {
-		margin-top: 40px;
-	}
-}
-
 .jsDisabled {
 	position: absolute;
 	top: 0px;
