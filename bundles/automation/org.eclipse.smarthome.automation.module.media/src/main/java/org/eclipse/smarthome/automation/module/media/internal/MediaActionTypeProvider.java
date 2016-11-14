@@ -77,8 +77,8 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
         File soundsDir = Paths.get(ConfigConstants.getConfigFolder(), AudioManager.SOUND_DIR).toFile();
         if (soundsDir.isDirectory()) {
             for (String fileName : soundsDir.list()) {
-                if (fileName.contains(".")) {
-                    String soundName = StringUtils.capitalize(fileName.substring(0, fileName.indexOf(".")));
+                if (fileName.contains(".") && !fileName.startsWith(".")) {
+                    String soundName = StringUtils.capitalize(fileName.substring(0, fileName.lastIndexOf(".")));
                     options.add(new ParameterOption(fileName, soundName));
                 }
             }
