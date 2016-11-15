@@ -56,6 +56,13 @@
         <tags>
             <tag>Lighting</tag>
         </tags>
+        <config-description>
+            <parameter name="powerOnBrightness" type="integer" min="0" max="100" required="false" unit="%">
+                <label>Power on brightness</label>
+                <description>Brightness level used when switching on the light. Use empty value to leave brightness as is.</description>
+                <default>100</default>
+            </parameter>
+        </config-description>
     </channel-type>
     
     <channel-type id="temperature">
@@ -73,6 +80,13 @@
         <tags>
             <tag>Lighting</tag>
         </tags>
+        <config-description>
+            <parameter name="powerOnBrightness" type="integer" min="0" max="100" required="false" unit="%">
+                <label>Power on brightness</label>
+                <description>Brightness level used when switching on the light. Use empty value to leave brightness as is.</description>
+                <default>100</default>
+            </parameter>
+        </config-description>
     </channel-type>
 
 </thing:thing-descriptions>
