@@ -10,15 +10,9 @@ package org.eclipse.smarthome.binding.sonos.config;
 public class ZonePlayerConfiguration {
 
     public static final String UDN = "udn";
-    public static final String FRIENDLY_NAME = "friendlyName";
-    public static final String IDENTIFICATION = "identification";
-    public static final String MODEL = "model";
-    public static final String DEVICE = "device";
+    public static final String REFRESH = "refresh";
 
     public String udn;
-    public String friendlyName;
-    public String ipAddress;
-    public String model;
-    public String device;
+    public Integer refresh;
 
 }
