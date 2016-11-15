@@ -908,7 +908,7 @@ md-dialog-content .dayParameter {
 	min-height: 48px;
 }
 
-.container.itemConfig .md-select-value {
+.container.itemConfig .md-select-value, .container .includeConfig .md-select-value {
 	padding: 2px 2px 1px 2px;
 }
 
