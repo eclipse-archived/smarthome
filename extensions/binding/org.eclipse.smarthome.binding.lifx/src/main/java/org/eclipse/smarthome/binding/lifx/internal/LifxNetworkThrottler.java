@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,8 +28,6 @@ import org.slf4j.LoggerFactory;
 public class LifxNetworkThrottler {
 
     private static Logger logger = LoggerFactory.getLogger(LifxNetworkThrottler.class);
-
-    public final static long PACKET_INTERVAL = 50;
 
     /**
      * Tracks when the last packet was sent to a LIFX bulb. The packet is sent after obtaining the lock and before
