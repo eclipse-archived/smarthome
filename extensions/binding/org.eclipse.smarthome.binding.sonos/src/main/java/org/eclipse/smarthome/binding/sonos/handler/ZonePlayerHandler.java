@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.binding.sonos.handler;
 
 import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
-import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,13 +29,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
+import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.binding.sonos.internal.SonosAlarm;
 import org.eclipse.smarthome.binding.sonos.internal.SonosEntry;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -197,9 +196,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return;
         }
 
-        Configuration configuration = getConfig();
-
-        if (configuration.get("udn") != null) {
+        if (getUDN() != null) {
             updateStatus(ThingStatus.ONLINE);
             this.discoveryServiceRegistry.addDiscoveryListener(this);
             onUpdate();
@@ -213,9 +210,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     @Override
     public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
         if (result.getThingUID().equals(this.getThing().getUID())) {
-            if (getThing().getConfiguration().get(UDN).equals(result.getProperties().get(UDN))) {
-                logger.debug("Discovered UDN '{}' for thing '{}'", result.getProperties().get(UDN),
-                        getThing().getUID());
+            if (getUDN().equals(result.getProperties().get(ZonePlayerConfiguration.UDN))) {
+                logger.debug("Discovered UDN '{}' for thing '{}'",
+                        result.getProperties().get(ZonePlayerConfiguration.UDN), getThing().getUID());
                 updateStatus(ThingStatus.ONLINE);
                 onUpdate();
             }
@@ -684,12 +681,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private void onUpdate() {
         if (pollingJob == null || pollingJob.isCancelled()) {
-            Configuration config = getThing().getConfiguration();
+            ZonePlayerConfiguration config = getConfigAs(ZonePlayerConfiguration.class);
             // use default if not specified
             int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-            Object refreshConfig = config.get("refresh");
-            if (refreshConfig != null) {
-                refreshInterval = ((BigDecimal) refreshConfig).intValue();
+            if (config.refresh != null) {
+                refreshInterval = config.refresh.intValue();
             }
             pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
@@ -787,13 +783,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(stateMap.get("ZoneGroupState"));
 
             for (SonosZoneGroup zg : zoneGroups) {
-                if (zg.getMembers().contains(getThing().getConfiguration().get(UDN))) {
+                if (zg.getMembers().contains(getUDN())) {
                     return zg.getCoordinator();
                 }
             }
         }
 
-        return (String) getThing().getConfiguration().get(UDN);
+        return getUDN();
     }
 
     public boolean isCoordinator() {
@@ -1002,7 +998,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public String getUDN() {
-        return (String) this.getThing().getConfiguration().get(UDN);
+        return getConfigAs(ZonePlayerConfiguration.class).udn;
     }
 
     public String getCurrentURI() {
@@ -1436,7 +1432,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(zoneGroupState);
 
             for (SonosZoneGroup zoneGroup : zoneGroups) {
-                if (zoneGroup.getMembers().contains(getThing().getConfiguration().get(UDN))) {
+                if (zoneGroup.getMembers().contains(getUDN())) {
                     return zoneGroup;
                 }
             }
@@ -1726,7 +1722,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 coordinatorHandler.stop();
 
                 // set the URI
-                coordinatorHandler.setCurrentURI("x-rincon-stream:" + remoteHandler.getConfig().get(UDN), "");
+                coordinatorHandler.setCurrentURI("x-rincon-stream:" + remoteHandler.getUDN(), "");
 
                 // take the system off mute
                 coordinatorHandler.setMute(OnOffType.OFF);
@@ -1765,14 +1761,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(stateMap.get("ZoneGroupState"));
 
             for (SonosZoneGroup zg : zoneGroups) {
-                if (zg.getMembers().contains(getThing().getConfiguration().get(UDN))) {
+                if (zg.getMembers().contains(getUDN())) {
                     result.addAll(zg.getMembers());
                     break;
                 }
             }
         } else {
             // If the group topology was not yet received, return at least the current Sonos zone
-            result.add((String) getThing().getConfiguration().get(UDN));
+            result.add(getUDN());
         }
         return result;
     }
@@ -1785,7 +1781,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     protected List<String> getOtherZoneGroupMembers() {
         List<String> zoneGroupMembers = getZoneGroupMembers();
-        zoneGroupMembers.remove(getThing().getConfiguration().get(UDN));
+        zoneGroupMembers.remove(getUDN());
         return zoneGroupMembers;
     }
 
@@ -1800,7 +1796,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             Collection<Thing> allThings = thingRegistry.getAll();
             for (Thing aThing : allThings) {
                 if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(aThing.getThingTypeUID())
-                        && aThing.getConfiguration().get(UDN).equals(remotePlayerName)) {
+                        && aThing.getConfiguration().get(ZonePlayerConfiguration.UDN).equals(remotePlayerName)) {
                     return (ZonePlayerHandler) aThing.getHandler();
                 }
             }

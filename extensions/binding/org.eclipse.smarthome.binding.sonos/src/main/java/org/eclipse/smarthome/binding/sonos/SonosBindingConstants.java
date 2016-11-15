@@ -92,4 +92,7 @@ public class SonosBindingConstants {
     public final static String CURRENTTRANSPORTURI = "currenttransporturi";
     public final static String CURRENTTRACKURI = "currenttrackuri";
 
+    // List of properties
+    public static final String IDENTIFICATION = "identification";
+
 }
