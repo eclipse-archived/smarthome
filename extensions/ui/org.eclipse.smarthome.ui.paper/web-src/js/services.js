@@ -163,12 +163,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.inputType = 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
-                    if (parameter.options && parameter.options.length > 0) {
-                        if (parameter.multiple) {
-                            parameter.element = 'multiSelect';
-                        } else {
-                            parameter.element = "select";
-                        }
+                    if (parameter.multiple) {
+                        parameter.element = 'multiSelect';
+                        parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
+                    } else if (parameter.options && parameter.options.length > 0) {
+                        parameter.element = "select";
                         parameter.options = parameter.options;
                     } else {
                         parameter.element = 'input';
