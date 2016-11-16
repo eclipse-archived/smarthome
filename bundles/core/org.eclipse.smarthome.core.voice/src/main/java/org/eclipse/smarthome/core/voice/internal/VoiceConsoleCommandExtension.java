@@ -71,7 +71,8 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     return;
                 case SUBCMD_VOICES:
                     for (Voice voice : voiceManager.getAllVoices()) {
-                        console.println(voice.getUID() + " " + voice.getLabel() + " (" + voice.getLocale() + ")");
+                        console.println(
+                                voice.getUID() + " " + voice.getLabel() + " - " + voice.getLocale().getDisplayName());
                     }
                     return;
                 default:

@@ -14,10 +14,15 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * the whole binding.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Wouter Born - Added packet interval, power on brightness constants
  */
 public class LifxBindingConstants {
 
     public static final String BINDING_ID = "lifx";
+    public static final String THREADPOOL_NAME = "lifx";
+
+    // The LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more.
+    public final static long PACKET_INTERVAL = 50;
 
     // List of all Channel IDs
     public final static String CHANNEL_COLOR = "color";
@@ -30,6 +35,9 @@ public class LifxBindingConstants {
 
     // config property for the interface to listen for broadcast UDP traffic
     public static final String CONFIG_PROPERTY_INTERFACE_ID = "interface";
+
+    // config property for channel configuration
+    public static final String CONFIG_PROPERTY_POWER_ON_BRIGHTNESS = "powerOnBrightness";
 
     // List of all Thing Type UIDs
     public final static ThingTypeUID THING_TYPE_COLORLIGHT = new ThingTypeUID(BINDING_ID, "colorlight");

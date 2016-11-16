@@ -559,7 +559,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 List<ParameterOption> options = new ArrayList<>();
                 for (Voice voice : getAllVoices()) {
                     ParameterOption option = new ParameterOption(voice.getUID(),
-                            voice.getLabel() + " (" + voice.getLocale().getDisplayLanguage() + ")");
+                            voice.getLabel() + " - " + voice.getLocale().getDisplayName());
                     options.add(option);
                 }
                 return options;

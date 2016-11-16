@@ -356,7 +356,7 @@
 
 	/* class ControlImage */
 	function ControlImage(parentNode, callSuper) {
-		// Some controls combile Image functionality with
+		// Some controls combine Image functionality with
 		// other classes, so calling Control is conditional
 		if (callSuper) {
 			Control.call(this, parentNode);
@@ -368,11 +368,15 @@
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
-		if (_t.updateInterval === 0) {
-			return;
-		}
-
 		_t.url = _t.image.getAttribute("src").replace(/\d+$/, "");
+
+		_t.setValuePrivate = function() {
+		    _t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+		};
+
+		if (_t.updateInterval === 0) {
+		    return;
+		}
 
 		var
 			interval = setInterval(function() {
