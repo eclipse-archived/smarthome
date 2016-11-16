@@ -188,10 +188,16 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         if (itemName != null) {
             try {
                 Item item = itemUIRegistry.getItem(itemName);
+                State state = item.getState();
                 if (item.getAcceptedDataTypes().contains(PercentType.class)) {
-                    return escapeURLPath(item.getStateAs(PercentType.class).toString());
+                    state = item.getStateAs(PercentType.class);
                 } else {
-                    return escapeURLPath(item.getStateAs(DecimalType.class).toString());
+                    state = item.getStateAs(DecimalType.class);
+                }
+                if (state != null) {
+                    return escapeURLPath(state.toString());
+                } else {
+                    logger.debug("State '{}' of item '{}' is not a number!", item.getState(), itemName);
                 }
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
