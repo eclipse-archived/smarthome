@@ -17,7 +17,8 @@
 	<div ng-controller="ControlController" class="items row" md-swipe-left="next()" md-swipe-right="prev()" ng-if="tabs[selectedIndex] === tab" ng-attr-id="{{'items-' + tabs.indexOf(tab)}}">
 		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things | filter: {'location':tab.name}:true">
 			<div class="card item" ng-show="isLoadComplete">
-				<h3 class="clabel">{{thing.label}}</h3>
+				<div class="row"><h3 class="clabel col-xs-9">{{thing.label}}</h3> <i ng-click="navigateTo('configuration/things/view/'+thing.UID)" class="material-icons cursor-pointer col-xs-3 pull-right" style="color:black;background-color:transparent;">launch</i>
+                </div>
 				<div class="ibadge">
 					<span class="icon-x">
 				</div>
