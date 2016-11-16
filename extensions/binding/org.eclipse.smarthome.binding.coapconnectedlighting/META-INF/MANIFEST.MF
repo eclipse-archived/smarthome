@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CoAP MCHPLights Binding
+Bundle-SymbolicName: org.eclipse.smarthome.binding.coapconnectedlighting;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .,
+ lib/californium-core-1.1.0-SNAPSHOT.jar,
+ lib/element-connector-1.1.0-SNAPSHOT.jar
+Import-Package: 
+ org.eclipse.smarthome.binding.coapconnectedlighting,
+ org.eclipse.smarthome.binding.coapconnectedlighting.handler,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.types,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Export-Package: org.eclipse.smarthome.binding.coapconnectedlighting,
+ org.eclipse.smarthome.binding.coapconnectedlighting.handler
