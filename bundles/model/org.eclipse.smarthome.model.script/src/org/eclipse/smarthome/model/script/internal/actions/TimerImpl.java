@@ -65,8 +65,7 @@ public class TimerImpl implements Timer {
                 cancelled = true;
             }
         } catch (SchedulerException e) {
-            logger.warn("An error occured while cancelling the job '{}': {}",
-                    new String[] { jobKey.toString(), e.getMessage() });
+            logger.warn("An error occured while cancelling the job '{}': {}", jobKey.toString(), e.getMessage());
         }
         return cancelled;
     }
@@ -81,8 +80,7 @@ public class TimerImpl implements Timer {
             this.terminated = false;
             return true;
         } catch (SchedulerException e) {
-            logger.warn("An error occured while rescheduling the job '{}': {}",
-                    new String[] { jobKey.toString(), e.getMessage() });
+            logger.warn("An error occured while rescheduling the job '{}': {}", jobKey.toString(), e.getMessage());
             return false;
         }
     }
