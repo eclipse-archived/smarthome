@@ -546,9 +546,6 @@ public class RuleTriggerManager {
      * @throws SchedulerException if there is an internal Scheduler error.
      */
     private void createTimer(Rule rule, TimerTrigger trigger) throws SchedulerException {
-        synchronized (rule) {
-
-        }
         String cronExpression = trigger.getCron();
         if (trigger.getTime() != null) {
             if (trigger.getTime().equals("noon")) {
