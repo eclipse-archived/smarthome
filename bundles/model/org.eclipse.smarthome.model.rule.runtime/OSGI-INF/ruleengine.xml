@@ -14,7 +14,7 @@
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
       <provide interface="org.eclipse.smarthome.model.rule.runtime.RuleEngine"/>
    </service>
-   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static" unbind="unsetItemRegistry"/>
    <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="static" unbind="unsetModelRepository"/>
    <reference bind="setScriptEngine" cardinality="1..1" interface="org.eclipse.smarthome.model.script.engine.ScriptEngine" name="ScriptEngine" policy="static" unbind="unsetScriptEngine"/>
 </scr:component>

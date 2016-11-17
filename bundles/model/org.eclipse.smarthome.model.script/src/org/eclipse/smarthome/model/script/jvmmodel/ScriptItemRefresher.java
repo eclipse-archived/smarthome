@@ -32,6 +32,9 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptItemRefresher.class);
 
+    // delay before rule resources are refreshed after items or services have changed
+    private static final long REFRESH_DELAY = 2000;
+
     ModelRepository modelRepository;
     private ItemRegistry itemRegistry;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -87,7 +90,7 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         if (job != null && !job.isDone()) {
             job.cancel(false);
         }
-        job = scheduler.schedule(runnable, 1, TimeUnit.SECONDS);
+        job = scheduler.schedule(runnable, REFRESH_DELAY, TimeUnit.MILLISECONDS);
     }
 
     Runnable runnable = new Runnable() {
