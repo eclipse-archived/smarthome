@@ -143,7 +143,7 @@
 									<h3 ng-if="channel.label">{{channel.label}}</h3>
 									<h3 ng-if="!channel.label && channel.channelType.label">{{channel.channelType.label}}</h3>
 									<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
-									<p>{{thing.UID + ':' + channel.id}}<i class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i></p>
+									<p>{{thing.UID + ':' + channel.id}}<i ng-show="advancedMode" class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i></p>
 									<p ng-if="channel.description" ng-bind-html="channel.channelType.description"></p>
 									<p ng-if="!channel.description && channel.channelType.description" ng-bind-html="channel.channelType.description"></p>
 									<div class="actions">

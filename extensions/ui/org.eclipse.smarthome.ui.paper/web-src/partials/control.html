@@ -17,7 +17,10 @@
 	<div ng-controller="ControlController" class="items row" md-swipe-left="next()" md-swipe-right="prev()" ng-if="tabs[selectedIndex] === tab" ng-attr-id="{{'items-' + tabs.indexOf(tab)}}">
 		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things | filter: {'location':tab.name}:true">
 			<div class="card item" ng-show="isLoadComplete">
-				<h3 class="clabel">{{thing.label}}</h3>
+				<div class="row">
+					<h3 class="clabel col-xs-9">{{thing.label}}</h3>
+					<i ng-click="navigateTo('configuration/things/view/'+thing.UID)" class="material-icons cursor-pointer col-xs-3 pull-right" style="color: black; background-color: transparent;">launch</i>
+				</div>
 				<div class="ibadge">
 					<span class="icon-x">
 				</div>
@@ -219,20 +222,28 @@
 													</div>
 												</div>
 											</div>
-											<div ng-switch-default ng-controller="DefaultItemController">
-												<div layout="row" layout-align="start center">
-													<p>
+											<div class="textControl" ng-switch-default ng-controller="DefaultItemController">
+												<div layout="row" layout-align="start center" style="height: 100%">
+													<p flex="40">
 														<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Value')}}
 													</p>
-												</div>
-
-												<!-- default text output -->
-												<div layout="row" layout-align="start center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
-													<div ng-show="isReadOnly(item)" layout="row" layout-align="center center" flex>
-														<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+													<div ng-if="getStateText(item).length<8" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+														<div ng-show="isReadOnly(item)">
+															<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
+														</div>
+														<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
+															<span class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</span>
+															<md-input-container ng-show="editMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+														</div>
 													</div>
-													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center" flex="100">
-														<h2 class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</h2>
+												</div>
+												<div ng-if="getStateText(item).length>7" flex="100" layout="row" layout-align="start center" style="height: 100%" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+													<div ng-show="isReadOnly(item)">
+														<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
+													</div>
+													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
+														<span class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</span>
 														<md-input-container ng-show="editMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
 														<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
 													</div>

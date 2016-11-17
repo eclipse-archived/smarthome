@@ -5,6 +5,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.things = [];
     var thingTypes = [];
 
+    $scope.navigateTo = function(path) {
+        $location.path(path);
+    }
     $scope.next = function() {
         var newIndex = $scope.selectedIndex + 1;
         if (newIndex > ($scope.tabs.length - 1)) {

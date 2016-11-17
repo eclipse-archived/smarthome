@@ -2,6 +2,7 @@ describe('module PaperUI.controllers.setup', function() {
     beforeEach(function() {
         module('PaperUI');
     });
+    var restConfig;
     describe('tests for SetupPageController', function() {
         beforeEach(inject(function($injector, $rootScope, $controller) {
             scope = $rootScope.$new();
@@ -107,6 +108,140 @@ describe('module PaperUI.controllers.setup', function() {
         });
     });
 
+    describe('tests for SetupWizardController', function() {
+        var setupWizardController, scope;
+        beforeEach(inject(function($injector, $rootScope, $controller) {
+            scope = $rootScope.$new();
+            setupWizardController = $controller('SetupWizardController', {
+                '$scope' : scope
+            });
+            $rootScope.data.discoveryResults = [ {
+                flag : 'IGNORED'
+            } ];
+            restConfig = $injector.get('restConfig');
+        }));
+        it('should require SetupWizardController', function() {
+            expect(setupWizardController).toBeDefined();
+        });
+        it('should get discovery results', function() {
+            expect(scope.data.discoveryResults.length).toEqual(1);
+        });
+        it('should show ignored button', function() {
+            var areIgnored = scope.areEntriesIgnored(scope.data.discoveryResults);
+            expect(areIgnored).toBeTruthy();
+        });
+    });
+
+    describe('tests for SetupWizardBindingsController', function() {
+        var setupWizardBindingsController, scope, rootScope;
+        beforeEach(inject(function($injector, $rootScope, $controller) {
+            scope = $rootScope.$new();
+            $controller('BodyController', {
+                '$scope' : scope
+            });
+            $controller('SetupPageController', {
+                '$scope' : scope
+            });
+            setupWizardBindingsController = $controller('SetupWizardBindingsController', {
+                '$scope' : scope
+            });
+            $rootScope.data.bindings = [ 'astro' ];
+            restConfig = $injector.get('restConfig');
+            $httpBackend = $injector.get('$httpBackend');
+        }));
+        it('should require SetupWizardBindingsController', function() {
+            expect(setupWizardBindingsController).toBeDefined();
+        });
+        it('should get bindings', function() {
+            expect(scope.data.bindings.length).toEqual(1);
+        });
+        it('should select binding and navigate', function() {
+            var bindings = [ 'astro' ];
+            spyOn(scope, 'navigateTo');
+            $httpBackend.when('GET', restConfig.restPath + "/discovery").respond(bindings);
+            $httpBackend.whenGET(/^((?!rest\/discovery).)*$/).respond(200);
+            scope.selectBinding('astro');
+            $httpBackend.flush();
+            expect(scope.navigateTo).toHaveBeenCalled();
+        });
+    });
+
+    describe('tests for SetupWizardSearchBindingController', function() {
+        var setupWizardSearchBindingController, scope, rootScope, bindingRepository, discoveryService;
+        beforeEach(inject(function($injector, $rootScope, $controller) {
+            scope = $rootScope.$new();
+            rootScope = $rootScope;
+            scope.path = [];
+            scope.path[4] = 'astro';
+            $controller('BodyController', {
+                '$scope' : scope
+            });
+            $controller('SetupPageController', {
+                '$scope' : scope
+            });
+            bindingRepository = $injector.get('bindingRepository');
+            discoveryService = $injector.get('discoveryService');
+            spyOn(bindingRepository, 'find');
+            spyOn(discoveryService, 'getAll');
+            setupWizardSearchBindingController = $controller('SetupWizardSearchBindingController', {
+                '$scope' : scope
+            });
+
+            $rootScope.data.bindings = [ 'astro' ];
+            restConfig = $injector.get('restConfig');
+
+            $httpBackend = $injector.get('$httpBackend');
+            jasmine.clock().uninstall();
+            jasmine.clock().install();
+        }));
+        it('should require SetupWizardSearchBindingController', function() {
+            expect(setupWizardSearchBindingController).toBeDefined();
+        });
+        it('should get supported bindings', function() {
+            expect(discoveryService.getAll).toHaveBeenCalled();
+        });
+        it('should call find binding', function() {
+            expect(bindingRepository.find).toHaveBeenCalled();
+        });
+        it('should scan discoveryService', function() {
+            var response = '0', bindingId = 1;
+            $httpBackend.when('POST', restConfig.restPath + "/discovery/bindings/" + bindingId + "/scan").respond(response);
+            var path = "/discovery/bindings/" + bindingId + "/scan";
+            $httpBackend.whenGET(/^((?!path).)*$/).respond(200);
+            scope.scan(bindingId);
+            $httpBackend.flush();
+            jasmine.clock().tick(1);
+            expect(scope.scanning).toBeFalsy();
+
+        });
+    });
+
+    describe('tests for SetupWizardThingTypesController', function() {
+        var setupWizardThingTypesController, scope, bindingRepository, discoveryService;
+        beforeEach(inject(function($injector, $rootScope, $controller) {
+            scope = $rootScope.$new();
+            scope = $rootScope;
+            scope.path = [];
+            scope.path[4] = 'astro';
+            $controller('BodyController', {
+                '$scope' : scope
+            });
+            setupWizardThingTypesController = $controller('SetupWizardThingTypesController', {
+                '$scope' : scope
+            });
+        }));
+        it('should require SetupWizardThingTypesController', function() {
+            expect(setupWizardThingTypesController).toBeDefined();
+        });
+        it('should require method selectThingType', function() {
+            expect(scope.selectThingType).toBeDefined();
+        });
+        it('should require method filter', function() {
+            expect(scope.filter).toBeDefined();
+        });
+
+    });
+
     describe('tests for ScanDialogController', function() {
         beforeEach(inject(function($injector, $rootScope, $controller) {
             scope = $rootScope.$new();
@@ -196,7 +331,7 @@ describe('module PaperUI.controllers.setup', function() {
             $httpBackend = $injector.get('$httpBackend');
             thingService = $injector.get('thingService');
             thingTypeRepository = $injector.get('thingTypeRepository');
-            thingRepository = $injector.get('thingRepository');          
+            thingRepository = $injector.get('thingRepository');
             var thingTypes = {
                 UID : "A:B",
                 label : 'LABEL',
@@ -222,15 +357,17 @@ describe('module PaperUI.controllers.setup', function() {
                 label : "THING"
             } ];
             $httpBackend.when('GET', restConfig.restPath + "/things").respond(things);
-            $httpBackend.whenGET(/^((?!rest\/things).)*$/).respond(200, '');           
+            $httpBackend.whenGET(/^((?!rest\/things).)*$/).respond(200, '');
             $httpBackend.flush();
             expect(scope.needsBridge).toBeTruthy();
             expect(scope.bridges.length).toBe(1);
         });
         it('should add thing', function() {
             spyOn(thingService, "add");
-            scope.parameters=[];
-            scope.addThing({id:1});
+            scope.parameters = [];
+            scope.addThing({
+                id : 1
+            });
             expect(thingService.add).toHaveBeenCalled();
         });
     });
