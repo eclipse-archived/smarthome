@@ -250,15 +250,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
     });
-}).controller('AddGroupDialogController', function($scope, $mdDialog) {
-    $scope.binding = undefined;
-
-    $scope.close = function() {
-        $mdDialog.cancel();
-    }
-    $scope.add = function(label) {
-        $mdDialog.hide(label);
-    }
 }).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
@@ -300,17 +291,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     itemRepository.getAll(function(items) {
         $scope.items = items;
     });
-    $scope.edit = function(thing, event) {
-        $mdDialog.show({
-            controller : 'EditThingDialogController',
-            templateUrl : 'partials/dialog.editthing.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            locals : {
-                thing : thing
-            }
-        });
-    };
     $scope.remove = function(thing, event) {
         event.stopImmediatePropagation();
         $mdDialog.show({
@@ -328,6 +308,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 
     $scope.enableChannel = function(thingUID, channelID, event) {
         var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
         if ($scope.advancedMode) {
             $scope.linkChannel(channelID, event);
         } else {
@@ -535,7 +516,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     });
 }).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingService, thing) {
     $scope.thing = thing;
-    $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
+    if (thing.statusInfo) {
+        $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
+    }
     $scope.close = function() {
         $mdDialog.cancel();
     }
