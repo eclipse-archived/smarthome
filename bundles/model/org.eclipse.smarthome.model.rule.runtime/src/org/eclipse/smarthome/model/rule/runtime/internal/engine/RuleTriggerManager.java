@@ -10,6 +10,7 @@ package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.Command;
@@ -45,6 +47,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -92,6 +95,9 @@ public class RuleTriggerManager {
         try {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.setJobFactory(injector.getInstance(GuiceAwareJobFactory.class));
+
+            // we want to defer timer rule execution until after the startup rules have been executed.
+            scheduler.standby();
         } catch (SchedulerException e) {
             logger.error("initializing scheduler throws exception", e);
         }
@@ -319,6 +325,8 @@ public class RuleTriggerManager {
                     }
                 }
                 break;
+            default:
+                break;
         }
         return result;
     }
@@ -545,8 +553,7 @@ public class RuleTriggerManager {
             } else if (trigger.getTime().equals("midnight")) {
                 cronExpression = "0 0 0 * * ?";
             } else {
-                logger.warn("Unrecognized time expression '{}' in rule '{}'",
-                        new String[] { trigger.getTime(), rule.getName() });
+                logger.warn("Unrecognized time expression '{}' in rule '{}'", trigger.getTime(), rule.getName());
                 return;
             }
         }
@@ -558,9 +565,9 @@ public class RuleTriggerManager {
                     .usingJobData(ExecuteRuleJob.JOB_DATA_RULEMODEL, rule.eResource().getURI().path())
                     .usingJobData(ExecuteRuleJob.JOB_DATA_RULENAME, rule.getName()).withIdentity(jobIdentity).build();
             Trigger quartzTrigger = newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
-            scheduler.scheduleJob(job, quartzTrigger);
+            scheduler.scheduleJob(job, Collections.singleton(quartzTrigger), true);
 
-            logger.debug("Scheduled rule {} with cron expression {}", new String[] { rule.getName(), cronExpression });
+            logger.debug("Scheduled rule '{}' with cron expression '{}'", rule.getName(), cronExpression);
         } catch (RuntimeException e) {
             throw new SchedulerException(e.getMessage());
         }
@@ -596,5 +603,13 @@ public class RuleTriggerManager {
             }
         }
         return jobIdentity;
+    }
+
+    public void startTimerRuleExecution() {
+        try {
+            scheduler.start();
+        } catch (SchedulerException e) {
+            logger.error("Error while starting the scheduler service: {}", e.getMessage());
+        }
     }
 }

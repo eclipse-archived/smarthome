@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
  */
 public class RulesItemRefresher implements ItemRegistryChangeListener {
 
+    // delay before rule resources are refreshed after items or services have changed
+    private static final long REFRESH_DELAY = 2000;
+
     private final Logger logger = LoggerFactory.getLogger(RulesItemRefresher.class);
 
     ModelRepository modelRepository;
@@ -87,7 +90,7 @@ public class RulesItemRefresher implements ItemRegistryChangeListener {
         if (job != null && !job.isDone()) {
             job.cancel(false);
         }
-        job = scheduler.schedule(runnable, 1000, TimeUnit.MILLISECONDS);
+        job = scheduler.schedule(runnable, REFRESH_DELAY, TimeUnit.MILLISECONDS);
     }
 
     Runnable runnable = new Runnable() {
