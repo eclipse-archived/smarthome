@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -45,6 +47,7 @@ import org.eclipse.smarthome.model.script.engine.ScriptExecutionThread;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
@@ -109,6 +112,10 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             }
         }
 
+        // register us as listeners
+        itemRegistry.addRegistryChangeListener(this);
+        modelRepository.addModelRepositoryChangeListener(this);
+
         // register us on all items which are already available in the registry
         for (Item item : itemRegistry.getItems()) {
             internalItemAdded(item);
@@ -117,6 +124,13 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     public void deactivate() {
+        // unregister listeners
+        for (Item item : itemRegistry.getItems()) {
+            internalItemRemoved(item);
+        }
+        modelRepository.removeModelRepositoryChangeListener(this);
+        itemRegistry.removeRegistryChangeListener(this);
+
         // execute all scripts that were registered for system shutdown
         executeRules(triggerManager.getRules(SHUTDOWN));
         triggerManager.clearAll();
@@ -125,21 +139,17 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
-        itemRegistry.addRegistryChangeListener(this);
     }
 
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
-        itemRegistry.removeRegistryChangeListener(this);
         this.itemRegistry = null;
     }
 
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
-        modelRepository.addModelRepositoryChangeListener(this);
     }
 
     public void unsetModelRepository(ModelRepository modelRepository) {
-        modelRepository.removeModelRepositoryChangeListener(this);
         this.modelRepository = null;
     }
 
@@ -151,9 +161,6 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.scriptEngine = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void allItemsChanged(Collection<String> oldItemNames) {
         // add the current items again
@@ -164,29 +171,17 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         scheduleStartupRules();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void added(Item item) {
         internalItemAdded(item);
         scheduleStartupRules();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void removed(Item item) {
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.removeStateChangeListener(this);
-        }
+        internalItemRemoved(item);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
         if (!starting && triggerManager != null) {
@@ -196,9 +191,6 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void stateUpdated(Item item, State state) {
         if (!starting && triggerManager != null) {
@@ -234,6 +226,13 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
             genericItem.addStateChangeListener(this);
+        }
+    }
+
+    private void internalItemRemoved(Item item) {
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.removeStateChangeListener(this);
         }
     }
 
@@ -296,6 +295,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             }
             // now that we have executed the startup rules, we are ready for others as well
             starting = false;
+            triggerManager.startTimerRuleExecution();
         }
     }
 

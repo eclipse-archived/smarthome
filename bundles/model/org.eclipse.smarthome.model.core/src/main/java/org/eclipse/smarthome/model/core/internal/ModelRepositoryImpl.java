@@ -12,10 +12,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.emf.common.util.URI;
@@ -46,8 +44,6 @@ public class ModelRepositoryImpl implements ModelRepository {
     private final ResourceSet resourceSet;
 
     private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();
-
-    private Set<String> ignoredResources = new HashSet<>();
 
     public ModelRepositoryImpl() {
         XtextResourceSet xtextResourceSet = new SynchronizedXtextResourceSet();
@@ -183,6 +179,7 @@ public class ModelRepositoryImpl implements ModelRepository {
                         // It's not sufficient to discard the derived state.
                         // The quick & dirts solution is to reparse the whole resource.
                         // We trigger this by dummy updating the resource.
+                        logger.debug("Refreshing resource '{}'", resource.getURI().lastSegment());
                         xtextResource.update(1, 0, "");
                         notifyListeners(resource.getURI().lastSegment(), EventType.MODIFIED);
                     }
