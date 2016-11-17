@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -38,6 +37,10 @@ public class StringTypeTest {
 
         assertEquals(true, expected1.equals("expected1"));
         assertEquals(false, expected1.equals("expected2"));
+
+        assertEquals(true, new StringType(null).equals(new StringType(null)));
+        assertEquals(false, new StringType("").equals(new StringType(null)));
+        assertEquals(false, new StringType(null).equals(new StringType("")));
     }
 
 }
