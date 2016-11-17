@@ -1152,3 +1152,12 @@ background-color: green;
 	margin-left: 10px;
 	cursor:pointer;
 }
+
+.textControl {
+	height: 100%;
+}
+
+.textControl .state {
+	font-size: 30px;
+	font-weight: 300;
+}
