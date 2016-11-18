@@ -8,10 +8,11 @@
 package org.eclipse.smarthome.core.thing.link;
 
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * {@link ItemThingLink} defines a link between an {@link Item} and a {@link Think}.
+ * {@link ItemThingLink} defines a link between an {@link Item} and a {@link Thing}.
  *
  * @author Dennis Nobel - Initial contribution
  */
