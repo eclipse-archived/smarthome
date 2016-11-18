@@ -382,8 +382,24 @@ public class PersistenceExtensions {
      *         found or if the default persistence service does not refer to an available
      *         {@link QueryablePersistenceService}
      */
+    public static DecimalType averageSince(Item item, AbstractInstant timestamp, boolean includeCurrentValue) {
+        return averageSince(item, timestamp, includeCurrentValue, getDefaultServiceId());
+    }
+
+    /**
+     * Gets the average value of the state of a given <code>item</code> since a certain point in time.
+     * The default persistence service is used.
+     *
+     * @param item the item to get the average state value for
+     * @param timestamp the point in time from which to search for the average state value
+     * @param includeCurrentValue include the current value in the calculation
+     * @return the average state values since <code>timestamp</code>, <code>null</code> if the default persistence
+     *         service is not available, or the state of the given <code>item</code> if no previous states could be
+     *         found or if the default persistence service does not refer to an available
+     *         {@link QueryablePersistenceService}
+     */
     public static DecimalType averageSince(Item item, AbstractInstant timestamp) {
-        return averageSince(item, timestamp, getDefaultServiceId());
+        return averageSince(item, timestamp, true, getDefaultServiceId());
     }
 
     /**
@@ -398,34 +414,72 @@ public class PersistenceExtensions {
      *         refer to an available {@link QueryablePersistenceService}
      */
     public static DecimalType averageSince(Item item, AbstractInstant timestamp, String serviceId) {
+        return averageSince(item, timestamp, true, serviceId);
+    }
+
+    /**
+     * Gets the average value of the state of a given <code>item</code> since a certain point in time.
+     * The {@link PersistenceService} identified by the <code>serviceId</code> is used.
+     *
+     * @param item the item to get the average state value for
+     * @param timestamp the point in time from which to search for the average state value
+     * @param includeCurrentValue include the current value in the calculation
+     * @param serviceId the name of the {@link PersistenceService} to use
+     * @return the average state values since <code>timestamp</code>, or the state of the given <code>item</code> if no
+     *         previous states could be found or if the persistence service given by <code>serviceId</code> does not
+     *         refer to an available {@link QueryablePersistenceService}
+     */
+    public static DecimalType averageSince(Item item, AbstractInstant timestamp, boolean includeCurrentValue,
+            String serviceId) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceId);
         Iterator<HistoricItem> it = result.iterator();
 
-        DecimalType value = DecimalType.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
 
-        BigDecimal total = value.toBigDecimal();
-        int quantity = 0;
+        BigDecimal avgValue, timeSpan;
+        DecimalType lastState = null, thisState = null;
+        BigDecimal lastTimestamp = null, thisTimestamp = null;
+        BigDecimal firstTimestamp = null;
+
         while (it.hasNext()) {
-            State state = it.next().getState();
+            HistoricItem thisItem = it.next();
+            State state = thisItem.getState();
+
             if (state instanceof DecimalType) {
-                value = (DecimalType) state;
-                total = total.add(value.toBigDecimal());
-                quantity++;
+                thisState = (DecimalType) state;
+                thisTimestamp = BigDecimal.valueOf(thisItem.getTimestamp().getTime());
+                if (firstTimestamp == null) {
+                    firstTimestamp = thisTimestamp;
+                } else {
+                    avgValue = (thisState.toBigDecimal().add(lastState.toBigDecimal())).divide(BigDecimal.valueOf(2),
+                            MathContext.DECIMAL64);
+                    timeSpan = thisTimestamp.subtract(lastTimestamp);
+                    total = total.add(avgValue.multiply(timeSpan, MathContext.DECIMAL64));
+
+                }
+                lastTimestamp = thisTimestamp;
+                lastState = thisState;
             }
         }
 
-        if (quantity == 0) {
-            quantity = 1;
-            value = (DecimalType) item.getStateAs(DecimalType.class);
-            if (value == null) {
-                value = DecimalType.ZERO;
-            }
-            total = value.toBigDecimal();
+        if ((lastState != null) && includeCurrentValue) {
+            thisState = (DecimalType) item.getStateAs(DecimalType.class);
+            thisTimestamp = BigDecimal.valueOf((new DateTime()).getMillis());
+            avgValue = (thisState.toBigDecimal().add(lastState.toBigDecimal())).divide(BigDecimal.valueOf(2),
+                    MathContext.DECIMAL64);
+            timeSpan = thisTimestamp.subtract(lastTimestamp);
+            total = total.add(avgValue.multiply(timeSpan, MathContext.DECIMAL64));
         }
 
-        BigDecimal average = total.divide(BigDecimal.valueOf(quantity), MathContext.DECIMAL64);
+        if (thisTimestamp != null) {
+            timeSpan = thisTimestamp.subtract(firstTimestamp, MathContext.DECIMAL64);
 
-        return new DecimalType(average);
+            BigDecimal average = total.divide(timeSpan, MathContext.DECIMAL64);
+            System.out.println(String.valueOf(timeSpan) + ":" + String.valueOf(total));
+            return new DecimalType(average);
+        } else {
+            return null;
+        }
     }
 
     /**

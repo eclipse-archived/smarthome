@@ -28,6 +28,7 @@ import org.junit.Test;
 /**
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Jan N. Klug
  */
 @SuppressWarnings("deprecation")
 public class PersistenceExtensionsTest {
@@ -124,8 +125,8 @@ public class PersistenceExtensionsTest {
     @Test
     public void testAverageSince() {
         item.setState(new DecimalType(3025));
-        DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), "test");
-        assertEquals("2007.5", average.toString());
+        DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), false, "test");
+        assertEquals(2007.4994, average.doubleValue(), 0.0001);
     }
 
     @Test
