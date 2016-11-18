@@ -1,12 +1,6 @@
-# Eclipse SmartHome Build Tools
+# Eclipse SmartHome Static Code Analysis Config Tool
 
-Eclipse SmartHome Build Tools consists of the modules:
-
-- Static Code Analysis Config which contains:
-  - configuration data for different static code analysis tools (rule sets, metadata, filters, etc.);
-  - custom rules;
-- Static Code Analysis Report Tool:
-  - merges the reports of the tools into a single .html report
+This project contains rule sets, metadata, filters and custom rules for PMD, Checkstyle and Findbugs.
 
 ## Usage
 
@@ -14,7 +8,7 @@ Execute `mvn clean install -P check` from the root of the Eclipse SmartHome proj
 
 This profile (`check`) applies some general configuration to the Maven plugins for PMD, Checkstyle and FindBugs.
 
-Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `result.html`.
+Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `result.html`. The result report is aggregated by Static Code Analysis Report Tool.
 
 ## Failing the build
 
@@ -102,5 +96,4 @@ For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guideline
 
 ## 3rd Party
 
-- Static Code Analysis Report Tool uses source files from the https://github.com/MarkusSprunck/static-code-analysis-report that are distributed under a custom license. More information can be found in the `static-code-analysis-config` LICENSE.txt file;
 - The example checks provided in the `static-code-analysis-config` (`MethodLimitCheck`, `CustomClassNameLengthDetector`, `WhileLoopsMustUseBracesRule`) are based on tutorials how to use the API of Checkstyle, FindBugs and PMD. For more info, see javadoc.

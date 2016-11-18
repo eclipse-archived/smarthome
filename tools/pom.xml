@@ -17,6 +17,8 @@
 
   <modules>
     <module>archetype</module>
+    <module>static-code-analysis-config</module>
+    <module>static-code-analysis-report</module>
   </modules>
 
   <build>
