@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -98,6 +99,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         if (thingHandler == null) {
             throw new IllegalStateException(this.getClass().getSimpleName()
                     + " could not create a handler for the thing '" + thing.getUID() + "'.");
+        }
+        if ((thing instanceof Bridge) && !(thingHandler instanceof BridgeHandler)) {
+            throw new IllegalStateException(
+                    "Created handler of bridge ' " + thing.getUID() + "' must implement the BridgeHandler interface.");
         }
         setHandlerContext(thingHandler);
         registerConfigStatusProvider(thing, thingHandler);
