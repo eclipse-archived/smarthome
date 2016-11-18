@@ -64,7 +64,11 @@ public class StringType implements PrimitiveType, State, Command {
             return false;
         }
         StringType other = (StringType) obj;
-        if (!value.equals(other.value)) {
+        if (value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!value.equals(other.value)) {
             return false;
         }
         return true;
