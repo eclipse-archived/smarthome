@@ -790,7 +790,8 @@ public class ThingManager extends AbstractItemEventSubscriber
     }
 
     private boolean isHandlerRegistered(Thing thing) {
-        return thingHandlers.containsKey(thing.getUID());
+        ThingHandler handler = thingHandlers.get(thing.getUID());
+        return handler != null && handler == thing.getHandler();
     }
 
     private boolean isBridge(Thing thing) {
