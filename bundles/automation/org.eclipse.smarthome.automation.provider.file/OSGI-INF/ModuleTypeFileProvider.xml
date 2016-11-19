@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+    
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true"
+    name="org.eclipse.smarthome.automation.internal.provider.file.ModuleTypeFileProvider">
+    <implementation class="org.eclipse.smarthome.automation.internal.provider.file.MultipleModuleTypeFileProvider" />
+    <reference bind="addParser" cardinality="0..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="static" unbind="removeParser" target="(parser.type=parser.module.type)"/>
+    <service>
+        <provide interface="org.eclipse.smarthome.automation.type.ModuleTypeProvider" />
+    </service>
+    <property name="service.config.description.uri" type="String" value="system:automationresources:moduletypes"/>
+    <property name="service.config.label" type="String" value="Automation Module Type Resource File Directories"/>
+    <property name="service.config.category" type="String" value="system"/>
+</scr:component>
