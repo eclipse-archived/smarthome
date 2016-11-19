@@ -7,7 +7,7 @@ package org.eclipse.smarthome.core.thing.type;
  */
 public enum ChannelKind {
     /**
-     * Channels which have a stage.
+     * Channels which have a state.
      */
     STATE,
     /**
