@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 public class BridgeImpl extends ThingImpl implements Bridge {
 
     private transient List<Thing> things = new CopyOnWriteArrayList<>();
-    private final Logger logger = LoggerFactory.getLogger(BridgeImpl.class);
+    private transient Logger logger = LoggerFactory.getLogger(BridgeImpl.class);
 
     /**
      * Package protected default constructor to allow reflective instantiation.
