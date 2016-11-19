@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.voice.internal;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.items.Item;
@@ -18,7 +17,6 @@ import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.voice.Voice;
 import org.eclipse.smarthome.core.voice.VoiceManager;
-import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -84,21 +82,19 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void interpret(String[] args, Console console) {
-        HumanLanguageInterpreter interpreter = voiceManager.getHLI();
-        if (interpreter != null) {
-            StringBuilder sb = new StringBuilder(args[0]);
-            for (int i = 1; i < args.length; i++) {
-                sb.append(" ");
-                sb.append(args[i]);
+        StringBuilder sb = new StringBuilder(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            sb.append(" ");
+            sb.append(args[i]);
+        }
+        String msg = sb.toString();
+        try {
+            String result = voiceManager.interpret(msg);
+            if (result != null) {
+                console.println(result);
             }
-            String msg = sb.toString();
-            try {
-                console.println(interpreter.interpret(Locale.getDefault(), msg));
-            } catch (InterpretationException ie) {
-                console.println(ie.getMessage());
-            }
-        } else {
-            console.println("No human language interpreter available!");
+        } catch (InterpretationException ie) {
+            console.println(ie.getMessage());
         }
     }
 
