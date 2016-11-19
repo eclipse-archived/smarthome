@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.binding.hue;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -17,6 +20,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Jochen Hiller - Added OSRAM Classic A60 RGBW
  * @author Markus Mazurczak - Added OSRAM PAR16 50
  * @author Andre Fuechsel - changed to generic thing types
+ * @author Awelkiyar Wehabrebi - Added new variable SUPPORTED_THING_TYPES_UID
+ *
  */
 public class HueBindingConstants {
 
@@ -50,5 +55,8 @@ public class HueBindingConstants {
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
+
+    // Added for the N-UPNP discovery
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UID = Collections.singleton(THING_TYPE_BRIDGE);
 
 }
