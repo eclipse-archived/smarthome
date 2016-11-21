@@ -24,6 +24,8 @@ public class Voice {
     /**
      * Says the given text.
      *
+     * This method uses the default voice and the default audio sink to play the audio.
+     *
      * @param text the text to speak
      */
     @ActionDoc(text = "says a given text with the default voice")
@@ -33,6 +35,8 @@ public class Voice {
 
     /**
      * Says the given text with a given voice.
+     *
+     * This method uses the default audio sink to play the audio.
      *
      * @param text the text to speak
      * @param voice the name of the voice to use or null, if the default voice should be used. If the voiceId is fully
@@ -54,7 +58,7 @@ public class Voice {
      * @param sink the name of audio sink to be used to play the audio or null, if the default sink should
      *            be used
      */
-    @ActionDoc(text = "says a given text through the default TTS service with a given voice")
+    @ActionDoc(text = "says a given text with a given voice through the given sink")
     public static void say(@ParamDoc(name = "text") String text, @ParamDoc(name = "voice") String voice,
             @ParamDoc(name = "sink") String sink) {
         if (StringUtils.isNotBlank(text.toString())) {
@@ -69,13 +73,28 @@ public class Voice {
      *
      * @param text the text to interpret
      */
-    @ActionDoc(text = "interprets a given text by the default human language interpreter")
-    public static void interpret(@ParamDoc(name = "text") Object text) {
+    @ActionDoc(text = "interprets a given text by the default human language interpreter", returns = "human language response")
+    public static String interpret(@ParamDoc(name = "text") Object text) {
+        return interpret(text.toString(), null);
+    }
+
+    /**
+     * Interprets the given text with a given Human Language Interpreter.
+     *
+     * @param text the text to interpret
+     * @param interpreter the Human Language Interpreter to be used
+     */
+    @ActionDoc(text = "interprets a given text by a given human language interpreter", returns = "human language response")
+    public static String interpret(@ParamDoc(name = "text") String text,
+            @ParamDoc(name = "interpreter") String interpreter) {
+        String response;
         try {
-            VoiceActionService.voiceManager.interpret(text.toString());
+            response = VoiceActionService.voiceManager.interpret(text, interpreter);
         } catch (InterpretationException e) {
             say(e.getMessage());
+            response = e.getMessage();
         }
+        return response;
     }
 
 }
