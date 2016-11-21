@@ -52,12 +52,23 @@ public interface VoiceManager {
     void say(String text, String voiceId, String sinkId);
 
     /**
-     * Interprets the passed string using the default services for HLI locale.
+     * Interprets the passed string using the default services for HLI and locale.
      *
      * @param text The text to interpret
      * @throws InterpretationException
+     * @return a human language response
      */
-    void interpret(String text) throws InterpretationException;
+    String interpret(String text) throws InterpretationException;
+
+    /**
+     * Interprets the passed string using a particular HLI service and the default locale.
+     *
+     * @param text The text to interpret
+     * @param hliId The id of the HLI service to use
+     * @throws InterpretationException
+     * @return a human language response
+     */
+    String interpret(String text, String hliId) throws InterpretationException;
 
     /**
      * Determines the preferred voice for the currently set locale
