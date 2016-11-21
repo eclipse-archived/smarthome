@@ -10,7 +10,7 @@ This binding integrates the [Sonos Multi-Room Audio system](http://www.sonos.com
 
 ## Supported Things
 
-All available Sonos (playback) devices are supported by this binding. This includes the Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability.
+All available Sonos (playback) devices are supported by this binding. This includes the Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability. All supported Sonos devices are registered as an audio sink in the framework.
 
 When being defined in a \*.things file, the specific thing types PLAY1, PLAY3, PLAY5, PLAYBAR, CONNECT and CONNECTAMP should be used.
 
@@ -22,7 +22,12 @@ The Sonos devices are discovered through UPnP in the local network and all devic
 
 ## Binding Configuration
 
-The binding does not require any special configuration
+The binding has the following configuration options, which can be set for "binding:sonos":
+
+| Parameter | Name    | Description  | Required |
+|-----------------|------------------------|--------------|------------ |
+| opmlUrl | OPML Service URL | URL for the OPML/tunein.com service | no |
+| callbackUrl | Callback URL | URL to use for playing notification sounds, e.g. http://192.168.0.2:8080 | no |
 
 ## Thing Configuration
 
@@ -78,6 +83,14 @@ The devices support the following channels:
 | zonegroup | String | XML formatted string with the current zonegroup configuration | all |
 | zonegroupid | String | Id of the Zone Group the Zone Player belongs to | all |
 | zonename | String | Name of the Zone Group the Zone Player belongs to | all |
+
+## Audio Support
+
+All supported Sonos devices are registered as an audio sink in the framework.
+Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel and changing the volume of the audio sink will change the `notificationvolume`, not the `volume`.
+Note that the Sonos binding has a limit of 20 seconds for notification sounds. Any sound that is longer than that will be cut off.
+
+URL audio streams (e.g. an Internet radio stream) are an exception and do not get sent to the `notificationsound` channel. Instead, these will be sent to the `playuri` channel.
 
 ## Full Example
 
