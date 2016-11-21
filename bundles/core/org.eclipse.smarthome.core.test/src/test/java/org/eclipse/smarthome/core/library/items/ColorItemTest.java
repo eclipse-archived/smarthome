@@ -36,6 +36,13 @@ public class ColorItemTest {
     }
 
     @Test
+    public void testSetStateWithDecimalType() {
+        ColorItem item = new ColorItem("test");
+        item.setState(new DecimalType("0.5"));
+        assertEquals(new HSBType("0,0,50"), item.getState());
+    }
+
+    @Test
     public void testUpdateStateWithPercentType() {
         ColorItem item = new ColorItem("test");
         item.setState(new HSBType(new DecimalType(75), new PercentType(75), new PercentType(75)));

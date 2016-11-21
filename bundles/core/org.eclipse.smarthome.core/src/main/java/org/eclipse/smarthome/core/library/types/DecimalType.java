@@ -165,6 +165,9 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             } else {
                 return UnDefType.UNDEF;
             }
+        } else if (target == HSBType.class) {
+            return new HSBType(DecimalType.ZERO, PercentType.ZERO,
+                    new PercentType(this.toBigDecimal().multiply(new BigDecimal(100))));
         } else {
             return StateConverterUtil.defaultConversion(this, target);
         }
