@@ -192,7 +192,13 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         if (weatherData != null) {
             String pressure = getValue(weatherData, "atmosphere", "pressure");
             if (pressure != null) {
-                return new DecimalType(pressure);
+                DecimalType ret = new DecimalType(pressure);
+                if (ret.doubleValue() > 10000.0) {
+                    // Unreasonably high, record so far was 1085,8 hPa
+                    // The Yahoo API currently returns inHg values although it claims they are mbar - therefore convert
+                    ret = new DecimalType(BigDecimal.valueOf((long) (ret.doubleValue() / 0.3386388158), 2));
+                }
+                return ret;
             }
         }
         return UnDefType.UNDEF;
