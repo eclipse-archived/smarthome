@@ -16,29 +16,33 @@ The integration happens through the Hue bridge, which acts as an IP gateway to t
 
 The Hue bridge is required as a "bridge" for accessing any other Hue devices.
 
-Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify bulbs as well as other ZigBee LightLink compatible products like e.g. the [GE bulb](http://gelinkbulbs.com/). Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
+Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify devices as well as other ZigBee LightLink compatible products like e.g. the [GE bulb](http://gelinkbulbs.com/). Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
 
-The Hue binding supports all five types of lights of the Hue system: [Supported lights](http://www.developers.meethue.com/documentation/supported-lights). These are:
+The Hue binding supports all seven types of lighting devices defined for ZigBee LightLink ([see page 24, table 2](https://www.nxp.com/documents/user_manual/JN-UG-3091.pdf). These are:
 
-| Light type              | ZigBee Device ID | Thing type |
-|-------------------------|------------------|------------|
-| On/off light            | 0x0000           | 0000       |
-| Dimmable light          | 0x0100           | 0100       |
-| Color light             | 0x0200           | 0200       |
-| Extended Color light    | 0x0210           | 0210       |
-| Color Temperature light | 0x0220           | 0220       |
+| Device type              | ZigBee Device ID | Thing type |
+|--------------------------|------------------|------------|
+| On/Off Light             | 0x0000           | 0000       |
+| On/Off Plug-in Unit      | 0x0010           | 0010       |
+| Dimmable Light           | 0x0100           | 0100       |
+| Dimmable Plug-in Unit    | 0x0110           | 0110       |
+| Colour Light             | 0x0200           | 0200       |
+| Extended Colour Light    | 0x0210           | 0210       |
+| Colour Temperature Light | 0x0220           | 0220       |
 
-All different models of Hue or Osram bulbs nicely fit into one of these five types. This type also determines the capability of a bulb and with that the possible ways of interacting with the bulb. The following matrix lists the capabilities (channels) for each type:
+All different models of Hue or Osram bulbs nicely fit into one of these seven types. This type also determines the capability of a device and with that the possible ways of interacting with it. The following matrix lists the capabilities (channels) for each type:
 
 | Thing type  | On/Off | Brightness | Color | Color Temperature |
 |-------------|:------:|:----------:|:-----:|:-----------------:|
 |  0000       |    X   |            |       |                   |    
+|  0010       |    X   |            |       |                   |    
 |  0100       |    X   |     X      |       |                   |
+|  0110       |    X   |     X      |       |                   |
 |  0200       |    X   |            |   X   |                   |
 |  0210       |    X   |            |   X   |          X        |
 |  0220       |    X   |     X      |       |          X        |
 
-The type of a specific bulb can be found in the configuration section for things in the PaperUI. It is part of the unique thing id which could look like:
+The type of a specific device can be found in the configuration section for things in the PaperUI. It is part of the unique thing id which could look like:
 
 ```
 hue:0210:00178810d0dc:1
@@ -66,7 +70,7 @@ The user name can be set using the `userName` configuration value, e.g.:
 Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxcvbnm1234" ]
 ```
 
-The bulbs are identified by the number that the Hue bridge assigns to them (also shown in the Hue app as an identifier).
+The devices are identified by the number that the Hue bridge assigns to them (also shown in the Hue app as an identifier).
 Thus, all it needs for manual configuration is this single value like
 
 ```
@@ -79,8 +83,9 @@ All devices support some of the following channels:
 
 | Channel Type ID   | Item Type | Description                                                                                                                            | Thing types supporting this channel |
 |-------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| switch            | Switch    | This channel supports switching the device on and off.                                                                                 | 0000, 0010                          |  
 | color             | Color     | This channel supports full color control with hue, saturation and brightness values.                                                   | 0200, 0210                          |  
-| brightness        | Dimmer    | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported.              | 0100, 0220                          |
+| brightness        | Dimmer    | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported.              | 0100, 0110, 0220                    |
 | color_temperature | Dimmer    | This channel supports adjusting the color temperature from cold (0%) to warm (100%)                                                    | 0210, 0220                          |
 | alert             | String    | This channel supports displaying alerts by flashing the bulb either once or multiple times. Valid values are: NONE, SELECT and LSELECT | 0000, 0100, 0200, 0210, 0220        |
 | effect            | Switch    | This channel supports color looping.                                                                                                   | 0200, 0210, 0220                    |
