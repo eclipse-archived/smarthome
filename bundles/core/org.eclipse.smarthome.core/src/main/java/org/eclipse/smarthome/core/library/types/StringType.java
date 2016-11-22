@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import java.util.Objects;
+
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -64,14 +66,7 @@ public class StringType implements PrimitiveType, State, Command {
             return false;
         }
         StringType other = (StringType) obj;
-        if (value == null) {
-            if (other.value != null) {
-                return false;
-            }
-        } else if (!value.equals(other.value)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.value, other.value);
     }
 
 }
