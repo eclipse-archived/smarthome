@@ -22,4 +22,5 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit,
- org.osgi.framework
+ org.osgi.framework,
+ org.osgi.service.component
