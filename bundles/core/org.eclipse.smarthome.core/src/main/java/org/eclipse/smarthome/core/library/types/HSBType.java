@@ -212,11 +212,12 @@ public class HSBType extends PercentType implements ComplexType, State, Command,
         PercentType green = null;
         PercentType blue = null;
 
-        BigDecimal h = hue.divide(new BigDecimal(100), 10, BigDecimal.ROUND_HALF_UP);
-        BigDecimal s = saturation.divide(new BigDecimal(100));
+        BigDecimal h = hue.divide(BigDecimal.valueOf(100), 10, BigDecimal.ROUND_HALF_UP);
+        BigDecimal s = saturation.divide(BigDecimal.valueOf(100));
 
-        int h_int = h.multiply(new BigDecimal(5)).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_UP).intValue();
-        BigDecimal f = h.multiply(new BigDecimal(5)).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_UP)
+        int h_int = h.multiply(BigDecimal.valueOf(5)).divide(BigDecimal.valueOf(3), 10, BigDecimal.ROUND_HALF_UP)
+                .intValue();
+        BigDecimal f = h.multiply(BigDecimal.valueOf(5)).divide(BigDecimal.valueOf(3), 10, BigDecimal.ROUND_HALF_UP)
                 .remainder(BigDecimal.ONE);
         PercentType a = new PercentType(value.multiply(BigDecimal.ONE.subtract(s)));
         PercentType b = new PercentType(value.multiply(BigDecimal.ONE.subtract(s.multiply(f))));
@@ -264,7 +265,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command,
             // if brightness is not completely off, we consider the state to be on
             return getBrightness().equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON;
         } else if (target == DecimalType.class) {
-            return new DecimalType(getBrightness().toBigDecimal().divide(new BigDecimal(100), 8, RoundingMode.UP));
+            return new DecimalType(getBrightness().toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP));
         } else if (target == PercentType.class) {
             return new PercentType(getBrightness().toBigDecimal());
         } else {

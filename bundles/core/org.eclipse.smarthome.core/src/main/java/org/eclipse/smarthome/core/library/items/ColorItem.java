@@ -85,7 +85,7 @@ public class ColorItem extends DimmerItem {
                 applyState(new HSBType(hue, saturation, (PercentType) state));
             } else if (state instanceof DecimalType && !(state instanceof HSBType)) {
                 applyState(new HSBType(hue, saturation,
-                        new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100)))));
+                        new PercentType(((DecimalType) state).toBigDecimal().multiply(BigDecimal.valueOf(100)))));
             } else {
                 applyState(state);
             }
