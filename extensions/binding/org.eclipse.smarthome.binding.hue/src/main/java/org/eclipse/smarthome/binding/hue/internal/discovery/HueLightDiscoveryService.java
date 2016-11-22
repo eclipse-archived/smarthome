@@ -49,11 +49,13 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     // @formatter:off
     private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
             .put("on_off_light", "0000")
+            .put("on_off_plug_in_unit", "0010")
             .put("dimmable_light", "0100")
+            .put("dimmable_plug_in_unit", "0110")
             .put("color_light", "0200")
             .put("extended_color_light", "0210")
             .put("color_temperature_light", "0220")
-            .put("dimmable_plug_in_unit", "0100").build();
+            .build();
     // @formatter:on
 
     private HueBridgeHandler hueBridgeHandler;
