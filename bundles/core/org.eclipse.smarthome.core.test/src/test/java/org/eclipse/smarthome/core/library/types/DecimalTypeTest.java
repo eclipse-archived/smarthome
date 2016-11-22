@@ -105,4 +105,11 @@ public class DecimalTypeTest {
         assertEquals(UnDefType.UNDEF, new DecimalType("0.5").as(OpenClosedType.class));
     }
 
+    @Test
+    public void testConversionToHSBType() {
+        assertEquals(new HSBType("0,0,0"), new DecimalType("0.0").as(HSBType.class));
+        assertEquals(new HSBType("0,0,100"), new DecimalType("1.0").as(HSBType.class));
+        assertEquals(new HSBType("0,0,50"), new DecimalType("0.5").as(HSBType.class));
+    }
+
 }

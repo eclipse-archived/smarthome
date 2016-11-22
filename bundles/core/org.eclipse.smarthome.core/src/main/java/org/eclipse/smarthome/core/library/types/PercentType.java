@@ -47,7 +47,7 @@ public class PercentType extends DecimalType {
     }
 
     private void validateValue(BigDecimal value) {
-        if (BigDecimal.ZERO.compareTo(value) > 0 || new BigDecimal(100).compareTo(value) < 0) {
+        if (BigDecimal.ZERO.compareTo(value) > 0 || BigDecimal.valueOf(100).compareTo(value) < 0) {
             throw new IllegalArgumentException("Value must be between 0 and 100");
         }
     }
@@ -61,7 +61,7 @@ public class PercentType extends DecimalType {
         if (target == OnOffType.class) {
             return equals(ZERO) ? OnOffType.OFF : OnOffType.ON;
         } else if (target == DecimalType.class) {
-            return new DecimalType(toBigDecimal().divide(new BigDecimal(100), 8, RoundingMode.UP));
+            return new DecimalType(toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP));
         } else if (target == UpDownType.class) {
             if (equals(ZERO)) {
                 return UpDownType.UP;

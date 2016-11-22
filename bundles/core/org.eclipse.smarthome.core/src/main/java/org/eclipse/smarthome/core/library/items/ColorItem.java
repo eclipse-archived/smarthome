@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.library.items;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,6 +83,9 @@ public class ColorItem extends DimmerItem {
                 applyState(new HSBType(hue, saturation, PercentType.HUNDRED));
             } else if (state instanceof PercentType && !(state instanceof HSBType)) {
                 applyState(new HSBType(hue, saturation, (PercentType) state));
+            } else if (state instanceof DecimalType && !(state instanceof HSBType)) {
+                applyState(new HSBType(hue, saturation,
+                        new PercentType(((DecimalType) state).toBigDecimal().multiply(BigDecimal.valueOf(100)))));
             } else {
                 applyState(state);
             }
