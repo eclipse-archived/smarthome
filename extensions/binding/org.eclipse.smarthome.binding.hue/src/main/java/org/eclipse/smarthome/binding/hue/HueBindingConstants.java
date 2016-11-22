@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Jochen Hiller - Added OSRAM Classic A60 RGBW
  * @author Markus Mazurczak - Added OSRAM PAR16 50
  * @author Andre Fuechsel - changed to generic thing types
+ *
  */
 public class HueBindingConstants {
 
