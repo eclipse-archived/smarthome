@@ -6,6 +6,7 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson,
+ com.google.gson.stream,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
