@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.core.binding.ExtensionEventFactory">
-   <implementation class="org.eclipse.smarthome.io.rest.core.extensions.ExtensionEventFactory"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.extension.ExtensionEventFactory">
+   <implementation class="org.eclipse.smarthome.core.extension.ExtensionEventFactory"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventFactory"/>
    </service>
