@@ -232,7 +232,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 }
             }
             if (count > 0) {
-                return new DecimalType(sum.divide(new BigDecimal(count), RoundingMode.HALF_UP));
+                return new DecimalType(sum.divide(BigDecimal.valueOf(count), RoundingMode.HALF_UP));
             } else {
                 return UnDefType.UNDEF;
             }

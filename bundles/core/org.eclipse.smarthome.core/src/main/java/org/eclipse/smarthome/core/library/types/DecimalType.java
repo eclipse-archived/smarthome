@@ -41,7 +41,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
     }
 
     public DecimalType(long value) {
-        this.value = new BigDecimal(value);
+        this.value = BigDecimal.valueOf(value);
     }
 
     public DecimalType(double value) {
@@ -148,11 +148,11 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         if (target == OnOffType.class) {
             return equals(ZERO) ? OnOffType.OFF : OnOffType.ON;
         } else if (target == PercentType.class) {
-            return new PercentType(toBigDecimal().multiply(new BigDecimal(100)));
+            return new PercentType(toBigDecimal().multiply(BigDecimal.valueOf(100)));
         } else if (target == UpDownType.class) {
             if (equals(ZERO)) {
                 return UpDownType.UP;
-            } else if (toBigDecimal().compareTo(new BigDecimal(1)) == 0) {
+            } else if (toBigDecimal().compareTo(BigDecimal.valueOf(1)) == 0) {
                 return UpDownType.DOWN;
             } else {
                 return UnDefType.UNDEF;
@@ -160,11 +160,14 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         } else if (target == OpenClosedType.class) {
             if (equals(ZERO)) {
                 return OpenClosedType.CLOSED;
-            } else if (toBigDecimal().compareTo(new BigDecimal(1)) == 0) {
+            } else if (toBigDecimal().compareTo(BigDecimal.valueOf(1)) == 0) {
                 return OpenClosedType.OPEN;
             } else {
                 return UnDefType.UNDEF;
             }
+        } else if (target == HSBType.class) {
+            return new HSBType(DecimalType.ZERO, PercentType.ZERO,
+                    new PercentType(this.toBigDecimal().multiply(BigDecimal.valueOf(100))));
         } else {
             return StateConverterUtil.defaultConversion(this, target);
         }
