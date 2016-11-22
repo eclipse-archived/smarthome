@@ -201,7 +201,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
         if (item.type === 'DateTime') {
             var date = new Date(item.state);
-            return $filter('date')(date, "dd.MM.yyyy hh:mm:ss");
+            return $filter('date')(date, "dd.MM.yyyy HH:mm:ss");
         } else if (!item.stateDescription || !item.stateDescription.pattern) {
             return state;
         } else {
