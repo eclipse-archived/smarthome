@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.extension.ExtensionService"/>
    </service>
+   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
 </scr:component>
