@@ -88,15 +88,14 @@ public class SonosAudioSink implements AudioSink {
                     String url = callbackUrl + relativeUrl;
 
                     AudioFormat format = audioStream.getFormat();
-                    if (AudioFormat.WAV.isCompatible(format)) {
+                    if (handler.getThing().getStatus() != ThingStatus.ONLINE
+                            && handler.getThing().getStatus() != ThingStatus.OFFLINE) {
+                        logger.warn("Sonos speaker '{}' is not initialized - status is {}", handler.getThing().getUID(),
+                                handler.getThing().getStatus());
+                    } else if (AudioFormat.WAV.isCompatible(format)) {
                         handler.playNotificationSoundURI(new StringType(url + ".wav"));
                     } else if (AudioFormat.MP3.isCompatible(format)) {
-                        if (handler.getThing().getStatus() == ThingStatus.ONLINE) {
-                            handler.playNotificationSoundURI(new StringType(url + ".mp3"));
-                        } else {
-                            logger.warn("Sonos speaker '{}' is not online - status is {}", handler.getThing().getUID(),
-                                    handler.getThing().getStatus());
-                        }
+                        handler.playNotificationSoundURI(new StringType(url + ".mp3"));
                     } else {
                         throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
                     }
