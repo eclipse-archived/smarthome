@@ -7,29 +7,26 @@
  */
 package org.eclipse.smarthome.binding.hue.test
 
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
+
 import org.eclipse.smarthome.binding.hue.HueBindingConstants
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueBridgeNupnpDiscovery
-import org.eclipse.smarthome.config.discovery.inbox.Inbox
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryService
-import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.config.discovery.inbox.Inbox
+import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import org.junit.After
 import org.junit.Test
 
 /**
- * 
+ *
  * @author Christoph Knauf - Initial contribution
  *
  */
@@ -118,36 +115,6 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
         assertThat sut.getSupportedThingTypes().getAt(0), is(HueBindingConstants.THING_TYPE_BRIDGE)
     }
 
-    @Test
-    public void 'assert that valid bridges are discovered using the background discovery'(){
-        sut = new ConfigurableBridgeNupnpDiscoveryMock()
-        registerService(sut, DiscoveryService.class.name)
-        discoveryResult = validBridgeDiscoveryResult
-        def results = [:]
-        registerDiscoveryListener( [
-            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
-                results.put(result.getThingUID(),result)
-            },
-            thingRemoved: { DiscoveryService source, ThingUID thingId ->
-            },
-            discoveryFinished: { DiscoveryService source ->
-            },
-            discoveryErrorOccurred: { DiscoveryService source, Exception exception ->
-            }
-        ] as DiscoveryListener)
-
-        sut.startBackgroundDiscovery()
-
-        waitForAssert{
-            assertThat results.size(), is(2)
-            assertThat results.get(BRIDGE_THING_UID_1), is(notNullValue())
-            checkDiscoveryResult(results.get(BRIDGE_THING_UID_1), ip1, sn1)
-            assertThat results.get(BRIDGE_THING_UID_2), is(notNullValue())
-            checkDiscoveryResult(results.get(BRIDGE_THING_UID_2), ip2, sn2)
-
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(2)
-        }
-    }
 
     @Test
     public void 'assert that valid bridges are discovered'(){
