@@ -14,7 +14,6 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-
 package org.eclipse.smarthome.automation.sample.moduletype.handlers;
 
 import java.util.Map;

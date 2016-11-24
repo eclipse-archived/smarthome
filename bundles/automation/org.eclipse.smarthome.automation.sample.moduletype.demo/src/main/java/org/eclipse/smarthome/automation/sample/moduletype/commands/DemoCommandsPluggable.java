@@ -123,7 +123,6 @@ public class DemoCommandsPluggable extends AbstractConsoleCommandExtension {
      * @return
      */
     private DemoCommand parseCommand(String command, String[] params) {
-
         if (command.equalsIgnoreCase(PostEventCommand.POST_EVENT)
                 || command.equalsIgnoreCase(PostEventCommand.POST_EVENT_SHORT)) {
             return new PostEventCommand(params);
@@ -140,7 +139,6 @@ public class DemoCommandsPluggable extends AbstractConsoleCommandExtension {
      * @return understandable for the user message containing information on the outcome of the command.
      */
     private String executeCommand(String command, String[] parameterValues) {
-
         DemoCommand commandInst = parseCommand(command, parameterValues);
         if (commandInst != null) {
             return commandInst.execute();
