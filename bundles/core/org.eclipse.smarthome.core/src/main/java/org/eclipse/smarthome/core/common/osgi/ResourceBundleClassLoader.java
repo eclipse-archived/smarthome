@@ -127,12 +127,13 @@ public class ResourceBundleClassLoader extends ClassLoader {
                     resourceStream = resourceURL.openStream();
                 }
                 if (resourceStream != null) {
-                    Reader resourceReader = new InputStreamReader(resourceStream, charset);
-                    Properties props = new Properties();
-                    props.load(resourceReader);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    props.store(baos, "converted");
-                    return new ByteArrayInputStream(baos.toByteArray());
+                    try (Reader resourceReader = new InputStreamReader(resourceStream, charset)) {
+                        Properties props = new Properties();
+                        props.load(resourceReader);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        props.store(baos, "converted");
+                        return new ByteArrayInputStream(baos.toByteArray());
+                    }
                 }
             } catch (IOException e) {
             }

@@ -150,7 +150,7 @@ public class DialogProcessor implements KSListener, STTListener {
         try {
             Voice voice = null;
             for (Voice currentVoice : tts.getAvailableVoices()) {
-                if (this.locale.getLanguage() == currentVoice.getLocale().getLanguage()) {
+                if (this.locale.getLanguage().equals(currentVoice.getLocale().getLanguage())) {
                     voice = currentVoice;
                     break;
                 }

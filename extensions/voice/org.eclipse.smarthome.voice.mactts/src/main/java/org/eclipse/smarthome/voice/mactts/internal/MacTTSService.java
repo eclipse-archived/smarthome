@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioStream;
@@ -89,10 +90,12 @@ public class MacTTSService implements TTSService {
      */
     private final Set<Voice> initVoices() {
         Set<Voice> voices = new HashSet<Voice>();
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bufferedReader = null;
         try {
             Process process = Runtime.getRuntime().exec("say -v ?");
-            InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            inputStreamReader = new InputStreamReader(process.getInputStream());
+            bufferedReader = new BufferedReader(inputStreamReader);
 
             String nextLine;
             while ((nextLine = bufferedReader.readLine()) != null) {
@@ -100,6 +103,8 @@ public class MacTTSService implements TTSService {
             }
         } catch (IOException e) {
             logger.error("Error while executing the 'say -v ?' command: " + e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(bufferedReader);
         }
         return voices;
     }
