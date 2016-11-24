@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,7 +254,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     private void informHandlerAboutLinkedChannel(Thing thing, Channel channel) {
         // Don't notify the thing if the thing isn't initialised
-        if (thing.getStatus() != ThingStatus.ONLINE && thing.getStatus() != ThingStatus.OFFLINE) {
+        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
             return;
         }
 
@@ -272,7 +273,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     private void informHandlerAboutUnlinkedChannel(Thing thing, Channel channel) {
         // Don't notify the thing if the thing isn't initialised
-        if (thing.getStatus() != ThingStatus.ONLINE && thing.getStatus() != ThingStatus.OFFLINE) {
+        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
             return;
         }
 
