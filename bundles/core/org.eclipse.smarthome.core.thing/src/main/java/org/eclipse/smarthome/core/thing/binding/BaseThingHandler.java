@@ -150,7 +150,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
 
-        if (ThingHandlerHelper.isHandlerInitialized(this)) {
+        if (isInitialized()) {
             // persist new configuration and reinitialize handler
             dispose();
             updateConfiguration(configuration);
@@ -576,14 +576,11 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Returns whether the thing has already been initialized.
+     * Returns whether the handler has already been initialized.
      *
-     * @return true if thing is initialized, false otherwise
-     * @deprecated use {@link ThingHandlerHelper#isHandlerInitialized(Thing)} or
-     *             {@link ThingHandlerHelper#isHandlerInitialized(ThingHandler)}
+     * @return true if handler is initialized, false otherwise
      */
-    @Deprecated
-    protected boolean thingIsInitialized() {
+    protected boolean isInitialized() {
         return ThingHandlerHelper.isHandlerInitialized(this);
     }
 
