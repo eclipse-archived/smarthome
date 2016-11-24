@@ -57,7 +57,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
     // the scheduler used for timer events
-    private final ExpressionThreadPoolExecutor scheduler;
+    private ExpressionThreadPoolExecutor scheduler;
 
     private ItemRegistry itemRegistry;
 
@@ -66,7 +66,15 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     private final Map<String, Set<Runnable>> persistenceJobs = new HashMap<>();
 
     public PersistenceManagerImpl() {
+    }
+
+    protected void activate() {
         scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool("persist");
+    }
+
+    protected void deactivate() {
+        scheduler.shutdown();
+        scheduler = null;
     }
 
     protected void setItemRegistry(ItemRegistry itemRegistry) {
