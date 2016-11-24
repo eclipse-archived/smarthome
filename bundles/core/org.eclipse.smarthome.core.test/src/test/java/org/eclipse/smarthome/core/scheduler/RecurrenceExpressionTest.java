@@ -13,7 +13,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.eclipse.smarthome.core.scheduler.RecurrenceExpression;
 import org.junit.Test;
 
 public class RecurrenceExpressionTest {
@@ -28,6 +27,7 @@ public class RecurrenceExpressionTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2016, 0, 1, 0, 0, 0); // set to Jan 1st 2016, 00:00
+        cal.set(Calendar.MILLISECOND, 0);
         Date startDate = cal.getTime();
 
         // This rule describes an event that takes place on every weekday (BYDAY) for the next 15 weekdays (COUNT).
@@ -36,6 +36,7 @@ public class RecurrenceExpressionTest {
         Date nextDate = expr.getTimeAfter(startDate);
 
         cal.set(2016, 0, 4, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         Date checkDate = cal.getTime();
 
         assertEquals(checkDate, nextDate);
@@ -46,6 +47,7 @@ public class RecurrenceExpressionTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2016, 0, 1, 0, 0, 0); // set to Jan 1st 2016, 00:00
+        cal.set(Calendar.MILLISECOND, 0);
         Date startDate = cal.getTime();
 
         // US election day. Every fourth year (INTERVAL) on the first Tuesday (BYDAY) after a Monday (BYMONTHDAY ensures
@@ -57,6 +59,7 @@ public class RecurrenceExpressionTest {
         nextDate = expr.getTimeAfter(nextDate);
 
         cal.set(2020, 10, 3, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         Date checkDate = cal.getTime();
 
         assertEquals(checkDate, nextDate);
@@ -67,6 +70,7 @@ public class RecurrenceExpressionTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2016, 0, 1, 0, 0, 0); // set to Jan 1st 2016, 00:00
+        cal.set(Calendar.MILLISECOND, 0);
         Date startDate = cal.getTime();
 
         // This rule describes an event that takes place on every weekday (BYDAY) for the next 15 weekdays (COUNT).
@@ -75,6 +79,7 @@ public class RecurrenceExpressionTest {
         Date nextDate = expr.getFinalFireTime();
 
         cal.set(2016, 0, 21, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         Date checkDate = cal.getTime();
 
         assertEquals(checkDate, nextDate);
