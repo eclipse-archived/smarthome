@@ -16,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -57,34 +55,10 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    private static final int BRIDGE_SCAN_INTERVAL = 60;
-
     private final Logger logger = LoggerFactory.getLogger(HueBridgeNupnpDiscovery.class);
 
-    private ScheduledFuture<?> bridgeScanningJob;
-
     public HueBridgeNupnpDiscovery() {
-        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT);
-    }
-
-    @Override
-    protected void startBackgroundDiscovery() {
-        if (bridgeScanningJob == null) {
-            this.bridgeScanningJob = scheduler.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    discoverHueBridges();
-                }
-            }, 0, BRIDGE_SCAN_INTERVAL, TimeUnit.SECONDS);
-        }
-    }
-
-    @Override
-    protected void stopBackgroundDiscovery() {
-        if (bridgeScanningJob != null) {
-            bridgeScanningJob.cancel(true);
-            bridgeScanningJob = null;
-        }
+        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT, false);
     }
 
     @Override
