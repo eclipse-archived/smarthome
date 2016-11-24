@@ -58,17 +58,7 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(HueBridgeNupnpDiscovery.class);
 
     public HueBridgeNupnpDiscovery() {
-        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT);
-    }
-
-    @Override
-    protected void startBackgroundDiscovery() {
-        // no need for polling in the background because this is just an additional discovery service for hue
-    }
-
-    @Override
-    protected void stopBackgroundDiscovery() {
-        // nothing started --> nothing to do.
+        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT, false);
     }
 
     @Override
