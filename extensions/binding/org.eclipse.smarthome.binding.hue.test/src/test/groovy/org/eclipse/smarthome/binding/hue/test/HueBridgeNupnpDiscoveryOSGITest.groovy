@@ -44,6 +44,7 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
     final String sn2 = "001788141b41"
     final ThingUID BRIDGE_THING_UID_1 = new ThingUID(BRIDGE_THING_TYPE_UID, sn1)
     final ThingUID BRIDGE_THING_UID_2 = new ThingUID(BRIDGE_THING_TYPE_UID, sn2)
+    final InboxFilterCriteria inboxFilter = new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)
     final String validBridgeDiscoveryResult = '[{"id":"001788fffe20057f","internalipaddress":'+ip1+'},{"id":"001788fffe141b41","internalipaddress":'+ip2+'}]'
     def discoveryResult
     def expBridgeDescription = '''
@@ -118,6 +119,7 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
 
     @Test
     public void 'assert that valid bridges are discovered'(){
+        if (inbox.get(inboxFilter).size != 0) inbox.remove(BRIDGE_THING_TYPE_UID)
         sut = new ConfigurableBridgeNupnpDiscoveryMock()
         registerService(sut, DiscoveryService.class.name)
         discoveryResult = validBridgeDiscoveryResult
@@ -143,12 +145,16 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
             assertThat results.get(BRIDGE_THING_UID_2), is(notNullValue())
             checkDiscoveryResult(results.get(BRIDGE_THING_UID_2), ip2, sn2)
 
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(2)
+            def inboxResults = inbox.get(inboxFilter)
+            assertTrue inboxResults.size() >= 2
+            assertThat inboxResults.find{it.getThingUID() == BRIDGE_THING_UID_1}, is(notNullValue())
+            assertThat inboxResults.find{it.getThingUID() == BRIDGE_THING_UID_2}, is(notNullValue())
         }
     }
 
     @Test
     public void 'assert that invalid bridges are not discovered'(){
+        if (inbox.get(inboxFilter).size != 0) inbox.remove(BRIDGE_THING_TYPE_UID)
         sut = new ConfigurableBridgeNupnpDiscoveryMock()
         registerService(sut, DiscoveryService.class.name)
         def results = [:]
@@ -206,7 +212,7 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
         waitForAssert{ assertThat results.size(), is(0)}
 
         waitForAssert {
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(0)
+            assertThat inbox.get(inboxFilter).size(), is(0)
         }
     }
 
