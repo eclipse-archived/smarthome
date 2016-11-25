@@ -61,6 +61,7 @@ import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
+import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.Bundle;
@@ -177,7 +178,8 @@ public class ThingManager extends AbstractItemEventSubscriber
 
         private void handleBridgeStatusUpdate(Bridge bridge, ThingStatusInfo statusInfo,
                 ThingStatusInfo oldStatusInfo) {
-            if (isInitialized(bridge) && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
+            if (ThingHandlerHelper.isHandlerInitialized(bridge)
+                    && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
                 // bridge has just been initialized: initialize child things as well
                 registerChildHandlers(bridge);
             } else if (!statusInfo.equals(oldStatusInfo)) {
@@ -187,7 +189,8 @@ public class ThingManager extends AbstractItemEventSubscriber
         }
 
         private void handleBridgeChildStatusUpdate(Thing thing, ThingStatusInfo oldStatusInfo) {
-            if (isInitialized(thing) && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
+            if (ThingHandlerHelper.isHandlerInitialized(thing)
+                    && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
                 // child thing has just been initialized: notify bridge about it
                 notifyBridgeAboutChildHandlerInitialization(thing);
             }
@@ -342,7 +345,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        if (isInitialized(thing)) {
+                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                             logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                                     itemName, channelUID);
                             try {
@@ -392,7 +395,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        if (isInitialized(thing)) {
+                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                             logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
                                     itemName, channelUID);
                             try {
@@ -491,7 +494,7 @@ public class ThingManager extends AbstractItemEventSubscriber
             if (oldThing != thing) {
                 thing.setHandler(thingHandler);
             }
-            if (isInitialized(thing)) {
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                 try {
                     // prevent infinite loops by not informing handler about self-initiated update
                     if (!thingUpdatedLock.contains(thingUID)) {
@@ -561,7 +564,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                     doRegisterHandler(thing, thingHandlerFactory);
                 } else {
                     Bridge bridge = getBridge(thing.getBridgeUID());
-                    if (bridge != null && isInitialized(bridge)) {
+                    if (bridge != null && ThingHandlerHelper.isHandlerInitialized(bridge)) {
                         doRegisterHandler(thing, thingHandlerFactory);
                     } else {
                         setThingStatus(thing,
@@ -781,10 +784,6 @@ public class ThingManager extends AbstractItemEventSubscriber
         }
     }
 
-    private boolean isInitialized(Thing thing) {
-        return thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE;
-    }
-
     private boolean isInitializing(Thing thing) {
         return thing.getStatus() == ThingStatus.INITIALIZING;
     }
@@ -904,7 +903,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                     public void run() {
                         try {
                             ThingHandler handler = child.getHandler();
-                            if (handler != null && isInitialized(child)) {
+                            if (handler != null && ThingHandlerHelper.isHandlerInitialized(child)) {
                                 handler.bridgeStatusChanged(bridgeStatus);
                             }
                         } catch (Exception e) {
