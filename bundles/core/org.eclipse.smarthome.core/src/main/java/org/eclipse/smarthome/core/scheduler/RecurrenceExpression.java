@@ -487,7 +487,7 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
      */
     public RecurrenceExpression(final String recurrenceRule, final Date startTime, final TimeZone zone)
             throws ParseException {
-        super(recurrenceRule, ";", startTime, zone, 0);
+        super(recurrenceRule, ";", startTime, zone, 0, 366);
     }
 
     @Override
@@ -502,7 +502,15 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
             throw new IllegalArgumentException("Start date cannot be after until");
         }
 
-        super.setStartDate(startDate);
+        // We set the real start date to the next second; milliseconds are not supported by Recurrence expressions
+        // anyways
+        Calendar calendar = Calendar.getInstance(getTimeZone());
+        calendar.setTime(startDate);
+        if (calendar.get(Calendar.MILLISECOND) != 0) {
+            calendar.add(Calendar.SECOND, 1);
+            calendar.set(Calendar.MILLISECOND, 0);
+        }
+        super.setStartDate(calendar.getTime());
     }
 
     @Override
@@ -646,7 +654,7 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
     }
 
     @Override
-    protected void prune() {
+    protected void pruneFarthest() {
         Collections.sort(getCandidates());
 
         ArrayList<Date> beforeDates = new ArrayList<Date>();

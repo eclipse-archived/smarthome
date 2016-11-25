@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.extension.Extension;
+import org.eclipse.smarthome.core.extension.ExtensionEventFactory;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
@@ -125,7 +126,6 @@ public class ExtensionResource implements SatisfiableRESTResource {
             public void run() {
                 try {
                     extensionService.install(extensionId);
-                    postInstalledEvent(extensionId);
                 } catch (Exception e) {
                     logger.error("Exception while installing extension: {}", e.getMessage());
                     postFailureEvent(extensionId, e.getMessage());
@@ -145,7 +145,6 @@ public class ExtensionResource implements SatisfiableRESTResource {
             public void run() {
                 try {
                     extensionService.uninstall(extensionId);
-                    postUninstalledEvent(extensionId);
                 } catch (Exception e) {
                     logger.error("Exception while uninstalling extension: {}", e.getMessage());
                     postFailureEvent(extensionId, e.getMessage());
@@ -153,20 +152,6 @@ public class ExtensionResource implements SatisfiableRESTResource {
             }
         });
         return Response.ok().build();
-    }
-
-    private void postInstalledEvent(String extensionId) {
-        if (eventPublisher != null) {
-            Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
-            eventPublisher.post(event);
-        }
-    }
-
-    private void postUninstalledEvent(String extensionId) {
-        if (eventPublisher != null) {
-            Event event = ExtensionEventFactory.createExtensionUninstalledEvent(extensionId);
-            eventPublisher.post(event);
-        }
     }
 
     private void postFailureEvent(String extensionId, String msg) {

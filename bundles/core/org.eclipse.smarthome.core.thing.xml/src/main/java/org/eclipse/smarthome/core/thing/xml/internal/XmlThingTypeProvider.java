@@ -9,13 +9,13 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
@@ -106,7 +106,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
     public XmlThingTypeProvider() {
-        this.bundleThingTypesMap = new HashMap<>(10);
+        this.bundleThingTypesMap = new ConcurrentHashMap<>(10);
     }
 
     private List<ThingType> acquireThingTypes(Bundle bundle) {
@@ -114,7 +114,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
 
             if (thingTypes == null) {
-                thingTypes = new ArrayList<ThingType>(10);
+                thingTypes = new CopyOnWriteArrayList<ThingType>();
 
                 this.bundleThingTypesMap.put(bundle, thingTypes);
             }

@@ -15,7 +15,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.extension.Extension;
+import org.eclipse.smarthome.core.extension.ExtensionEventFactory;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
 
@@ -29,8 +32,18 @@ import org.eclipse.smarthome.core.extension.ExtensionType;
  */
 public class SampleExtensionService implements ExtensionService {
 
+    private EventPublisher eventPublisher;
+
     List<ExtensionType> types = new ArrayList<>(3);
     Map<String, Extension> extensions = new HashMap<>(30);
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
 
     protected void activate() {
         types.add(new ExtensionType("binding", "Bindings"));
@@ -61,6 +74,7 @@ public class SampleExtensionService implements ExtensionService {
             Thread.sleep((long) (Math.random() * 10000));
             Extension extension = getExtension(id, null);
             extension.setInstalled(true);
+            postInstalledEvent(id);
         } catch (InterruptedException e) {
         }
     }
@@ -71,6 +85,7 @@ public class SampleExtensionService implements ExtensionService {
             Thread.sleep((long) (Math.random() * 5000));
             Extension extension = getExtension(id, null);
             extension.setInstalled(false);
+            postUninstalledEvent(id);
         } catch (InterruptedException e) {
         }
     }
@@ -90,4 +105,17 @@ public class SampleExtensionService implements ExtensionService {
         return types;
     }
 
+    private void postInstalledEvent(String extensionId) {
+        if (eventPublisher != null) {
+            Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
+            eventPublisher.post(event);
+        }
+    }
+
+    private void postUninstalledEvent(String extensionId) {
+        if (eventPublisher != null) {
+            Event event = ExtensionEventFactory.createExtensionUninstalledEvent(extensionId);
+            eventPublisher.post(event);
+        }
+    }
 }

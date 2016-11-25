@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -149,7 +150,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
 
-        if (thingIsInitialized()) {
+        if (isInitialized()) {
             // persist new configuration and reinitialize handler
             dispose();
             updateConfiguration(configuration);
@@ -575,12 +576,12 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Returns whether the thing has already been initialized.
+     * Returns whether the handler has already been initialized.
      *
-     * @return true if thing is initialized, false otherwise
+     * @return true if handler is initialized, false otherwise
      */
-    protected boolean thingIsInitialized() {
-        return getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE;
+    protected boolean isInitialized() {
+        return ThingHandlerHelper.isHandlerInitialized(this);
     }
 
     @Override

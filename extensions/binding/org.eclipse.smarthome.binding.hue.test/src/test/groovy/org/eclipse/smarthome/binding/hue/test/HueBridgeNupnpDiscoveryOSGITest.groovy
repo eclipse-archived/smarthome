@@ -7,29 +7,26 @@
  */
 package org.eclipse.smarthome.binding.hue.test
 
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
+
 import org.eclipse.smarthome.binding.hue.HueBindingConstants
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueBridgeNupnpDiscovery
-import org.eclipse.smarthome.config.discovery.inbox.Inbox
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryService
-import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.config.discovery.inbox.Inbox
+import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import org.junit.After
 import org.junit.Test
 
 /**
- * 
+ *
  * @author Christoph Knauf - Initial contribution
  *
  */
@@ -47,6 +44,7 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
     final String sn2 = "001788141b41"
     final ThingUID BRIDGE_THING_UID_1 = new ThingUID(BRIDGE_THING_TYPE_UID, sn1)
     final ThingUID BRIDGE_THING_UID_2 = new ThingUID(BRIDGE_THING_TYPE_UID, sn2)
+    final InboxFilterCriteria inboxFilter = new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)
     final String validBridgeDiscoveryResult = '[{"id":"001788fffe20057f","internalipaddress":'+ip1+'},{"id":"001788fffe141b41","internalipaddress":'+ip2+'}]'
     def discoveryResult
     def expBridgeDescription = '''
@@ -118,39 +116,10 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
         assertThat sut.getSupportedThingTypes().getAt(0), is(HueBindingConstants.THING_TYPE_BRIDGE)
     }
 
-    @Test
-    public void 'assert that valid bridges are discovered using the background discovery'(){
-        sut = new ConfigurableBridgeNupnpDiscoveryMock()
-        registerService(sut, DiscoveryService.class.name)
-        discoveryResult = validBridgeDiscoveryResult
-        def results = [:]
-        registerDiscoveryListener( [
-            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
-                results.put(result.getThingUID(),result)
-            },
-            thingRemoved: { DiscoveryService source, ThingUID thingId ->
-            },
-            discoveryFinished: { DiscoveryService source ->
-            },
-            discoveryErrorOccurred: { DiscoveryService source, Exception exception ->
-            }
-        ] as DiscoveryListener)
-
-        sut.startBackgroundDiscovery()
-
-        waitForAssert{
-            assertThat results.size(), is(2)
-            assertThat results.get(BRIDGE_THING_UID_1), is(notNullValue())
-            checkDiscoveryResult(results.get(BRIDGE_THING_UID_1), ip1, sn1)
-            assertThat results.get(BRIDGE_THING_UID_2), is(notNullValue())
-            checkDiscoveryResult(results.get(BRIDGE_THING_UID_2), ip2, sn2)
-
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(2)
-        }
-    }
 
     @Test
     public void 'assert that valid bridges are discovered'(){
+        if (inbox.get(inboxFilter).size != 0) inbox.remove(BRIDGE_THING_TYPE_UID)
         sut = new ConfigurableBridgeNupnpDiscoveryMock()
         registerService(sut, DiscoveryService.class.name)
         discoveryResult = validBridgeDiscoveryResult
@@ -176,12 +145,16 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
             assertThat results.get(BRIDGE_THING_UID_2), is(notNullValue())
             checkDiscoveryResult(results.get(BRIDGE_THING_UID_2), ip2, sn2)
 
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(2)
+            def inboxResults = inbox.get(inboxFilter)
+            assertTrue inboxResults.size() >= 2
+            assertThat inboxResults.find{it.getThingUID() == BRIDGE_THING_UID_1}, is(notNullValue())
+            assertThat inboxResults.find{it.getThingUID() == BRIDGE_THING_UID_2}, is(notNullValue())
         }
     }
 
     @Test
     public void 'assert that invalid bridges are not discovered'(){
+        if (inbox.get(inboxFilter).size != 0) inbox.remove(BRIDGE_THING_TYPE_UID)
         sut = new ConfigurableBridgeNupnpDiscoveryMock()
         registerService(sut, DiscoveryService.class.name)
         def results = [:]
@@ -239,7 +212,7 @@ class HueBridgeNupnpDiscoveryOSGITest extends OSGiTest{
         waitForAssert{ assertThat results.size(), is(0)}
 
         waitForAssert {
-            assertThat inbox.get(new InboxFilterCriteria(BRIDGE_THING_TYPE_UID,null)).size(), is(0)
+            assertThat inbox.get(inboxFilter).size(), is(0)
         }
     }
 
