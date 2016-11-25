@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.config.core.BundleProcessor;
-import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener;
+import org.eclipse.smarthome.config.core.BundleProcessorVetoManager;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -65,7 +65,6 @@ import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -95,8 +94,7 @@ import com.google.common.collect.SetMultimap;
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  */
-public class ThingManager extends AbstractItemEventSubscriber
-        implements ThingTracker, BundleProcessorListener, ThingTypeMigrationService {
+public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
@@ -607,74 +605,36 @@ public class ThingManager extends AbstractItemEventSubscriber
         if (!isHandlerRegistered(thing)) {
             return;
         }
-        synchronized (thing) {
-            if (!isInitializing(thing)) {
-                doInitializeHandler(thing, thing.getHandler());
-            } else {
-                logger.warn("Attempt to initialize a handler twice for thing '{}' at the same time will be ignored.",
-                        thing.getUID());
-            }
-        }
+        initializationVetoManager.applyActionFor(thing.getHandler());
     }
 
-    private void doInitializeHandler(Thing thing, ThingHandler thingHandler) {
-        if (!isVetoed(thingHandler)) {
-            ThingType thingType = getThingType(thing);
-            applyDefaultConfiguration(thing, thingType);
-            if (isInitializable(thing, thingType)) {
-                setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
-                doInitializeHandler(thingHandler);
-            } else {
-                logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
-                setThingStatus(thing,
-                        buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
-            }
-        }
-    }
-
-    private boolean isVetoed(final ThingHandler thingHandler) {
-        boolean veto = false;
-        Bundle bundle = getBundle(thingHandler.getClass());
-        for (BundleProcessor proc : bundleProcessors) {
-            if (!proc.hasFinishedLoading(bundle)) {
-                veto = true;
-                if (!initializerVetoes.containsEntry(bundle, proc)) {
-                    logger.trace("Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
-                    initializerVetoes.put(bundle, proc);
+    private final BundleProcessorVetoManager<ThingHandler> initializationVetoManager = new BundleProcessorVetoManager<>(
+            new BundleProcessorVetoManager.Action<ThingHandler>() {
+                @Override
+                public void apply(ThingHandler thingHandler) {
+                    Thing thing = thingHandler.getThing();
+                    synchronized (thing) {
+                        if (!isInitializing(thing)) {
+                            ThingType thingType = getThingType(thing);
+                            applyDefaultConfiguration(thing, thingType);
+                            if (isInitializable(thing, thingType)) {
+                                setThingStatus(thing,
+                                        buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
+                                doInitializeHandler(thingHandler);
+                            } else {
+                                logger.debug("Thing '{}' not initializable, check required configuration parameters.",
+                                        thing.getUID());
+                                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
+                                        ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
+                            }
+                        } else {
+                            logger.warn(
+                                    "Attempt to initialize a handler twice for thing '{}' at the same time will be ignored.",
+                                    thing.getUID());
+                        }
+                    }
                 }
-            } else {
-                logger.trace("'{}' already finished processing '{}'", proc, bundle.getSymbolicName());
-            }
-        }
-        if (veto) {
-            if (!initializerQueue.containsEntry(bundle, thingHandler)) {
-                logger.trace("Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
-                initializerQueue.put(bundle.getBundleId(), thingHandler);
-            }
-            logger.debug(
-                    "Meta-data of bundle '{}' is not fully loaded ({}), deferring handler initialization for thing '{}'",
-                    bundle.getSymbolicName(), initializerVetoes.get(bundle), thingHandler.getThing().getUID());
-        } else {
-            logger.debug("Finished loading meta-data of bundle '{}'", bundle.getSymbolicName());
-        }
-        return veto;
-    }
-
-    private Bundle getBundle(final Class<?> classFromBundle) {
-        ClassLoader classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            @Override
-            public ClassLoader run() {
-                return classFromBundle.getClassLoader();
-            }
-        });
-
-        if (classLoader instanceof BundleReference) {
-            Bundle bundle = ((BundleReference) classLoader).getBundle();
-            logger.trace("Bundle of {} is {}", classFromBundle, bundle.getSymbolicName());
-            return bundle;
-        }
-        return null;
-    }
+            });
 
     private void applyDefaultConfiguration(Thing thing, ThingType thingType) {
         if (thingType != null) {
@@ -745,21 +705,6 @@ public class ThingManager extends AbstractItemEventSubscriber
                 }
             }
         }, 0, TimeUnit.NANOSECONDS);
-    }
-
-    @Override
-    public void bundleFinished(BundleProcessor context, Bundle bundle) {
-        initializerVetoes.remove(bundle, context);
-        if (initializerVetoes.get(bundle).isEmpty()) {
-            synchronized (initializerQueue) {
-                for (ThingHandler thingHandler : initializerQueue.removeAll(bundle.getBundleId())) {
-                    initializeHandler(thingHandler.getThing());
-                }
-            }
-        } else {
-            logger.debug("'{}' still vetoed by '{}'", bundle.getSymbolicName(), initializerVetoes.get(bundle));
-            logger.debug("'{}' queued '{}'", bundle.getSymbolicName(), initializerQueue.get(bundle.getBundleId()));
-        }
     }
 
     private boolean isInitializing(Thing thing) {
@@ -1137,14 +1082,11 @@ public class ThingManager extends AbstractItemEventSubscriber
     }
 
     protected void setBundleProcessor(BundleProcessor bundleProcessor) {
-        logger.trace("Added '{}'", bundleProcessor);
-        bundleProcessors.add(bundleProcessor);
-        bundleProcessor.registerListener(this);
+        initializationVetoManager.addBundleProcessor(bundleProcessor);
     }
 
     protected void unsetBundleProcessor(BundleProcessor bundleProcessor) {
-        bundleProcessor.unregisterListener(this);
-        bundleProcessors.remove(bundleProcessor);
+        initializationVetoManager.removeBundleProcessor(bundleProcessor);
     }
 
 }

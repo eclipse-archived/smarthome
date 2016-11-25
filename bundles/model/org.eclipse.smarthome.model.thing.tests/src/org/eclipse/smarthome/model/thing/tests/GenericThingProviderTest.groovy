@@ -328,4 +328,98 @@ class GenericThingProviderTest extends OSGiTest {
 
     }
 
+    @Test
+    void 'assert that things can be embedded within bridges in short notation'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ] {
+                LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        assertThat actualThings.find {"hue:bridge:myBridge".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:myBridge:bulb1".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:myBridge:bulb1".equals(it.UID.toString())}.getBridgeUID().toString(), is(equalTo("hue:bridge:myBridge"))
+    }
+
+    @Test
+    void 'assert that things can be embedded within bridges in long notation'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ] {
+                hue:LCT001:bulb1 [ lightId = "1" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        assertThat actualThings.find {"hue:bridge:myBridge".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}.getBridgeUID().toString(), is(equalTo("hue:bridge:myBridge"))
+    }
+
+    @Test
+    void 'assert that standalone things can have bridges in long notation'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ]
+            hue:LCT001:bulb1 (hue:bridge:myBridge) [ lightId = "1" ] { Switch : notification }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        assertThat actualThings.find {"hue:bridge:myBridge".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}.getBridgeUID().toString(), is(equalTo("hue:bridge:myBridge"))
+    }
+
+    @Test
+    void 'assert that standalone thing with a bridge works in short notation'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+        Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ]
+        LCT001 bulb1 (hue:bridge:myBridge) [ lightId = "1" ] { Switch : notification }
+        '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        assertThat actualThings.find {"hue:bridge:myBridge".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}, is(notNullValue())
+        assertThat actualThings.find {"hue:LCT001:bulb1".equals(it.UID.toString())}.getBridgeUID().toString(), is(equalTo("hue:bridge:myBridge"))
+    }
+
+    @Test
+    void 'assert that standalone thing without a bridge does not work in short notation'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+        LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+        hue:LCT001:bulb2 (hue:bridge:myBridge) [ lightId = "2" ] { Switch : notification }
+        '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(1)
+        assertThat actualThings.find {"hue:LCT001:bulb2".equals(it.UID.toString())}, is(notNullValue())
+    }
+
 }
