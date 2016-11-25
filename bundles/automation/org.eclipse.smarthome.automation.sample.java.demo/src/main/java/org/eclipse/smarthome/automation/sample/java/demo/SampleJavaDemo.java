@@ -1,13 +1,19 @@
-/*
- * Copyright (c) 2016 by ProSyst Software GmbH
- * http://www.prosyst.com
- * All rights reserved.
+/*******************************************************************************
  *
- * This software is the confidential and proprietary information
- * of ProSyst Software GmbH. You shall not disclose such Confidential
- * Information and shall use it only in accordance with the terms
- * of the license agreement you entered into with ProSyst.
- */
+ * Copyright (c) 2016  Bosch Software Innovations GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * The Eclipse Distribution License is available at
+ * http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ * Contributors:
+ * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
+ *
+ *******************************************************************************/
 package org.eclipse.smarthome.automation.sample.java.demo;
 
 import java.util.ArrayList;
@@ -23,9 +29,6 @@ import org.osgi.service.component.ComponentContext;
 /**
  * This class shows how to create a rule, using the Java API.It also shows how to add it to the rule engine via
  * RuleRegistry interface.
- *
- * @author Plamen Peev
- *
  */
 public class SampleJavaDemo {
 
