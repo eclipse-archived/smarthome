@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,15 +88,13 @@ public class SonosAudioSink implements AudioSink {
                     String url = callbackUrl + relativeUrl;
 
                     AudioFormat format = audioStream.getFormat();
-                    if (AudioFormat.WAV.isCompatible(format)) {
+                    if (!ThingHandlerHelper.isHandlerInitialized(handler)) {
+                        logger.warn("Sonos speaker '{}' is not initialized - status is {}", handler.getThing().getUID(),
+                                handler.getThing().getStatus());
+                    } else if (AudioFormat.WAV.isCompatible(format)) {
                         handler.playNotificationSoundURI(new StringType(url + ".wav"));
                     } else if (AudioFormat.MP3.isCompatible(format)) {
-                        if (handler.getThing().getStatus() == ThingStatus.ONLINE) {
-                            handler.playNotificationSoundURI(new StringType(url + ".mp3"));
-                        } else {
-                            logger.warn("Sonos speaker '{}' is not online - status is {}", handler.getThing().getUID(),
-                                    handler.getThing().getStatus());
-                        }
+                        handler.playNotificationSoundURI(new StringType(url + ".mp3"));
                     } else {
                         throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
                     }
