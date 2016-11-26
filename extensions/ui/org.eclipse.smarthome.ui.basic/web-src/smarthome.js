@@ -206,6 +206,10 @@
 		}
 
 		function destroy() {
+			if (_t.onHide !== undefined) {
+				_t.onHide();
+			}
+
 			document.removeEventListener("keydown", onkeydown);
 		}
 
@@ -371,11 +375,11 @@
 		_t.url = _t.image.getAttribute("src").replace(/\d+$/, "");
 
 		_t.setValuePrivate = function() {
-		    _t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+			_t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
 		};
 
 		if (_t.updateInterval === 0) {
-		    return;
+			return;
 		}
 
 		var
@@ -768,6 +772,7 @@
 		_t.value = color;
 		_t.hsvValue = rgb2hsv(color);
 		_t.interval = null;
+		_t.isBeingChanged = false;
 
 		_t.colorpicker = _t.container.querySelector(o.colorpicker.colorpicker);
 		_t.image = _t.container.querySelector(o.colorpicker.image);
@@ -869,6 +874,8 @@
 				clearInterval(_t.interval);
 				_t.interval = null;
 			}
+
+			_t.isBeingChanged = false;
 			window.removeEventListener("mouseup", onWindowMouseup);
 		}
 
@@ -877,11 +884,11 @@
 				callback(_t.hsvValue);
 			}, 300);
 
-			smarthome.changeListener.pause();
 			window.addEventListener("mouseup", onWindowMouseup);
 
 			updateValue(event);
 			callback(_t.hsvValue);
+			_t.isBeingChanged = true;
 
 			event.stopPropagation();
 		}
@@ -905,8 +912,9 @@
 				clearInterval(_t.interval);
 				_t.interval = null;
 			}
-			smarthome.changeListener.resume();
+
 			window.removeEventListener("mouseup", onWindowMouseup);
+			_t.isBeingChanged = false;
 			event.stopPropagation();
 		}
 
@@ -914,13 +922,19 @@
 			callback(_t.hsvValue);
 		}, 200);
 
+		_t.updateColor = function(c) {
+			if (_t.isBeingChanged) {
+				return;
+			}
+
+			setColor(c);
+		};
+
 		// Some browsers fire onchange while the slider handle is being moved.
 		// This is incorrect, according to the specs, but it's impossible to detect,
 		// so DebounceProxy is used
 		function onSliderChange() {
 			_t.hsvValue.v = _t.slider.value / 100;
-			smarthome.changeListener.pause();
-
 			_t.debounceProxy.call();
 		}
 
@@ -929,7 +943,6 @@
 
 			_t.debounceProxy.call();
 			_t.debounceProxy.finish();
-			smarthome.changeListener.resume();
 		}
 
 		_t.slider.addEventListener("change", onSliderChange);
@@ -1026,6 +1039,7 @@
 		}
 
 		_t.value = hex2rgb(_t.parentNode.getAttribute("data-value"));
+		_t.modalControl = null;
 		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
 		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
 		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
@@ -1039,6 +1053,10 @@
 					v: t[2] / 100
 				};
 			_t.value = Colorpicker.hsv2rgb(hsv);
+
+			if (_t.modalControl !== null) {
+				_t.modalControl.updateColor(_t.value);
+			}
 		};
 
 		function emitEvent(value) {
@@ -1063,6 +1081,10 @@
 			_t.modal = new Modal(renderTemplate("template-colorpicker"));
 			_t.modal.show();
 			_t.modal.container.classList.add(o.colorpicker.modalClass);
+			_t.modal.onHide = function() {
+				_t.modalControl = null;
+				_t.modal = null;
+			};
 
 			_t.modalControl = new Colorpicker(_t.modal.container, _t.value, function(color) {
 				_t.value = Colorpicker.hsv2rgb(color);
