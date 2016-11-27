@@ -207,7 +207,7 @@ public class HttpUtil {
         }
 
         // add content if a valid method is given ...
-        if (method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT) && content != null) {
+        if (content != null && (method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT))) {
             request.content(new InputStreamContentProvider(content), contentType);
         }
 
