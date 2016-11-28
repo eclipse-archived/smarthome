@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -89,13 +90,15 @@ public class StringListType implements Command, State {
 
     @Override
     public String toFullString() {
-        StringBuilder sb = new StringBuilder();
+        List<String> parts = new ArrayList<>(typeDetails.size());
         for (String row : typeDetails) {
-            sb.append(row.replace(DELIMITER, ESCAPED_DELIMITER));
-            sb.append(DELIMITER);
+            parts.add(row.replace(DELIMITER, ESCAPED_DELIMITER));
         }
-        sb.delete(sb.length() - 1, sb.length());
-        return sb.toString();
+        return StringUtils.join(parts, DELIMITER);
+    }
+
+    public static StringListType valueOf(String value) {
+        return new StringListType(value);
     }
 
 }
