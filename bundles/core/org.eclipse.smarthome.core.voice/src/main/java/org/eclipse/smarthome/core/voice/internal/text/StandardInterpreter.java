@@ -13,7 +13,6 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
@@ -27,6 +26,7 @@ import org.eclipse.smarthome.core.voice.text.Expression;
  *
  * @author Tilman Kamp - Initial contribution and API
  * @author Kai Kreuzer - Added further German interpretation rules
+ * @author Laurent Garnier - Added French interpretation rules
  *
  */
 public class StandardInterpreter extends AbstractRuleBasedInterpreter {
@@ -54,12 +54,6 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
                 itemRule(seq(turn, the), /* item */ onOff),
 
                 itemRule(seq(turn, onOff) /* item */),
-
-                /* OpenCloseType */
-
-                itemRule(seq(cmd("open", OpenClosedType.OPEN), the) /* item */),
-
-                itemRule(seq(cmd("close", OpenClosedType.CLOSED), the) /* item */),
 
                 /* IncreaseDecreaseType */
 
@@ -131,12 +125,6 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
                 itemRule(seq(schalte, denDieDas), /* item */ einAnAus),
 
-                /* OpenCloseType */
-
-                itemRule(seq(cmd("öffne", OpenClosedType.OPEN), denDieDas) /* item */),
-
-                itemRule(seq(cmd(alt("schließ", "schließe"), OpenClosedType.OPEN), denDieDas) /* item */),
-
                 /* IncreaseDecreaseType */
 
                 itemRule(seq(cmd(alt("dimme"), IncreaseDecreaseType.DECREASE), denDieDas) /* item */),
@@ -166,7 +154,68 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
                 itemRule(seq(cmd(spiele, PlayPauseType.PLAY), the) /* item */),
 
-                itemRule(seq(cmd(pause, PlayPauseType.PAUSE), the) /* item */));
+                itemRule(seq(cmd(pause, PlayPauseType.PAUSE), the) /* item */)
+
+        );
+
+        /****************************** FRENCH ******************************/
+
+        Expression allumer = alt("allumer", "démarrer", "activer");
+        Expression eteindre = alt("éteindre", "stopper", "désactiver", "couper");
+        Expression lela = opt(alt("le", "la", "les", "l"));
+        Expression poursurdude = opt(alt("pour", "sur", "du", "de"));
+        Expression couleur = alt(cmd("blanc", HSBType.WHITE), cmd("rose", HSBType.fromRGB(255, 96, 208)),
+                cmd("jaune", HSBType.fromRGB(255, 224, 32)), cmd("orange", HSBType.fromRGB(255, 160, 16)),
+                cmd("violet", HSBType.fromRGB(128, 0, 128)), cmd("rouge", HSBType.RED), cmd("vert", HSBType.GREEN),
+                cmd("bleu", HSBType.BLUE));
+
+        addRules(Locale.FRENCH,
+
+                /* OnOffType */
+
+                itemRule(seq(cmd(allumer, OnOffType.ON), lela) /* item */),
+                itemRule(seq(cmd(eteindre, OnOffType.OFF), lela) /* item */),
+
+                /* IncreaseDecreaseType */
+
+                itemRule(seq(cmd("augmenter", IncreaseDecreaseType.INCREASE), lela) /* item */),
+                itemRule(seq(cmd("diminuer", IncreaseDecreaseType.DECREASE), lela) /* item */),
+
+                itemRule(seq(cmd("plus", IncreaseDecreaseType.INCREASE), "de") /* item */),
+                itemRule(seq(cmd("moins", IncreaseDecreaseType.DECREASE), "de") /* item */),
+
+                /* ColorType */
+
+                itemRule(seq("couleur", couleur, opt("pour"), lela) /* item */),
+
+                /* PlayPauseType */
+
+                itemRule(seq(cmd("reprise", PlayPauseType.PLAY), "lecture", poursurdude, lela) /* item */),
+                itemRule(seq(cmd("pause", PlayPauseType.PAUSE), "lecture", poursurdude, lela) /* item */),
+
+                /* NextPreviousType */
+
+                itemRule(
+                        seq(alt("plage", "piste"),
+                                alt(cmd("suivante", NextPreviousType.NEXT),
+                                        cmd("précédente", NextPreviousType.PREVIOUS)),
+                                poursurdude, lela) /* item */),
+
+                /* UpDownType */
+
+                itemRule(seq(cmd("monter", UpDownType.UP), lela) /* item */),
+                itemRule(seq(cmd("descendre", UpDownType.DOWN), lela) /* item */),
+
+                /* StopMoveType */
+
+                itemRule(seq(cmd("arrêter", StopMoveType.STOP), lela) /* item */),
+                itemRule(seq(cmd(alt("bouger", "déplacer"), StopMoveType.MOVE), lela) /* item */),
+
+                /* RefreshType */
+
+                itemRule(seq(cmd("rafraîchir", RefreshType.REFRESH), lela) /* item */)
+
+        );
 
     }
 
