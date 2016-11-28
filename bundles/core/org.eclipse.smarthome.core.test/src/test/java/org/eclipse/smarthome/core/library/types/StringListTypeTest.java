@@ -13,6 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Gaël L'hopital
+ * @author Kai Kreuzer - added tests for valueOf and toFullString
  */
 public class StringListTypeTest {
     @Test
@@ -59,4 +60,22 @@ public class StringListTypeTest {
 
     }
 
+    @Test
+    public void testToFullString() {
+        StringListType abc = new StringListType("a", "b", "c");
+        String fullString = abc.toFullString();
+        assertEquals("a,b,c", fullString);
+    }
+
+    @Test
+    public void testValueOf() {
+        StringListType abc = StringListType.valueOf("a,b,c");
+        assertEquals("a", abc.getValue(0));
+        assertEquals("b", abc.getValue(1));
+        assertEquals("c", abc.getValue(2));
+
+        StringListType abC = StringListType.valueOf("a\\,b,c");
+        assertEquals("a,b", abC.getValue(0));
+        assertEquals("c", abC.getValue(1));
+    }
 }
