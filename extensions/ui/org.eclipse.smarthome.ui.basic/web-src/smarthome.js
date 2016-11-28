@@ -375,7 +375,7 @@
 		_t.url = _t.image.getAttribute("src").replace(/\d+$/, "");
 
 		_t.setValuePrivate = function() {
-			_t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+			_t.image.setAttribute("src", _t.url + Date.now());
 		};
 
 		if (_t.updateInterval === 0) {
@@ -388,7 +388,7 @@
 					clearInterval(interval);
 					return;
 				}
-				_t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+				_t.image.setAttribute("src", _t.url + Date.now());
 			}, _t.updateInterval * 1000);
 	}
 
