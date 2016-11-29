@@ -57,11 +57,10 @@ public class ChartRenderer extends AbstractWidgetRenderer {
                 itemParam = "items=" + chart.getItem();
             }
 
-            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod();
+            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&t=" + (new Date()).getTime();
             if (chart.getService() != null) {
                 url += "&service=" + chart.getService();
             }
-            url += "&t=" + (new Date()).getTime();
 
             String snippet = getSnippet("chart");
             snippet = preprocessSnippet(snippet, w);
