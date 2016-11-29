@@ -3,17 +3,15 @@ angular.module('PaperUI').directive('multiSelect', function() {
         restrict : 'A',
         link : function(scope, element, attrs) {
             scope.filterText = "";
-            if (!scope.parameter.options) {
-                scope.parameter.options = [];
-            }
-            
+            scope.parameter.optionList = [];
+
             if (scope.configuration[scope.parameter.name])
                 for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
                     var inParam = $.grep(scope.parameter.options, function(option) {
                         return option.value == scope.configuration[scope.parameter.name][i];
                     }).length > 0;
                     if (!inParam) {
-                        scope.parameter.options.push({
+                        scope.parameter.optionList.push({
                             value : scope.configuration[scope.parameter.name][i],
                             label : scope.configuration[scope.parameter.name][i]
                         });
@@ -30,26 +28,35 @@ angular.module('PaperUI').directive('multiSelect', function() {
             });
             scope.openDropdown = function($event) {
                 $event.stopImmediatePropagation();
-                element.find("dd ul").slideToggle('fast');
+                var visible=element.find("dd ul").is( ":visible" );
+                angular.element(document).find("dd ul").hide();
+                if(!visible)
+                element.find("dd ul").slideDown('fast');
+                else{
+                    element.find("dd ul").slideUp('fast');
+                }
             }
 
             scope.addItemToList = function($event) {
-
-                if (scope.filterText) {
-                    scope.parameter.options.push({
-                        value : scope.filterText,
-                        label : scope.filterText
-                    });
+                var inParam = $.grep(scope.parameter.optionList, function(option) {
+                    return option.value == scope.filterText;
+                }).length > 0;
+                if (!inParam) {
+                    if (scope.filterText) {
+                        scope.parameter.optionList.push({
+                            value : scope.filterText,
+                            label : scope.filterText
+                        });
+                    }
+                    scope.updateInConfig(scope.filterText);
+                    scope.filterText = "";
+                    element.find("dd ul").slideDown('fast');
                 }
-                scope.updateInConfig(scope.filterText);
-                scope.filterText = "";
-                element.find("dd ul").slideDown('fast');
                 $event.stopImmediatePropagation();
             }
 
             scope.onEnterPress = function($event) {
-
-                if (!scope.parameter.limitToOptions && $event.keyCode == 13) {
+                if (((scope.parameter.options.length==0) || (scope.parameter.options.length>0 && !scope.parameter.limitToOptions)) && $event.keyCode == 13) {
                     scope.addItemToList($event);
                 }
             }
@@ -67,7 +74,7 @@ angular.module('PaperUI').directive('multiSelect', function() {
                 if (scope.configuration && !scope.configuration[scope.parameter.name]) {
                     scope.configuration[scope.parameter.name] = [];
                 }
-                if (!this.searchInConfig(optionValue)) {
+                if (optionValue && !this.searchInConfig(optionValue)) {
                     scope.configuration[scope.parameter.name].push(optionValue);
                 } else {
                     var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
@@ -75,6 +82,38 @@ angular.module('PaperUI').directive('multiSelect', function() {
                         scope.configuration[scope.parameter.name].splice(index, 1);
                     }
                 }
+            }
+
+            scope.$watch('parameter.options', function() {
+                    if (!('$promise' in scope.parameter.options)) {
+                        addOptionToParam();
+                    } else {
+                        scope.parameter.options.$promise.then(function() {
+                            addOptionToParam();
+                        });
+                    }
+            });
+            function addOptionToParam() {
+                for (var i = 0; i < scope.parameter.options.length; i++) {
+                    var value = scope.parameter.context == 'item' ? scope.parameter.options[i].name : scope.parameter.context == 'thing' ? scope.parameter.options[i].UID : scope.parameter.options[i].value;
+                    var index = searchInOptionList(scope.parameter, value);
+                    if (index == -1) {
+                        index = scope.parameter.optionList.length;
+                    }
+                    scope.parameter.optionList[index] = {
+                        value : value,
+                        label : scope.parameter.options[i].label
+                    };
+                }
+            }
+
+            function searchInOptionList(parameter, searchItem) {
+
+                for (var i = 0; i < parameter.optionList.length; i++) {
+                    if (parameter.optionList[i].value == searchItem)
+                        return i;
+                }
+                return -1;
             }
         }
     };

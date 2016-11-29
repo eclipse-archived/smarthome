@@ -1090,6 +1090,14 @@ background-color: green;
     color: rgba(0,0,0,0.72);
 }
 
+input[type=number].multiSel::-webkit-inner-spin-button, 
+input[type=number].multiSel::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
 .dropdown dt i.enableColor {
 	color: #4CAF50;
 }
