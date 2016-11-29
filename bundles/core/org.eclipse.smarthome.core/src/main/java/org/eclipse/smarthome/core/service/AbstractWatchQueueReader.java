@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base class for watch queue readers
- * 
+ *
  * @author Fabio Marini
  * @author Dimitar Ivanov - use relative path in watch events. Added option to watch directory events or not
  */
@@ -43,7 +43,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /**
      * Perform a simple cast of given event to WatchEvent
-     * 
+     *
      * @param event the event to cast
      * @return the casted event
      */
@@ -56,7 +56,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      * Build the {@link AbstractWatchQueueReader} object with the given parameters. The directory changes will be
      * watched by default, e.g. watchingDirectoryChanges will be set to <code>true</code> (see
      * {@link #setWatchingDirectoryChanges(boolean)})
-     * 
+     *
      * @param watchService the watch service. Available to subclasses as {@link #watchService}
      * @param watchedDir the base directory, watched by the watch service. Available to subclasses as
      *            {@link #baseWatchedDir}
@@ -64,17 +64,14 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      *            in the watch service.
      */
     public AbstractWatchQueueReader(WatchService watchService, Path watchedDir, Map<WatchKey, Path> registeredKeys) {
-        this.watchService = watchService;
-        this.baseWatchedDir = watchedDir;
-        this.registeredKeys = registeredKeys;
-        setWatchingDirectoryChanges(true);
+        this(watchService, watchedDir, registeredKeys, true);
     }
 
     /**
      * Build the {@link AbstractWatchQueueReader} object with the given parameters. The directory changes will be
      * watched by default, e.g. watchingDirectoryChanges will be set to <code>true</code> (see
      * {@link #setWatchingDirectoryChanges(boolean)})
-     * 
+     *
      * @param watchService the watch service
      * @param watchedDir the base directory, watched by the watch service. Available to subclasses as
      *            {@link #baseWatchedDir}
@@ -94,7 +91,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.core.service.IWatchService#activate()
      */
     @Override
@@ -170,7 +167,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     /**
      * Processes the given watch event. Note that the kind and the number of the events for the watched directory is a
      * platform dependent (see the "Platform dependencies" sections of {@link WatchService}).
-     * 
+     *
      * @param event the watch event to be handled
      * @param kind the event's kind
      * @param path the path of the event (relative to the {@link #baseWatchedDir}
@@ -180,7 +177,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     /**
      * If the queue reader is watching the directory changes, all the watch events will be processed. Otherwise the
      * events for directories will be skipped.
-     * 
+     *
      * @return <code>true</code> if the directory events will be processed and <code>false</code> otherwise
      */
     public boolean isWatchingDirectoryChanges() {
@@ -192,7 +189,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      * events for changed directories will be skipped. For example, on some platforms an event for modified directory is
      * generated when a new file is created within the directory. However, this behavior could vary a lot, depending on
      * the platform (for more information see "Platform dependencies" section in the {@link WatchService} documentation)
-     * 
+     *
      * @param watchDirectoryChanges set to <code>true</code> if the directory events have to be processed and
      *            <code>false</code> otherwise
      */
