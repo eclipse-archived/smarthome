@@ -129,23 +129,30 @@
 												<div layout="row" item-state-dropdown layout-align="start center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
 											<div ng-switch-when="Rollershutter" ng-controller="RollershutterItemController">
-												<div layout="row" layout-align="start center">
+												<div layout="row" layout-align="start center" flex="100">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
 															<i class="material-icons">{{getIcon(item.category, 'format_align_justify')}}</i>{{getLabel(item.category, item.label, 'Position')}}
 														</p>
 													</div>
+													<div flex="60" layout="row" layout-align="end center">
+														<div ng-if="isReadOnly(item)">
+															<h2 class="state">{{item.state}}</h2>
+														</div>
+													</div>
 												</div>
-												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="end center">
+												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" class="number-control-widget">
+                                                    <span flex="15" class="text-left">0</span>
+                                                    <md-slider flex="70" class="md-default-theme" min="0" max="100" step="{{item.stateDescription.step!==undefined && item.stateDescription.step!==null?item.stateDescription.step:1}}" ng-model="item.state" md-discrete="true" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
+                                                    <span flex="15" class="text-right">100</span>
+                                                </div>
+												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" flex="100">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>Control</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
 														<i class="md-button control-button material-icons" ng-click="sendCommand('DOWN')">vertical_align_bottom</i> <i class="md-button control-button material-icons" ng-click="sendCommand('STOP')">stop</i> <i class="md-button control-button material-icons" ng-click="sendCommand('UP')">vertical_align_top</i>
 													</div>
-												</div>
-												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
-													<h2>{{item.state}}</h2>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
