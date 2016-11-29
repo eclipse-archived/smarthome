@@ -458,7 +458,7 @@
       <properties>
         <phase.prop>verify</phase.prop>
         <report.directory>${project.build.directory}/code-analysis</report.directory>
-        <fail.on.error>true</fail.on.error>
+        <fail.on.error>false</fail.on.error>
       </properties>
       <build>
         <pluginManagement>

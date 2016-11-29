@@ -39,28 +39,10 @@
     <module name="IllegalThrows">
       <property name="severity" value="warning" />
     </module>
-    <!-- See http://checkstyle.sourceforge.net/config_coding.html#MagicNumber -->
-    <module name="MagicNumber">
-      <property name="severity" value="info" />
-    </module>
     <!-- See http://checkstyle.sourceforge.net/config_coding.html#OneStatementPerLine -->
     <module name="OneStatementPerLine">
       <property name="severity" value="info" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_javadoc.html#JavadocMethod -->
-    <module name="JavadocMethod">
-      <property name="scope" value="public" />
-      <property name="allowUndeclaredRTE" value="true" />
-      <property name="allowMissingParamTags" value="true" />
-      <property name="allowMissingThrowsTags" value="true" />
-      <property name="allowMissingReturnTag" value="true" />
-      <property name="severity" value="ignore" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_javadoc.html#JavadocType -->
-    <module name="JavadocType">
-      <property name="scope" value="public" />
-      <property name="severity" value="ignore" />
-    </module>
+    </module> 
     <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
     <module name="TodoComment">
       <property name="format" value="(TODO)|(FIXME)" />
