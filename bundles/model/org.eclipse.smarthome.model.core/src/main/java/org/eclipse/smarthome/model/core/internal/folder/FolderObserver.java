@@ -118,8 +118,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         if (subDir != null && MapUtils.isNotEmpty(folderFileExtMap)) {
             String folderName = subDir.getFileName().toString();
             if (folderFileExtMap.containsKey(folderName)) {
-                WatchKey registrationKey = subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-                return registrationKey;
+                return subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
             }
         }
         return null;
@@ -132,9 +131,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         private ModelRepository modelRepo = null;
 
         public WatchQueueReader(WatchService watchService, Path dirToWatch, Map<WatchKey, Path> registeredKeys,
-                Map<String, String[]> folderFileExtMap,
-                ModelRepository modelRepo) {
-            super(watchService, dirToWatch,registeredKeys);
+                Map<String, String[]> folderFileExtMap, ModelRepository modelRepo) {
+            super(watchService, dirToWatch, registeredKeys);
 
             this.folderFileExtMap = folderFileExtMap;
             this.modelRepo = modelRepo;
