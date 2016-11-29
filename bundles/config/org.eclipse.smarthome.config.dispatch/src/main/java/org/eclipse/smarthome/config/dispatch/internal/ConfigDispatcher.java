@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.config.dispatch.internal;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,7 +122,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#getSourcePath()
      */
@@ -140,7 +138,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#watchSubDirectories
      * ()
@@ -152,20 +150,19 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
-     * org.eclipse.smarthome.core.service.AbstractWatchService#registerDirecotry
+     * org.eclipse.smarthome.core.service.AbstractWatchService#registerDirectory
      * (java.nio.file.Path)
      */
     @Override
     protected WatchKey registerDirectory(Path subDir) throws IOException {
-        WatchKey registrationKey = subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-        return registrationKey;
+        return subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#buildWatchQueueReader
      * (java.nio.file.WatchService, java.nio.file.Path)
@@ -201,6 +198,7 @@ public class ConfigDispatcher extends AbstractWatchService {
             // Sort the files by modification time,
             // so that the last modified file is processed last.
             Arrays.sort(files, new Comparator<File>() {
+                @Override
                 public int compare(File left, File right) {
                     return Long.valueOf(left.lastModified()).compareTo(right.lastModified());
                 }
