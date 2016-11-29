@@ -119,8 +119,8 @@ public class LifxLightHandler extends BaseThingHandler {
                     updateState(CHANNEL_COLOR, getHSB());
                     updateState(CHANNEL_BRIGHTNESS, getHSB().getBrightness());
                 } else {
-                    updateState(CHANNEL_COLOR, HSBType.WHITE);
-                    updateState(CHANNEL_BRIGHTNESS, PercentType.HUNDRED);
+                    updateState(CHANNEL_COLOR, LifxBindingConstants.DEFAULT_COLOR);
+                    updateState(CHANNEL_BRIGHTNESS, LifxBindingConstants.DEFAULT_BRIGHTNESS);
                 }
             }
             super.setPowerState(powerState);
