@@ -1,0 +1,12 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.java.demo
+Bundle-Vendor: Bosch Software Innovations GmbH
+Bundle-Version: 0.9.0.qualifier
+Bundle-Name: Eclipse SmartHome Automation Java Demo
+Import-Package: 
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.config.core,
+ org.osgi.service.component,
+ org.eclipse.smarthome.core.common.registry
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*.xml
