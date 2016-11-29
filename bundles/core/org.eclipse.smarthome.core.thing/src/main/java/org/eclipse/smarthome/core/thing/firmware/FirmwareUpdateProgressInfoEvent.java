@@ -103,8 +103,9 @@ public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return String.format("The firmware update progress step for thing %s changed to %s.", thingUID,
-                progressInfo.getProgressStep().name());
+        String stepName = progressInfo.getProgressStep() == null ? null : progressInfo.getProgressStep().name();
+        return String.format("The firmware update progress for thing %s changed. Step: %s Progress: %d.", thingUID,
+                stepName, progressInfo.getProgress());
     }
 
 }
