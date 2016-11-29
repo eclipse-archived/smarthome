@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Map;
 
 import org.eclipse.smarthome.core.service.AbstractWatchQueueReader;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
@@ -49,8 +51,9 @@ public class AutomationWatchService extends AbstractWatchService {
     }
 
     @Override
-    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch) {
-        return new WatchQueueReader(watchService, toWatch, provider);
+    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,
+            Map<WatchKey, Path> registeredWatchKeys) {
+        return new WatchQueueReader(watchService, toWatch, provider, registeredWatchKeys);
     }
 
     @Override
@@ -59,16 +62,17 @@ public class AutomationWatchService extends AbstractWatchService {
     }
 
     @Override
-    protected void registerDirectory(Path subDir) throws IOException {
-        subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+    protected WatchKey registerDirectory(Path subDir) throws IOException {
+        return subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
     }
 
     private static class WatchQueueReader extends AbstractWatchQueueReader {
 
         private AbstractFileProvider provider;
 
-        WatchQueueReader(WatchService watchService, Path dirToWatch, AbstractFileProvider provider) {
-            super(watchService, dirToWatch);
+        WatchQueueReader(WatchService watchService, Path dirToWatch, AbstractFileProvider provider,
+                Map<WatchKey, Path> registeredWatchKeys) {
+            super(watchService, dirToWatch, registeredWatchKeys);
             this.provider = provider;
         }
 
@@ -76,9 +80,11 @@ public class AutomationWatchService extends AbstractWatchService {
         protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
             if (!path.getFileName().startsWith(".")) {
                 if (kind.equals(ENTRY_DELETE)) {
-                    provider.removeResources(new File(this.dir + File.separator + path.toString()));
+                    provider.removeResources(
+                            new File(baseWatchedDir.toAbsolutePath() + File.separator + path.toString()));
                 } else {
-                    provider.importResources(new File(this.dir + File.separator + path.toString()));
+                    provider.importResources(
+                            new File(baseWatchedDir.toAbsolutePath() + File.separator + path.toString()));
                 }
             }
         }
