@@ -65,16 +65,17 @@
 									<dl class="dropdown" multi-select ng-init="filterText=''">
 										<dt class="col-xs-12">
 											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" isrequired="true">
-												<input class="multiSel" placeholder="{{parameter.limitToOptions?'Search':'Add or search'}}" value="" ng-model="filterText" ng-keypress="onEnterPress($event)" />
-												<i ng-if="!parameter.limitToOptions" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
+												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{parameter.options.length==0 || (parameter.options.length>0 && !parameter.limitToOptions)?'Add or search':'Search'}}" value="" ng-model="filterText" ng-keypress="onEnterPress($event)" />
+												<i ng-if="parameter.options.length==0 || (parameter.options.length>0 && !parameter.limitToOptions)" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
 											</a>
 										</dt>
 										<dd>
 											<div class="mutliSelect col-xs-12">
 												<ul class="col-xs-12">
-													<li ng-repeat="option in parameter.options | filter:{'label':filterText} track by $index" on-finish-render>
+													<li ng-repeat="option in parameter.optionList | filter:{'label':filterText} track by $index" on-finish-render>
 														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" ng-click="updateInConfig(option.value,$index)" />
 														{{option.label}}
+														<span class="md-caption" style="color: grey;" ng-if="parameter.context=='item' || parameter.context=='thing'">({{ option.value }}) </span>
 													</li>
 												</ul>
 											</div>
