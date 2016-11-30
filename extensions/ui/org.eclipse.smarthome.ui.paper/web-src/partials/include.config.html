@@ -136,7 +136,7 @@
 								</div>
 								<span>
 									<md-chips class="scriptChips" id="{{parameter.name}}" ng-show="items && items.length>0" ng-model="items" placeholder="Add an item" md-on-select="selectChip($chip,parameter.name)"> <input disabled /> <md-chip-template> <strong>{{$chip.name}}</strong> </md-chip-template> </md-chips>
-									<span>
+									<span ng-if="items && items.length>0">
 										<p class="hint noMargin">
 											<small>available outputs</small>
 										</p>
