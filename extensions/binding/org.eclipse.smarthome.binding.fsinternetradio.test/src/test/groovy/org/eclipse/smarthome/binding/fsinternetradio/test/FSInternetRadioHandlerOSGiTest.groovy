@@ -179,28 +179,35 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	@Test
 	void 'verify OFFLINE Thing-status and NULL Item-state when the HTTP response cannot be parsed correctly'() {
 
+		// create a thing with two channels - the power channel and any of the others
+		String modeChannelID = FSInternetRadioBindingConstants.CHANNEL_MODE
+		String acceptedItemType = acceptedItemTypes.get(modeChannelID)
+		createChannel(DEFAULT_THING_UID, modeChannelID, acceptedItemType)
+
 		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
 		testRadioThingWithConfiguration(radioThing)
 
-		ChannelUID powerChannelUID = powerChannel.getUID()
-		Item testItem = initializeItem(powerChannelUID, "${DEFAULT_TEST_ITEM_NAME}",
-				acceptedItemTypes.get(FSInternetRadioBindingConstants.CHANNEL_POWER))
+		// turn-on the radio
+		turnTheRadioOn(radioThing)
+
+		ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
+		Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType)
 
 		/*
-		 *  setting the isInvalidResponseExpected variable to true 
+		 *  Setting the isInvalidResponseExpected variable to true
 		 *  in order to get the incorrect XML response from the servlet
 		 */
 		servlet.isInvalidResponseExpected = true
 
-		// trying to turn-on the radio
-		radioHandler.handleCommand(powerChannelUID, OnOffType.ON)
+		// try to handle a command
+		radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"))
 
 		waitForAssert {
 			assertThat ("The ThingStatus was not updated correctly when the HTTP response cannot be parsed",radioThing.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
 			assertThat ("The ThingStatusInfo was not updated correctly when the HTTP response cannot be parsed", radioThing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)))
 		}
 		waitForAssert {
-			assertThat ("The item's state was not updated correctly when the HTTP response cannot be parsed", testItem.getState(), is (UnDefType.NULL))
+			assertThat ("The item's state was not updated correctly when the HTTP response cannot be parsed", modeTestItem.getState(), is (UnDefType.NULL))
 		}
 	}
 
@@ -221,14 +228,16 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 
 	@Test
 	void 'verify the HTTP status is handled correctly when it is not OK_200'() {
+		
+		// create a thing with two channels - the power channel and any of the others
+		String modeChannelID = FSInternetRadioBindingConstants.CHANNEL_MODE
+		String acceptedItemType = acceptedItemTypes.get(modeChannelID)
+		createChannel(DEFAULT_THING_UID, modeChannelID, acceptedItemType)
 
 		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
 		testRadioThingWithConfiguration(radioThing)
 
-		ChannelUID powerChannelUID = powerChannel.getUID()
-		Item powerTestItem = initializeItem(powerChannelUID, "${DEFAULT_TEST_ITEM_NAME}",
-				acceptedItemTypes.get(FSInternetRadioBindingConstants.CHANNEL_POWER))
-
+		// turn-on the radio
 		turnTheRadioOn(radioThing)
 
 		/*
@@ -237,11 +246,16 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		 */
 		servlet.isOKAnswerExpected = false
 
-		//trying to turn-off the radio
-		radioHandler.handleCommand(powerChannelUID, OnOffType.OFF)
+		ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
+		Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType)
+
+		servlet.isInvalidResponseExpected = true
+
+		// try to handle a command
+		radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"))
 
 		waitForAssert {
-			assertThat ("The item's state was not updated correctly when the HTTP status is different from OK_200", powerTestItem.getState(), is (UnDefType.NULL))
+			assertThat ("The item's state was not updated correctly when the HTTP status is different from OK_200", modeTestItem.getState(), is (UnDefType.NULL))
 		}
 	}
 
