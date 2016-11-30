@@ -1170,6 +1170,75 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat disposedHandler, is(thingHandler)
     }
 
+    @Test
+    void 'ThingManager calls childHandlerInitialized and childHandlerDisposed on BridgeHandler correctly even if child registration takes too long'() {
+        ThingHandlerCallback callback
+
+        def childHandlerInitializedCalled = false
+        def initializedHandler = null
+        def initializedThing = null
+        def childHandlerDisposedCalled = false
+        def disposedHandler = null
+        def disposedThing = null
+
+        def bridge = BridgeBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:bridgeUID-1")).build()
+        def bridgeHandler = [
+            setCallback: { callbackArg -> callback = callbackArg },
+            initialize: {
+                callback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
+            },
+            dispose: {},
+            childHandlerInitialized: { thingHandler, thing ->
+                childHandlerInitializedCalled = true
+                initializedThing = thing
+                initializedHandler = thingHandler
+            },
+            childHandlerDisposed: { thingHandler, thing ->
+                childHandlerDisposedCalled = true
+                disposedThing = thing
+                disposedHandler = thingHandler
+            },
+            getThing: {-> return bridge}
+        ] as BridgeHandler
+
+        def thing = ThingBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:thingUID-1")).withBridge(bridge.getUID()).build()
+        def thingHandler = [
+            setCallback: { callbackArg -> callback = callbackArg },
+            initialize: {
+                callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
+            },
+            dispose: {},
+            bridgeStatusChanged: {},
+            getThing: {-> return thing},
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {thingTypeUID -> true},
+            registerHandler: {thingArg ->
+                Thread.sleep(6000) // Wait longer than the SafeMethodCaller timeout
+                (thingArg instanceof Bridge) ? bridgeHandler : thingHandler },
+            unregisterHandler: {thingArg -> },
+            removeThing: {thingUID ->
+            }
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        managedThingProvider.add(bridge)
+
+        assertThat childHandlerInitializedCalled, is(false)
+        assertThat childHandlerDisposedCalled, is(false)
+
+        managedThingProvider.add(thing)
+        waitForAssert({assertThat childHandlerInitializedCalled, is(true)})
+        assertThat initializedThing, is(thing)
+        assertThat initializedHandler, is(thingHandler)
+
+        managedThingProvider.remove(thing.getUID())
+        waitForAssert({assertThat childHandlerDisposedCalled, is(true)})
+        assertThat disposedThing, is(thing)
+        assertThat disposedHandler, is(thingHandler)
+    }
+
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
         def thingType = new ThingType(new ThingTypeUID("binding", "type"), null, "label", null, null, null, null, configDescriptionUri)
