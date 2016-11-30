@@ -79,10 +79,6 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/rules.html',
         controller : 'RulesPageController',
         title : 'Rules'
-    }).when('/rules/view/:ruleUID', {
-        templateUrl : 'partials/rules.html',
-        controller : 'RulesPageController',
-        title : 'Rules'
     }).when('/rules/configure/:ruleUID', {
         templateUrl : 'partials/rules.html',
         controller : 'RulesPageController',
