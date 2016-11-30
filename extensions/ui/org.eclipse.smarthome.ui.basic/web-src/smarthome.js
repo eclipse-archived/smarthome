@@ -372,10 +372,10 @@
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
-		_t.url = _t.image.getAttribute("src").replace(/\d+$/, "");
+		_t.url = _t.image.getAttribute("src").replace(/&t=\d+/g, "");
 
 		_t.setValuePrivate = function() {
-			_t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+			_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 		};
 
 		if (_t.updateInterval === 0) {
@@ -388,7 +388,7 @@
 					clearInterval(interval);
 					return;
 				}
-				_t.image.setAttribute("src", _t.url + Math.random().toString().slice(2));
+				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			}, _t.updateInterval * 1000);
 	}
 

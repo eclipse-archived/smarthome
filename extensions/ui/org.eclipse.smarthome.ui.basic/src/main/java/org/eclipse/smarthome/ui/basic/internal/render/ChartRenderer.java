@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -55,7 +57,7 @@ public class ChartRenderer extends AbstractWidgetRenderer {
                 itemParam = "items=" + chart.getItem();
             }
 
-            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&random=1";
+            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&t=" + (new Date()).getTime();
             if (chart.getService() != null) {
                 url += "&service=" + chart.getService();
             }
