@@ -45,11 +45,9 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
 
     $scope.remove = function(rule, e) {
         e.stopImmediatePropagation();
-        ruleService.remove({
-            ruleUID : rule.uid
-        }, function() {
-            $scope.refresh();
-            toastService.showDefaultToast('Rule removed.');
+        $scope.openDialog('RuleRemoveController', 'partials/dialog.remove.html', {
+            event : e,
+            rule : rule
         });
     };
 
@@ -226,6 +224,21 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         sharedProperties.resetParams();
         $mdDialog.hide();
     };
+}).controller('RuleRemoveController', function($scope, $mdDialog, toastService, ruleService, rule) {
+    $scope.rule = rule;
+    $scope.remove = function(ruleUID) {
+        ruleService.remove({
+            ruleUID : ruleUID
+        }, function() {
+            $mdDialog.hide();
+            toastService.showDefaultToast('Rule removed.');
+        }, function() {
+            $mdDialog.hide();
+        });
+    }
+    $scope.close = function() {
+        $mdDialog.hide();
+    }
 }).directive('dragdrop', function() {
     return {
         restrict : 'AE',

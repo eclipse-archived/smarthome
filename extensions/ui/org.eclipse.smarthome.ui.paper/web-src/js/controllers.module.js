@@ -50,8 +50,9 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     var setConfigurations = function() {
         if ($scope.moduleData) {
             var params = filterByUid($scope.moduleData, $scope.module);
-
-            $scope.parameters = configService.getRenderingModel(params[0].configDescriptions);
+            if (params && params.length > 0) {
+                $scope.parameters = configService.getRenderingModel(params[0].configDescriptions);
+            }
             var hasScript = false;
             angular.forEach($scope.parameters, function(value) {
 
@@ -71,7 +72,9 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
                 var triggers = sharedProperties.getModuleArray('trigger');
                 angular.forEach(triggers, function(trigger, i) {
                     var moduleType = filterByUid($scope.triggerData, trigger.type);
-                    $scope.items = $scope.items.concat(moduleType[0].outputs);
+                    if (moduleType && moduleType.length > 0) {
+                        $scope.items = $scope.items.concat(moduleType[0].outputs);
+                    }
                 });
                 if (type == 'action') {
                     var actions = sharedProperties.getModuleArray('action');
