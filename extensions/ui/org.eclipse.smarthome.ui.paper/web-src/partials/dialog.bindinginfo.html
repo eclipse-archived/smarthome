@@ -6,8 +6,8 @@
 	<strong>{{binding.author}}</strong>
 </p>
 <p ng-bind-html="binding.description"></p>
-<hr />
-<h2>Supported Things</h2>
+<hr ng-if="binding.thingTypes && binding.thingTypes.length>0" />
+<h2 ng-if="binding.thingTypes && binding.thingTypes.length>0">Supported Things</h2>
 <div class="thing-type list-item" ng-repeat="thingType in binding.thingTypes" ng-click="navigateTo('manual-setup/configure/' + thingType.UID)">
 	<h3>{{thingType.label}}</h3>
 	<p>{{thingType.UID}}</p>
