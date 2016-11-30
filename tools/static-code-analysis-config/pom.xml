@@ -78,6 +78,12 @@
       <version>${checkstyle.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.puppycrawl.tools</groupId>
+      <artifactId>checkstyle</artifactId>
+      <version>${checkstyle.version}</version>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>findbugs</artifactId>
       <version>${findbugs.version}</version>

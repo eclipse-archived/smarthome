@@ -1,11 +1,11 @@
 package org.eclipse.smarthome.buildtools.rules.checkstyle;
 
-import com.puppycrawl.tools.checkstyle.api.Check;
+import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 /**
- * 
+ *
  * Detects classes that have number of methods that exceed a certain limit.
  * This can be a clue that the class has low cohesion.
  * <p/>
@@ -20,8 +20,14 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
  *
  */
 
-public class MethodLimitCheck extends Check {
-    /** the maximum number of methods per class/interface */
+public class MethodLimitCheck extends AbstractCheck {
+
+    public static final String MSG_KEY = "too.many.methods";
+
+    /**
+     * The maximum number of methods per class/interface. Can accept different values in the configuration.
+     * 
+     */
     private int max = 30;
 
     /**
@@ -75,7 +81,7 @@ public class MethodLimitCheck extends Check {
 
         // report error if limit is reached
         if (methodDefs > max) {
-            log(ast.getLineNo(), "too.many.methods", new Integer(max));
+            log(ast.getLineNo(), MSG_KEY, new Integer(max));
         }
     }
 }

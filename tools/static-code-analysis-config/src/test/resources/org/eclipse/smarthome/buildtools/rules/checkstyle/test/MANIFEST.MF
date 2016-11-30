@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Example 
+Bundle-SymbolicName: org.eclipse.smarthome.binding.example;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: com.google.common.collect,
+ javax.xml.bind
+Service-Component: OSGI-INF/*.xml
+Export-Package: org.eclipse.smarthome.buildtools.internal,
+ org.eclipse.smarthome.buildtools.other
+
