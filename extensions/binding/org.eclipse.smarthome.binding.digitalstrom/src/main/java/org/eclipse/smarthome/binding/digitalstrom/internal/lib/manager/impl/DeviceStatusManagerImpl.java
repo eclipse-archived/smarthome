@@ -292,7 +292,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                 newAngle = device.getAnglePosition();
             }
             DeviceStateUpdate nextDeviceStateUpdate = device.getNextDeviceUpdateState();
-            while (nextDeviceStateUpdate != null && nextDeviceStateUpdate.getType() == stateUpdateType) {
+            while (nextDeviceStateUpdate != null && nextDeviceStateUpdate.getType().equals(stateUpdateType)) {
                 switch (stateUpdateType) {
                     case DeviceStateUpdate.UPDATE_BRIGHTNESS:
                         deviceStateUpdate = nextDeviceStateUpdate;

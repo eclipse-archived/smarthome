@@ -157,16 +157,12 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * @throws Exception is thrown when I/O operation has failed or has been interrupted or generating of the text fails
      *             for some reasons.
      */
-    @SuppressWarnings("resource")
     public String exportData(String parserType, Set<E> set, File file) throws Exception {
-        OutputStreamWriter oWriter = new OutputStreamWriter(new FileOutputStream(file));
         Parser<E> parser = parsers.get(parserType);
         if (parser != null) {
-            try {
+            try (OutputStreamWriter oWriter = new OutputStreamWriter(new FileOutputStream(file))) {
                 parser.serialize(set, oWriter);
                 return AutomationCommand.SUCCESS;
-            } finally {
-                oWriter.close();
             }
         } else {
             return String.format("%s! Parser \"%s\" not found!", AutomationCommand.FAIL, parserType);
