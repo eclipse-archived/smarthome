@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.binding.lifx;
 
+import org.eclipse.smarthome.binding.lifx.internal.LifxUtils;
+import org.eclipse.smarthome.core.library.types.HSBType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -23,6 +26,11 @@ public class LifxBindingConstants {
 
     // The LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more.
     public final static long PACKET_INTERVAL = 50;
+
+    // Fallback light state defaults
+    public final static HSBType DEFAULT_COLOR = HSBType.WHITE;
+    public final static PercentType DEFAULT_TEMPERATURE = LifxUtils.kelvinToPercentType(3000);
+    public final static PercentType DEFAULT_BRIGHTNESS = PercentType.HUNDRED;
 
     // List of all Channel IDs
     public final static String CHANNEL_COLOR = "color";
