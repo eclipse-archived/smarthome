@@ -80,14 +80,6 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
             });
         }
     };
-}).controller('ViewRuleController', function($scope, ruleRepository) {
-    var ruleUID = $scope.path[3];
-    ruleRepository.getOne(function(rule) {
-        return rule.uid === ruleUID;
-    }, function(rule) {
-        $scope.setSubtitle([ rule.name ]);
-        $scope.rule = rule;
-    });
 }).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService) {
     $scope.setSubtitle([ 'New Rule' ]);
     itemRepository.getAll();

@@ -13,7 +13,7 @@
 		<div class="container">
 			<p class="text-center" ng-show="data.rules.length == 0">No rules defined yet.</p>
 			<div class="groups">
-				<div class="clickable" ng-repeat="rule in data.rules | orderBy:'uid'" ng-click="navigateTo('view/' + rule.uid)">
+				<div class="clickable" ng-repeat="rule in data.rules | orderBy:'uid'" ng-click="configure(rule, $event)">
 					<div class="rule fab-item text-left">
 						<div class="circle">{{rule.name.substring(0,1)}}</div>
 						<div class="item-content">
@@ -25,28 +25,13 @@
 								<p>{{rule.uid}}</p>
 							</div>
 							<div class="actions" flex="40">
-								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Configure" ng-click="configure(rule, $event)">settings</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
+								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-	<div class="rules white-bg" ng-if="page === 'view'" ng-controller="ViewRuleController">
-		<div class="header-toolbar">
-			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
-		</div>
-		<div class="section-header">
-			<div class="container">
-				<div class="toolbar">
-					<md-button class="md-fab" ng-click="navigateTo('')" aria-label="Back"> <i class="material-icons">chevron_left</i></md-button>
-				</div>
-			</div>
-		</div>
-		<div class="container">
-			<pre>{{rule | json}}</pre>
 		</div>
 	</div>
 
