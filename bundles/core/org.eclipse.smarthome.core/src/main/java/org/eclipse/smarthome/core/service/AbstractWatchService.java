@@ -115,7 +115,7 @@ public abstract class AbstractWatchService {
         if (registrationKey != null) {
             registredWatchKeys.put(registrationKey, directory);
         } else {
-            logger.info("The directory '{}' was not registered in the watch service", directory);
+            logger.debug("The directory '{}' was not registered in the watch service", directory);
         }
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractWatchService {
 
     /**
      * Build a queue reader to process the watch events, provided by the watch service for the given directory
-     * 
+     *
      * @param watchService the watch service, providing the watch events for the watched directory
      * @param toWatch the directory being watched by the watch service
      * @param registredWatchKeys a mapping between the registered directories and their {@link WatchKey registration
@@ -155,7 +155,7 @@ public abstract class AbstractWatchService {
     /**
      * Determines whether the subdirectories of the source path (determined by the {@link #getSourcePath()}) will be
      * watched or not.
-     * 
+     *
      * @return <code>true</code> if the subdirectories will be watched and <code>false</code> if only the source path
      *         (determined by the {@link #getSourcePath()}) will be watched
      */
@@ -164,7 +164,7 @@ public abstract class AbstractWatchService {
     /**
      * Registers a directory to be watched by the watch service. The {@link WatchKey} of the registration should be
      * provided.
-     * 
+     *
      * @param directory the directory, which will be registered in the watch service
      * @return The {@link WatchKey} of the registration or <code>null</code> if no registration has been done.
      * @throws IOException if an error occurs while processing the given path
