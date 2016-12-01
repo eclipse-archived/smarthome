@@ -7,17 +7,17 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import nl.q42.jue.State;
-import nl.q42.jue.State.AlertMode;
-import nl.q42.jue.State.Effect;
-import nl.q42.jue.StateUpdate;
-
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+
+import nl.q42.jue.State;
+import nl.q42.jue.State.AlertMode;
+import nl.q42.jue.State.Effect;
+import nl.q42.jue.StateUpdate;
 
 /**
  * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome
@@ -170,7 +170,8 @@ public class LightStateConverter {
      * @return percent type representing the color temperature
      */
     public static PercentType toColorTemperaturePercentType(State lightState) {
-        int percent = (int) Math.round(((lightState.getColorTemperature() - MIN_COLOR_TEMPERATURE) * 100.0 )/ COLOR_TEMPERATURE_RANGE);
+        int percent = (int) Math
+                .round(((lightState.getColorTemperature() - MIN_COLOR_TEMPERATURE) * 100.0) / COLOR_TEMPERATURE_RANGE);
         return new PercentType(restrictToBounds(percent));
     }
 
@@ -183,13 +184,13 @@ public class LightStateConverter {
      * @return percent type representing the brightness
      */
     public static PercentType toBrightnessPercentType(State lightState) {
-        int percent = (int) (lightState.getBrightness() / BRIGHTNESS_FACTOR);
+        int percent = (int) Math.round(lightState.getBrightness() / BRIGHTNESS_FACTOR);
         return new PercentType(restrictToBounds(percent));
     }
 
     /**
      * Transforms {@link State} into {@link StringType} representing the {@link AlertMode}.
-     * 
+     *
      * @param lightState
      *            light state.
      * @return string type representing the alert mode.
