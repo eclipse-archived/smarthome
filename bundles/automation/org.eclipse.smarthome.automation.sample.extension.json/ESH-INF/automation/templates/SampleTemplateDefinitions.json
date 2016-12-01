@@ -36,8 +36,8 @@
         "label": "Sample Condition",
         "description": "This is a sample condition",
         "configuration": {
-          "operator": "$condition_operator",
-          "constraint": "$condition_constraint"
+          "operator": "${condition_operator}",
+          "constraint": "${condition_constraint}"
         },
         "inputs": {
           "conditionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"

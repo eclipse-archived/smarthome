@@ -108,14 +108,14 @@
                "id":"SampleAction2",
                "type":"SampleAction",
                "inputs":{
-                  "message":"$compositeMessage"
+                  "message":"${compositeMessage}"
                }
             },
             {  
                "id":"SampleAction1",
                "type":"SampleAction",
                "inputs":{  
-                  "message":"$compositeActionInput"
+                  "message":"${compositeActionInput}"
                }
             }
          ]
