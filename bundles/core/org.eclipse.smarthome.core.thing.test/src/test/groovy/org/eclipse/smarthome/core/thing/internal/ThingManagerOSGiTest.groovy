@@ -363,12 +363,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandlerFactory = [
             supportsThingType: { ThingTypeUID thingTypeUID -> true },
             registerHandler: { thingArg ->
-                println("++++++++++ register handler: " + thingArg)
                 if (thingArg instanceof Bridge) {
-                    println("++++++++++ is bridge ")
                     return bridgeHandler
                 } else if (thingArg instanceof Thing) {
-                    println("++++++++++ is thing ")
                     return thingHandler
                 }
             },
