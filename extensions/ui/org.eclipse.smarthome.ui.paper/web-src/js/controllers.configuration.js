@@ -342,14 +342,18 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.linkChannel = function(channelID, event) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeById(channelID);
+        var params = {
+            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
+            acceptedItemType : channel.itemType,
+            category : channelType.category ? channelType.category : "",
+            suggestedName : channelID.replace(/[^a-zA-Z0-9_]/g, "_")
+        }
         $mdDialog.show({
             controller : 'LinkChannelDialogController',
             templateUrl : 'partials/dialog.linkchannel.html',
             targetEvent : event,
             hasBackdrop : true,
-            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
-            acceptedItemType : channel.itemType,
-            category : channelType.category ? channelType.category : ""
+            params : params
         }).then(function(newItem) {
             if (newItem) {
                 linkService.link({
@@ -536,58 +540,77 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $mdDialog.hide();
         });
     }
-}).controller('LinkChannelDialogController', function($scope, $mdDialog, $filter, toastService, itemRepository, itemService, linkedItems, acceptedItemType, category) {
+}).controller('LinkChannelDialogController', function($scope, $mdDialog, $filter, toastService, itemRepository, itemService, sharedProperties, params) {
     $scope.itemName;
-    $scope.linkedItems = linkedItems;
-    $scope.acceptedItemType = acceptedItemType;
-    $scope.category = category;
+    $scope.linkedItems = params.linkedItems;
+    $scope.acceptedItemType = [ params.acceptedItemType ];
+    if (params.acceptedItemType == "Color") {
+        $scope.acceptedItemType.push("Switch");
+        $scope.acceptedItemType.push("Dimmer");
+    } else if (params.acceptedItemType == "Dimmer") {
+        $scope.acceptedItemType.push("Switch");
+    }
+    $scope.category = params.category;
     $scope.itemFormVisible = false;
     $scope.itemsList = [];
     itemRepository.getAll(function(items) {
         $scope.items = items;
-        $scope.itemsList = $filter('filter')(items, {
-            type : $scope.acceptedItemType
+        $scope.itemsList = $.grep($scope.items, function(item) {
+            return $scope.acceptedItemType.indexOf(item.type) != -1;
         });
         $scope.itemsList = $.grep($scope.itemsList, function(item) {
             return $scope.linkedItems.indexOf(item.name) == -1;
         });
-
-        $scope.itemsList = $filter('orderBy')($scope.itemsList, "name");
         $scope.itemsList.push({
             name : "_createNew",
             type : $scope.acceptedItemType
         });
+        $scope.itemsList = $filter('orderBy')($scope.itemsList, "name");
     });
     $scope.checkCreateOption = function() {
         if ($scope.itemName == "_createNew") {
             $scope.itemFormVisible = true;
+            sharedProperties.resetParams();
+            sharedProperties.updateParams({
+                linking : true,
+                acceptedItemType : $scope.acceptedItemType,
+                suggestedName : params.suggestedName + "_" + generateUID()
+            });
         } else {
             $scope.itemFormVisible = false;
         }
     }
     $scope.createAndLink = function() {
-        var item = {
-            name : $scope.newItemName,
-            label : $scope.itemLabel,
-            type : $scope.acceptedItemType,
-            category : $scope.category
-        };
-        itemService.create({
-            itemName : $scope.newItemName
-        }, item).$promise.then(function() {
-            toastService.showDefaultToast("Item created");
-            itemRepository.setDirty(true);
-            $scope.link($scope.newItemName, $scope.itemLabel);
-        });
+        $scope.$broadcast("ItemLinkedClicked");
     }
     $scope.close = function() {
         $mdDialog.cancel();
+        sharedProperties.resetParams();
     }
     $scope.link = function(itemName, label) {
         $mdDialog.hide({
             itemName : itemName,
             label : label
         });
+    }
+    $scope.$on('ItemCreated', function(event, args) {
+        event.preventDefault();
+        if (args.status) {
+            $scope.link(args.itemName, args.label);
+        } else {
+            toastService.showDefaultToast('Some error occurred');
+            $scope.close();
+        }
+    });
+
+    function generateUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx'.replace(/[x]/g, function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
     }
 }).controller('UnlinkChannelDialogController', function($scope, $mdDialog, toastService, linkService, itemName) {
     $scope.itemName = itemName;
