@@ -1,5 +1,5 @@
 <section>
-	<div class="item-edit white-bg" ng-controller="ItemConfigController">
+	<div class="item-edit white-bg" ng-if="advancedMode" ng-controller="ItemConfigController">
 		<div class="header-toolbar" ng-if="!linking">
 			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 		</div>

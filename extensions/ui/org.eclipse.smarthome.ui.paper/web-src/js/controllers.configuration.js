@@ -540,10 +540,11 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $mdDialog.hide();
         });
     }
-}).controller('LinkChannelDialogController', function($scope, $mdDialog, $filter, toastService, itemRepository, itemService, sharedProperties, params) {
+}).controller('LinkChannelDialogController', function($rootScope, $scope, $mdDialog, $filter, toastService, itemRepository, itemService, sharedProperties, params) {
     $scope.itemName;
     $scope.linkedItems = params.linkedItems;
     $scope.acceptedItemType = [ params.acceptedItemType ];
+    $scope.advancedMode = $rootScope.advancedMode;
     if (params.acceptedItemType == "Color") {
         $scope.acceptedItemType.push("Switch");
         $scope.acceptedItemType.push("Dimmer");
