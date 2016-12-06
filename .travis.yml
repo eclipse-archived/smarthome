@@ -8,6 +8,4 @@ before_install: echo "MAVEN_OPTS='-Xms1g -Xmx2g -XX:PermSize=512m -XX:MaxPermSiz
 #$ mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 #$ mvn test -B
 
-install: true
-script:
-  - mvn clean install -B -V
+install: travis_wait 60 mvn clean install -B -V -q
