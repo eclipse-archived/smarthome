@@ -30,7 +30,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     private ExecutorService executor;
 
-    private Future<?> feature;
+    private Future<?> future;
 
     private RuleEngine re;
 
@@ -42,14 +42,13 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
-        if (executor != null) {
-            re.logger.debug("The trigger '{}' of rule '{}' is triggred.", trigger.getId(), r.getUID());
-            synchronized (executor) {
-                if (executor != null) {
-                    feature = executor.submit(new TriggerData(trigger, outputs));
-                }
+        synchronized (this) {
+            if (executor == null) {
+                return;
             }
+            future = executor.submit(new TriggerData(trigger, outputs));
         }
+        re.logger.debug("The trigger '{}' of rule '{}' is triggered.", trigger.getId(), r.getUID());
     }
 
     public Rule getRule() {
@@ -57,7 +56,8 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     }
 
     public boolean isRunning() {
-        return feature == null || !feature.isDone();
+        Future<?> future = this.future;
+        return future == null || !future.isDone();
     }
 
     class TriggerData implements Runnable {
@@ -86,11 +86,10 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     }
 
     public void dispose() {
-        synchronized (executor) {
+        synchronized (this) {
             executor.shutdownNow();
             executor = null;
         }
-        r = null;
     }
 
 }

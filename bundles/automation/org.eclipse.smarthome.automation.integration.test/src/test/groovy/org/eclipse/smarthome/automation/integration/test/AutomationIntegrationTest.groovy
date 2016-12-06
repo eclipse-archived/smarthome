@@ -34,11 +34,13 @@ import org.eclipse.smarthome.automation.template.Template
 import org.eclipse.smarthome.automation.template.TemplateProvider
 import org.eclipse.smarthome.automation.template.TemplateRegistry
 import org.eclipse.smarthome.automation.type.ActionType
+import org.eclipse.smarthome.automation.type.ModuleType
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.automation.type.TriggerType
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.common.registry.Provider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -74,7 +76,7 @@ class AutomationIntegrationTest extends OSGiTest{
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
-        def ManagedRuleProvider managedRuleProvider
+    def ManagedRuleProvider managedRuleProvider
     def ModuleTypeRegistry moduleTypeRegistry
     def TemplateRegistry templateRegistry
 
@@ -613,7 +615,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
         waitForAssert {
             assertThat ruleRegistry.get(templateRule.UID), is(notNullValue())
-            assertThat ruleRegistry.getStatusInfo(templateRule.UID).status, is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatus(templateRule.UID), is(RuleStatus.IDLE)
         }
 
         //bring the rule to execution:
@@ -660,6 +662,9 @@ class AutomationIntegrationTest extends OSGiTest{
             }
         ] as TemplateProvider
 
+        def RuleTemplate[] templates = [template]
+        def providerTemplates = new TestTemplateProvider(templates)
+
         def moduleTypeProvider=[
             getModuleType:{String UID, Locale locale->
                 if (UID==triggerTypeUID){
@@ -675,18 +680,22 @@ class AutomationIntegrationTest extends OSGiTest{
             }
         ] as ModuleTypeProvider
 
-        registerService(templateProvider)
+        def ModuleType[] moduleTypes = [triggerType, actionType]
+        def providerModuleTypes = new TestModuleTypeProvider(moduleTypes)
+
+        def String[] templateProviderName = [TemplateProvider.class.getName(), Provider.class.getName()]
+        registerService(providerTemplates, templateProviderName)
         assertThat templateRegistry.get(templateUID), is(notNullValue())
-        registerService(moduleTypeProvider)
+        unregisterService(providerTemplates)
+        assertThat templateRegistry.get(templateUID), is(nullValue())
+
+        def String[] moduleTypeProviderName = [ModuleTypeProvider.class.getName(), Provider.class.getName()]
+        registerService(providerModuleTypes, moduleTypeProviderName)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(notNullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(notNullValue())
-
-        unregisterService(templateProvider)
-        assertThat templateRegistry.get(templateUID), is(nullValue())
-        unregisterService(moduleTypeProvider)
+        unregisterService(providerModuleTypes)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(nullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(nullValue())
-
     }
 
     /**

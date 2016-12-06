@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016  Bosch Software Innovations GmbH and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    and Eclipse Distribution License v1.0 which accompany this distribution.
+
+    The Eclipse Public License is available at
+    http://www.eclipse.org/legal/epl-v10.html
+    The Eclipse Distribution License is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.provider.TemplateProvider">
+    <implementation class="org.eclipse.smarthome.automation.internal.core.provider.TemplateResourceBundleProvider" />
+
+    <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.template)"/>
+    <reference bind="setTemplateRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.template.TemplateRegistry" name="TemplateRegistry" policy="static" unbind="removeTemplateRegistry"/>
+    <reference bind="setI18nProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.i18n.I18nProvider" name="I18nProvider" policy="dynamic" unbind="removeI18nProvider"/>
+    <service>
+        <provide interface="org.eclipse.smarthome.automation.template.TemplateProvider" />
+        <provide interface="org.eclipse.smarthome.core.common.registry.Provider" />
+    </service>
+    <property name="provider.type" type="String" value="bundle"/>
+</scr:component>

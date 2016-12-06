@@ -10,14 +10,22 @@ package org.eclipse.smarthome.automation.core.internal.template;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 
@@ -30,28 +38,15 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String, Provider<RuleTemplate>>
         implements TemplateRegistry<RuleTemplate> {
 
-    private Collection<TemplateProvider> providers = new HashSet<TemplateProvider>();
-
     public RuleTemplateRegistry() {
         super(null);
     }
 
-    /**
-     * Called from DS.
-     *
-     * @param templateProvider
-     */
-    protected void addTemplateProvider(TemplateProvider templateProvider) {
-        providers.add(templateProvider);
-    }
-
-    /**
-     * Called from DS.
-     *
-     * @param templateProvider
-     */
-    protected void removeTemplateProvider(TemplateProvider templateProvider) {
-        providers.remove(templateProvider);
+    @Override
+    protected void addProvider(Provider<RuleTemplate> provider) {
+        if (provider instanceof TemplateProvider) {
+            super.addProvider(provider);
+        }
     }
 
     @Override
@@ -62,14 +57,69 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
     @Override
     public RuleTemplate get(String templateUID, Locale locale) {
         RuleTemplate resultTemplate = null;
-        for (TemplateProvider templateProvider : providers) {
-            RuleTemplate template = templateProvider.getTemplate(templateUID, locale);
-            if (template != null) {
-                resultTemplate = template;
-                break;
+        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
+            if (provider instanceof TemplateProvider) {
+                resultTemplate = ((TemplateProvider) provider).getTemplate(templateUID, locale);
+            }
+            if (resultTemplate != null) {
+                return createCopy(resultTemplate);
             }
         }
-        return resultTemplate;
+        return null;
+    }
+
+    private RuleTemplate createCopy(RuleTemplate template) {
+        return new RuleTemplate(template.getUID(), template.getLabel(), template.getDescription(),
+                new HashSet<String>(template.getTags()), copyTriggers(template.getTriggers()),
+                copyConditions(template.getConditions()), copyActions(template.getActions()),
+                new LinkedList<ConfigDescriptionParameter>(template.getConfigurationDescriptions()),
+                template.getVisibility());
+    }
+
+    private List<Trigger> copyTriggers(List<Trigger> triggers) {
+        List<Trigger> res = new ArrayList<Trigger>(11);
+        if (triggers != null) {
+            for (Trigger t : triggers) {
+                Configuration c = new Configuration();
+                c.setProperties(t.getConfiguration().getProperties());
+                Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), c);
+                trigger.setLabel(trigger.getLabel());
+                trigger.setDescription(trigger.getDescription());
+                res.add(trigger);
+            }
+        }
+        return res;
+    }
+
+    private List<Condition> copyConditions(List<Condition> conditions) {
+        List<Condition> res = new ArrayList<Condition>(11);
+        if (conditions != null) {
+            for (Condition c : conditions) {
+                Configuration conf = new Configuration();
+                conf.setProperties(c.getConfiguration().getProperties());
+                Condition condition = new Condition(c.getId(), c.getTypeUID(), conf,
+                        new HashMap<String, String>(c.getInputs()));
+                condition.setLabel(condition.getLabel());
+                condition.setDescription(condition.getDescription());
+                res.add(condition);
+            }
+        }
+        return res;
+    }
+
+    private List<Action> copyActions(List<Action> actions) {
+        List<Action> res = new ArrayList<Action>();
+        if (actions != null) {
+            for (Action a : actions) {
+                Configuration c = new Configuration();
+                c.setProperties(a.getConfiguration().getProperties());
+                Action action = new Action(a.getId(), a.getTypeUID(), c, a.getInputs());
+                action.setLabel(a.getLabel());
+                action.setDescription(a.getDescription());
+                res.add(action);
+            }
+        }
+        return res;
     }
 
     @Override
@@ -81,10 +131,12 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
     public Collection<RuleTemplate> getByTag(String tag, Locale locale) {
         Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
         Collection<RuleTemplate> templates = null;
-        for (TemplateProvider templateProvider : providers) {
-            templates = templateProvider.getTemplates(locale);
+        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
+            if (provider instanceof TemplateProvider) {
+                templates = ((TemplateProvider) provider).getTemplates(locale);
+            }
             if (templates != null) {
-                for (Iterator<RuleTemplate> it = templates.iterator(); it.hasNext();) {
+                for (Iterator< RuleTemplate>it = templates.iterator(); it.hasNext();) {
                     RuleTemplate t = it.next();
                     if (tag != null) {
                         Collection<String> tags = t.getTags();
@@ -110,10 +162,12 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
         Collection<RuleTemplate> templates = null;
-        for (TemplateProvider templateProvider : providers) {
-            templates = templateProvider.getTemplates(locale);
+        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
+            if (provider instanceof TemplateProvider) {
+                templates = ((TemplateProvider) provider).getTemplates(locale);
+            }
             if (templates != null) {
-                for (Iterator<RuleTemplate> it = templates.iterator(); it.hasNext();) {
+                for (Iterator< RuleTemplate>it = templates.iterator(); it.hasNext();) {
                     RuleTemplate t = it.next();
                     if (tagSet != null) {
                         Collection<String> tTags = t.getTags();
