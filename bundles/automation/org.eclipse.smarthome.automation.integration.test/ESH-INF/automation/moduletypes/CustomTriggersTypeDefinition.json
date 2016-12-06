@@ -10,7 +10,7 @@
                "label":"CustomTriggerOutput1 label",
                "description":"Custom trigger output.",
                "defaultValue":true,
-               "reference":"$event"
+               "reference":"${event}"
             }
          ]
       },
@@ -24,7 +24,7 @@
                "label":"CustomTriggerOutput2 label",
                "description":"Custom trigger output.",
                "defaultValue":"event",
-               "reference":"$event"
+               "reference":"${event}"
             }
          ]
       }

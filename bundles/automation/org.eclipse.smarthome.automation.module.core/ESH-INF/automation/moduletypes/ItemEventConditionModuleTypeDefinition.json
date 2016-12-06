@@ -36,13 +36,13 @@
                "id":"itemStateEventConditionID",
                "type":"EventCondition",
                "configuration":{  
-                  "eventSource":"$itemName",
+                  "eventSource":"${itemName}",
                   "eventTopic":"smarthome/items/*",
                   "eventTypes":"ItemStateEvent",
-                  "payload":"$state"
+                  "payload":"${state}"
                },
                "inputs":{  
-                  "event":"$event"
+                  "event":"${event}"
                }
             }
          ]
@@ -76,11 +76,11 @@
                "id":"itemStateEventONConditionID",
                "type":"ItemStateEventCondition",
                "configuration":{  
-                  "itemName":"$itemName",
+                  "itemName":"${itemName}",
                   "state":"ON"
                },
                "inputs":{  
-                  "event":"$event"
+                  "event":"${event}"
                }
             }
          ]
@@ -114,11 +114,11 @@
                "id":"itemStateEventOFFConditionID",
                "type":"ItemStateEventCondition",
                "configuration":{  
-                  "itemName":"$itemName",
+                  "itemName":"${itemName}",
                   "state":"OFF"
                },
                "inputs":{  
-                  "event":"$event"
+                  "event":"${event}"
                }
             }
          ]

@@ -75,10 +75,10 @@
           "configuration":{
             "inputproperty":"itemName",
             "operator":"=",
-            "right":"$itemName"
+            "right":"${itemName}"
           },
           "inputs":{
-                "input":"$event"
+                "input":"${event}"
           }
         },
         {
@@ -87,10 +87,10 @@
           "configuration":{
             "inputproperty":"payload",
             "operator":"matches",
-            "right":"$state"
+            "right":"${state}"
           },
           "inputs":{
-                "input":"$event"
+                "input":"${event}"
           }
         }
       ]
