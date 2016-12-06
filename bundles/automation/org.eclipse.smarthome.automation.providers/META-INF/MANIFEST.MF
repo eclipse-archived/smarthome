@@ -16,5 +16,5 @@ Import-Package:
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.eclipse.smarthome.automation.internal.core.provider.Activator
+Service-Component: OSGI-INF/*.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
