@@ -10,4 +10,6 @@ before_install: echo "MAVEN_OPTS='-Xms1g -Xmx2g -XX:PermSize=512m -XX:MaxPermSiz
 
 install: true
 script:
-  - mvn clean install -B -V
+  - travis_wait 60 mvn clean install -B -V > .build.log
+after_success: tail -n 200 .build.log
+after_failure: tail -n 2000 .build.log
