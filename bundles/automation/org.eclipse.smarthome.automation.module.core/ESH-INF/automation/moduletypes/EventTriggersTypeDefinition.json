@@ -60,7 +60,7 @@
                "id":"itemStateUpdateTriggerID",
                "type":"GenericEventTrigger",
                "configuration":{
-                  "eventSource":"$itemName",
+                  "eventSource":"${itemName}",
                   "eventTopic":"smarthome/items/*",
                   "eventTypes":"ItemStateEvent"
                }
@@ -95,7 +95,7 @@
                "id":"itemStateChangeTriggerID",
                "type":"GenericEventTrigger",
                "configuration":{
-                  "eventSource":"$itemName",
+                  "eventSource":"${itemName}",
                   "eventTopic":"smarthome/items/${itemName}/state",
                   "eventTypes":"ItemStateChangedEvent"
                }
@@ -130,7 +130,7 @@
                "id":"channelEventTriggerId",
                "type":"GenericEventTrigger",
                "configuration":{
-                  "eventSource":"$channelUID",
+                  "eventSource":"${channelUID}",
                   "eventTopic":"smarthome/channels/*/triggered",
                   "eventTypes":"ChannelTriggeredEvent"
                }

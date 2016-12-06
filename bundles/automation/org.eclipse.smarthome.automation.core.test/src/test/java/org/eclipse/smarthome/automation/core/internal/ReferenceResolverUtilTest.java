@@ -33,7 +33,7 @@ public class ReferenceResolverUtilTest {
         context.put(CONTEXT_PROPERTY4, 12345);
 
         // module configuration with references
-        moduleConfiguration.put("simpleReference", "$" + CONTEXT_PROPERTY4);
+        moduleConfiguration.put("simpleReference", String.format("${%s}", CONTEXT_PROPERTY4));
         moduleConfiguration.put("complexReference",
                 String.format("Hello ${%s} ${%s}", CONTEXT_PROPERTY1, CONTEXT_PROPERTY4));
         moduleConfiguration.put("complexReferenceWithMissing",
@@ -63,9 +63,9 @@ public class ReferenceResolverUtilTest {
                 String.format("{key1: ${UNKNOWN}, key2: %s, key3: ${UNKNOWN2}}", context.get(CONTEXT_PROPERTY2)));
 
         // composite child module input with references
-        compositeChildModuleInputsReferences.put("moduleInput", "$" + CONTEXT_PROPERTY1);
-        compositeChildModuleInputsReferences.put("moduleInputMissing", "$UNKNOWN");
-        compositeChildModuleInputsReferences.put("moduleInput2", "$" + CONTEXT_PROPERTY2);
+        compositeChildModuleInputsReferences.put("moduleInput", String.format("${%s}", CONTEXT_PROPERTY1));
+        compositeChildModuleInputsReferences.put("moduleInputMissing", "${UNKNOWN}");
+        compositeChildModuleInputsReferences.put("moduleInput2", String.format("${%s}", CONTEXT_PROPERTY2));
         // expected resolved child module context
         expectedCompositeChildModuleContext.put("moduleInput", context.get(CONTEXT_PROPERTY1));
         expectedCompositeChildModuleContext.put("moduleInputMissing", context.get("UNKNOWN"));

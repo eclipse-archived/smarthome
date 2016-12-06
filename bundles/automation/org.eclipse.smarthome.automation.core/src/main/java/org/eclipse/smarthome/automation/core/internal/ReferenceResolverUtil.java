@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Single reference configuration value where whole configuration property value is replaced(if found) with the
  * referenced value
  * <br/>
- * 'configurationProperty': '$singleReference'
+ * 'configurationProperty': '${singleReference}'
  * </li>
  * <li>
  * Complex reference configuration value where only reference parts are replaced in the whole configuration property
@@ -56,17 +56,17 @@ import org.slf4j.LoggerFactory;
  * </li>
  * </ul>
  *
- * Given Module 'A' is child of CompositeModule then its inputs can have '$singleReferences' to CompositeModule.
+ * Given Module 'A' is child of CompositeModule then its inputs can have '${singleReferences}' to CompositeModule.
  * <ul>
  * <li>
- * Single reference to CompositeModule inputs where whole input value is replaces with the referenced value
+ * Single reference to CompositeModule inputs where whole input value is replaced with the referenced value
  * <br/>
- * 'childInput' : '$compositeModuleInput'
+ * 'childInput' : '${compositeModuleInput}'
  * </li>
  * <li>
- * Single reference to CompositeModule configuration where whole input value is replaces with the referenced value
+ * Single reference to CompositeModule configuration where whole input value is replaced with the referenced value
  * <br/>
- * 'childInput' : '$compositeModuleConfiguration'
+ * 'childInput' : '${compositeModuleConfiguration}'
  * </li>
  * </ul>
  *
@@ -83,7 +83,7 @@ public class ReferenceResolverUtil {
      * Updates (changes) configuration properties of module base on given context (it can be CompositeModule
      * Configuration or Rule Configuration).
      * For example:
-     * 1) If a module configuration property has a value '$name' the method looks for such key in context
+     * 1) If a module configuration property has a value '${name}' the method looks for such key in context
      * and if found - replace the module's configuration value as it is.
      *
      * 2) If a module configuration property has complex value 'Hello ${firstName} ${lastName}'
@@ -105,7 +105,7 @@ public class ReferenceResolverUtil {
                     if (result != null) {
                         config.put(configKey, result);
                     }
-                } else if (isPattern(childConfigPropertyValue)) {
+                } else if (containsPattern(childConfigPropertyValue)) {
                     Object result = resolvePattern(childConfigPropertyValue, context);
                     config.put(configKey, result);
                 }
@@ -145,7 +145,7 @@ public class ReferenceResolverUtil {
     }
 
     /**
-     * Resolves single reference '$singleReference' from given context.
+     * Resolves single reference '${singleReference}' from given context.
      *
      * @param reference single reference to parse
      * @param context from where the value will be get
@@ -154,7 +154,8 @@ public class ReferenceResolverUtil {
     public static Object resolveReference(String reference, Map<String, ?> context) {
         Object result = reference;
         if (isReference(reference)) {
-            result = context.get(reference.trim().substring(1));
+            final String trimmedVal = reference.trim();
+            result = context.get(trimmedVal.substring(2, trimmedVal.length() - 1));// ${substring}
         }
         return result;
     }
@@ -219,13 +220,7 @@ public class ReferenceResolverUtil {
             final Object referencedValue = context.get(referencedKey);
 
             if (referencedValue != null) {
-                if (isSupportedPatternReferenceType(referencedValue)) {
-                    sb.append(referencedValue);
-                } else {
-                    // not supported type restore reference
-                    sb.append(reference.substring(start, end + 1));
-                    logger.warn("Not supported type: " + referencedValue.getClass());
-                }
+                sb.append(referencedValue);
             } else {
                 // remain as it is: value is null
                 sb.append(reference.substring(start, end + 1));
@@ -237,28 +232,26 @@ public class ReferenceResolverUtil {
     }
 
     /**
-     * Found reference value should have meaningful String representation as it is part of configuration property which
-     * type is String
+     * Determines whether given Text is '${reference}'.
      *
-     * @param obj that is referenced in complex reference
-     * @return true if referenced value is valid complex reference type, false otherwise
+     * @param value to be evaluated
+     * @return True if this value is a '${reference}', false otherwise.
      */
-    private static boolean isSupportedPatternReferenceType(Object obj) {
-        return obj instanceof String || obj instanceof Number || obj instanceof Boolean;
+    private static boolean isReference(String value) {
+        String trimmedVal = value == null ? null : value.trim();
+        return trimmedVal != null && trimmedVal.lastIndexOf("${") == 0 // starts with '${' and it contains it only once
+                && trimmedVal.indexOf('}') == trimmedVal.length() - 1 // contains '}' only once - last char
+                && trimmedVal.length() > 3; // reference is not empty '${}'
     }
 
-    private static boolean isReference(Object value) {
-        boolean result = false;
-        if (value instanceof String) {
-            String strVal = ((String) value).trim();
-            result = strVal.startsWith("$") && strVal.lastIndexOf("$") == 0 && strVal.length() > 1
-                    && strVal.charAt(1) != '{';
-        }
-        return result;
-    }
-
-    private static boolean isPattern(String value) {
-        return value != null && value.trim().contains("${") && value.trim().contains("}");
+    /**
+     * Determines whether given Text is '.....${reference}...'.
+     *
+     * @param value to be evaluated
+     * @return True if this value is a '.....${reference}...', false otherwise.
+     */
+    private static boolean containsPattern(String value) {
+        return value != null && value.trim().contains("${") && value.trim().indexOf("${") < value.trim().indexOf("}");
     }
 
 }

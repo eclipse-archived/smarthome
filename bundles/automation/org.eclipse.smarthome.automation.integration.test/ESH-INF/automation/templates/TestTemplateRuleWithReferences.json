@@ -29,7 +29,7 @@
         "id": "ItemStateChangeTriggerID",
         "type": "GenericEventTrigger",
 		"configuration":{
-			"eventSource":"$triggerItem",
+			"eventSource":"${triggerItem}",
 			"eventTopic":"smarthome/items/*",
 			"eventTypes":"ItemStateEvent"
 		}
@@ -53,7 +53,7 @@
         "id": "ItemPostCommandActionID",
         "type": "ItemPostCommandAction",
         "configuration": {  
-          "itemName": "$actionItem",
+          "itemName": "${actionItem}",
 		  "command": "ON"
         }
       }
