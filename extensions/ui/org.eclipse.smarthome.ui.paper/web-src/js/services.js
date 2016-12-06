@@ -127,6 +127,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         if (parameter.multiple) {
                             parameter.element = 'multiSelect';
+                            parameter.limitToOptions = true;
                         } else {
                             parameter.element = 'select';
                         }
@@ -140,6 +141,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     } else if (parameter.context.toUpperCase() === 'THING') {
                         if (parameter.multiple) {
                             parameter.element = 'multiSelect';
+                            parameter.limitToOptions = true;
                         } else {
                             parameter.element = 'select';
                         }
