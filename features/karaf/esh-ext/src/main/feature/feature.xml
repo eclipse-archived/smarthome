@@ -21,6 +21,11 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.digitalstrom/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-dmx" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.dmx/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-hue" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-upnp</feature>
