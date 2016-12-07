@@ -9,12 +9,9 @@ package org.eclipse.smarthome.automation.internal.core.provider;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -34,13 +31,9 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It serves for providing {@link ModuleType}s by loading
@@ -58,97 +51,38 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Yordan Mihaylov - updates related to api changes
  */
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
-        implements ModuleTypeProvider {
+        implements ModuleTypeProvider, Provider<ModuleType> {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
 
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker moduleTypesTracker;
-
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration /* <T> */ mtpReg;
-
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker localizationTracker;
-
     /**
-     * This constructor is responsible for initializing the path to resources and tracking the managing service of the
-     * {@link ModuleType}s.
+     * This constructor is responsible for initializing the path to resources and tracking the
+     * {@link ModuleTypeRegistry}.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public ModuleTypeResourceBundleProvider(BundleContext context) {
-        super(context);
+    public ModuleTypeResourceBundleProvider() {
+        listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
         path = PATH + "/moduletypes/";
-        moduleTypesTracker = new ServiceTracker(context, ModuleTypeRegistry.class.getName(),
-                new ServiceTrackerCustomizer() {
-
-                    @Override
-                    public Object addingService(ServiceReference reference) {
-                        moduleTypeRegistry = (ModuleTypeRegistry) bc.getService(reference);
-                        queue.open();
-                        return moduleTypeRegistry;
-                    }
-
-                    @Override
-                    public void modifiedService(ServiceReference reference, Object service) {
-                    }
-
-                    @Override
-                    public void removedService(ServiceReference reference, Object service) {
-                        moduleTypeRegistry = null;
-                    }
-                });
-        localizationTracker = new ServiceTracker(bc, I18nProvider.class.getName(), new ServiceTrackerCustomizer() {
-
-            @Override
-            public Object addingService(ServiceReference reference) {
-                i18nProvider = (I18nProvider) bc.getService(reference);
-                return i18nProvider;
-            }
-
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
-
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                i18nProvider = null;
-            }
-        });
-        localizationTracker.open();
     }
 
     @Override
-    public void setQueue(AutomationResourceBundlesEventQueue queue) {
-        super.setQueue(queue);
-        moduleTypesTracker.open();
+    public Collection<ModuleType> getAll() {
+        return providedObjectsHolder.values();
     }
 
-    /**
-     * This method is inherited from {@link AbstractResourceBundleProvider}. Extends parent's functionality with closing
-     * the {@link #moduleTypesTracker} and sets <code>null</code> to {@link #moduleTypeRegistry}.
-     *
-     * @see AbstractResourceBundleProvider#close()
-     */
     @Override
-    public void close() {
-        if (localizationTracker != null) {
-            localizationTracker.close();
-            localizationTracker = null;
-            i18nProvider = null;
+    public void addProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
         }
-        if (moduleTypesTracker != null) {
-            moduleTypesTracker.close();
-            moduleTypesTracker = null;
-            moduleTypeRegistry = null;
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
         }
-        if (mtpReg != null) {
-            mtpReg.unregister();
-            mtpReg = null;
-        }
-        super.close();
     }
 
     /**
@@ -157,9 +91,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
     @SuppressWarnings("unchecked")
     @Override
     public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
-        synchronized (providedObjectsHolder) {
-            return (T) getPerLocale(providedObjectsHolder.get(UID), locale);
-        }
+        return (T) getPerLocale(providedObjectsHolder.get(UID), locale);
     }
 
     /**
@@ -168,42 +100,18 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
         List<ModuleType> moduleTypesList = new ArrayList<ModuleType>();
-        synchronized (providedObjectsHolder) {
-            for (ModuleType mt : providedObjectsHolder.values()) {
-                moduleTypesList.add(getPerLocale(mt, locale));
-            }
+        for (ModuleType mt : providedObjectsHolder.values()) {
+            moduleTypesList.add(getPerLocale(mt, locale));
         }
         return moduleTypesList;
     }
 
-    /**
-     * @see AbstractResourceBundleProvider#addingService(ServiceReference)
-     */
-    @Override
-    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
-        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_MODULE_TYPE)) {
-            return super.addingService(reference);
-        }
-        return null;
+    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
+        this.moduleTypeRegistry = moduleTypeRegistry;
     }
 
-    @Override
-    public boolean isReady() {
-        return moduleTypeRegistry != null && queue != null;
-    }
-
-    @Override
-    protected void addNewProvidedObjects(List<String> newPortfolio, Set<ModuleType> parsedObjects) {
-        synchronized (providedObjectsHolder) {
-            for (ModuleType parsedObject : parsedObjects) {
-                String uid = parsedObject.getUID();
-                if (providedObjectsHolder.get(uid) == null && checkExistence(uid)) {
-                    continue;
-                }
-                newPortfolio.add(uid);
-                providedObjectsHolder.put(uid, parsedObject);
-            }
-        }
+    protected void removeModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
+        this.moduleTypeRegistry = null;
     }
 
     /**
@@ -213,13 +121,19 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
      * @return {@code true} if {@link ModuleType} with the same UID exists or {@code false} in the opposite case.
      */
-    private boolean checkExistence(String uid) {
+    @Override
+    protected boolean checkExistence(String uid) {
         if (moduleTypeRegistry.get(uid) != null) {
             logger.error("Module Type with UID \"{}\" already exists! Failed to create a second with the same UID!",
                     uid, new IllegalArgumentException());
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected String getUID(ModuleType parsedObject) {
+        return parsedObject.getUID();
     }
 
     /**
@@ -230,7 +144,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      * @return the localized {@link ModuleType}.
      */
     private ModuleType getPerLocale(ModuleType defModuleType, Locale locale) {
-        if (locale == null || defModuleType == null) {
+        if (locale == null || defModuleType == null || i18nProvider == null) {
             return defModuleType;
         }
         String uid = defModuleType.getUID();
@@ -346,20 +260,6 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                     tt.getVisibility(), outputs);
         }
         return ltt;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void updateProviderRegistration() {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        synchronized (providedObjectsHolder) {
-            properties.put(REG_PROPERTY_MODULE_TYPES, new HashSet<String>(providedObjectsHolder.keySet()));
-        }
-        if (mtpReg == null) {
-            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-        } else {
-            mtpReg.setProperties(properties);
-        }
     }
 
 }

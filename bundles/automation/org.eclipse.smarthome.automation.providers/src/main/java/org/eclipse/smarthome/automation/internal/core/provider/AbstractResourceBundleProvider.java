@@ -7,20 +7,22 @@
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
@@ -34,39 +36,43 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
- * for importing and persisting the {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s from bundles which
- * provides resource files.
+ * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and {@code RuleImporter} which are
+ * responsible for importing and persisting the {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s from
+ * bundles which provides resource files.
  * <p>
- * It tracks {@link Parser} services by implementing {@link ServiceTrackerCustomizer}.
+ * It tracks {@link Parser} services by implementing {@link #addParser(Parser, Map)} and
+ * {@link #removeParser(Parser, Map)} methods.
  * <p>
- * The additional functionality, responsible for tracking bundles with resources, comes from
- * {@link AutomationResourceBundlesEventQueue} by implementing a {@link BundleTrackerCustomizer}
- * <p>
- * but {@code AbstractResourceBundleProvider} provides common functionality for processing the tracked bundles.
+ * The functionality, responsible for tracking the bundles with resources, comes from
+ * {@link AutomationResourceBundlesTracker} by implementing a {@link BundleTrackerCustomizer} but the functionality for
+ * processing them, comes from this class.
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractResourceBundleProvider<E> implements ServiceTrackerCustomizer {
+public abstract class AbstractResourceBundleProvider<E> {
 
     /**
      * This static field provides a root directory for automation object resources in the bundle resources.
      * It is common for all resources - {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s.
      */
     protected static String PATH = "ESH-INF/automation";
+
+    /**
+     * This field holds a reference to the service instance for internationalization support within the platform.
+     */
+    protected I18nProvider i18nProvider;
 
     /**
      * This field keeps instance of {@link Logger} that is used for logging.
@@ -81,66 +87,78 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     /**
      * This field is initialized in constructors of any particular provider with specific path for the particular
      * resources from specific type as {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s:
-     * <li>for {@link ModuleType}s it is a "ESH-INF/automation/moduletypes/"
-     * <li>for {@link RuleTemplate}s it is a "ESH-INF/automation/templates/"
+     * <li>for
+     * {@link ModuleType}s it is a "ESH-INF/automation/moduletypes/"
+     * <li>for {@link RuleTemplate}s it is a
+     * "ESH-INF/automation/templates/"
      * <li>for {@link Rule}s it is a "ESH-INF/automation/rules/"
      */
     protected String path;
 
     /**
-     * This field is a {@link ServiceTracker} for {@link Parser} services.
+     * This Map collects all binded {@link Parser}s.
      */
-    protected ServiceTracker<Parser, Parser> parserTracker;
-
-    /**
-     * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
-     * performance at runtime of the system.
-     */
-    protected Map<String, Parser<E>> parsers = new HashMap<String, Parser<E>>();
+    protected Map<String, Parser<E>> parsers = new ConcurrentHashMap<String, Parser<E>>();
 
     /**
      * This Map provides structure for fast access to the provided automation objects. This provides opportunity for
      * high performance at runtime of the system, when the Rule Engine asks for any particular object, instead of
      * waiting it for parsing every time.
      * <p>
-     * The Map has for keys UIDs of the objects and for values {@link Localizer}s of the objects.
+     * The Map has for keys UIDs of the objects and for values one of {@link ModuleType}s, {@link RuleTemplate}s and
+     * {@link Rule}s.
      */
-    protected Map<String, E> providedObjectsHolder = new HashMap<String, E>();
+    protected Map<String, E> providedObjectsHolder;
 
     /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.
      * <p>
      * The Map has for keys - {@link Vendor}s and for values - Lists with UIDs of the objects.
      */
-    protected Map<Vendor, List<String>> providerPortfolio = new HashMap<Vendor, List<String>>();
+    protected Map<Vendor, List<String>> providerPortfolio;
 
     /**
      * This Map holds bundles whose {@link Parser} for resources is missing in the moment of processing the bundle.
      * Later, if the {@link Parser} appears, they will be added again in the {@link #queue} for processing.
      */
-    protected Map<Bundle, List<URL>> waitingProviders = new HashMap<Bundle, List<URL>>();
+    protected Map<Bundle, List<URL>> waitingProviders = new ConcurrentHashMap<Bundle, List<URL>>();
 
     /**
      * This field provides an access to the queue for processing bundles.
      */
     protected AutomationResourceBundlesEventQueue queue;
 
-    /**
-     * This field holds a reference to the service instance for internationalization support within the platform.
-     */
-    protected I18nProvider i18nProvider;
+    protected List<ProviderChangeListener<E>> listeners;
 
-    /**
-     * This constructor is responsible for creation of a tracker for {@link Parser} services.
-     *
-     * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     */
     @SuppressWarnings("unchecked")
-    public AbstractResourceBundleProvider(BundleContext context) {
-        this.bc = context;
-        logger = LoggerFactory.getLogger(AbstractResourceBundleProvider.this.getClass());
-        parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
-        parserTracker.open();
+    protected void activate(BundleContext bc) {
+        this.bc = bc;
+        logger = LoggerFactory.getLogger(this.getClass());
+        providedObjectsHolder = new ConcurrentHashMap<String, E>();
+        providerPortfolio = new ConcurrentHashMap<Vendor, List<String>>();
+        queue = new AutomationResourceBundlesEventQueue(this);
+    }
+
+    protected void deactivate() {
+        bc = null;
+        queue.stop();
+        synchronized (parsers) {
+            parsers.clear();
+        }
+        synchronized (providedObjectsHolder) {
+            providedObjectsHolder.clear();
+        }
+        synchronized (providerPortfolio) {
+            providerPortfolio.clear();
+        }
+        synchronized (waitingProviders) {
+            waitingProviders.clear();
+        }
+        if (listeners != null) {
+            synchronized (listeners) {
+                listeners.clear();
+            }
+        }
     }
 
     /**
@@ -149,9 +167,8 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      *
      * @param queue provides an access to the queue for processing bundles.
      */
-    public void setQueue(AutomationResourceBundlesEventQueue queue) {
-        this.queue = queue;
-        queue.open();
+    protected AutomationResourceBundlesEventQueue getQueue() {
+        return queue;
     }
 
     /**
@@ -164,111 +181,39 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * <p>
      * and then the {@link Parser} service appears, they will be processed.
      *
-     * @param reference The reference to the service being added to the {@code ServiceTracker}.
-     * @return the service object to be tracked for the specified {@code ServiceReference}.
+     * @param parser {@link Parser} service
+     * @param properties of the service that has been added.
      */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object addingService(ServiceReference reference) {
-        Parser<E> service = (Parser<E>) bc.getService(reference);
-        String key = (String) reference.getProperty(Parser.FORMAT);
-        key = key == null ? Parser.FORMAT_JSON : key;
-        parsers.put(key, service);
-        synchronized (waitingProviders) {
-            Iterator<Bundle> i = waitingProviders.keySet().iterator();
-            while (i.hasNext()) {
-                Bundle bundle = i.next();
-                if (bundle.getState() != Bundle.UNINSTALLED) {
-                    queue.addingBundle(bundle, null);
-                }
+    protected void addParser(Parser<E> parser, Map<String, String> properties) {
+        String parserType = properties.get(Parser.FORMAT);
+        parserType = parserType == null ? Parser.FORMAT_JSON : parserType;
+        parsers.put(parserType, parser);
+        for (Bundle bundle : waitingProviders.keySet()) {
+            if (bundle.getState() != Bundle.UNINSTALLED) {
+                processAutomationProvider(bundle);
             }
         }
-        return service;
-    }
-
-    /**
-     * This method is called when the service being tracked by the {@code ServiceTracker} has had it properties
-     * modified. This case is not useful for the {@link Parser} services, so this method do nothing.
-     *
-     * @param reference The reference to the service that has been modified.
-     * @param service The service object for the specified referenced service.
-     */
-    @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-        // do nothing
     }
 
     /**
      * This method is called after a service is no longer being tracked by the {@code ServiceTracker} and removes the
      * {@link Parser} service objects from the structure Map "{@link #parsers}".
      *
-     * @param reference The reference to the service that has been removed.
-     * @param service The service object for the specified referenced service.
+     * @param parser The {@link Parser} service object for the specified referenced service.
+     * @param properties of the service that has been removed.
      */
-    @Override
-    public void removedService(ServiceReference reference, Object service) {
-        String key = (String) reference.getProperty(Parser.FORMAT);
-        key = key == null ? Parser.FORMAT_JSON : key;
-        parsers.remove(key);
+    protected void removeParser(Parser<E> parser, Map<String, String> properties) {
+        String parserType = properties.get(Parser.FORMAT);
+        parserType = parserType == null ? Parser.FORMAT_JSON : parserType;
+        parsers.remove(parserType);
     }
 
-    /**
-     * This method is inherited from {@link AbstractPersistentProvider}.
-     * <p>
-     * Extends parent's functionality with closing the {@link Parser} service tracker and
-     * <p>
-     * sets {@code null} to {@link #parsers}, {@link #providedObjectsHolder}, {@link #providerPortfolio} and
-     * {@link #waitingProviders}
-     */
-    public void close() {
-        if (parserTracker != null) {
-            parserTracker.close();
-            parserTracker = null;
-            parsers = null;
-        }
-        synchronized (providedObjectsHolder) {
-            providedObjectsHolder.clear();
-        }
-        synchronized (providerPortfolio) {
-            providerPortfolio.clear();
-        }
-        synchronized (waitingProviders) {
-            waitingProviders.clear();
-        }
+    protected void setI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
     }
 
-    /**
-     * This method is called from {@link AutomationResourceBundlesEventQueue} to ensure that the tracked bundle is
-     * already processed and its version is the same.
-     *
-     * @param bundle is a {@link Bundle} object, corresponding to the tracked bundle and serves as key in
-     *            {@link #waitingProviders}
-     * @return {@code true} if the bundle is missing in {@link #waitingProviders} and ID and the Version on the tracked
-     *         bundle are matching to these on the {@link Vendor} objects, contained as keys in
-     *         {@link #providerPortfolio} and {@code false} in the opposite case.
-     */
-    public boolean isProviderProcessed(Bundle bundle) {
-        boolean res = false;
-        synchronized (waitingProviders) {
-            res = waitingProviders.get(bundle) == null;
-        }
-        if (res) {
-            Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-            synchronized (providerPortfolio) {
-                res = providerPortfolio.get(vendor) != null;
-            }
-        }
-        return res;
-    }
-
-    /**
-     * This method is used in {@link AutomationResourceBundlesEventQueue#open()} to confirms that the provider is ready
-     * to work.
-     *
-     * @return {@code true} if the provider is ready and {@code false} in the opposite case.
-     */
-    public boolean isReady() {
-        return false;
+    protected void removeI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = null;
     }
 
     /**
@@ -292,51 +237,52 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     protected void processAutomationProvider(Bundle bundle) {
         Enumeration<URL> urlEnum = null;
         try {
-            urlEnum = bundle.findEntries(path, null, true);
+            if (bundle.getState() != Bundle.UNINSTALLED) {
+                urlEnum = bundle.findEntries(path, null, true);
+            }
         } catch (IllegalStateException e) {
             logger.debug("Can't read from resource of bundle with ID {}. The bundle is uninstalled.",
                     bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);
         }
-        if (urlEnum == null) {
-            return;
-        }
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-        List<String> newPortfolio = new ArrayList<String>();
-        while (urlEnum.hasMoreElements()) {
-            URL url = urlEnum.nextElement();
-            String parserType = getParserType(url);
-            Parser<E> parser = parsers.get(parserType);
-            updateWaitingProviders(parser, bundle, url);
-            InputStreamReader reader = null;
-            try {
-                Set<E> parsedObjects = parseData(parser, reader = new InputStreamReader(url.openStream()));
-                if (parsedObjects != null && !parsedObjects.isEmpty()) {
-                    addNewProvidedObjects(newPortfolio, parsedObjects);
-                    removeUninstalledObjects(getPreviousPortfolio(vendor), newPortfolio);
-                    updateProviderRegistration();
+        List<String> previousPortfolio = getPreviousPortfolio(vendor);
+        List<String> newPortfolio = new LinkedList<String>();
+        if (urlEnum != null) {
+            while (urlEnum.hasMoreElements()) {
+                URL url = urlEnum.nextElement();
+                if (url.getPath().endsWith(File.separator)) {
+                    continue;
                 }
-            } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
-                processAutomationProviderUninstalled(bundle);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ignore) {
+                String parserType = getParserType(url);
+                Parser<E> parser = parsers.get(parserType);
+                updateWaitingProviders(parser, bundle, url);
+                if (parser != null) {
+                    Set<E> parsedObjects = parseData(parser, url, bundle);
+                    if (parsedObjects != null && !parsedObjects.isEmpty()) {
+                        addNewProvidedObjects(newPortfolio, previousPortfolio, parsedObjects);
                     }
                 }
             }
+            putNewPortfolio(vendor, newPortfolio);
         }
-        putNewPortfolio(vendor, newPortfolio);
+        removeUninstalledObjects(previousPortfolio, newPortfolio);
     }
 
+    @SuppressWarnings("unchecked")
     protected void removeUninstalledObjects(List<String> previousPortfolio, List<String> newPortfolio) {
         if (previousPortfolio != null && !previousPortfolio.isEmpty()) {
-            synchronized (providedObjectsHolder) {
-                for (String uid : previousPortfolio) {
-                    if (!newPortfolio.contains(uid)) {
-                        providedObjectsHolder.remove(uid);
+            for (String uid : previousPortfolio) {
+                if (!newPortfolio.contains(uid)) {
+                    E removedObject = providedObjectsHolder.remove(uid);
+                    if (listeners != null) {
+                        List<ProviderChangeListener<E>> snapshot = null;
+                        synchronized (listeners) {
+                            snapshot = new LinkedList<ProviderChangeListener<E>>(listeners);
+                        }
+                        for (ProviderChangeListener<E> listener : snapshot) {
+                            listener.removed((Provider<E>) this, removedObject);
+                        }
                     }
                 }
             }
@@ -344,27 +290,19 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     }
 
     protected List<String> getPreviousPortfolio(Vendor vendor) {
-        synchronized (providerPortfolio) {
-            List<String> portfolio = providerPortfolio.get(vendor);
-            if (portfolio == null) {
-                Iterator<Vendor> keys = providerPortfolio.keySet().iterator();
-                while (keys.hasNext()) {
-                    Vendor v = keys.next();
-                    if (v.getVendorSymbolicName().equals(vendor.getVendorSymbolicName())) {
-                        portfolio = providerPortfolio.get(v);
-                        keys.remove();
-                        break;
-                    }
+        List<String> portfolio = providerPortfolio.remove(vendor);
+        if (portfolio == null) {
+            for (Vendor v : providerPortfolio.keySet()) {
+                if (v.getVendorSymbolicName().equals(vendor.getVendorSymbolicName())) {
+                    return providerPortfolio.remove(v);
                 }
             }
-            return portfolio;
         }
+        return portfolio;
     }
 
     protected void putNewPortfolio(Vendor vendor, List<String> portfolio) {
-        synchronized (providerPortfolio) {
-            providerPortfolio.put(vendor, portfolio);
-        }
+        providerPortfolio.put(vendor, portfolio);
     }
 
     /**
@@ -398,21 +336,22 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      *
      * @param bundle the uninstalled {@link Bundle}, provider of automation objects.
      */
+    @SuppressWarnings("unchecked")
     protected void processAutomationProviderUninstalled(Bundle bundle) {
-        synchronized (waitingProviders) {
-            waitingProviders.remove(bundle);
-        }
-        List<String> portfolio = null;
+        waitingProviders.remove(bundle);
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-        synchronized (providerPortfolio) {
-            portfolio = providerPortfolio.remove(vendor);
-        }
+        List<String> portfolio = providerPortfolio.remove(vendor);
         if (portfolio != null && !portfolio.isEmpty()) {
-            Iterator<String> i = portfolio.iterator();
-            while (i.hasNext()) {
-                String uid = i.next();
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.remove(uid);
+            for (String uid : portfolio) {
+                E removedObject = providedObjectsHolder.remove(uid);
+                if (listeners != null) {
+                    List<ProviderChangeListener<E>> snapshot = null;
+                    synchronized (listeners) {
+                        snapshot = new LinkedList<ProviderChangeListener<E>>(listeners);
+                    }
+                    for (ProviderChangeListener<E> listener : snapshot) {
+                        listener.removed((Provider<E>) this, removedObject);
+                    }
                 }
             }
         }
@@ -427,12 +366,10 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      */
     protected Bundle getBundle(String uid) {
         String symbolicName = null;
-        synchronized (providerPortfolio) {
-            for (Entry<Vendor, List<String>> entry : providerPortfolio.entrySet()) {
-                if (entry.getValue().contains(uid)) {
-                    symbolicName = entry.getKey().getVendorSymbolicName();
-                    break;
-                }
+        for (Entry<Vendor, List<String>> entry : providerPortfolio.entrySet()) {
+            if (entry.getValue().contains(uid)) {
+                symbolicName = entry.getKey().getVendorSymbolicName();
+                break;
             }
         }
         if (symbolicName != null) {
@@ -507,39 +444,96 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * @param vendor is a holder of information about the bundle providing data for import.
      * @param parser the {@link Parser} which is responsible for parsing of a particular format in which the provided
      *            objects are presented
-     * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
+     * @param url the resource which is used for loading the objects.
+     * @param bundle is the resource holder
      * @return a set of automation objects - the result of loading.
      */
-    protected Set<E> parseData(Parser<E> parser, InputStreamReader inputStreamReader) {
-        if (parser != null) {
-            try {
-                return parser.parse(inputStreamReader);
-            } catch (ParsingException e) {
-                logger.error(e.getLocalizedMessage(), e);
+    protected Set<E> parseData(Parser<E> parser, URL url, Bundle bundle) {
+        InputStreamReader reader = null;
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            reader = new InputStreamReader(is);
+            return parser.parse(reader);
+        } catch (ParsingException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        } catch (IOException e) {
+            logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
+            processAutomationProviderUninstalled(bundle);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                }
             }
         }
         return null;
     }
 
-    protected abstract void updateProviderRegistration();
-
-    protected abstract void addNewProvidedObjects(List<String> newPortfolio, Set<E> parsedObjects);
-
-    protected void updateWaitingProviders(Parser<E> parser, Bundle bundle, URL url) {
-        synchronized (waitingProviders) {
-            List<URL> urlList = waitingProviders.get(bundle);
-            if (parser != null) {
-                if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
-                    waitingProviders.remove(bundle);
+    @SuppressWarnings("unchecked")
+    protected void addNewProvidedObjects(List<String> newPortfolio, List<String> previousPortfolio,
+            Set<E> parsedObjects) {
+        for (E parsedObject : parsedObjects) {
+            String uid = getUID(parsedObject);
+            if (providedObjectsHolder.get(uid) == null) {
+                if (checkExistence(uid)) {
+                    continue;
                 }
-            } else if (parser == null) {
-                if (urlList == null) {
-                    urlList = new ArrayList<URL>();
+            } else if (previousPortfolio == null || !previousPortfolio.contains(uid)) {
+                logger.error("{} with UID \"{}\" already exists! Failed to create a second with the same UID!",
+                        parsedObject.getClass().getName(), uid, new IllegalArgumentException());
+                continue;
+            }
+            newPortfolio.add(uid);
+            E oldelement = providedObjectsHolder.put(uid, parsedObject);
+            if (listeners != null) {
+                List<ProviderChangeListener<E>> snapshot = null;
+                synchronized (listeners) {
+                    snapshot = new LinkedList<ProviderChangeListener<E>>(listeners);
                 }
-                urlList.add(url);
-                waitingProviders.put(bundle, urlList);
+                for (ProviderChangeListener<E> listener : snapshot) {
+                    if (oldelement == null) {
+                        listener.added((Provider<E>) this, parsedObject);
+                    } else {
+                        listener.updated((Provider<E>) this, oldelement, parsedObject);
+                    }
+                }
             }
         }
     }
+
+    protected void updateWaitingProviders(Parser<E> parser, Bundle bundle, URL url) {
+        List<URL> urlList = waitingProviders.get(bundle);
+        if (parser == null) {
+            if (urlList == null) {
+                urlList = new ArrayList<URL>();
+            }
+            urlList.add(url);
+            waitingProviders.put(bundle, urlList);
+            return;
+        }
+        if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
+            waitingProviders.remove(bundle);
+        }
+    }
+
+    /**
+     * @param uid
+     * @return
+     */
+    protected abstract boolean checkExistence(String uid);
+
+    /**
+     * @param parsedObject
+     * @return
+     */
+    protected abstract String getUID(E parsedObject);
 
 }
