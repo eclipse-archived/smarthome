@@ -9,7 +9,10 @@ package org.eclipse.smarthome.binding.wemo.handler;
 
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
 
+import java.math.BigDecimal;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +49,8 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     private final Logger logger = LoggerFactory.getLogger(WemoLightHandler.class);
 
+    private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
+
     private UpnpIOService service;
 
     private WemoBridgeHandler wemoBridgeHandler;
@@ -78,7 +83,13 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
         @Override
         public void run() {
             try {
+                if (!isUpnpDeviceRegistered()) {
+                    logger.debug("WeMo UPnP device {} not yet registered", getUDN());
+                }
+
                 getDeviceState();
+                onSubscription();
+
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
             }
@@ -365,28 +376,53 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     private synchronized void onSubscription() {
         if (service.isRegistered(this)) {
-            logger.debug("Setting up WeMo GENA subscription for '{}'", this);
-            service.addSubscription(this, "bridge1", SUBSCRIPTION_DURATION);
+            logger.debug("Checking WeMo GENA subscription for '{}'", this);
+
+            String subscription = "bridge1";
+
+            if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
+                logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), subscription);
+                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                subscriptionState.put(subscription, true);
+            }
+
+        } else {
+            logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
+                    this);
         }
     }
 
     private synchronized void removeSubscription() {
         logger.debug("Removing WeMo GENA subscription for '{}'", this);
         if (service.isRegistered(this)) {
-            service.removeSubscription(this, "bridge1");
+            String subscription = null;
+
+            if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
+                logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
+                service.removeSubscription(this, "bridge1");
+            }
+
+            subscriptionState = new HashMap<String, Boolean>();
             service.unregisterParticipant(this);
+
         }
     }
 
     private synchronized void onUpdate() {
-        if (service.isRegistered(this)) {
-            if (refreshJob == null || refreshJob.isCancelled()) {
-                int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-                logger.trace("Start polling job for LightID '{}'", wemoLightID);
-                refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval, TimeUnit.SECONDS);
-
+        if (refreshJob == null || refreshJob.isCancelled()) {
+            Configuration config = getThing().getConfiguration();
+            int refreshInterval = DEFAULT_REFRESH_INTERVAL;
+            Object refreshConfig = config.get("refresh");
+            if (refreshConfig != null) {
+                refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
+            logger.trace("Start polling job for LightID '{}'", wemoLightID);
+            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval, TimeUnit.SECONDS);
         }
+    }
+
+    private boolean isUpnpDeviceRegistered() {
+        return service.isRegistered(this);
     }
 
     public String getWemoURL() {
