@@ -10,9 +10,7 @@ package org.eclipse.smarthome.automation.sample.extension.java.handler;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 
 /**
  * This class serves to handle the Trigger types provided by this application. It is used to notify the RuleEngine about
@@ -21,17 +19,10 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class WelcomeHomeTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
-
-    private RuleEngineCallback callback;
+public class WelcomeHomeTriggerHandler extends BaseTriggerModuleHandler {
 
     public WelcomeHomeTriggerHandler(Trigger module) {
         super(module);
-    }
-
-    @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-        callback = ruleCallback;
     }
 
     /**
@@ -41,7 +32,6 @@ public class WelcomeHomeTriggerHandler extends BaseModuleHandler<Trigger>impleme
      *            is used to provide the output of the {@link Trigger}.
      */
     public void trigger(Map<String, ?> context) {
-        callback.triggered(module, context);
+        ruleEngineCallback.triggered(module, context);
     }
-
 }

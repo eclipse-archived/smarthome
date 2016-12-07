@@ -13,9 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -40,12 +38,10 @@ import com.google.common.collect.Maps;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
-        implements TriggerHandler, EventSubscriber, EventFilter {
+public class GenericEventTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
-    private RuleEngineCallback callback;
     private String source;
     private String topic;
     private Set<String> types;
@@ -74,11 +70,6 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
     }
 
     @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-        this.callback = ruleCallback;
-    }
-
-    @Override
     public Set<String> getSubscribedEventTypes() {
         return types;
     }
@@ -90,7 +81,7 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
 
     @Override
     public void receive(Event event) {
-        if (callback != null) {
+        if (ruleEngineCallback != null) {
             logger.trace("Received Event: Source: " + event.getSource() + " Topic: " + event.getTopic() + " Type: "
                     + event.getType() + " Payload: " + event.getPayload());
             if (!event.getTopic().contains(source)) {
@@ -99,7 +90,7 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
             Map<String, Object> values = Maps.newHashMap();
             values.put("event", event);
 
-            callback.triggered(this.module, values);
+            ruleEngineCallback.triggered(this.module, values);
         }
     }
 
@@ -123,6 +114,7 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>
      */
     @Override
     public void dispose() {
+        super.dispose();
         if (eventSubscriberRegistration != null) {
             eventSubscriberRegistration.unregister();
             eventSubscriberRegistration = null;

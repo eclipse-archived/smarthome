@@ -60,37 +60,39 @@ public class CompositeTriggerHandler
      */
     @Override
     public void triggered(Trigger trigger, Map<String, ?> context) {
-        List<Output> outputs = moduleType.getOutputs();
-        Map<String, Object> result = new HashMap<String, Object>(11);
-        for (Output output : outputs) {
-            String refs = output.getReference();
-            if (refs != null) {
-                String ref;
-                StringTokenizer st = new StringTokenizer(refs, ",");
-                while (st.hasMoreTokens()) {
-                    ref = st.nextToken().trim();
-                    int i = ref.indexOf('.');
-                    if (i != -1) {
-                        String childModuleId = ref.substring(0, i);
-                        if (trigger.getId().equals(childModuleId)) {
-                            ref = ref.substring(i + 1);
+        if (ruleCallback != null) {
+            List<Output> outputs = moduleType.getOutputs();
+            Map<String, Object> result = new HashMap<String, Object>(11);
+            for (Output output : outputs) {
+                String refs = output.getReference();
+                if (refs != null) {
+                    String ref;
+                    StringTokenizer st = new StringTokenizer(refs, ",");
+                    while (st.hasMoreTokens()) {
+                        ref = st.nextToken().trim();
+                        int i = ref.indexOf('.');
+                        if (i != -1) {
+                            String childModuleId = ref.substring(0, i);
+                            if (trigger.getId().equals(childModuleId)) {
+                                ref = ref.substring(i + 1);
+                            }
                         }
-                    }
-                    Object value = null;
-                    int idx = ReferenceResolverUtil.getNextRefToken(ref, 1);
-                    if (idx < ref.length()) {
-                        String outputId = ref.substring(0, idx);
-                        value = ReferenceResolverUtil.getValue(context.get(outputId), ref.substring(idx + 1));
-                    } else {
-                        value = context.get(ref);
-                    }
-                    if (value != null) {
-                        result.put(output.getName(), value);
+                        Object value = null;
+                        int idx = ReferenceResolverUtil.getNextRefToken(ref, 1);
+                        if (idx < ref.length()) {
+                            String outputId = ref.substring(0, idx);
+                            value = ReferenceResolverUtil.getValue(context.get(outputId), ref.substring(idx + 1));
+                        } else {
+                            value = context.get(ref);
+                        }
+                        if (value != null) {
+                            result.put(output.getName(), value);
+                        }
                     }
                 }
             }
+            ruleCallback.triggered(module, result);
         }
-        ruleCallback.triggered(module, result);
     }
 
     /**
@@ -103,22 +105,24 @@ public class CompositeTriggerHandler
     @Override
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.ruleCallback = ruleCallback;
-        List<Trigger> children = moduleType.getChildren();
-        for (Trigger child : children) {
-            TriggerHandler handler = moduleHandlerMap.get(child);
-            handler.setRuleEngineCallback(this);
+        if (ruleCallback != null) {// could be called with 'null' from dispose
+            List<Trigger> children = getChildren();
+            for (Trigger child : children) {
+                TriggerHandler handler = moduleHandlerMap.get(child);
+                handler.setRuleEngineCallback(this);
+            }
         }
     }
 
     @Override
     public void dispose() {
-        List<Trigger> children = moduleType.getChildren();
-        for (Trigger child : children) {
-            TriggerHandler handler = moduleHandlerMap.get(child);
-            handler.setRuleEngineCallback(null);
-        }
         setRuleEngineCallback(null);
         super.dispose();
+    }
+
+    @Override
+    protected List<Trigger> getChildren() {
+        return moduleType.getChildren();
     }
 
 }
