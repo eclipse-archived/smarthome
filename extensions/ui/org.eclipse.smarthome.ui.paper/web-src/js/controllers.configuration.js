@@ -306,17 +306,33 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
 
-    $scope.enableChannel = function(thingUID, channelID, event) {
+    $scope.enableChannel = function(thingUID, channelID, event, force) {
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
-        if ($scope.advancedMode) {
-            $scope.linkChannel(channelID, event);
-        } else {
+        if ($scope.advancedMode && !force) {
+            if (channel.linkedItems.length > 0) {
+                $scope.getLinkedItems(channel, event);
+            } else {
+                $scope.linkChannel(channelID, event);
+            }
+        } else if (channel.linkedItems.length == 0) {
             linkService.link({
                 itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
                 channelUID : $scope.thing.UID + ':' + channelID
-            }, function() {
+            }, function(newItem) {
                 $scope.getThing(true);
+                var item = $.grep($scope.items, function(item) {
+                    return item.name == newItem.itemName;
+                });
+                channel.items = channel.items ? channel.items : [];
+                if (item.length > 0) {
+                    channel.items.push(item[0]);
+                } else {
+                    channel.items.push({
+                        name : newItem.itemName,
+                        label : channel.channelType ? channel.channelType.label : newItem.itemName
+                    });
+                }
                 toastService.showDefaultToast('Channel linked');
             });
         }
