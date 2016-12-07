@@ -350,7 +350,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : "",
-            suggestedName : channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+            suggestedName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+            suggestedLabel : channel.channelType.label,
             preSelectCreate : preSelect
         }
         $mdDialog.show({
@@ -580,7 +581,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             sharedProperties.updateParams({
                 linking : true,
                 acceptedItemType : $scope.acceptedItemType,
-                suggestedName : params.suggestedName + "_" + generateUID()
+                suggestedName : params.suggestedName,
+                suggestedLabel : params.suggestedLabel
             });
         } else {
             $scope.itemFormVisible = false;
@@ -609,15 +611,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }
     });
 
-    function generateUID() {
-        var d = new Date().getTime();
-        var uuid = 'xxxxxxxx'.replace(/[x]/g, function(c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-        return uuid;
-    }
     if (params.preSelectCreate) {
         $scope.itemName = "_createNew";
         $scope.checkCreateOption();

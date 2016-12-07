@@ -83,6 +83,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }
             if (sharedProperties.getParams().length > 0 && sharedProperties.getParams()[0].linking) {
                 $scope.item.name = sharedProperties.getParams()[0].suggestedName;
+                $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
             }
             $scope.configMode = "create";
 
