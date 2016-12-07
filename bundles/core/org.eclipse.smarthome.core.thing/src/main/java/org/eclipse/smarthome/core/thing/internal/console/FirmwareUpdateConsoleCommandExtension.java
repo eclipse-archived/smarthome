@@ -27,12 +27,14 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * {@link FirmwareUpdateConsoleCommandExtension} provides console commands for managing the firmwares of things.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Christoph Knauf - added cancel command
  */
 public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_STATUS = "status";
     private static final String SUBCMD_UPDATE = "update";
+    private static final String SUBCMD_CANCEL = "cancel";
 
     private FirmwareUpdateService firmwareUpdateService;
     private FirmwareRegistry firmwareRegistry;
@@ -62,6 +64,9 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                 break;
             case SUBCMD_UPDATE:
                 updateFirmware(console, args);
+                break;
+            case SUBCMD_CANCEL:
+                cancelUpdate(console,args); 
                 break;
             default:
                 console.println(String.format("Unkown firmware sub command '%s'.", subCommand));
@@ -113,6 +118,24 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                     String.format("The firmware status for thing with UID %s could not be determined.", thingUID));
         }
     }
+    
+    private void cancelUpdate(Console console, String[] args) {
+        if (args.length != 2) {
+            console.println("Specify the thing id to cancel the update: firmware cancel <thingUID>");
+            return;
+        }
+
+        ThingUID thingUID = new ThingUID(args[1]);
+        FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
+
+        if (firmwareUpdateHandler == null) {
+            console.println(String.format("No firmware update handler available for thing with UID %s.", thingUID));
+            return;
+        }
+        
+        firmwareUpdateService.cancelFirmwareUpdate(thingUID);
+        console.println("Firmware update canceled.");
+    }
 
     private void updateFirmware(Console console, String[] args) {
         if (args.length != 3) {
@@ -150,6 +173,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                         buildCommandUsage(SUBCMD_LIST + " <thingTypeUID>",
                                 "lists the available firmwares for a thing type"),
                         buildCommandUsage(SUBCMD_STATUS + " <thingUID>", "lists the firmware status for a thing"),
+                        buildCommandUsage(SUBCMD_CANCEL + " <thingUID>", "cancels the update for a thing"),
                         buildCommandUsage(SUBCMD_UPDATE + " <thingUID> <firmware version>",
                                 "updates the firmware for a thing") });
     }
