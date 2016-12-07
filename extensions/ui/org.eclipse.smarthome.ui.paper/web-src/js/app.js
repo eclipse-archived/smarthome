@@ -269,13 +269,11 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
     return {
         restrict : 'A',
         link : function($scope, elem, $attrs) {
-            var starTime;
+            var timeoutHandler;
+            var longClicked = false;
             elem[0].addEventListener('mousedown', function(evt) {
-                startTime = new Date().getTime();
-            });
-
-            elem[0].addEventListener('mouseup', function(evt) {
-                if (new Date().getTime() - startTime > 400) {
+                timeoutHandler = $timeout(function() {
+                    longClicked = true;
                     if ($attrs.onLongPress) {
                         $scope.$apply(function() {
                             $scope.$eval($attrs.onLongPress, {
@@ -283,13 +281,19 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                             });
                         });
                     }
-                } else if ($attrs.onClick) {
+                }, 400)
+            });
+
+            elem[0].addEventListener('mouseup', function(evt) {
+                $timeout.cancel(timeoutHandler);
+                if (!longClicked && $attrs.onClick) {
                     $scope.$apply(function() {
                         $scope.$eval($attrs.onClick, {
                             $event : evt
                         });
                     });
                 }
+                longClicked = false;
             });
         }
     };

@@ -306,14 +306,14 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
 
-    $scope.enableChannel = function(thingUID, channelID, event, force) {
+    $scope.enableChannel = function(thingUID, channelID, event, longPress) {
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
-        if ($scope.advancedMode && !force) {
+        if ($scope.advancedMode) {
             if (channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
-                $scope.linkChannel(channelID, event);
+                $scope.linkChannel(channelID, event, longPress);
             }
         } else if (channel.linkedItems.length == 0) {
             linkService.link({
@@ -321,18 +321,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 channelUID : $scope.thing.UID + ':' + channelID
             }, function(newItem) {
                 $scope.getThing(true);
-                var item = $.grep($scope.items, function(item) {
-                    return item.name == newItem.itemName;
-                });
-                channel.items = channel.items ? channel.items : [];
-                if (item.length > 0) {
-                    channel.items.push(item[0]);
-                } else {
-                    channel.items.push({
-                        name : newItem.itemName,
-                        label : channel.channelType ? channel.channelType.label : newItem.itemName
-                    });
-                }
                 toastService.showDefaultToast('Channel linked');
             });
         }
@@ -355,14 +343,15 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }
     };
 
-    $scope.linkChannel = function(channelID, event) {
+    $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeById(channelID);
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : "",
-            suggestedName : channelID.replace(/[^a-zA-Z0-9_]/g, "_")
+            suggestedName : channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+            preSelectCreate : preSelect
         }
         $mdDialog.show({
             controller : 'LinkChannelDialogController',
@@ -628,6 +617,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
         });
         return uuid;
+    }
+    if (params.preSelectCreate) {
+        $scope.itemName = "_createNew";
+        $scope.checkCreateOption();
     }
 }).controller('UnlinkChannelDialogController', function($scope, $mdDialog, toastService, linkService, itemName) {
     $scope.itemName = itemName;
