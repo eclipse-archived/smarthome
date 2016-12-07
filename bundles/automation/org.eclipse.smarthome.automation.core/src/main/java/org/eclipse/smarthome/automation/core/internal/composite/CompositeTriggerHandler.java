@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
@@ -75,7 +76,14 @@ public class CompositeTriggerHandler
                             ref = ref.substring(i + 1);
                         }
                     }
-                    Object value = context.get(ref);
+                    Object value = null;
+                    int idx = ReferenceResolverUtil.getNextRefToken(ref, 1);
+                    if (idx < ref.length()) {
+                        String outputId = ref.substring(0, idx);
+                        value = ReferenceResolverUtil.getValue(context.get(outputId), ref.substring(idx + 1));
+                    } else {
+                        value = context.get(ref);
+                    }
                     if (value != null) {
                         result.put(output.getName(), value);
                     }
