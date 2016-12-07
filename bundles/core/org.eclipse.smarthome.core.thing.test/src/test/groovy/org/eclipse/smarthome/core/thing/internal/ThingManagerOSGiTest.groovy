@@ -54,6 +54,7 @@ import org.eclipse.smarthome.core.thing.events.ThingEventFactory
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.core.thing.type.ThingType
@@ -87,6 +88,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     Thing THING;
 
     EventPublisher eventPublisher
+    ItemChannelLinkRegistry itemChannelLinkRegistry
 
     @Before
     void setUp() {
@@ -99,8 +101,12 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
         managedThingProvider = getService(ManagedThingProvider)
         eventPublisher = getService(EventPublisher)
+
         itemRegistry = getService(ItemRegistry)
         assertNotNull(itemRegistry)
+
+        itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
+        assertNotNull(itemChannelLinkRegistry)
     }
 
     @After
@@ -307,6 +313,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert { assertThat THING.getStatusInfo(), is(statusInfo) }
     }
 
+    volatile int initCalledCounter = 0
+    volatile int disposedCalledCounter = 0
+
     @Test
     void 'ThingManager handles failing handler initialization correctly'() {
         ThingHandlerCallback callback
@@ -353,8 +362,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager handles bridge-thing handler life cycle correctly'() {
-        def initCalledCounter = 0
-        def disposedCalledCounter = 0
+        initCalledCounter = 0
+        disposedCalledCounter = 0
         ThingHandlerCallback callback
 
         def bridge = BridgeBuilder.create(new ThingTypeUID("binding:test"), new ThingUID("binding:test:someBridgeUID-1")).build()
@@ -690,13 +699,37 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
 
-        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNKNOWN, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVING, ThingStatusDetail.NONE).build()
+        expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+        expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+        expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
+    }
+
+    private void expectException(Closure<Void> closure, Class<? extends Exception> exceptionType) {
+        try {
+            closure()
+            fail("Expected a " + exceptionType.getName())
+        } catch (Exception e) {
+            if (!exceptionType.isInstance(e)) {
+                fail("Expected a " + exceptionType.getName() + " but got a " + e.getClass().getName())
+            }
+        }
     }
 
     @Test
@@ -1280,6 +1313,55 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert({assertThat childHandlerDisposedCalled, is(true)})
         assertThat disposedThing, is(thing)
         assertThat disposedHandler, is(thingHandler)
+    }
+
+    @Test
+    void 'ThingManager considers UNKNOWN as ready_to_use and forwards command'() {
+        ThingHandlerCallback callback
+        def handleCommandCalled = false
+        def calledChannelUID = null
+        def calledCommand = null
+
+        managedThingProvider.add(THING)
+        def thingHandler = [
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {
+            },
+            getThing: {return THING},
+            handleCommand: {channelUID, command ->
+                handleCommandCalled = true
+                calledChannelUID = channelUID
+                calledCommand = command
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: { thingTypeUID -> true},
+            registerHandler: {thing -> thingHandler },
+            unregisterHandler: {thing -> },
+            removeThing: {thingUID ->
+            }
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        itemChannelLinkRegistry.add(new ItemChannelLink("testItem", new ChannelUID(THING.getUID(), "channel")))
+
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+
+        assertThat handleCommandCalled, is(false)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNKNOWN, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
+
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+
+        waitForAssert {
+            assertThat handleCommandCalled, is(true)
+        }
+        assertThat calledChannelUID, is(equalTo(new ChannelUID(THING.getUID(), "channel")))
+        assertThat calledCommand, is(equalTo(new StringType("TEST")))
     }
 
     private void registerThingTypeProvider() {
