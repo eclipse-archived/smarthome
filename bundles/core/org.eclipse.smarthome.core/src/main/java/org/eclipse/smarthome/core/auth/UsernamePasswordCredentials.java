@@ -28,7 +28,6 @@ public class UsernamePasswordCredentials implements Credentials {
     public UsernamePasswordCredentials(String username, String password) {
         this.username = username;
         this.password = password;
-
     }
 
     /**

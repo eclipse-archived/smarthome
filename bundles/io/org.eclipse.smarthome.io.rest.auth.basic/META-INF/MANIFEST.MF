@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.eclipsesource.jaxrs.provider.security,
  javax.ws.rs.container,
  javax.ws.rs.core,
- org.apache.commons.codec.binary;version="1.6.0",
+ org.apache.commons.codec.binary,
  org.eclipse.smarthome.core.auth,
  org.eclipse.smarthome.io.rest.auth,
  org.slf4j

@@ -9,8 +9,6 @@ package org.eclipse.smarthome.auth.jaas.internal;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,12 +78,12 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
     }
 
     private String[] getRoles(Set<Principal> principals) {
-        List<String> roles = new ArrayList<>();
+        String[] roles = new String[principals.size()];
+        int i = 0;
         for (Principal principal : principals) {
-            roles.add(principal.getName());
+            roles[i++] = principal.getName();
         }
-
-        return roles.toArray(new String[roles.size()]);
+        return roles;
     }
 
     private String getName(Credentials credentials) {
