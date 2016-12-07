@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,6 +32,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
@@ -55,6 +57,7 @@ import io.swagger.annotations.ApiResponses;
  *
  */
 @Path(ConfigurableServiceResource.PATH_SERVICES)
+@RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigurableServiceResource.PATH_SERVICES)
 public class ConfigurableServiceResource implements SatisfiableRESTResource {
 

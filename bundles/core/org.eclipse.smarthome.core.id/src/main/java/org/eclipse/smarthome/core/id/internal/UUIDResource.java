@@ -7,12 +7,14 @@
  */
 package org.eclipse.smarthome.core.id.internal;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.id.InstanceUUID;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
@@ -28,6 +30,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(UUIDResource.PATH_UUID)
 @Api(value = UUIDResource.PATH_UUID)
+@RolesAllowed({ Role.ADMIN })
 public class UUIDResource implements RESTResource {
 
     public static final String PATH_UUID = "uuid";

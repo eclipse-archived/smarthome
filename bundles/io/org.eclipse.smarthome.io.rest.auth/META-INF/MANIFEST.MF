@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Authentication Support for the REST Interface
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.auth
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.ws.rs.container,
+ org.eclipse.smarthome.core.auth,
+ com.eclipsesource.jaxrs.provider.security,
+ org.slf4j
+Bundle-ClassPath: .
+Export-Package: org.eclipse.smarthome.io.rest.auth
+

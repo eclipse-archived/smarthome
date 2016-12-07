@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.io.rest.sse.internal.SseEventOutput;
 import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil;
@@ -45,6 +47,7 @@ import io.swagger.annotations.ApiResponses;
  *
  */
 @Path(SseResource.PATH_EVENTS)
+@RolesAllowed({ Role.USER })
 @Singleton
 @Api(value = SseResource.PATH_EVENTS, hidden = true)
 public class SseResource {

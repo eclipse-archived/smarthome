@@ -17,6 +17,7 @@
 
   <modules>
     <module>test</module>
+    <module>auth</module>
     <module>config</module>
     <module>core</module>
     <module>automation</module>

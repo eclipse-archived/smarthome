@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -44,6 +45,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.config.core.status.ConfigStatusService;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -122,6 +124,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response holding the newly created Thing or error information
      */
     @POST
+    @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
@@ -188,6 +191,7 @@ public class ThingResource implements SatisfiableRESTResource {
     }
 
     @GET
+    @RolesAllowed({ Role.USER, Role.ADMIN })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available things.", response = EnrichedThingDTO.class, responseContainer = "Set")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
@@ -200,6 +204,7 @@ public class ThingResource implements SatisfiableRESTResource {
     }
 
     @GET
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing by UID.")
@@ -228,6 +233,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response with status/error information
      */
     @POST
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}/channels/{channelId}/link")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
@@ -283,6 +289,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response with status/error information
      */
     @DELETE
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}")
     @ApiOperation(value = "Removes a thing from the registry. Set \'force\' to __true__ if you want the thing te be removed immediately.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
@@ -336,6 +343,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response with status/error information
      */
     @DELETE
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}/channels/{channelId}/link")
     @ApiOperation(value = "Unlinks item from a channel.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
@@ -367,6 +375,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @throws IOException
      */
     @PUT
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates a thing.")
@@ -421,6 +430,7 @@ public class ThingResource implements SatisfiableRESTResource {
      * @throws IOException
      */
     @PUT
+    @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates thing's configuration.")
@@ -429,7 +439,7 @@ public class ThingResource implements SatisfiableRESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -473,6 +483,7 @@ public class ThingResource implements SatisfiableRESTResource {
     }
 
     @GET
+    @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/config/status")
     @ApiOperation(value = "Gets thing's config status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
