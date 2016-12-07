@@ -10,6 +10,7 @@ package org.eclipse.smarthome.automation.core.internal;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,7 +49,6 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
@@ -56,6 +56,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
@@ -66,12 +67,13 @@ import org.slf4j.LoggerFactory;
  * {@link RuleStatusInfo} object which shows status and status details of of the Rule. The states are self excluded and
  * they are:
  * <LI>disabled - the rule is temporary not available. This status is set by the user.
- * <LI>not initialized - the rule is enabled, but it still is not working because some of the module handlers are not
- * available or its module types or template is not resolved. The initialization problem is described by the status
- * details
- * <LI>idle - the rule is enabled and initialized and it is waiting for triggering events.
- * <LI>running - the rule is enabled and initialized and it is executing at the moment. When the execution is finished,
- * it goes to the idle state.
+ * <LI>not initialized -
+ * the rule is enabled, but it still is not working because some of the module handlers are not available or its module
+ * types or template is not resolved. The initialization problem is described by the status details
+ * <LI>idle - the rule
+ * is enabled and initialized and it is waiting for triggering events.
+ * <LI>running - the rule is enabled and initialized
+ * and it is executing at the moment. When the execution is finished, it goes to the idle state.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
@@ -79,7 +81,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class RuleEngine {
+public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     /**
      * Constant defining separator between module uid and output name.
@@ -168,7 +170,13 @@ public class RuleEngine {
     }
 
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.mtRegistry = moduleTypeRegistry;
+        if (moduleTypeRegistry == null) {
+            mtRegistry.removeRegistryChangeListener(this);
+            mtRegistry = null;
+        } else {
+            mtRegistry = moduleTypeRegistry;
+            mtRegistry.addRegistryChangeListener(this);
+        }
         ConnectionValidator.setRegistry(mtRegistry);
     }
 
@@ -176,14 +184,57 @@ public class RuleEngine {
         this.compositeFactory = compositeFactory;
     }
 
-    protected void addModuleTypeProvider(ModuleTypeProvider moduleTypeProvider) {
-        logger.debug("ModuleTypeProvider added.");
-        moduleTypeUpdated(moduleTypeProvider.getModuleTypes(null));
+    @Override
+    public void added(ModuleType moduleType) {
+        String moduleTypeName = moduleType.getUID();
+        Set<String> rules = null;
+        synchronized (this) {
+            Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
+            if (rulesPerModule != null) {
+                rules = new HashSet<String>();
+                rules.addAll(rulesPerModule);
+            }
+        }
+        if (rules != null) {
+            for (String rUID : rules) {
+                RuleStatus ruleStatus = getRuleStatus(rUID);
+                if (ruleStatus == RuleStatus.NOT_INITIALIZED) {
+                    scheduleRuleInitialization(rUID);
+                }
+            }
+        }
     }
 
-    protected void updatedModuleTypeProvider(ModuleTypeProvider moduleTypeProvider) {
-        logger.debug("ModuleTypeProvider updated.");
-        moduleTypeUpdated(moduleTypeProvider.getModuleTypes(null));
+    @Override
+    public void removed(ModuleType moduleType) {
+        // removing module types does not effect the rule
+    }
+
+    @Override
+    public void updated(ModuleType oldElement, ModuleType moduleType) {
+        if (oldElement.equals(moduleType)) {
+            return;
+        }
+        String moduleTypeName = moduleType.getUID();
+        Set<String> rules = null;
+        synchronized (this) {
+            Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
+            if (rulesPerModule != null) {
+                rules = new HashSet<String>();
+                rules.addAll(rulesPerModule);
+            }
+        }
+        if (rules != null) {
+            for (String rUID : rules) {
+                if (getRuleStatus(rUID).equals(RuleStatus.IDLE) || getRuleStatus(rUID).equals(RuleStatus.RUNNING)) {
+                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+                    unregister(getRuntimeRule(rUID));
+                }
+                if (!getRuleStatus(rUID).equals(RuleStatus.DISABLED)) {
+                    scheduleRuleInitialization(rUID);
+                }
+            }
+        }
     }
 
     protected void addModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
@@ -192,13 +243,17 @@ public class RuleEngine {
         addNewModuleTypes(moduleHandlerFactory, moduleTypes);
     }
 
-    protected void updatedModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
+    protected void updateModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         logger.debug("ModuleHandlerFactory updated, updating handlers");
         Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
-        HashSet<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
-        ArrayList<String> removedTypes = new ArrayList<String>();
+        Collection<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
+        Collection<String> removedTypes = new ArrayList<String>();
 
-        for (Map.Entry<String, ModuleHandlerFactory> entry : moduleHandlerFactories.entrySet()) {
+        Set<Entry<String, ModuleHandlerFactory>> snapshot = new HashSet<Map.Entry<String, ModuleHandlerFactory>>();
+        synchronized (this) {
+            snapshot.addAll(moduleHandlerFactories.entrySet());
+        }
+        for (Map.Entry<String, ModuleHandlerFactory> entry : snapshot) {
             if (entry.getValue().equals(moduleHandlerFactory)) {
                 String key = entry.getKey();
                 if (types.contains(key)) {
@@ -211,6 +266,7 @@ public class RuleEngine {
 
         if (removedTypes.size() > 0) {
             removeMissingModuleTypes(removedTypes);
+            updateModuleHandlerFactoryMap(removedTypes);
         }
 
         if (newTypes.size() > 0) {
@@ -219,63 +275,49 @@ public class RuleEngine {
     }
 
     protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
+        if (moduleHandlerFactory instanceof CompositeModuleHandlerFactory) {
+            compositeFactory.deactivate();
+            compositeFactory = null;
+        }
         Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
         removeMissingModuleTypes(moduleTypes);
+        updateModuleHandlerFactoryMap(moduleTypes);
+    }
+
+    private synchronized void updateModuleHandlerFactoryMap(Collection<String> removedTypes) {
+        for (Iterator< String>it = removedTypes.iterator(); it.hasNext();) {
+            String moduleTypeName = it.next();
+            moduleHandlerFactories.remove(moduleTypeName);
+        }
     }
 
     /**
      * This method add a new rule into rule engine. Scope identity of the Rule is the identity of the caller.
      *
      * @param rule a rule which has to be added.
-     * @param isEnabled
-     * @return UID of added rule.
+     * @param isEnabled specifies the rule to be added as disabled or not.
      */
-    public Rule addRule(Rule rule, boolean isEnabled) {
-        RuntimeRule rr;
-        Rule ruleWithUID;
+    protected void addRule(Rule rule, boolean isEnabled) {
         String rUID = rule.getUID();
-        ruleWithUID = (rUID == null) ? initRuleId(rule) : rule;
-        rr = new RuntimeRule(ruleWithUID);
-        rules.put(rUID, rr);
-        logger.debug("Added rule '{}'", rUID);
-
-        setRuleEnabled(rUID, isEnabled);
-
-        return RuleUtils.getRuleCopy(rules.get(rUID));
-    }
-
-    /**
-     * Set an rule id if it is not exists.
-     *
-     * @param rule the rule
-     * @return
-     */
-    Rule initRuleId(Rule rule) {
-        String rUID = rule.getUID();
-        Rule ruleWithUID;
-        if (rUID == null) {
-            synchronized (this) {
-                rUID = getRuleUID(rUID);
-                ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                        rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
-                        rule.getVisibility());
-                ruleWithUID.setName(rule.getName());
-                ruleWithUID.setTags(rule.getTags());
-                ruleWithUID.setDescription(rule.getDescription());
+        RuntimeRule runtimeRule = new RuntimeRule(rule);
+        synchronized (this) {
+            rules.put(rUID, runtimeRule);
+            if (isEnabled) {
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+                setRule(runtimeRule);
+            } else {
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
             }
-        } else {
-            ruleWithUID = rule;
         }
-        return ruleWithUID;
     }
 
     /**
-     * Validates ids of modules. The module id must not contain dot.
+     * Validates IDs of modules. The module id must not contain dot.
      *
      * @param modules list of trigger, condition and action modules
      * @throws IllegalArgumentException when a module id contains dot.
      */
-    protected void validateModules(List<Module> modules) {
+    private void validateModuleIDs(List<Module> modules) {
         for (Module m : modules) {
             String mId = m.getId();
             if (mId == null || !mId.matches("[A-Za-z0-9_-]*")) {
@@ -286,58 +328,31 @@ public class RuleEngine {
     }
 
     /**
-     * Utility method which checks for existence of the rule with passed UID or create an unique id when the parameter
-     * is not passed
-     *
-     * @param rUID unique id of the rule
-     * @return a new unique id of the rule.
-     * @throws IllegalArgumentException when the rule with the same UID already exists.
-     */
-    String getRuleUID(String rUID) {
-        if (rUID != null) {
-            if (hasRule(rUID)) {
-                throw new IllegalArgumentException("Rule '" + rUID + "' already exists.");
-            }
-        } else {
-            rUID = getUniqueId();
-        }
-        return rUID;
-    }
-
-    /**
      * This method is used to update existing rule. It creates an internal {@link RuntimeRule} object which is deep copy
      * of passed {@link Rule} object. If the rule exist in the rule engine it will be replaced by the new one.
      *
      * @param rule a rule which has to be updated.
+     * @param enabled specifies the rule to be updated as disabled or not.
      */
-    public void updateRule(Rule rule) {
+    protected void updateRule(Rule rule, boolean isEnabled) {
         String rUID = rule.getUID();
-        RuntimeRule r;
-        boolean isRuleEnabled = false;
+        if (getRuntimeRule(rUID) == null) {
+            logger.debug("There is no rule with UID '{}' which could be updated", rUID);
+            return;
+        }
+        RuntimeRule runtimeRule = new RuntimeRule(rule);
         synchronized (this) {
-            if (rUID == null) {
-                rUID = getUniqueId();
-                r = new RuntimeRule(rule);
-                r.setUID(rUID);
-                isRuleEnabled = true;
+            RuntimeRule oldRule = rules.get(rUID);
+            unregister(oldRule);
+            rules.put(rUID, runtimeRule);
+            if (isEnabled) {
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+                setRule(runtimeRule);
             } else {
-                r = rules.get(rUID); // old rule
-                if (r != null) {
-                    unregister(r);
-                }
-                r = new RuntimeRule(rule); // new updated rule
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
             }
-            rules.put(rUID, r);
-            logger.debug("Updated rule '{}'.", rUID);
         }
-        if (isRuleEnabled) {
-            // this method must be called outside of synchronized block
-            setRuleEnabled(rUID, true);
-        }
-
-        if (!RuleStatus.DISABLED.equals(getRuleStatus(rUID))) {
-            setRule(rUID);
-        }
+        logger.debug("Rule with UID '{}' is updated.", rUID);
     }
 
     /**
@@ -349,48 +364,40 @@ public class RuleEngine {
      *
      * @param rUID a UID of rule which tries to be initialized.
      */
-    protected void setRule(String rUID) {
+    private void setRule(RuntimeRule runtimeRule) {
         if (isDisposed) {
             return;
         }
-
-        RuleStatusInfo ruleStatus = null;
-        synchronized (this) {
-            ruleStatus = statusMap.get(rUID);
-        }
-        if (ruleStatus != null && RuleStatus.NOT_INITIALIZED != ruleStatus.getStatus()) {
-            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
-        }
-
-        String errMsgs = null;
-        RuntimeRule r = getRule0(rUID);
-        if (r.getTemplateUID() != null) {
+        String rUID = runtimeRule.getUID();
+        if (runtimeRule.getTemplateUID() != null) {
+            setRuleStatusInfo(rUID,
+                    new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR));
             return; // Template is not available (when a template is resolved it removes tempalteUID configuration
                     // property). The rule must stay NOT_INITIALISED.
         }
 
-        autoMapConnections(r);
+        List<Module> modules = runtimeRule.getModules(null);
+        String errMsgs;
+        try {
+            resolveConfiguration(runtimeRule);
+            validateModuleIDs(modules);
 
-        List<Module> modules = r.getModules(null);
-        errMsgs = setModuleHandler(rUID, modules);
+            autoMapConnections(runtimeRule);
 
-        if (errMsgs == null) {
-            try {
-                validateModules(modules);
-                ConnectionValidator.validateConnections(r);
-                setDefaultConfigurationValues(modules);
-            } catch (IllegalArgumentException e) {
-                unregister(r);
-                errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getMessage();
-                // change state to NOTINITIALIZED
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                        RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
-            }
+            ConnectionValidator.validateConnections(runtimeRule);
+            setDefaultConfigurationValues(modules);
+        } catch (RuntimeException e) {
+            errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage();
+            // change state to NOTINITIALIZED
+            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.CONFIGURATION_ERROR,
+                    errMsgs.trim()));
+            return;
         }
 
+        errMsgs = setModuleHandlers(rUID, modules);
         if (errMsgs == null) {
-            resolveDefaultValues(r);
-            register(r);
+            resolveDefaultValues(runtimeRule);
+            register(runtimeRule);
             // change state to IDLE
             setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE));
 
@@ -409,11 +416,10 @@ public class RuleEngine {
             }
 
         } else {
-            unregister(r);
-
             // change state to NOTINITIALIZED
             setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                     RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMsgs));
+            unregister(runtimeRule);
         }
     }
 
@@ -427,8 +433,18 @@ public class RuleEngine {
         synchronized (this) {
             statusMap.put(rUID, status);
         }
+        notifyStatusInfoCallback(rUID, status);
+    }
+
+    private void notifyStatusInfoCallback(String rUID, RuleStatusInfo statusInfo) {
+        StatusInfoCallback statusInfoCallback = this.statusInfoCallback;
         if (statusInfoCallback != null) {
-            statusInfoCallback.statusInfoChanged(rUID, status);
+            try {
+                statusInfoCallback.statusInfoChanged(rUID, statusInfo);
+            } catch (Exception exc) {
+                logger.error("Exception while notifying StatusInfoCallback '{}' for rule '{}'", statusInfoCallback,
+                        rUID, exc);
+            }
         }
     }
 
@@ -439,7 +455,7 @@ public class RuleEngine {
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
-    private <T extends Module> String setModuleHandler(String rUID, List<T> modules) {
+    private <T extends Module> String setModuleHandlers(String rUID, List<T> modules) {
         StringBuffer sb = null;
         if (modules != null) {
             for (T m : modules) {
@@ -481,7 +497,7 @@ public class RuleEngine {
      * @param rule rule object for which the callback is looking for.
      * @return a {@link RuleEngineCallback} corresponding to the passed {@link Rule} object.
      */
-    private RuleEngineCallbackImpl getRuleEngineCallback(RuntimeRule rule) {
+    private synchronized RuleEngineCallbackImpl getRuleEngineCallback(RuntimeRule rule) {
         RuleEngineCallbackImpl result = reCallbacks.get(rule.getUID());
         if (result == null) {
             result = new RuleEngineCallbackImpl(this, rule);
@@ -496,7 +512,7 @@ public class RuleEngine {
      *
      * @param modules list of module which are disconnected.
      */
-    private <T extends Module> void removeHandlers(List<T> modules, String ruleUID) {
+    private <T extends Module> void removeModuleHandlers(List<T> modules, String ruleUID) {
         if (modules != null) {
             for (T m : modules) {
                 ModuleHandler handler = null;
@@ -534,7 +550,7 @@ public class RuleEngine {
      */
     private void register(RuntimeRule rule) {
         RuleEngineCallback reCallback = getRuleEngineCallback(rule);
-        for (Iterator<Trigger> it = rule.getTriggers().iterator(); it.hasNext();) {
+        for (Iterator< Trigger>it = rule.getTriggers().iterator(); it.hasNext();) {
             RuntimeTrigger t = (RuntimeTrigger) it.next();
             TriggerHandler triggerHandler = t.getModuleHandler();
             triggerHandler.setRuleEngineCallback(reCallback);
@@ -550,13 +566,15 @@ public class RuleEngine {
      */
     private void unregister(RuntimeRule r) {
         if (r != null) {
-            RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
-            if (reCallback != null) {
-                reCallback.dispose();
+            synchronized (this) {
+                RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
+                if (reCallback != null) {
+                    reCallback.dispose();
+                }
             }
-            removeHandlers(r.getTriggers(), r.getUID());
-            removeHandlers(r.getActions(), r.getUID());
-            removeHandlers(r.getConditions(), r.getUID());
+            removeModuleHandlers(r.getTriggers(), r.getUID());
+            removeModuleHandlers(r.getActions(), r.getUID());
+            removeModuleHandlers(r.getConditions(), r.getUID());
         }
     }
 
@@ -566,7 +584,7 @@ public class RuleEngine {
      * @param m a {@link Module} which is looking for handler
      * @return handler for this module or null when it is not available.
      */
-    public ModuleHandler getModuleHandler(Module m, String ruleUID) {
+    private ModuleHandler getModuleHandler(Module m, String ruleUID) {
         String moduleTypeId = m.getTypeUID();
         ModuleHandlerFactory mhf = getModuleHandlerFactory(moduleTypeId);
         if (mhf == null || mtRegistry.get(moduleTypeId) == null) {
@@ -576,7 +594,10 @@ public class RuleEngine {
     }
 
     public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
-        ModuleHandlerFactory mhf = moduleHandlerFactories.get(moduleTypeId);
+        ModuleHandlerFactory mhf = null;
+        synchronized (this) {
+            mhf = moduleHandlerFactories.get(moduleTypeId);
+        }
         if (mhf == null) {
             ModuleType mt = mtRegistry.get(moduleTypeId);
             if (mt instanceof CompositeTriggerType || //
@@ -601,11 +622,11 @@ public class RuleEngine {
     /**
      * This method removes Rule from rule engine. It is called by the {@link RuleRegistry}
      *
-     * @param id id of removed {@link Rule}
+     * @param rUID id of removed {@link Rule}
      * @return true when a rule is deleted, false when there is no rule with such id.
      */
-    public synchronized boolean removeRule(String id) {
-        RuntimeRule r = rules.remove(id);
+    protected synchronized boolean removeRule(String rUID) {
+        RuntimeRule r = rules.remove(rUID);
         if (r != null) {
             removeRuleEntry(r);
             return true;
@@ -622,7 +643,7 @@ public class RuleEngine {
     private RuntimeRule removeRuleEntry(RuntimeRule r) {
         unregister(r);
         synchronized (this) {
-            for (Iterator<Map.Entry<String, Set<String>>> it = mapModuleTypeToRules.entrySet().iterator(); it
+            for (Iterator< Map.Entry<String, Set<String>>>it = mapModuleTypeToRules.entrySet().iterator(); it
                     .hasNext();) {
                 Map.Entry<String, Set<String>> e = it.next();
                 Set<String> rules = e.getValue();
@@ -640,28 +661,13 @@ public class RuleEngine {
     }
 
     /**
-     * Gets copy of the {@link Rule} corresponding to the passed id
-     *
-     * @param rId rule id
-     * @return {@link Rule} object or null when rule with such id is not added to the rule engine.
-     */
-    public synchronized Rule getRule(String rId) {
-        RuntimeRule rule = rules.get(rId);
-        if (rule != null) {
-            Rule r = RuleUtils.getRuleCopy(rule);
-            return r;
-        }
-        return null;
-    }
-
-    /**
      * Gets {@link RuntimeRule} corresponding to the passed id. This method is used internally and it does not create a
      * copy of the rule.
      *
      * @param rUID unieque id of the {@link Rule}
      * @return internal {@link RuntimeRule} object
      */
-    private synchronized RuntimeRule getRule0(String rUID) {
+    protected synchronized RuntimeRule getRuntimeRule(String rUID) {
         return rules.get(rUID);
     }
 
@@ -670,56 +676,8 @@ public class RuleEngine {
      *
      * @return collection of all added rules.
      */
-    public Collection<Rule> getRules() {
-        return getRulesByTag((String) null);
-    }
-
-    /**
-     * Gets collection of {@link Rule}s filtered by tag. When the tag is not specified the method returns all rules
-     * available in the rule engine.
-     *
-     * @param tag the tag of looking rules.
-     * @return Collection of rules containing specified tag.
-     */
-    public synchronized Collection<Rule> getRulesByTag(String tag) {
-        Collection<Rule> result = new ArrayList<Rule>(10);
-        for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
-            RuntimeRule r = it.next();
-            if (tag != null) {
-                Set<String> tags = r.getTags();
-                if (tags != null && tags.contains(tag)) {
-                    result.add(RuleUtils.getRuleCopy(r));
-                }
-            } else {
-                result.add(RuleUtils.getRuleCopy(r));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Gets collection of {@link Rule}s filtered by tags.
-     *
-     * @param tags list of tags of looking rules
-     * @return collection of rules which have specified tags.
-     */
-    public synchronized Collection<Rule> getRulesByTags(Set<String> tags) {
-        Collection<Rule> result = new ArrayList<Rule>(10);
-        for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
-            RuntimeRule r = it.next();
-            if (tags != null) {
-                Set<String> rTags = r.getTags();
-                if (rTags != null) {
-                    if (rTags.containsAll(tags)) {
-                        result.add(RuleUtils.getRuleCopy(r));
-                    }
-                }
-            } else {
-                result.add(RuleUtils.getRuleCopy(r));
-            }
-        }
-        return result;
-
+    protected synchronized Collection<RuntimeRule> getRuntimeRules() {
+        return Collections.unmodifiableCollection(rules.values());
     }
 
     /**
@@ -728,48 +686,40 @@ public class RuleEngine {
      * @param rUID unique id of the rule
      * @param isEnabled true to enable the rule, false to disable it
      */
-    public void setRuleEnabled(String rUID, boolean isEnabled) {
+    protected void setRuleEnabled(Rule rule, boolean isEnabled) {
+        String rUID = rule.getUID();
         RuleStatus status = getRuleStatus(rUID);
-        if (status == null) {
-            if (isEnabled) {
+        String enabled = isEnabled ? "enabled" : "disabled";
+        RuntimeRule runtimeRule = getRuntimeRule(rUID);
+        if (runtimeRule == null) {
+            logger.debug("There is no rule with UID '{}' which could be {}", rUID, enabled);
+            return;
+        }
+        if (isEnabled) {
+            if (status == RuleStatus.DISABLED) {
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
-                setRule(rUID);
+                setRule(runtimeRule);
             } else {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
+                logger.debug("The rule rId = " + rUID + " is already enabled.");
             }
         } else {
-            if (isEnabled) {
-                if (status == RuleStatus.DISABLED) {
-                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
-                    setRule(rUID);
-                } else {
-                    logger.info("The rule rId = " + rUID + " is already enabled");
-                }
-            } else {
-                unregister(getRule0(rUID));
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
-            }
+            unregister(runtimeRule);
+            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
         }
-    }
-
-    /**
-     * Utility method which check if the rule engine contains a rule with passed UID
-     *
-     * @param rUID unique id of the {@link Rule}
-     * @return true when such rule exists, false otherwise.
-     */
-    public synchronized boolean hasRule(String rUID) {
-        return rules.get(rUID) != null;
     }
 
     private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
-        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
+        for (Iterator< String>it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
             synchronized (this) {
                 moduleHandlerFactories.put(moduleTypeName, mhf);
-                rules = mapModuleTypeToRules.get(moduleTypeName);
+                Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
+                if (rulesPerModule != null) {
+                    rules = new HashSet<String>();
+                    rules.addAll(rulesPerModule);
+                }
             }
             if (rules != null) {
                 for (String rUID : rules) {
@@ -798,7 +748,7 @@ public class RuleEngine {
 
                 @Override
                 public void run() {
-                    setRule(rUID);
+                    setRule(getRuntimeRule(rUID));
                 }
             }, scheduleReinitializationDelay, TimeUnit.MILLISECONDS);
             scheduleTasks.put(rUID, f);
@@ -807,7 +757,7 @@ public class RuleEngine {
 
     private void removeMissingModuleTypes(Collection<String> moduleTypes) {
         Map<String, List<String>> mapMissingHandlers = null;
-        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
+        for (Iterator< String>it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
             synchronized (this) {
@@ -844,14 +794,10 @@ public class RuleEngine {
                 for (String typeUID : missingTypes) {
                     sb.append(typeUID).append(", ");
                 }
-                unregister(getRule0(rUID));
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                         RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2)));
+                unregister(getRuntimeRule(rUID));
             }
-        }
-        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
-            String moduleTypeName = it.next();
-            moduleHandlerFactories.remove(moduleTypeName);
         }
     }
 
@@ -863,37 +809,40 @@ public class RuleEngine {
      * @param td {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
      */
     protected void runRule(RuntimeRule rule, RuleEngineCallbackImpl.TriggerData td) {
-        final String uid = rule.getUID();
+        String rUID = rule.getUID();
+        if (reCallbacks.get(rUID) == null) {
+            // the rule was unregistered
+            return;
+        }
 
         synchronized (this) {
-            final RuleStatus ruleStatus = getRuleStatus(uid);
+            final RuleStatus ruleStatus = getRuleStatus(rUID);
             if (ruleStatus != RuleStatus.IDLE) {
-                logger.error("Trying to execute rule ‘{}' with status '{}'", uid, ruleStatus.getValue());
+                logger.error("Trying to execute rule ‘{}' with status '{}'", rUID, ruleStatus.getValue());
                 return;
             }
             // change state to RUNNING
-            setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.RUNNING));
+            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.RUNNING));
         }
 
         try {
             clearContext(rule);
 
-            setTriggerOutputs(uid, td);
+            setTriggerOutputs(rUID, td);
             boolean isSatisfied = calculateConditions(rule);
             if (isSatisfied) {
                 executeActions(rule);
-                logger.debug("The rule '{}' is executed.", uid);
+                logger.debug("The rule '{}' is executed.", rUID);
             } else {
-                logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", uid);
+                logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rUID);
             }
         } catch (Throwable t) {
-            logger.error("Fail to execute rule '{}': {}", new Object[] { rule.getUID(), t.getMessage() }, t);
+            logger.error("Fail to execute rule '{}': {}", new Object[] { rUID, t.getMessage() }, t);
         }
-
         // change state to IDLE only if the rule has not been DISABLED.
         synchronized (this) {
-            if (getRuleStatus(uid) != RuleStatus.DISABLED) {
-                setRuleStatusInfo(uid, new RuleStatusInfo(RuleStatus.IDLE));
+            if (getRuleStatus(rUID) == RuleStatus.RUNNING) {
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE));
             }
         }
     }
@@ -974,10 +923,15 @@ public class RuleEngine {
      */
     private boolean calculateConditions(Rule rule) {
         List<Condition> conditions = ((RuntimeRule) rule).getConditions();
-        if (conditions == null || conditions.size() == 0) {
+        if (conditions.size() == 0) {
             return true;
         }
-        for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
+        RuleStatus ruleStatus = null;
+        for (Iterator< Condition>it = conditions.iterator(); it.hasNext();) {
+            ruleStatus = getRuleStatus(rule.getUID());
+            if (ruleStatus != RuleStatus.RUNNING) {
+                return false;
+            }
             RuntimeCondition c = (RuntimeCondition) it.next();
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, Object> context = getContext(rule.getUID(), c.getConnections());
@@ -1000,7 +954,12 @@ public class RuleEngine {
         if (actions == null || actions.size() == 0) {
             return;
         }
-        for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
+        RuleStatus ruleStatus = null;
+        for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
+            ruleStatus = getRuleStatus(rule.getUID());
+            if (ruleStatus != RuleStatus.RUNNING) {
+                return;
+            }
             RuntimeAction a = (RuntimeAction) it.next();
             ActionHandler aHandler = a.getModuleHandler();
             try {
@@ -1025,7 +984,7 @@ public class RuleEngine {
     public synchronized void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
+            for (Iterator< RuntimeRule>it = rules.values().iterator(); it.hasNext();) {
                 RuntimeRule r = it.next();
                 removeRuleEntry(r);
                 it.remove();
@@ -1060,7 +1019,7 @@ public class RuleEngine {
      * @param rUID rule uid
      * @return status of the rule or null when such rule does not exists.
      */
-    public RuleStatus getRuleStatus(String rUID) {
+    protected RuleStatus getRuleStatus(String rUID) {
         RuleStatusInfo info = getRuleStatusInfo(rUID);
         RuleStatus status = null;
         if (info != null) {
@@ -1075,32 +1034,26 @@ public class RuleEngine {
      * @param rUID rule uid
      * @return status of the rule or null when such rule does not exists.
      */
-    public synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
-        RuleStatusInfo info = statusMap.get(rUID);
-        return info;
+    protected synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
+        return statusMap.get(rUID);
     }
 
-    protected String getUniqueId() {
-        return ID_PREFIX + getMaxId();
-    }
-
-    protected int getMaxId() {
+    protected synchronized String getUniqueId() {
         int result = 0;
-        if (rules == null) {
-            return result;
-        }
-        Set<String> col = rules.keySet();
-        if (col != null) {
-            for (Iterator<String> it = col.iterator(); it.hasNext();) {
-                String rUID = it.next();
-                if (rUID.startsWith(ID_PREFIX)) {
-                    String sNum = rUID.substring(ID_PREFIX.length());
-                    int i;
-                    try {
-                        i = Integer.parseInt(sNum);
-                        result = i > result ? i : result; // find bigger key
-                    } catch (NumberFormatException e) {
-                        // skip this key
+        if (rules != null) {
+            Set<String> col = rules.keySet();
+            if (col != null) {
+                for (Iterator< String>it = col.iterator(); it.hasNext();) {
+                    String rUID = it.next();
+                    if (rUID != null && rUID.startsWith(ID_PREFIX)) {
+                        String sNum = rUID.substring(ID_PREFIX.length());
+                        int i;
+                        try {
+                            i = Integer.parseInt(sNum);
+                            result = i > result ? i : result; // find bigger key
+                        } catch (NumberFormatException e) {
+                            // skip this key
+                        }
                     }
                 }
             }
@@ -1110,35 +1063,7 @@ public class RuleEngine {
         } else {
             ++ruleMaxID;
         }
-        return ruleMaxID;
-    }
-
-    public void moduleTypeUpdated(Collection<ModuleType> moduleTypes) {
-        Set<String> notInitailizedRules = null;
-        for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
-            String moduleTypeName = it.next().getUID();
-            Set<String> rules = null;
-            synchronized (this) {
-                rules = mapModuleTypeToRules.get(moduleTypeName);
-            }
-            if (rules != null) {
-                for (String rUID : rules) {
-                    RuleStatus ruleStatus = getRuleStatus(rUID);
-                    if (ruleStatus == RuleStatus.NOT_INITIALIZED) {
-                        notInitailizedRules = notInitailizedRules != null ? notInitailizedRules
-                                : new HashSet<String>(20);
-                        notInitailizedRules.add(rUID);
-                    }
-
-                }
-            }
-        }
-        if (notInitailizedRules != null) {
-            for (String rUID : notInitailizedRules) {
-                scheduleRuleInitialization(rUID);
-            }
-        }
-
+        return ID_PREFIX + ruleMaxID;
     }
 
     protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
@@ -1462,4 +1387,117 @@ public class RuleEngine {
             return outputName;
         }
     }
+
+    private void resolveConfiguration(RuntimeRule rule) {
+        List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
+        Map<String, Object> configuration = rule.getConfiguration().getProperties();
+        if (configuration != null) {
+            handleModuleConfigReferences(rule.getTriggers(), configuration);
+            handleModuleConfigReferences(rule.getConditions(), configuration);
+            handleModuleConfigReferences(rule.getActions(), configuration);
+        }
+        validateConfiguration(rule.getUID(), configDescriptions, new HashMap<String, Object>(configuration));
+    }
+
+    private void validateConfiguration(String uid, List<ConfigDescriptionParameter> configDescriptions,
+            Map<String, Object> configurations) {
+        if (configurations == null || configurations.isEmpty()) {
+            if (isOptionalConfig(configDescriptions)) {
+                return;
+            } else {
+                for (ConfigDescriptionParameter configParameter : configDescriptions) {
+                    if (configParameter.isRequired()) {
+                        logger.error("Missing required configuration property '{}' for rule with UID '{}'!",
+                                configParameter.getName(), uid);
+                    }
+                }
+                throw new IllegalArgumentException("Missing required configuration properties!");
+            }
+        } else {
+            for (ConfigDescriptionParameter configParameter : configDescriptions) {
+                String configParameterName = configParameter.getName();
+                processValue(configurations.remove(configParameterName), configParameter);
+            }
+            for (String name : configurations.keySet()) {
+                logger.error("Extra configuration property '{}' for rule with UID '{}'!", name, uid);
+            }
+            if (!configurations.isEmpty()) {
+                throw new IllegalArgumentException("Extra configuration properties!");
+            }
+        }
+    }
+
+    private boolean isOptionalConfig(List<ConfigDescriptionParameter> configDescriptions) {
+        if (configDescriptions != null && !configDescriptions.isEmpty()) {
+            boolean required = false;
+            Iterator<ConfigDescriptionParameter> i = configDescriptions.iterator();
+            while (i.hasNext()) {
+                ConfigDescriptionParameter param = i.next();
+                required = required || param.isRequired();
+            }
+            return !required;
+        }
+        return true;
+    }
+
+    private void processValue(Object configValue, ConfigDescriptionParameter configParameter) {
+        if (configValue != null) {
+            checkType(configValue, configParameter);
+            return;
+        }
+        if (configParameter.getDefault() != null) {
+            return;
+        }
+        if (configParameter.isRequired()) {
+            throw new IllegalArgumentException(
+                    "Required configuration property missing: \"" + configParameter.getName() + "\"!");
+        }
+    }
+
+    private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
+        Type type = configParameter.getType();
+        if (configParameter.isMultiple()) {
+            if (configValue instanceof List) {
+                List lConfigValues = (List) configValue;
+                for (Object value : lConfigValues) {
+                    if (!checkType(type, value)) {
+                        throw new IllegalArgumentException("Unexpected value for configuration property \""
+                                + configParameter.getName() + "\". Expected type: " + type);
+                    }
+                }
+            }
+            throw new IllegalArgumentException(
+                    "Unexpected value for configuration property \"" + configParameter.getName()
+                            + "\". Expected is Array with type for elements : " + type.toString() + "!");
+        } else {
+            if (!checkType(type, configValue)) {
+                throw new IllegalArgumentException("Unexpected value for configuration property \""
+                        + configParameter.getName() + "\". Expected is " + type.toString() + "!");
+            }
+        }
+    }
+
+    private boolean checkType(Type type, Object configValue) {
+        switch (type) {
+            case TEXT:
+                return configValue instanceof String;
+            case BOOLEAN:
+                return configValue instanceof Boolean;
+            case INTEGER:
+                return configValue instanceof BigDecimal || configValue instanceof Integer
+                        || configValue instanceof Double && ((Double) configValue).intValue() == (Double) configValue;
+            case DECIMAL:
+                return configValue instanceof BigDecimal || configValue instanceof Double;
+        }
+        return false;
+    }
+
+    private void handleModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
+        if (modules != null) {
+            for (Module module : modules) {
+                ReferenceResolverUtil.updateModuleConfiguration(module, ruleConfiguration);
+            }
+        }
+    }
+
 }

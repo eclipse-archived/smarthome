@@ -25,6 +25,4 @@
    <reference bind="setManagedProvider" cardinality="0..1" interface="org.eclipse.smarthome.automation.ManagedRuleProvider" name="ManagedRuleProvider" policy="dynamic" unbind="removeManagedProvider" />
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
    <reference bind="addModuleHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.automation.handler.ModuleHandlerFactory" name="ModuleHandlerFactory" policy="dynamic" updated="updatedModuleHandlerFactory" unbind="removeModuleHandlerFactory"/>
-   <reference bind="addTemplateProvider" cardinality="0..n" interface="org.eclipse.smarthome.automation.template.TemplateProvider" name="TemplateProvider" policy="dynamic" updated="updatedTemplateProvider"/>
-   <reference bind="addModuleTypeProvider" cardinality="0..n" interface="org.eclipse.smarthome.automation.type.ModuleTypeProvider" name="ModuleTypeProvider" policy="dynamic" updated="updatedModuleTypeProvider"/>
 </scr:component>

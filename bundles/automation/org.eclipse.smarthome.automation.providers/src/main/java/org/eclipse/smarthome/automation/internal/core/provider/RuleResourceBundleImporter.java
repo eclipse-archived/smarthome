@@ -7,28 +7,19 @@
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleProvider;
-import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
@@ -50,114 +41,34 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     /**
      * This field holds the reference to the Rule Registry.
      */
-    protected RuleRegistry ruleRegistry;
-    private RuleProvider ruleProvider;
-
-    /**
-     * This field holds the reference to the tracker of Rule Registry.
-     */
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker rulesTracker;
+    protected ManagedRuleProvider mProvider;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link Rule}s.
      *
-     * @param context
-     *            is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param registry the managing service of the {@link Rule}s.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public RuleResourceBundleImporter(BundleContext context) {
-        super(context);
+    public RuleResourceBundleImporter() {
         path = PATH + "/rules/";
-
-        try {
-            Filter filter = bc.createFilter("(|(objectClass=" + RuleRegistry.class.getName() + ")(objectClass="
-                    + RuleProvider.class.getName() + "))");
-
-            rulesTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
-
-                @Override
-                public Object addingService(ServiceReference reference) {
-                    Object service = bc.getService(reference);
-                    if (service instanceof RuleRegistry) {
-                        ruleRegistry = (RuleRegistry) service;
-                        queue.open();
-                        return service;
-                    }
-                    if (service instanceof ManagedProvider) {
-                        ruleProvider = (RuleProvider) service;
-                        queue.open();
-                        return service;
-                    }
-                    return null;
-                }
-
-                @Override
-                public void modifiedService(ServiceReference reference, Object service) {
-                }
-
-                @Override
-                public void removedService(ServiceReference reference, Object service) {
-                    if (service instanceof RuleRegistry) {
-                        ruleRegistry = null;
-                    } else if (service instanceof RuleProvider) {
-                        ruleProvider = null;
-                    }
-
-                }
-            });
-        } catch (InvalidSyntaxException notPossible) {
-        }
-
     }
 
-    /**
-     * This method is inherited from {@link AbstractResourceBundleProvider}. Extends parent's functionality with closing
-     * the {@link #rulesTracker} and sets {@code null} to {@link #ruleRegistry}.
-     *
-     * @see AbstractResourceBundleProvider#close()
-     */
-    @Override
-    public void close() {
-        if (rulesTracker != null) {
-            rulesTracker.close();
-            rulesTracker = null;
-            ruleRegistry = null;
-            ruleProvider = null;
-        }
-        super.close();
+    protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {
+        this.mProvider = mProvider;
     }
 
     @Override
-    public void setQueue(AutomationResourceBundlesEventQueue queue) {
-        super.setQueue(queue);
-        rulesTracker.open();
-    }
-
-    /**
-     * @see AbstractResourceBundleProvider#addingService(ServiceReference)
-     */
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Object addingService(ServiceReference reference) {
-        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_RULE)) {
-            return super.addingService(reference);
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isReady() {
-        return ruleRegistry != null && ruleProvider != null && queue != null;
+    public void deactivate() {
+        mProvider = null;
+        super.deactivate();
     }
 
     /**
      * This method provides functionality for processing the bundles with rule resources.
      * <p>
      * Checks for availability of the needed {@link Parser} and for availability of the rules managing service. If one
-     * of
-     * them is not available - the bundle is added into {@link #waitingProviders} and the execution of the method ends.
+     * of them is not available - the bundle is added into {@link #waitingProviders} and the execution of the method
+     * ends.
      * <p>
      * Continues with loading the rules. If a rule already exists, it is updated, otherwise it is added.
      * <p>
@@ -168,66 +79,90 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      */
     @Override
     protected void processAutomationProvider(Bundle bundle) {
+        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
+        if (getPreviousPortfolio(vendor) != null) {
+            return;
+        }
         logger.debug("Parse rules from bundle '{}' ", bundle.getSymbolicName());
         Enumeration<URL> urlEnum = null;
         try {
-            urlEnum = bundle.findEntries(path, null, false);
+            if (bundle.getState() != Bundle.UNINSTALLED) {
+                urlEnum = bundle.findEntries(path, null, true);
+            }
         } catch (IllegalStateException e) {
             logger.debug("Can't read from resource of bundle with ID {}. The bundle is uninstalled.",
                     bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);
         }
-        if (urlEnum == null) {
-            return;
-        }
-        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-        synchronized (providerPortfolio) {
-            providerPortfolio.put(vendor, Collections.<String> emptyList());
-        }
-        while (urlEnum.hasMoreElements()) {
-            URL url = urlEnum.nextElement();
-            String parserType = getParserType(url);
-            Parser<Rule> parser = parsers.get(parserType);
-            updateWaitingProviders(parser, bundle, url);
-            InputStreamReader reader = null;
-            try {
-                Set<Rule> rules = setUIDs(vendor, parseData(parser, reader = new InputStreamReader(url.openStream())));
-                addNewProvidedObjects(null, rules);
-            } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId(), e);
-                processAutomationProviderUninstalled(bundle);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ignore) {
+        if (urlEnum != null) {
+            while (urlEnum.hasMoreElements()) {
+                URL url = urlEnum.nextElement();
+                if (url.getPath().endsWith(File.separator)) {
+                    continue;
+                }
+                String parserType = getParserType(url);
+                Parser<Rule> parser = parsers.get(parserType);
+                updateWaitingProviders(parser, bundle, url);
+                if (parser != null) {
+                    Set<Rule> parsedObjects = parseData(parser, url, bundle);
+                    if (parsedObjects != null && !parsedObjects.isEmpty()) {
+                        Set<Rule> rules = setUIDs(vendor, parsedObjects);
+                        addNewProvidedObjects(null, null, rules);
                     }
+                }
+            }
+            putNewPortfolio(vendor, Collections.<String> emptyList());
+        }
+    }
+
+    @Override
+    protected void addNewProvidedObjects(List<String> newPortfolio, List<String> previousPortfolio,
+            Set<Rule> parsedObjects) {
+        if (parsedObjects != null && !parsedObjects.isEmpty()) {
+            for (Rule rule : parsedObjects) {
+                try {
+                    mProvider.add(rule);
+                } catch (IllegalArgumentException e) {
+                    logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
+                } catch (IllegalStateException e) {
+                    logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
+                            rule.getUID(), e.getMessage());
                 }
             }
         }
     }
 
     @Override
-    protected void addNewProvidedObjects(List<String> newPortfolio, Set<Rule> parsedObjects) {
-        if (parsedObjects != null && !parsedObjects.isEmpty()) {
-            Iterator<Rule> i = parsedObjects.iterator();
-            while (i.hasNext()) {
-                Rule rule = i.next();
-                if (rule != null) {
-                    try {
-                        ruleRegistry.add(rule);
-                    } catch (IllegalArgumentException e) {
-                        logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
-                    } catch (IllegalStateException e) {
-                        logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
-                                rule.getUID(), e.getMessage());
-                    }
+    protected List<String> getPreviousPortfolio(Vendor vendor) {
+        List<String> portfolio = providerPortfolio.get(vendor);
+        if (portfolio == null) {
+            for (Vendor v : providerPortfolio.keySet()) {
+                if (v.getVendorSymbolicName().equals(vendor.getVendorSymbolicName())) {
+                    return providerPortfolio.get(v);
                 }
             }
         }
+        return portfolio;
     }
 
-    private Set<Rule> setUIDs(Vendor vendor, Set<Rule> rules) {
+    @Override
+    protected void processAutomationProviderUninstalled(Bundle bundle) {
+        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
+        waitingProviders.remove(bundle);
+        providerPortfolio.remove(vendor);
+    }
+
+    @Override
+    protected boolean checkExistence(String uid) {
+        return mProvider.get(uid) != null;
+    }
+
+    @Override
+    protected String getUID(Rule parsedObject) {
+        return parsedObject.getUID();
+    }
+
+    protected Set<Rule> setUIDs(Vendor vendor, Set<Rule> rules) {
         Set<Rule> newRules = new HashSet<Rule>();
         for (Rule rule : rules) {
             if (rule.getUID() == null) {
@@ -255,11 +190,6 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         r.setDescription(rule.getDescription());
         r.setTags(rule.getTags());
         return r;
-    }
-
-    @Override
-    protected void updateProviderRegistration() {
-        // do nothing
     }
 
 }

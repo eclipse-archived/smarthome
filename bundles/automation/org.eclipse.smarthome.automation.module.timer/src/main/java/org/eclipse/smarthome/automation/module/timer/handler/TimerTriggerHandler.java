@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Knauf - Initial Contribution
  *
  */
-public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
+public class TimerTriggerHandler extends BaseModuleHandler<Trigger> implements TriggerHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TimerTriggerHandler.class);
 
@@ -55,7 +55,7 @@ public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements Tr
     }
 
     @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
+    public synchronized void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.callback = ruleCallback;
         this.job = JobBuilder.newJob(CallbackJob.class).withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
                 .build();
@@ -71,10 +71,11 @@ public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements Tr
     }
 
     @Override
-    public void dispose() {
+    public synchronized void dispose() {
+        callback = null;
         try {
-            if (scheduler != null && job != null) {
-                scheduler.deleteJob(job.getKey());
+            if (scheduler != null) {
+                scheduler.clear();
             }
             scheduler = null;
             trigger = null;
@@ -82,6 +83,5 @@ public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements Tr
         } catch (SchedulerException e) {
             logger.error("Error while disposing Job: {}", e.getMessage());
         }
-
     }
 }

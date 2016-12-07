@@ -92,7 +92,9 @@ abstract class OSGiTest {
      * @return OSGi service or null if no service can be found for the given class
      */
     protected <T> T getService(Class<T> clazz, Class<? extends T> implementationClass){
-        getService(clazz, {ServiceReference<?> serviceReference -> implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())})
+        getService(clazz, { ServiceReference<?> serviceReference ->
+            implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())
+        })
     }
 
     /**
@@ -123,6 +125,14 @@ abstract class OSGiTest {
         registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
     }
 
+    protected registerService(def service, String[] interfaceNames, Hashtable properties = [:]) {
+        assertThat interfaceNames, is(notNullValue())
+        def ServiceRegistration ref = bundleContext.registerService(interfaceNames, service, properties)
+        for (String i : interfaceNames) {
+            registeredServices.put(i, ref)
+        }
+    }
+
     /**
      * Unregisters an OSGi service by the given object, that was registered before. If the object is
      * a String the service is unregistered by the interface name. If the given service parameter is
@@ -133,8 +143,16 @@ abstract class OSGiTest {
      */
     protected unregisterService(def service) {
         def interfaceName = service instanceof String ? service : getInterfaceName(service)
-        registeredServices.get(interfaceName)?.unregister()
-        registeredServices.remove(interfaceName)
+        ServiceRegistration reg = registeredServices.remove(interfaceName)
+        if (reg != null) {
+            reg.unregister()
+        }
+        Iterator<ServiceRegistration> regs = registeredServices.values().iterator()
+        for (ServiceRegistration otherReg : regs) {
+            if (otherReg == reg) {
+                regs.remove()
+            }
+        }
     }
 
     /**
@@ -188,7 +206,7 @@ abstract class OSGiTest {
      * @return name of the first interface or null if the object has no interfaces
      */
     protected getInterfaceName(def service) {
-        service.class.interfaces?.find({it})?.name
+        service.class.interfaces?.find({ it })?.name
     }
 
     /**
