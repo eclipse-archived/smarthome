@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -252,6 +253,90 @@ public class ReferenceResolverUtil {
      */
     private static boolean containsPattern(String value) {
         return value != null && value.trim().contains("${") && value.trim().indexOf("${") < value.trim().indexOf("}");
+    }
+
+    /**
+     * This method tries to extract value from Bean or Map.
+     * <li>To get Map value, the square brackets have to be used as reference: [x] is equivalent to the call
+     * ((Map)object).get(x)
+     * <li>To get Bean value, the dot and property name have to be used as reference: .x is equivalent to the call
+     * object.getX()
+     *
+     * For example: ref = [x].y[z] will execute the call: ((Map)((Map)object).get(x).getY()).get(z)
+     *
+     * @param object Bean ot map object
+     * @param ref reference path to the value
+     * @return the value when it exist on specified reference path or null otherwise.
+     */
+    public static Object getValue(Object object, String ref) {
+        Object result = null;
+        int idx = -1;
+        if (object == null) {
+            return null;
+        }
+        if ((ref == null) || (ref.length() == 0)) {
+            return object;
+        }
+
+        char ch = ref.charAt(0);
+        if ('.' == ch) {
+            ref = ref.substring(1, ref.length());
+        }
+
+        if ('[' == ch) {
+            if (!(object instanceof Map)) {
+                return null;
+            }
+            idx = ref.indexOf(']');
+            if (idx == -1) {
+                return null;
+            }
+            String key = ref.substring(1, idx++);
+            Map map = (Map) object;
+            result = map.get(key);
+        } else {
+            String key = null;
+            idx = getNextRefToken(ref, 1);
+            key = idx != ref.length() ? ref.substring(0, idx) : ref;
+            String getter = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
+            try {
+                Method m = object.getClass().getMethod(getter, new Class[0]);
+                if (m != null) {
+                    result = m.invoke(object, null);
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        if ((result != null) && (idx < ref.length())) {
+            return getValue(result, ref.substring(idx));
+        }
+        return result;
+    }
+
+    /**
+     * Gets the end of current token of reference path.
+     *
+     * @param ref reference path used to access value in bean or map objects
+     * @param startIndex starting point to check for next tokens.
+     * @return end of current token.
+     */
+    public static int getNextRefToken(String ref, int startIndex) {
+        int idx1 = ref.indexOf('[', startIndex);
+        int idx2 = ref.indexOf('.', startIndex);
+        int idx;
+        if ((idx1 != -1) && ((idx2 == -1) || (idx1 < idx2))) {
+            idx = idx1;
+        } else {
+            if ((idx2 != -1) && ((idx1 == -1) || (idx2 < idx1))) {
+                idx = idx2;
+            } else {
+                idx = ref.length();
+            }
+        }
+        return idx;
     }
 
 }

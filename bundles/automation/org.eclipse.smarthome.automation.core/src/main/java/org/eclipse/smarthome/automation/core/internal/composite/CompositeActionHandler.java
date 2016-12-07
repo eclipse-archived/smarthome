@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.Output;
@@ -33,7 +34,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
 
     public final static String REFERENCE = "reference";
 
-    private Map<String, String> compositeOutputs;
+    private Map<String, Output> compositeOutputs;
 
     /**
      * Create a system handler for modules of {@link CompositeActionType} type.
@@ -65,11 +66,17 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
             Map<String, Object> childResults = childHandler.execute(childContext);
             if (childResults != null) {
                 for (Entry<String, Object> childResult : childResults.entrySet()) {
-                    String childOuputName = childResult.getKey();
-                    String childOuputRef = child.getId() + "." + childOuputName;
-                    String compositeOutputName = compositeOutputs.get(childOuputRef);
-                    if (compositeOutputName != null) {
-                        result.put(compositeOutputName, childResult.getValue());
+                    String childOuputName = child.getId() + "." + childResult.getKey();
+                    Output output = compositeOutputs.get(childOuputName);
+                    if (output != null) {
+                        String childOuputRef = output.getReference();
+                        if (childOuputRef != null && childOuputRef.length() > childOuputName.length()) {
+                            childOuputRef = childOuputRef.substring(childOuputName.length());
+                            result.put(output.getName(),
+                                    ReferenceResolverUtil.getValue(childResult.getValue(), childOuputRef));
+                        } else {
+                            result.put(output.getName(), childResult.getValue());
+                        }
                     }
                 }
             }
@@ -85,8 +92,8 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
      * @param outputs outputs of the parent action. The action of {@link CompositeActionType}
      * @return map of links between child action outputs and parent output
      */
-    protected Map<String, String> getCompositeOutputMap(List<Output> outputs) {
-        Map<String, String> result = new LinkedHashMap<String, String>(11);
+    protected Map<String, Output> getCompositeOutputMap(List<Output> outputs) {
+        Map<String, Output> result = new HashMap<String, Output>(11);
         if (outputs != null) {
             for (Output output : outputs) {
                 String refs = output.getReference();
@@ -95,7 +102,14 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
                     StringTokenizer st = new StringTokenizer(refs, ",");
                     while (st.hasMoreTokens()) {
                         ref = st.nextToken().trim();
-                        result.put(ref, output.getName());
+                        int i = ref.indexOf('.');
+                        if (i != -1) {
+                            int j = ReferenceResolverUtil.getNextRefToken(ref, i + 1);
+                            if (j != -1) {
+                                ref = ref.substring(0, j);
+                            }
+                        }
+                        result.put(ref, output);
                     }
                 }
             }

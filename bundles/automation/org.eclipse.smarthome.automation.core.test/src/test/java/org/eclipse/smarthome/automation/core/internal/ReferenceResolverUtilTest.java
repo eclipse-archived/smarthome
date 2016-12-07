@@ -101,4 +101,50 @@ public class ReferenceResolverUtilTest {
         Map<String, Object> actionContext = ReferenceResolverUtil.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);
     }
+
+    @Test
+    public void testBeanMapAccess() {
+        Map map = new HashMap();
+        Map map1 = new HashMap();
+        Map map2 = new HashMap();
+        map2.put("b", "bValue");
+        map1.put("a", map2);
+        B1 bean1 = new B1();
+        map.put("result_1", bean1);
+        map1.put("a.b", "a.bValue");
+        map.put("result_2", map1);
+
+        // test getValue from map
+        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(map, "[result_1].a[b]"));
+        Assert.assertEquals("a.bValue", ReferenceResolverUtil.getValue(map, "[result_2][a.b]"));
+        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(map, "[result_2][a][b]"));
+        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(map, "[result_1].bean2.e[f]"));
+
+        // test getValue from bean
+        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(bean1, "a[b]"));
+        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(bean1, ".a[b]"));
+        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(bean1, "bean2.e[f]"));
+        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(bean1, ".bean2.e[f]"));
+    }
+
+    class B1 {
+        public Object getA() {
+            Map map2 = new HashMap();
+            map2.put("b", "bValue");
+            return map2;
+        }
+
+        public Object getBean2() {
+            return new B2();
+        }
+    }
+
+    class B2 {
+        public Object getE() {
+            Map map2 = new HashMap();
+            map2.put("f", "fValue");
+            return map2;
+        }
+    }
+
 }
