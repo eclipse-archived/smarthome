@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.core.discovery;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Ivaylo Ivanov - Added payload to the response of <code>scan</code>
  */
 @Path(DiscoveryResource.PATH_DISCOVERY)
+@RolesAllowed({ Role.ADMIN })
 @Api(value = DiscoveryResource.PATH_DISCOVERY)
 public class DiscoveryResource implements SatisfiableRESTResource {
 

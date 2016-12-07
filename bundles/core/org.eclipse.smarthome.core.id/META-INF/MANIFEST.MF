@@ -8,11 +8,13 @@ Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.id
 Export-Package: org.eclipse.smarthome.core.id
 Import-Package: io.swagger.annotations;resolution:=optional,
+ javax.annotation.security;resolution:=optional,
  javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.auth,
  org.eclipse.smarthome.core.id,
  org.eclipse.smarthome.io.rest;resolution:=optional,
  org.slf4j

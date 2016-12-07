@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -93,8 +95,10 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(SitemapResource.PATH_SITEMAPS)
+@RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource implements SatisfiableRESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
+public class SitemapResource
+        implements SatisfiableRESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
@@ -111,7 +115,7 @@ public class SitemapResource implements SatisfiableRESTResource, SitemapSubscrip
 
     @Context
     private HttpServletResponse response;
-    
+
     private ItemUIRegistry itemUIRegistry;
 
     private SitemapSubscriptionService subscriptions;
@@ -256,11 +260,11 @@ public class SitemapResource implements SatisfiableRESTResource, SitemapSubscrip
             subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
-        
+
         // Disables proxy buffering when using an nginx http server proxy for this response.
         // This allows you to not disable proxy buffering in nginx and still have working sse
         response.addHeader(X_ACCEL_BUFFERING_HEADER, "no");
-        
+
         return eventOutput;
     }
 

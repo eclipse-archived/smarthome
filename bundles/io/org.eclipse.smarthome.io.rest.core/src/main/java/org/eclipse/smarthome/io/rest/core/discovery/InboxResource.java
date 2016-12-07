@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,6 +32,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
@@ -52,6 +54,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve.
  */
 @Path(InboxResource.PATH_INBOX)
+@RolesAllowed({ Role.ADMIN })
 @Api(value = InboxResource.PATH_INBOX)
 public class InboxResource implements SatisfiableRESTResource {
 
