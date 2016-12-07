@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Json Demo
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.json.demo
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Bosch Software Innovations GmbH
+Automation-ResourceType: json
+Bundle-ClassPath: .
+Service-Component: OSGI-INF/*.xml
