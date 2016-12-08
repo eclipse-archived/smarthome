@@ -48,7 +48,6 @@
   <feature name="esh-tp-jax-rs" version="${project.version}">
     <capability>esh.tp;feature=jax-rs;version=5.3.1</capability>
     <feature>esh-tp-jax-rs-min</feature>
-    <feature>esh-tp-jax-rs-provider-security</feature>
     <feature>esh-tp-jax-rs-provider-gson</feature>
   </feature>
 
