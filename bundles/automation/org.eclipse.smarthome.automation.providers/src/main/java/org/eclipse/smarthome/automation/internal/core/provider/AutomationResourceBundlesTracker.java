@@ -86,14 +86,14 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     }
 
     @SuppressWarnings({ "rawtypes" })
-    protected void setProvider(Provider provider) {
+    protected void addProvider(Provider provider) {
         if (provider instanceof AbstractResourceBundleProvider) {
-            setAbstractResourceBundleProvider((AbstractResourceBundleProvider) provider);
+            addAbstractResourceBundleProvider((AbstractResourceBundleProvider) provider);
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected void setAbstractResourceBundleProvider(AbstractResourceBundleProvider provider) {
+    protected void addAbstractResourceBundleProvider(AbstractResourceBundleProvider provider) {
         AutomationResourceBundlesEventQueue queue = provider.getQueue();
         synchronized (this.queue) {
             queue.addAll(this.queue);
@@ -119,7 +119,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {
         rImporter.setManagedRuleProvider(mProvider);
         rImporter.activate(null);
-        setAbstractResourceBundleProvider(rImporter);
+        addAbstractResourceBundleProvider(rImporter);
     }
 
     protected void removeManagedRuleProvider(ManagedRuleProvider mProvider) {

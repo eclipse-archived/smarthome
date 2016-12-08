@@ -17,6 +17,6 @@
 
     <reference bind="setPackageAdmin" cardinality="1..1" interface="org.osgi.service.packageadmin.PackageAdmin" name="PackageAdmin" policy="static" unbind="removePackageAdmin"/>
     <reference bind="addParser" cardinality="0..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.rule)"/>
-    <reference bind="setProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.common.registry.Provider" name="Provider" policy="dynamic" unbind="removeProvider" target="(provider.type=bundle)"/>
+    <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.common.registry.Provider" name="Provider" policy="dynamic" unbind="removeProvider" target="(provider.type=bundle)"/>
     <reference bind="setManagedRuleProvider" cardinality="0..1" interface="org.eclipse.smarthome.automation.ManagedRuleProvider" name="ManagedRuleProvider" policy="dynamic" unbind="removeManagedRuleProvider"/>
 </scr:component>
