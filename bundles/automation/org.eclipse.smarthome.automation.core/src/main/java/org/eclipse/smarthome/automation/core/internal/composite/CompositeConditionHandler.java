@@ -23,8 +23,9 @@ import org.eclipse.smarthome.automation.type.CompositeConditionType;
  * @author Yordan Mihaylov - Initial Contribution
  *
  */
-public class CompositeConditionHandler extends
-        AbstractCompositeModuleHandler<Condition, CompositeConditionType, ConditionHandler>implements ConditionHandler {
+public class CompositeConditionHandler
+        extends AbstractCompositeModuleHandler<Condition, CompositeConditionType, ConditionHandler>
+        implements ConditionHandler {
 
     public CompositeConditionHandler(Condition condition, CompositeConditionType mt,
             LinkedHashMap<Condition, ConditionHandler> mapModuleToHandler, String ruleUID) {
@@ -38,7 +39,7 @@ public class CompositeConditionHandler extends
      */
     @Override
     public boolean isSatisfied(Map<String, ?> context) {
-        List<Condition> children = moduleType.getChildren();
+        List<Condition> children = getChildren();
         Map<String, Object> compositeContext = getCompositeContext(context);
         for (Condition child : children) {
             Map<String, Object> childContext = getChildContext(child, compositeContext);
@@ -52,7 +53,7 @@ public class CompositeConditionHandler extends
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
+    protected List<Condition> getChildren() {
+        return moduleType.getChildren();
     }
 }
