@@ -154,7 +154,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *
      * @param templateRegistry templateRegistry service.
      */
-    protected void setTemplateRegistry(RuleTemplateRegistry templateRegistry) {
+    protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         this.templateRegistry = templateRegistry;
         templateRegistry.addRegistryChangeListener(this);
     }
@@ -164,7 +164,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *
      * @param templateRegistry templateRegistry service.
      */
-    protected void unsetTemplateRegistry(RuleTemplateRegistry templateRegistry) {
+    protected void unsetTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         this.templateRegistry = null;
         templateRegistry.removeRegistryChangeListener(this);
     }
