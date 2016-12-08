@@ -105,7 +105,7 @@ XML file (thing-types.xml):
                   <option value="OPTION1">Option 1</option>
                   <option value="OPTION2">Option 2</option>
               </options>
-            </state>
+        </state>
     </channel-type>
 </thing:thing-descriptions>
 
