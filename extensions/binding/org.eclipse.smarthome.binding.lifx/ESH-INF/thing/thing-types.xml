@@ -102,7 +102,6 @@
         <item-type>Dimmer</item-type>
         <label>Infrared</label>
         <description>Sets the infrared of the light</description>
-        <category>Infrared</category>
     </channel-type>
 
     <!-- Brightness Channel -->
