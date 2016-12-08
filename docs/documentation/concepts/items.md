@@ -31,3 +31,41 @@ Group Items can derive their own state depending on their member items.
   - AVG displays the average of the item states in the group.
   - OR displays an OR of the group, typically used to display whether any item in a group has been set.
   - other aggregations:  AND, SUM, MIN, MAX, NAND, NOR
+
+
+## State and Command Type Formatting
+
+### DateTime
+
+DateTime objects are parsed using Java's `SimpleDateFormat.parse()` using the first matching pattern:
+
+1. `yyyy-MM-dd'T'HH:mm:ss.SSSZ`
+2. `yyyy-MM-dd'T'HH:mm:ss.SSSX`
+3. `yyyy-MM-dd'T'HH:mm:ssz`
+4. `yyyy-MM-dd'T'HH:mm:ss`
+
+### DecimalType, PercentType
+
+`DecimalType` and `PercentType` objects use Java's `BigDecimal` constructor for conversion. `PercentType` values range from 0 to 100.
+
+### HSBType
+
+HSB string values consist of three comma-separated values for hue (0-360°), saturation (0-100%), and value (0-100%) respectively, e.g. `240,100,100` for blue.
+
+### PointType
+
+`PointType` strings consist of three `DecimalType`s separated by commas, indicating latitude and longitude in degrees, and altitude in meters respectively.
+
+### Enum Types
+
+| Type | Supported Values |
+| --- | --- |
+| IncreaseDecreaseType | `INCREASE`, `DECREASE` |
+| NextPreviousType | `NEXT`, `PREVIOUS` |
+| OnOffType | `ON`, `OFF` |
+| OpenClosedType | `OPEN`, `CLOSED` |
+| PlayPauseType | `PLAY`, `PAUSE` |
+| RewindFastforwardType | `REWIND`, `FASTFORWARD` |
+| StopMoveType | `STOP`, `MOVE` |
+| UpDownType | `UP`, `DOWN` |
+
