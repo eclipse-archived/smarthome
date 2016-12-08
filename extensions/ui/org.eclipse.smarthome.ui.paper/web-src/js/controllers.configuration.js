@@ -350,8 +350,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
             category : channelType.category ? channelType.category : "",
-            suggestedName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+            suggestedName : getItemNameSuggestion(channelID, channelType.label),
             suggestedLabel : channel.channelType.label,
+            suggestedCategory : channelType.category ? channelType.category : '',
             preSelectCreate : preSelect
         }
         $mdDialog.show({
@@ -370,6 +371,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                     var item = $.grep($scope.items, function(item) {
                         return item.name == newItem.itemName;
                     });
+                    channel.items = channel.items ? channel.items : [];
                     if (item.length > 0) {
                         channel.items.push(item[0]);
                     } else {
@@ -382,6 +384,25 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 });
             }
         });
+    }
+
+    function getItemNameSuggestion(channelID, label) {
+        var itemName = getInCamelCase($scope.thing.label);
+        var id = channelID.split('#');
+        if (id.length > 1 && id[0].length > 0) {
+            itemName += ('_' + getInCamelCase(id[0]));
+        }
+        itemName += ('_' + getInCamelCase(label));
+        return itemName;
+    }
+
+    function getInCamelCase(str) {
+        var arr = str.split(/[^a-zA-Z0-9_]/g);
+        var camelStr = "";
+        for (var i = 0; i < arr.length; i++) {
+            camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+        }
+        return camelStr;
     }
 
     $scope.unlinkChannel = function(channelID, itemName, event) {
@@ -582,7 +603,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 linking : true,
                 acceptedItemType : $scope.acceptedItemType,
                 suggestedName : params.suggestedName,
-                suggestedLabel : params.suggestedLabel
+                suggestedLabel : params.suggestedLabel,
+                suggestedCategory : params.suggestedCategory
             });
         } else {
             $scope.itemFormVisible = false;

@@ -84,6 +84,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             if (sharedProperties.getParams().length > 0 && sharedProperties.getParams()[0].linking) {
                 $scope.item.name = sharedProperties.getParams()[0].suggestedName;
                 $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
+                $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
             }
             $scope.configMode = "create";
 
@@ -267,6 +268,11 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
                 return scope.items;
             }
             ctrl.$parsers.push(customValidator);
+            setTimeout(function() {
+                if (ctrl.$viewValue) {
+                    customValidator(ctrl.$viewValue);
+                }
+            });
         }
     };
 }).directive('mdChips', function() {
