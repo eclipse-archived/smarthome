@@ -487,7 +487,7 @@
               <dependencies>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis-config</artifactId>
+                  <artifactId>static-code-analysis</artifactId>
                   <version>${project.version}</version>
                 </dependency>
               </dependencies>
@@ -514,7 +514,7 @@
               <dependencies>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis-config</artifactId>
+                  <artifactId>static-code-analysis</artifactId>
                   <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -543,7 +543,7 @@
                 <plugins>
                   <plugin>
                     <groupId>org.eclipse.smarthome.tools</groupId>
-                    <artifactId>static-code-analysis-config</artifactId>
+                    <artifactId>static-code-analysis</artifactId>
                     <version>${project.version}</version>
                   </plugin>
                 </plugins>
@@ -564,7 +564,7 @@
                 </dependency>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis-config</artifactId>
+                  <artifactId>static-code-analysis</artifactId>
                   <version>${project.version}</version>
                 </dependency>
               </dependencies>
@@ -589,14 +589,14 @@
                 <includePluginDependencies>true</includePluginDependencies>
                 <executableDependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis-report</artifactId>
+                  <artifactId>static-code-analysis</artifactId>
                 </executableDependency>
                 <mainClass>org.eclipse.smarthome.buildtools.report.ScanReportUtility</mainClass>
               </configuration>
               <dependencies>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis-report</artifactId>
+                  <artifactId>static-code-analysis</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                 </dependency>
