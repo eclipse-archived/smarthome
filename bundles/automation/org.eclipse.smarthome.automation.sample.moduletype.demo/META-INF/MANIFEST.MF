@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Module Type Demo
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.moduletype.demo
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Bosch Software Innovations GmbH
+Import-Package: org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
+ org.osgi.framework,
+ org.osgi.service.component,
+ org.osgi.util.tracker,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Require-Bundle: org.eclipse.smarthome.automation.api,
+ org.eclipse.osgi.services
