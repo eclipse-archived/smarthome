@@ -140,8 +140,8 @@
                                                             <h2 class="state" ng-if="isReadOnly(item)">{{item.state}}</h2>
                                                         </div>
                                                         <div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
-                                                            <h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.state}}</h2>
-                                                            <md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number"></input> </md-input-container>
+                                                            <h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.state}}%</h2>
+                                                            <md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number" min="0" max="100"></input> </md-input-container>
                                                             <i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
                                                         </div>
                                                     </div>
@@ -151,7 +151,7 @@
 														<p>Control</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
-														<i class="md-button control-button material-icons" ng-click="sendCommand('DOWN')">vertical_align_bottom</i> <i class="md-button control-button material-icons" ng-click="sendCommand('STOP')">stop</i> <i class="md-button control-button material-icons" ng-click="sendCommand('UP')">vertical_align_top</i>
+														<i class="md-button control-button material-icons" ng-click="sendStateCommand('DOWN')">vertical_align_bottom</i> <i class="md-button control-button material-icons" ng-click="sendStateCommand('STOP')">stop</i> <i class="md-button control-button material-icons" ng-click="sendStateCommand('UP')">vertical_align_top</i>
 													</div>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>

@@ -103,6 +103,17 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                         state = parsedValue;
                     }
                 }
+                if (item.type === "Rollershutter") {
+                    if (stateObject.type == "UpDownType") {
+                        if (stateObject.value == "Up") {
+                            state = 0;
+                        } else {
+                            state = 100;
+                        }
+                    } else if (stateObject.type == "PercentType" || stateObject.type == "DecimalType") {
+                        state = parseInt(stateObject.value);
+                    }
+                }
 
                 if (updateState) {
                     $scope.$apply(function(scope) {
