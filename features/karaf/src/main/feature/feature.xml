@@ -198,6 +198,11 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.auth.basic/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-io-rest-log" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.log/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-io-rest-sitemap" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-ui</feature>
