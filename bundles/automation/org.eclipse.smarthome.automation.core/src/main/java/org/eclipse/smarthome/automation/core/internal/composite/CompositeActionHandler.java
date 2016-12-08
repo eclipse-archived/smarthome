@@ -58,7 +58,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
     @Override
     public Map<String, Object> execute(Map<String, ?> context) {
         final Map<String, Object> result = new HashMap<String, Object>();
-        final List<Action> children = moduleType.getChildren();
+        final List<Action> children = getChildren();
         final Map<String, Object> compositeContext = getCompositeContext(context);
         for (Action child : children) {
             ActionHandler childHandler = moduleHandlerMap.get(child);
@@ -118,8 +118,8 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
+    protected List<Action> getChildren() {
+        return moduleType.getChildren();
     }
 
 }
