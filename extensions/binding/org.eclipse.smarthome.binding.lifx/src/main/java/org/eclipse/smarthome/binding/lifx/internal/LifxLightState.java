@@ -26,6 +26,7 @@ public class LifxLightState {
     private PowerState powerState;
     private HSBType hsb;
     private PercentType temperature;
+    private PercentType infrared;
 
     private long lastChange;
 
@@ -35,6 +36,7 @@ public class LifxLightState {
         this.powerState = other.getPowerState();
         this.hsb = other.getHSB();
         this.temperature = other.getTemperature();
+        this.infrared = other.getInfrared();
     }
 
     public PowerState getPowerState() {
@@ -47,6 +49,10 @@ public class LifxLightState {
 
     public PercentType getTemperature() {
         return temperature;
+    }
+
+    public PercentType getInfrared() {
+        return infrared;
     }
 
     public void setHSB(HSBType newHSB) {
@@ -77,6 +83,15 @@ public class LifxLightState {
         updateLastChange();
         for (LifxLightStateListener listener : listeners) {
             listener.handleTemperatureChange(oldTemperature, newTemperature);
+        }
+    }
+
+    public void setInfrared(PercentType newInfrared) {
+        PercentType oldInfrared = this.infrared;
+        this.infrared = newInfrared;
+        updateLastChange();
+        for (LifxLightStateListener listener : listeners) {
+            listener.handleInfraredChange(oldInfrared, newInfrared);
         }
     }
 

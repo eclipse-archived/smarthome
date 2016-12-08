@@ -36,6 +36,7 @@ public class LifxBindingConstants {
     public final static String CHANNEL_COLOR = "color";
     public final static String CHANNEL_TEMPERATURE = "temperature";
     public final static String CHANNEL_BRIGHTNESS = "brightness";
+    public final static String CHANNEL_INFRARED = "infrared";
 
     // config property for the LIFX device id
     public static final String CONFIG_PROPERTY_DEVICE_ID = "deviceId";
@@ -49,6 +50,7 @@ public class LifxBindingConstants {
 
     // List of all Thing Type UIDs
     public final static ThingTypeUID THING_TYPE_COLORLIGHT = new ThingTypeUID(BINDING_ID, "colorlight");
+    public final static ThingTypeUID THING_TYPE_COLORIRLIGHT = new ThingTypeUID(BINDING_ID, "colorirlight");
     public final static ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
 }
