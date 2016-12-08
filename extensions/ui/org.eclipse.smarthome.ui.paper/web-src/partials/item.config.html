@@ -1,9 +1,9 @@
 <section>
 	<div class="item-edit white-bg" ng-if="advancedMode" ng-controller="ItemConfigController">
-		<div class="header-toolbar">
+		<div class="header-toolbar" ng-if="!linking">
 			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 		</div>
-		<div class="section-header">
+		<div class="section-header" ng-show="!linking">
 			<div class="container">
 				<div class="toolbar">
 					<md-button class="md-fab" ng-if="configMode=='edit'" class="md-primary" ng-click="update(item)"> <i class="material-icons">check</i></md-button>
@@ -36,7 +36,7 @@
 								<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-blur="renderIcon()" name="itemCategory" ng-model="item.category"> </md-input-container>
 							</div>
 							<div class="col-xs-2">
-								<!-- 								<img width="48" onload="this.className=''" ng-src="{{srcURL}}" onerror="this.className='itemIcon-text'" /> -->
+								<img width="48" onload="this.className=''" ng-src="{{srcURL}}" onerror="this.className='itemIcon-text'" />
 							</div>
 						</div>
 					</div>

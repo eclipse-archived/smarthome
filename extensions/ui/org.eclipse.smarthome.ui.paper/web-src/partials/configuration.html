@@ -136,25 +136,26 @@
 								<div ng-if="channel.kind!='TRIGGER'">
 									<md-button ng-if="!advancedMode && channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
 									<md-button ng-if="!advancedMode && channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id,'', $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
-									<md-button ng-if="advancedMode" class="md-fab" ng-click="getLinkedItems(channel)"> <i class="material-icons">{{channel.linkedItems.length > 0 ? 'radio_button_checked':'radio_button_unchecked'}}</i></md-button>
+									<md-button ng-if="advancedMode" class="md-fab" long-press on-long-press="enableChannel(thing.UID, channel.id, $event,true)" on-click="enableChannel(thing.UID, channel.id, $event)"> <i class="material-icons">{{channel.linkedItems.length > 0 ? 'radio_button_checked':'radio_button_unchecked'}}</i></md-button>
 								</div>
 								<div ng-if="channel.kind=='TRIGGER'" class="circle" aria-label="Trigger">{{channel.channelType.label?channel.channelType.label.substring(0,1).toUpperCase():'T'}}</div>
 								<div class="item-content">
 									<h3 ng-if="channel.label">{{channel.label}}</h3>
 									<h3 ng-if="!channel.label && channel.channelType.label">{{channel.channelType.label}}</h3>
 									<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
-									<p>{{thing.UID + ':' + channel.id}}<i ng-show="advancedMode" class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i></p>
+									<p>
+										{{thing.UID + ':' + channel.id}}<i ng-show="advancedMode" class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i>
+									</p>
 									<p ng-if="channel.description" ng-bind-html="channel.channelType.description"></p>
 									<p ng-if="!channel.description && channel.channelType.description" ng-bind-html="channel.channelType.description"></p>
 									<div class="actions">
-										<i ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit" class="material-icons">edit</i> 
-										<i class="material-icons" style="transition: none" ng-show="advancedMode" ng-click="getLinkedItems(channel)">{{channel.showItems ? 'unfold_less':'unfold_more'}}</i> 
+										<i ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit" class="material-icons">edit</i> <i class="material-icons" style="transition: none" ng-show="advancedMode" ng-click="getLinkedItems(channel)">{{channel.showItems ? 'unfold_less':'unfold_more'}}</i>
 									</div>
 								</div>
 								<div ng-show="channel.showItems" class='linkedItems item-content'>
 									<h3 class="noMargin">
 										Linked items
-										<button class="md-fab md-custom-plus md-button md-ink-ripple" type="button" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Add">
+										<button class="md-fab md-custom-plus md-button md-ink-ripple" type="button" ng-click="linkChannel(channel.id, $event)" aria-label="Add">
 											<span class="ng-scope">+</span>
 											<div class="md-ripple-container"></div>
 										</button>
@@ -164,7 +165,7 @@
 											<span class="circle">{{item.label.substring(0,1).toUpperCase()}}</span>
 										</div>
 										<div class="col-xs-9 name">
-											{{item.label}} <small><span >({{item.name}})</span></small>
+											{{item.label}} <small><span>({{item.name}})</span></small>
 										</div>
 										<div class="col-xs-2 action">
 											<i class="material-icons" ng-click="disableChannel(thing.UID, channel.id, item.name, $event)">delete</i>

@@ -265,6 +265,38 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             });
         }
     };
+}).directive('longPress', function($timeout) {
+    return {
+        restrict : 'A',
+        link : function($scope, elem, $attrs) {
+            var timeoutHandler;
+            var longClicked = false;
+            elem[0].addEventListener('mousedown', function(evt) {
+                timeoutHandler = $timeout(function() {
+                    longClicked = true;
+                    if ($attrs.onLongPress) {
+                        $scope.$apply(function() {
+                            $scope.$eval($attrs.onLongPress, {
+                                $event : evt
+                            });
+                        });
+                    }
+                }, 400)
+            });
+
+            elem[0].addEventListener('mouseup', function(evt) {
+                $timeout.cancel(timeoutHandler);
+                if (!longClicked && $attrs.onClick) {
+                    $scope.$apply(function() {
+                        $scope.$eval($attrs.onClick, {
+                            $event : evt
+                        });
+                    });
+                }
+                longClicked = false;
+            });
+        }
+    };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
     var original = $location.path;
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
