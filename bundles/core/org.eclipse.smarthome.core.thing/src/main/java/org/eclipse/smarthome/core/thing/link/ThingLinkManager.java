@@ -293,11 +293,10 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     @Override
     protected void receiveTypedEvent(ThingStatusInfoChangedEvent event) {
-        // when a thing handler is successfully initialized (i.e. it goes from INITIALIZING to ONLINE or OFFLINE), we
-        // need to make sure that channelLinked() is called for all existing links
-        if (event.getOldStatusInfo().getStatus() == ThingStatus.INITIALIZING) {
-            if (event.getStatusInfo().getStatus() == ThingStatus.ONLINE
-                    || event.getStatusInfo().getStatus() == ThingStatus.OFFLINE) {
+        // when a thing handler is successfully initialized (i.e. it goes from INITIALIZING to UNKNOWN, ONLINE or
+        // OFFLINE), we need to make sure that channelLinked() is called for all existing links
+        if (ThingStatus.INITIALIZING.equals(event.getOldStatusInfo().getStatus())) {
+            if (ThingHandlerHelper.isHandlerInitialized(event.getStatusInfo().getStatus())) {
                 Thing thing = thingRegistry.get(event.getThingUID());
                 if (thing != null) {
                     for (Channel channel : thing.getChannels()) {

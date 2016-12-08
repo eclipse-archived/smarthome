@@ -13,32 +13,17 @@ package org.eclipse.smarthome.core.thing;
  * @author Stefan Bußweiler - Initial contribution, added new status details
  */
 public enum ThingStatusDetail {
-    NONE(0),
-    HANDLER_MISSING_ERROR(1),
-    HANDLER_REGISTERING_ERROR(2),
-    HANDLER_INITIALIZING_ERROR(3),
-    HANDLER_CONFIGURATION_PENDING(4),
-    CONFIGURATION_PENDING(5),
-    COMMUNICATION_ERROR(6),
-    CONFIGURATION_ERROR(7),
-    BRIDGE_OFFLINE(8),
-    FIRMWARE_UPDATING(9),
-    DUTY_CYCLE(10);
-
-    private final int value;
-
-    private ThingStatusDetail(final int newValue) {
-        value = newValue;
-    }
-
-    /**
-     * Gets the value of a thing status detail.
-     *
-     * @return the value
-     */
-    public int getValue() {
-        return value;
-    }
+    NONE,
+    HANDLER_MISSING_ERROR,
+    HANDLER_REGISTERING_ERROR,
+    HANDLER_INITIALIZING_ERROR,
+    HANDLER_CONFIGURATION_PENDING,
+    CONFIGURATION_PENDING,
+    COMMUNICATION_ERROR,
+    CONFIGURATION_ERROR,
+    BRIDGE_OFFLINE,
+    FIRMWARE_UPDATING,
+    DUTY_CYCLE;
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 

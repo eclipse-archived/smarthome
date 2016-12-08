@@ -147,11 +147,18 @@ public class ThingManager extends AbstractItemEventSubscriber
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo statusInfo) {
             // note: all provoked operations based on a status update should be executed asynchronously!
+            ensureValidStatus(statusInfo.getStatus());
 
             ThingStatusInfo oldStatusInfo = thing.getStatusInfo();
             if (ThingStatus.REMOVING.equals(oldStatusInfo.getStatus())
                     && !ThingStatus.REMOVED.equals(statusInfo.getStatus())) {
                 // only allow REMOVING -> REMOVED transition and ignore all other state changes
+                return;
+            }
+
+            if (ThingStatus.UNKNOWN.equals(statusInfo.getStatus())
+                    && !ThingStatus.INITIALIZING.equals(oldStatusInfo.getStatus())) {
+                // only allow UNKNOWN in the beginning, not after ONLINE or OFFLINE
                 return;
             }
 
@@ -166,20 +173,25 @@ public class ThingManager extends AbstractItemEventSubscriber
             if (hasBridge(thing)) {
                 handleBridgeChildStatusUpdate(thing, oldStatusInfo);
             }
-            // notify thing about its removal
-            if (ThingStatus.REMOVING.equals(thing.getStatus())) {
-                notifyThingAboutRemoval(thing);
-            }
             // notify thing registry about thing removal
-            else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
+            if (ThingStatus.REMOVED.equals(thing.getStatus())) {
                 notifyRegistryAboutForceRemove(thing);
+            }
+        }
+
+        private void ensureValidStatus(ThingStatus status) {
+            if (!(ThingStatus.UNKNOWN.equals(status) || ThingStatus.ONLINE.equals(status)
+                    || ThingStatus.OFFLINE.equals(status) || ThingStatus.REMOVED.equals(status))) {
+                throw new IllegalArgumentException(
+                        MessageFormat.format("Illegal status {0}. Bindings only may set {1}, {2}, {3} or {4}.", status,
+                                ThingStatus.UNKNOWN, ThingStatus.ONLINE, ThingStatus.OFFLINE, ThingStatus.REMOVED));
             }
         }
 
         private void handleBridgeStatusUpdate(Bridge bridge, ThingStatusInfo statusInfo,
                 ThingStatusInfo oldStatusInfo) {
             if (ThingHandlerHelper.isHandlerInitialized(bridge)
-                    && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
+                    && (ThingStatus.INITIALIZING.equals(oldStatusInfo.getStatus()))) {
                 // bridge has just been initialized: initialize child things as well
                 registerChildHandlers(bridge);
             } else if (!statusInfo.equals(oldStatusInfo)) {
@@ -190,7 +202,7 @@ public class ThingManager extends AbstractItemEventSubscriber
 
         private void handleBridgeChildStatusUpdate(Thing thing, ThingStatusInfo oldStatusInfo) {
             if (ThingHandlerHelper.isHandlerInitialized(thing)
-                    && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING) {
+                    && ThingStatus.INITIALIZING.equals(oldStatusInfo.getStatus())) {
                 // child thing has just been initialized: notify bridge about it
                 notifyBridgeAboutChildHandlerInitialization(thing);
             }
@@ -365,7 +377,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                         } else {
                             logger.info(
                                     "Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                            + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     command, itemName, channelUID);
                         }
                     } else {
@@ -415,7 +427,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                         } else {
                             logger.info(
                                     "Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                            + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     newState, itemName, channelUID);
                         }
                     } else {
@@ -447,7 +459,8 @@ public class ThingManager extends AbstractItemEventSubscriber
 
     @Override
     public void thingRemoving(Thing thing, ThingTrackerEvent thingTrackerEvent) {
-        thingHandlerCallback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
+        setThingStatus(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
+        notifyThingHandlerAboutRemoval(thing);
     }
 
     @Override
@@ -512,7 +525,7 @@ public class ThingManager extends AbstractItemEventSubscriber
                 }
             } else {
                 logger.debug(
-                        "Cannot notify handler about updated thing '{}', because handler is not initialized (must be in status ONLINE or OFFLINE). Start handler initialization instead.",
+                        "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
                         thing.getThingTypeUID());
                 initializeHandler(thing);
             }
@@ -875,8 +888,7 @@ public class ThingManager extends AbstractItemEventSubscriber
     }
 
     private void notifyThingsAboutBridgeStatusChange(final Bridge bridge, final ThingStatusInfo bridgeStatus) {
-        if (bridgeStatus.getStatus() == ThingStatus.ONLINE || bridgeStatus.getStatus() == ThingStatus.OFFLINE) {
-
+        if (ThingHandlerHelper.isHandlerInitialized(bridge)) {
             for (final Thing child : bridge.getThings()) {
                 ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
                     @Override
@@ -939,7 +951,7 @@ public class ThingManager extends AbstractItemEventSubscriber
         }
     }
 
-    private void notifyThingAboutRemoval(final Thing thing) {
+    private void notifyThingHandlerAboutRemoval(final Thing thing) {
         logger.trace("Asking handler of thing '{}' to handle its removal.", thing.getUID());
 
         ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
