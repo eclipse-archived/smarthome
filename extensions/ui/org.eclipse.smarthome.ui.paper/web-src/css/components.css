@@ -1082,7 +1082,7 @@ background-color: green;
 }
 
 .dropdown dt input {
-	width: 70%;
+	width: 90%;
 	outline: none;
 	border: 0px;
 	font-weight: 300;
@@ -1096,6 +1096,11 @@ input[type=number].multiSel::-webkit-outer-spin-button {
     -moz-appearance: none;
     appearance: none;
     margin: 0; 
+}
+
+.multiSel {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .dropdown dt i.enableColor {
