@@ -24,6 +24,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -84,8 +85,15 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
         rImporter = null;
     }
 
+    @SuppressWarnings({ "rawtypes" })
+    protected void addProvider(Provider provider) {
+        if (provider instanceof AbstractResourceBundleProvider) {
+            addAbstractResourceBundleProvider((AbstractResourceBundleProvider) provider);
+        }
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected void setProvider(AbstractResourceBundleProvider provider) {
+    protected void addAbstractResourceBundleProvider(AbstractResourceBundleProvider provider) {
         AutomationResourceBundlesEventQueue queue = provider.getQueue();
         synchronized (this.queue) {
             queue.addAll(this.queue);
@@ -94,7 +102,14 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     }
 
     @SuppressWarnings({ "rawtypes" })
-    protected void removeProvider(AbstractResourceBundleProvider provider) {
+    protected void removeProvider(Provider provider) {
+        if (provider instanceof AbstractResourceBundleProvider) {
+            removeAbstractResourceBundleProvider((AbstractResourceBundleProvider) provider);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    protected void removeAbstractResourceBundleProvider(AbstractResourceBundleProvider provider) {
         AutomationResourceBundlesEventQueue queue = provider.getQueue();
         synchronized (this.queue) {
             providerEventsQueue.remove(queue);
@@ -104,11 +119,11 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {
         rImporter.setManagedRuleProvider(mProvider);
         rImporter.activate(null);
-        setProvider(rImporter);
+        addAbstractResourceBundleProvider(rImporter);
     }
 
     protected void removeManagedRuleProvider(ManagedRuleProvider mProvider) {
-        removeProvider(rImporter);
+        removeAbstractResourceBundleProvider(rImporter);
         rImporter.deactivate();
     }
 

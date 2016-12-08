@@ -91,7 +91,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private RuleEngine ruleEngine = new RuleEngine();
     private Storage<Boolean> disabledRulesStorage;
     private ModuleTypeRegistry moduleTypeRegistry;
-    private TemplateRegistry<RuleTemplate> templateRegistry;
+    private RuleTemplateRegistry templateRegistry;
 
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
@@ -154,9 +154,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *
      * @param templateRegistry templateRegistry service.
      */
-    protected void setTemplateRegistry(RuleTemplateRegistry templateRegistry) {
-        this.templateRegistry = templateRegistry;
-        templateRegistry.addRegistryChangeListener(this);
+    protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
+        if (templateRegistry instanceof RuleTemplateRegistry) {
+            this.templateRegistry = (RuleTemplateRegistry) templateRegistry;
+            templateRegistry.addRegistryChangeListener(this);
+        }
     }
 
     /**
@@ -164,9 +166,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *
      * @param templateRegistry templateRegistry service.
      */
-    protected void unsetTemplateRegistry(RuleTemplateRegistry templateRegistry) {
-        this.templateRegistry = null;
-        templateRegistry.removeRegistryChangeListener(this);
+    protected void unsetTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
+        if (templateRegistry instanceof RuleTemplateRegistry) {
+            this.templateRegistry = null;
+            templateRegistry.removeRegistryChangeListener(this);
+        }
     }
 
     /**
