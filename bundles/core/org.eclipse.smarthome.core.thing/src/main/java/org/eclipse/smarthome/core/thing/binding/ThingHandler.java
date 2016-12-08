@@ -46,12 +46,17 @@ public interface ThingHandler {
      * <p>
      * This method is only called, if the {@link Thing} contains all required configuration parameters.
      * <p>
-     * Only {@link Thing}s with status {@link ThingStatus#ONLINE} or {@link ThingStatus#OFFLINE} are
-     * considered as <i>initialized</i> by the framework. To achieve that, the status must be reported
-     * via {@link ThingHandlerCallback#statusUpdated(Thing, ThingStatusInfo)}.
+     * Only {@link Thing}s with status {@link ThingStatus#UNKNOWN}, {@link ThingStatus#ONLINE} or
+     * {@link ThingStatus#OFFLINE} are considered as <i>initialized</i> by the framework. To achieve that, the status
+     * must be reported via {@link ThingHandlerCallback#statusUpdated(Thing, ThingStatusInfo)}.
      * <p>
      * The framework expects this method to be non-blocking and return quickly. For longer running initializations,
-     * the implementation has to take care of scheduling a separate job which must the status at the end.
+     * the implementation has to take care of scheduling a separate job which must guarantee to set the thing status
+     * eventually.
+     * <p>
+     * Any anticipated error situations should be handled gracefully and need to result in {@link ThingStatus#OFFLINE}
+     * with the corresponding status detail (e.g. *COMMUNICATION_ERROR* or *CONFIGURATION_ERROR* including a meaningful
+     * description) instead of throwing exceptions.
      */
     void initialize();
 

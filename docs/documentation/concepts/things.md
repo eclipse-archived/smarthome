@@ -24,12 +24,13 @@ Each thing has a status object, which helps to identify possible problems with t
 |---------------|-------------|
 | UNINITIALIZED | This is the initial status of a thing, when it is added or the framework is being started. This status is also assigned, if the initializing process failed or the binding is not available. Commands, which are sent to channels will not be processed.
 | INITIALIZING  | This state is assigned while the binding initializes the thing. It depends on the binding how long the initializing process takes. Commands, which are sent to channels will not be processed.
+| UNKNOWN       | The handler is fully initialized but due to the nature of the represented device/service it cannot really tell yet whether the thing is ONLINE or OFFLINE. Therefore the thing potentially might be working correctly already and may or may not process commands. But the framework is allowed to send commands, because some radio-based devices may go ONLINE if a command is sent to them. The handler should take care to switch the thing to ONLINE or OFFLINE as soon as possible and then must not switch back to UNKNOWN. |
 | ONLINE        | The device/service represented by a thing is assumed to be working correctly and can process commands.
 | OFFLINE       | The device/service represented by a thing is assumed to be not working correctly and may not process commands. But the framework is allowed to send commands, because some radio-based devices may go back to ONLINE, if a command is sent to them. 
 | REMOVING      | The device/service represented by a thing should be removed, but the binding did not confirm the deletion yet. Some bindings need to communicate with the device to unpair it from the system. Thing is probably not working and commands can not be processed.
 | REMOVED       | This status indicates, that the device/service represented by a thing was removed from the external system. Usually this status is an intermediate status, because the thing is removed from the database after this status is assigned.
 
-The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses ONLINE, OFFLINE and REMOVED is assigned from a binding.
+The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE, OFFLINE and REMOVED are assigned from a binding.
 
 ### Status Transitions
 
@@ -37,7 +38,7 @@ The following diagram shows the allowed status transitions:
 
 ![Status Transitions](diagrams/status_transitions.png)
 
-The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes into INITIALIZING. If the initialization fails, the thing goes back to UNINITIALIZED. If the initialization succeeds, the binding sets the status of the thing to ONLINE or OFFLINE, which both means, that the thing is INITIALIZED. From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED. The statuses REMOVING and REMOVED can also be reached from any other state. 
+The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes into INITIALIZING. If the initialization fails, the thing goes back to UNINITIALIZED. If the initialization succeeds, the binding sets the status of the thing to UNKNOWN, ONLINE or OFFLINE, which all mean that the thing handler is fully initialized. From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED. The statuses REMOVING and REMOVED can also be reached from any of the other states. 
 
 ## Status Details
 
@@ -50,6 +51,7 @@ A status is detailed further with a status detail object. The following table li
 <tr valign="top">                                  <td>HANDLER_CONFIGURATION_PENDING</td><td>The handler is registered but can not be initialized caused by missing configuration parameters.</td></tr>
 <tr valign="top">                                  <td>HANDLER_INITIALIZING_ERROR</td><td>The handler failed in the initialization phase.</td></tr>
 <tr valign="top"><td>INITIALIZING</td>             <td>NONE</td><td>No further status details available.</td></tr>
+<tr valign="top"><td rowspan="2">UNKNOWN</td>      <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td rowspan="2">ONLINE</td>       <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top">                                  <td>CONFIGURATION_PENDING</td><td>The thing is waiting to transfer configuration information to a device. Some bindings need to communicate with the device to make sure the configuration is accepted.</td></tr>
 <tr valign="top"><td rowspan="6">OFFLINE</td>      <td>NONE</td><td>No further status details available.</td></tr>

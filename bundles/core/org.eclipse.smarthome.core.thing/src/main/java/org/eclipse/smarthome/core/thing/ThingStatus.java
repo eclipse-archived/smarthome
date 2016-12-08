@@ -9,29 +9,17 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingStatus} defines possible statuses of a {@link ThingStatusInfo}.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Simon Kaufmann - added UNKNOWN, removed numbers
+ *
  */
 public enum ThingStatus {
-    UNINITIALIZED(0),
-    INITIALIZING(1),
-    ONLINE(2),
-    OFFLINE(3),
-    REMOVING(4),
-    REMOVED(5);
-
-    private final int value;
-
-    private ThingStatus(final int newValue) {
-        value = newValue;
-    }
-
-    /**
-     * Gets the value of a thing status.
-     * 
-     * @return the value
-     */
-    public int getValue() {
-        return value;
-    }
+    UNINITIALIZED,
+    INITIALIZING,
+    UNKNOWN,
+    ONLINE,
+    OFFLINE,
+    REMOVING,
+    REMOVED;
 }
