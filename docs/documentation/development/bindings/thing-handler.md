@@ -222,6 +222,8 @@ If configuration needs to be sent to devices, this method should be overridden a
 
 It can happen that the binding wants to update the configuration or even the whole structure of a thing. If the `BaseThingHandler` class is used, it provides some helper methods for modifying the thing.
 
+Please note that not all thing providers are writable. Therefore bindings must not rely on any thing changes to be persisted. 
+
 ### Updating the Configuration
 
 Usually the configuration is maintained by the user and the binding is informed about the updated configuration. But if the configuration can also be changed in the external system, the binding should reflect this change and notify the framework about it.
@@ -268,8 +270,6 @@ protected void thingStructureChanged() {
     updateThing(thingBuilder.build());
 }
 ```
-
-As the builder does not support removing a channel, the developer has top copy the existing channels into a modifiable list and remove the channel in this list. The list can be passed as an argument to the `withChannels()` method of the `ThingBuilder`, which overrides the complete list of channels.
 
 ## Handling Thing Removal
 

@@ -33,6 +33,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.common.registry.ManagedProvider;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemUtil;
@@ -43,7 +45,6 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -199,20 +200,28 @@ public class ThingManager extends AbstractItemEventSubscriber
         @Override
         public void thingUpdated(final Thing thing) {
             thingUpdatedLock.add(thing.getUID());
-            Thing ret = AccessController.doPrivileged(new PrivilegedAction<Thing>() {
-
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
                 @Override
-                public Thing run() {
-                    return managedThingProvider.update(thing);
+                public Void run() {
+                    Provider<Thing> provider = thingRegistry.getProvider(thing);
+                    if (provider == null) {
+                        throw new IllegalArgumentException(MessageFormat.format(
+                                "Provider for thing {0} cannot be determined because it is not known to the registry",
+                                thing.getUID().getAsString()));
+                    }
+                    if (provider instanceof ManagedProvider) {
+                        @SuppressWarnings("unchecked")
+                        ManagedProvider<Thing, ThingUID> managedProvider = (ManagedProvider<Thing, ThingUID>) provider;
+                        managedProvider.update(thing);
+                    } else {
+                        logger.debug("Only updating thing {} in the registry because provider {} is not managed.",
+                                thing.getUID().getAsString(), provider);
+                        thingRegistry.updated(provider, thingRegistry.get(thing.getUID()), thing);
+                    }
+                    return null;
                 }
-
             });
             thingUpdatedLock.remove(thing.getUID());
-            if (ret == null) {
-                throw new IllegalStateException(
-                        MessageFormat.format("Could not update thing {0}. Most likely because it is read-only.",
-                                thing.getUID().getAsString()));
-            }
         }
 
         @Override
@@ -236,8 +245,6 @@ public class ThingManager extends AbstractItemEventSubscriber
     private ThingRegistryImpl thingRegistry;
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
-
-    private ManagedThingProvider managedThingProvider;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
 
@@ -1087,14 +1094,6 @@ public class ThingManager extends AbstractItemEventSubscriber
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
-    }
-
-    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = managedThingProvider;
-    }
-
-    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = null;
     }
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
