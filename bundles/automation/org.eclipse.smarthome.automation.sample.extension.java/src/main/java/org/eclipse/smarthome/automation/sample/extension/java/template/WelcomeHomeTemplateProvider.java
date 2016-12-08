@@ -8,28 +8,30 @@
 package org.eclipse.smarthome.automation.sample.extension.java.template;
 
 import java.util.Collection;
-import java.util.Dictionary;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
  * The purpose of this class is to illustrate how to provide Rule Templates and how to use them for creation of the
- * {@link Rule}s. Of course, the templates are not mandatory for the creation of rules, the rules also can be created
+ * {@link Rule}s. Of course, the templates are not mandatory RuleTemplateProvider the creation of rules, the rules also
+ * can be created
  * directly.
  *
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class WelcomeHomeTemplateProvider implements TemplateProvider {
+public class WelcomeHomeTemplateProvider implements RuleTemplateProvider {
 
     private Map<String, RuleTemplate> providedRuleTemplates;
     @SuppressWarnings("rawtypes")
@@ -40,18 +42,6 @@ public class WelcomeHomeTemplateProvider implements TemplateProvider {
         providedRuleTemplates.put(AirConditionerRuleTemplate.UID, AirConditionerRuleTemplate.initialize());
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Template> T getTemplate(String UID, Locale locale) {
-        return (T) providedRuleTemplates.get(UID);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Template> Collection<T> getTemplates(Locale locale) {
-        return (Collection<T>) providedRuleTemplates.values();
-    }
-
     /**
      * To provide the {@link Template}s should register the WelcomeHomeTemplateProvider as {@link TemplateProvider}
      * service.
@@ -60,9 +50,7 @@ public class WelcomeHomeTemplateProvider implements TemplateProvider {
      *            is a bundle's execution context within the Framework.
      */
     public void register(BundleContext bc) {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedRuleTemplates.keySet());
-        providerReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        providerReg = bc.registerService(RuleTemplateProvider.class.getName(), this, null);
     }
 
     /**
@@ -73,6 +61,31 @@ public class WelcomeHomeTemplateProvider implements TemplateProvider {
         providerReg.unregister();
         providerReg = null;
         providedRuleTemplates = null;
+    }
+
+    @Override
+    public RuleTemplate getTemplate(String UID, Locale locale) {
+        return providedRuleTemplates.get(UID);
+    }
+
+    @Override
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
+        return providedRuleTemplates.values();
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<RuleTemplate> listener) {
+        // does nothing because this provider does not change
+    }
+
+    @Override
+    public Collection<RuleTemplate> getAll() {
+        return Collections.unmodifiableCollection(providedRuleTemplates.values());
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<RuleTemplate> listener) {
+        // does nothing because this provider does not change
     }
 
 }

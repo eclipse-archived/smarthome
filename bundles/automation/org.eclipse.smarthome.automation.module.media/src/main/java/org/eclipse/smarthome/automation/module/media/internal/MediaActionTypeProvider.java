@@ -29,6 +29,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioManager;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 
 /**
  * This class dynamically provides the Play action type.
@@ -84,6 +85,21 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
             }
         }
         return options;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        // does nothing because this provider does not change
+    }
+
+    @Override
+    public Collection<ModuleType> getAll() {
+        return getModuleTypes(null);
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        // does nothing because this provider does not change
     }
 
 }

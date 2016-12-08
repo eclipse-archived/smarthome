@@ -39,11 +39,11 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String, Provider<ModuleType>>
+public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String, ModuleTypeProvider>
         implements ModuleTypeRegistry {
 
     public ModuleTypeRegistryImpl() {
-        super(null);
+        super(ModuleTypeProvider.class);
     }
 
     @Override
@@ -84,9 +84,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            if (provider instanceof ModuleTypeProvider) {
-                moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            }
+            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
             if (moduleTypes != null) {
                 for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
                     ModuleType mt = it.next();
@@ -116,9 +114,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            if (provider instanceof ModuleTypeProvider) {
-                moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            }
+            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
             if (moduleTypes != null) {
                 for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
                     ModuleType mt = it.next();
@@ -175,9 +171,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            if (provider instanceof ModuleTypeProvider) {
-                moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            }
+            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
             if (moduleTypes != null) {
                 for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
                     ModuleType mt = it.next();

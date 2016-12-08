@@ -14,8 +14,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -24,10 +23,12 @@ import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -46,7 +47,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate> implements TemplateProvider {
+public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate> implements RuleTemplateProvider {
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
@@ -63,6 +64,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      */
     public CommandlineTemplateProvider(BundleContext context) {
         super(context);
+        listeners = new LinkedList<ProviderChangeListener<RuleTemplate>>();
+        tpReg = bc.registerService(RuleTemplateProvider.class.getName(), this, null);
     }
 
     /**
@@ -117,7 +120,6 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public RuleTemplate getTemplate(String UID, Locale locale) {
         synchronized (providerPortfolio) {
@@ -125,7 +127,6 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Collection<RuleTemplate> getTemplates(Locale locale) {
         synchronized (providedObjectsHolder) {
@@ -149,7 +150,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         if (portfolio != null && !portfolio.isEmpty()) {
             synchronized (providedObjectsHolder) {
                 for (String uid : portfolio) {
-                    providedObjectsHolder.remove(uid);
+                    notifyListeners(providedObjectsHolder.remove(uid));
                 }
             }
         }
@@ -165,7 +166,6 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         super.close();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected Set<RuleTemplate> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader)
             throws ParsingException {
@@ -183,21 +183,13 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                 if (exceptions.isEmpty()) {
                     portfolio.add(uid);
                     synchronized (providedObjectsHolder) {
-                        providedObjectsHolder.put(uid, ruleT);
+                        notifyListeners(providedObjectsHolder.put(uid, ruleT), ruleT);
                     }
                 } else {
                     importDataExceptions.addAll(exceptions);
                 }
             }
-            if (importDataExceptions.isEmpty()) {
-                Dictionary<String, Object> properties = new Hashtable<String, Object>();
-                properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-                if (tpReg == null) {
-                    tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-                } else {
-                    tpReg.setProperties(properties);
-                }
-            } else {
+            if (!importDataExceptions.isEmpty()) {
                 throw new ParsingException(importDataExceptions);
             }
         }
@@ -221,6 +213,46 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
                     new IllegalArgumentException("Rule Template with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!")));
+        }
+    }
+
+    @Override
+    public Collection<RuleTemplate> getAll() {
+        return new LinkedList<RuleTemplate>(providedObjectsHolder.values());
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<RuleTemplate> listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<RuleTemplate> listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
+    }
+
+    protected void notifyListeners(RuleTemplate oldElement, RuleTemplate newElement) {
+        synchronized (listeners) {
+            for (ProviderChangeListener<RuleTemplate> listener : listeners) {
+                if (oldElement != null) {
+                    listener.updated(this, oldElement, newElement);
+                }
+                listener.added(this, newElement);
+            }
+        }
+    }
+
+    protected void notifyListeners(RuleTemplate removedObject) {
+        if (removedObject != null) {
+            synchronized (listeners) {
+                for (ProviderChangeListener<RuleTemplate> listener : listeners) {
+                    listener.removed(this, removedObject);
+                }
+            }
         }
     }
 

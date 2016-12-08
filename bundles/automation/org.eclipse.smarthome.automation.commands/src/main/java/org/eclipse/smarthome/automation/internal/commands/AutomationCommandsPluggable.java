@@ -36,7 +36,6 @@ import org.osgi.service.component.ComponentContext;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-@SuppressWarnings("rawtypes")
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
     /**
@@ -134,7 +133,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         AutomationCommandsPluggable.moduleTypeRegistry = null;
     }
 
-    protected void unsetTemplateRegistry(TemplateRegistry templateRegistry) {
+    protected void unsetTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         AutomationCommandsPluggable.templateRegistry = null;
     }
 

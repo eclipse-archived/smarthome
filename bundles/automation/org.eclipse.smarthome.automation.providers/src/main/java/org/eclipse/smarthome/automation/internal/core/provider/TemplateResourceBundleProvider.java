@@ -20,12 +20,12 @@ import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUt
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.RuleTemplateI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.Bundle;
 
@@ -46,7 +46,7 @@ import org.osgi.framework.Bundle;
  * @author Yordan Mihaylov - updates related to api changes
  */
 public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>
-        implements TemplateProvider, Provider<RuleTemplate> {
+        implements RuleTemplateProvider {
 
     protected TemplateRegistry<RuleTemplate> templateRegistry;
 
@@ -83,19 +83,18 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
     /**
      * @see TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Template> T getTemplate(String UID, Locale locale) {
-        return (T) getPerLocale(providedObjectsHolder.get(UID), locale);
+    public RuleTemplate getTemplate(String UID, Locale locale) {
+        return getPerLocale(providedObjectsHolder.get(UID), locale);
     }
 
     /**
      * @see TemplateProvider#getTemplates(java.util.Locale)
      */
     @Override
-    public Collection<Template> getTemplates(Locale locale) {
-        ArrayList<Template> templatesList = new ArrayList<Template>();
-        for (Template t : providedObjectsHolder.values()) {
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
+        ArrayList<RuleTemplate> templatesList = new ArrayList<RuleTemplate>();
+        for (RuleTemplate t : providedObjectsHolder.values()) {
             templatesList.add(getPerLocale(t, locale));
         }
         return templatesList;
@@ -134,7 +133,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      * @param locale represents a specific geographical, political, or cultural region.
      * @return the localized {@link Template}.
      */
-    private Template getPerLocale(Template defTemplate, Locale locale) {
+    private RuleTemplate getPerLocale(RuleTemplate defTemplate, Locale locale) {
         if (locale == null || defTemplate == null || i18nProvider == null) {
             return defTemplate;
         }
@@ -146,18 +145,16 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             String ldescription = RuleTemplateI18nUtil.getLocalizedRuleTemplateDescription(i18nProvider, bundle, uid,
                     defTemplate.getDescription(), locale);
             List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
-                    ((RuleTemplate) defTemplate).getConfigurationDescriptions(), bundle, uid,
-                    RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
-            List<Action> lactions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((RuleTemplate) defTemplate).getActions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
-            List<Condition> lconditions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((RuleTemplate) defTemplate).getConditions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE,
+                    defTemplate.getConfigurationDescriptions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE,
                     locale);
-            List<Trigger> ltriggers = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((RuleTemplate) defTemplate).getTriggers(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE,
-                    locale);
-            return new RuleTemplate(uid, llabel, ldescription, ((RuleTemplate) defTemplate).getTags(), ltriggers,
-                    lconditions, lactions, lconfigDescriptions, ((RuleTemplate) defTemplate).getVisibility());
+            List<Action> lactions = ModuleI18nUtil.getLocalizedModules(i18nProvider, defTemplate.getActions(), bundle,
+                    uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            List<Condition> lconditions = ModuleI18nUtil.getLocalizedModules(i18nProvider, defTemplate.getConditions(),
+                    bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            List<Trigger> ltriggers = ModuleI18nUtil.getLocalizedModules(i18nProvider, defTemplate.getTriggers(),
+                    bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            return new RuleTemplate(uid, llabel, ldescription, defTemplate.getTags(), ltriggers, lconditions, lactions,
+                    lconfigDescriptions, defTemplate.getVisibility());
         }
         return null;
     }

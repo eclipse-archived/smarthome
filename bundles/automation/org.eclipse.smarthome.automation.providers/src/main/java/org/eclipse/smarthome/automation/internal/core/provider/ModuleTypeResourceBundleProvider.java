@@ -31,7 +31,6 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.Bundle;
 
@@ -51,7 +50,7 @@ import org.osgi.framework.Bundle;
  * @author Yordan Mihaylov - updates related to api changes
  */
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
-        implements ModuleTypeProvider, Provider<ModuleType> {
+        implements ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
 

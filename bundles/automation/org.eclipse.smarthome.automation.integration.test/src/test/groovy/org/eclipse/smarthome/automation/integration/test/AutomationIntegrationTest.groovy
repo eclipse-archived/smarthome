@@ -30,17 +30,16 @@ import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler
 import org.eclipse.smarthome.automation.template.RuleTemplate
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider
 import org.eclipse.smarthome.automation.template.Template
-import org.eclipse.smarthome.automation.template.TemplateProvider
 import org.eclipse.smarthome.automation.template.TemplateRegistry
 import org.eclipse.smarthome.automation.type.ActionType
-import org.eclipse.smarthome.automation.type.ModuleType
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.automation.type.TriggerType
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.common.registry.Provider
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -152,7 +151,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def ruleEvent = null
 
         def ruleEventHandler = [
-            receive: {  Event e ->
+            receive: { Event e ->
                 logger.info("RuleEvent: " + e.topic)
                 ruleEvent = e
             },
@@ -656,14 +655,15 @@ class AutomationIntegrationTest extends OSGiTest{
                     return null
                 }
             },
-
             getTemplates:{Locale locale->
                 return [template]
+            },
+            getAll:{ return [template]},
+            addProviderChangeListener:{ ProviderChangeListener listener ->
+            },
+            removeProviderChangeListener:{ ProviderChangeListener listener ->
             }
-        ] as TemplateProvider
-
-        def RuleTemplate[] templates = [template]
-        def providerTemplates = new TestTemplateProvider(templates)
+        ] as RuleTemplateProvider
 
         def moduleTypeProvider=[
             getModuleType:{String UID, Locale locale->
@@ -677,23 +677,23 @@ class AutomationIntegrationTest extends OSGiTest{
             },
             getModuleTypes:{Locale locale ->
                 return [triggerType, actionType]
+            },
+            getAll:{ return [triggerType, actionType]},
+            addProviderChangeListener:{ ProviderChangeListener listener ->
+            },
+            removeProviderChangeListener:{ ProviderChangeListener listener ->
             }
         ] as ModuleTypeProvider
 
-        def ModuleType[] moduleTypes = [triggerType, actionType]
-        def providerModuleTypes = new TestModuleTypeProvider(moduleTypes)
-
-        def String[] templateProviderName = [TemplateProvider.class.getName(), Provider.class.getName()]
-        registerService(providerTemplates, templateProviderName)
+        registerService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(notNullValue())
-        unregisterService(providerTemplates)
+        unregisterService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(nullValue())
 
-        def String[] moduleTypeProviderName = [ModuleTypeProvider.class.getName(), Provider.class.getName()]
-        registerService(providerModuleTypes, moduleTypeProviderName)
+        registerService(moduleTypeProvider)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(notNullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(notNullValue())
-        unregisterService(providerModuleTypes)
+        unregisterService(moduleTypeProvider)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(nullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(nullValue())
     }

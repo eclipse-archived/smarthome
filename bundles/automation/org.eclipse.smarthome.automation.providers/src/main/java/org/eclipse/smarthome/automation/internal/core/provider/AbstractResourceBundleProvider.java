@@ -141,7 +141,9 @@ public abstract class AbstractResourceBundleProvider<E> {
 
     protected void deactivate() {
         bc = null;
-        queue.stop();
+        if (queue != null) {
+            queue.stop();
+        }
         synchronized (parsers) {
             parsers.clear();
         }

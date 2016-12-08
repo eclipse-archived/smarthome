@@ -10,6 +10,8 @@ package org.eclipse.smarthome.automation.template;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.common.registry.Provider;
+
 /**
  * This interface has to be implemented by all providers of {@link Template}s.
  * The {@link TemplateRegistry} uses it to get access to available {@link Template} s.
@@ -18,13 +20,7 @@ import java.util.Locale;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Ana Dimova - add registration property - rule.templates
  */
-public interface TemplateProvider {
-
-    /**
-     * This constant is used as registration property for Rule Templates Provider when the provider expects to modify
-     * the provided objects dynamically. Its value is a set of current provided rule template UIDs.
-     */
-    public static final String REG_PROPERTY_RULE_TEMPLATES = "rule.templates";
+public interface TemplateProvider<E extends Template> extends Provider<E> {
 
     /**
      * This method is used to get localized Template. When the localization is not
@@ -35,7 +31,7 @@ public interface TemplateProvider {
      * @param locale defines localization of label and description of the {@link Template} or null.
      * @return localized Template.
      */
-    <T extends Template> T getTemplate(String UID, Locale locale);
+    E getTemplate(String UID, Locale locale);
 
     /**
      * This method is used to get localized Templates defined by this provider.
@@ -45,6 +41,6 @@ public interface TemplateProvider {
      * @param locale defines localization of label and description of the {@link Template}s or null.
      * @return collection of localized {@link Template} provided by this provider
      */
-    <T extends Template> Collection<T> getTemplates(Locale locale);
+    Collection<E> getTemplates(Locale locale);
 
 }
