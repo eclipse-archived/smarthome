@@ -105,6 +105,17 @@ angular.module('PaperUI').directive('multiSelect', function() {
                 }
             });
 
+            scope.getPlaceHolderText = function(configuration, parameter) {
+                if (configuration[parameter.name] && configuration[parameter.name].length > 0) {
+                    if (parameter.context == "thing" || parameter.context == "item") {
+                        return configuration[parameter.name].length == 1 ? '1 option selected' : configuration[parameter.name].length + ' options selected';
+                    } else {
+                        return configuration[parameter.name].toString();
+                    }
+                }
+                return parameter.options.length == 0 || (parameter.options.length > 0 && !parameter.limitToOptions) ? 'Add or search' : 'Search';
+            }
+
             function addOptionToParam() {
                 for (var i = 0; i < scope.parameter.options.length; i++) {
                     var value = scope.parameter.context == 'item' ? scope.parameter.options[i].name : scope.parameter.context == 'thing' ? scope.parameter.options[i].UID : scope.parameter.options[i].value;
