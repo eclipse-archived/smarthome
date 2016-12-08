@@ -73,7 +73,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-		 
+
    <plugin
          id="org.eclipse.smarthome.io.rest.sse"
          download-size="0"
@@ -83,6 +83,13 @@
 
    <plugin
          id="org.eclipse.smarthome.io.rest.voice"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.io.rest.log"
          download-size="0"
          install-size="0"
          version="0.0.0"

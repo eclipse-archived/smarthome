@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome UI Logging Handler
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.log;singleton:=true
+Bundle-Vendor: Eclipse.org
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: io.swagger.annotations;resolution:=optional,
+ javax.ws.rs,
+ javax.ws.rs.core,
+ org.eclipse.smarthome.io.rest,
+ org.slf4j
+Service-Component: OSGI-INF/loghandler.xml
