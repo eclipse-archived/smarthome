@@ -41,8 +41,6 @@ import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
@@ -383,13 +381,6 @@ public class LifxLightCommunicationHandler {
                             }
 
                             currentLightState.setOnline();
-
-                            // populate the current state variables
-                            GetLightPowerRequest powerPacket = new GetLightPowerRequest();
-                            sendPacket(powerPacket);
-
-                            GetRequest colorPacket = new GetRequest();
-                            sendPacket(colorPacket);
                         }
                     }
                 }

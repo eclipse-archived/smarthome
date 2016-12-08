@@ -43,4 +43,11 @@ public interface LifxLightStateListener {
      */
     void handleTemperatureChange(PercentType oldTemperature, PercentType newTemperature);
 
+    /**
+     * Called when the infrared property changes.
+     *
+     * @param oldInfrared the old infrared value
+     * @param newInfrared the new infrared value
+     */
+    void handleInfraredChange(PercentType oldInfrared, PercentType newInfrared);
 }

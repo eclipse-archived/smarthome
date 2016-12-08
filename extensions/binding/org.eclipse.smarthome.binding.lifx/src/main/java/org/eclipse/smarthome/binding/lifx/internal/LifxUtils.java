@@ -49,6 +49,14 @@ public final class LifxUtils {
         }
     }
 
+    private static PercentType intToPercentType(int i) {
+        return new PercentType(Math.round((i / 65535.0f) * 100));
+    }
+
+    private static int percentTypeToInt(PercentType percentType) {
+        return (int) (percentType.floatValue() / 100 * 65535.0f);
+    }
+
     public static DecimalType hueToDecimalType(int hue) {
         return new DecimalType(hue * 360 / 65535.0f);
     }
@@ -58,19 +66,19 @@ public final class LifxUtils {
     }
 
     public static PercentType saturationToPercentType(int saturation) {
-        return new PercentType(Math.round((saturation / 65535.0f) * 100));
+        return intToPercentType(saturation);
     }
 
     public static int percentTypeToSaturation(PercentType saturation) {
-        return (int) (saturation.floatValue() / 100 * 65535.0f);
+        return percentTypeToInt(saturation);
     }
 
     public static PercentType brightnessToPercentType(int brightness) {
-        return new PercentType(Math.round((brightness / 65535.0f) * 100));
+        return intToPercentType(brightness);
     }
 
     public static int percentTypeToBrightness(PercentType brightness) {
-        return (int) (brightness.floatValue() / 100 * 65535.0f);
+        return percentTypeToInt(brightness);
     }
 
     public static PercentType kelvinToPercentType(int kelvin) {
@@ -82,4 +90,13 @@ public final class LifxUtils {
         // range is from 2500-9000K
         return 9000 - (temperature.intValue() * 65);
     }
+
+    public static PercentType infraredToPercentType(int infrared) {
+        return intToPercentType(infrared);
+    }
+
+    public static int percentTypeToInfrared(PercentType infrared) {
+        return percentTypeToInt(infrared);
+    }
+
 }

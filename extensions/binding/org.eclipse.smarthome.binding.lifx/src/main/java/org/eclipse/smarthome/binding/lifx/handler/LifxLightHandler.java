@@ -19,6 +19,7 @@ import org.eclipse.smarthome.binding.lifx.internal.LifxLightOnlineStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightState;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightStateChanger;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -133,6 +135,14 @@ public class LifxLightHandler extends BaseThingHandler {
             }
             super.setTemperature(temperature);
         }
+
+        @Override
+        public void setInfrared(PercentType infrared) {
+            if (!isStateChangePending() || infrared.equals(pendingLightState.getInfrared())) {
+                updateState(CHANNEL_INFRARED, infrared);
+            }
+            super.setInfrared(infrared);
+        }
     }
 
     public LifxLightHandler(Thing thing) {
@@ -156,7 +166,8 @@ public class LifxLightHandler extends BaseThingHandler {
             pendingLightState = new LifxLightState();
 
             communicationHandler = new LifxLightCommunicationHandler(macAddress, currentLightState);
-            currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, currentLightState, communicationHandler);
+            currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, currentLightState, communicationHandler,
+                    getThing().getThingTypeUID());
             onlineStateUpdater = new LifxLightOnlineStateUpdater(macAddress, currentLightState, communicationHandler);
             lightStateChanger = new LifxLightStateChanger(macAddress, pendingLightState, communicationHandler,
                     fadeTime);
@@ -222,10 +233,11 @@ public class LifxLightHandler extends BaseThingHandler {
     private PercentType getPowerOnBrightness() {
         Channel channel = null;
 
-        if (getThing().getThingTypeUID().equals(LifxBindingConstants.THING_TYPE_COLORLIGHT)) {
+        ThingTypeUID thingTypeUID = getThing().getThingTypeUID();
+        if (thingTypeUID.equals(THING_TYPE_COLORLIGHT) || thingTypeUID.equals(THING_TYPE_COLORIRLIGHT)) {
             ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_COLOR);
             channel = getThing().getChannel(channelUID.getId());
-        } else if (getThing().getThingTypeUID().equals(LifxBindingConstants.THING_TYPE_WHITELIGHT)) {
+        } else if (thingTypeUID.equals(THING_TYPE_WHITELIGHT)) {
             ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_BRIGHTNESS);
             channel = getThing().getChannel(channelUID.getId());
         }
@@ -247,18 +259,18 @@ public class LifxLightHandler extends BaseThingHandler {
     public void handleCommand(ChannelUID channelUID, Command command) {
 
         if (command instanceof RefreshType) {
-            GetLightPowerRequest powerPacket = new GetLightPowerRequest();
-            GetRequest colorPacket = new GetRequest();
-
             try {
                 switch (channelUID.getId()) {
                     case CHANNEL_COLOR:
                     case CHANNEL_BRIGHTNESS:
-                        sendPacket(powerPacket);
-                        sendPacket(colorPacket);
+                        sendPacket(new GetLightPowerRequest());
+                        sendPacket(new GetRequest());
                         break;
                     case CHANNEL_TEMPERATURE:
-                        sendPacket(colorPacket);
+                        sendPacket(new GetRequest());
+                        break;
+                    case CHANNEL_INFRARED:
+                        sendPacket(new GetLightInfraredRequest());
                         break;
                     default:
                         break;
@@ -295,6 +307,13 @@ public class LifxLightHandler extends BaseThingHandler {
                             handleTemperatureCommand((PercentType) command);
                         } else if (command instanceof IncreaseDecreaseType) {
                             handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
+                        }
+                        break;
+                    case CHANNEL_INFRARED:
+                        if (command instanceof PercentType) {
+                            handleInfraredCommand((PercentType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseInfraredCommand((IncreaseDecreaseType) command);
                         }
                         break;
                     default:
@@ -367,6 +386,18 @@ public class LifxLightHandler extends BaseThingHandler {
         if (baseTemperature != null) {
             PercentType newTemperature = increaseDecreasePercentType(increaseDecreaseType, baseTemperature);
             handleTemperatureCommand(newTemperature);
+        }
+    }
+
+    private void handleInfraredCommand(PercentType infrared) {
+        getLightStateForCommand().setInfrared(infrared);
+    }
+
+    private void handleIncreaseDecreaseInfraredCommand(IncreaseDecreaseType increaseDecreaseType) {
+        PercentType baseInfrared = getLightStateForCommand().getInfrared();
+        if (baseInfrared != null) {
+            PercentType newInfrared = increaseDecreasePercentType(increaseDecreaseType, baseInfrared);
+            handleInfraredCommand(newInfrared);
         }
     }
 

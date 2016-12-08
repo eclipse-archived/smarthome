@@ -3,7 +3,7 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- LIFX Light -->
+    <!-- LIFX Color Light -->
     <thing-type id="colorlight">
         <label>LIFX Color Light</label>
 
@@ -25,7 +25,31 @@
         
     </thing-type>
 
-    <!-- LIFX Light -->
+    <!-- LIFX Color IR Light -->
+    <thing-type id="colorirlight">
+        <label>LIFX Color IR Light</label>
+
+        <channels>
+            <channel id="color" typeId="color" />
+            <channel id="temperature" typeId="temperature" />
+            <channel id="infrared" typeId="infrared" />
+        </channels>
+
+        <config-description>
+            <parameter name="deviceId" type="text" required="true">
+                <label>LIFX device ID</label>
+            </parameter>
+            <parameter name="fadetime" type="integer" required="false">
+                <label>Fade time</label>
+                <description>The time to fade to the new color value (in ms).</description>
+                <default>300</default>
+            </parameter>
+        </config-description>
+        
+    </thing-type>
+
+
+    <!-- LIFX White Light -->
     <thing-type id="whitelight">
         <label>LIFX White Light</label>
 
@@ -65,6 +89,7 @@
         </config-description>
     </channel-type>
     
+    <!-- Temperature Channel -->
     <channel-type id="temperature">
         <item-type>Dimmer</item-type>
         <label>Temperature</label>
@@ -72,6 +97,14 @@
         <category>Temperature</category>
     </channel-type>
 
+    <!-- Infrared Channel -->
+    <channel-type id="infrared">
+        <item-type>Dimmer</item-type>
+        <label>Infrared</label>
+        <description>Sets the infrared of the light</description>
+    </channel-type>
+
+    <!-- Brightness Channel -->
     <channel-type id="brightness">
         <item-type>Dimmer</item-type>
         <label>Brightness</label>
