@@ -55,7 +55,6 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.auth/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sse/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
@@ -68,8 +67,15 @@
     <bundle>mvn:org.eclipse.smarthome.auth/org.eclipse.smarthome.auth.jaas/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-rest-auth" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-tp-jax-rs-provider-security</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.auth/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-rest-auth-basic" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-rest-auth</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.auth.basic/${project.version}</bundle>
   </feature>
 
