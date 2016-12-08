@@ -9,6 +9,7 @@ package org.eclipse.smarthome.binding.digitalstrom.handler;
 
 import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -199,8 +200,12 @@ public class BridgeHandler extends BaseBridgeHandler
         if (StringUtils
                 .isNotBlank(thingConfig.get(DigitalSTROMBindingConstants.SENSOR_DATA_UPDATE_INTERVAL).toString())) {
             try {
-                config.setSensordataRefreshInterval(Integer.parseInt(
-                        thingConfig.get(DigitalSTROMBindingConstants.SENSOR_DATA_UPDATE_INTERVAL).toString() + "000"));
+                Object param;
+                param = thingConfig.get(DigitalSTROMBindingConstants.SENSOR_DATA_UPDATE_INTERVAL);
+                logger.debug("param = {}", param);
+                if (param instanceof BigDecimal && param != null) {
+                    config.setSensordataRefreshInterval(((BigDecimal) param).intValue());
+                }
             } catch (NumberFormatException e) {
                 if (numberExc == null) {
                     numberExc = new ArrayList<String>();
@@ -211,8 +216,12 @@ public class BridgeHandler extends BaseBridgeHandler
         if (StringUtils
                 .isNotBlank(thingConfig.get(DigitalSTROMBindingConstants.TOTAL_POWER_UPDATE_INTERVAL).toString())) {
             try {
-                config.setTotalPowerUpdateInterval(Integer.parseInt(
-                        thingConfig.get(DigitalSTROMBindingConstants.TOTAL_POWER_UPDATE_INTERVAL).toString() + "000"));
+                Object param;
+                param = thingConfig.get(DigitalSTROMBindingConstants.TOTAL_POWER_UPDATE_INTERVAL);
+                logger.debug("param = {}", param);
+                if (param instanceof BigDecimal && param != null) {
+                    config.setTotalPowerUpdateInterval(((BigDecimal) param).intValue());
+                }
             } catch (NumberFormatException e) {
                 if (numberExc == null) {
                     numberExc = new ArrayList<String>();
@@ -222,8 +231,12 @@ public class BridgeHandler extends BaseBridgeHandler
         }
         if (StringUtils.isNotBlank(thingConfig.get(DigitalSTROMBindingConstants.SENSOR_WAIT_TIME).toString())) {
             try {
-                config.setSensorReadingWaitTime(Integer
-                        .parseInt(thingConfig.get(DigitalSTROMBindingConstants.SENSOR_WAIT_TIME).toString() + "000"));
+                Object param;
+                param = thingConfig.get(DigitalSTROMBindingConstants.SENSOR_WAIT_TIME);
+                logger.debug("param = {}", param);
+                if (param instanceof BigDecimal && param != null) {
+                    config.setSensorReadingWaitTime(((BigDecimal) param).intValue());
+                }
             } catch (NumberFormatException e) {
                 if (numberExc == null) {
                     numberExc = new ArrayList<String>();
@@ -234,8 +247,12 @@ public class BridgeHandler extends BaseBridgeHandler
         if (StringUtils.isNotBlank(
                 thingConfig.get(DigitalSTROMBindingConstants.DEFAULT_TRASH_DEVICE_DELETE_TIME_KEY).toString())) {
             try {
-                config.setTrashDeviceDeleteTime(Integer.parseInt(
-                        thingConfig.get(DigitalSTROMBindingConstants.DEFAULT_TRASH_DEVICE_DELETE_TIME_KEY).toString()));
+                Object param;
+                param = thingConfig.get(DigitalSTROMBindingConstants.DEFAULT_TRASH_DEVICE_DELETE_TIME_KEY);
+                logger.debug("param = {}", param);
+                if (param instanceof BigDecimal && param != null) {
+                    config.setTrashDeviceDeleteTime(((BigDecimal) param).intValue());
+                }
             } catch (NumberFormatException e) {
                 if (numberExc == null) {
                     numberExc = new ArrayList<String>();
