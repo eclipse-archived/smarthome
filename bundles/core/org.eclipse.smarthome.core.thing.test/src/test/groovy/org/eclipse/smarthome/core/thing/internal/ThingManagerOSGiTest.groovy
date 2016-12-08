@@ -15,6 +15,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
+import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
@@ -304,6 +305,50 @@ class ThingManagerOSGiTest extends OSGiTest {
         disposeHandlerCalled = false
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         waitForAssert { assertThat THING.getStatusInfo(), is(statusInfo) }
+    }
+
+    @Test
+    void 'ThingManager handles failing handler initialization correctly'() {
+        ThingHandlerCallback callback
+        Thing testThing = ThingBuilder.create(THING_TYPE_UID, THING_UID)
+                .withConfiguration(new Configuration())
+                .build()
+        testThing.getConfiguration().put("shouldFail", true)
+
+        def thingHandler = [
+            setCallback: { callbackArg -> callback = callbackArg },
+            initialize: {
+                def shouldFail = testThing.getConfiguration().get("shouldFail") as boolean
+                if(shouldFail) {
+                    throw new Exception("Invalid config!")
+                } else {
+                    callback.statusUpdated(testThing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
+                }
+            },
+            dispose: {},
+            getThing: { testThing }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: { thingTypeUID -> true },
+            registerHandler: { thing -> thingHandler },
+            unregisterHandler: { thing -> },
+            removeThing: {
+            }
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+        assertThat testThing.getStatusInfo(), is(statusInfo)
+
+        managedThingProvider.add(testThing)
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_INITIALIZING_ERROR).build()
+        waitForAssert { assertThat testThing.getStatusInfo(), is(statusInfo) }
+
+        testThing.getConfiguration().put("shouldFail", false)
+        managedThingProvider.update(testThing)
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        waitForAssert { assertThat testThing.getStatusInfo(), is(statusInfo) }
     }
 
     @Test

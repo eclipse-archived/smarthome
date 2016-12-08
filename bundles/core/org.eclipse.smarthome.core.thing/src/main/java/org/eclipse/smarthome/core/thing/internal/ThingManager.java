@@ -511,8 +511,10 @@ public class ThingManager extends AbstractItemEventSubscriber
                             ex.getMessage(), ex);
                 }
             } else {
-                logger.debug("Cannot notify handler about updated thing {}, because thing is not initialized "
-                        + "(must be in status ONLINE or OFFLINE).", thing.getThingTypeUID());
+                logger.debug(
+                        "Cannot notify handler about updated thing '{}', because handler is not initialized (must be in status ONLINE or OFFLINE). Start handler initialization instead.",
+                        thing.getThingTypeUID());
+                initializeHandler(thing);
             }
         } else {
             registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
