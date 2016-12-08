@@ -56,6 +56,7 @@
     <maven.exec.plugin.version>1.5.0</maven.exec.plugin.version>
     <checkstyle.version>7.2</checkstyle.version>
     <findbugs.version>3.0.1</findbugs.version>
+    <maven.properties.version>2.0.1</maven.properties.version>
   </properties>
 
   <packaging>pom</packaging>
@@ -457,12 +458,39 @@
       <id>check</id>
       <properties>
         <phase.prop>verify</phase.prop>
-        <report.directory>${project.build.directory}/code-analysis</report.directory>
         <fail.on.error>false</fail.on.error>
       </properties>
       <build>
         <pluginManagement>
           <plugins>
+            <plugin>
+              <groupId>org.kuali.maven.plugins</groupId>
+              <artifactId>properties-maven-plugin</artifactId>
+              <version>${maven.properties.version}</version>
+              <executions>
+                <execution>
+                  <phase>${phase.prop}</phase>
+                  <goals>
+                      <goal>read-project-properties</goal>
+                  </goals>
+                  <configuration>
+                      <locations>
+                        <location>classpath:configuration/pmd.properties</location>
+                        <location>classpath:configuration/checkstyle.properties</location>
+                        <location>classpath:configuration/findbugs.properties</location>
+                        <location>classpath:configuration/exec.properties</location>
+                      </locations>
+                  </configuration>
+                </execution>
+              </executions>
+              <dependencies>
+                <dependency>
+                  <groupId>org.eclipse.smarthome.tools</groupId>
+                  <artifactId>static-code-analysis</artifactId>
+                  <version>${project.version}</version>
+                </dependency>
+              </dependencies>
+            </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-pmd-plugin</artifactId>
@@ -476,10 +504,7 @@
                 </execution>
               </executions>
               <configuration>
-                <targetDirectory>${report.directory}</targetDirectory>
-                <failOnViolation>${fail.on.error}</failOnViolation>
-                <!-- The build will fail only if Maximum Priority warnings are found -->
-                <failurePriority>1</failurePriority>
+                <targetDirectory>${pmd.report.dir}</targetDirectory>
                 <rulesets>
                   <ruleset>${pmd.ruleset}</ruleset>
                 </rulesets>
@@ -504,13 +529,6 @@
                   </goals>
                 </execution>
               </executions>
-              <configuration>
-                <outputFile>${report.directory}/checkstyle-result.xml</outputFile>
-                <configLocation>${checkstyle.ruleset}</configLocation>
-                <failOnViolation>${fail.on.error}</failOnViolation>
-                <violationSeverity>error</violationSeverity>
-                <logViolationsToConsole>false</logViolationsToConsole>
-              </configuration>
               <dependencies>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
@@ -528,26 +546,6 @@
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>findbugs-maven-plugin</artifactId>
               <version>${maven.findbugs.version}</version>
-              <configuration>
-                <debug>false</debug>
-                <threshold>Low</threshold>
-                <effort>Max</effort>
-                <findbugsXmlOutputDirectory>${report.directory}</findbugsXmlOutputDirectory>
-                <xmlOutput>true</xmlOutput>
-                <xmlOutputDirectory>${report.directory}</xmlOutputDirectory>
-                <failOnError>${fail.on.error}</failOnError>
-                <includeFilterFile>${findbugs.ruleset}</includeFilterFile>
-                <excludeFilterFile>filters/findbugs/exclude-filter.xml</excludeFilterFile>
-                <visitors>UnreadFields,FindRefComparison,FindOpenStream,InvalidJUnitTest,FindDeadLocalStores,UnreadFields,BooleanReturnNull</visitors>
-                <!-- <timeout>60000</timeout> -->
-                <plugins>
-                  <plugin>
-                    <groupId>org.eclipse.smarthome.tools</groupId>
-                    <artifactId>static-code-analysis</artifactId>
-                    <version>${project.version}</version>
-                  </plugin>
-                </plugins>
-              </configuration>
               <executions>
                 <execution>
                   <phase>${phase.prop}</phase>
@@ -556,6 +554,18 @@
                   </goals>
                 </execution>
               </executions>
+              <configuration>
+                <outputDirectory>${findbugs.report.dir}</outputDirectory>
+                <xmlOutputDirectory>${findbugs.report.dir}</xmlOutputDirectory>
+                <findbugsXmlOutputDirectory>${findbugs.report.dir}</findbugsXmlOutputDirectory>
+                <plugins>
+                  <plugin>
+                    <groupId>org.eclipse.smarthome.tools</groupId>
+                    <artifactId>static-code-analysis</artifactId>
+                    <version>${project.version}</version>
+                  </plugin>
+                </plugins>
+              </configuration>
               <dependencies>
                 <dependency>
                   <groupId>com.google.code.findbugs</groupId>
@@ -580,19 +590,7 @@
                     <goal>java</goal>
                   </goals>
                 </execution>
-              </executions>
-              <configuration>
-                <arguments>
-                  <argument>${report.directory}</argument>
-                </arguments>
-                <includeProjectDependencies>false</includeProjectDependencies>
-                <includePluginDependencies>true</includePluginDependencies>
-                <executableDependency>
-                  <groupId>org.eclipse.smarthome.tools</groupId>
-                  <artifactId>static-code-analysis</artifactId>
-                </executableDependency>
-                <mainClass>org.eclipse.smarthome.buildtools.report.ScanReportUtility</mainClass>
-              </configuration>
+              </executions>              
               <dependencies>
                 <dependency>
                   <groupId>org.eclipse.smarthome.tools</groupId>
@@ -614,31 +612,29 @@
         </file>
       </activation>
       <properties>
-        <pmd.ruleset>rulesets/pmd/bundle.xml</pmd.ruleset>
-        <checkstyle.ruleset>rulesets/checkstyle/bundle.xml</checkstyle.ruleset>
-        <findbugs.ruleset>rulesets/findbugs/bundle.xml</findbugs.ruleset>
+        <ruleset.type>bundle</ruleset.type>
       </properties>
       <build>
         <plugins>
           <plugin>
+              <groupId>org.kuali.maven.plugins</groupId>
+              <artifactId>properties-maven-plugin</artifactId>
+          </plugin>
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-pmd-plugin</artifactId>
-            <version>${maven.pmd.version}</version>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>findbugs-maven-plugin</artifactId>
-            <version>${maven.findbugs.version}</version>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven.checkstyle.version}</version>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${maven.exec.plugin.version}</version>
           </plugin>
         </plugins>
       </build>
@@ -651,31 +647,29 @@
         </file>
       </activation>
       <properties>
-        <pmd.ruleset>rulesets/pmd/binding.xml</pmd.ruleset>
-        <checkstyle.ruleset>rulesets/checkstyle/binding.xml</checkstyle.ruleset>
-        <findbugs.ruleset>rulesets/findbugs/binding.xml</findbugs.ruleset>
+        <ruleset.type>binding</ruleset.type>
       </properties>
       <build>
         <plugins>
           <plugin>
+            <groupId>org.kuali.maven.plugins</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+          </plugin>
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-pmd-plugin</artifactId>
-            <version>${maven.pmd.version}</version>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>findbugs-maven-plugin</artifactId>
-            <version>${maven.findbugs.version}</version>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven.checkstyle.version}</version>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${maven.exec.plugin.version}</version>
           </plugin>
         </plugins>
       </build>

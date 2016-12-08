@@ -27,7 +27,7 @@
     <pmd.version>5.5.1</pmd.version>
   </properties>
 
-  <dependencies>   
+  <dependencies>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -39,8 +39,8 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-    
-     <dependency>
+
+    <dependency>
       <groupId>net.sourceforge.pmd</groupId>
       <artifactId>pmd-xml</artifactId>
       <version>${pmd.version}</version>
@@ -106,17 +106,30 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase />
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${maven.assembly.version}</version>
         <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
+          <descriptors>
+            <descriptor>src/assembly/bin.xml</descriptor>
+          </descriptors>
           <archive>
             <manifest>
               <mainClass>org.eclipse.smarthome.buildtools.report.ScanReportUtility</mainClass>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
             </manifest>
           </archive>
+          <appendAssemblyId>false</appendAssemblyId>
         </configuration>
         <executions>
           <execution>
