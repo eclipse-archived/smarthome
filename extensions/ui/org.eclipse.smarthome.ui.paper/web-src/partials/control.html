@@ -136,16 +136,16 @@
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
-														<div ng-if="isReadOnly(item)">
-															<h2 class="state">{{item.state}}</h2>
-														</div>
-													</div>
+                                                        <div ng-show="isReadOnly(item)">
+                                                            <h2 class="state" ng-if="isReadOnly(item)">{{item.state}}</h2>
+                                                        </div>
+                                                        <div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
+                                                            <h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.state}}</h2>
+                                                            <md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number"></input> </md-input-container>
+                                                            <i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+                                                        </div>
+                                                    </div>
 												</div>
-												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" class="number-control-widget">
-                                                    <span flex="15" class="text-left">0</span>
-                                                    <md-slider flex="70" class="md-default-theme" min="0" max="100" step="{{item.stateDescription.step!==undefined && item.stateDescription.step!==null?item.stateDescription.step:1}}" ng-model="item.state" md-discrete="true" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
-                                                    <span flex="15" class="text-right">100</span>
-                                                </div>
 												<div ng-if="!isOptionList(item) && !isReadOnly(item)" layout="row" layout-align="start center" flex="100">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>Control</p>
