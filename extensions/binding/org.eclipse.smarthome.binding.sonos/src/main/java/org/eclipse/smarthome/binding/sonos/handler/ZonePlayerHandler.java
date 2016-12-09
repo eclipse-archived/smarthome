@@ -2018,6 +2018,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 // stop whatever is currently playing
                 coordinator.stop();
+                coordinator.waitForNotTransportState("PLAYING");
 
                 // clear any tracks which are pending in the queue
                 coordinator.removeAllTracksFromQueue();
@@ -2185,13 +2186,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private void handleNotificationSound(Command notificationURL, ZonePlayerHandler coordinator) {
         String originalVolume = (isAdHocGroup() || isStandalonePlayer()) ? getVolume() : coordinator.getVolume();
         coordinator.stop();
+        coordinator.waitForNotTransportState("PLAYING");
         applyNotificationSoundVolume();
         int notificationPosition = coordinator.getQueue().size() + 1;
-        coordinator.setCurrentURI(QUEUE_URI + coordinator.getUDN() + "#0", "");
         coordinator.addURIToQueue(notificationURL.toString(), "", notificationPosition, false);
+        coordinator.setCurrentURI(QUEUE_URI + coordinator.getUDN() + "#0", "");
         coordinator.setPositionTrack(notificationPosition);
         coordinator.play();
-        waitForFinishedNotification();
+        coordinator.waitForFinishedNotification();
         if (originalVolume != null) {
             setVolumeForGroup(DecimalType.valueOf(originalVolume));
         }
@@ -2202,7 +2204,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         switch (nextAction) {
             case "PLAYING":
                 coordinator.play();
-                waitForTransportState("PLAYING");
+                coordinator.waitForTransportState("PLAYING");
                 break;
             case "PAUSED_PLAYBACK":
                 coordinator.pause();
@@ -2222,7 +2224,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         String originalVolume = coordinator.getVolume();
         coordinator.applyNotificationSoundVolume();
         coordinator.playURI(notificationURL);
-        waitForFinishedNotification();
+        coordinator.waitForFinishedNotification();
         coordinator.removeAllTracksFromQueue();
         coordinator.setVolume(DecimalType.valueOf(originalVolume));
     }
@@ -2262,6 +2264,22 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (stateMap.get("TransportState") != null) {
             long start = System.currentTimeMillis();
             while (!stateMap.get("TransportState").equals(state)) {
+                try {
+                    Thread.sleep(50);
+                    if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("InterruptedException during playing a notification sound");
+                }
+            }
+        }
+    }
+
+    private void waitForNotTransportState(String state) {
+        if (stateMap.get("TransportState") != null) {
+            long start = System.currentTimeMillis();
+            while (stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
                     if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
