@@ -157,7 +157,7 @@ public class LifxLightHandler extends BaseThingHandler {
             macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
             macAsHex = this.macAddress.getHex();
 
-            logger.debug("Initializing the LIFX handler for bulb '{}'.", macAsHex);
+            logger.debug("Initializing the LIFX handler for light '{}'.", macAsHex);
 
             fadeTime = getFadeTime();
             powerOnBrightness = getPowerOnBrightness();
@@ -276,7 +276,7 @@ public class LifxLightHandler extends BaseThingHandler {
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Error while refreshing a channel for the bulb: {}", ex.getMessage(), ex);
+                logger.error("Error while refreshing a channel for the light: {}", ex.getMessage(), ex);
             }
         } else {
             try {
@@ -320,7 +320,7 @@ public class LifxLightHandler extends BaseThingHandler {
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Error while updating bulb: {}", ex.getMessage(), ex);
+                logger.error("Error while updating light: {}", ex.getMessage(), ex);
             }
         }
     }

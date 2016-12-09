@@ -120,8 +120,8 @@ public abstract class Packet {
         return target;
     }
 
-    public void setTarget(MACAddress bulbAddress) {
-        this.target = bulbAddress;
+    public void setTarget(MACAddress lightAddress) {
+        this.target = lightAddress;
     }
 
     public ByteBuffer getReserved1() {
@@ -247,7 +247,7 @@ public abstract class Packet {
      * Certain fields are set to default values based on other class methods.
      * For example, the size and packet type fields will be set to the values
      * returned from {@link #length()} and {@link #packetType()}, respectively.
-     * Other defaults (such as the protocol, bulb address, site, and timestamp)
+     * Other defaults (such as the protocol, light address, site, and timestamp)
      * may be specified either by directly setting the relevant protected
      * variables or by overriding {@link #preambleDefaults()}.
      *

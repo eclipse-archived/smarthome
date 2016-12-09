@@ -280,7 +280,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             }
 
         } catch (Exception e) {
-            logger.error("An exception occurred while communicating with the bulb : '{}'", e.getMessage());
+            logger.error("An exception occurred while communicating with the light : '{}'", e.getMessage());
         }
 
         return result;
@@ -392,7 +392,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                             SelectionKey unicastKey = unicastChannel.register(selector,
                                     SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                             unicastChannel.connect(csp.ipaddress);
-                            logger.trace("Connected to a bulb via {}", unicastChannel.getLocalAddress().toString());
+                            logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
 
                             GetVersionRequest versionPacket = new GetVersionRequest();
                             versionPacket.setTarget(csp.target);
@@ -407,7 +407,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 }
                 isScanning = false;
             } catch (Exception e) {
-                logger.error("An exception orccurred while communicating with the bulb : '{}'", e.getMessage(), e);
+                logger.error("An exception orccurred while communicating with the light : '{}'", e.getMessage(), e);
             }
         }
     };
