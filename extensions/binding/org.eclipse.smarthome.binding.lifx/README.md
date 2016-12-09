@@ -52,7 +52,7 @@ Each light needs the device ID as a configuration parameter. The device ID is pr
 However, in the thing file, a manual configuration looks e.g. like
 
 ```
-lifx:colorlight:living [ deviceId="D073D5A1A1A1", fadetime=200 ]
+Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1", fadetime=200 ]
 ```
 
 The *fadetime* is an optional thing configuration parameter which configures the time to fade to a new color value (in ms). When the *fadetime* is not configured, the binding uses 300ms as default.
@@ -82,9 +82,17 @@ Finally, **kitchen** is a White 800 (Low Voltage) light that has a *whitelight* 
 ### demo.things:
 
 ```
-lifx:colorlight:living [ deviceId="D073D5A1A1A1" ]
-lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", fadetime=0 ]
-lifx:whitelight:kitchen [ deviceId="D073D5C3C3C3", fadetime=150 ]
+Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ] {
+	Channels:
+		Type color : color [ powerOnBrightness= ]
+}
+
+Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", fadetime=0 ] {
+	Channels:
+		Type color : color [ powerOnBrightness=75 ]
+}
+
+Thing lifx:whitelight:kitchen [ deviceId="D073D5C3C3C3", fadetime=150 ]
 
 ```
 
