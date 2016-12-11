@@ -108,13 +108,13 @@ public class LIRCConnector {
      *            Button to press
      */
     public void transmit(String remote, String button) {
-        int repeats = 0;
+        int timesToSend = 1;
         String[] parts = button.split(" ");
         if (parts.length > 1) {
             button = parts[0];
-            repeats = Integer.parseInt(parts[1]);
+            timesToSend = Integer.parseInt(parts[1]);
         }
-        transmit(remote, button, repeats);
+        transmit(remote, button, timesToSend);
     }
 
     /**
@@ -124,11 +124,14 @@ public class LIRCConnector {
      *            Name of the remote
      * @param button
      *            Button to press
-     * @param repeats
-     *            Number of times to repeat the button
+     * @param timesToSend
+     *            Number of times to transmit the button
      */
-    public void transmit(String remote, String button, int repeats) {
-        sendCommand(String.format("SEND_ONCE %s %s %s", remote, button, repeats));
+    public void transmit(String remote, String button, int timesToSend) {
+        // The last parameter is the number of times the command should be repeated.
+        // For example, the command "SEND_ONCE TV KEY_VOLUMEUP 4" will transmit
+        // the volume up code 5 times.
+        sendCommand(String.format("SEND_ONCE %s %s %s", remote, button, timesToSend - 1));
     }
 
     private synchronized void sendCommand(String command) {

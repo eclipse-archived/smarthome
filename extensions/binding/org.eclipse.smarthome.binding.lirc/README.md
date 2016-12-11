@@ -34,11 +34,14 @@ rather run LIRC on a specific port or IP address, you can use `--listen=192.168.
 Discovery of the LIRC bridge is not supported. However, remotes will be automatically discovered once
 a bridge is configured.
 
-## Thing Configuration
+## Example Configuration
+
+### Things
 
 ```xtend
 Bridge lirc:bridge:local [ host="192.168.1.120", port="9001" ] {
-    Thing remote RCA_RS2640 [ remote="RCA_RS2640" ]
+    Thing remote Onkyo_RC_799M [ remote="Onkyo_RC-799M" ]
+    Thing remote Samsung [ remote="Samsung" ]
 }
 ```
 Bridge:
@@ -47,6 +50,25 @@ Bridge:
 
 Remote:
 * **remote**: The name of the remote as known by LIRC
+
+### Items
+```xtend
+String Remote_AVReceiver { channel="lirc:remote:local:Onkyo_RC_799M:transmit" }
+String Remote_TV { channel="lirc:remote:local:Samsung:transmit" }
+```
+
+### Rules
+```xtend
+rule "LIRC Test"
+when
+    Channel 'lirc:remote:local:Samsung:event' triggered KEY_DVD
+then
+    // Toggle base boost on the AV Receiver
+    sendCommand(Remote_AVReceiver, "KEY_BASEBOOST")
+    // Increase the volume by 5.
+    sendCommand(Remote_AVReceiver, "KEY_VOLUMEUP 5")
+end
+```
 
 
 ## Channels
