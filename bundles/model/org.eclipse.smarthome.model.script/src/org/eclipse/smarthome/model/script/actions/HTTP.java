@@ -51,7 +51,7 @@ public class HTTP {
         try {
             return HttpUtil.executeUrl("GET", url, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
@@ -78,7 +78,7 @@ public class HTTP {
         try {
             response = HttpUtil.executeUrl("PUT", url, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
@@ -111,7 +111,7 @@ public class HTTP {
         try {
             response = HttpUtil.executeUrl("PUT", url, IOUtils.toInputStream(content), contentType, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
@@ -138,7 +138,7 @@ public class HTTP {
         try {
             response = HttpUtil.executeUrl("POST", url, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
@@ -171,7 +171,7 @@ public class HTTP {
         try {
             response = HttpUtil.executeUrl("POST", url, IOUtils.toInputStream(content), contentType, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
@@ -198,7 +198,7 @@ public class HTTP {
         try {
             response = HttpUtil.executeUrl("DELETE", url, timeout);
         } catch (IOException e) {
-            logger.error("Fatal transport error: {}", e);
+            logger.error("Fatal transport error: {}", e.getMessage());
         }
         return response;
     }
