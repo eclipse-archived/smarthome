@@ -648,6 +648,9 @@ public class ThingManager extends AbstractItemEventSubscriber
     }
 
     private boolean isVetoed(final ThingHandler thingHandler) {
+        if (thingHandler == null) {
+            return true;
+        }
         boolean veto = false;
         Bundle bundle = getBundle(thingHandler.getClass());
         for (BundleProcessor proc : bundleProcessors) {
