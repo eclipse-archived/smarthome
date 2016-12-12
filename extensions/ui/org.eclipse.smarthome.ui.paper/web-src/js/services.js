@@ -8,7 +8,13 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             'responseError' : function(rejection) {
                 var showError = rejection.showError;
                 if (showError !== false) {
-                    $injector.get('toastService').showErrorToast('ERROR: ' + rejection.status + ' - ' + rejection.statusText);
+                    var errorText = "";
+                    if (rejection.data && rejection.data.customMessage) {
+                        errorText = rejection.data.customMessage
+                    } else {
+                        errorText = rejection.statusText;
+                    }
+                    $injector.get('toastService').showErrorToast('ERROR: ' + rejection.status + ' - ' + errorText);
                 }
                 return $q.reject(rejection);
             }

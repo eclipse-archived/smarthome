@@ -34,7 +34,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             params : {
                 itemName : '@itemName'
             },
-            url : restConfig.restPath + '/items/:itemName'
+            url : restConfig.restPath + '/items/:itemName',
+            transformResponse : function(response, headerGetter, status) {
+                var response = angular.fromJson(response);
+                if (status == 405) {
+                    response.customMessage = "Item is not editable.";
+                }
+                return response;
+            }
         },
         updateState : {
             method : 'PUT',
