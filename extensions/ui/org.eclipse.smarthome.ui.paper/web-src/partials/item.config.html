@@ -17,10 +17,11 @@
 					<div class="row" ng-if="configMode=='create'">
 						<div class="parameter col-xs-12">
 							<label for="itemaName" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Name</label>
-							<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-init="focus=false" required itemname name="itemName" ng-model="item.name" ng-focus="focus=true" />
+							<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-init="focus=false" required itemname name="itemName" ng-model="item.name" ng-focus="focus=true" ng-pattern="/^[a-z0-9_]+$/i" ng-trim="false" />
 							<div ng-messages="form.itemForm.itemName.$error" ng-show="(form.itemForm.itemName.$error && focus) || (form.itemForm.itemName.$dirty && focus)">
 								<div ng-message="nameValidator">Item name already exists</div>
 								<div ng-message="required">Field is required</div>
+								<div ng-message="pattern">Item name can contain alphanumeric characters and underscore</div>
 							</div>
 							</md-input-container>
 						</div>
