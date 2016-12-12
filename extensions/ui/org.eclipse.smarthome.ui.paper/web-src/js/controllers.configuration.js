@@ -400,7 +400,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         var arr = str.split(/[^a-zA-Z0-9_]/g);
         var camelStr = "";
         for (var i = 0; i < arr.length; i++) {
-            camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+            if (arr[i] && arr[i].length > 0) {
+                camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+            }
         }
         return camelStr;
     }
