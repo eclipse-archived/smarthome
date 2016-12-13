@@ -17,7 +17,11 @@
   <module name="NewlineAtEndOfFile">
     <!-- Valid options are "ignore", "info", "warning", "error" -->
     <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
-    <property name="severity" value="warning" />
+    <property name="severity" value="info" />
+  </module>
+
+  <module name="org.eclipse.smarthome.buildtools.rules.checkstyle.ExportInternalPackageCheck">
+    <property name="severity" value="error" />
   </module>
 
   <!--See http://checkstyle.sourceforge.net/config_header.html#Header -->
@@ -37,18 +41,6 @@
     <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
     <module name="TodoComment">
       <property name="format" value="(TODO)|(FIXME)" />
-      <property name="severity" value="info" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MemberName -->
-    <module name="MemberName">      
-      <property name="severity" value="info" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MethodName -->
-    <module name="MethodName">
-      <property name="severity" value="info" />
-    </module>
-    <!-- http://checkstyle.sourceforge.net/config_naming.html#PackageName -->
-    <module name="PackageName">
       <property name="severity" value="info" />
     </module>
   </module>

@@ -18,14 +18,12 @@
   <module name="NewlineAtEndOfFile">
     <!-- Valid options are "ignore", "info", "warning", "error" -->
     <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
-    <property name="severity" value="warning" />
-  </module>
-
-  <!--See http://checkstyle.sourceforge.net/config_header.html#Header -->
-  <module name="Header">
     <property name="severity" value="info" />
   </module>
 
+  <module name="org.eclipse.smarthome.buildtools.rules.checkstyle.ExportInternalPackageCheck">
+    <property name="severity" value="warning" />
+  </module>
 
   <module name="TreeWalker">
     <!-- This is a custom defined rule -->
@@ -34,7 +32,6 @@
       <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
       <property name="severity" value="ignore" />
     </module>
-
     <!-- See http://checkstyle.sourceforge.net/config_coding.html#IllegalThrows -->
     <module name="IllegalThrows">
       <property name="severity" value="warning" />
@@ -46,18 +43,6 @@
     <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
     <module name="TodoComment">
       <property name="format" value="(TODO)|(FIXME)" />
-      <property name="severity" value="info" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MemberName -->
-    <module name="MemberName">
-      <property name="severity" value="info" />
-    </module>
-    <!-- See http://checkstyle.sourceforge.net/config_naming.html#MethodName -->
-    <module name="MethodName">
-      <property name="severity" value="info" />
-    </module>
-    <!-- http://checkstyle.sourceforge.net/config_naming.html#PackageName -->
-    <module name="PackageName">
       <property name="severity" value="info" />
     </module>
   </module>

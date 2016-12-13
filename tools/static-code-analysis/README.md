@@ -16,16 +16,16 @@ Reports are generated for each module individually and can be found in the `targ
 
 ## Failing the build
 
-The build will fail if a problem with highest priority is found by some of the Maven plugins for PMD, Checkstyle and FindBugs. Each of the plugins has its own way to prioritize the detected problems:
+The build will fail if a problem with high priority is found by some of the Maven plugins for PMD, Checkstyle and FindBugs. Each of the plugins has its own way to prioritize the detected problems:
 
-- for PMD - the highest priority of a rule is "1";
+- for PMD - the build will fail when a rule with Priority "2" is found;
 - for Checkstyle - a rule with severity="Error";
-- for Findbugs - a Matcher with priority "1". (This is currently now working as expected - See [Known Problems](#known-problems) below)
+- for Findbugs - any Matcher with Rank bigger than 9.
 
 
 # Configuration
 
-The build can be configured to fail, when an error is found with the `fail.on.error` property. Default value is `false`.
+The build can be configured to fail, when an error is found with the `fail.on.error` property. Default value is `true`.
 
 You can refer to the following links for more configuration options for the specific Maven plugins:
 
@@ -92,7 +92,6 @@ For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guideline
 - If the build is configured to fail on error, combined report will not be generated in the bundle that fails the build. You will see only the error message provided by the plugin that has failed the build;
 - .xml files are not proceeded by the PMD Maven Plugin - Maven PMD plugin has goal pmd:pmd (https://maven.apache.org/plugins/maven-pmd-plugin/pmd-mojo.html) that has parameters "language", "includes" and "compileSourceRoots" that can be configured to proceed .xml files, but this was not working as expected. The "language" attribute allows single value, so checking files in multiple languages seems not to be supported);
 - Flooded console output when running Checkstyle in debug mode in Maven  (- X ) - https://github.com/checkstyle/checkstyle/issues/3184;
-- Can not configure FindBugs Maven Plugin to fail the build only on high priority warnings, but add all warnings to the report (http://stackoverflow.com/questions/10645245/findbugs-maven-plugin-ignores-threshold). This means that currently FindBugs fails the build regardless of the `Priority` of the Bug.
 
 ## 3rd Party
 

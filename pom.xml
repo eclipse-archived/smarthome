@@ -458,7 +458,7 @@
       <id>check</id>
       <properties>
         <phase.prop>verify</phase.prop>
-        <fail.on.error>false</fail.on.error>
+        <fail.on.error>true</fail.on.error>
       </properties>
       <build>
         <pluginManagement>
@@ -541,6 +541,9 @@
                   <version>${checkstyle.version}</version>
                 </dependency>
               </dependencies>
+              <configuration>
+                <sourceDirectory>${basedir}</sourceDirectory>
+              </configuration>
             </plugin>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
