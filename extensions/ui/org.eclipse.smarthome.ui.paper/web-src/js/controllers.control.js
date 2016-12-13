@@ -527,14 +527,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
-    $scope.sendStateCommand = function(command) {
-        $scope.sendCommand(command);
-        if (command == "DOWN") {
-            $scope.item.state = 100;
-        } else if (command == "UP") {
-            $scope.item.state = 0;
-        }
-    }
 }).controller('PlayerItemController', function($scope, $timeout) {
 
     var isInterrupted, time;

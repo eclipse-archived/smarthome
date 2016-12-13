@@ -104,13 +104,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                     }
                 }
                 if (item.type === "Rollershutter") {
-                    if (stateObject.type == "UpDownType") {
-                        if (stateObject.value == "Up") {
-                            state = 0;
-                        } else {
-                            state = 100;
-                        }
-                    } else if (stateObject.type == "PercentType" || stateObject.type == "DecimalType") {
+                    if (stateObject.type == "PercentType" || stateObject.type == "DecimalType") {
                         state = parseInt(stateObject.value);
                     }
                 }
@@ -129,13 +123,34 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                 });
             }
         }
-
-        if ($rootScope.data.items) {
-            $.each($rootScope.data.items, function(i, item) {
-                changeStateRecursively(item);
-            });
+        var index = getItemIndex(itemName);
+        if (index !== -1) {
+            changeStateRecursively($rootScope.data.items[index]);
         }
     });
+
+    eventService.onEvent('smarthome/items/*/statechanged', function(topic, stateObject) {
+        var itemName = topic.split('/')[2];
+        if (itemName && (stateObject.type == "PercentType" || stateObject.type == "DecimalType")) {
+            var index = getItemIndex(itemName);
+            if (index !== -1) {
+                $scope.$apply(function(scope) {
+                    $rootScope.data.items[index].state = parseInt(stateObject.value);
+                });
+            }
+        }
+    });
+
+    function getItemIndex(itemName) {
+        if ($rootScope.data.items) {
+            for (var it = 0; it < $rootScope.data.items.length; it++) {
+                if ($rootScope.data.items[it].name == itemName) {
+                    return it;
+                }
+            }
+        }
+        return -1;
+    }
 
     $scope.getNumberOfNewDiscoveryResults = function() {
         var numberOfNewDiscoveryResults = 0;
