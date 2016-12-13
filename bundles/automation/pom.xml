@@ -39,6 +39,7 @@
     <module>org.eclipse.smarthome.automation.sample.rest.api</module>
     <module>org.eclipse.smarthome.automation.sample.java.demo</module>
     <module>org.eclipse.smarthome.automation.sample.json.demo</module>
+    <module>org.eclipse.smarthome.automation.sample.moduletype.demo</module>
   </modules>
 
   <build>
