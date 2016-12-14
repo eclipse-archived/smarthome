@@ -22,6 +22,7 @@ var paths = {
         './web-src/js/main.js',
         './web-src/js/shared.properties.js',
         './web-src/js/controllers.module.js',
+        './web-src/js/widget.multiselect.js'
     ],
     static: [
         './web-src/css/*.css',
