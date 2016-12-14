@@ -377,21 +377,6 @@ public class PersistenceExtensions {
      *
      * @param item the item to get the average state value for
      * @param timestamp the point in time from which to search for the average state value
-     * @return the average state values since <code>timestamp</code>, <code>null</code> if the default persistence
-     *         service is not available, or the state of the given <code>item</code> if no previous states could be
-     *         found or if the default persistence service does not refer to an available
-     *         {@link QueryablePersistenceService}
-     */
-    public static DecimalType averageSince(Item item, AbstractInstant timestamp, boolean includeCurrentValue) {
-        return averageSince(item, timestamp, includeCurrentValue, getDefaultServiceId());
-    }
-
-    /**
-     * Gets the average value of the state of a given <code>item</code> since a certain point in time.
-     * The default persistence service is used.
-     *
-     * @param item the item to get the average state value for
-     * @param timestamp the point in time from which to search for the average state value
      * @param includeCurrentValue include the current value in the calculation
      * @return the average state values since <code>timestamp</code>, <code>null</code> if the default persistence
      *         service is not available, or the state of the given <code>item</code> if no previous states could be
@@ -399,7 +384,7 @@ public class PersistenceExtensions {
      *         {@link QueryablePersistenceService}
      */
     public static DecimalType averageSince(Item item, AbstractInstant timestamp) {
-        return averageSince(item, timestamp, true, getDefaultServiceId());
+        return averageSince(item, timestamp, getDefaultServiceId());
     }
 
     /**
@@ -414,23 +399,6 @@ public class PersistenceExtensions {
      *         refer to an available {@link QueryablePersistenceService}
      */
     public static DecimalType averageSince(Item item, AbstractInstant timestamp, String serviceId) {
-        return averageSince(item, timestamp, true, serviceId);
-    }
-
-    /**
-     * Gets the average value of the state of a given <code>item</code> since a certain point in time.
-     * The {@link PersistenceService} identified by the <code>serviceId</code> is used.
-     *
-     * @param item the item to get the average state value for
-     * @param timestamp the point in time from which to search for the average state value
-     * @param includeCurrentValue include the current value in the calculation
-     * @param serviceId the name of the {@link PersistenceService} to use
-     * @return the average state values since <code>timestamp</code>, or the state of the given <code>item</code> if no
-     *         previous states could be found or if the persistence service given by <code>serviceId</code> does not
-     *         refer to an available {@link QueryablePersistenceService}
-     */
-    public static DecimalType averageSince(Item item, AbstractInstant timestamp, boolean includeCurrentValue,
-            String serviceId) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceId);
         Iterator<HistoricItem> it = result.iterator();
 
@@ -462,7 +430,7 @@ public class PersistenceExtensions {
             }
         }
 
-        if ((lastState != null) && includeCurrentValue) {
+        if (lastState != null) {
             thisState = (DecimalType) item.getStateAs(DecimalType.class);
             thisTimestamp = BigDecimal.valueOf((new DateTime()).getMillis());
             avgValue = (thisState.toBigDecimal().add(lastState.toBigDecimal())).divide(BigDecimal.valueOf(2),
@@ -475,7 +443,6 @@ public class PersistenceExtensions {
             timeSpan = thisTimestamp.subtract(firstTimestamp, MathContext.DECIMAL64);
 
             BigDecimal average = total.divide(timeSpan, MathContext.DECIMAL64);
-            System.out.println(String.valueOf(timeSpan) + ":" + String.valueOf(total));
             return new DecimalType(average);
         } else {
             return null;
