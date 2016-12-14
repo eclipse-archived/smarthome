@@ -111,7 +111,7 @@ public class LifxLightCommunicationHandler {
 
             lock.lock();
 
-            logger.debug("Starting LIFX communication handler for bulb '{}'.", macAsHex);
+            logger.debug("Starting LIFX communication handler for light '{}'.", macAsHex);
 
             if (networkJob == null || networkJob.isCancelled()) {
                 networkJob = scheduler.scheduleWithFixedDelay(networkRunnable, 0, PACKET_INTERVAL,
@@ -324,7 +324,7 @@ public class LifxLightCommunicationHandler {
                     }
                 }
             } catch (Exception e) {
-                logger.error("An exception occurred while receiving a packet from the bulb : '{}'", e.getMessage());
+                logger.error("An exception occurred while receiving a packet from the light : '{}'", e.getMessage());
             } finally {
                 lock.unlock();
             }
@@ -372,9 +372,10 @@ public class LifxLightCommunicationHandler {
                                 unicastKey = unicastChannel.register(selector,
                                         SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                                 unicastChannel.connect(ipAddress);
-                                logger.trace("Connected to a bulb via {}", unicastChannel.getLocalAddress().toString());
+                                logger.trace("Connected to a light via {}",
+                                        unicastChannel.getLocalAddress().toString());
                             } catch (Exception e) {
-                                logger.warn("An exception occurred while connecting to the bulb's IP address : '{}'",
+                                logger.warn("An exception occurred while connecting to the light's IP address : '{}'",
                                         e.getMessage());
                                 currentLightState.setOfflineByCommunicationError();
                                 return;
@@ -504,7 +505,7 @@ public class LifxLightCommunicationHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("An exception occurred while sending a packet to the bulb : '{}'", e.getMessage());
+            logger.error("An exception occurred while sending a packet to the light : '{}'", e.getMessage());
         } finally {
 
             if (selectedKey == unicastKey) {

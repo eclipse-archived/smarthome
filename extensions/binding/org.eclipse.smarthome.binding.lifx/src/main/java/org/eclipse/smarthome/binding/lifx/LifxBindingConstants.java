@@ -24,7 +24,7 @@ public class LifxBindingConstants {
     public static final String BINDING_ID = "lifx";
     public static final String THREADPOOL_NAME = "lifx";
 
-    // The LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more.
+    // The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not more.
     public final static long PACKET_INTERVAL = 50;
 
     // Fallback light state defaults

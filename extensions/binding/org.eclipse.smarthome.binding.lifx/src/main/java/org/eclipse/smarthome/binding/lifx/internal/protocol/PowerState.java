@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
 /**
- * Represents bulb power states (on or off).
+ * Represents light power states (on or off).
  *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
