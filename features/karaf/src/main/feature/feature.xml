@@ -336,17 +336,17 @@
 
   <feature name="esh-transform-exec" description="Exec Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.exec/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.exec/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-javascript" description="Javascript Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.javascript/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.javascript/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-jsonpath" description="JSONPath Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.jsonpath/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.jsonpath/${project.version}</bundle>
     <bundle dependency="true">mvn:com.jayway.jsonpath/json-path/2.0.0</bundle>
     <bundle dependency="true">mvn:net.minidev/asm/1.0.2</bundle>
     <bundle dependency="true">mvn:net.minidev/json-smart/2.1.1</bundle>
@@ -354,27 +354,27 @@
 
   <feature name="esh-transform-map" description="Map Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.map/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.map/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-regex" description="RegEx Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.regex/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.regex/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-scale" description="Scale Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.scale/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.scale/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-xpath" description="XPath Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xpath/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xpath/${project.version}</bundle>
   </feature>
 
   <feature name="esh-transform-xslt" description="XSLT Transformation" version="${project.version}">
     <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xslt/${project.version}</bundle>
+    <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xslt/${project.version}</bundle>
   </feature>
 
   <feature name="esh-ui" version="${project.version}">
