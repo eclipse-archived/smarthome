@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.transport.mqtt;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,12 +26,13 @@ import org.slf4j.LoggerFactory;
  * transport.
  *
  * @author Davy Vanherbergen
+ * @author Markus Rathgeb - Synchronize access to broker connections
  */
 public class MqttService implements ManagedService {
 
     private final Logger logger = LoggerFactory.getLogger(MqttService.class);
 
-    private ConcurrentHashMap<String, MqttBrokerConnection> brokerConnections = new ConcurrentHashMap<String, MqttBrokerConnection>();
+    private final Map<String, MqttBrokerConnection> brokerConnections = new ConcurrentHashMap<String, MqttBrokerConnection>();
 
     private EventPublisher eventPublisher;
 
@@ -69,11 +71,7 @@ public class MqttService implements ManagedService {
                 logger.trace("Processing property: {} = {}", key, value);
             }
 
-            MqttBrokerConnection conn = brokerConnections.get(name);
-            if (conn == null) {
-                conn = new MqttBrokerConnection(name);
-                brokerConnections.put(name, conn);
-            }
+            final MqttBrokerConnection conn = getConnection(name);
 
             if (property.equals("url")) {
                 conn.setUrl(value);
@@ -101,14 +99,7 @@ public class MqttService implements ManagedService {
         }
         logger.info("MQTT Service initialization completed.");
 
-        for (MqttBrokerConnection con : brokerConnections.values()) {
-            try {
-                con.start();
-            } catch (Exception e) {
-                con.connectionLost(e);
-                logger.error("Error starting broker connection", e);
-            }
-        }
+        startAllBrokerConnections();
     }
 
     /**
@@ -123,15 +114,34 @@ public class MqttService implements ManagedService {
      */
     public void deactivate() {
         logger.debug("Stopping MQTT Service...");
+        stopAllBrokerConnections();
+        logger.debug("MQTT Service stopped.");
+    }
 
-        Enumeration<String> e = brokerConnections.keys();
-        while (e.hasMoreElements()) {
-            MqttBrokerConnection conn = brokerConnections.get(e.nextElement());
+    private void startAllBrokerConnections() {
+        /*
+         * No need to synchronize the access to the broker connections.
+         * We don't add or remove entries only use the existing ones and the map is a concurrent one.
+         */
+        for (final MqttBrokerConnection conn : brokerConnections.values()) {
+            try {
+                conn.start();
+            } catch (final Exception e) {
+                conn.connectionLost(e);
+                logger.error("Error starting broker connection", e);
+            }
+        }
+    }
+
+    private void stopAllBrokerConnections() {
+        /*
+         * No need to synchronize the access to the broker connections.
+         * We don't add or remove entries only use the existing ones and the map is a concurrent one.
+         */
+        for (final MqttBrokerConnection conn : brokerConnections.values()) {
             logger.info("Stopping broker connection '{}'", conn.getName());
             conn.close();
         }
-
-        logger.debug("MQTT Service stopped.");
     }
 
     /**
@@ -140,14 +150,15 @@ public class MqttService implements ManagedService {
      * @param brokerName to look for.
      * @return existing connection or new one if it didn't exist yet.
      */
-    private synchronized MqttBrokerConnection getConnection(String brokerName) {
-
-        MqttBrokerConnection conn = brokerConnections.get(brokerName.toLowerCase());
-        if (conn == null) {
-            conn = new MqttBrokerConnection(brokerName);
-            brokerConnections.put(brokerName.toLowerCase(), conn);
+    private MqttBrokerConnection getConnection(String brokerName) {
+        synchronized (brokerConnections) {
+            MqttBrokerConnection conn = brokerConnections.get(brokerName.toLowerCase());
+            if (conn == null) {
+                conn = new MqttBrokerConnection(brokerName);
+                brokerConnections.put(brokerName.toLowerCase(), conn);
+            }
+            return conn;
         }
-        return conn;
     }
 
     /**
