@@ -80,7 +80,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                     }
                 } else {
                     // are we not configured? let's broadcast instead
-                    logger.trace("{} : The bulb is not online, let's broadcast instead", macAsHex);
+                    logger.trace("{} : The light is not online, let's broadcast instead", macAsHex);
                     GetServiceRequest packet = new GetServiceRequest();
                     communicationHandler.broadcastPacket(packet);
                 }

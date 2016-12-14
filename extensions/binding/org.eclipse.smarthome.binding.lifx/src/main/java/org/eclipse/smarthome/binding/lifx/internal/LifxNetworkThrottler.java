@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@link LifxNetworkThrottler} is a helper class that regulates the frequency at which messages/packets are sent to
- * LIFX bulbs. The LIFX LAN Protocol Specification states that bulbs can process up to 20 messages per second, not more.
+ * LIFX lights. The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not
+ * more.
  *
  * @author Karel Goderis - Initial Contribution
  * @author Wouter Born - Deadlock fix
@@ -30,7 +31,7 @@ public class LifxNetworkThrottler {
     private static Logger logger = LoggerFactory.getLogger(LifxNetworkThrottler.class);
 
     /**
-     * Tracks when the last packet was sent to a LIFX bulb. The packet is sent after obtaining the lock and before
+     * Tracks when the last packet was sent to a LIFX light. The packet is sent after obtaining the lock and before
      * releasing the lock.
      */
     private static class LifxLightCommunicationTracker {
