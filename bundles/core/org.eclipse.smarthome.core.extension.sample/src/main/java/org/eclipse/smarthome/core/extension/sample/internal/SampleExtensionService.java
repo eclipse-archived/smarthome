@@ -54,10 +54,12 @@ public class SampleExtensionService implements ExtensionService {
             for (int i = 0; i < 10; i++) {
                 String id = type.getId() + Integer.toString(i);
                 boolean installed = Math.random() > 0.5;
-                String label = RandomStringUtils.randomAlphabetic(5) + " " + StringUtils.capitalize(type.getId());
+                String name = RandomStringUtils.randomAlphabetic(5);
+                String label = name + " " + StringUtils.capitalize(type.getId());
                 String typeId = type.getId();
                 String version = "1.0";
-                Extension extension = new Extension(id, typeId, label, version, installed);
+                String link = (Math.random() < 0.5) ? null : "http://lmgtfy.com/?q=" + name;
+                Extension extension = new Extension(id, typeId, label, version, link, installed);
                 extensions.put(extension.getId(), extension);
             }
         }

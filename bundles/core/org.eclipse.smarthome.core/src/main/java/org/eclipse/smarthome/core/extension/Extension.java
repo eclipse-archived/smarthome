@@ -18,6 +18,7 @@ public class Extension {
     private final String id;
     private final String label;
     private final String version;
+    private final String link;
     private boolean installed;
     private final String type;
 
@@ -28,12 +29,14 @@ public class Extension {
      * @param type the type id of the extension
      * @param label the label of the extension
      * @param version the version of the extension
+     * @param link the link to find more information about the extension (can be null)
      * @param installed true, if the extension is installed, false otherwise
      */
-    public Extension(String id, String type, String label, String version, boolean installed) {
+    public Extension(String id, String type, String label, String version, String link, boolean installed) {
         this.id = id;
         this.label = label;
         this.version = version;
+        this.link = link;
         this.installed = installed;
         this.type = type;
     }
@@ -57,6 +60,13 @@ public class Extension {
      */
     public String getLabel() {
         return label;
+    }
+
+    /**
+     * The (optional) link to find more information about the extension
+     */
+    public String getLink() {
+        return link;
     }
 
     /**
