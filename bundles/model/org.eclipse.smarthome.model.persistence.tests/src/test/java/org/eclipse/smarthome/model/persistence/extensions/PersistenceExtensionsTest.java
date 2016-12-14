@@ -125,7 +125,7 @@ public class PersistenceExtensionsTest {
     @Test
     public void testAverageSince() {
         item.setState(new DecimalType(3025));
-        DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), false, "test");
+        DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), "test");
         assertEquals(2007.4994, average.doubleValue(), 0.0001);
     }
 
