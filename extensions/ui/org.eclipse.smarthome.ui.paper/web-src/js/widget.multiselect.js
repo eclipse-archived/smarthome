@@ -5,7 +5,7 @@ angular.module('PaperUI').directive('multiSelect', function() {
             scope.filterText = "";
             scope.parameter.optionList = [];
             var originalList = [];
-            if (scope.configuration[scope.parameter.name])
+            if (scope.configuration[scope.parameter.name]) {
                 for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
                     var inParam = $.grep(scope.parameter.options, function(option) {
                         return option.value == scope.configuration[scope.parameter.name][i];
@@ -17,6 +17,7 @@ angular.module('PaperUI').directive('multiSelect', function() {
                         });
                     }
                 }
+            }
             $(document).bind('click', function(e) {
                 var $clicked = $(e.target);
                 if (!$clicked.parents().hasClass("dropdown")) {
@@ -30,9 +31,9 @@ angular.module('PaperUI').directive('multiSelect', function() {
                 $event.stopImmediatePropagation();
                 var visible = element.find("dd ul").is(":visible");
                 angular.element(document).find("dd ul").hide();
-                if (!visible)
+                if (!visible) {
                     element.find("dd ul").slideDown('fast');
-                else {
+                } else {
                     element.find("dd ul").slideUp('fast');
                 }
             }
@@ -133,12 +134,29 @@ angular.module('PaperUI').directive('multiSelect', function() {
             function searchInOptionList(parameter, searchItem) {
 
                 for (var i = 0; i < parameter.optionList.length; i++) {
-                    if (parameter.optionList[i].value == searchItem)
+                    if (parameter.optionList[i].value == searchItem) {
                         return i;
+                    }
                 }
                 return -1;
             }
         }
     };
+}).directive('selectValidation', function() {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ctrl) {
+            scope.$watch(attrs.ngModel, function(value) {
+                if ((value === undefined || (Array.isArray(value) && value.length == 0)) && attrs.selectValidation == "true") {
+                    element.addClass('border-invalid');
+                    ctrl.$setValidity('required', false);
+                } else {
+                    element.removeClass('border-invalid');
+                    ctrl.$setValidity('required', true);
+                }
+            }, true);
 
+        }
+    };
 });
