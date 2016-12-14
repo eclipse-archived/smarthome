@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -269,6 +270,15 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.remove(thingHandlerFactory);
+    }
+
+    public Provider<Thing> getProvider(Thing thing) {
+        for (Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
+            if (entry.getValue().contains(thing)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
 }

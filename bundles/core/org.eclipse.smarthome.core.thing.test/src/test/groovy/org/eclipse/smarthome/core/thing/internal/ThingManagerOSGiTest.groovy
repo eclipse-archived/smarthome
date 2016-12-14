@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
@@ -329,7 +330,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             initialize: {
                 def shouldFail = testThing.getConfiguration().get("shouldFail") as boolean
                 if(shouldFail) {
-                    throw new Exception("Invalid config!")
+                    throw new RuntimeException("Invalid config!")
                 } else {
                     callback.statusUpdated(testThing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
                 }
@@ -351,7 +352,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat testThing.getStatusInfo(), is(statusInfo)
 
         managedThingProvider.add(testThing)
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_INITIALIZING_ERROR).build()
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription("Invalid config!").build()
         waitForAssert { assertThat testThing.getStatusInfo(), is(statusInfo) }
 
         testThing.getConfiguration().put("shouldFail", false)
@@ -832,43 +833,26 @@ class ThingManagerOSGiTest extends OSGiTest {
         }
     }
 
-    @Test(expected=IllegalStateException.class)
-    void 'ThingManager complains if the managed thing provider cannot handle thing updates'() {
+    void 'ThingManager allows changes to unmanaged things'() {
+        ThingManager thingManager = getService(ThingManager)
+        assertThat thingManager, is(notNullValue())
 
         def itemName = "name"
         ThingHandlerCallback callback;
 
-        managedThingProvider.add(THING)
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
-        def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg },
-            initialize: {},
-            dispose: {},
-            getThing: { return THING },
-            thingUpdated: {
-            }
-        ] as ThingHandler
-
-        def thingHandlerFactory = [
-            supportsThingType: {ThingTypeUID thingTypeUID -> true},
-            registerHandler: {thing -> thingHandler },
-            unregisterHandler: {thing -> },
-            removeThing: {thingUID ->
-            }
-        ] as ThingHandlerFactory
-        registerService(thingHandlerFactory)
+        def customThingProvider = [
+            getAll: {[THING]}
+        ] as ThingProvider
+        registerService(customThingProvider)
 
         boolean thingUpdated = false
 
         ThingRegistry thingRegistry = getService(ThingRegistry)
         def registryChangeListener = [ updated: {old, updated -> thingUpdated = true} ] as RegistryChangeListener
 
-        ThingHandlerCallback storedCallback = callback
-        managedThingProvider.remove(THING.getUID())
-
         try {
             thingRegistry.addRegistryChangeListener(registryChangeListener)
-            storedCallback.thingUpdated(THING)
+            thingManager.thingHandlerCallback.thingUpdated(THING)
             assertThat thingUpdated, is(true)
         } finally {
             thingRegistry.removeRegistryChangeListener(registryChangeListener)
