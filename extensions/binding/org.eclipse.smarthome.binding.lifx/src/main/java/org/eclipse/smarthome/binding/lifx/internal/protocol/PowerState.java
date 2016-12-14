@@ -7,11 +7,14 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
+import org.eclipse.smarthome.core.library.types.OnOffType;
+
 /**
  * Represents light power states (on or off).
  *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
+ * @author Wouter Born - Added OnOffType conversion methods
  */
 public enum PowerState {
 
@@ -41,6 +44,14 @@ public enum PowerState {
         }
 
         return null;
+    }
+
+    public static PowerState fromOnOffType(OnOffType onOff) {
+        return onOff == OnOffType.ON ? ON : OFF;
+    }
+
+    public OnOffType toOnOffType() {
+        return this == ON ? OnOffType.ON : OnOffType.OFF;
     }
 
 }

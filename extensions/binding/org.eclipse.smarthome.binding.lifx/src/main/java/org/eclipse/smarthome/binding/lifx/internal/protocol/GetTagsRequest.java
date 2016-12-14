@@ -39,7 +39,7 @@ public class GetTagsRequest extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] {};
+        return new int[] { TagsResponse.TYPE };
     }
 
 }

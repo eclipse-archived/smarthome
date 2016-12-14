@@ -60,7 +60,7 @@ public class SetLabelRequest extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] {}; // ?
+        return new int[] {};
     }
 
 }

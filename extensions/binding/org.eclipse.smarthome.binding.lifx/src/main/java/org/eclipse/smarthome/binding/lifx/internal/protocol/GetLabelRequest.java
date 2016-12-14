@@ -45,7 +45,7 @@ public class GetLabelRequest extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] {}; // ?
+        return new int[] { StateLabelResponse.TYPE };
     }
 
 }

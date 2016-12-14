@@ -57,7 +57,7 @@ public class GetTagLabelsRequest extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] {};
+        return new int[] { TagLabelsResponse.TYPE };
     }
 
 }

@@ -57,9 +57,7 @@ public class EchoRequestResponse extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] {
-                // PowerStateResponse.TYPE // apparently not expected?
-        };
+        return new int[] {};
     }
 
 }
