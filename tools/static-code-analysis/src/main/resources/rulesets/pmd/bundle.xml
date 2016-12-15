@@ -4,127 +4,102 @@
 
   <description>Default set of PMD rules used for checking all bundles Eclipse SmartHome project</description>
 
-  <!-- This is a custom defined rule -->
-  <rule name="WhileLoopsMustUseBracesRule" message="Avoid using 'while' statements without curly braces" class="org.eclipse.smarthome.buildtools.rules.pmd.WhileLoopsMustUseBracesRule">
-    <description>Avoid using 'while' statements without using curly braces</description>
-    <priority>3</priority>
-  </rule>
-
-  <!-- Another custom defined rule (with XPath expression) -->
-  <rule ref="rulesets/pmd/xpath/classpath.xml/AvoidMavenPomderivedInClasspath">
-    <priority>3</priority>
-  </rule>
-  
-  <rule ref="rulesets/pmd/xpath/pom.xml/AvoidOverridingParentPomConfiguration">
-    <priority>3</priority>
-  </rule>
-  
   <rule ref="rulesets/java/empty.xml/EmptyIfStmt">
     <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/empty.html for all below -->
     <!-- Priorities range in value from 1 to 5, with 5 being the lowest priority -->
-    <!-- 1 : high priority -->
-    <!-- 2 : medium high priority -->
-    <!-- 3 : medium priority -->
-    <!-- 4 : medium low priority -->
-    <!-- 5 : low priority -->
+    <!--  We will use only priority 1,2 and 3 so the results of PMD can be comparable with the results of the other tools -->
+    
     <!-- See http://pmd.github.io/pmd-5.0.1/apidocs/net/sourceforge/pmd/RulePriority.html -->
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptyWhileStmt">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptyTryBlock">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptyFinallyBlock">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptySwitchStatements">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptySynchronizedBlock">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/empty.xml/EmptyStaticInitializer">
-    <priority>5</priority>
+    <priority>3</priority>
   </rule>
   
   <!-- See  http://pmd.sourceforge.net/pmd-5.0.0/rules/java/basic.html -->
   <rule ref="rulesets/java/basic.xml/MisplacedNullCheck">
-    <priority>2</priority>
+    <priority>1</priority>
   </rule>
   <rule ref="rulesets/java/basic.xml/BrokenNullCheck">
-    <priority>2</priority>
+    <priority>1</priority>
   </rule>
   <rule ref="rulesets/java/basic.xml/JumbledIncrementer">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/basic.xml/ClassCastExceptionWithToArray">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/basic.xml/DontCallThreadRun">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   
   <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/logging-java.html -->
   <rule ref="rulesets/java/logging-java.xml/MoreThanOneLogger">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/logging-java.xml/AvoidPrintStackTrace">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/logging-java.xml/SystemPrintln">
-    <priority>4</priority>
+    <priority>3</priority>
   </rule>
-  
   
   <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/strictexception.html -->
   <rule ref="rulesets/java/strictexception.xml/AvoidCatchingNPE">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/strictexception.xml/AvoidCatchingThrowable">
-    <priority>4</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/strictexception.xml/AvoidThrowingRawExceptionTypes">
-    <priority>4</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/strictexception.xml/AvoidThrowingNullPointerException">
-    <priority>4</priority>
+    <priority>1</priority>
   </rule>
   <rule ref="rulesets/java/strictexception.xml/DoNotThrowExceptionInFinally">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/strictexception.xml/DoNotExtendJavaLangError">
-    <priority>4</priority>
+    <priority>1</priority>
   </rule>
-  
   
   <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/design.html -->
-  <!-- Which classes to check ? 
-  <rule ref="rulesets/java/design.xml/CloseResource">
-    <priority>2</priority>
-  </rule>
-   -->
   <rule ref="rulesets/java/design.xml/EqualsNull">
-    <priority>2</priority>
+    <priority>1</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/InstantiationToGetClass">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/AvoidInstanceofChecksInCatchClause">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
    <rule ref="rulesets/java/design.xml/CompareObjectsWithEquals">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/UnnecessaryLocalBeforeReturn">
     <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/NonThreadSafeSingleton">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/UnsynchronizedStaticDateFormatter">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/SimplifyBooleanReturns">
     <priority>3</priority>
@@ -133,15 +108,14 @@
     <priority>3</priority>
   </rule>
   <rule ref="rulesets/java/design.xml/ConstructorCallsOverridableMethod">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   
-  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/optimizations.html -->  
+  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/optimizations.html -->
   <rule ref="rulesets/java/optimizations.xml/AvoidInstantiatingObjectsInLoops">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
   <rule ref="rulesets/java/optimizations.xml/AvoidArrayLoops">
-    <priority>3</priority>
+    <priority>2</priority>
   </rule>
-  
 </ruleset>

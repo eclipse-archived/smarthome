@@ -6,13 +6,4 @@
 
   <!-- We'll use the entire 'default' ruleset -->
   <rule ref="rulesets/pmd/bundle.xml" />
-  
-   <!-- Another custom defined rule (with XPath expression) -->
-  <rule ref="rulesets/pmd/xpath/classpath.xml/AvoidMavenPomderivedInClasspath">
-    <priority>3</priority>
-  </rule>
-  
-  <rule ref="rulesets/pmd/xpath/pom.xml/AvoidOverridingParentPomConfiguration">
-    <priority>3</priority>
-  </rule>
 </ruleset>
