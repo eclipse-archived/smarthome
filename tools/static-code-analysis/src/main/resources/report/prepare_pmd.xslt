@@ -62,9 +62,10 @@
 		<message>
 			<xsl:attribute name="tool">pmd</xsl:attribute>
 			<xsl:attribute name="line"><xsl:value-of select="@beginline" /></xsl:attribute>
-			<xsl:attribute name="message"><xsl:value-of select="@rule" /></xsl:attribute>
+			<xsl:attribute name="message"><xsl:value-of select="text()" /></xsl:attribute>
 			<xsl:attribute name="priority"><xsl:value-of select="@priority" /></xsl:attribute>
 			<xsl:attribute name="rule"><xsl:value-of select="@rule" /></xsl:attribute>
+			<xsl:attribute name="rule_url"><xsl:value-of select="@externalInfoUrl" /></xsl:attribute>
 
 			<xsl:variable name="category1" select="@ruleset" />
 			<xsl:variable name="smallCase" select="'abcdefghijklmnopqrstuvwxyz '" />

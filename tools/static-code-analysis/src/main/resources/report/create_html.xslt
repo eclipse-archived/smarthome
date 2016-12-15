@@ -44,7 +44,7 @@
 	<xsl:template match="sca">
 		<html>
 			<head>
-				<title>XSLT Sample</title>
+				<title>Analysis Report</title>
 				<style type="text/css">
 					body {margin-left: 3%; font-size:10pt;font-family:Arial;color:#000000 ; }					
 					table.details tr th {font-size:10pt;font-family:Arial;font-weight:bold;background:#AC58FA}
@@ -279,8 +279,8 @@
 	</xsl:template>
 
 	<xsl:template name="pmd_link">
-		<xsl:text disable-output-escaping="yes"> &lt;a href="http://pmd.sourceforge.net/rules/basic.html#</xsl:text>
-		<xsl:value-of select="@rule" />
+		<xsl:text disable-output-escaping="yes"> &lt;a href="</xsl:text>
+		<xsl:value-of select="@rule_url" />
 		<xsl:text disable-output-escaping="yes">"&gt;</xsl:text>
 		<xsl:value-of select="@rule" />
 		<xsl:text disable-output-escaping="yes">&lt;/a&gt;</xsl:text>
