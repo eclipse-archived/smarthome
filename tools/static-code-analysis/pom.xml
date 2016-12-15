@@ -18,12 +18,12 @@
   <description>Tool that aggregates reports of PMD, Checkstyle and FindBugs</description>
 
   <properties>
-    <saxonb.version>9.0</saxonb.version>
     <log4j.version>1.2.17</log4j.version>
     <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
     <maven.assembly.version>2.6</maven.assembly.version>
     <junit.version>4.11</junit.version>
     <maven.resources.version>2.4</maven.resources.version>
+    <maven.jar.version>3.0.2</maven.jar.version>
     <pmd.version>5.5.1</pmd.version>
   </properties>
 
@@ -77,6 +77,7 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerId>groovy-eclipse-compiler</compilerId>
@@ -85,6 +86,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven.resources.version}</version>
         <executions>
@@ -107,6 +109,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.jar.version}</version>
         <executions>
           <execution>
             <id>default-jar</id>
@@ -124,7 +127,7 @@
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>org.eclipse.smarthome.buildtools.report.ScanReportUtility</mainClass>
+              <mainClass>org.eclipse.smarthome.tools.analysis.report.ScanReportUtility</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
             </manifest>

@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.buildtools.report.test;
+package org.eclipse.smarthome.tools.analysis.report.test;
 
 import static org.junit.Assert.*;
 
 import java.io.File;
 
-import org.eclipse.smarthome.buildtools.report.ScanReportUtility;
+import org.eclipse.smarthome.tools.analysis.report.ScanReportUtility;
 import org.junit.Test;
 
 /**

@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.buildtools.rules.checkstyle.test;
+package org.eclipse.smarthome.tools.analysis.checkstyle.test;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.smarthome.buildtools.rules.checkstyle.ExportInternalPackageCheck;
+import org.eclipse.smarthome.tools.analysis.checkstyle.ExportInternalPackageCheck;
 import org.junit.Test;
 
 import com.google.checkstyle.test.base.BaseCheckTestSupport;
@@ -27,7 +27,7 @@ public class ExportInternalPackageCheckTest extends BaseCheckTestSupport {
     @Override
     protected String getPath(String fileName) throws IOException {
         return new File(
-                "src/test/resources/org/eclipse/smarthome/buildtools/rules/checkstyle/test" + File.separator + fileName)
+                "src/test/resources/org/eclipse/smarthome/tools/analysis/checkstyle/test" + File.separator + fileName)
                         .getCanonicalPath();
     }
 

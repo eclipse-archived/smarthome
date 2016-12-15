@@ -6,7 +6,7 @@
   <Plugin>
     <ShortDescription>Eclipse SmartHome FindBugs Plugin</ShortDescription>
   </Plugin>
-  <Detector class="org.eclipse.smarthome.buildtools.rules.findbugs.CustomClassNameLengthDetector">
+  <Detector class="org.eclipse.smarthome.tools.analysis.findbugs.CustomClassNameLengthDetector">
     <Details><![CDATA[<p>This is a class name length detector</p>]]></Details>
   </Detector>
   <BugPattern type="CUST_CLASS_NAME_LENGTH">

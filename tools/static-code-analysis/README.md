@@ -14,7 +14,7 @@ This profile (`check`) applies some general configuration to the Maven plugins f
 
 Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `result.html`. The result report is aggregated by Static Code Analysis Report Tool.
 
-## Failing the build
+## Failing The Build
 
 The build will fail if a problem with high priority is found by some of the Maven plugins for PMD, Checkstyle and FindBugs. Each of the plugins has its own way to prioritize the detected problems:
 
@@ -45,7 +45,7 @@ If you want to add a custom set of rules for UIs for example you will have to fo
 - add a new profile in the `smarthome/pom.xml` that is activated when a specific file exists in the structure of the project (e.g. the profile for bindings is activated when `ESH-INF/binding/binding.xml` exists);
 - in the `src/main/resources/rulesets` add a new rule set for PMD, Checkstyle and FindBugs that includes the rules that have to be executed.
 
-## Reuse checks
+## Reuse Checks
 
 All of the used static code analysis tools come with a set of custom rules that can be used directly in a rule set.
 
@@ -57,7 +57,7 @@ Helpful resources with lists of the available checks and information how to use 
    - First you should open the link with [BugDescriptors](http://findbugs.sourceforge.net/bugDescriptions.html), choose the bug that you want to detect and create a Match in `src/main/resources/rulesets/findbugs/YOUR_RULESET`;
    - Next you should find the Detector that finds the Bug that you have selected above (you can use [this list](https://github.com/findbugsproject/findbugs/blob/d1e60f8dbeda0a454f2d497ef8dcb878fa8e3852/findbugs/etc/findbugs.xml)) and add the Detector in the `src/main/resources/configuration/findbugs.properties` under the property `visitors`.
 
-## Write custom checks
+## Write Custom Checks
 
 All of the used static code analysis tools have Java API for writing custom checks.
 
@@ -74,7 +74,7 @@ Helpful links when writing a custom check for the first time may be:
 - for Checkstyle - http://checkstyle.sourceforge.net/writingchecks.html;
 - for FindBugs - https://www.ibm.com/developerworks/library/j-findbug2/.
 
-## Add tests for the new checks
+## Add Tests For The New Checks
 
 You can easily test your custom rules for PMD and Checkstyle.
 
@@ -87,7 +87,7 @@ Adding a test for Checkstyle is even easier - extend the `BaseCheckTestSupport`.
 For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guidelines.html. 
 
 
-## Known problems 
+## Known Problems 
 
 - If the build is configured to fail on error, combined report will not be generated in the bundle that fails the build. You will see only the error message provided by the plugin that has failed the build;
 - .xml files are not proceeded by the PMD Maven Plugin - Maven PMD plugin has goal pmd:pmd (https://maven.apache.org/plugins/maven-pmd-plugin/pmd-mojo.html) that has parameters "language", "includes" and "compileSourceRoots" that can be configured to proceed .xml files, but this was not working as expected. The "language" attribute allows single value, so checking files in multiple languages seems not to be supported);

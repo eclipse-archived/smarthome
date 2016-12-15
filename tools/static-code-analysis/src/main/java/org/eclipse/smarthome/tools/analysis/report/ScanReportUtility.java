@@ -34,7 +34,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.eclipse.smarthome.buildtools.report;
+package org.eclipse.smarthome.tools.analysis.report;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -52,6 +53,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
+import org.eclipse.smarthome.tools.analysis.report.ScanReportUtility;
+
+import net.sf.saxon.Controller;
 
 /**
  * Transforms the results from Findbugs, Checkstyle and PMD into a single HTML Report with XSLT 2.0
@@ -187,4 +191,5 @@ public class ScanReportUtility {
         deletefile(firstMergeResult);
         deletefile(secondMergeResult);
     }
+
 }

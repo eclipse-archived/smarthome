@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.buildtools.rules.checkstyle;
+package org.eclipse.smarthome.tools.analysis.checkstyle;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;

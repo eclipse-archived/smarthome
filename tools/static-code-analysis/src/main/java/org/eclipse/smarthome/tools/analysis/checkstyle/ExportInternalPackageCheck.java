@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.buildtools.rules.checkstyle;
+package org.eclipse.smarthome.tools.analysis.checkstyle;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,9 +43,12 @@ public class ExportInternalPackageCheck extends AbstractFileSetCheck {
             Manifest manifest = new Manifest(new FileInputStream(file));
             Attributes attributes = manifest.getMainAttributes();
             String value = attributes.getValue(EXPORT_PACKAGE_HEADER);
+            if (value == null) {
+                return;
+            }
+            
             String[] packages = value.split(",");
-            System.out.println(value);
-
+         
             for (String packageName : packages) {
                 if (packageName.contains(".internal")) {
                     log(findLineNumber(lines, packageName), MSG_KEY, new Integer(0));

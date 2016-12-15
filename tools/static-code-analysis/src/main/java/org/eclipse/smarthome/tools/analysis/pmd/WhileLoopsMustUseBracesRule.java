@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.buildtools.rules.pmd;
+package org.eclipse.smarthome.tools.analysis.pmd;
 
 import net.sourceforge.pmd.lang.ast.Node;
 import net.sourceforge.pmd.lang.java.ast.ASTBlock;
