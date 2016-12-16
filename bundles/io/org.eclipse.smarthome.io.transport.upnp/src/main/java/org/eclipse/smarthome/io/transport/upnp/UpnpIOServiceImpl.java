@@ -297,7 +297,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
                                 }
                             }
 
-                            logger.debug("Invoking Action '{}' of service '{}' for participant '{}'",
+                            logger.trace("Invoking Action '{}' of service '{}' for participant '{}'",
                                     new Object[] { actionID, serviceID, participant.getUDN() });
                             new ActionCallback.Default(invocation, upnpService.getControlPoint()).run();
 
