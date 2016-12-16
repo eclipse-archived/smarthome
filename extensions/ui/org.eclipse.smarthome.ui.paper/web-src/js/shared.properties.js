@@ -142,7 +142,7 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
     }
 });
 angular.module('PaperUI.constants').constant('itemConfig', {
-    'types' : [ 'Switch', 'Contact', 'String', 'Number', 'Dimmer', 'DateTime', 'Color', 'Image', 'Player', 'Location', 'Group' ],
+    'types' : [ 'Switch', 'Contact', 'String', 'Number', 'Dimmer', 'DateTime', 'Color', 'Image', 'Player', 'Location', 'Rollershutter', 'Group' ],
     'groupTypes' : [ 'Switch', 'Contact', 'Number', 'Dimmer', 'None' ],
     'arithmeticFunctions' : [ {
         name : "AVG",
