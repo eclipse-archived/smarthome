@@ -13,7 +13,7 @@
 		<div class="extension fab-item text-left" ng-repeat="extension in extensionType.extensions | filter:searchText">
 			<div class="circle" ng-class="{'green': extension.installed}">{{extension.label.substring(0,1).toUpperCase()}}</div>
 			<div class="cbody item-content">
-				<h3>{{extension.label}}</h3>
+				<h3 ng-class="{'clickable':extension.link}" ng-click="openExternalLink(extension.link)">{{extension.label}}</h3>
 				<p>{{extension.id}} - {{extension.version}}</p>
 				<div class="actions">
 					<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
