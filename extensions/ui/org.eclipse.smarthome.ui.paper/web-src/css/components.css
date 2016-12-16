@@ -1014,6 +1014,10 @@ background-color: green;
     overflow:hidden;
 }
 
+.item-content h3:focus {
+	outline: none;
+}
+
 .fill-height {
 	height: 100%;
 }
