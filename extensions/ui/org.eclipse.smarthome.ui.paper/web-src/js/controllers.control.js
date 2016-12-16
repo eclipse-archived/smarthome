@@ -132,7 +132,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         for (var int = 0; int < $scope.data.items.length; int++) {
             var item = $scope.data.items[int];
             if (item.name === itemName) {
-                if (item.type && (item.type == "Number" || item.groupType == "Number")) {
+                if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
                     var parsedValue = Number(item.state);
                     if (isNaN(parsedValue)) {
                         item.state = null;
