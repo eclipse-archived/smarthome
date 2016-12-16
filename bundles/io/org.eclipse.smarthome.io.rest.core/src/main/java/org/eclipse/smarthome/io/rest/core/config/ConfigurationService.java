@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.config;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -81,7 +82,8 @@ public class ConfigurationService {
             Object value = configurationParameter.getValue();
             if (value == null) {
                 properties.remove(configurationParameter.getKey());
-            } else if (value instanceof String || value instanceof Integer || value instanceof Boolean) {
+            } else if (value instanceof String || value instanceof Integer || value instanceof Boolean
+                    || value instanceof Object[] || value instanceof Collection) {
                 properties.put(configurationParameter.getKey(), value);
             } else {
                 // the config admin does not support complex object types, so let's store the string representation
