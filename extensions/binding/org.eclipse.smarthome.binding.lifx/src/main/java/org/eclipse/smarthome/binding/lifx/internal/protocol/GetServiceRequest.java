@@ -17,8 +17,6 @@ public class GetServiceRequest extends Packet {
 
     public static final int TYPE = 0x02;
 
-    // public static final int PROTOCOL_DEFAULT = 21504; // ??
-
     public GetServiceRequest() {
         setTagged(true);
         setAddressable(true);
@@ -46,7 +44,7 @@ public class GetServiceRequest extends Packet {
 
     @Override
     public int[] expectedResponses() {
-        return new int[] { StateServiceResponse.TYPE }; // UDP packets cannot have responses
+        return new int[] { StateServiceResponse.TYPE };
     }
 
 }

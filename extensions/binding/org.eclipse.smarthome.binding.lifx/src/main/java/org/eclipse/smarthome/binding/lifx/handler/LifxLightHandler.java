@@ -56,7 +56,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
     private static final long FADE_TIME_DEFAULT = 300;
-    private static final int MAX_STATE_CHANGE_DURATION = 2000;
+    private static final int MAX_STATE_CHANGE_DURATION = 4000;
 
     private long fadeTime = FADE_TIME_DEFAULT;
     private PercentType powerOnBrightness;
@@ -98,7 +98,8 @@ public class LifxLightHandler extends BaseThingHandler {
 
         @Override
         public void setHSB(HSBType hsb) {
-            if (!isStateChangePending() || hsb.equals(pendingLightState.getHSB())) {
+            if (!isStateChangePending() || (hsb.equals(pendingLightState.getHSB())
+                    && pendingLightState.getPowerState().equals(getPowerState()))) {
                 if (getPowerState() == PowerState.OFF) {
                     updateState(CHANNEL_COLOR, new HSBType(hsb.getHue(), hsb.getSaturation(), PercentType.ZERO));
                     updateState(CHANNEL_BRIGHTNESS, PercentType.ZERO);
@@ -112,14 +113,15 @@ public class LifxLightHandler extends BaseThingHandler {
 
         @Override
         public void setPowerState(PowerState powerState) {
-            if (!isStateChangePending() || powerState.equals(pendingLightState.getPowerState())) {
+            if (!isStateChangePending() || (powerState.equals(pendingLightState.getPowerState())
+                    && pendingLightState.getHSB().equals(getHSB()))) {
+                HSBType hsb = isStateChangePending() ? pendingLightState.getHSB() : getHSB();
                 if (powerState == PowerState.OFF) {
-                    updateState(CHANNEL_COLOR,
-                            new HSBType(getHSB().getHue(), getHSB().getSaturation(), PercentType.ZERO));
+                    updateState(CHANNEL_COLOR, new HSBType(hsb.getHue(), hsb.getSaturation(), PercentType.ZERO));
                     updateState(CHANNEL_BRIGHTNESS, PercentType.ZERO);
-                } else if (getHSB() != null) {
-                    updateState(CHANNEL_COLOR, getHSB());
-                    updateState(CHANNEL_BRIGHTNESS, getHSB().getBrightness());
+                } else if (hsb != null) {
+                    updateState(CHANNEL_COLOR, hsb);
+                    updateState(CHANNEL_BRIGHTNESS, hsb.getBrightness());
                 } else {
                     updateState(CHANNEL_COLOR, LifxBindingConstants.DEFAULT_COLOR);
                     updateState(CHANNEL_BRIGHTNESS, LifxBindingConstants.DEFAULT_BRIGHTNESS);
@@ -284,11 +286,10 @@ public class LifxLightHandler extends BaseThingHandler {
                     case CHANNEL_COLOR:
                         if (command instanceof HSBType) {
                             handleHSBCommand((HSBType) command);
-                            return;
                         } else if (command instanceof PercentType) {
                             handlePercentCommand((PercentType) command);
                         } else if (command instanceof OnOffType) {
-                            handleColorOnOffCommand((OnOffType) command);
+                            handleOnOffCommand((OnOffType) command);
                         } else if (command instanceof IncreaseDecreaseType) {
                             handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
                         }
@@ -297,7 +298,7 @@ public class LifxLightHandler extends BaseThingHandler {
                         if (command instanceof PercentType) {
                             handlePercentCommand((PercentType) command);
                         } else if (command instanceof OnOffType) {
-                            handleBrightnessOnOffCommand((OnOffType) command);
+                            handleOnOffCommand((OnOffType) command);
                         } else if (command instanceof IncreaseDecreaseType) {
                             handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
                         }
@@ -344,47 +345,43 @@ public class LifxLightHandler extends BaseThingHandler {
         }
     }
 
-    private void handleHSBCommand(HSBType hsbType) {
-        getLightStateForCommand().setHSB(hsbType);
+    private void handleHSBCommand(HSBType hsb) {
+        getLightStateForCommand().setHSB(hsb);
         if (getLightStateForCommand().getPowerState() != PowerState.ON) {
             getLightStateForCommand().setPowerState(PowerState.ON);
         }
     }
 
-    private void handlePercentCommand(PercentType percentType) {
+    private void handlePercentCommand(PercentType brightness) {
         HSBType baseHSB = getLightStateForCommand().getHSB();
         if (baseHSB != null) {
-            HSBType newHSB = new HSBType(baseHSB.getHue(), baseHSB.getSaturation(), percentType);
+            HSBType newHSB = new HSBType(baseHSB.getHue(), baseHSB.getSaturation(), brightness);
             handleHSBCommand(newHSB);
         }
     }
 
-    private void handleColorOnOffCommand(OnOffType onOffType) {
+    private void handleOnOffCommand(OnOffType onOff) {
         HSBType baseHSB = getLightStateForCommand().getHSB();
         if (baseHSB != null && powerOnBrightness != null) {
-            PercentType percentType = onOffType == OnOffType.ON ? powerOnBrightness : new PercentType(0);
-            HSBType newColorState = new HSBType(baseHSB.getHue(), baseHSB.getSaturation(), percentType);
-            handleHSBCommand(newColorState);
+            PercentType newBrightness = onOff == OnOffType.ON ? powerOnBrightness : new PercentType(0);
+            HSBType newHSB = new HSBType(baseHSB.getHue(), baseHSB.getSaturation(), newBrightness);
+            getLightStateForCommand().setHSB(newHSB);
         }
-        getLightStateForCommand().setPowerState(onOffType);
+        getLightStateForCommand().setPowerState(onOff);
     }
 
-    private void handleBrightnessOnOffCommand(OnOffType onOffType) {
-        getLightStateForCommand().setPowerState(onOffType);
-    }
-
-    private void handleIncreaseDecreaseCommand(IncreaseDecreaseType increaseDecreaseType) {
+    private void handleIncreaseDecreaseCommand(IncreaseDecreaseType increaseDecrease) {
         HSBType baseHSB = getLightStateForCommand().getHSB();
         if (baseHSB != null) {
-            PercentType newBrightness = increaseDecreasePercentType(increaseDecreaseType, baseHSB.getBrightness());
+            PercentType newBrightness = increaseDecreasePercentType(increaseDecrease, baseHSB.getBrightness());
             handlePercentCommand(newBrightness);
         }
     }
 
-    private void handleIncreaseDecreaseTemperatureCommand(IncreaseDecreaseType increaseDecreaseType) {
+    private void handleIncreaseDecreaseTemperatureCommand(IncreaseDecreaseType increaseDecrease) {
         PercentType baseTemperature = getLightStateForCommand().getTemperature();
         if (baseTemperature != null) {
-            PercentType newTemperature = increaseDecreasePercentType(increaseDecreaseType, baseTemperature);
+            PercentType newTemperature = increaseDecreasePercentType(increaseDecrease, baseTemperature);
             handleTemperatureCommand(newTemperature);
         }
     }
@@ -393,10 +390,10 @@ public class LifxLightHandler extends BaseThingHandler {
         getLightStateForCommand().setInfrared(infrared);
     }
 
-    private void handleIncreaseDecreaseInfraredCommand(IncreaseDecreaseType increaseDecreaseType) {
+    private void handleIncreaseDecreaseInfraredCommand(IncreaseDecreaseType increaseDecrease) {
         PercentType baseInfrared = getLightStateForCommand().getInfrared();
         if (baseInfrared != null) {
-            PercentType newInfrared = increaseDecreasePercentType(increaseDecreaseType, baseInfrared);
+            PercentType newInfrared = increaseDecreasePercentType(increaseDecrease, baseInfrared);
             handleInfraredCommand(newInfrared);
         }
     }

@@ -33,7 +33,6 @@ public class SetPowerRequest extends Packet {
         setTagged(false);
         setAddressable(true);
         setResponseRequired(true);
-        // protocol = 0x1400;
     }
 
     public SetPowerRequest(PowerState state) {
@@ -41,7 +40,6 @@ public class SetPowerRequest extends Packet {
         setTagged(false);
         setAddressable(true);
         setResponseRequired(true);
-        // protocol = 0x1400;
     }
 
     @Override
