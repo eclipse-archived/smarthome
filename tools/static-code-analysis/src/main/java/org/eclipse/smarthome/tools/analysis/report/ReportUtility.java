@@ -103,7 +103,6 @@ public class ReportUtility {
     public static final String RESULT_FILE_NAME = "report.html";
     public static final String SUMMARY_FILE_NAME = "summary_report.html";
 
-    private static final String JAVA_IO_TMPDIR_PROPERTY_KEY = "java.io.tmpdir";
     private static final String EMPTY = "";
     private static final String XML_TRANSFORM_PROPERTY_KEY = "javax.xml.transform.TransformerFactory";
     private static final String XML_TRANSFOMR_PROPERTY_VALUE = "net.sf.saxon.TransformerFactoryImpl";
@@ -185,8 +184,7 @@ public class ReportUtility {
         // Prepare userDirectory and tempDirectoryPrefix
         final String userDirectory = currentDirectory.replace('\\', '/') + '/';
         final String timeStamp = Integer.toHexString((int) System.nanoTime());
-        final String tempDirectory = System.getProperty(JAVA_IO_TMPDIR_PROPERTY_KEY);
-        final String tempDirectoryPrefix = tempDirectory.replace('\\', '/') + timeStamp;
+        final String tempDirectoryPrefix = userDirectory.replace('\\', '/') + timeStamp;
 
         // 1. Create intermediate xml-file for Findbugs
         final String inputFileFindbugs = userDirectory + FINDBUGS_INPUT_FILE_NAME;
