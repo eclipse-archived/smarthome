@@ -83,7 +83,7 @@ public class ProxyServlet extends HttpServlet {
     private static HttpClient httpClient = new HttpClient(new SslContextFactory());
 
     /** Timeout for HTTP requests in ms */
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 15000;
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
