@@ -1,4 +1,4 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider) {
+angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleLabels', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleLabels) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -70,7 +70,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
     }).when('/extensions', {
         templateUrl : 'partials/extensions.html',
         controller : 'ExtensionPageController',
-        title : 'Extensions'
+        title : moduleLabels.extensions
     }).when('/rules', {
         templateUrl : 'partials/rules.html',
         controller : 'RulesPageController',
