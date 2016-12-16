@@ -25,11 +25,6 @@ import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
  */
 public class ExportInternalPackageCheck extends AbstractFileSetCheck {
 
-    /**
-     * A key is pointing to the warning message text in "messages.properties"
-     * file.
-     */
-    public static final String MSG_KEY = "exported.internal.package";
     public final static String MANIFEST_EXTENSTION = "MF";
     public final static String EXPORT_PACKAGE_HEADER = "Export-Package";
 
@@ -51,13 +46,12 @@ public class ExportInternalPackageCheck extends AbstractFileSetCheck {
          
             for (String packageName : packages) {
                 if (packageName.contains(".internal")) {
-                    log(findLineNumber(lines, packageName), MSG_KEY, new Integer(0));
+                    log(findLineNumber(lines, packageName), "Remove internal package export " + packageName, new Integer(0));
                 }
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
         }
 
     }

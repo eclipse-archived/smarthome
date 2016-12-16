@@ -32,11 +32,24 @@
 	</xsl:template>
 
 	<xsl:template match="file">
-		<xsl:variable name="new_name" select="translate(@name, '/', '.')" />
-		<xsl:variable name="new_name" select="translate($new_name, '\', '.')" />
-		<xsl:variable name="new_name"
-			select="concat(substring-after($new_name,'.src.'),  substring-after($new_name,'.source.'))" />
-
+		<xsl:variable name="new_name">
+		<xsl:choose>
+			<xsl:when test="contains(@name,'src')">
+				<xsl:variable name="temp_name" select="translate(@name, '/', '.')" />
+				<xsl:variable name="temp_name" select="translate($temp_name, '\', '.')" />
+				<xsl:value-of select="concat(substring-after($temp_name,'.java.'),  substring-after($temp_name,'.resources.'))" />
+			</xsl:when>
+			<xsl:otherwise>				
+				<xsl:call-template name="substring-after-last">
+					<xsl:with-param name="input" select="@name" />
+					<xsl:with-param name="marker" select="'org.eclipse.smarthome'" />
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+		</xsl:variable>
+		
+		
 		<xsl:variable name="msg" select="./error" />
 		<xsl:if test="($msg='')">
 			<file name="{$new_name}">

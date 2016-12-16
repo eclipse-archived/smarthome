@@ -18,9 +18,9 @@ Reports are generated for each module individually and can be found in the `targ
 
 The build will fail if a problem with high priority is found by some of the Maven plugins for PMD, Checkstyle and FindBugs. Each of the plugins has its own way to prioritize the detected problems:
 
-- for PMD - the build will fail when a rule with Priority "2" is found;
+- for PMD - the build will fail when a rule with Priority "1" is found;
 - for Checkstyle - a rule with severity="Error";
-- for Findbugs - any Matcher with Rank bigger than 9.
+- for Findbugs - any Matcher with Rank between 1 and 4.
 
 
 # Configuration
@@ -90,7 +90,7 @@ For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guideline
 ## Known Problems 
 
 - If the build is configured to fail on error, combined report will not be generated in the bundle that fails the build. You will see only the error message provided by the plugin that has failed the build;
-- .xml files are not proceeded by the PMD Maven Plugin - Maven PMD plugin has goal pmd:pmd (https://maven.apache.org/plugins/maven-pmd-plugin/pmd-mojo.html) that has parameters "language", "includes" and "compileSourceRoots" that can be configured to proceed .xml files, but this was not working as expected. The "language" attribute allows single value, so checking files in multiple languages seems not to be supported);
+- The combined report does not conatin links to the Checkstyle rule definitions;
 - Flooded console output when running Checkstyle in debug mode in Maven  (- X ) - https://github.com/checkstyle/checkstyle/issues/3184;
 
 ## 3rd Party

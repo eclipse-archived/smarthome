@@ -24,11 +24,15 @@
     <!-- The default level of a check is "error". -->
     <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
     <property name="severity" value="info" />
-    <property name="ignoreLines" value="1"/>
+    <property name="ignoreLines" value="1,2"/>
     <property name="fileExtensions" value="java"/>
     <property name="header"
               value="/**\n * Copyright (c) 2014-2016 by the respective copyright holders.\n * All rights reserved. This program and the accompanying materials\n * are made available under the terms of the Eclipse Public License v1.0\n * which accompanies this distribution, and is available at\n * http://www.eclipse.org/legal/epl-v10.html\n */"/>
   </module>
+  <module name="NewlineAtEndOfFile">
+    <property name="severity" value="info"/>
+  </module>
+  
   <module name="org.eclipse.smarthome.tools.analysis.checkstyle.ExportInternalPackageCheck">
     <property name="severity" value="warning" />
   </module>
@@ -41,11 +45,22 @@
     <!-- See http://checkstyle.sourceforge.net/config_coding.html#OneStatementPerLine -->
     <module name="OneStatementPerLine">
       <property name="severity" value="info" />
-    </module> 
+    </module>
     <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
     <module name="TodoComment">
       <property name="format" value="(TODO)|(FIXME)" />
       <property name="severity" value="info" />
     </module>
-  </module>
+    <module name="JavadocType">
+      <property name="scope" value="public"/>
+      <property name="severity" value="info" />
+      <property name="allowMissingParamTags" value="true"/>
+      <property name="allowUnknownTags" value="true"/>
+      <property name="tokens" value="INTERFACE_DEF,CLASS_DEF" />
+    </module>  
+    <module name="UnusedImports">
+      <property name="processJavadoc" value="true"/>
+      <property name="severity" value="info" />
+    </module>    
+  </module>  
 </module>

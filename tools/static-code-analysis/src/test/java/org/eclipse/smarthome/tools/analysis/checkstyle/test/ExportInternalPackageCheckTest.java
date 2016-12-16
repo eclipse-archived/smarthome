@@ -37,7 +37,7 @@ public class ExportInternalPackageCheckTest extends BaseCheckTestSupport {
         String testFileName = "MANIFEST.MF";
         int lineNumber = 12;
 
-        String[] expectedMessages = { lineNumber + ": " + ExportInternalPackageCheck.MSG_KEY };
+        String[] expectedMessages = { lineNumber + ": Remove internal package export org.eclipse.smarthome.buildtools.internal"};
 
         String filePath = getPath(testFileName);
 

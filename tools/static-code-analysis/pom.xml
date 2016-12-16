@@ -127,7 +127,7 @@
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>org.eclipse.smarthome.tools.analysis.report.ScanReportUtility</mainClass>
+              <mainClass>org.eclipse.smarthome.tools.analysis.report.ReportUtility</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
             </manifest>

@@ -43,8 +43,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -52,13 +60,16 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.smarthome.tools.analysis.report.ScanReportUtility;
-
-import net.sf.saxon.Controller;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 
 /**
- * Transforms the results from Findbugs, Checkstyle and PMD into a single HTML Report with XSLT 2.0
+ * Transforms the results from FindBugs, Checkstyle and PMD into a single HTML Report with XSLT
  *
  * @see <a href=
  *      "http://www.sw-engineering-candies.com/blog-1/howtotransformtheresultsfromfindbugscheckstyleandpmdintoasinglehtmlreportwithxslt20andjava">
@@ -70,14 +81,18 @@ import net.sf.saxon.Controller;
  * @author Svilen Valkanov - Some minor changes and adaptations
  */
 
-public class ScanReportUtility {
+public class ReportUtility {
+
+    private static final String REPORT_SUBDIR = "report";
 
     // XSLT files that are used to create the merge report, located in the resources folder
-    private static final String CREATE_HTML_XSLT = "report/create_html.xslt";
-    private static final String MERGE_XSLT = "report/merge.xslt";
-    private static final String PREPARE_PMD_XSLT = "report/prepare_pmd.xslt";
-    private static final String PREPARE_CHECKSTYLE_XSLT = "report/prepare_checkstyle.xslt";
-    private static final String PREPARE_FINDBUGS_XSLT = "report/prepare_findbugs.xslt";
+    private static final String CREATE_HTML_XSLT = REPORT_SUBDIR + "/create_html.xslt";
+    private static final String MERGE_XSLT = REPORT_SUBDIR + "/merge.xslt";
+    private static final String PREPARE_PMD_XSLT = REPORT_SUBDIR + "/prepare_pmd.xslt";
+    private static final String PREPARE_CHECKSTYLE_XSLT = REPORT_SUBDIR + "/prepare_checkstyle.xslt";
+    private static final String PREPARE_FINDBUGS_XSLT = REPORT_SUBDIR + "/prepare_findbugs.xslt";
+
+    private static final String SUMMARY_TEMPLATE_FILE_NAME = "summary.html";
 
     // Input files that contain the reports of the different tools
     private static final String PMD_INPUT_FILE_NAME = "pmd.xml";
@@ -85,14 +100,15 @@ public class ScanReportUtility {
     private static final String FINDBUGS_INPUT_FILE_NAME = "findbugsXml.xml";
 
     // Name of the file that contains the merged report
-    public static final String RESULT_FILE_NAME = "result.html";
+    public static final String RESULT_FILE_NAME = "report.html";
+    public static final String SUMMARY_FILE_NAME = "summary_report.html";
 
     private static final String JAVA_IO_TMPDIR_PROPERTY_KEY = "java.io.tmpdir";
     private static final String EMPTY = "";
     private static final String XML_TRANSFORM_PROPERTY_KEY = "javax.xml.transform.TransformerFactory";
     private static final String XML_TRANSFOMR_PROPERTY_VALUE = "net.sf.saxon.TransformerFactoryImpl";
 
-    private static final Logger LOGGER = Logger.getLogger(ScanReportUtility.class);
+    private static final Logger LOGGER = Logger.getLogger(ReportUtility.class);
 
     private static void run(final String xslt, final String input, final String output, final String param,
             final String value) {
@@ -147,10 +163,26 @@ public class ScanReportUtility {
         }
     }
 
-    public static void main(String[] args) {
+    /**
+     * Merges the xml reports from PMD, Checkstyle and FindBugs into a single .html report
+     * 
+     * @param args - Three arguments are expected - path to the merged report for a single project;
+     *            boolean literal representing, if the tool should throw Exception on errors;
+     *            path to the summary report for the whole build
+     * @throws HighPriorityViolationException - thrown if one ore more violation with high priority are found
+     */
+    public static void main(String[] args) throws HighPriorityViolationException {
+
+        if (args.length != 3) {
+            throw new IllegalArgumentException(
+                    "Two arguments expected, received " + args.length + " : " + Arrays.toString(args));
+        }
+
+        final String currentDirectory = args[0];
+        boolean failOnError = Boolean.parseBoolean(args[1]);
+        final String summaryReportDirectory = args[2];
 
         // Prepare userDirectory and tempDirectoryPrefix
-        final String currentDirectory = args[0];
         final String userDirectory = currentDirectory.replace('\\', '/') + '/';
         final String timeStamp = Integer.toHexString((int) System.nanoTime());
         final String tempDirectory = System.getProperty(JAVA_IO_TMPDIR_PROPERTY_KEY);
@@ -184,12 +216,93 @@ public class ScanReportUtility {
         final String htmlOutputFileName = userDirectory + RESULT_FILE_NAME;
         run(CREATE_HTML_XSLT, secondMergeResult, htmlOutputFileName, EMPTY, EMPTY);
 
+        String errorLog = null;
+        if (failOnError) {
+            errorLog = checkForErrors(secondMergeResult, htmlOutputFileName);
+        }
+
         // Delete all temporary files
         deletefile(findbugsTempFile);
         deletefile(checkstyleTempFile);
         deletefile(pmdTempFile);
         deletefile(firstMergeResult);
         deletefile(secondMergeResult);
+
+        try {
+            appendToSummary(htmlOutputFileName, summaryReportDirectory);
+        } catch (IOException e) {
+            LOGGER.warn("Can not read or write to summary report. The summary report might be incomplete!", e);
+        }
+
+        if (failOnError && errorLog != null) {
+            throw new HighPriorityViolationException(errorLog);
+        }
+
     }
 
+    private static String checkForErrors(String secondMergeResult, String reportLocation) {
+        try {
+            File file = new File(secondMergeResult);
+            SAXReader reader = new SAXReader();
+            Document document = reader.read(file);
+
+            List<Node> nodes = document.selectNodes("/sca/file/message[@priority=1]");
+
+            if (nodes.isEmpty()) {
+                return null;
+            }
+            StringBuilder result = new StringBuilder();
+            result.append("Code Analysis Tool has found ").append(nodes.size()).append(" error(s)! \n");
+            result.append("Please fix the errors and rerun the build. \n");
+            result.append("Errors list: \n");
+            for (Node node : nodes) {
+                Node parent = node.getParent();
+                String fileName = parent.valueOf("@name");
+
+                String message = node.valueOf("@message");
+                String tool = node.valueOf("@tool");
+                String line = node.valueOf("@line");
+
+                String logTemplate = "ERROR found by %s: %s:%s %s \n";
+                String log = String.format(logTemplate, tool, fileName, line, message);
+                result.append(log);
+            }
+            result.append("Detailed report can be found at: file").append(File.separator).append(File.separator)
+                    .append(File.separator).append(reportLocation).append("\n");
+            return result.toString();
+
+        } catch (DocumentException e) {
+            LOGGER.error("Error while checking the merged report for high priority violations! The report might be inaccurate!", e);
+        }
+        return null;
+
+    }
+
+    private static void appendToSummary(String htmlOutputFileName, String summaryReportDirectory) throws IOException {
+        File summaryReport = new File(summaryReportDirectory + File.separator + SUMMARY_FILE_NAME);
+
+        if (!summaryReport.exists()) {
+            
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(REPORT_SUBDIR + "/" + SUMMARY_TEMPLATE_FILE_NAME);
+                        
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(inputStream, writer, Charset.defaultCharset());
+            String htmlString = writer.toString();
+            
+
+            String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+            htmlString = htmlString.replace("$time", now);
+
+            FileUtils.writeStringToFile(summaryReport, htmlString);
+        }
+        String reportContent = FileUtils.readFileToString(summaryReport);
+
+        final String singleItem = "<tr class=alternate><td><a href=\"%s\">%s</a></td></tr><tr></tr>";
+        Path reportPath = FileSystems.getDefault().getPath(htmlOutputFileName);
+        String row = String.format(singleItem, reportPath.toUri(), reportPath.getName(reportPath.getNameCount() - 4));
+
+        reportContent = reportContent.replace("<tr></tr>", row);
+        FileUtils.writeStringToFile(summaryReport, reportContent);
+        LOGGER.info("Appended to summary report.");
+    }
 }

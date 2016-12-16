@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Resource used in the test in order an .html report to be build. Does not point to real files in the file system. -->
 <checkstyle version="5.0">
-<file name="C:\Workspace\default_ant\src\org\sprunck\bee\Bee.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\OSGI-INF\jaas.xml">
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\bee\package-info.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\pom.xml">
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\foo\Foo.java">
-<error line="10" severity="error" message="Line has trailing spaces." source="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck"/>
-<error line="20" severity="error" message="Line has trailing spaces." source="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck"/>
-<error line="30" column="26" severity="error" message="&apos;Went&apos; entspricht nicht dem Muster &apos;^[a-z][a-zA-Z0-9]*$&apos;." source="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck"/>
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\src\main\java\org\eclipse\smarthome\auth\jaas\internal\JaasAuthenticationProvider.java">
+<error line="69" severity="error" message="Comment matches to-do format &apos;(TODO)|(FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\foo\package-info.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\build.properties">
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\tests\BeeTest.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\META-INF\MANIFEST.MF">
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\tests\FooTest.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\OSGI-INF\jaas.xml">
 </file>
-<file name="C:\Workspace\default_ant\src\org\sprunck\tests\package-info.java">
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\auth\org.eclipse.smarthome.auth.jaas\pom.xml">
+</file>
+<file name="C:\prj\openHAB\EclipseIDE\git\smarthome\bundles\automation\org.eclipse.smarthome.automation.module.core\ESH-INF\automation\moduletypes\EventTriggersTypeDefinition.json">
+<error line="0" severity="info" message="File does not end with a newline." source="com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck"/>
 </file>
 </checkstyle>

@@ -11,26 +11,26 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 
-import org.eclipse.smarthome.tools.analysis.report.ScanReportUtility;
+import org.eclipse.smarthome.tools.analysis.report.HighPriorityViolationException;
+import org.eclipse.smarthome.tools.analysis.report.ReportUtility;
 import org.junit.Test;
 
 /**
- * Tests for the {@link ScanReportUtility}
+ * Tests for the {@link ReportUtility}
  *
  * @author Svilen Valkanov
  */
 
-public class ScanReportUtilityTest {
+public class ReportUtilityTest {
 
     public static final String TARGET_RELATIVE_DIR = "target" + File.separator + "test-classes" + File.separator
             + "report";
     public static final String TARGET_ABSOLUTE_DIR = System.getProperty("user.dir") + File.separator
             + TARGET_RELATIVE_DIR;
-    public static final String RESULT_FILE_PATH = TARGET_ABSOLUTE_DIR + File.separator
-            + ScanReportUtility.RESULT_FILE_NAME;
+    public static final String RESULT_FILE_PATH = TARGET_ABSOLUTE_DIR + File.separator + ReportUtility.RESULT_FILE_NAME;
 
-    @Test
-    public void assertReportIsCreated() {
+    @Test(expected = HighPriorityViolationException.class)
+    public void assertReportIsCreatedAndBuildFails() throws Exception {
         File file = new File(RESULT_FILE_PATH);
 
         if (file.exists()) {
@@ -39,8 +39,9 @@ public class ScanReportUtilityTest {
 
         assertFalse(file.exists());
 
-        String[] args = { TARGET_ABSOLUTE_DIR };
-        ScanReportUtility.main(args);
+        String[] args = { TARGET_ABSOLUTE_DIR, "true", TARGET_ABSOLUTE_DIR };
+
+        ReportUtility.main(args);
 
         assertTrue(file.exists());
     }
