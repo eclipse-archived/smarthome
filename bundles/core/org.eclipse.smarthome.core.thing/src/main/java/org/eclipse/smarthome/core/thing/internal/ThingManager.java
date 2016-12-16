@@ -458,7 +458,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (!isHandlerRegistered(thing)) {
             registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
         } else {
-            logger.warn("Handler of tracked thing '{}' already registered.", thing.getUID());
+            logger.debug("Handler of tracked thing '{}' already registered.", thing.getUID());
         }
     }
 
@@ -580,7 +580,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     }
                 }
             } else {
-                logger.warn("Attempt to register a handler twice for thing {} at the same time will be ignored.",
+                logger.debug("Attempt to register a handler twice for thing {} at the same time will be ignored.",
                         thing.getUID());
             }
         }
@@ -650,7 +650,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                         ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
                             }
                         } else {
-                            logger.warn(
+                            logger.debug(
                                     "Attempt to initialize a handler twice for thing '{}' at the same time will be ignored.",
                                     thing.getUID());
                         }
@@ -966,7 +966,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (!isHandlerRegistered(thing)) {
                     registerAndInitializeHandler(thing, thingHandlerFactory);
                 } else {
-                    logger.warn("Thing handler for thing '{}' already registered", thing.getUID());
+                    logger.debug("Thing handler for thing '{}' already registered", thing.getUID());
                 }
             }
         }
