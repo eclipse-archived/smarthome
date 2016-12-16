@@ -410,6 +410,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
 
+            boolean updateAllGroup = false;
+
             // update the appropriate channel
             switch (variable) {
                 case "TransportState": {
@@ -424,21 +426,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     if (stateMap.get("TransportState").equals("PAUSED_PLAYBACK")) {
                         updateState(CONTROL, PlayPauseType.PAUSE);
                     }
-
-                    if (isCoordinator()) {
-                        // update member states
-                        for (String member : getOtherZoneGroupMembers()) {
-                            try {
-                                ZonePlayerHandler memberHandler = getHandlerByName(member);
-                                if (memberHandler != null && memberHandler.getThing() != null
-                                        && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
-                                    memberHandler.onValueReceived("TransportState", value, service);
-                                }
-                            } catch (IllegalStateException e) {
-                                logger.warn("Cannot update playback state for group member ({})", e.getMessage());
-                            }
-                        }
-                    }
+                    updateAllGroup = true;
                     break;
                 }
                 case "CurrentPlayMode": {
@@ -452,6 +440,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                         newState = new StringType(getRepeatMode());
                     }
                     updateState(REPEAT, newState);
+                    updateAllGroup = true;
                     break;
                 }
                 case "CurrentLEDState": {
@@ -602,6 +591,23 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                             sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
                                     : UnDefType.UNDEF);
                     break;
+                }
+
+                default:
+                    break;
+            }
+            if (updateAllGroup && isCoordinator()) {
+                // update all group members like the group coordinator
+                for (String member : getOtherZoneGroupMembers()) {
+                    try {
+                        ZonePlayerHandler memberHandler = getHandlerByName(member);
+                        if (memberHandler != null && memberHandler.getThing() != null
+                                && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                            memberHandler.onValueReceived(variable, value, service);
+                        }
+                    } catch (IllegalStateException e) {
+                        logger.warn("Cannot update channel for group member ({})", e.getMessage());
+                    }
                 }
             }
         }
