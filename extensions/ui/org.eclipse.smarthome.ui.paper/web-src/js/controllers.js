@@ -167,10 +167,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     $scope.getSelected = function(property) {
         return $('select#' + property + ' option:selected').val();
     }
-}).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig) {
+}).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig, moduleLabels) {
     $scope.opened = null;
     $scope.extensionEnabled;
     $scope.ruleEnabled;
+    $scope.moduleLabels = moduleLabels;
     $scope.open = function(viewLocation) {
         $scope.opened = viewLocation;
     }
