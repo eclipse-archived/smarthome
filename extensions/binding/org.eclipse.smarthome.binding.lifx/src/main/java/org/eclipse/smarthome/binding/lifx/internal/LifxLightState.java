@@ -64,8 +64,8 @@ public class LifxLightState {
         }
     }
 
-    public void setPowerState(OnOffType onOffType) {
-        setPowerState(onOffType == OnOffType.ON ? PowerState.ON : PowerState.OFF);
+    public void setPowerState(OnOffType newOnOff) {
+        setPowerState(PowerState.fromOnOffType(newOnOff));
     }
 
     public void setPowerState(PowerState newPowerState) {

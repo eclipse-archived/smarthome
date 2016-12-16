@@ -20,10 +20,10 @@ import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightS
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightInfraredResponse;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightPowerResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StatePowerResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateResponse;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
@@ -120,11 +120,8 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     }
 
     private void sendLightStateRequests() {
-        GetLightPowerRequest powerPacket = new GetLightPowerRequest();
-        communicationHandler.sendPacket(powerPacket);
-
-        GetRequest colorPacket = new GetRequest();
-        communicationHandler.sendPacket(colorPacket);
+        GetRequest statePacket = new GetRequest();
+        communicationHandler.sendPacket(statePacket);
 
         if (thingTypeUID.equals(THING_TYPE_COLORIRLIGHT)) {
             GetLightInfraredRequest infraredPacket = new GetLightInfraredRequest();
@@ -138,6 +135,8 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
             handleLightStatus((StateResponse) packet);
         } else if (packet instanceof StatePowerResponse) {
             handlePowerStatus((StatePowerResponse) packet);
+        } else if (packet instanceof StateLightPowerResponse) {
+            handleLightPowerStatus((StateLightPowerResponse) packet);
         } else if (packet instanceof StateLightInfraredResponse) {
             handleInfraredStatus((StateLightInfraredResponse) packet);
         }
@@ -149,7 +148,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
         }
     }
 
-    public void handleLightStatus(StateResponse packet) {
+    private void handleLightStatus(StateResponse packet) {
         DecimalType hue = hueToDecimalType(packet.getHue());
         PercentType saturation = saturationToPercentType(packet.getSaturation());
         PercentType brightness = brightnessToPercentType(packet.getBrightness());
@@ -157,15 +156,21 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
 
         currentLightState.setHSB(new HSBType(hue, saturation, brightness));
         currentLightState.setTemperature(temperature);
+        currentLightState.setPowerState(packet.getPower());
         currentLightState.setOnline();
     }
 
-    public void handlePowerStatus(StatePowerResponse packet) {
+    private void handlePowerStatus(StatePowerResponse packet) {
         currentLightState.setPowerState(packet.getState());
         currentLightState.setOnline();
     }
 
-    public void handleInfraredStatus(StateLightInfraredResponse packet) {
+    private void handleLightPowerStatus(StateLightPowerResponse packet) {
+        currentLightState.setPowerState(packet.getState());
+        currentLightState.setOnline();
+    }
+
+    private void handleInfraredStatus(StateLightInfraredResponse packet) {
         PercentType infrared = infraredToPercentType(packet.getInfrared());
         currentLightState.setInfrared(infrared);
         currentLightState.setOnline();
