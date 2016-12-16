@@ -12,7 +12,7 @@ Execute `mvn clean install -P check` from the root of the Eclipse SmartHome proj
 
 This profile (`check`) applies some general configuration to the Maven plugins for PMD, Checkstyle and FindBugs.
 
-Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `result.html`. The result report is aggregated by Static Code Analysis Report Tool.
+Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `report.html`. The result report is aggregated by Static Code Analysis Report Tool.
 
 ## Failing The Build
 
@@ -89,11 +89,10 @@ For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guideline
 
 ## Known Problems 
 
-- If the build is configured to fail on error, combined report will not be generated in the bundle that fails the build. You will see only the error message provided by the plugin that has failed the build;
 - The combined report does not conatin links to the Checkstyle rule definitions;
 - Flooded console output when running Checkstyle in debug mode in Maven  (- X ) - https://github.com/checkstyle/checkstyle/issues/3184;
 
 ## 3rd Party
 
 - The example checks provided in the `static-code-analysis-config` (`MethodLimitCheck`, `CustomClassNameLengthDetector`, `WhileLoopsMustUseBracesRule`) are based on tutorials how to use the API of Checkstyle, FindBugs and PMD. For more info, see javadoc.
-- Static Code Analysis Report Tool is based completely on source files from the https://github.com/MarkusSprunck/static-code-analysis-report that are distributed under a custom license. More information can be found in the `static-code-analysis-config` LICENSE.txt file;
+- The tool that merges the individual reports is based completely on source files from the https://github.com/MarkusSprunck/static-code-analysis-report that are distributed under a custom license. More information can be found in the LICENSE.txt file;
