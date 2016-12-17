@@ -132,7 +132,7 @@ public class PersistenceExtensionsTest {
         long recentInterval = DateTime.now().getMillis() - endStored.getMillis();
         double expected = (2007.4994 * storedInterval + 2518.5 * recentInterval) / (storedInterval + recentInterval);
         DecimalType average = PersistenceExtensions.averageSince(item, startStored, "test");
-        assertEquals(expected, average.doubleValue(), 0.001);
+        assertEquals(expected, average.doubleValue(), 0.01);
     }
 
     @Test

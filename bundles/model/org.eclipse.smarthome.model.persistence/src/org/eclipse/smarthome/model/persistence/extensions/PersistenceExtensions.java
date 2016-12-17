@@ -377,7 +377,6 @@ public class PersistenceExtensions {
      *
      * @param item the item to get the average state value for
      * @param timestamp the point in time from which to search for the average state value
-     * @param includeCurrentValue include the current value in the calculation
      * @return the average state values since <code>timestamp</code>, <code>null</code> if the default persistence
      *         service is not available, or the state of the given <code>item</code> if no previous states could be
      *         found or if the default persistence service does not refer to an available
@@ -423,7 +422,6 @@ public class PersistenceExtensions {
                             MathContext.DECIMAL64);
                     timeSpan = thisTimestamp.subtract(lastTimestamp);
                     total = total.add(avgValue.multiply(timeSpan, MathContext.DECIMAL64));
-
                 }
                 lastTimestamp = thisTimestamp;
                 lastState = thisState;
