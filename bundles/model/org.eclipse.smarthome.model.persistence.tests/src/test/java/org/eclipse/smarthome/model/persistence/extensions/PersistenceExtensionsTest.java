@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.persistence.tests.TestPersistenceService;
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import org.junit.Test;
 /**
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Jan N. Klug
  */
 @SuppressWarnings("deprecation")
 public class PersistenceExtensionsTest {
@@ -124,8 +126,13 @@ public class PersistenceExtensionsTest {
     @Test
     public void testAverageSince() {
         item.setState(new DecimalType(3025));
-        DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), "test");
-        assertEquals("2100", average.toString());
+        DateMidnight startStored = new DateMidnight(2003, 1, 1);
+        DateMidnight endStored = new DateMidnight(2012, 1, 1);
+        long storedInterval = endStored.getMillis() - startStored.getMillis();
+        long recentInterval = DateTime.now().getMillis() - endStored.getMillis();
+        double expected = (2007.4994 * storedInterval + 2518.5 * recentInterval) / (storedInterval + recentInterval);
+        DecimalType average = PersistenceExtensions.averageSince(item, startStored, "test");
+        assertEquals(expected, average.doubleValue(), 0.01);
     }
 
     @Test

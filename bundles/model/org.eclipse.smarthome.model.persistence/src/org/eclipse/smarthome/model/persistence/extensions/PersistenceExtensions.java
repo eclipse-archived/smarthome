@@ -77,7 +77,8 @@ public class PersistenceExtensions {
                         .warn("There is no default persistence service configured!");
             }
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn("PersistenceServiceRegistryImpl is not available!");
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("PersistenceServiceRegistryImpl is not available!");
         }
         return null;
     }
@@ -400,24 +401,50 @@ public class PersistenceExtensions {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceId);
         Iterator<HistoricItem> it = result.iterator();
 
-        DecimalType value = (DecimalType) item.getStateAs(DecimalType.class);
-        if (value == null) {
-            value = DecimalType.ZERO;
-        }
+        BigDecimal total = BigDecimal.ZERO;
 
-        BigDecimal total = value.toBigDecimal();
-        int quantity = 1;
+        BigDecimal avgValue, timeSpan;
+        DecimalType lastState = null, thisState = null;
+        BigDecimal lastTimestamp = null, thisTimestamp = null;
+        BigDecimal firstTimestamp = null;
+
         while (it.hasNext()) {
-            State state = it.next().getState();
+            HistoricItem thisItem = it.next();
+            State state = thisItem.getState();
+
             if (state instanceof DecimalType) {
-                value = (DecimalType) state;
-                total = total.add(value.toBigDecimal());
-                quantity++;
+                thisState = (DecimalType) state;
+                thisTimestamp = BigDecimal.valueOf(thisItem.getTimestamp().getTime());
+                if (firstTimestamp == null) {
+                    firstTimestamp = thisTimestamp;
+                } else {
+                    avgValue = (thisState.toBigDecimal().add(lastState.toBigDecimal())).divide(BigDecimal.valueOf(2),
+                            MathContext.DECIMAL64);
+                    timeSpan = thisTimestamp.subtract(lastTimestamp);
+                    total = total.add(avgValue.multiply(timeSpan, MathContext.DECIMAL64));
+                }
+                lastTimestamp = thisTimestamp;
+                lastState = thisState;
             }
         }
-        BigDecimal average = total.divide(BigDecimal.valueOf(quantity), MathContext.DECIMAL64);
 
-        return new DecimalType(average);
+        if (lastState != null) {
+            thisState = (DecimalType) item.getStateAs(DecimalType.class);
+            thisTimestamp = BigDecimal.valueOf((new DateTime()).getMillis());
+            avgValue = (thisState.toBigDecimal().add(lastState.toBigDecimal())).divide(BigDecimal.valueOf(2),
+                    MathContext.DECIMAL64);
+            timeSpan = thisTimestamp.subtract(lastTimestamp);
+            total = total.add(avgValue.multiply(timeSpan, MathContext.DECIMAL64));
+        }
+
+        if (thisTimestamp != null) {
+            timeSpan = thisTimestamp.subtract(firstTimestamp, MathContext.DECIMAL64);
+
+            BigDecimal average = total.divide(timeSpan, MathContext.DECIMAL64);
+            return new DecimalType(average);
+        } else {
+            return null;
+        }
     }
 
     /**
