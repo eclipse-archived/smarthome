@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * This is a helper class that helps parsing a string into an openHAB type (state or command).
+ * This is a helper class that helps parsing a string into an Eclipse SmartHome type (state or command).
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -22,7 +22,8 @@ public final class TypeParser {
     /**
      * No instances allowed.
      */
-    private TypeParser() {}
+    private TypeParser() {
+    }
 
     private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
 
@@ -55,7 +56,7 @@ public final class TypeParser {
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
      * </p>
-     * 
+     *
      * @param types possible types of the state to consider
      * @param s the string to parse
      * @return the corresponding State instance or <code>null</code>
@@ -65,8 +66,9 @@ public final class TypeParser {
             try {
                 Method valueOf = type.getMethod("valueOf", String.class);
                 State state = (State) valueOf.invoke(type, s);
-                if (state != null)
+                if (state != null) {
                     return state;
+                }
             } catch (NoSuchMethodException e) {
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {
@@ -85,7 +87,7 @@ public final class TypeParser {
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
      * </p>
-     * 
+     *
      * @param types possible types of the command to consider
      * @param s the string to parse
      * @return the corresponding Command instance or <code>null</code>
@@ -95,8 +97,9 @@ public final class TypeParser {
             try {
                 Method valueOf = type.getMethod("valueOf", String.class);
                 Command value = (Command) valueOf.invoke(type, s);
-                if (value != null)
+                if (value != null) {
                     return value;
+                }
             } catch (NoSuchMethodException e) {
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {

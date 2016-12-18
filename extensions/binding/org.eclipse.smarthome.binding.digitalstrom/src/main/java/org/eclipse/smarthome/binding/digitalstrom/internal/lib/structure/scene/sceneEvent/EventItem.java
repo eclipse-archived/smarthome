@@ -8,16 +8,6 @@
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.sceneEvent;
 
 import java.util.HashMap;
-
-/**
- * Copyright (c) 2010-2014, openHAB.org and others.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
-
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.EventPropertyEnum;

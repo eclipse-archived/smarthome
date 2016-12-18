@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the openHAB MapDB Storage
+Bundle-Name: Tests for the Eclipse SmartHome MapDB Storage
 Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb.test
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome

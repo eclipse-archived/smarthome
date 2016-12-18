@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Item Model
-Bundle-Vendor: openHABorg
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.item;singleton:=true
 Require-Bundle: org.eclipse.xtext,
