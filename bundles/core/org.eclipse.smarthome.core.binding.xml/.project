@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>org.eclipse.smarthome.core.binding.xml</name>
-	<comment>This is the runtime binding XML component of the open Home Automation Bus (openHAB)</comment>
+	<comment>This is the runtime binding XML component of Eclipse SmartHome</comment>
 	<projects>
 	</projects>
 	<buildSpec>

@@ -24,7 +24,7 @@ import org.eclipse.smarthome.io.console.ConsoleInterpreter;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
 /**
- * This class provides access to openHAB functionality through the OSGi console
+ * This class provides access to Eclipse SmartHome functionality through the OSGi console
  * of Equinox. Unfortunately, there these command providers are not standardized
  * for OSGi, so we need different implementations for different OSGi containers.
  *

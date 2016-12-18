@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The proxy servlet is used by image and video widgets. As its name suggests, it proxies the content, so
- * that it is possible to include resources (images/videos) from the LAN in the openHAB UI. This is
+ * that it is possible to include resources (images/videos) from the LAN in the web UI. This is
  * especially useful for webcams as you would not want to make them directly available to the internet.
  *
  * The servlet registers as "/proxy" and expects the two parameters "sitemap" and "widgetId". It will
@@ -62,8 +62,8 @@ import org.slf4j.LoggerFactory;
  * widgets in your sitemaps.
  *
  * It is also possible to use credentials in a url, e.g. "http://user:pwd@localserver/image.jpg" -
- * the proxy servlet will be able to access the content and provide it to the openHAB UIs through the
- * standard openHAB authentication mechanism (if enabled).
+ * the proxy servlet will be able to access the content and provide it to the web UIs through the
+ * standard web authentication mechanism (if enabled).
  *
  * This servlet also supports data streams, such as a webcam video stream etc.
  *
