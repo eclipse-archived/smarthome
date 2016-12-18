@@ -12,7 +12,7 @@ import java.util.Locale;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
- * A persistence service which can be used to store data from openHAB.
+ * A persistence service which can be used to store data from Eclipse SmartHome.
  * This must not necessarily be a local database, a persistence service
  * can also be cloud-based or a simply data-export facility (e.g.
  * for sending data to an IoT (Internet of Things) service.
