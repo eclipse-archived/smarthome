@@ -62,6 +62,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 /**
  * This class is used to initialized and execute {@link Rule}s added in rule engine. Each Rule has associated
  * {@link RuleStatusInfo} object which shows status and status details of of the Rule. The states are self excluded and
@@ -155,6 +158,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private Map<String, Future> scheduleTasks = new HashMap<String, Future>(31);
 
     private ScheduledExecutorService executor;
+
+    private Gson gson;
 
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts tracker for {@link ModuleHandlerFactory}
@@ -379,13 +384,10 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         List<Module> modules = runtimeRule.getModules(null);
         String errMsgs;
         try {
-            resolveConfiguration(runtimeRule);
             validateModuleIDs(modules);
-
+            resolveConfiguration(runtimeRule);
             autoMapConnections(runtimeRule);
-
             ConnectionValidator.validateConnections(runtimeRule);
-            setDefaultConfigurationValues(modules);
         } catch (RuntimeException e) {
             errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage();
             // change state to NOTINITIALIZED
@@ -396,7 +398,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
         errMsgs = setModuleHandlers(rUID, modules);
         if (errMsgs == null) {
-            resolveDefaultValues(runtimeRule);
             register(runtimeRule);
             // change state to IDLE
             setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE));
@@ -1070,56 +1071,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         this.statusInfoCallback = statusInfoCallback;
     }
 
-    private void resolveDefaultValues(RuntimeRule r) {
-        setDefaultAndNormalizeConfigValues(r.getUID(), r.getTriggers());
-        setDefaultAndNormalizeConfigValues(r.getUID(), r.getConditions());
-        setDefaultAndNormalizeConfigValues(r.getUID(), r.getActions());
-    }
-
-    private <T extends Module> void setDefaultAndNormalizeConfigValues(String ruleUID, List<T> modules) {
-        for (T module : modules) {
-            Configuration moduleConfiguration = module.getConfiguration();
-            String typeId = module.getTypeUID();
-            ModuleType mt = mtRegistry.get(typeId);
-            List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
-            if (configDescriptions != null) {
-                for (ConfigDescriptionParameter configDescription : configDescriptions) {
-                    String defaultValue = configDescription.getDefault();
-                    String configName = configDescription.getName();
-                    Object configValue = moduleConfiguration.get(configName);
-                    if (configValue == null) {
-                        if (defaultValue != null) {
-                            moduleConfiguration.put(configName,
-                                    ConfigUtil.normalizeType(defaultValue, configDescription));
-                        }
-                    } else {
-                        moduleConfiguration.put(configName, ConfigUtil.normalizeType(configValue, configDescription));
-                    }
-                } // for
-            }
-
-            List<Output> outputs = null;
-            if (mt instanceof TriggerType) {
-                outputs = ((TriggerType) mt).getOutputs();
-            } else if (mt instanceof ActionType) {
-                outputs = ((ActionType) mt).getOutputs();
-            }
-
-            if (outputs != null) {
-                Map<String, Object> result = new HashMap<String, Object>(11);
-                for (Output output : outputs) {
-                    Object defaultValue = output.getDefaultValue();
-                    if (defaultValue != null) {
-                        result.put(output.getName(), defaultValue);
-                    }
-                }
-                if (result.size() > 0) {
-                    updateContext(ruleUID, module.getId(), result);
-                }
-            }
-        }
-    }
-
     private ScheduledExecutorService getScheduledExecutor() {
         if (executor == null || executor.isShutdown()) {
             executor = Executors.newSingleThreadScheduledExecutor();
@@ -1141,74 +1092,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             }
         } else {
             scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
-        }
-    }
-
-    /**
-     * The method sets default configuration values for these configuration properties which are not specified in the
-     * rule
-     * definition but have default values defined in module type definition.
-     *
-     * @param modules
-     *
-     * @param module checked module
-     * @throws IllegalArgumentException when passed module has a required configuration property and it is not specified
-     *             in rule definition nor in the module's module type definition.
-     */
-    private void setDefaultConfigurationValues(List<Module> modules) {
-        for (Module module : modules) {
-            String type = module.getTypeUID();
-            if (mtRegistry != null) {
-                Configuration mConfig = module.getConfiguration();
-                if (mConfig == null) {
-                    mConfig = new Configuration();
-                }
-                ModuleType mt = mtRegistry.get(type);
-                if (mt != null) {
-                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
-                    for (ConfigDescriptionParameter cftDesc : configDescriptions) {
-                        String parameterName = cftDesc.getName();
-                        if (mConfig.get(parameterName) == null) {
-                            String strValue = cftDesc.getDefault();
-                            if (strValue != null) {
-                                Type t = cftDesc.getType();
-                                Object defValue = getDefaultValue(t, strValue);
-                                mConfig.put(parameterName, defValue);
-                            } else {
-                                if (cftDesc.isRequired()) {
-                                    throw new RuntimeException(
-                                            "Missing required parameter: " + parameterName + " of type " + type);
-                                }
-                            }
-                        }
-                    }
-                }
-                module.setConfiguration(mConfig);
-            } else {
-                logger.warn("Can't get module type definition for:" + type + ". Missing ModuleTypeManager");
-            }
-        }
-    }
-
-    /**
-     * The method parses string presentation of default value
-     *
-     * @param type type of default object
-     * @param value string presentation of default object
-     * @return default value
-     */
-    private Object getDefaultValue(Type type, String value) {
-        switch (type) {
-            case BOOLEAN:
-                return Boolean.valueOf(value);
-            case INTEGER:
-                return Integer.valueOf(value);
-            case DECIMAL:
-                return new BigDecimal(value);
-            case TEXT:
-                return value;
-            default:
-                return null;
         }
     }
 
@@ -1396,6 +1279,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             handleModuleConfigReferences(rule.getConditions(), configuration);
             handleModuleConfigReferences(rule.getActions(), configuration);
         }
+        normalizeRuleConfigurations(rule);
         validateConfiguration(rule.getUID(), configDescriptions, new HashMap<String, Object>(configuration));
     }
 
@@ -1443,9 +1327,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private void processValue(Object configValue, ConfigDescriptionParameter configParameter) {
         if (configValue != null) {
             checkType(configValue, configParameter);
-            return;
-        }
-        if (configParameter.getDefault() != null) {
             return;
         }
         if (configParameter.isRequired()) {
@@ -1496,6 +1377,79 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         if (modules != null) {
             for (Module module : modules) {
                 ReferenceResolverUtil.updateModuleConfiguration(module, ruleConfiguration);
+            }
+        }
+    }
+
+    private void normalizeRuleConfigurations(Rule rule) {
+        List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
+        Map<String, ConfigDescriptionParameter> mapConfigDescriptions;
+        if (configDescriptions != null) {
+            mapConfigDescriptions = getConfigDescriptionMap(configDescriptions);
+            normalizeConfiguration(rule.getConfiguration(), mapConfigDescriptions);
+        }
+        normalizeModuleConfigurations(rule.getTriggers());
+        normalizeModuleConfigurations(rule.getConditions());
+        normalizeModuleConfigurations(rule.getActions());
+
+    }
+
+    private <T extends Module> void normalizeModuleConfigurations(List<T> modules) {
+        for (Module module : modules) {
+            Configuration config = module.getConfiguration();
+            if (config != null) {
+                String type = module.getTypeUID();
+                ModuleType mt = mtRegistry.get(type);
+                if (mt != null) {
+                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
+                    if (configDescriptions != null) {
+                        Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
+                                configDescriptions);
+                        normalizeConfiguration(config, mapConfigDescriptions);
+                    }
+                }
+            }
+        }
+    }
+
+    private Map<String, ConfigDescriptionParameter> getConfigDescriptionMap(
+            List<ConfigDescriptionParameter> configDesc) {
+        Map<String, ConfigDescriptionParameter> mapConfigDescs = null;
+        if (configDesc != null) {
+            for (ConfigDescriptionParameter configDescriptionParameter : configDesc) {
+                if (mapConfigDescs == null) {
+                    mapConfigDescs = new HashMap<String, ConfigDescriptionParameter>();
+                }
+                mapConfigDescs.put(configDescriptionParameter.getName(), configDescriptionParameter);
+            }
+        }
+        return mapConfigDescs;
+    }
+
+    private void normalizeConfiguration(Configuration config, Map<String, ConfigDescriptionParameter> mapCD) {
+        if (config != null && mapCD != null) {
+            for (String propName : config.keySet()) {
+                ConfigDescriptionParameter cd = mapCD.get(propName);
+                if (cd != null && cd.isMultiple()) {
+                    Object tmp = config.get(propName);
+                    if (tmp == null) {
+                        tmp = cd.getDefault();
+                    }
+                    if (tmp != null && tmp instanceof String) {
+                        String sValue = (String) tmp;
+                        if (gson == null) {
+                            gson = new Gson();
+                        }
+                        try {
+                            Object value = gson.fromJson(sValue, List.class);
+                            config.put(propName, value);
+                        } catch (JsonSyntaxException e) {
+                            logger.error("Can't parse {} to list value.", sValue, e);
+                        }
+                        continue;
+                    }
+                }
+                config.put(propName, ConfigUtil.normalizeType(config.get(propName), cd));
             }
         }
     }
