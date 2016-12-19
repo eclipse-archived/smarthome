@@ -10,10 +10,11 @@ angular.module('PaperUI.constants', []).constant('globalConfig', {
     'configuration' : true,
     'setup' : true,
     'configuration' : true,
-    'extensions' : true,
+    'extensions' : {
+        'label' : 'Extensions',
+        'visible' : true
+    },
     'rules' : true,
     'preferences' : true,
     'groups' : true
-}).constant('moduleLabels', {
-    'extensions' : 'Extensions'
 });
