@@ -963,12 +963,12 @@ md-dialog-content .dayParameter {
 	outline: 0;
 }
 
-.item-content .actions i:hover, .rules .actions span:hover, .linkedItems .action i:hover {
+.item-content .actions i:hover, .rules .actions span:hover, .linkedItems .action i:hover, .search i.clickable:hover {
 	cursor: pointer;
 	box-shadow: 0px 0px 4px 2px #dedede;
 }
 
-.rules .actions span {
+.rules .actions span, .search i.clickable {
 	transition: box-shadow .4s;
 	border-radius: 100%;
 	border: 5px solid transparent;
@@ -1177,4 +1177,20 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .textControl .state {
 	font-size: 30px;
 	font-weight: 300;
+}
+
+.searchBox {
+	transition:all linear 0.2s;
+}
+.searchBox.ng-hide {
+  opacity: 0;
+}
+
+@media all and (min-width: 768px) {
+    .typeSearch {
+        padding-right: 0px;
+    }
+    .groupSearch {
+        padding-left: 0px;
+    }
 }
