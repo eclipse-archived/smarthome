@@ -193,11 +193,10 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     $scope.getSelected = function(property) {
         return $('select#' + property + ' option:selected').val();
     }
-}).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig, moduleLabels) {
+}).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig) {
     $scope.opened = null;
     $scope.extensionEnabled;
     $scope.ruleEnabled;
-    $scope.moduleLabels = moduleLabels;
     $scope.open = function(viewLocation) {
         $scope.opened = viewLocation;
     }
@@ -210,7 +209,14 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         return active;
     }
     $scope.isHidden = function(module) {
-        return moduleConfig[module] === false;
+        return (moduleConfig[module].hasOwnProperty('visible') ? moduleConfig[module].visible : moduleConfig[module]) === false;
+    }
+    $scope.getLabel = function(property) {
+        var object = moduleConfig && moduleConfig[property] ? moduleConfig[property] : '';
+        if (object && object.hasOwnProperty('label') && object['label']) {
+            return object['label'];
+        }
+        return 'Extensions';
     }
     $scope.$on('$routeChangeSuccess', function() {
         $('body').removeClass('sml-open');
