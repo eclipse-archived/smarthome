@@ -65,7 +65,7 @@
 									<dl class="dropdown" multi-select ng-init="filterText=''">
 										<dt class="col-xs-12">
 											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" select-validation="{{parameter.required}}">
-												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{parameter.options.length==0 || (parameter.options.length>0 && !parameter.limitToOptions)?'Add or search':'Search'}}" value="" ng-model="filterText" ng-keypress="onEnterPress($event)" />
+												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{getPlaceHolderText(configuration,parameter)}}" value="" ng-model="filterText" ng-keypress="onEnterPress($event)" />
 
 												<i ng-if="parameter.options.length==0 || (parameter.options.length>0 && !parameter.limitToOptions)" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
 											</a>
