@@ -100,7 +100,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.createItem = function(selectedType, selectedGroup) {
         sharedProperties.updateParams({
             selectedType : selectedType,
-            selectedGroup : selectedGroup.name
+            selectedGroup : selectedGroup ? selectedGroup.name : ''
         });
         $scope.navigateTo('item/create')
     }
