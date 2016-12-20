@@ -16,8 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -28,6 +27,7 @@ import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -50,7 +50,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType>implements ModuleTypeProvider {
+public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType> implements ModuleTypeProvider {
 
     /**
      * This field holds a reference to the {@link TemplateProvider} service registration.
@@ -67,6 +67,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      */
     public CommandlineModuleTypeProvider(BundleContext context) {
         super(context);
+        listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
+        mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, null);
     }
 
     /**
@@ -156,7 +158,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         if (portfolio != null && !portfolio.isEmpty()) {
             synchronized (providedObjectsHolder) {
                 for (String uid : portfolio) {
-                    providedObjectsHolder.remove(uid);
+                    notifyListeners(providedObjectsHolder.remove(uid));
                 }
             }
         }
@@ -172,7 +174,6 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         super.close();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected Set<ModuleType> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader)
             throws ParsingException {
@@ -191,21 +192,13 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
                 if (exceptions.isEmpty()) {
                     portfolio.add(uid);
                     synchronized (providedObjectsHolder) {
-                        providedObjectsHolder.put(uid, providedObject);
+                        notifyListeners(providedObjectsHolder.put(uid, providedObject), providedObject);
                     }
                 } else {
                     importDataExceptions.addAll(exceptions);
                 }
             }
-            if (importDataExceptions.isEmpty()) {
-                Dictionary<String, Object> properties = new Hashtable<String, Object>();
-                properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
-                if (mtpReg == null) {
-                    mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-                } else {
-                    mtpReg.setProperties(properties);
-                }
-            } else {
+            if (!importDataExceptions.isEmpty()) {
                 throw new ParsingException(importDataExceptions);
             }
         }
@@ -229,6 +222,46 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             exceptions.add(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, uid,
                     new IllegalArgumentException("Module Type with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!")));
+        }
+    }
+
+    @Override
+    public Collection<ModuleType> getAll() {
+        return new LinkedList<ModuleType>(providedObjectsHolder.values());
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
+    }
+
+    protected void notifyListeners(ModuleType oldElement, ModuleType newElement) {
+        synchronized (listeners) {
+            for (ProviderChangeListener<ModuleType> listener : listeners) {
+                if (oldElement != null) {
+                    listener.updated(this, oldElement, newElement);
+                }
+                listener.added(this, newElement);
+            }
+        }
+    }
+
+    protected void notifyListeners(ModuleType removedObject) {
+        if (removedObject != null) {
+            synchronized (listeners) {
+                for (ProviderChangeListener<ModuleType> listener : listeners) {
+                    listener.removed(this, removedObject);
+                }
+            }
         }
     }
 

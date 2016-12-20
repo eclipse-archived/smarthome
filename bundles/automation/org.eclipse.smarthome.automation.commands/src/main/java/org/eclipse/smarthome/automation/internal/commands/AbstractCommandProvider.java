@@ -21,6 +21,7 @@ import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -75,6 +76,8 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * The Map has for keys UIDs of the objects and for values {@link Localizer}s of the objects.
      */
     protected Map<String, E> providedObjectsHolder = new HashMap<String, E>();
+
+    protected List<ProviderChangeListener<E>> listeners;
 
     /**
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.

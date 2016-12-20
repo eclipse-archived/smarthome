@@ -1,10 +1,16 @@
-/**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+/*******************************************************************************
+ *
+ * Copyright (c) 2016  Bosch Software Innovations GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html
- */
+ * The Eclipse Distribution License is available at
+ * http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *******************************************************************************/
 package org.eclipse.smarthome.automation.core.internal.template;
 
 import java.util.ArrayList;
@@ -22,6 +28,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -35,11 +42,11 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - TemplateRegistry extends AbstractRegistry
  */
-public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String, Provider<RuleTemplate>>
+public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String, RuleTemplateProvider>
         implements TemplateRegistry<RuleTemplate> {
 
     public RuleTemplateRegistry() {
-        super(null);
+        super(RuleTemplateProvider.class);
     }
 
     @Override
@@ -58,9 +65,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
     public RuleTemplate get(String templateUID, Locale locale) {
         RuleTemplate resultTemplate = null;
         for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            if (provider instanceof TemplateProvider) {
-                resultTemplate = ((TemplateProvider) provider).getTemplate(templateUID, locale);
-            }
+            resultTemplate = ((RuleTemplateProvider) provider).getTemplate(templateUID, locale);
             if (resultTemplate != null) {
                 return createCopy(resultTemplate);
             }
@@ -132,9 +137,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
         Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
         Collection<RuleTemplate> templates = null;
         for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            if (provider instanceof TemplateProvider) {
-                templates = ((TemplateProvider) provider).getTemplates(locale);
-            }
+            templates = ((RuleTemplateProvider) provider).getTemplates(locale);
             if (templates != null) {
                 for (Iterator< RuleTemplate>it = templates.iterator(); it.hasNext();) {
                     RuleTemplate t = it.next();
@@ -163,9 +166,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
         Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
         Collection<RuleTemplate> templates = null;
         for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            if (provider instanceof TemplateProvider) {
-                templates = ((TemplateProvider) provider).getTemplates(locale);
-            }
+            templates = ((RuleTemplateProvider) provider).getTemplates(locale);
             if (templates != null) {
                 for (Iterator< RuleTemplate>it = templates.iterator(); it.hasNext();) {
                     RuleTemplate t = it.next();
