@@ -12,7 +12,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         event.stopImmediatePropagation();
         $mdDialog.show({
             controller : 'ItemRemoveController',
-            templateUrl : 'partials/dialog.removeitem.html',
+            templateUrl : 'partials/dialog.remove.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
