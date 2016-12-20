@@ -1,10 +1,21 @@
 angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemService, toastService, sharedProperties) {
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
-    $scope.items = [];
+    $scope.items = [], $scope.groups = [], $scope.types = [];
     $scope.refresh = function() {
         itemService.getAll(function(items) {
             $scope.items = items;
+            var groups = [], types = [];
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type && items[i].type == "Group") {
+                    groups.push(items[i]);
+                }
+                if (items[i].type && types.indexOf(items[i].type) == -1) {
+                    types.push(items[i].type);
+                }
+            }
+            $scope.groups = groups;
+            $scope.types = types;
         });
 
     };
@@ -25,6 +36,75 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.getSrcURL = function(category, type) {
         return category ? '../icon/' + category.toLowerCase() : type ? '../icon/' + type.toLowerCase().replace('item', '') : '';
     }
+    $scope.filterItems = function() {
+        return function(item) {
+            var filtered = isFiltered(item);
+            if ($scope.searchText && $scope.searchText.length > 0) {
+                if ((item.name && item.name.toUpperCase().indexOf($scope.searchText.toUpperCase()) != -1) || (item.label && item.label.toUpperCase().indexOf($scope.searchText.toUpperCase()) != -1)) {
+                    return filtered
+                }
+                return false;
+            } else {
+                return filtered;
+            }
+        }
+    }
+    function isFiltered(item) {
+        if (!$scope.selectedGroup && !$scope.selectedType) {
+            return true;
+        } else if ($scope.selectedGroup && !$scope.selectedType && item.groupNames.indexOf($scope.selectedGroup.name) != -1) {
+            return true
+        } else if (!$scope.selectedGroup && $scope.selectedType && item.type && $scope.selectedType == item.type) {
+            return item.type ? $scope.selectedType == item.type : false;
+        } else if ($scope.selectedGroup && $scope.selectedType) {
+            return item.groupNames.indexOf($scope.selectedGroup.name) != -1 && $scope.selectedType == item.type;
+        }
+    }
+    $scope.setGroupFilter = function(item) {
+        if (item.type == "Group") {
+            $scope.selectedGroup = item;
+            $scope.showMore = true;
+        }
+    }
+    $scope.setTypeFilter = function(item) {
+        if (item.type) {
+            $scope.selectedType = item.type;
+            $scope.showMore = true;
+        }
+    }
+
+    $scope.searchInOptions = function(arr, properties, value) {
+        if (!value) {
+            return arr;
+        }
+        return $.grep(arr, function(option) {
+            if (!properties) {
+                return option && option.toUpperCase().indexOf(value.toUpperCase()) != -1;
+            } else {
+                for (var i = 0; i < properties.length; i++) {
+                    var property = properties[i];
+                    if (option.hasOwnProperty(property) && option[property] != "" && option[property].toUpperCase().indexOf(value.toUpperCase()) != -1) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+    }
+    $scope.clearAll = function() {
+        $scope.searchText = "";
+        $scope.searchType = "";
+        $scope.searchGroup = "";
+    }
+    $scope.createItem = function(selectedType, selectedGroup) {
+        sharedProperties.updateParams({
+            selectedType : selectedType,
+            selectedGroup : selectedGroup ? selectedGroup.name : ''
+        });
+        $scope.navigateTo('item/create')
+    }
+
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
     $scope.items = [];
@@ -81,10 +161,20 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             if ($scope.types.length > 0) {
                 $scope.item.type = $scope.types[0];
             }
-            if (sharedProperties.getParams().length > 0 && sharedProperties.getParams()[0].linking) {
-                $scope.item.name = sharedProperties.getParams()[0].suggestedName;
-                $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
-                $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
+            if (sharedProperties.getParams().length > 0) {
+                if (sharedProperties.getParams()[0].linking) {
+                    $scope.item.name = sharedProperties.getParams()[0].suggestedName;
+                    $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
+                    $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
+                } else {
+                    if (sharedProperties.getParams()[0].selectedType) {
+                        $scope.item.type = sharedProperties.getParams()[0].selectedType;
+                    }
+                    if (sharedProperties.getParams()[0].selectedGroup) {
+                        $scope.item.groupNames = $scope.item.groupNames ? $scope.item.groupNames : [];
+                        $scope.item.groupNames.push(sharedProperties.getParams()[0].selectedGroup);
+                    }
+                }
             }
             $scope.configMode = "create";
 
