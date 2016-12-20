@@ -191,7 +191,7 @@ public class RuleEngineTest {
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
         Assert.assertNotNull("Rule configuration is null", rule4cfg);
         Assert.assertTrue("Missing config property in rule copy", rule4cfg.containsKey("config1"));
-        Assert.assertEquals("Wrong config value", 5, rule4cfg.get("config1"));
+        Assert.assertEquals("Wrong config value", new BigDecimal(5), rule4cfg.get("config1"));
 
         Assert.assertNotNull("Rule configuration description is null", rule4cfgD);
         Assert.assertEquals("Missing config description in rule copy", 1, rule4cfgD.size());
