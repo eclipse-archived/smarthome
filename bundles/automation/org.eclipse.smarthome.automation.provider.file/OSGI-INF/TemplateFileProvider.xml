@@ -13,6 +13,6 @@
     <implementation class="org.eclipse.smarthome.automation.internal.provider.file.TemplateFileProviderWatcher" />
     <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.template)"/>
     <service>
-        <provide interface="org.eclipse.smarthome.automation.template.TemplateProvider" />
+        <provide interface="org.eclipse.smarthome.automation.template.RuleTemplateProvider" />
     </service>
 </scr:component>

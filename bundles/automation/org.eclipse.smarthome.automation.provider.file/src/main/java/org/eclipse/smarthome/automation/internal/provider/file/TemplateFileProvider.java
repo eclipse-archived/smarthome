@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 import org.eclipse.smarthome.automation.template.RuleTemplate;
-import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 
 /**
@@ -23,7 +23,7 @@ import org.eclipse.smarthome.automation.template.TemplateProvider;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public abstract class TemplateFileProvider extends AbstractFileProvider<RuleTemplate> implements TemplateProvider {
+public abstract class TemplateFileProvider extends AbstractFileProvider<RuleTemplate> implements RuleTemplateProvider {
 
     public TemplateFileProvider() {
         super("templates");
@@ -39,20 +39,18 @@ public abstract class TemplateFileProvider extends AbstractFileProvider<RuleTemp
         return getTemplates(null);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Template> T getTemplate(String UID, Locale locale) {
-        return (T) providedObjectsHolder.get(UID);
+    public RuleTemplate getTemplate(String UID, Locale locale) {
+        return providedObjectsHolder.get(UID);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Template> Collection<T> getTemplates(Locale locale) {
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
         Collection<RuleTemplate> values = providedObjectsHolder.values();
         if (values.isEmpty()) {
-            return Collections.<T>emptyList();
+            return Collections.<RuleTemplate> emptyList();
         }
-        return (Collection<T>) new LinkedList<RuleTemplate>(values);
+        return new LinkedList<RuleTemplate>(values);
     }
 
 }

@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.automation.sample.extension.java.type;
 
 import java.util.Collection;
-import java.util.Dictionary;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -63,9 +64,7 @@ public class WelcomeHomeModuleTypeProvider implements ModuleTypeProvider {
      *            is a bundle's execution context within the Framework.
      */
     public void register(BundleContext bc) {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_MODULE_TYPES, providedModuleTypes.keySet());
-        providerReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+        providerReg = bc.registerService(ModuleTypeProvider.class.getName(), this, null);
     }
 
     /**
@@ -76,6 +75,21 @@ public class WelcomeHomeModuleTypeProvider implements ModuleTypeProvider {
         providerReg.unregister();
         providerReg = null;
         providedModuleTypes = null;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+        // does nothing because this provider does not change
+    }
+
+    @Override
+    public Collection<ModuleType> getAll() {
+        return Collections.unmodifiableCollection(providedModuleTypes.values());
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
+     // does nothing because this provider does not change
     }
 
 }
