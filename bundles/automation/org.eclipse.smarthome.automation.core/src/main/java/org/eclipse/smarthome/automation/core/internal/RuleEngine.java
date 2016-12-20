@@ -955,25 +955,29 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return;
         }
         RuleStatus ruleStatus = null;
-        for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
-            ruleStatus = getRuleStatus(rule.getUID());
-            if (ruleStatus != RuleStatus.RUNNING) {
-                return;
-            }
-            RuntimeAction a = (RuntimeAction) it.next();
-            ActionHandler aHandler = a.getModuleHandler();
-            try {
+        RuntimeAction action = null;
+        try {
+
+            for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
+                ruleStatus = getRuleStatus(rule.getUID());
+                if (ruleStatus != RuleStatus.RUNNING) {
+                    return;
+                }
+                action = (RuntimeAction) it.next();
+                ActionHandler aHandler = action.getModuleHandler();
                 String rUID = rule.getUID();
-                Map<String, Object> context = getContext(rUID, a.getConnections());
+                Map<String, Object> context = getContext(rUID, action.getConnections());
                 Map<String, ?> outputs = aHandler.execute(context);
                 if (outputs != null) {
                     context = getContext(rUID);
-                    updateContext(rUID, a.getId(), outputs);
+                    updateContext(rUID, action.getId(), outputs);
                 }
-            } catch (Throwable t) {
-                logger.error("Fail to execute the action: " + a.getId(), t);
-            }
 
+            }
+        } catch (Throwable t) {
+            RuntimeException re = new RuntimeException(
+                    "Fail to execute action: " + action != null ? action.getId() : "<unknown>", t);
+            throw re;
         }
 
     }
