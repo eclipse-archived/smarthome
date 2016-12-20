@@ -208,23 +208,24 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab" ng-click="navigateTo('item/create')" aria-label="Add Item"> <i class="material-icons">add</i></md-button>
+					<md-button class="md-fab" ng-click="createItem(selectedType,selectedGroup)" aria-label="Add Item"> <i class="material-icons">add</i></md-button>
 				</div>
 			</div>
 		</div>
-		<div class="search" layout="row" layout-align="center center" style="padding-top: 5px; padding-bottom: 5px;">
-			<div layout="row" flex="90" layout-align="start center">
+		<div class="search itemSearch" layout="row" layout-align="center center">
+			<div layout="row" flex="85" class="searchControl" layout-align="start center">
 				<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
-				<md-input-container flex="auto" md-no-float class="md-block itemSearch"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
+				<md-input-container flex="90" md-no-float class="md-block searchBox"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
 				<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons clickable">close</i>
 			</div>
-			<div layout="row" flex="10" layout-align="end center" ng-init="showMore=false">
+			<div layout="row" flex="15" class="controls" layout-align="start center" ng-init="showMore=false">
 				<i class="material-icons clickable" ng-click="showMore=!showMore">{{showMore?'unfold_less':'unfold_more'}}</i>
+				<button class="md-button clickable" ng-click="clearAll()">clear</button>
 			</div>
 		</div>
 		<div class="row" ng-show="showMore" class="searchBox">
-			<md-autocomplete class="col-xs-12 col-sm-6 typeSearch" md-min-length="0" md-selected-item="selectedType" md-search-text="searchType" md-items="type in searchInOptions(types,null,searchType)" placeholder="Search by type"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{type}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
-			<md-autocomplete class="col-xs-12 col-sm-6 groupSearch" md-min-length="0" md-selected-item="selectedGroup" md-search-text="searchGroup" md-items="group in searchInOptions(groups,['label'],searchGroup)" md-item-text="group.label?group.label:group.name" placeholder="Search by group"> <md-item-template> <span md-highlight-text="searchGroup" md-highlight-flags="^i">{{group.label?group.label:group.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+			<md-autocomplete class="col-xs-12 col-sm-6 typeSearch" md-min-length="0" md-selected-item="selectedType" md-search-text="searchType" md-items="type in searchInOptions(types,null,searchType)" placeholder="Filter by type"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{type}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+			<md-autocomplete class="col-xs-12 col-sm-6 groupSearch" md-min-length="0" md-selected-item="selectedGroup" md-search-text="searchGroup" md-items="group in searchInOptions(groups,['label'],searchGroup)" md-item-text="group.label?group.label:group.name" placeholder="Filter by group"> <md-item-template> <span md-highlight-text="searchGroup" md-highlight-flags="^i">{{group.label?group.label:group.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 		</div>
 		<div class="container">
 			<p class="text-center" ng-show="items.length == 0">

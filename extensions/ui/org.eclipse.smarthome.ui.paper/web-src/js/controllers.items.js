@@ -2,7 +2,6 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [], $scope.groups = [], $scope.types = [];
-    $scope.selectedGroup, $scope.selectedType;
     $scope.refresh = function() {
         itemService.getAll(function(items) {
             $scope.items = items;
@@ -93,6 +92,19 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         });
 
     }
+    $scope.clearAll = function() {
+        $scope.searchText = "";
+        $scope.searchType = "";
+        $scope.searchGroup = "";
+    }
+    $scope.createItem = function(selectedType, selectedGroup) {
+        sharedProperties.updateParams({
+            selectedType : selectedType,
+            selectedGroup : selectedGroup.name
+        });
+        $scope.navigateTo('item/create')
+    }
+
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
     $scope.items = [];
@@ -149,10 +161,20 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             if ($scope.types.length > 0) {
                 $scope.item.type = $scope.types[0];
             }
-            if (sharedProperties.getParams().length > 0 && sharedProperties.getParams()[0].linking) {
-                $scope.item.name = sharedProperties.getParams()[0].suggestedName;
-                $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
-                $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
+            if (sharedProperties.getParams().length > 0) {
+                if (sharedProperties.getParams()[0].linking) {
+                    $scope.item.name = sharedProperties.getParams()[0].suggestedName;
+                    $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
+                    $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
+                } else {
+                    if (sharedProperties.getParams()[0].selectedType) {
+                        $scope.item.type = sharedProperties.getParams()[0].selectedType;
+                    }
+                    if (sharedProperties.getParams()[0].selectedGroup) {
+                        $scope.item.groupNames = $scope.item.groupNames ? $scope.item.groupNames : [];
+                        $scope.item.groupNames.push(sharedProperties.getParams()[0].selectedGroup);
+                    }
+                }
             }
             $scope.configMode = "create";
 

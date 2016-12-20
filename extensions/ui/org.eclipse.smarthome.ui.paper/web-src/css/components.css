@@ -666,6 +666,20 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	.draggable .md-icon-reorder {
 		display: block;
 	}
+	.itemSearch .searchControl {
+		max-width: 70%;
+	}
+	.itemSearch .controls {
+		max-width: 30%;
+	}
+	.itemSearch button {
+		min-width: 60px;
+		margin-left: 0px;
+	}
+	.itemSearch .searchBox {
+		margin-right: 0px;
+		margin-left: 0px;
+	}
 }
 
 @media all and (min-width: 720px) {
@@ -1193,4 +1207,8 @@ input[type=number].multiSel::-webkit-outer-spin-button {
     .groupSearch {
         padding-left: 0px;
     }
+}
+.search.itemSearch {
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
