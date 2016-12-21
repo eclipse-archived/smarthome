@@ -93,15 +93,15 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     private class DiscoveredLight {
 
         private MACAddress macAddress;
-        private InetSocketAddress ipAddress;
+        private InetSocketAddress socketAddress;
         private String label;
         private Products products;
 
         private long lastRequestTimeMillis;
 
-        public DiscoveredLight(MACAddress macAddress, InetSocketAddress ipAddress) {
+        public DiscoveredLight(MACAddress macAddress, InetSocketAddress socketAddress) {
             this.macAddress = macAddress;
-            this.ipAddress = ipAddress;
+            this.socketAddress = socketAddress;
         }
 
         public boolean isDataComplete() {
@@ -418,7 +418,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         }
 
         private void requestAdditionalLightData() throws IOException, ClosedChannelException {
-            // Iterate through the channels that have to be set up, and the packets that have to be sent
+            // Iterate through the discovered lights that have to be set up, and the packets that have to be sent
             // Workaround to avoid a ConcurrentModifictionException on the selector.SelectedKeys() Set
             for (DiscoveredLight light : discoveredLights.values()) {
 
@@ -430,7 +430,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                     unicastChannel.configureBlocking(false);
                     SelectionKey unicastKey = unicastChannel.register(selector,
                             SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                    unicastChannel.connect(light.ipAddress);
+                    unicastChannel.connect(light.socketAddress);
                     logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
 
                     if (light.products == null) {
@@ -440,7 +440,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                         versionPacket.setSource(source);
 
                         LifxNetworkThrottler.lock(light.macAddress);
-                        sendPacket(versionPacket, light.ipAddress, unicastKey);
+                        sendPacket(versionPacket, light.socketAddress, unicastKey);
                         LifxNetworkThrottler.unlock(light.macAddress);
                     }
 
@@ -451,7 +451,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                         labelPacket.setSource(source);
 
                         LifxNetworkThrottler.lock(light.macAddress);
-                        sendPacket(labelPacket, light.ipAddress, unicastKey);
+                        sendPacket(labelPacket, light.socketAddress, unicastKey);
                         LifxNetworkThrottler.unlock(light.macAddress);
                     }
 
@@ -476,8 +476,8 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 if (port != 0) {
                     try {
                         MACAddress macAddress = packet.getTarget();
-                        InetSocketAddress ipAddress = new InetSocketAddress(address.getAddress(), port);
-                        light = new DiscoveredLight(macAddress, ipAddress);
+                        InetSocketAddress socketAddress = new InetSocketAddress(address.getAddress(), port);
+                        light = new DiscoveredLight(macAddress, socketAddress);
                         discoveredLights.put(macAddress, light);
                     } catch (Exception e) {
                         logger.warn("An exception occurred while connecting to IP address : '{}'", e.getMessage());
