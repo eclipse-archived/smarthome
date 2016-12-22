@@ -179,7 +179,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.refresh();
     getThings();
 
-}).controller('ControlController', function($scope, $timeout, $filter, itemService) {
+}).controller('ControlController', function($scope, $timeout, $filter, itemService, util) {
 
     $scope.getItemName = function(itemName) {
         return itemName.replace(/_/g, ' ');
@@ -201,7 +201,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
         if (item.type === 'DateTime') {
             var date = new Date(item.state);
-            return $filter('date')(date, "dd.MM.yyyy HH:mm:ss");
+            if (item.stateDescription && item.stateDescription.pattern) {
+                return util.timePrint(item.stateDescription.pattern, date);
+            } else {
+                return $filter('date')(date, "dd.MM.yyyy HH:mm:ss");
+            }
         } else if (!item.stateDescription || !item.stateDescription.pattern) {
             return state;
         } else {
