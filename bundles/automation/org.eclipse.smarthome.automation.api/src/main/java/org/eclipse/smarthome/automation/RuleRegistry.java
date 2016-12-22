@@ -105,4 +105,14 @@ public interface RuleRegistry extends Registry<Rule, String> {
      */
     public Boolean isEnabled(String ruleUID);
 
+    /**
+     * The method "runNow(ruleUID)" skips triggers&conditions and directly executes the actions of the rule.
+     * This should always be possible unless an action has a mandatory input that is linked to a trigger.
+     * In that case the action is skipped and the RuleEngine continues execution of rest actions.
+     *
+     * @param ruleUID id of rule whose actions have to be executed.
+     *
+     */
+    public void runNow(String ruleUID);
+
 }

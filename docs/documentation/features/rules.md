@@ -315,6 +315,8 @@ There are several ways to add new rules:
  - POST /rest/rules - adds new rule instance to the rule registry.
  - DELETE /rest/rules/{ruleUID} - deletes the specified rule instance.
  - PUT /rest/rules/{ruleUID} - updates the specified rule instance.
+ - PUT /rest/rules/{ruleUID}/enable - enable/disable specified rule instance.
+ - PUT /rest/rules/{ruleUID}/runnow - executes actions of specified rule instance.
  - GET /rest/rules/{ruleUID}/config - returns the configuration of the specified rule instance.
  - PUT /rest/rules/{ruleUID}/config - updates the configuration of the specified rule instance.
  - GET /rest/rules/{ruleUID}/triggers - returns the triggers defined for the specified rule instance.
