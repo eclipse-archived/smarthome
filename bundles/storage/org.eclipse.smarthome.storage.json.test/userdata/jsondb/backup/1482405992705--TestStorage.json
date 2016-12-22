@@ -1,0 +1,11 @@
+{
+  "Key1": {
+    "class": "org.eclipse.smarthome.storage.json.JsonStorageServiceOSGiTest$PersistedItem",
+    "value": {
+      "itemType": "Number",
+      "groupNames": [
+        "TEMPERATURE"
+      ]
+    }
+  }
+}

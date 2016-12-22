@@ -1,0 +1,10 @@
+{
+  "configuration": {
+    "class": "org.eclipse.smarthome.storage.json.JsonStorageServiceOSGiTest$MockConfiguration",
+    "value": {
+      "configuration": {
+        "bigDecimal": 3
+      }
+    }
+  }
+}
