@@ -272,6 +272,18 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.refresh();
         });
     }
+    $scope.search = function(searchText) {
+        return function(thing) {
+            if (!searchText) {
+                return true;
+            } else {
+                if ((thing.label && thing.label.toUpperCase().indexOf(searchText.toUpperCase()) != -1) || (thing.UID.toUpperCase().indexOf(searchText.toUpperCase()) != -1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
     $scope.refresh();
 }).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
 
