@@ -42,25 +42,27 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
     public DiscoveryResult createResult(RemoteDevice device) {
         ThingUID uid = getThingUID(device);
         if (uid != null) {
-            Map<String, Object> properties = new HashMap<>(3);
-            String label = "Sonos device";
-            try {
-                label = device.getDetails().getModelDetails().getModelName();
-            } catch (Exception e) {
-                // ignore and use default label
+            String roomName = getSonosRoomName(device);
+            if (roomName != null) {
+                Map<String, Object> properties = new HashMap<>(3);
+                String label = "Sonos device";
+                try {
+                    label = device.getDetails().getModelDetails().getModelName();
+                } catch (Exception e) {
+                    // ignore and use default label
+                }
+                properties.put(ZonePlayerConfiguration.UDN, device.getIdentity().getUdn().getIdentifierString());
+                properties.put(SonosBindingConstants.IDENTIFICATION, roomName);
+
+                DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label)
+                        .withRepresentationProperty(SonosBindingConstants.IDENTIFICATION).build();
+
+                logger.debug("Created a DiscoveryResult for device '{}' with UDN '{}'",
+                        device.getDetails().getFriendlyName(), device.getIdentity().getUdn().getIdentifierString());
+                return result;
             }
-            properties.put(ZonePlayerConfiguration.UDN, device.getIdentity().getUdn().getIdentifierString());
-            properties.put(SonosBindingConstants.IDENTIFICATION, getSonosRoomName(device));
-
-            DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label)
-                    .withRepresentationProperty(SonosBindingConstants.IDENTIFICATION).build();
-
-            logger.debug("Created a DiscoveryResult for device '{}' with UDN '{}'",
-                    device.getDetails().getFriendlyName(), device.getIdentity().getUdn().getIdentifierString());
-            return result;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
