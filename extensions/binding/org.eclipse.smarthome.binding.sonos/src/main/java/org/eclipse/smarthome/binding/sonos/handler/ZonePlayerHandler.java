@@ -36,9 +36,6 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
-import org.eclipse.smarthome.config.discovery.DiscoveryListener;
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -59,6 +56,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
@@ -76,7 +74,7 @@ import com.google.common.collect.Lists;
  * @author Karel Goderis - Initial contribution
  *
  */
-public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
+public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant {
 
     private Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
 
@@ -142,6 +140,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 if (!isUpnpDeviceRegistered()) {
                     logger.debug("UPnP device {} not yet registered", getUDN());
                     updateStatus(ThingStatus.OFFLINE);
+                    synchronized (upnpLock) {
+                        subscriptionState = new HashMap<String, Boolean>();
+                    }
                     return;
                 }
 
@@ -189,7 +190,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             pollingJob = null;
         }
 
-        this.discoveryServiceRegistry.removeDiscoveryListener(this);
         removeSubscription();
     }
 
@@ -204,7 +204,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         if (getUDN() != null) {
             updateStatus(ThingStatus.ONLINE);
-            this.discoveryServiceRegistry.addDiscoveryListener(this);
             onUpdate();
             super.initialize();
         } else {
@@ -214,136 +213,119 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     @Override
-    public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
-        if (result.getThingUID().equals(this.getThing().getUID())) {
-            if (getUDN().equals(result.getProperties().get(ZonePlayerConfiguration.UDN))) {
-                logger.debug("Discovered UDN '{}' for thing '{}'",
-                        result.getProperties().get(ZonePlayerConfiguration.UDN), getThing().getUID());
-                updateStatus(ThingStatus.ONLINE);
-                onUpdate();
-            }
-        }
-    }
-
-    @Override
-    public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
-        if (thingUID.equals(this.getThing().getUID())) {
-            logger.debug("Setting status for thing '{}' to OFFLINE", getThing().getUID());
-            updateStatus(ThingStatus.OFFLINE);
-        }
-    }
-
-    @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        switch (channelUID.getId()) {
-            case LED:
-                setLed(command);
-                break;
-            case MUTE:
-                setMute(command);
-                break;
-            case NOTIFICATIONSOUND:
-                scheduleNotificationSound(command);
-                break;
-            case NOTIFICATIONVOLUME:
-                setNotificationSoundVolume(command);
-                break;
-            case STOP:
-                try {
-                    getCoordinatorHandler().stop();
-                } catch (IllegalStateException e) {
-                    logger.warn("Cannot handle stop command ({})", e.getMessage());
-                }
-                break;
-            case VOLUME:
-                setVolumeForGroup(command);
-                break;
-            case ADD:
-                addMember(command);
-                break;
-            case REMOVE:
-                removeMember(command);
-                break;
-            case STANDALONE:
-                becomeStandAlonePlayer();
-                break;
-            case PUBLICADDRESS:
-                publicAddress();
-                break;
-            case RADIO:
-                playRadio(command);
-                break;
-            case FAVORITE:
-                playFavorite(command);
-                break;
-            case ALARM:
-                setAlarm(command);
-                break;
-            case SNOOZE:
-                snoozeAlarm(command);
-                break;
-            case SAVEALL:
-                saveAllPlayerState();
-                break;
-            case RESTOREALL:
-                restoreAllPlayerState();
-                break;
-            case SAVE:
-                saveState();
-                break;
-            case RESTORE:
-                restoreState();
-                break;
-            case PLAYLIST:
-                playPlayList(command);
-                break;
-            case PLAYQUEUE:
-                playQueue();
-                break;
-            case PLAYTRACK:
-                playTrack(command);
-                break;
-            case PLAYURI:
-                playURI(command);
-                break;
-            case PLAYLINEIN:
-                playLineIn(command);
-                break;
-            case CONTROL:
-                try {
-                    if (command instanceof PlayPauseType) {
-                        if (command == PlayPauseType.PLAY) {
-                            getCoordinatorHandler().play();
-                        } else if (command == PlayPauseType.PAUSE) {
-                            getCoordinatorHandler().pause();
+        if (command instanceof RefreshType) {
+            updateChannel(channelUID.getId());
+        } else {
+            switch (channelUID.getId()) {
+                case LED:
+                    setLed(command);
+                    break;
+                case MUTE:
+                    setMute(command);
+                    break;
+                case NOTIFICATIONSOUND:
+                    scheduleNotificationSound(command);
+                    break;
+                case NOTIFICATIONVOLUME:
+                    setNotificationSoundVolume(command);
+                    break;
+                case STOP:
+                    try {
+                        getCoordinatorHandler().stop();
+                    } catch (IllegalStateException e) {
+                        logger.warn("Cannot handle stop command ({})", e.getMessage());
+                    }
+                    break;
+                case VOLUME:
+                    setVolumeForGroup(command);
+                    break;
+                case ADD:
+                    addMember(command);
+                    break;
+                case REMOVE:
+                    removeMember(command);
+                    break;
+                case STANDALONE:
+                    becomeStandAlonePlayer();
+                    break;
+                case PUBLICADDRESS:
+                    publicAddress();
+                    break;
+                case RADIO:
+                    playRadio(command);
+                    break;
+                case FAVORITE:
+                    playFavorite(command);
+                    break;
+                case ALARM:
+                    setAlarm(command);
+                    break;
+                case SNOOZE:
+                    snoozeAlarm(command);
+                    break;
+                case SAVEALL:
+                    saveAllPlayerState();
+                    break;
+                case RESTOREALL:
+                    restoreAllPlayerState();
+                    break;
+                case SAVE:
+                    saveState();
+                    break;
+                case RESTORE:
+                    restoreState();
+                    break;
+                case PLAYLIST:
+                    playPlayList(command);
+                    break;
+                case PLAYQUEUE:
+                    playQueue();
+                    break;
+                case PLAYTRACK:
+                    playTrack(command);
+                    break;
+                case PLAYURI:
+                    playURI(command);
+                    break;
+                case PLAYLINEIN:
+                    playLineIn(command);
+                    break;
+                case CONTROL:
+                    try {
+                        if (command instanceof PlayPauseType) {
+                            if (command == PlayPauseType.PLAY) {
+                                getCoordinatorHandler().play();
+                            } else if (command == PlayPauseType.PAUSE) {
+                                getCoordinatorHandler().pause();
+                            }
                         }
-                    }
-                    if (command instanceof NextPreviousType) {
-                        if (command == NextPreviousType.NEXT) {
-                            getCoordinatorHandler().next();
-                        } else if (command == NextPreviousType.PREVIOUS) {
-                            getCoordinatorHandler().previous();
+                        if (command instanceof NextPreviousType) {
+                            if (command == NextPreviousType.NEXT) {
+                                getCoordinatorHandler().next();
+                            } else if (command == NextPreviousType.PREVIOUS) {
+                                getCoordinatorHandler().previous();
+                            }
                         }
+                        if (command instanceof RewindFastforwardType) {
+                            // Rewind and Fast Forward are currently not implemented by the binding
+                        }
+                    } catch (IllegalStateException e) {
+                        logger.warn("Cannot handle control command ({})", e.getMessage());
                     }
-                    if (command instanceof RewindFastforwardType) {
-                        // Rewind and Fast Forward are currently not implemented by the binding
-                    }
-                } catch (IllegalStateException e) {
-                    logger.warn("Cannot handle control command ({})", e.getMessage());
-                }
-                break;
-            case SLEEPTIMER:
-                setSleepTimer(command);
-                break;
-            case SHUFFLE:
-                setShuffle(command);
-                break;
-            case REPEAT:
-                setRepeat(command);
-                break;
-            default:
-                break;
-
+                    break;
+                case SLEEPTIMER:
+                    setSleepTimer(command);
+                    break;
+                case SHUFFLE:
+                    setShuffle(command);
+                    break;
+                case REPEAT:
+                    setRepeat(command);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -412,226 +394,247 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
 
-            boolean updateAllGroup = false;
-
             // update the appropriate channel
             switch (variable) {
-                case "TransportState": {
-                    updateState(STATE, (stateMap.get("TransportState") != null)
-                            ? new StringType(stateMap.get("TransportState")) : UnDefType.UNDEF);
-                    if (stateMap.get("TransportState").equals("PLAYING")) {
-                        updateState(CONTROL, PlayPauseType.PLAY);
-                    }
-                    if (stateMap.get("TransportState").equals("STOPPED")) {
-                        updateState(CONTROL, PlayPauseType.PAUSE);
-                    }
-                    if (stateMap.get("TransportState").equals("PAUSED_PLAYBACK")) {
-                        updateState(CONTROL, PlayPauseType.PAUSE);
-                    }
-                    updateAllGroup = true;
+                case "TransportState":
+                    updateChannel(STATE);
+                    updateChannel(CONTROL);
+                    dispatchOnAllGroupMembers(variable, value, service);
                     break;
-                }
-                case "CurrentPlayMode": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("CurrentPlayMode") != null) {
-                        newState = isShuffleActive() ? OnOffType.ON : OnOffType.OFF;
-                    }
-                    updateState(SHUFFLE, newState);
-                    newState = UnDefType.UNDEF;
-                    if (stateMap.get("CurrentPlayMode") != null) {
-                        newState = new StringType(getRepeatMode());
-                    }
-                    updateState(REPEAT, newState);
-                    updateAllGroup = true;
+                case "CurrentPlayMode":
+                    updateChannel(SHUFFLE);
+                    updateChannel(REPEAT);
+                    dispatchOnAllGroupMembers(variable, value, service);
                     break;
-                }
-                case "CurrentLEDState": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("CurrentLEDState") != null) {
-                        if (stateMap.get("CurrentLEDState").equals("On")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
-                    }
-                    updateState(LED, newState);
+                case "CurrentLEDState":
+                    updateChannel(LED);
                     break;
-                }
-                case "ZoneName": {
+                case "ZoneName":
                     updateState(ZONENAME, (stateMap.get("ZoneName") != null) ? new StringType(stateMap.get("ZoneName"))
                             : UnDefType.UNDEF);
                     break;
-                }
-                case "CurrentZoneName": {
-                    updateState(ZONENAME, (stateMap.get("CurrentZoneName") != null)
-                            ? new StringType(stateMap.get("CurrentZoneName")) : UnDefType.UNDEF);
+                case "CurrentZoneName":
+                    updateChannel(ZONENAME);
                     break;
-                }
-                case "ZoneGroupState": {
-                    updateState(ZONEGROUP, (stateMap.get("ZoneGroupState") != null)
-                            ? new StringType(stateMap.get("ZoneGroupState")) : UnDefType.UNDEF);
-
+                case "ZoneGroupState":
+                    updateChannel(ZONEGROUP);
+                    updateChannel(COORDINATOR);
                     // Update coordinator after a change is made to the grouping of Sonos players
                     updateGroupCoordinator();
                     updateMediaInformation();
-                    break;
-                }
-                case "LocalGroupUUID": {
-                    updateState(ZONEGROUPID, (stateMap.get("LocalGroupUUID") != null)
-                            ? new StringType(stateMap.get("LocalGroupUUID")) : UnDefType.UNDEF);
-                    break;
-                }
-                case "GroupCoordinatorIsLocal": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("GroupCoordinatorIsLocal") != null) {
-                        if (stateMap.get("GroupCoordinatorIsLocal").equals("true")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
+                    // Update state and control channels for the group members with the coordinator values
+                    if (stateMap.get("TransportState") != null) {
+                        dispatchOnAllGroupMembers("TransportState", stateMap.get("TransportState"), "AVTransport");
                     }
-                    updateState(LOCALCOORDINATOR, newState);
-                    break;
-                }
-                case "VolumeMaster": {
-                    updateState(VOLUME, (stateMap.get("VolumeMaster") != null)
-                            ? new PercentType(stateMap.get("VolumeMaster")) : UnDefType.UNDEF);
-                    break;
-                }
-                case "MuteMaster": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("MuteMaster") != null) {
-                        if (stateMap.get("MuteMaster").equals("1")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
+                    // Update shuffle and repeat channels for the group members with the coordinator values
+                    if (stateMap.get("CurrentPlayMode") != null) {
+                        dispatchOnAllGroupMembers("CurrentPlayMode", stateMap.get("CurrentPlayMode"), "AVTransport");
                     }
-                    updateState(MUTE, newState);
                     break;
-                }
-                case "LineInConnected": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("LineInConnected") != null) {
-                        if (stateMap.get("LineInConnected").equals("true")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
-                    }
-                    updateState(LINEIN, newState);
+                case "LocalGroupUUID":
+                    updateChannel(ZONEGROUPID);
                     break;
-                }
-                case "TOSLinkConnected": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("TOSLinkConnected") != null) {
-                        if (stateMap.get("TOSLinkConnected").equals("true")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
-                    }
-                    updateState(LINEIN, newState);
+                case "GroupCoordinatorIsLocal":
+                    updateChannel(LOCALCOORDINATOR);
                     break;
-                }
-                case "AlarmRunning": {
-                    State newState = UnDefType.UNDEF;
-                    if (stateMap.get("AlarmRunning") != null) {
-                        if (stateMap.get("AlarmRunning").equals("1")) {
-                            newState = OnOffType.ON;
-                        } else {
-                            newState = OnOffType.OFF;
-                        }
-                    }
-                    updateState(ALARMRUNNING, newState);
+                case "VolumeMaster":
+                    updateChannel(VOLUME);
                     break;
-                }
-                case "RunningAlarmProperties": {
-                    updateState(ALARMPROPERTIES, (stateMap.get("RunningAlarmProperties") != null)
-                            ? new StringType(stateMap.get("RunningAlarmProperties")) : UnDefType.UNDEF);
+                case "MuteMaster":
+                    updateChannel(MUTE);
                     break;
-                }
-                case "CurrentURIFormatted": {
-                    updateState(CURRENTTRACK, (stateMap.get("CurrentURIFormatted") != null)
-                            ? new StringType(stateMap.get("CurrentURIFormatted")) : UnDefType.UNDEF);
+                case "LineInConnected":
+                case "TOSLinkConnected":
+                    updateChannel(LINEIN);
                     break;
-                }
-                case "CurrentTitle": {
-                    updateState(CURRENTTITLE, (stateMap.get("CurrentTitle") != null)
-                            ? new StringType(stateMap.get("CurrentTitle")) : UnDefType.UNDEF);
+                case "AlarmRunning":
+                    updateChannel(ALARMRUNNING);
                     break;
-                }
-                case "CurrentArtist": {
-                    updateState(CURRENTARTIST, (stateMap.get("CurrentArtist") != null)
-                            ? new StringType(stateMap.get("CurrentArtist")) : UnDefType.UNDEF);
+                case "RunningAlarmProperties":
+                    updateChannel(ALARMPROPERTIES);
                     break;
-                }
-                case "CurrentAlbum": {
-                    updateState(CURRENTALBUM, (stateMap.get("CurrentAlbum") != null)
-                            ? new StringType(stateMap.get("CurrentAlbum")) : UnDefType.UNDEF);
+                case "CurrentURIFormatted":
+                    updateChannel(CURRENTTRACK);
                     break;
-                }
-                case "CurrentURI": {
-                    updateState(CURRENTTRANSPORTURI, (stateMap.get("CurrentURI") != null)
-                            ? new StringType(stateMap.get("CurrentURI")) : UnDefType.UNDEF);
+                case "CurrentTitle":
+                    updateChannel(CURRENTTITLE);
                     break;
-                }
-                case "CurrentTrackURI": {
-                    updateState(CURRENTTRACKURI, (stateMap.get("CurrentTrackURI") != null)
-                            ? new StringType(stateMap.get("CurrentTrackURI")) : UnDefType.UNDEF);
+                case "CurrentArtist":
+                    updateChannel(CURRENTARTIST);
                     break;
-                }
+                case "CurrentAlbum":
+                    updateChannel(CURRENTALBUM);
+                    break;
+                case "CurrentURI":
+                    updateChannel(CURRENTTRANSPORTURI);
+                    break;
+                case "CurrentTrackURI":
+                    updateChannel(CURRENTTRACKURI);
+                    break;
 
-                case "CurrentSleepTimerGeneration": {
+                case "CurrentSleepTimerGeneration":
                     if (value.equals("0")) {
                         updateState(SLEEPTIMER, new DecimalType(0));
                     }
                     break;
-                }
-
-                case "SleepTimerGeneration": {
+                case "SleepTimerGeneration":
                     if (value.equals("0")) {
                         updateState(SLEEPTIMER, new DecimalType(0));
                     } else {
                         updateSleepTimerDuration();
                     }
                     break;
-                }
-
-                case "RemainingSleepTimerDuration": {
+                case "RemainingSleepTimerDuration":
                     updateState(SLEEPTIMER,
                             (stateMap.get("RemainingSleepTimerDuration") != null)
                                     ? new DecimalType(
                                             sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
                                     : UnDefType.UNDEF);
                     break;
-                }
 
                 default:
                     break;
-            }
-            if (updateAllGroup && isCoordinator()) {
-                // update all group members like the group coordinator
-                for (String member : getOtherZoneGroupMembers()) {
-                    try {
-                        ZonePlayerHandler memberHandler = getHandlerByName(member);
-                        if (memberHandler != null && memberHandler.getThing() != null
-                                && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
-                            memberHandler.onValueReceived(variable, value, service);
-                        }
-                    } catch (IllegalStateException e) {
-                        logger.warn("Cannot update channel for group member ({})", e.getMessage());
-                    }
-                }
             }
         }
 
     }
 
-    @Override
-    public void channelLinked(ChannelUID channelUID) {
-        if (channelUID.getId().equalsIgnoreCase(COORDINATOR)) {
-            updateGroupCoordinator();
+    private void dispatchOnAllGroupMembers(String variable, String value, String service) {
+        if (isCoordinator()) {
+            for (String member : getOtherZoneGroupMembers()) {
+                try {
+                    ZonePlayerHandler memberHandler = getHandlerByName(member);
+                    if (memberHandler != null && memberHandler.getThing() != null
+                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                        memberHandler.onValueReceived(variable, value, service);
+                    }
+                } catch (IllegalStateException e) {
+                    logger.warn("Cannot update channel for group member ({})", e.getMessage());
+                }
+            }
+        }
+    }
+
+    protected void updateChannel(String channeldD) {
+        State newState = UnDefType.UNDEF;
+        switch (channeldD) {
+            case STATE:
+                if (stateMap.get("TransportState") != null) {
+                    newState = new StringType(stateMap.get("TransportState"));
+                }
+                break;
+            case CONTROL:
+                if (stateMap.get("TransportState") != null) {
+                    if (stateMap.get("TransportState").equals("PLAYING")) {
+                        newState = PlayPauseType.PLAY;
+                    } else if (stateMap.get("TransportState").equals("STOPPED")) {
+                        newState = PlayPauseType.PAUSE;
+                    } else if (stateMap.get("TransportState").equals("PAUSED_PLAYBACK")) {
+                        newState = PlayPauseType.PAUSE;
+                    }
+                }
+                break;
+            case SHUFFLE:
+                if (stateMap.get("CurrentPlayMode") != null) {
+                    newState = isShuffleActive() ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case REPEAT:
+                if (stateMap.get("CurrentPlayMode") != null) {
+                    newState = new StringType(getRepeatMode());
+                }
+                break;
+            case LED:
+                if (stateMap.get("CurrentLEDState") != null) {
+                    newState = stateMap.get("CurrentLEDState").equals("On") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case ZONENAME:
+                if (stateMap.get("CurrentZoneName") != null) {
+                    newState = new StringType(stateMap.get("CurrentZoneName"));
+                }
+                break;
+            case ZONEGROUP:
+                if (stateMap.get("ZoneGroupState") != null) {
+                    newState = new StringType(stateMap.get("ZoneGroupState"));
+                }
+                break;
+            case ZONEGROUPID:
+                if (stateMap.get("LocalGroupUUID") != null) {
+                    newState = new StringType(stateMap.get("LocalGroupUUID"));
+                }
+                break;
+            case COORDINATOR:
+                newState = new StringType(getCoordinator());
+                break;
+            case LOCALCOORDINATOR:
+                if (stateMap.get("GroupCoordinatorIsLocal") != null) {
+                    newState = stateMap.get("GroupCoordinatorIsLocal").equals("true") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case VOLUME:
+                if (stateMap.get("VolumeMaster") != null) {
+                    newState = new PercentType(stateMap.get("VolumeMaster"));
+                }
+                break;
+            case MUTE:
+                if (stateMap.get("MuteMaster") != null) {
+                    newState = stateMap.get("MuteMaster").equals("1") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case LINEIN:
+                if (stateMap.get("LineInConnected") != null) {
+                    newState = stateMap.get("LineInConnected").equals("true") ? OnOffType.ON : OnOffType.OFF;
+                } else if (stateMap.get("TOSLinkConnected") != null) {
+                    newState = stateMap.get("TOSLinkConnected").equals("true") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case ALARMRUNNING:
+                if (stateMap.get("AlarmRunning") != null) {
+                    newState = stateMap.get("AlarmRunning").equals("1") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case ALARMPROPERTIES:
+                if (stateMap.get("RunningAlarmProperties") != null) {
+                    newState = new StringType(stateMap.get("RunningAlarmProperties"));
+                }
+                break;
+            case CURRENTTRACK:
+                if (stateMap.get("CurrentURIFormatted") != null) {
+                    newState = new StringType(stateMap.get("CurrentURIFormatted"));
+                }
+                break;
+            case CURRENTTITLE:
+                if (stateMap.get("CurrentTitle") != null) {
+                    newState = new StringType(stateMap.get("CurrentTitle"));
+                }
+                break;
+            case CURRENTARTIST:
+                if (stateMap.get("CurrentArtist") != null) {
+                    newState = new StringType(stateMap.get("CurrentArtist"));
+                }
+                break;
+            case CURRENTALBUM:
+                if (stateMap.get("CurrentAlbum") != null) {
+                    newState = new StringType(stateMap.get("CurrentAlbum"));
+                }
+                break;
+            case CURRENTTRANSPORTURI:
+                if (stateMap.get("CurrentURI") != null) {
+                    newState = new StringType(stateMap.get("CurrentURI"));
+                }
+                break;
+            case CURRENTTRACKURI:
+                if (stateMap.get("CurrentTrackURI") != null) {
+                    newState = new StringType(stateMap.get("CurrentTrackURI"));
+                }
+                break;
+            default:
+                newState = null;
+                break;
+        }
+        if (newState != null) {
+            updateState(channeldD, newState);
         }
     }
 
@@ -656,7 +659,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void updateGroupCoordinator() {
-        updateState(COORDINATOR, new StringType(getCoordinator()));
         try {
             coordinatorHandler = getHandlerByName(getCoordinator());
         } catch (IllegalStateException e) {
@@ -725,12 +727,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private void updatePlayerState() {
         Map<String, String> result = service.invokeAction(this, "DeviceProperties", "GetZoneInfo", null);
         if (result.isEmpty()) {
-            logger.debug("Sonos player " + getThing().getProperties().get(Thing.PROPERTY_MODEL_ID)
-                    + " is not available in local network");
-            updateStatus(ThingStatus.OFFLINE);
+            if (!ThingStatus.OFFLINE.equals(getThing().getStatus())) {
+                logger.debug("Sonos player {} is not available in local network", getUDN());
+                updateStatus(ThingStatus.OFFLINE);
+                synchronized (upnpLock) {
+                    subscriptionState = new HashMap<String, Boolean>();
+                }
+            }
         } else if (!ThingStatus.ONLINE.equals(getThing().getStatus())) {
-            logger.debug("Sonos player " + getThing().getProperties().get(Thing.PROPERTY_MODEL_ID)
-                    + " has been found in local network");
+            logger.debug("Sonos player {} has been found in local network", getUDN());
             updateStatus(ThingStatus.ONLINE);
         }
     }
@@ -2618,13 +2623,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void onStatusChanged(boolean status) {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private String getModelNameFromDescriptor() {
