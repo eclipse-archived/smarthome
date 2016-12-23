@@ -382,6 +382,12 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
 
         List<Module> modules = runtimeRule.getModules(null);
+        if (modules != null) {
+            for (Module m : modules) {
+                updateMapModuleTypeToRule(rUID, m.getTypeUID());
+            }
+        }
+
         String errMsgs;
         try {
             validateModuleIDs(modules);
@@ -460,7 +466,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         StringBuffer sb = null;
         if (modules != null) {
             for (T m : modules) {
-                updateMapModuleTypeToRule(rUID, m.getTypeUID());
                 try {
                     ModuleHandler moduleHandler = getModuleHandler(m, rUID);
                     if (moduleHandler != null) {
