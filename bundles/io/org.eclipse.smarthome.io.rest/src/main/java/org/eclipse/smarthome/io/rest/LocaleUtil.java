@@ -17,6 +17,7 @@ import org.eclipse.smarthome.io.rest.internal.RESTActivator;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Markus Rathgeb - Use locale provider
+ * @author Martin Herbst - Support of different language definition variants
  */
 public class LocaleUtil {
 
@@ -31,7 +32,13 @@ public class LocaleUtil {
     public static Locale getLocale(String acceptLanguageHttpHeader) {
         Locale locale = RESTActivator.getLocale();
         if (acceptLanguageHttpHeader != null) {
-            String[] split = acceptLanguageHttpHeader.split("-");
+            int pos = acceptLanguageHttpHeader.indexOf(',');
+            String[] split;
+            if (pos > -1) {
+                split = acceptLanguageHttpHeader.substring(0, pos).split("-");
+            } else {
+                split = acceptLanguageHttpHeader.split("-");
+            }
             if (split.length == 2) {
                 locale = new Locale(split[0], split[1]);
             } else {
