@@ -279,6 +279,10 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
+      <channel id="channelID" typeId="channelTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel>
       ...
     </channels>
     OR
@@ -305,6 +309,10 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
+      <channel id="channelID" typeId="channelTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel>
       ...
     </channels>
     OR
@@ -390,6 +398,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>label</td><td>A human-readable label for the channel (optional).</td></tr>
+  <tr><td>description</td><td>A human-readable description for the channel (optional).</td></tr>
   <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
