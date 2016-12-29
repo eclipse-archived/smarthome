@@ -248,7 +248,9 @@
 						<div class="cbody item-content">
 							<div flex="85">
 								<h3 class="clickable" ng-click="setGroupFilter(item)">{{item.label}}&nbsp;</h3>
-								<p>{{item.name}}</p>
+								<p>
+									{{item.name}}<i class="material-icons copy-clipboard" copyclipboard="{{item.name}}">content_copy</i>
+								</p>
 								<p class="clickable" ng-click="setTypeFilter(item)">{{item.type}}</p>
 							</div>
 							<div class="actions" flex="15">
