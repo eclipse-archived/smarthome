@@ -281,7 +281,7 @@ public class SonosXMLParser {
                 }
 
                 if (!ignore.contains(localName)) {
-                    logger.warn("Did not recognise element named {}", localName);
+                    logger.debug("Did not recognise element named {}", localName);
                 }
                 element = null;
             }
