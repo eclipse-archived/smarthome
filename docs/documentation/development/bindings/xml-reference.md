@@ -279,6 +279,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
+      OR
       <channel id="channelID" typeId="channelTypeID">
         <label>String</label>
         <description>String</description>
@@ -309,6 +310,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
+      OR
       <channel id="channelID" typeId="channelTypeID">
         <label>String</label>
         <description>String</description>
