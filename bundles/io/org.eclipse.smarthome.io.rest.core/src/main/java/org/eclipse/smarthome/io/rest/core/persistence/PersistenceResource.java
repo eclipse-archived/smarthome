@@ -303,7 +303,7 @@ public class PersistenceResource implements SatisfiableRESTResource {
             filter.setOrdering(Ordering.ASCENDING);
             result = qService.query(filter);
             if (result != null && result.iterator().hasNext()) {
-                dto.addData(result.iterator().next().getTimestamp().getTime(), result.iterator().next().getState());
+                dto.addData(dateTimeEnd.getTime(), result.iterator().next().getState());
                 quantity++;
             }
         }
