@@ -82,6 +82,14 @@ public class ResourceBundleClassLoader extends ClassLoader {
         this.resourceNamesEncoding = determineResourceEncoding();
     }
 
+    /**
+     * Special constructor needed to access method {@link #isCharsetValid(InputStream, Charset)} without a valid OSGi
+     * bundle
+     */
+    ResourceBundleClassLoader() {
+        super();
+    }
+
     @Override
     public URL getResource(String name) {
         Enumeration<URL> resourceFiles = this.bundle.findEntries(this.path, this.filePattern, true);
@@ -177,46 +185,38 @@ public class ResourceBundleClassLoader extends ClassLoader {
         String path = url.getFile();
         File resourceFile = new File(path);
         String name = resourceFile.getName();
-        Charset charset = null;
         for (String charsetName : SUPPORTED_CHARSETS) {
-            charset = detectCharset(name, Charset.forName(charsetName));
-            if (charset != null) {
-                break;
+            Charset charset = Charset.forName(charsetName);
+            if (isCharsetValid(super.getResourceAsStream(name), charset)) {
+                return charset;
             }
         }
-        return charset;
+        return null;
     }
 
     /**
      * The method tests whether the file content can be decoded with the given character set.
      *
-     * @param f
-     *            name of the file that will be tested
+     * @param res
+     *            resource content as stream
      * @param charset
      *            character set to which the file is tested
      * @return
-     *         passed character set if the file could be decoded with this character set or null if the decode fails
+     *         true if the file content could be decoded with the given character set, otherwise false
      */
-    private Charset detectCharset(String f, Charset charset) {
-        try {
-            InputStream in = super.getResourceAsStream(f);
-            BufferedInputStream input = new BufferedInputStream(in);
+    boolean isCharsetValid(InputStream res, Charset charset) {
+        try (BufferedInputStream input = new BufferedInputStream(res)) {
             CharsetDecoder decoder = charset.newDecoder();
-            decoder.reset();
+            // decoder.reset();
             byte[] buffer = new byte[512];
             boolean identified = true;
             // assume given charset is valid and test whether the file can be decoded with it
             while ((input.read(buffer) != -1) && identified) {
                 identified = identify(buffer, decoder);
             }
-            input.close();
-            if (identified) {
-                return charset;
-            } else {
-                return null;
-            }
+            return identified;
         } catch (Exception e) {
-            return null;
+            return false;
         }
     }
 
