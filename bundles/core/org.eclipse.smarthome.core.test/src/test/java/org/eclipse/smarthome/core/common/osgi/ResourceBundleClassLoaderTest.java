@@ -39,30 +39,6 @@ public class ResourceBundleClassLoaderTest {
     }
 
     @Test
-    public void testValidUTF8Large() {
-        ResourceBundleClassLoader testObject = new ResourceBundleClassLoader();
-        byte[] buff = new byte[520];
-        for (int i = 0; i < 520; i++) {
-            buff[i] = 65;
-        }
-        InputStream is = new ByteArrayInputStream(buff);
-        assertTrue(testObject.isCharsetValid(is, Charset.forName("UTF-8")));
-    }
-
-    @Test
-    public void testInvalidUTF8Large() {
-        ResourceBundleClassLoader testObject = new ResourceBundleClassLoader();
-        byte[] buff = new byte[520];
-        for (int i = 0; i < 520; i++) {
-            buff[i] = 65;
-        }
-        // non-UTF-8 character at the end of second chunk
-        buff[519] = (byte) 0xA7; // §
-        InputStream is = new ByteArrayInputStream(buff);
-        assertFalse(testObject.isCharsetValid(is, Charset.forName("UTF-8")));
-    }
-
-    @Test
     public void testValidISO8859() {
         ResourceBundleClassLoader testObject = new ResourceBundleClassLoader();
         byte[] allChars = new byte[256];
