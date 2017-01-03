@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.common.osgi;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,9 +16,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -205,28 +203,11 @@ public class ResourceBundleClassLoader extends ClassLoader {
      *         true if the file content could be decoded with the given character set, otherwise false
      */
     boolean isCharsetValid(InputStream res, Charset charset) {
-        try (BufferedInputStream input = new BufferedInputStream(res)) {
-            CharsetDecoder decoder = charset.newDecoder();
-            // decoder.reset();
-            byte[] buffer = new byte[512];
-            boolean identified = true;
-            // assume given charset is valid and test whether the file can be decoded with it
-            while ((input.read(buffer) != -1) && identified) {
-                identified = identify(buffer, decoder);
-            }
-            return identified;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean identify(byte[] bytes, CharsetDecoder decoder) {
         try {
-            decoder.decode(ByteBuffer.wrap(bytes));
-        } catch (CharacterCodingException e) {
+            charset.newDecoder().decode(ByteBuffer.wrap(IOUtils.toByteArray(res)));
+        } catch (IOException e) {
             return false;
         }
         return true;
     }
-
 }
