@@ -1191,6 +1191,8 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .textControl .state {
 	font-size: 30px;
 	font-weight: 300;
+	min-height: 40px;
+	min-width: 140px;
 }
 
 .searchBox {
