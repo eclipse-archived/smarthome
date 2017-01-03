@@ -36,10 +36,15 @@ import org.osgi.framework.Bundle;
  * mappings.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Martin Herbst - ISO-8859-1 support added
  */
 public class ResourceBundleClassLoader extends ClassLoader {
 
-    private static final String[] SUPPORTED_CHARSETS = { "UTF-8" };
+    /**
+     * ISO-8859-1 must be the last array element because all files could be decoded to ISO-8859-1 and
+     * therefore always character set ISO-8859-1 would be assumed.
+     */
+    private static final String[] SUPPORTED_CHARSETS = { "UTF-8", "ISO-8859-1" };
 
     private Bundle bundle;
     private String path;
@@ -158,6 +163,16 @@ public class ResourceBundleClassLoader extends ClassLoader {
         return resourceNamesEncoding;
     }
 
+    /**
+     * The method tries to find out the encoding (character set) of the passed file.
+     * This is done by testing the character sets from {@link #SUPPORTED_CHARSETS}
+     *
+     * @param url
+     *            URL of the resource that should be checked
+     * @return
+     *         identified character set or null if the file can't be decoded with any
+     *         of the given character sets
+     */
     private Charset getResourceCharset(URL url) {
         String path = url.getFile();
         File resourceFile = new File(path);
@@ -172,6 +187,16 @@ public class ResourceBundleClassLoader extends ClassLoader {
         return charset;
     }
 
+    /**
+     * The method tests whether the file content can be decoded with the given character set.
+     *
+     * @param f
+     *            name of the file that will be tested
+     * @param charset
+     *            character set to which the file is tested
+     * @return
+     *         passed character set if the file could be decoded with this character set or null if the decode fails
+     */
     private Charset detectCharset(String f, Charset charset) {
         try {
             InputStream in = super.getResourceAsStream(f);
@@ -179,8 +204,9 @@ public class ResourceBundleClassLoader extends ClassLoader {
             CharsetDecoder decoder = charset.newDecoder();
             decoder.reset();
             byte[] buffer = new byte[512];
-            boolean identified = false;
-            while ((input.read(buffer) != -1) && (!identified)) {
+            boolean identified = true;
+            // assume given charset is valid and test whether the file can be decoded with it
+            while ((input.read(buffer) != -1) && identified) {
                 identified = identify(buffer, decoder);
             }
             input.close();
