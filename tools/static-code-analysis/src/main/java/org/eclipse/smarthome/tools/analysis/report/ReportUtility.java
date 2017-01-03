@@ -44,12 +44,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -63,6 +61,10 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
@@ -81,11 +83,30 @@ import org.dom4j.io.SAXReader;
  * @author Svilen Valkanov - Some minor changes and adaptations
  */
 
-public class ReportUtility {
+@Mojo(name = "report")
+public class ReportUtility extends AbstractMojo {
+
+    /**
+     * The directory where the individual report will be generated
+     */
+    @Parameter(property = "report.targetDir", defaultValue = "${project.build.directory}/code-analysis")
+    private String targetDirectory;
+
+    /**
+     * Describes of the build should fail if high priority error is found
+     */
+    @Parameter(property = "report.fail.on.error", defaultValue = "true")
+    private boolean failOnError;
+
+    /**
+     * The directory where the summary report, containing links to the individual reports will be generated
+     */
+    @Parameter(property = "report.summary.targetDir", defaultValue = "${session.executionRootDirectory}/target")
+    private String summaryReport;
 
     private static final String REPORT_SUBDIR = "report";
 
-    // XSLT files that are used to create the merge report, located in the resources folder
+    // XSLT files that are used to create the merged report, located in the resources folder
     private static final String CREATE_HTML_XSLT = REPORT_SUBDIR + "/create_html.xslt";
     private static final String MERGE_XSLT = REPORT_SUBDIR + "/merge.xslt";
     private static final String PREPARE_PMD_XSLT = REPORT_SUBDIR + "/prepare_pmd.xslt";
@@ -114,9 +135,8 @@ public class ReportUtility {
 
         FileOutputStream outputStream = null;
         try {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(input + "  > " + xslt + " " + param + " " + value + " >  " + output);
-            }
+
+            LOGGER.debug(input + "  > " + xslt + " " + param + " " + value + " >  " + output);
 
             // Process the Source into a Transformer Object
             System.setProperty(XML_TRANSFORM_PROPERTY_KEY, XML_TRANSFOMR_PROPERTY_VALUE);
@@ -164,25 +184,17 @@ public class ReportUtility {
 
     /**
      * Merges the xml reports from PMD, Checkstyle and FindBugs into a single .html report
-     * 
-     * @param args - Three arguments are expected - path to the merged report for a single project;
-     *            boolean literal representing, if the tool should throw Exception on errors;
-     *            path to the summary report for the whole build
-     * @throws HighPriorityViolationException - thrown if one ore more violation with high priority are found
+     *
+     * @param relativePathToReport - path to the merged report for a single project
+     * @param failOnError - if the tool should throw Exception on errors
+     * @param summaryReportDirectory - path to the summary report for the whole build
+     * @throws MojoFailureException - thrown if one ore more violation with high priority are found
      */
-    public static void main(String[] args) throws HighPriorityViolationException {
-
-        if (args.length != 3) {
-            throw new IllegalArgumentException(
-                    "Two arguments expected, received " + args.length + " : " + Arrays.toString(args));
-        }
-
-        final String currentDirectory = args[0];
-        boolean failOnError = Boolean.parseBoolean(args[1]);
-        final String summaryReportDirectory = args[2];
+    public static void mergeReports(String relativePathToReport, boolean failOnError, String summaryReportDirectory)
+            throws MojoFailureException {
 
         // Prepare userDirectory and tempDirectoryPrefix
-        final String userDirectory = currentDirectory.replace('\\', '/') + '/';
+        final String userDirectory = relativePathToReport.replace('\\', '/') + '/';
         final String timeStamp = Integer.toHexString((int) System.nanoTime());
         final String tempDirectoryPrefix = userDirectory.replace('\\', '/') + timeStamp;
 
@@ -227,13 +239,15 @@ public class ReportUtility {
         deletefile(secondMergeResult);
 
         try {
-            appendToSummary(htmlOutputFileName, summaryReportDirectory);
+            if (summaryReportDirectory != null) {
+                appendToSummary(htmlOutputFileName, summaryReportDirectory);
+            }
         } catch (IOException e) {
             LOGGER.warn("Can not read or write to summary report. The summary report might be incomplete!", e);
         }
 
         if (failOnError && errorLog != null) {
-            throw new HighPriorityViolationException(errorLog);
+            throw new MojoFailureException(errorLog);
         }
 
     }
@@ -244,6 +258,7 @@ public class ReportUtility {
             SAXReader reader = new SAXReader();
             Document document = reader.read(file);
 
+            @SuppressWarnings("unchecked")
             List<Node> nodes = document.selectNodes("/sca/file/message[@priority=1]");
 
             if (nodes.isEmpty()) {
@@ -270,7 +285,9 @@ public class ReportUtility {
             return result.toString();
 
         } catch (DocumentException e) {
-            LOGGER.error("Error while checking the merged report for high priority violations! The report might be inaccurate!", e);
+            LOGGER.error(
+                    "Error while checking the merged report for high priority violations! The report might be inaccurate!",
+                    e);
         }
         return null;
 
@@ -280,13 +297,13 @@ public class ReportUtility {
         File summaryReport = new File(summaryReportDirectory + File.separator + SUMMARY_FILE_NAME);
 
         if (!summaryReport.exists()) {
-            
-            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(REPORT_SUBDIR + "/" + SUMMARY_TEMPLATE_FILE_NAME);
-                        
+
+            InputStream inputStream = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(REPORT_SUBDIR + "/" + SUMMARY_TEMPLATE_FILE_NAME);
+
             StringWriter writer = new StringWriter();
             IOUtils.copy(inputStream, writer, Charset.defaultCharset());
             String htmlString = writer.toString();
-            
 
             String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
             htmlString = htmlString.replace("$time", now);
@@ -301,6 +318,11 @@ public class ReportUtility {
 
         reportContent = reportContent.replace("<tr></tr>", row);
         FileUtils.writeStringToFile(summaryReport, reportContent);
-        LOGGER.info("Appended to summary report.");
+        LOGGER.info("Individual report appended to summary report.");
+    }
+
+    @Override
+    public void execute() throws MojoFailureException {
+        ReportUtility.mergeReports(targetDirectory, failOnError, summaryReport);
     }
 }

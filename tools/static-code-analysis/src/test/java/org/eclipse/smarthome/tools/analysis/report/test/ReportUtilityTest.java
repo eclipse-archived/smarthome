@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 
-import org.eclipse.smarthome.tools.analysis.report.HighPriorityViolationException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.smarthome.tools.analysis.report.ReportUtility;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class ReportUtilityTest {
             + TARGET_RELATIVE_DIR;
     public static final String RESULT_FILE_PATH = TARGET_ABSOLUTE_DIR + File.separator + ReportUtility.RESULT_FILE_NAME;
 
-    @Test(expected = HighPriorityViolationException.class)
+    @Test(expected = MojoFailureException.class)
     public void assertReportIsCreatedAndBuildFails() throws Exception {
         File file = new File(RESULT_FILE_PATH);
 
@@ -39,9 +39,7 @@ public class ReportUtilityTest {
 
         assertFalse(file.exists());
 
-        String[] args = { TARGET_ABSOLUTE_DIR, "true", TARGET_ABSOLUTE_DIR };
-
-        ReportUtility.main(args);
+        ReportUtility.mergeReports(TARGET_ABSOLUTE_DIR, true, null);
 
         assertTrue(file.exists());
     }

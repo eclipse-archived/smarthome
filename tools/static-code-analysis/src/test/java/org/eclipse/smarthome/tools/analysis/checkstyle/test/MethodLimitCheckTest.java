@@ -27,9 +27,8 @@ public class MethodLimitCheckTest extends BaseCheckTestSupport {
 
     @Override
     protected String getPath(String fileName) throws IOException {
-        return new File(
-                "src/test/resources/org/eclipse/smarthome/tools/analysis/checkstyle/test" + File.separator + fileName)
-                        .getCanonicalPath();
+        return new File("src/test/resources/checks/checkstyle/methodLimitCheckTest" + File.separator + fileName)
+                .getCanonicalPath();
     }
 
     @Test

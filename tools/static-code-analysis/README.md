@@ -1,37 +1,76 @@
 # Eclipse SmartHome Static Code Analysis Tool
 
+ESH Static Code Analysis Tools is a Maven plugin that executes the Maven plugins for FindBugs, Checkstyle and PMD and generates a merged .html report.
+
 This project contains:
- - properties files for the PMD, Checkstyle and FindBugs Maven plugins in the `src/main/resources/configuration` folder;
+ - properties files for the PMD, Checkstyle and FindBugs Maven plugins configuration in the `src/main/resources/configuration` folder;
  - rule sets for the plugins in the `src/main/resources/rulesets` folder;
  - custom rules for PMD, CheckStyle and FindBugs and unit tests for the rules;
  - tool that merges the reports from the individual plugins in a summary report.
+
+## Maven plugin goals and parameters
+
+**static-code-analysis:pmd**
+
+Description: 
+    Executes the `maven-pmd-plugin` goal `pmd` with a ruleset file and configuration properties
+
+Parameters:
+
+| Name | Type| Description |
+| ------ | ------| -------- |
+| **ruleset** | String | The type of the ruleset that will be used (default value is **bundle**)|
+| **maven.pmd.version** | String | The version of the maven-pmd-plugin that will be used (Default value is **3.7**)|
+
+**static-code-analysis:checkstyle**
+
+Description: 
+    Executes the `maven-checkstyle-plugin` goal `checkstyle` with a ruleset file and configuration properties
+
+Parameters:
+
+| Name | Type| Description |
+| ------ | ------| -------- |
+| **ruleset** | String | The type of the ruleset that will be used (Default value is **bundle**)|
+| **maven.checkstyle.version** | String | The version of the maven-checkstyle-plugin that will be used (default value is **2.17**)|
+
+**static-code-analysis:findbugs**
+
+Description: 
+    Executes the `findbugs-maven-plugin` goal `findbugs` with a  ruleset file and configuration properties
+
+Parameters:
+
+| Name | Type| Description |
+| ------ | ------| -------- |
+| **ruleset** | String | The type of the ruleset that will be used (default value is **bundle**)|
+| **findbugs.maven.version** | String | The version of the findbugs-maven-plugin that will be used (default value is **3.0.1**)|
+
+**static-code-analysis:report**
+
+Description: 
+    Transforms the results from FindBugs, Checkstyle and PMD into a single HTML Report with XSLT
+
+Parameters:
+
+| Name | Type| Description |
+| ------ | ------| -------- |
+| **report.targetDir** | String | The directory where the individual report will be generated (default value is **${project.build.directory}/code-analysis**) |
+| **report.summary.targetDir** | String | The directory where the summary report, containing links to the individual reports will be generated (Default value is **${session.executionRootDirectory}/target**)|
+| **report.fail.on.errorr** | Boolean | Describes of the build should fail if high priority error is found (Default value is **true**)|
+
 
 ## Usage
 
 Execute `mvn clean install -P check` from the root of the Eclipse SmartHome project.
 
-This profile (`check`) applies some general configuration to the Maven plugins for PMD, Checkstyle and FindBugs.
-
-Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in file named `report.html`. The result report is aggregated by Static Code Analysis Report Tool.
-
-## Failing The Build
+Reports are generated for each module individually and can be found in the `target/code-analysis` directory. The merged report can be found in the root target directory.
 
 The build will fail if a problem with high priority is found by some of the Maven plugins for PMD, Checkstyle and FindBugs. Each of the plugins has its own way to prioritize the detected problems:
 
 - for PMD - the build will fail when a rule with Priority "1" is found;
 - for Checkstyle - a rule with severity="Error";
 - for Findbugs - any Matcher with Rank between 1 and 4.
-
-
-# Configuration
-
-The build can be configured to fail, when an error is found with the `fail.on.error` property. Default value is `true`.
-
-You can refer to the following links for more configuration options for the specific Maven plugins:
-
-- https://maven.apache.org/plugins/maven-pmd-plugin/check-mojo.html;
-- https://maven.apache.org/plugins-archives/maven-checkstyle-plugin-2.16/checkstyle-mojo.html;
-- http://gleclaire.github.io/findbugs-maven-plugin/check-mojo.html.
 
 
 ## Customization 
@@ -42,12 +81,23 @@ At the moment the tool executes different checks on OSGi bundles and ESH Binding
 
 If you want to add a custom set of rules for UIs for example you will have to follow these steps:
 
-- add a new profile in the `smarthome/pom.xml` that is activated when a specific file exists in the structure of the project (e.g. the profile for bindings is activated when `ESH-INF/binding/binding.xml` exists);
-- in the `src/main/resources/rulesets` add a new rule set for PMD, Checkstyle and FindBugs that includes the rules that have to be executed.
+- in the `src/main/resources/rulesets` add a new rule set for PMD, Checkstyle and FindBugs that includes the rules that have to be executed and follow the naming convention used so far;
+- use the **ruleset** configuration property in the Maven plugin, where the ruleset is the name of the newly created ruleset.
+
+### Individual plugin customization
+
+Each of the Maven plugins that are used (for FindBugs, Checkstyle and PMD) are configured by setting a user properties that are located in the `src/main/resources/configuration` directory.
+
+You can refer to the following links for more configuration options for the specific Maven plugins:
+
+- https://maven.apache.org/plugins/maven-pmd-plugin/check-mojo.html;
+- https://maven.apache.org/plugins-archives/maven-checkstyle-plugin-2.16/checkstyle-mojo.html;
+- http://gleclaire.github.io/findbugs-maven-plugin/check-mojo.html.
+
 
 ## Reuse Checks
 
-All of the used static code analysis tools come with a set of custom rules that can be used directly in a rule set.
+PMD, Checkstyle and FindBugs come with a set of custom rules that can be used directly in a rule set.
 
 Helpful resources with lists of the available checks and information how to use them:
 
@@ -61,10 +111,9 @@ Helpful resources with lists of the available checks and information how to use 
 
 All of the used static code analysis tools have Java API for writing custom checks.
 
-PMD extends this by giving the possibility to define a rule with the XPath syntax. PMD offers even more - a
-Rule Designer that speeds up the process of developing a new rule! See http://nullpointer.debashish.com/pmd-xpath-custom-rules.
+Checkstyle API is easy to use and to implement checks for different file extensions and languages. Examples are included in the project.
 
-Examples of custom checks are implemented in the project.
+PMD extends this by giving the possibility to define a rule with the XPath syntax. PMD offers even more - a Rule Designer that speeds up the process of developing a new rule! See http://nullpointer.debashish.com/pmd-xpath-custom-rules.
 
 PMD rules with XPatch expressions are defined directly in the rule set (`src/main/resources/rulesets/pmd/xpath` folder.
 
@@ -86,13 +135,11 @@ Adding a test for Checkstyle is even easier - extend the `BaseCheckTestSupport`.
 
 For more information: https://pmd.github.io/pmd-5.4.1/customizing/rule-guidelines.html. 
 
-
 ## Known Problems 
 
-- The combined report does not conatin links to the Checkstyle rule definitions;
 - Flooded console output when running Checkstyle in debug mode in Maven  (- X ) - https://github.com/checkstyle/checkstyle/issues/3184;
 
 ## 3rd Party
 
-- The example checks provided in the `static-code-analysis-config` (`MethodLimitCheck`, `CustomClassNameLengthDetector`, `WhileLoopsMustUseBracesRule`) are based on tutorials how to use the API of Checkstyle, FindBugs and PMD. For more info, see javadoc.
-- The tool that merges the individual reports is based completely on source files from the https://github.com/MarkusSprunck/static-code-analysis-report that are distributed under a custom license. More information can be found in the LICENSE.txt file;
+- The example checks provided in the `static-code-analysis-config` (`MethodLimitCheck`, `CustomClassNameLengthDetector`, `WhileLoopsMustUseBracesRule`) are based on tutorials how to use the API of Checkstyle, FindBugs and PMD. For more info, see javadoc;
+- The tool that merges the individual reports is based completely on source files from the https://github.com/MarkusSprunck/static-code-analysis-report that are distributed under a custom license. More information can be found in the LICENSE.txt file.

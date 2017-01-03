@@ -27,7 +27,7 @@ public class ExportInternalPackageCheckTest extends BaseCheckTestSupport {
     @Override
     protected String getPath(String fileName) throws IOException {
         return new File(
-                "src/test/resources/org/eclipse/smarthome/tools/analysis/checkstyle/test" + File.separator + fileName)
+                "src/test/resources/checks/checkstyle/exportInternalPackageCheckTest" + File.separator + fileName)
                         .getCanonicalPath();
     }
 
@@ -37,7 +37,8 @@ public class ExportInternalPackageCheckTest extends BaseCheckTestSupport {
         String testFileName = "MANIFEST.MF";
         int lineNumber = 12;
 
-        String[] expectedMessages = { lineNumber + ": Remove internal package export org.eclipse.smarthome.buildtools.internal"};
+        String[] expectedMessages = {
+                lineNumber + ": Remove internal package export org.eclipse.smarthome.buildtools.internal" };
 
         String filePath = getPath(testFileName);
 

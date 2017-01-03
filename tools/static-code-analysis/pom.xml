@@ -12,19 +12,22 @@
 
   <groupId>org.eclipse.smarthome.tools</groupId>
   <artifactId>static-code-analysis</artifactId>
-  <packaging>jar</packaging>
+  <packaging>maven-plugin</packaging>
 
-  <name>Static Code Analysis Tool</name>
+  <name>Eclipse SmartHome Static Code Analysis Tool</name>
   <description>Tool that aggregates reports of PMD, Checkstyle and FindBugs</description>
 
   <properties>
     <log4j.version>1.2.17</log4j.version>
-    <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
-    <maven.assembly.version>2.6</maven.assembly.version>
     <junit.version>4.11</junit.version>
     <maven.resources.version>2.4</maven.resources.version>
-    <maven.jar.version>3.0.2</maven.jar.version>
     <pmd.version>5.5.1</pmd.version>
+    <checkstyle.version>7.2</checkstyle.version>
+    <findbugs.version>3.0.1</findbugs.version>
+    <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
+    <maven.plugin.annotations.version>3.5</maven.plugin.annotations.version>
+    <maven.plugin.plugin.version>3.5</maven.plugin.plugin.version>
+    <mojo.executor.version>2.2.0</mojo.executor.version>
   </properties>
 
   <dependencies>
@@ -40,6 +43,7 @@
       <scope>test</scope>
     </dependency>
 
+	<!-- Analysis tools -->
     <dependency>
       <groupId>net.sourceforge.pmd</groupId>
       <artifactId>pmd-xml</artifactId>
@@ -71,6 +75,30 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>findbugs</artifactId>
       <version>${findbugs.version}</version>
+    </dependency>
+    
+    <!-- Maven Plugin dependencies -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>${maven.plugin.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>${maven.plugin.annotations.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-plugin-plugin</artifactId>
+      <version>${maven.plugin.plugin.version}</version>
+    </dependency>
+    
+    <!-- MOJO Executor -->
+    <dependency>
+        <groupId>org.twdata.maven</groupId>
+        <artifactId>mojo-executor</artifactId>
+        <version>${mojo.executor.version}</version>
     </dependency>
   </dependencies>
 
@@ -107,39 +135,21 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven.jar.version}</version>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>${maven.plugin.plugin.version}</version>
         <executions>
           <execution>
-            <id>default-jar</id>
-            <phase />
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>${maven.assembly.version}</version>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assembly/bin.xml</descriptor>
-          </descriptors>
-          <archive>
-            <manifest>
-              <mainClass>org.eclipse.smarthome.tools.analysis.report.ReportUtility</mainClass>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
-            </manifest>
-          </archive>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
+            <id>default-addPluginArtifactMetadata</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>addPluginArtifactMetadata</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-descriptor</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>descriptor</goal>
             </goals>
           </execution>
         </executions>

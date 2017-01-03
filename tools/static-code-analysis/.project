@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>static-code-analysis</name>
-	<comment>Static Code Analysis Tool</comment>
+	<comment>Static Code Analysis Tool analyses source files for violation against the ESH Coding Guidelines and generates a merged report</comment>
 	<projects>
 	</projects>
 	<buildSpec>
