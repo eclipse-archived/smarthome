@@ -358,6 +358,30 @@
 		};
 	}
 
+	/* class Frame */
+	/* Mimics Control interface, only setVisible method is used */
+	function Frame(parentNode) {
+		var
+			_t = this;
+
+		_t.parentNode = parentNode;
+		_t.id = _t.parentNode.getAttribute(o.idAttribute);
+		_t.visible = !_t.parentNode.classList.contains(o.formHidden);
+
+		_t.setVisible = function(state) {
+			if (state) {
+				_t.parentNode.classList.remove(o.formHidden);
+			} else {
+				_t.parentNode.classList.add(o.formHidden);
+			}
+
+			_t.visible = state;
+		};
+
+		_t.setValue = function() {};
+		_t.supressUpdate = function() {};
+	}
+
 	/* class ControlImage */
 	function ControlImage(parentNode, callSuper) {
 		// Some controls combine Image functionality with
@@ -1420,10 +1444,15 @@
 					(smarthome.dataModelLegacy[control.item] === undefined) ||
 					(smarthome.dataModelLegacy[control.item].widgets === undefined)
 				) {
-					smarthome.dataModelLegacy[control.item] = { widgets: [] };
+					if (control.item !== undefined) {
+						smarthome.dataModelLegacy[control.item] = { widgets: [] };
+					}
 				}
 
-				smarthome.dataModelLegacy[control.item].widgets.push(control);
+				if (control.item !== undefined) {
+					smarthome.dataModelLegacy[control.item].widgets.push(control);
+				}
+
 				smarthome.dataModel[control.id] = control;
 			}
 
@@ -1474,6 +1503,10 @@
 				}
 				/*eslint no-fallthrough:0*/
 				e.addEventListener("control-change", controlChangeHandler);
+			});
+
+			[].forEach.call(document.querySelectorAll(o.form), function(e) {
+				appendControl(new Frame(e));
 			});
 		};
 
@@ -1716,6 +1749,8 @@
 	modal: ".mdl-modal",
 	modalContainer: ".mdl-modal__content",
 	selectionRows: ".mdl-form__selection-rows",
+	form: ".mdl-form",
+	formHidden: "mdl-form--hidden",
 	formControls: ".mdl-form__control",
 	formRowHidden: "mdl-form__row--hidden",
 	formValue: ".mdl-form__value",

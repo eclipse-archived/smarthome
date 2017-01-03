@@ -158,20 +158,19 @@ public class PageChangeListener implements StateChangeListener {
         for (Widget w : widgets) {
             if (w instanceof Frame) {
                 events.addAll(constructSitemapEvents(item, oldState, newState, ((Frame) w).getChildren()));
-            } else {
-                if ((w.getItem() != null && w.getItem().equals(item.getName()))
-                        || definesVisibility(w, item.getName())) {
-                    SitemapWidgetEvent event = new SitemapWidgetEvent();
-                    event.sitemapName = sitemapName;
-                    event.pageId = pageId;
-                    event.label = itemUIRegistry.getLabel(w);
-                    event.labelcolor = itemUIRegistry.getLabelColor(w);
-                    event.valuecolor = itemUIRegistry.getValueColor(w);
-                    event.widgetId = itemUIRegistry.getWidgetId(w);
-                    event.visibility = itemUIRegistry.getVisiblity(w);
-                    event.item = EnrichedItemDTOMapper.map(item, false, null, null);
-                    events.add(event);
-                }
+            }
+
+            if ((w.getItem() != null && w.getItem().equals(item.getName())) || definesVisibility(w, item.getName())) {
+                SitemapWidgetEvent event = new SitemapWidgetEvent();
+                event.sitemapName = sitemapName;
+                event.pageId = pageId;
+                event.label = itemUIRegistry.getLabel(w);
+                event.labelcolor = itemUIRegistry.getLabelColor(w);
+                event.valuecolor = itemUIRegistry.getValueColor(w);
+                event.widgetId = itemUIRegistry.getWidgetId(w);
+                event.visibility = itemUIRegistry.getVisiblity(w);
+                event.item = EnrichedItemDTOMapper.map(item, false, null, null);
+                events.add(event);
             }
         }
         return events;
