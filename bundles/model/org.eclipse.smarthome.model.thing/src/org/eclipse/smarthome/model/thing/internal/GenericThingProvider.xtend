@@ -9,12 +9,14 @@ package org.eclipse.smarthome.model.thing.internal
 
 import java.util.ArrayList
 import java.util.Collection
+import java.util.HashSet
 import java.util.List
 import java.util.Map
 import java.util.Set
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import org.eclipse.smarthome.config.core.BundleProcessor
+import org.eclipse.smarthome.config.core.BundleProcessorVetoManager
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
@@ -45,7 +47,6 @@ import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.eclipse.smarthome.config.core.BundleProcessorVetoManager
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -149,26 +150,16 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList,
         ThingHandlerFactory thingHandlerFactory) {
-        var ThingTypeUID thingTypeUID = null
-        var ThingUID thingUID = null
+        val ThingUID thingUID = getThingUID(modelThing, parentBridge?.UID)
+        if (thingUID == null) {
+            // ignore the Thing because its definition is broken
+            return
+        }
+        val thingTypeUID = modelThing.constructThingTypeUID(thingUID)
         var ThingUID bridgeUID = null
         if (parentBridge != null) {
-            val bindingId = parentBridge.thingTypeUID.bindingId
-            if (modelThing.id != null) {
-                thingUID = modelThing.constructThingUID
-                thingTypeUID = new ThingTypeUID(bindingId, thingUID.thingTypeId)
-            } else {
-                thingTypeUID = new ThingTypeUID(bindingId, modelThing.thingTypeId)
-                thingUID = new ThingUID(thingTypeUID, modelThing.thingId, parentBridge.parentPath)
-            }
             bridgeUID = parentBridge.UID
         } else {
-            thingUID = modelThing.constructThingUID
-            if (thingUID == null) {
-                // ignore the Thing because its definition is broken
-                return
-            }
-            thingTypeUID = modelThing.constructThingTypeUID(thingUID)
             if (modelThing.bridgeUID != null && !modelThing.bridgeUID.empty) {
                 bridgeUID = new ThingUID(modelThing.bridgeUID)
             }
@@ -314,9 +305,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         target.configuration.merge(source.configuration)
     }
 
-    def private getParentPath(Bridge bridge) {
-        var bridgeIds = bridge.UID.bridgeIds
-        bridgeIds.add(bridge.UID.id)
+    def private getParentPath(ThingUID bridgeUID) {
+        var bridgeIds = bridgeUID.bridgeIds
+        bridgeIds.add(bridgeUID.id)
         return bridgeIds
     }
 
@@ -406,9 +397,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 case org.eclipse.smarthome.model.core.EventType.MODIFIED: {
                     val oldThings = thingsMap.get(modelName) ?: newArrayList
                     val model = modelRepository.getModel(modelName) as ThingModel
-                    val removedThings = oldThings.filter[!model.things.map[
-                        new ThingUID(it.id)
-                    ].contains(it.UID)]
+                    val newThingUIDs = model.allThingUIDs
+                    val removedThings = oldThings.filter[!newThingUIDs.contains(it.UID)]
                     removedThings.forEach [
                         notifyListenersAboutRemovedElement
                     ]
@@ -422,6 +412,31 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                     ]
                 }
             }
+        }
+    }
+
+    def private Set<ThingUID> getAllThingUIDs(ThingModel model) {
+        return getAllThingUIDs(model.things, null)
+    }    
+
+    def private Set<ThingUID> getAllThingUIDs(List<ModelThing> thingList, ThingUID parentUID) {
+        val ret = new HashSet<ThingUID>()
+        thingList.forEach[
+            val thingUID = getThingUID(it, parentUID)
+            ret.add(thingUID)
+            if (it instanceof ModelBridge) {
+                ret.addAll(getAllThingUIDs(things, thingUID))
+            } 
+        ]
+        return ret
+    }    
+    
+    def private ThingUID getThingUID(ModelThing modelThing, ThingUID parentUID) {
+        if (parentUID != null && modelThing.id == null) {
+            val thingTypeUID = new ThingTypeUID(parentUID.bindingId, modelThing.thingTypeId)
+            return new ThingUID(thingTypeUID, modelThing.thingId, parentUID.parentPath)
+        } else {
+            return modelThing.constructThingUID
         }
     }
 

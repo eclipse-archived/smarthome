@@ -11,10 +11,15 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.events.AbstractThingRegistryEvent
+import org.eclipse.smarthome.core.thing.events.ThingAddedEvent
+import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent
+import org.eclipse.smarthome.core.thing.events.ThingUpdatedEvent
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.model.core.ModelRepository
@@ -22,6 +27,8 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import com.google.common.collect.Sets
 
 class GenericThingProviderTest extends OSGiTest {
 
@@ -421,5 +428,51 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat actualThings.size(), is(1)
         assertThat actualThings.find {"hue:LCT001:bulb2".equals(it.UID.toString())}, is(notNullValue())
     }
+
+    @Test
+    void 'assert that updating an embedded Thing causes the right behavior wrt adding and updating and no removed events are sent'() {
+        List<AbstractThingRegistryEvent> receivedEvents = new ArrayList<>()
+        def thingEventSubscriber = [
+            receive: { event ->
+                receivedEvents.add(event as AbstractThingRegistryEvent)
+            },
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ThingUpdatedEvent.TYPE, ThingRemovedEvent.TYPE, ThingAddedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService(thingEventSubscriber)
+
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
+                LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        assertThat thingRegistry.getAll().size(), is(2)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(equalTo(2))
+            receivedEvents.each { assertThat it, isA(ThingAddedEvent) }
+        }
+        receivedEvents.clear()
+
+        String newModel =
+                '''
+            Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
+                LCT001 bulb1 [ lightId = "2" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(newModel.bytes))
+        assertThat thingRegistry.getAll().size(), is(2)
+
+        waitForAssert {
+            assertThat receivedEvents.size(), is(equalTo(2))
+            receivedEvents.each { assertThat it, isA(ThingUpdatedEvent) }
+        }
+
+    }
+
 
 }
