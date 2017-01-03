@@ -43,18 +43,23 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String GROUPITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/{memberName}/statechanged";
 
+    private static final String ITEM_CREATED_EVENT_TOPIC = "smarthome/items/{itemName}/created";
+
     private static final String ITEM_ADDED_EVENT_TOPIC = "smarthome/items/{itemName}/added";
+
+    private static final String ITEM_UPDATED_EVENT_TOPIC = "smarthome/items/{itemName}/updated";
 
     private static final String ITEM_REMOVED_EVENT_TOPIC = "smarthome/items/{itemName}/removed";
 
-    private static final String ITEM_UPDATED_EVENT_TOPIC = "smarthome/items/{itemName}/updated";
+    private static final String ITEM_DELETED_EVENT_TOPIC = "smarthome/items/{itemName}/deleted";
 
     /**
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
         super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStateChangedEvent.TYPE,
-                ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE, GroupItemStateChangedEvent.TYPE));
+                ItemCreatedEvent.TYPE, ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE,
+                ItemDeletedEvent.TYPE, GroupItemStateChangedEvent.TYPE));
     }
 
     @Override
@@ -66,12 +71,16 @@ public class ItemEventFactory extends AbstractEventFactory {
             event = createStateEvent(topic, payload, source);
         } else if (eventType.equals(ItemStateChangedEvent.TYPE)) {
             event = createStateChangedEvent(topic, payload);
+        } else if (eventType.equals(ItemCreatedEvent.TYPE)) {
+            event = createCreatedEvent(topic, payload);
         } else if (eventType.equals(ItemAddedEvent.TYPE)) {
             event = createAddedEvent(topic, payload);
         } else if (eventType.equals(ItemUpdatedEvent.TYPE)) {
             event = createUpdatedEvent(topic, payload);
         } else if (eventType.equals(ItemRemovedEvent.TYPE)) {
             event = createRemovedEvent(topic, payload);
+        } else if (eventType.equals(ItemDeletedEvent.TYPE)) {
+            event = createDeletedEvent(topic, payload);
         } else if (eventType.equals(GroupItemStateChangedEvent.TYPE)) {
             event = createGroupStateChangedEvent(topic, payload);
         }
@@ -153,6 +162,11 @@ public class ItemEventFactory extends AbstractEventFactory {
         return valueOfMethod.invoke(stateClass, valueToParse);
     }
 
+    private Event createCreatedEvent(String topic, String payload) {
+        ItemDTO itemDTO = deserializePayload(payload, ItemDTO.class);
+        return new ItemCreatedEvent(topic, payload, itemDTO);
+    }
+
     private Event createAddedEvent(String topic, String payload) {
         ItemDTO itemDTO = deserializePayload(payload, ItemDTO.class);
         return new ItemAddedEvent(topic, payload, itemDTO);
@@ -161,6 +175,11 @@ public class ItemEventFactory extends AbstractEventFactory {
     private Event createRemovedEvent(String topic, String payload) {
         ItemDTO itemDTO = deserializePayload(payload, ItemDTO.class);
         return new ItemRemovedEvent(topic, payload, itemDTO);
+    }
+
+    private Event createDeletedEvent(String topic, String payload) {
+        ItemDTO itemDTO = deserializePayload(payload, ItemDTO.class);
+        return new ItemDeletedEvent(topic, payload, itemDTO);
     }
 
     private Event createUpdatedEvent(String topic, String payload) {
@@ -218,8 +237,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
         assertValidArguments(itemName, state, "state");
         String topic = buildTopic(ITEM_STATE_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(state.getClass().getSimpleName(),
-                state.toFullString());
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(state.getClass().getSimpleName(), state.toFullString());
         String payload = serializePayload(bean);
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
@@ -271,6 +289,23 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     /**
+     * Creates an item created event.
+     *
+     * @param item the item
+     *
+     * @return the created item created event
+     *
+     * @throws IllegalArgumentException if item is null
+     */
+    public static ItemCreatedEvent createCreatedEvent(Item item) {
+        assertValidArgument(item, "item");
+        String topic = buildTopic(ITEM_CREATED_EVENT_TOPIC, item.getName());
+        ItemDTO itemDTO = map(item);
+        String payload = serializePayload(itemDTO);
+        return new ItemCreatedEvent(topic, payload, itemDTO);
+    }
+
+    /**
      * Creates an item added event.
      *
      * @param item the item
@@ -302,6 +337,23 @@ public class ItemEventFactory extends AbstractEventFactory {
         ItemDTO itemDTO = map(item);
         String payload = serializePayload(itemDTO);
         return new ItemRemovedEvent(topic, payload, itemDTO);
+    }
+
+    /**
+     * Creates an item deleted event.
+     *
+     * @param item the item
+     *
+     * @return the created item deleted event
+     *
+     * @throws IllegalArgumentException if item is null
+     */
+    public static ItemDeletedEvent createDeletedEvent(Item item) {
+        assertValidArgument(item, "item");
+        String topic = buildTopic(ITEM_DELETED_EVENT_TOPIC, item.getName());
+        ItemDTO itemDTO = map(item);
+        String payload = serializePayload(itemDTO);
+        return new ItemDeletedEvent(topic, payload, itemDTO);
     }
 
     /**

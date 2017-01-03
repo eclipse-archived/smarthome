@@ -21,12 +21,17 @@ import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
 import org.eclipse.smarthome.core.items.ItemsChangeListener
+import org.eclipse.smarthome.core.items.ManagedItemProvider
+import org.eclipse.smarthome.core.items.events.AbstractItemRegistryEvent
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent
+import org.eclipse.smarthome.core.items.events.ItemCreatedEvent
+import org.eclipse.smarthome.core.items.events.ItemDeletedEvent
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
@@ -324,35 +329,55 @@ class ItemRegistryOSGiTest extends OSGiTest {
 
     @Test
     void 'assert ItemRegistryEventSubscribers receive events about item changes'() {
-        registerService itemProvider
-
-        def receivedEvent = null
+        def List<AbstractItemRegistryEvent> receivedEvents = new ArrayList<AbstractItemRegistryEvent>()
         def itemRegistryEventSubscriber = [
-            receive: { event -> receivedEvent = event },
-            getSubscribedEventTypes: { Sets.newHashSet(ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE, ItemUpdatedEvent.TYPE) },
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemCreatedEvent.TYPE, ItemDeletedEvent.TYPE)
+            },
             getEventFilter: { null },
         ] as EventSubscriber
         registerService itemRegistryEventSubscriber
 
+        registerVolatileStorageService()
+        StorageService storageService = getService(StorageService)
+        ManagedItemProvider managedItemProvider = getService(ManagedItemProvider)
+
         // add new item
+        receivedEvents.clear()
         def item = new SwitchItem("SomeSwitch")
-        itemsChangeListener.added(itemProvider, item)
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ItemAddedEvent))
-        receivedEvent = null
+        managedItemProvider.add(item)
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(2))}
+        assertThat receivedEvents.get(0), is(instanceOf(ItemCreatedEvent))
+        assertThat receivedEvents.get(1), is(instanceOf(ItemAddedEvent))
+
+        // remove provider
+        receivedEvents.clear()
+        unregisterService storageService
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ItemRemovedEvent))
+
+        // add provider
+        receivedEvents.clear()
+        registerService(storageService, StorageService.class.getName())
+        managedItemProvider = getService(ManagedItemProvider)
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ItemAddedEvent))
 
         // update item
+        receivedEvents.clear()
         def oldItem = item;
         def newItem = new SwitchItem("SomeSwitch")
-        itemsChangeListener.updated(itemProvider, oldItem, newItem)
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ItemUpdatedEvent))
-        receivedEvent = null
+        managedItemProvider.update(newItem)
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ItemUpdatedEvent))
 
         // remove item
-        itemsChangeListener.removed(itemProvider, newItem)
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ItemRemovedEvent))
+        receivedEvents.clear()
+        managedItemProvider.remove(newItem.getName())
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(2))}
+        assertThat receivedEvents.get(0), is(instanceOf(ItemRemovedEvent))
+        assertThat receivedEvents.get(1), is(instanceOf(ItemDeletedEvent))
     }
 
 }

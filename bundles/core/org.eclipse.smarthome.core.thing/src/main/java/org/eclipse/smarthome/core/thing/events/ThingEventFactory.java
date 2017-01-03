@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.events;
 
 import java.util.List;
+
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -17,6 +18,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.types.Type;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -38,6 +40,10 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private static final String THING_UPDATED_EVENT_TOPIC = "smarthome/things/{thingUID}/updated";
 
+    private static final String THING_CREATED_EVENT_TOPIC = "smarthome/things/{thingUID}/created";
+
+    private static final String THING_DELETED_EVENT_TOPIC = "smarthome/things/{thingUID}/deleted";
+
     private static final String CHANNEL_TRIGGERED_EVENT_TOPIC = "smarthome/channels/{channelUID}/triggered";
 
     /**
@@ -45,7 +51,8 @@ public class ThingEventFactory extends AbstractEventFactory {
      */
     public ThingEventFactory() {
         super(Sets.newHashSet(ThingStatusInfoEvent.TYPE, ThingStatusInfoChangedEvent.TYPE, ThingAddedEvent.TYPE,
-                ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE, ChannelTriggeredEvent.TYPE));
+                ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE, ChannelTriggeredEvent.TYPE, ThingCreatedEvent.TYPE,
+                ThingDeletedEvent.TYPE));
     }
 
     @Override
@@ -57,8 +64,12 @@ public class ThingEventFactory extends AbstractEventFactory {
             event = createStatusInfoChangedEvent(topic, payload);
         } else if (eventType.equals(ThingAddedEvent.TYPE)) {
             event = createAddedEvent(topic, payload);
+        } else if (eventType.equals(ThingCreatedEvent.TYPE)) {
+            event = createCreatedEvent(topic, payload);
         } else if (eventType.equals(ThingRemovedEvent.TYPE)) {
             event = createRemovedEvent(topic, payload);
+        } else if (eventType.equals(ThingDeletedEvent.TYPE)) {
+            event = createDeletedEvent(topic, payload);
         } else if (eventType.equals(ThingUpdatedEvent.TYPE)) {
             event = createUpdatedEvent(topic, payload);
         } else if (eventType.equals(ChannelTriggeredEvent.TYPE)) {
@@ -145,6 +156,11 @@ public class ThingEventFactory extends AbstractEventFactory {
         return new ThingStatusInfoChangedEvent(topic, payload, thingUID, thingStatusInfo[0], thingStatusInfo[1]);
     }
 
+    private Event createCreatedEvent(String topic, String payload) throws Exception {
+        ThingDTO thingDTO = deserializePayload(payload, ThingDTO.class);
+        return new ThingCreatedEvent(topic, payload, thingDTO);
+    }
+
     private Event createAddedEvent(String topic, String payload) throws Exception {
         ThingDTO thingDTO = deserializePayload(payload, ThingDTO.class);
         return new ThingAddedEvent(topic, payload, thingDTO);
@@ -153,6 +169,11 @@ public class ThingEventFactory extends AbstractEventFactory {
     private Event createRemovedEvent(String topic, String payload) throws Exception {
         ThingDTO thingDTO = deserializePayload(payload, ThingDTO.class);
         return new ThingRemovedEvent(topic, payload, thingDTO);
+    }
+
+    private Event createDeletedEvent(String topic, String payload) throws Exception {
+        ThingDTO thingDTO = deserializePayload(payload, ThingDTO.class);
+        return new ThingDeletedEvent(topic, payload, thingDTO);
     }
 
     private Event createUpdatedEvent(String topic, String payload) throws Exception {
@@ -206,6 +227,23 @@ public class ThingEventFactory extends AbstractEventFactory {
     }
 
     /**
+     * Creates a thing created event.
+     *
+     * @param thing the thing
+     *
+     * @return the created thing created event
+     *
+     * @throws IllegalArgumentException if thing is null
+     */
+    public static ThingCreatedEvent createCreatedEvent(Thing thing) {
+        assertValidArgument(thing);
+        String topic = buildTopic(THING_CREATED_EVENT_TOPIC, thing.getUID());
+        ThingDTO thingDTO = map(thing);
+        String payload = serializePayload(thingDTO);
+        return new ThingCreatedEvent(topic, payload, thingDTO);
+    }
+
+    /**
      * Creates a thing added event.
      *
      * @param thing the thing
@@ -237,6 +275,23 @@ public class ThingEventFactory extends AbstractEventFactory {
         ThingDTO thingDTO = map(thing);
         String payload = serializePayload(thingDTO);
         return new ThingRemovedEvent(topic, payload, thingDTO);
+    }
+
+    /**
+     * Creates a thing deleted event.
+     *
+     * @param thing the thing
+     *
+     * @return the created thing deleted event
+     *
+     * @throws IllegalArgumentException if thing is null
+     */
+    public static ThingDeletedEvent createDeletedEvent(Thing thing) {
+        assertValidArgument(thing);
+        String topic = buildTopic(THING_DELETED_EVENT_TOPIC, thing.getUID());
+        ThingDTO thingDTO = map(thing);
+        String payload = serializePayload(thingDTO);
+        return new ThingDeletedEvent(topic, payload, thingDTO);
     }
 
     /**

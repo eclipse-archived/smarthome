@@ -8,9 +8,12 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -46,6 +49,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     private List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
+
+    private Set<Provider<Thing>> providersInLifecyclePhase = Collections
+            .synchronizedSet(new HashSet<Provider<Thing>>());
 
     public ThingRegistryImpl() {
         super(ThingProvider.class);
@@ -134,6 +140,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     protected void notifyListenersAboutAddedElement(Thing element) {
         super.notifyListenersAboutAddedElement(element);
         postEvent(ThingEventFactory.createAddedEvent(element));
+        if (!providersInLifecyclePhase.contains(getProvider(element))) {
+            postEvent(ThingEventFactory.createCreatedEvent(element));
+        }
         notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
     }
 
@@ -141,6 +150,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     protected void notifyListenersAboutRemovedElement(Thing element) {
         super.notifyListenersAboutRemovedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_REMOVED);
+        if (!providersInLifecyclePhase.contains(getProvider(element))) {
+            postEvent(ThingEventFactory.createDeletedEvent(element));
+        }
         postEvent(ThingEventFactory.createRemovedEvent(element));
     }
 
@@ -279,6 +291,38 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
             }
         }
         return null;
+    }
+
+    @Override
+    public void added(Provider<Thing> provider, Thing element) {
+        synchronized (provider) {
+            super.added(provider, element);
+        }
+    }
+
+    @Override
+    public void removed(Provider<Thing> provider, Thing element) {
+        synchronized (provider) {
+            super.removed(provider, element);
+        }
+    }
+
+    @Override
+    protected void addProvider(Provider<Thing> provider) {
+        synchronized (provider) {
+            providersInLifecyclePhase.add(provider);
+            super.addProvider(provider);
+            providersInLifecyclePhase.remove(provider);
+        }
+    }
+
+    @Override
+    protected void removeProvider(Provider<Thing> provider) {
+        synchronized (provider) {
+            providersInLifecyclePhase.add(provider);
+            super.removeProvider(provider);
+            providersInLifecyclePhase.remove(provider);
+        }
     }
 
 }

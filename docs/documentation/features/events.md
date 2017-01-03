@@ -31,28 +31,34 @@ The type of an event is represented by a string, usually the name of the concret
 
 The event source is optional and represents the name of the source identifying the sender.
 
+The actions generally are specific for the entity types. Nevertheless, it is worth mentioning that there is a subtle difference in the semantics of `created`/`deleted` vs. `added`/`removed` events. The `created`/`deleted` events occur whenever an entity is added to or removed from a provider. This happens e.g. whenever a user creates a new one or deletes it. An `added`/`removed` event will be sent out in addition to ensure backward compatibility. In contrast, the `added`/`removed` events are also triggered by providers which are (un-)registered from their registries. Hence the `added`/`removed` events might also get sent during startup/shutdown of the system. Therefore, whenever only a `removed` event is received for a specific entity (e.g. during shutdown), it's likely that this entity will reappear at a later point in time (e.g. at the next startup). On the other hand, if a `deleted` event is received for an entity, it really got deleted from the system and won't show up again, so e.g. further cleanup of additional related data would make sense.  
+
 #### Item Events
 
-| Event                 |Description                                      |Topic                                   |
-|-----------------------|-------------------------------------------------|----------------------------------------|
-| ItemAddedEvent        |An item has been added to the item registry.     |smarthome/items/{itemName}/added        |
-| ItemRemovedEvent      |An item has been removed from the item registry. |smarthome/items/{itemName}/removed      |
-| ItemUpdatedEvent      |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated      |
-| ItemCommandEvent      |A command is sent to an item via a channel.      |smarthome/items/{itemName}/command      |
-| ItemStateEvent        |The state of an item is updated.                 |smarthome/items/{itemName}/state        |
-| ItemStateChangedEvent |The state of an item has changed.                |smarthome/items/{itemName}/statechanged |
+| Event                 |Description                                                        |Topic                                   |
+|-----------------------|-------------------------------------------------------------------|----------------------------------------|
+| ItemCreatedEvent      |An item has been newly created and was added to the item registry. |smarthome/items/{itemName}/created      |
+| ItemAddedEvent        |An item or its provider was added to the item registry.            |smarthome/items/{itemName}/added        |
+| ItemRemovedEvent      |An item or its provider was removed from the item registry.        |smarthome/items/{itemName}/removed      |
+| ItemDeletedEvent      |An item has been deleted from the item registry.                   |smarthome/items/{itemName}/deleted      |
+| ItemUpdatedEvent      |An item has been updated in the item registry.                     |smarthome/items/{itemName}/updated      |
+| ItemCommandEvent      |A command is sent to an item via a channel.                        |smarthome/items/{itemName}/command      |
+| ItemStateEvent        |The state of an item is updated.                                   |smarthome/items/{itemName}/state        |
+| ItemStateChangedEvent |The state of an item has changed.                                  |smarthome/items/{itemName}/statechanged |
 
 **Note:** The ItemStateEvent is always sent if the state of an item is updated, even if the state did not change. ItemStateChangedEvent is sent only if the state of an item was really changed. It contains the old and the new state of the item.
 
 #### Thing Events
 
-| Event                 |Description                                       |Topic                                   |
-|-----------------------|-------------------------------------------------|-----------------------------------|
-| ThingAddedEvent         |A thing has been added to the thing registry.    |smarthome/things/{thingUID}/added  |
-| ThingRemovedEvent      |A thing has been removed from the thing registry.|smarthome/things/{thingUID}/removed|
-| ThingUpdatedEvent     |A thing has been updated in the thing registry.  |smarthome/things/{thingUID}/updated|
-| ThingStatusInfoEvent    |The status of a thing is updated.                  |smarthome/things/{thingUID}/status |
-| ThingStatusInfoChangedEvent    |The status of a thing changed.                  |smarthome/things/{thingUID}/statuschanged |
+| Event                       |Description                                                         |Topic                                     |
+|-----------------------------|--------------------------------------------------------------------|------------------------------------------|
+| ThingCreatedEvent           |A thing has been newly created and was added to the thing registry. |smarthome/things/{thingUID}/created       |
+| ThingAddedEvent             |A thing or its provider was added to the thing registry.            |smarthome/things/{thingUID}/added         |
+| ThingRemovedEvent           |A thing or its provider was removed from the thing registry.        |smarthome/things/{thingUID}/removed       |
+| ThingDeletedEvent           |A thing has been deleted from the thing registry.                   |smarthome/things/{thingUID}/deleted       |
+| ThingUpdatedEvent           |A thing has been updated in the thing registry.                     |smarthome/things/{thingUID}/updated       |
+| ThingStatusInfoEvent        |The status of a thing is updated.                                   |smarthome/things/{thingUID}/status        |
+| ThingStatusInfoChangedEvent |The status of a thing changed.                                      |smarthome/things/{thingUID}/statuschanged |
 
 **Note:** The ThingStatusInfoEvent is always sent if the status info of a thing is updated, even if the status did not change. ThingStatusInfoChangedEvent is sent only if the status of a thing was really changed. It contains the old and the new status of the thing.
 
