@@ -122,6 +122,13 @@
 									<button type="button" onclick="enableRule(enabledRuleUID.value)">Enable Rule »</button>
 									<button type="button" onclick="disableRule(enabledRuleUID.value)">Disable Rule »</button>
 								</div>
+                                <div class="rest-example" id="runnow">
+                                    <h4>Execute actions of specified Rule</h4>
+                                    <pre id="runnow_status"></pre>
+                                    <hr>
+                                    Enter Rule UID:<br> <input type="text" id="runnowRuleUID" size="40"><br>
+                                    <button type="button" onclick="runnow(runnowRuleUID.value)">RunNow»</button>
+                                </div>
 							</div>
 						</form>
 						<script>
@@ -217,6 +224,19 @@
                                 xmlhttp.open("POST", "/rest/rules/" + rule + "/enable", true);
                                 xmlhttp.setRequestHeader("Content-type", "text/plain");
                                 xmlhttp.send("false");
+                            }
+	                         function runnow(rule) {
+	                                xmlhttp = new XMLHttpRequest();
+	                                xmlhttp.onreadystatechange = function() {
+	                                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                                        document.getElementById("runnow_status").innerHTML = "The actions of the Rule are executed!";
+	                                    } else {
+	                                        document.getElementById("runnow_status").innerHTML = xmlhttp.responseText;
+	                                    }
+	                                };
+	                                xmlhttp.open("POST", "/rest/rules/" + rule + "/runnow", true);
+	                                xmlhttp.setRequestHeader("Content-type", "text/plain");
+	                                xmlhttp.send();
                             }
 						</script>
 					</div>
