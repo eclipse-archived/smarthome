@@ -104,7 +104,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
         if (modelRepository != null) {
             val model = modelRepository.getModel(modelName) as ThingModel
-            model?.things.map[
+            model?.things?.map[
                 // Get the ThingHandlerFactories
                 val ThingUID thingUID = constructThingUID
                 if (thingUID != null) {
@@ -116,10 +116,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                     // ignore the Thing because its definition is broken
                     return null
                 }
-            ].filter[
+            ]?.filter[
                 // Drop it if there is no ThingHandlerFactory yet which can handle it 
                 it != null
-            ].toSet.forEach[
+            ]?.toSet?.forEach[
                 // Execute for each unique ThingHandlerFactory
                 vetoManager.applyActionFor(it)
             ]
