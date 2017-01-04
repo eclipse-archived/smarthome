@@ -47,6 +47,10 @@ import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import java.math.BigDecimal
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -72,6 +76,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<ThingHandlerFactory>()
+    
+    private ConfigDescriptionRegistry configDescriptionRegistry
 
     private val List<QueueContent> queue = new CopyOnWriteArrayList
     private var Thread lazyRetryThread = null
@@ -322,6 +328,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 var ChannelTypeUID channelTypeUID
                 var String itemType
                 var label = it.label
+                val configuration = createConfiguration
                 if (it.channelType != null) {
                     channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
                     val resolvedChannelType = TypeResolver.resolve(channelTypeUID)
@@ -331,6 +338,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                         if (label == null) {
                             label = resolvedChannelType.label
                         }
+                        applyDefaultConfiguration(configuration, resolvedChannelType)
                     } else {
                         logger.error("Channel type {} could not be resolved.",  channelTypeUID.asString)
                     }
@@ -343,7 +351,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 
                 var channel = ChannelBuilder.create(new ChannelUID(thingUID, id), itemType)
                     .withKind(parsedKind)
-                    .withConfiguration(createConfiguration)
+                    .withConfiguration(configuration)
                     .withType(channelTypeUID)
                     .withLabel(label)
                 channels += channel.build()
@@ -365,6 +373,45 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ]
         channels
     }
+    
+    def private applyDefaultConfiguration(Configuration configuration, ChannelType channelType) {
+        if (configDescriptionRegistry != null && configuration != null) {
+            if (channelType.configDescriptionURI != null) {
+                val configDescription = configDescriptionRegistry.getConfigDescription(channelType.configDescriptionURI)
+                if (configDescription != null) {
+                    configDescription.parameters.filter[
+                        ^default != null && configuration.get(name) == null
+                    ].forEach[
+                        val value = getDefaultValueAsCorrectType(type, ^default)
+                        if (value != null) {
+                            configuration.put(name, value);
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    
+    def private Object getDefaultValueAsCorrectType(Type parameterType, String defaultValue) {
+        try {
+            switch (parameterType) {
+                case TEXT:
+                    return defaultValue
+                case BOOLEAN:
+                    return Boolean.parseBoolean(defaultValue)
+                case INTEGER:
+                    return new BigDecimal(defaultValue)
+                case DECIMAL:
+                    return new BigDecimal(defaultValue)
+                default:
+                    return null
+            }
+        } catch (NumberFormatException ex) {
+            logger.warn("Could not parse default value '{}' as type '{}': {}", defaultValue, parameterType, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
 
     def private createConfiguration(ModelPropertyContainer propertyContainer) {
         val configuration = new Configuration
@@ -559,6 +606,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def protected void removeBundleProcessor(BundleProcessor bundleProcessor) {
         vetoManager.removeBundleProcessor(bundleProcessor)
+    }
+    
+    def protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescriptionRegistry = configDescriptionRegistry
+    }
+
+    def protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescriptionRegistry = null
     }
 
 }
