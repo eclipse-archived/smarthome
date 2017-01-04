@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.common.osgi;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
@@ -27,15 +26,15 @@ public class ResourceBundleClassLoaderTest {
     public void testValidUTF8() {
         ResourceBundleClassLoader testObject = new ResourceBundleClassLoader();
         // \u00B2 = ²
-        InputStream is = new ByteArrayInputStream("abcßäüöÄÜÖ~âéè\u00B2".getBytes(Charset.forName("UTF-8")));
-        assertTrue(testObject.isCharsetValid(is, Charset.forName("UTF-8")));
+        assertTrue(testObject.isCharsetValid("abcßäüöÄÜÖ~âéè\u00B2".getBytes(Charset.forName("UTF-8")),
+                Charset.forName("UTF-8")));
     }
 
     @Test
     public void testInvalidUTF8() {
         ResourceBundleClassLoader testObject = new ResourceBundleClassLoader();
-        InputStream is = new ByteArrayInputStream("abcßäüöÄÜÖ~âéè".getBytes(Charset.forName("ISO-8859-1")));
-        assertFalse(testObject.isCharsetValid(is, Charset.forName("UTF-8")));
+        assertFalse(testObject.isCharsetValid("abcßäüöÄÜÖ~âéè".getBytes(Charset.forName("ISO-8859-1")),
+                Charset.forName("UTF-8")));
     }
 
     @Test
@@ -45,7 +44,6 @@ public class ResourceBundleClassLoaderTest {
         for (char c = 0; c <= 255; c++) {
             allChars[c] = (byte) (c - 127);
         }
-        InputStream is = new ByteArrayInputStream(allChars);
-        assertTrue(testObject.isCharsetValid(is, Charset.forName("ISO-8859-1")));
+        assertTrue(testObject.isCharsetValid(allChars, Charset.forName("ISO-8859-1")));
     }
 }

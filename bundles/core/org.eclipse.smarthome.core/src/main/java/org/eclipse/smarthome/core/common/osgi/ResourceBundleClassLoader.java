@@ -42,7 +42,7 @@ public class ResourceBundleClassLoader extends ClassLoader {
      * ISO-8859-1 must be the last array element because all files could be decoded to ISO-8859-1 and
      * therefore always character set ISO-8859-1 would be assumed.
      */
-    private static final String[] SUPPORTED_CHARSETS = { "UTF-8", "ISO-8859-1" };
+    private static final Charset[] SUPPORTED_CHARSETS = { Charset.forName("UTF-8"), Charset.forName("ISO-8859-1") };
 
     private Bundle bundle;
     private String path;
@@ -183,28 +183,32 @@ public class ResourceBundleClassLoader extends ClassLoader {
         String path = url.getFile();
         File resourceFile = new File(path);
         String name = resourceFile.getName();
-        for (String charsetName : SUPPORTED_CHARSETS) {
-            Charset charset = Charset.forName(charsetName);
-            if (isCharsetValid(super.getResourceAsStream(name), charset)) {
-                return charset;
+        try (InputStream res = super.getResourceAsStream(name)) {
+            byte[] content = IOUtils.toByteArray(res);
+            for (Charset charset : SUPPORTED_CHARSETS) {
+                if (isCharsetValid(content, charset)) {
+                    return charset;
+                }
             }
+            return null;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 
     /**
      * The method tests whether the file content can be decoded with the given character set.
      *
-     * @param res
-     *            resource content as stream
+     * @param content
+     *            resource content as byte array
      * @param charset
      *            character set to which the file is tested
      * @return
      *         true if the file content could be decoded with the given character set, otherwise false
      */
-    boolean isCharsetValid(InputStream res, Charset charset) {
+    boolean isCharsetValid(byte[] content, Charset charset) {
         try {
-            charset.newDecoder().decode(ByteBuffer.wrap(IOUtils.toByteArray(res)));
+            charset.newDecoder().decode(ByteBuffer.wrap(content));
         } catch (IOException e) {
             return false;
         }
