@@ -474,5 +474,15 @@ class GenericThingProviderTest extends OSGiTest {
 
     }
 
+    @Test
+    void 'assert that an empty model does not cause any harm'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model = ''''''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(0)
+    }
 
 }
