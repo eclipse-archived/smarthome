@@ -23,9 +23,11 @@ import org.eclipse.smarthome.core.thing.ThingUID
 class ExtendedDiscoveryServiceMock extends DiscoveryServiceMock implements ExtendedDiscoveryService {
 
     public DiscoveryServiceCallback discoveryServiceCallback
+    public Map<String, Object> discoveryProperties;
 
     public ExtendedDiscoveryServiceMock(thingType, timeout, faulty = false) {
         super(thingType, timeout)
+        this.discoveryProperties = null;
     }
 
     @Override
@@ -35,6 +37,11 @@ class ExtendedDiscoveryServiceMock extends DiscoveryServiceMock implements Exten
 
     @Override
     public void startScan() {
-        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, null, null, null, DEFAULT_TTL))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, discoveryProperties, null, null, DEFAULT_TTL))
     }
+    
+    public void setDiscoveryProperties(Map<String, Object> discoveryProperties) {
+        this.discoveryProperties = discoveryProperties;
+    }
+    
 }

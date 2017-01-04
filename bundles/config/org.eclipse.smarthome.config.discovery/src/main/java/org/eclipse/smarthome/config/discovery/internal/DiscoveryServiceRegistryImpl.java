@@ -258,6 +258,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public synchronized void thingDiscovered(final DiscoveryService source, final DiscoveryResult result) {
         synchronized (cachedResults) {
+            cachedResults.remove(source, result);
             cachedResults.put(source, result);
         }
         for (final DiscoveryListener listener : this.listeners) {
