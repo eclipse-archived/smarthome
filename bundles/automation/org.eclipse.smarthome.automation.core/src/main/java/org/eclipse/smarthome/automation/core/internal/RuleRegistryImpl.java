@@ -574,4 +574,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         // Do nothing - resolved rules are independent from templates
     }
 
+    @Override
+    public void runNow(String ruleUID) {
+        ruleEngine.runNow(ruleUID);
+    }
+
 }

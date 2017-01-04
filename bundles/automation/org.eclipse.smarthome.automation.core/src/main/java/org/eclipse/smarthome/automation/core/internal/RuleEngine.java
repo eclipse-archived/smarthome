@@ -824,7 +824,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         synchronized (this) {
             final RuleStatus ruleStatus = getRuleStatus(rUID);
             if (ruleStatus != RuleStatus.IDLE) {
-                logger.error("Trying to execute rule ‘{}' with status '{}'", rUID, ruleStatus.getValue());
+                logger.error("Failed to execute rule ‘{}' with status '{}'", rUID, ruleStatus.name());
                 return;
             }
             // change state to RUNNING
@@ -837,7 +837,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             setTriggerOutputs(rUID, td);
             boolean isSatisfied = calculateConditions(rule);
             if (isSatisfied) {
-                executeActions(rule);
+                executeActions(rule, true);
                 logger.debug("The rule '{}' is executed.", rUID);
             } else {
                 logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rUID);
@@ -849,6 +849,38 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         synchronized (this) {
             if (getRuleStatus(rUID) == RuleStatus.RUNNING) {
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE));
+            }
+        }
+    }
+
+    protected void runNow(String ruleUID) {
+        RuntimeRule rule = getRuntimeRule(ruleUID);
+        if (rule == null) {
+            logger.warn("Fail to execute rule '{}': {}", ruleUID, "Invalid Rule UID.");
+            return;
+        }
+
+        synchronized (this) {
+            final RuleStatus ruleStatus = getRuleStatus(ruleUID);
+            if (ruleStatus != RuleStatus.IDLE) {
+                logger.error("Failed to execute rule ‘{}' with status '{}'", ruleUID, ruleStatus.name());
+                return;
+            }
+            // change state to RUNNING
+            setRuleStatusInfo(ruleUID, new RuleStatusInfo(RuleStatus.RUNNING));
+        }
+
+        try {
+            clearContext(rule);
+            executeActions(rule, false);
+            logger.debug("The rule '{}' is executed.", ruleUID);
+        } catch (Throwable t) {
+            logger.error("Fail to execute rule '{}': {}", new Object[] { ruleUID, t.getMessage() }, t);
+        }
+        // change state to IDLE only if the rule has not been DISABLED.
+        synchronized (this) {
+            if (getRuleStatus(ruleUID) == RuleStatus.RUNNING) {
+                setRuleStatusInfo(ruleUID, new RuleStatusInfo(RuleStatus.IDLE));
             }
         }
     }
@@ -955,35 +987,38 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      *
      * @param rule executed rule.
      */
-    private void executeActions(Rule rule) {
+    private void executeActions(Rule rule, boolean stopOnFirstFail) {
         List<Action> actions = ((RuntimeRule) rule).getActions();
         if (actions == null || actions.size() == 0) {
             return;
         }
         RuleStatus ruleStatus = null;
         RuntimeAction action = null;
-        try {
+        for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
+            ruleStatus = getRuleStatus(rule.getUID());
+            if (ruleStatus != RuleStatus.RUNNING) {
+                return;
+            }
+            action = (RuntimeAction) it.next();
+            ActionHandler aHandler = action.getModuleHandler();
+            String rUID = rule.getUID();
+            Map<String, Object> context = getContext(rUID, action.getConnections());
+            try {
 
-            for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
-                ruleStatus = getRuleStatus(rule.getUID());
-                if (ruleStatus != RuleStatus.RUNNING) {
-                    return;
-                }
-                action = (RuntimeAction) it.next();
-                ActionHandler aHandler = action.getModuleHandler();
-                String rUID = rule.getUID();
-                Map<String, Object> context = getContext(rUID, action.getConnections());
                 Map<String, ?> outputs = aHandler.execute(context);
                 if (outputs != null) {
                     context = getContext(rUID);
                     updateContext(rUID, action.getId(), outputs);
                 }
-
+            } catch (Throwable t) {
+                String errMessage = "Fail to execute action: " + action != null ? action.getId() : "<unknown>";
+                if (stopOnFirstFail) {
+                    RuntimeException re = new RuntimeException(errMessage, t);
+                    throw re;
+                } else {
+                    logger.warn(errMessage, t);
+                }
             }
-        } catch (Throwable t) {
-            RuntimeException re = new RuntimeException(
-                    "Fail to execute action: " + action != null ? action.getId() : "<unknown>", t);
-            throw re;
         }
 
     }
@@ -1437,25 +1472,30 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     private void normalizeConfiguration(Configuration config, Map<String, ConfigDescriptionParameter> mapCD) {
         if (config != null && mapCD != null) {
-            for (String propName : config.keySet()) {
+            for (String propName : mapCD.keySet()) {
                 ConfigDescriptionParameter cd = mapCD.get(propName);
-                if (cd != null && cd.isMultiple()) {
+                if (cd != null) {
                     Object tmp = config.get(propName);
-                    if (tmp == null) {
-                        tmp = cd.getDefault();
+                    Object defaultValue = cd.getDefault();
+                    if (tmp == null && defaultValue != null) {
+                        config.put(propName, defaultValue);
                     }
-                    if (tmp != null && tmp instanceof String) {
-                        String sValue = (String) tmp;
-                        if (gson == null) {
-                            gson = new Gson();
+
+                    if (cd.isMultiple()) {
+                        tmp = config.get(propName);
+                        if (tmp != null && tmp instanceof String) {
+                            String sValue = (String) tmp;
+                            if (gson == null) {
+                                gson = new Gson();
+                            }
+                            try {
+                                Object value = gson.fromJson(sValue, List.class);
+                                config.put(propName, value);
+                            } catch (JsonSyntaxException e) {
+                                logger.error("Can't parse {} to list value.", sValue, e);
+                            }
+                            continue;
                         }
-                        try {
-                            Object value = gson.fromJson(sValue, List.class);
-                            config.put(propName, value);
-                        } catch (JsonSyntaxException e) {
-                            logger.error("Can't parse {} to list value.", sValue, e);
-                        }
-                        continue;
                     }
                 }
                 config.put(propName, ConfigUtil.normalizeType(config.get(propName), cd));
