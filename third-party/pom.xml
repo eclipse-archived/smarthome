@@ -60,6 +60,16 @@
                   <transitive>false</transitive>
                 </artifact>
                 <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10855 -->
+                  <id>javax.measure:unit-api:0.8</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10854 -->
+                  <id>tec.units:unit-ri:0.8</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=12206 -->
                   <id>javax.measure:unit-api:1.0</id>
                   <transitive>false</transitive>
