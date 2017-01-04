@@ -7,27 +7,18 @@
  */
 package org.eclipse.smarthome.ui.internal.proxy;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.api.Response;
-import org.eclipse.jetty.client.util.InputStreamResponseListener;
-import org.eclipse.jetty.http.HttpField;
-import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.proxy.AsyncProxyServlet;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -69,21 +60,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Svilen Valkanov - Replaced Apache HttpClient with Jetty
- * @author John Cocula - added optional Image/Video item= support
+ * @author John Cocula - added optional Image/Video item= support; refactor
  */
-public class ProxyServlet extends HttpServlet {
+public class ProxyServlet extends AsyncProxyServlet {
 
-    /** the alias for this servlet */
     public static final String PROXY_ALIAS = "proxy";
+    private static final String CONFIG_MAX_THREADS = "maxThreads";
+    private static final int DEFAULT_MAX_THREADS = 8;
+    private static final String ATTR_URI = ProxyServlet.class.getName() + ".URI";
 
     private final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
 
     private static final long serialVersionUID = -4716754591953017793L;
-
-    private static HttpClient httpClient = new HttpClient(new SslContextFactory());
-
-    /** Timeout for HTTP requests in ms */
-    private static final int TIMEOUT = 15000;
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
@@ -113,23 +101,45 @@ public class ProxyServlet extends HttpServlet {
         this.httpService = null;
     }
 
-    protected void activate() {
+    protected void activate(Map<String, Object> config) {
         try {
             logger.debug("Starting up proxy servlet at /{}", PROXY_ALIAS);
-
-            startHttpClient(httpClient);
-            Hashtable<String, String> props = new Hashtable<String, String>();
+            Hashtable<String, String> props = propsFromConfig(config);
             httpService.registerServlet("/" + PROXY_ALIAS, this, props, createHttpContext());
-        } catch (NamespaceException e) {
-            logger.error("Error during servlet startup: {}", e.getMessage());
-        } catch (ServletException e) {
+        } catch (NamespaceException | ServletException e) {
             logger.error("Error during servlet startup: {}", e.getMessage());
         }
     }
 
     protected void deactivate() {
-        httpService.unregister("/" + PROXY_ALIAS);
-        stopHttpClient(httpClient);
+        try {
+            httpService.unregister("/" + PROXY_ALIAS);
+        } catch (IllegalArgumentException e) {
+            // ignore, had not been registered before
+        }
+    }
+
+    /**
+     * Copy the ConfigAdminManager's config to the init parameters of the servlet.
+     *
+     * @param config the OSGi config, may be <code>null</code>
+     * @return properties to pass to servlet for initialization
+     */
+    private Hashtable<String, String> propsFromConfig(Map<String, Object> config) {
+        Hashtable<String, String> props = new Hashtable<String, String>();
+
+        if (config != null) {
+            for (String key : config.keySet()) {
+                props.put(key, config.get(key).toString());
+            }
+        }
+
+        // must specify, per http://stackoverflow.com/a/27625380
+        if (props.get(CONFIG_MAX_THREADS) == null) {
+            props.put(CONFIG_MAX_THREADS, String.valueOf(DEFAULT_MAX_THREADS));
+        }
+
+        return props;
     }
 
     /**
@@ -147,96 +157,85 @@ public class ProxyServlet extends HttpServlet {
         return "Image and Video Widget Proxy";
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Override <code>newHttpClient</code> so we can proxy to HTTPS URIs.
+     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected HttpClient newHttpClient() {
+        return new HttpClient(new SslContextFactory());
+    }
 
-        String sitemapName = request.getParameter("sitemap");
-        String widgetId = request.getParameter("widgetId");
-        URI uri = getURI(sitemapName, widgetId, response);
+    /**
+     * {@inheritDoc}
+     *
+     * Add Basic Authentication header to request if user and password are specified in URI.
+     * After Jetty is upgrade past 9.2.9, change to copyRequestHeaders to avoid deprecated warning.
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void copyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
+        super.copyHeaders(clientRequest, proxyRequest);
 
-        if (uri != null) {
-            Request httpRequest = httpClient.newRequest(uri);
+        // check if the URI uses credentials and configure the HTTP client accordingly
+        URI uri = uriFromRequest(clientRequest);
+        if (uri != null && uri.getUserInfo() != null) {
+            String[] userInfo = uri.getUserInfo().split(":");
 
-            // check if the uri uses credentials and configure the http client accordingly
-            if (uri.getUserInfo() != null) {
-                String[] userInfo = uri.getUserInfo().split(":");
-
+            if (userInfo.length == 2) {
                 String user = userInfo[0];
                 String password = userInfo[1];
 
                 String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
-                httpRequest.header(HttpHeader.AUTHORIZATION, basicAuthentication);
-            }
-
-            InputStreamResponseListener listener = new InputStreamResponseListener();
-
-            // do the client request
-            try {
-                httpRequest.send(listener);
-                // wait for the response headers to arrive or the timeout to expire
-                Response httpResponse = listener.get(TIMEOUT, TimeUnit.MILLISECONDS);
-
-                // get response headers
-                HttpFields headers = httpResponse.getHeaders();
-                Iterator<HttpField> iterator = headers.iterator();
-
-                // copy all headers
-                while (iterator.hasNext()) {
-                    HttpField header = iterator.next();
-                    response.setHeader(header.getName(), header.getValue());
-                }
-
-            } catch (Exception e) {
-                if (e instanceof TimeoutException) {
-                    logger.warn("Proxy servlet failed to stream content due to a timeout");
-                    response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
-                } else {
-                    logger.warn("Proxy servlet failed to stream content: {}", e.getMessage());
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-                }
-                return;
-            }
-            // now copy/stream the body content
-            try (InputStream responseContent = listener.getInputStream()) {
-                IOUtils.copy(responseContent, response.getOutputStream());
+                proxyRequest.header(HttpHeader.AUTHORIZATION, basicAuthentication);
             }
         }
     }
 
     /**
-     * Given a sitemap and widget, return the URI referenced by the widget in the sitemap.
-     * If the widget is not an Image or Video widget, then return <code>null</code>.
-     * If the widget is associated with an item, attempt to use the item's state as a URL.
-     * If the item's state as a string does not conform to RFC 2396, attempt to use the
-     * <code>url=</code> attribute in the sitemap. If that too does not conform to RFC 2396,
-     * then return <code>null</code>. In all cases where <code>null</code> is returned,
-     * this method first sends {@link HttpServletResponse.SC_BAD_REQUEST} back to the client.
-     *
-     * @param sitemapName
-     * @param widgetId
-     * @param response the HttpServletResponse to which detailed errors are sent
-     * @return the URI referenced by the widget
+     * {@inheritDoc}
      */
-    private URI getURI(String sitemapName, String widgetId, HttpServletResponse response) throws IOException {
+    @Override
+    protected String rewriteTarget(HttpServletRequest request) {
+        return Objects.toString(uriFromRequest(request), null);
+    }
 
+    /**
+     * Determine which URI to address based on the request contents.
+     *
+     * @param request the servlet request
+     * @return the URI indicated by the request, or <code>null</code> if not possible
+     */
+    private URI uriFromRequest(HttpServletRequest request) {
+
+        // Return any URI we've already saved for this request
+        URI uri = (URI) request.getAttribute(ATTR_URI);
+        if (uri != null) {
+            return uri;
+        }
+
+        String sitemapName = request.getParameter("sitemap");
         if (sitemapName == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'sitemap' must be provided!");
+            logger.error("Parameter 'sitemap' must be provided!");
             return null;
         }
+
+        String widgetId = request.getParameter("widgetId");
         if (widgetId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter 'widget' must be provided!");
+            logger.error("Parameter 'widgetId' must be provided!");
             return null;
         }
 
         Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapName);
         if (sitemap == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sitemap '" + sitemapName + "' could not be found!");
+            logger.error("Sitemap '{}' could not be found!", sitemapName);
             return null;
         }
+
         Widget widget = itemUIRegistry.getWidget(sitemap, widgetId);
         if (widget == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Widget '" + widgetId + "' could not be found!");
+            logger.error("Widget '{}' could not be found!", widgetId);
             return null;
         }
 
@@ -246,8 +245,7 @@ public class ProxyServlet extends HttpServlet {
         } else if (widget instanceof Video) {
             uriString = ((Video) widget).getUrl();
         } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                    "Widget type '" + widget.getClass().getName() + "' is not supported!");
+            logger.error("Widget type '{}' is not supported!", widget.getClass().getName());
             return null;
         }
 
@@ -256,7 +254,9 @@ public class ProxyServlet extends HttpServlet {
             State state = itemUIRegistry.getItemState(itemName);
             if (state != null && state instanceof StringType) {
                 try {
-                    return URI.create(state.toString());
+                    uri = URI.create(state.toString());
+                    request.setAttribute(ATTR_URI, uri);
+                    return uri;
                 } catch (IllegalArgumentException ex) {
                     // fall thru
                 }
@@ -264,31 +264,12 @@ public class ProxyServlet extends HttpServlet {
         }
 
         try {
-            return URI.create(uriString);
+            uri = URI.create(uriString);
+            request.setAttribute(ATTR_URI, uri);
+            return uri;
         } catch (IllegalArgumentException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                    "URI '" + uriString + "' is not valid: " + e.getMessage());
+            logger.error("URI '{}' is not valid: {}", uriString, e.getMessage());
             return null;
-        }
-    }
-
-    private void startHttpClient(HttpClient client) {
-        if (!client.isStarted()) {
-            try {
-                client.start();
-            } catch (Exception e) {
-                logger.warn("Cannot start HttpClient!", e);
-            }
-        }
-    }
-
-    private void stopHttpClient(HttpClient client) {
-        if (client.isStarted()) {
-            try {
-                client.stop();
-            } catch (Exception e) {
-                logger.error("Unable to stop HttpClient!", e);
-            }
         }
     }
 }
