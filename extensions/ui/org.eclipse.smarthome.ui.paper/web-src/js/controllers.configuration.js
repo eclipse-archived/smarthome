@@ -250,13 +250,20 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
     });
-}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingService, toastService) {
+}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, bindingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
     $scope.newThingUID = window.localStorage.getItem('thingUID');
-    window.localStorage.removeItem('thingUID')
+    window.localStorage.removeItem('thingUID');
+    $scope.things;
     $scope.refresh = function() {
-        thingRepository.getAll(true);
+        bindingRepository.getAll(true);
+        thingRepository.getAll(function(things) {
+            for (var i = 0; i < things.length; i++) {
+                things[i].bindingType = things[i].thingTypeUID.split(':')[0];
+            }
+            $scope.things = things;
+        });
     }
     $scope.remove = function(thing, event) {
         event.stopImmediatePropagation();
@@ -272,17 +279,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.refresh();
         });
     }
-    $scope.search = function(searchText) {
-        return function(thing) {
-            if (!searchText) {
-                return true;
-            } else {
-                if ((thing.label && thing.label.toUpperCase().indexOf(searchText.toUpperCase()) != -1) || (thing.UID.toUpperCase().indexOf(searchText.toUpperCase()) != -1)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    $scope.clearAll = function() {
+        $scope.searchText = "";
+        $scope.$broadcast("ClearFilters");
     }
     $scope.refresh();
 }).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {

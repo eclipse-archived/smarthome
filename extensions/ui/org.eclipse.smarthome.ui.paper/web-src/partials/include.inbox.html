@@ -1,4 +1,7 @@
-<div class="fab-item" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | orderBy:['label','flag']" ng-controller="InboxEntryController" ng-init="getThingTypes()">
+<div class="row" ng-show="!path[4]" class="searchBox" search-filters>
+	<md-autocomplete config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(data.bindings,['name'],searchType)" placeholder="Filter by binding type"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+</div>
+<div class="fab-item" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | filter:filterItems(['label','UID']) | orderBy:['label','flag']" ng-controller="InboxEntryController" ng-init="getThingTypes()">
 	<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
 	<div class="item-content">
 		<h3>
@@ -7,9 +10,7 @@
 		<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
 		<p>{{discoveryResult.thingUID}}</p>
 		<div class="actions">
-			<i class="material-icons" ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore">visibility</i>
-			<i class="material-icons" ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore">visibility_off</i>
-		    <i class="material-icons" ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete">delete</i>
+			<i class="material-icons" ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore">visibility</i> <i class="material-icons" ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore">visibility_off</i> <i class="material-icons" ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete">delete</i>
 		</div>
 	</div>
 	<hr class="border-line" ng-show="!$last" />
