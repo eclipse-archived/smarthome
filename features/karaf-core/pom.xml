@@ -8,10 +8,10 @@
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>esh-tp</artifactId>
+  <artifactId>esh-core</artifactId>
   <packaging>feature</packaging>
 
-  <name>Eclipse SmartHome Target Platform Feature</name>
+  <name>Eclipse SmartHome Core Feature</name>
 
   <build>
     <plugins>

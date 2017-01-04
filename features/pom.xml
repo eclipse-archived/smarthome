@@ -27,8 +27,9 @@
     <module>org.eclipse.smarthome.feature.dependencies.designer</module>
     <module>org.eclipse.smarthome.feature.designer</module>
     <module>org.eclipse.smarthome.feature.test</module>
-    <module>karaf</module>
     <module>karaf-tp</module>
+    <module>karaf-core</module>
+    <module>karaf-ext</module>
     <module>karaf-verify</module>
   </modules>
 

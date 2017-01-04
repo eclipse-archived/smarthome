@@ -8,10 +8,10 @@
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>karaf</artifactId>
+  <artifactId>esh-ext</artifactId>
   <packaging>feature</packaging>
 
-  <name>Eclipse SmartHome Karaf Feature</name>
+  <name>Eclipse SmartHome Extensions Feature</name>
 
   <build>
     <plugins>
