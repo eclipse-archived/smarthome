@@ -485,4 +485,26 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat actualThings.size(), is(0)
     }
 
+    @Test
+    void 'assert that default configurations are applied to channels'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ] {
+                LCT001 myBulb [ lightId = "1" ] {
+                    Type color : myChannel []
+                }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        // ensure a standard channel has its default values
+        assertThat actualThings.find {"hue:LCT001:myBridge:myBulb".equals(it.UID.toString())}.getChannel("color").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+
+        // ensure a user-defined channel has its default values
+        assertThat actualThings.find {"hue:LCT001:myBridge:myBulb".equals(it.UID.toString())}.getChannel("myChannel").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+    }
+
 }
