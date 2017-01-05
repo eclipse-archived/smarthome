@@ -31,11 +31,11 @@ class TestHueConfigDescriptionProvider implements ConfigDescriptionProvider {
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
         if (uri.equals(new URI("hue:LCT001:color"))) {
-            ConfigDescriptionParameter configDescriptionParameter = [
-                getName: "defaultConfig",
-                getType: Type.TEXT,
-                getDefault: "defaultValue"
-            ] as ConfigDescriptionParameter
+            ConfigDescriptionParameter configDescriptionParameter = new ConfigDescriptionParameter("defaultConfig", Type.TEXT) {
+                        String getDefault() {
+                            return "defaultValue"
+                        };
+                    }
             return new ConfigDescription(uri, Collections.singletonList(configDescriptionParameter))
         }
         return null
