@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,15 +67,15 @@ public class LifxNetworkThrottler {
      */
     private static List<LifxLightCommunicationTracker> trackers = new CopyOnWriteArrayList<>();
 
-    private static Map<String, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<String, LifxLightCommunicationTracker>();
+    private static Map<MACAddress, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<MACAddress, LifxLightCommunicationTracker>();
 
-    public static void lock(String mac) {
+    public static void lock(MACAddress mac) {
         LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
         tracker.lock();
         waitForNextPacketInterval(tracker.getTimestamp());
     }
 
-    private static LifxLightCommunicationTracker getOrCreateTracker(String mac) {
+    private static LifxLightCommunicationTracker getOrCreateTracker(MACAddress mac) {
         LifxLightCommunicationTracker tracker = macTrackerMapping.get(mac);
         if (tracker == null) {
             // for better performance only synchronize when necessary
@@ -102,7 +103,7 @@ public class LifxNetworkThrottler {
         }
     }
 
-    public static void unlock(String mac) {
+    public static void unlock(MACAddress mac) {
         if (macTrackerMapping.containsKey(mac)) {
             macTrackerMapping.get(mac).unlock();
         }

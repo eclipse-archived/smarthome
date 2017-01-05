@@ -460,7 +460,7 @@ public class LifxLightCommunicationHandler {
             lock.lock();
 
             if (selectedKey == unicastKey) {
-                LifxNetworkThrottler.lock(macAsHex);
+                LifxNetworkThrottler.lock(macAddress);
             } else {
                 LifxNetworkThrottler.lock();
             }
@@ -509,7 +509,7 @@ public class LifxLightCommunicationHandler {
         } finally {
 
             if (selectedKey == unicastKey) {
-                LifxNetworkThrottler.unlock(macAsHex);
+                LifxNetworkThrottler.unlock(macAddress);
             } else {
                 LifxNetworkThrottler.unlock();
             }
