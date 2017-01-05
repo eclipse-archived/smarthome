@@ -349,9 +349,24 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.editMode = false;
     };
 }).controller('DefaultItemController', function($scope, itemService) {
-
+    $scope.longEditMode = $scope.shortEditMode = false;
     $scope.optionListChanged = function() {
         $scope.sendCommand($scope.item.state, false);
+    };
+    $scope.editState = function(shortField) {
+        if (shortField) {
+            $scope.shortEditMode = true;
+        } else {
+            $scope.longEditMode = true;
+        }
+    };
+    $scope.updateState = function(shortField) {
+        $scope.sendCommand($scope.item.state, false);
+        if (shortField) {
+            $scope.shortEditMode = false;
+        } else {
+            $scope.longEditMode = false;
+        }
     };
 
 }).controller('ImageItemController', function($scope, itemService) {
