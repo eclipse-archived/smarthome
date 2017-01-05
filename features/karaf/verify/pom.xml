@@ -4,11 +4,11 @@
 
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>features</artifactId>
+    <artifactId>karaf-features</artifactId>
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>karaf-verify</artifactId>
+  <artifactId>verify</artifactId>
   <packaging>feature</packaging>
 
   <name>Eclipse SmartHome Karaf Feature Verification</name>
@@ -41,8 +41,9 @@
               <descriptors>
                 <descriptor>mvn:org.apache.karaf.features/framework/${karaf.version}/xml/features</descriptor>
                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
-                <descriptor>mvn:${project.groupId}/karaf-tp/${project.version}/xml/features</descriptor>
-                <descriptor>mvn:${project.groupId}/karaf/${project.version}/xml/features</descriptor>
+                <descriptor>mvn:${project.groupId}/esh-tp/${project.version}/xml/features</descriptor>
+                <descriptor>mvn:${project.groupId}/esh-core/${project.version}/xml/features</descriptor>
+                <descriptor>mvn:${project.groupId}/esh-ext/${project.version}/xml/features</descriptor>
               </descriptors>
               <distribution>org.apache.karaf.features:framework</distribution>
               <javase>1.8</javase>
