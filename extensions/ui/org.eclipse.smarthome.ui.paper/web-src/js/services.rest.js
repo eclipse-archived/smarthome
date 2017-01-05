@@ -455,6 +455,16 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             method : 'GET',
             url : restConfig.restPath + '/templates',
             isArray : true
+        },
+        runRule : {
+            method : 'POST',
+            params : {
+                ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/runnow',
+            headers : {
+                'Content-Type' : 'text/plain'
+            }
         }
     });
 }).factory('moduleTypeService', function($resource, restConfig) {

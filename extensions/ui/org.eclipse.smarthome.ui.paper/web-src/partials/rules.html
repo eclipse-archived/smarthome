@@ -25,6 +25,7 @@
 								<p>{{rule.uid}}</p>
 							</div>
 							<div class="actions" flex="40">
+							<i class="material-icons" aria-label="Run rule" ng-click="runRule(rule.uid,$event)">play_arrow</i>
 								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
 							</div>
 						</div>
