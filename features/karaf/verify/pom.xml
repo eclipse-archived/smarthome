@@ -4,11 +4,11 @@
 
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>features</artifactId>
+    <artifactId>karaf-features</artifactId>
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>karaf-verify</artifactId>
+  <artifactId>verify</artifactId>
   <packaging>feature</packaging>
 
   <name>Eclipse SmartHome Karaf Feature Verification</name>

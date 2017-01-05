@@ -4,14 +4,14 @@
 
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>features</artifactId>
+    <artifactId>karaf-features</artifactId>
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>esh-core</artifactId>
+  <artifactId>esh-tp</artifactId>
   <packaging>feature</packaging>
 
-  <name>Eclipse SmartHome Core Feature</name>
+  <name>Eclipse SmartHome Target Platform Feature</name>
 
   <build>
     <plugins>
