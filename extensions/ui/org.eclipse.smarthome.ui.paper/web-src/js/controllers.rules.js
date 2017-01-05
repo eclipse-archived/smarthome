@@ -78,6 +78,14 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
             });
         }
     };
+    $scope.runRule = function(ruleUID, e) {
+        e.stopImmediatePropagation();
+        ruleService.runRule({
+            ruleUID : ruleUID
+        }, function(response) {
+            toastService.showDefaultToast('Rule executed.');
+        });
+    }
 }).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService) {
     $scope.setSubtitle([ 'New Rule' ]);
     itemRepository.getAll();
