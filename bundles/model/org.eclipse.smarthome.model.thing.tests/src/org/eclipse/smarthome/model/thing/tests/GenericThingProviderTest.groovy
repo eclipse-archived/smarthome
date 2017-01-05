@@ -507,4 +507,39 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat actualThings.find {"hue:LCT001:myBridge:myBulb".equals(it.UID.toString())}.getChannel("myChannel").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
     }
 
+    @Test
+    void 'assert that channels within channel groups can be overridden'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+                Bridge hue:bridge:myBridge [] {
+                    Thing grouped myGroupedThing [] {
+                        Type color : group#bar [
+                            myProp="successful",
+                            customConfig="yes"
+                        ]
+                    }
+                }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(equalTo(2))
+
+        // ensure the non-declared channel is there and has its default properties
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo"), is(notNullValue())
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo").getConfiguration().get("customConfig"), is(equalTo("none"))
+
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar"), is(notNullValue())
+        // ensure the non-declared default property is there
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+        // ensure overriding a default property worked
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("customConfig"), is(equalTo("yes"))
+        // ensure an additional property can be set
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("myProp"), is(equalTo("successful"))
+    }
+
+
 }
