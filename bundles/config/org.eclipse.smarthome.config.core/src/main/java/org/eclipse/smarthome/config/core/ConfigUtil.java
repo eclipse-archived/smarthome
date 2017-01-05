@@ -9,6 +9,7 @@ package org.eclipse.smarthome.config.core;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -68,7 +69,7 @@ public class ConfigUtil {
     }
 
     /**
-     * Normalizes the given configuration according to their config description.
+     * Normalizes the given configuration according to the given config descriptions.
      *
      * By doing so, it tries to convert types on a best-effort basis. The result will contain
      * BigDecimals, Strings and Booleans wherever a conversion of similar types was possible.
@@ -76,15 +77,18 @@ public class ConfigUtil {
      * However, it does not check for general correctness of types. This can be done using the
      * {@link ConfigDescriptionValidator}.
      *
+     * If multiple config descriptions are given and a parameter is described several times, then the first one (lower
+     * index in the list) wins.
+     *
      * @param configuration the configuration to be normalized (can be null)
-     * @param configDescription the configuration description (must not be null)
+     * @param configDescriptions the configuration descriptions that should be applied (must not be null or empty).
      * @return the normalized configuration or null if given configuration was null
      * @throws NullPointerException if given config description is null
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration,
-            ConfigDescription configDescription) {
-        if (configDescription == null) {
-            throw new NullPointerException("Config description must not be null.");
+            List<ConfigDescription> configDescriptions) {
+        if (configDescriptions == null || configDescriptions.isEmpty()) {
+            throw new NullPointerException("Config description must not be null or empty.");
         }
 
         if (configuration == null) {
@@ -92,7 +96,11 @@ public class ConfigUtil {
         }
 
         Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
-        Map<String, ConfigDescriptionParameter> configParams = configDescription.toParametersMap();
+
+        Map<String, ConfigDescriptionParameter> configParams = new HashMap<>();
+        for (int i = configDescriptions.size() - 1; i >= 0; i--) {
+            configParams.putAll(configDescriptions.get(i).toParametersMap());
+        }
         for (Entry<String, ?> parameter : configuration.entrySet()) {
             String name = parameter.getKey();
             Object value = parameter.getValue();

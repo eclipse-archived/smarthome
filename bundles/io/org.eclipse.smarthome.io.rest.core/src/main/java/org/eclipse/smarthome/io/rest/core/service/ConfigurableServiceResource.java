@@ -168,7 +168,7 @@ public class ConfigurableServiceResource implements SatisfiableRESTResource {
             return properties;
         }
 
-        return ConfigUtil.normalizeTypes(properties, configDesc);
+        return ConfigUtil.normalizeTypes(properties, Collections.singletonList(configDesc));
     }
 
     @DELETE
