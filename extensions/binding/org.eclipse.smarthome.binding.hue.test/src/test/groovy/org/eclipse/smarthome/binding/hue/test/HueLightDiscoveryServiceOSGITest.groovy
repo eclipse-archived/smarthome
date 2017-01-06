@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.FullLight
+import nl.q42.jue.HueBridge
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
@@ -178,20 +179,21 @@ class HueLightDiscoveryServiceOSGITest extends AbstractHueOSGiTest {
 
     private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
             MockedHttpClient mockedHttpClient) {
+        waitForAssert {
+            // mock HttpClient
+            def hueBridgeField = HueBridgeHandler.class.getDeclaredField("bridge")
+            hueBridgeField.accessible = true
+            def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+            assertThat hueBridgeValue, is(notNullValue())
 
-        // mock HttpClient
-        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
-        hueBridgeField.accessible = true
-        def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+            def httpClientField = HueBridge.class.getDeclaredField("http")
+            httpClientField.accessible = true
+            httpClientField.set(hueBridgeValue, mockedHttpClient)
 
-        def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
-        httpClientField.accessible = true
-        httpClientField.set(hueBridgeValue, mockedHttpClient)
-
-        def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
-        usernameField.accessible = true
-        usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
-
+            def usernameField = HueBridge.class.getDeclaredField("username")
+            usernameField.accessible = true
+            usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
+        }
         hueBridgeHandler.initialize()
     }
 }
