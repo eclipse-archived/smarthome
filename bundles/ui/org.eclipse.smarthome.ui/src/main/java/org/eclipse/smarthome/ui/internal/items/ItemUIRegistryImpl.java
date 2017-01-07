@@ -330,7 +330,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     }
                 }
 
-                label = label.trim().substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                label = label.trim();
+                label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
             }
         }
 
