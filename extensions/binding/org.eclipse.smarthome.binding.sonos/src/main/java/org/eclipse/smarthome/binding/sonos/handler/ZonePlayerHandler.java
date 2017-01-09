@@ -1057,6 +1057,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return getEntries("Q:0", "dc:title,res,dc:creator,upnp:artist,upnp:album");
     }
 
+    public long getQueueSize() {
+        return getNbEntries("Q:0");
+    }
+
     public List<SonosEntry> getPlayLists(String filter) {
         return getEntries("SQ:", filter);
     }
@@ -1120,6 +1124,20 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         return resultList;
+    }
+
+    protected long getNbEntries(String type) {
+        Map<String, String> inputs = new HashMap<String, String>();
+        inputs.put("ObjectID", type);
+        inputs.put("BrowseFlag", "BrowseDirectChildren");
+        inputs.put("Filter", "dc:title");
+        inputs.put("StartingIndex", "0");
+        inputs.put("RequestedCount", "1");
+        inputs.put("SortCriteria", "");
+
+        Map<String, String> result = service.invokeAction(this, "ContentDirectory", "Browse", inputs);
+
+        return getResultEntry(result, "TotalMatches", type, "dc:title");
     }
 
     /**
@@ -1436,7 +1454,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
-    public void addURIToQueue(String URI, String meta, int desiredFirstTrack, boolean enqueueAsNext) {
+    public void addURIToQueue(String URI, String meta, long desiredFirstTrack, boolean enqueueAsNext) {
 
         if (URI != null && meta != null) {
 
@@ -1446,7 +1464,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 inputs.put("InstanceID", "0");
                 inputs.put("EnqueuedURI", URI);
                 inputs.put("EnqueuedURIMetaData", meta);
-                inputs.put("DesiredFirstTrackNumberEnqueued", Integer.toString(desiredFirstTrack));
+                inputs.put("DesiredFirstTrackNumberEnqueued", Long.toString(desiredFirstTrack));
                 inputs.put("EnqueueAsNext", Boolean.toString(enqueueAsNext));
             } catch (NumberFormatException ex) {
                 logger.error("Action Invalid Value Format Exception {}", ex.getMessage());
@@ -2135,7 +2153,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private boolean isPlaylistEmpty(ZonePlayerHandler coordinator) {
-        return coordinator.getQueue().isEmpty();
+        return coordinator.getQueueSize() == 0;
     }
 
     private boolean isPlayingQueue(String currentURI) {
@@ -2233,7 +2251,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         coordinator.stop();
         coordinator.waitForNotTransportState("PLAYING");
         applyNotificationSoundVolume();
-        int notificationPosition = coordinator.getQueue().size() + 1;
+        long notificationPosition = coordinator.getQueueSize() + 1;
         coordinator.addURIToQueue(notificationURL.toString(), "", notificationPosition, false);
         coordinator.setCurrentURI(QUEUE_URI + coordinator.getUDN() + "#0", "");
         coordinator.setPositionTrack(notificationPosition);
@@ -2242,7 +2260,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (originalVolume != null) {
             setVolumeForGroup(DecimalType.valueOf(originalVolume));
         }
-        coordinator.removeRangeOfTracksFromQueue(new StringType(Integer.toString(notificationPosition) + ",1"));
+        coordinator.removeRangeOfTracksFromQueue(new StringType(Long.toString(notificationPosition) + ",1"));
     }
 
     private void restoreLastTransportState(ZonePlayerHandler coordinator, String nextAction) {
