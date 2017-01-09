@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +36,10 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 /**
  * The {@link YahooWeatherHandler} is responsible for handling commands, which are
@@ -139,11 +144,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         Collection<ConfigStatusMessage> configStatus = new ArrayList<>();
 
         try {
-            String locationData = getWeatherData("SELECT location FROM weather.forecast WHERE woeid = " + location);
+            String locationData = getWeatherData(
+                    "SELECT location FROM weather.forecast WHERE woeid = " + location.toPlainString());
             String city = getValue(locationData, "location", "city");
             if (city == null) {
                 configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM)
-                        .withMessageKeySuffix("location-not-found").withArguments(location).build());
+                        .withMessageKeySuffix("location-not-found").withArguments(location.toPlainString()).build());
             }
         } catch (IOException e) {
             logger.debug("Communication error occurred while getting Yahoo weather information.", e);
@@ -154,7 +160,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private synchronized boolean updateWeatherData() {
         try {
-            weatherData = getWeatherData("SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location);
+            weatherData = getWeatherData(
+                    "SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location.toPlainString());
             if (weatherData != null) {
                 updateStatus(ThingStatus.ONLINE);
                 return true;
@@ -166,15 +173,27 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         return false;
     }
 
+    private final Cache<String, String> CACHE = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS)
+            .maximumSize(5).build(new CacheLoader<String, String>() {
+                @Override
+                public String load(String query) throws Exception {
+                    try {
+                        URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
+                                + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
+                        URLConnection connection = url.openConnection();
+                        return IOUtils.toString(connection.getInputStream());
+                    } catch (MalformedURLException e) {
+                        logger.debug("Constructed query url '{}' is not valid: {}", query, e.getMessage());
+                        throw e;
+                    }
+                }
+            });
+
     private String getWeatherData(String query) throws IOException {
         try {
-            URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
-                    + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
-            URLConnection connection = url.openConnection();
-            return IOUtils.toString(connection.getInputStream());
-        } catch (MalformedURLException e) {
-            logger.debug("Constructed query url '{}' is not valid: {}", query, e.getMessage());
-            return null;
+            return CACHE.get(query);
+        } catch (ExecutionException e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 
