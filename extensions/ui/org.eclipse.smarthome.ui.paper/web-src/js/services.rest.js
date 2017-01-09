@@ -129,7 +129,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
     return $resource(restConfig.restPath + '/inbox', {}, {
         getAll : {
             method : 'GET',
-            isArray : true
+            isArray : true,
+            transformResponse : function(data) {
+                var results = angular.fromJson(data);
+                for (var i = 0; i < results.length; i++) {
+                    results[i].bindingType = results[i].thingTypeUID.split(':')[0];
+                }
+                return results
+            },
         },
         approve : {
             method : 'POST',
