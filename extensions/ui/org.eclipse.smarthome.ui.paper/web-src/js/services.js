@@ -675,13 +675,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         }
     }
 }).provider("dateTime", function dateTimeProvider() {
-    var months, daysOfWeek;
+    var months, daysOfWeek, shortChars;
     if (window.localStorage.getItem('paperui.language') == 'de') {
         months = [ 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ];
         daysOfWeek = [ 'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag' ];
+        shortChars = 2;
     } else {
         months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
         daysOfWeek = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+        shortChars = 3;
     }
     return {
         getMonths : function(shortNames) {
@@ -710,9 +712,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (shortNames) {
                         var shortDaysOfWeek = [];
                         for (var i = 0; i < daysOfWeek.length; i++) {
-                            shortDaysOfWeek.push(daysOfWeek[i].substr(0, 3));
+                            shortDaysOfWeek.push(daysOfWeek[i].substr(0, shortChars));
                         }
-                        return shortMonths;
+                        return shortDaysOfWeek;
                     }
                     return daysOfWeek;
                 }
