@@ -36,6 +36,20 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.refresh = function() {
         discoveryResultRepository.getAll(true);
     };
+    $scope.bindings = [];
+    if ($scope.data && $scope.data.bindings && $scope.data.bindings.length > 0) {
+        var arr = [];
+        for (var i = 0; i < $scope.data.bindings.length; i++) {
+            var a = $.grep($scope.data.discoveryResults, function(result) {
+                return result.bindingType == $scope.data.bindings[i].id;
+            });
+            if (a.length > 0) {
+                $scope.bindings.push($scope.data.bindings[i]);
+            }
+
+        }
+    }
+
 }).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository) {
     $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
@@ -94,6 +108,10 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             });
         });
     };
+    $scope.clearAll = function() {
+        $scope.searchText = "";
+        $scope.$broadcast("ClearFilters");
+    }
 }).controller('ScanDialogController', function($scope, $rootScope, $timeout, $mdDialog, discoveryService, bindingRepository) {
     $scope.supportedBindings = [];
     $scope.activeScans = [];

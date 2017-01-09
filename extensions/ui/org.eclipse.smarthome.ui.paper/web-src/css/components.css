@@ -763,7 +763,7 @@ md-input-container .md-errors-spacer {
 	font-style:italic;
 }
 
-.item-edit {
+.item-edit, .inboxContainer {
 	margin-top: 20px;
 }
 

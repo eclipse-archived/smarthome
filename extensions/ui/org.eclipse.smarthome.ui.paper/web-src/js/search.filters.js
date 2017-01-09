@@ -88,6 +88,32 @@ angular.module('PaperUI').directive('searchFilters', function() {
                 $scope.searchGroup = "";
             });
 
+            function registerWatch(a) {
+                var virtualRepeat = a;
+                $scope.$watch(function() {
+                    var wrapper = angular.element(virtualRepeat);
+                    return wrapper.attr('aria-hidden');
+                }, function(newValue) {
+                    if (newValue == "false") {
+                        var a = 10;
+                        setTimeout(function() {
+                            var sizer = $(virtualRepeat).find(".md-virtual-repeat-sizer");
+                            if (sizer) {
+                                var heightStyle = sizer.attr('style');
+                                var arr = heightStyle.split(":");
+                                if (arr.length > 1) {
+                                    virtualRepeat.style.height = parseInt(arr[1]) + "px";
+                                }
+                            }
+                        }, 10);
+
+                    }
+                });
+            }
+            var virtualRepeater = document.getElementsByClassName('md-autocomplete-suggestions-container');
+            for (var i = 0; i < virtualRepeater.length; i++) {
+                registerWatch(virtualRepeater[i]);
+            }
         }
     };
 })
