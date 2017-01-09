@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,15 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
                             Lists.newArrayList(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE.toString()), "XLCT001",
                             "Hue LAMP", false, Lists.newArrayList(colorX, colorTempX), null, null,
                             new URI("Xhue", "XLCT001", null)));
+
+            ChannelGroupDefinition groupDefinition = new ChannelGroupDefinition("group",
+                    TestHueChannelTypeProvider.GROUP_CHANNEL_GROUP_TYPE_UID);
+            thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_GROUPED,
+                    new ThingType(TestHueThingHandlerFactory.THING_TYPE_GROUPED,
+                            Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()), "grouped",
+                            "Grouped Lamp", null, Lists.newArrayList(groupDefinition), null,
+                            new URI("hue", "grouped", null)));
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

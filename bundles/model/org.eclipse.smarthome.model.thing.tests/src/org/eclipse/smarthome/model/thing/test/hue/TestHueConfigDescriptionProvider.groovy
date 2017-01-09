@@ -16,6 +16,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 
+import com.google.common.collect.Lists
+
 /**
  *
  * @author Simon Kaufmann - initial contribution and API
@@ -30,13 +32,19 @@ class TestHueConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
+        System.err.println(uri)
         if (uri.equals(new URI("hue:LCT001:color"))) {
-            ConfigDescriptionParameter configDescriptionParameter = new ConfigDescriptionParameter("defaultConfig", Type.TEXT) {
+            ConfigDescriptionParameter paramDefault = new ConfigDescriptionParameter("defaultConfig", Type.TEXT) {
                         String getDefault() {
                             return "defaultValue"
                         };
                     }
-            return new ConfigDescription(uri, Collections.singletonList(configDescriptionParameter))
+            ConfigDescriptionParameter paramCustom = new ConfigDescriptionParameter("customConfig", Type.TEXT) {
+                        String getDefault() {
+                            return "none"
+                        };
+                    }
+            return new ConfigDescription(uri, Lists.newArrayList(paramDefault, paramCustom));
         }
         return null
     }
