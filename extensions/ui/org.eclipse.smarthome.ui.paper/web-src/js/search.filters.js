@@ -65,7 +65,7 @@ angular.module('PaperUI').directive('searchFilters', function() {
             }
 
             $scope.searchInOptions = function(arr, properties, value) {
-                if (!value) {
+                if (!value || arr.length == 0) {
                     return arr;
                 }
                 return $.grep(arr, function(option) {
@@ -100,9 +100,11 @@ angular.module('PaperUI').directive('searchFilters', function() {
                             var sizer = $(virtualRepeat).find(".md-virtual-repeat-sizer");
                             if (sizer) {
                                 var heightStyle = sizer.attr('style');
-                                var arr = heightStyle.split(":");
-                                if (arr.length > 1) {
-                                    virtualRepeat.style.height = parseInt(arr[1]) + "px";
+                                if (heightStyle) {
+                                    var arr = heightStyle.split(":");
+                                    if (arr.length > 1) {
+                                        virtualRepeat.style.height = parseInt(arr[1]) + "px";
+                                    }
                                 }
                             }
                         }, 10);

@@ -263,6 +263,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 things[i].bindingType = things[i].thingTypeUID.split(':')[0];
             }
             $scope.things = things;
+            refreshBindings();
         });
     }
     $scope.remove = function(thing, event) {
@@ -282,6 +283,26 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.clearAll = function() {
         $scope.searchText = "";
         $scope.$broadcast("ClearFilters");
+    }
+    $scope.$watch("things", function() {
+        refreshBindings();
+    })
+    function refreshBindings() {
+        $scope.bindings = [];
+        if ($scope.data && $scope.data.bindings && $scope.data.bindings.length > 0) {
+            var arr = [];
+            if ($scope.things) {
+                for (var i = 0; i < $scope.data.bindings.length; i++) {
+                    var a = $.grep($scope.things, function(result) {
+                        return result.bindingType == $scope.data.bindings[i].id;
+                    });
+                    if (a.length > 0) {
+                        $scope.bindings.push($scope.data.bindings[i]);
+                    }
+
+                }
+            }
+        }
     }
     $scope.refresh();
 }).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
