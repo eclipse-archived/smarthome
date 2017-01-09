@@ -1620,11 +1620,13 @@
 						item = widget.item.name,
 						value = widget.item.state;
 
-					smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-						if (value !== "NULL") {
-							w.setValue(value, value);
-						}
-					});
+					if (smarthome.dataModelLegacy[item] !== undefined) {
+						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
+							if (value !== "NULL") {
+								w.setValue(value, value);
+							}
+						});
+					}
 				});
 			}
 
