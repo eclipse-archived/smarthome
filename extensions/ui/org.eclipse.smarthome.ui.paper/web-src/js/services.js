@@ -555,7 +555,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             return groups;
         }
     }
-}).factory('util', function() {
+}).factory('util', function(dateTime) {
     return {
         hasProperties : function(object) {
             if (typeof jQuery !== 'undefined') {
@@ -565,6 +565,159 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     return Object.keys(object).length > 0;
                 }
                 return false;
+            }
+        },
+        timePrint : function(pattern, date) {
+            var months = dateTime.getMonths(true);
+            if (pattern) {
+                var exp = '%1$T';
+                while (pattern.toUpperCase().indexOf(exp) != -1) {
+                    var index = pattern.toUpperCase().indexOf(exp);
+                    var str = "";
+                    if (pattern.length > (index + exp.length)) {
+                        switch (pattern[index + exp.length]) {
+                            case 'H':
+                                str = formatNumber(date.getHours());
+                                break;
+                            case 'l':
+                                var hours = (date.getHours() % 12 || 12);
+                                var ampm = date.getHours() < 12 ? "AM" : "PM";
+                                str = hours + " " + ampm;
+                                break;
+                            case 'I':
+                                var hours = (date.getHours() % 12 || 12);
+                                var ampm = date.getHours() < 12 ? "AM" : "PM";
+                                str = formatNumber(hours) + " " + formatNumber(ampm);
+                                break;
+                            case 'M':
+                                str = formatNumber(date.getMinutes());
+                                break;
+                            case 'S':
+                                str = formatNumber(date.getSeconds());
+                                break;
+                            case 'p':
+                                str = date.getHours() < 12 ? "AM" : "PM";
+                                break;
+                            case 'R':
+                                str = formatNumber(date.getHours()) + ":" + formatNumber(date.getMinutes());
+                                break;
+                            case 'T':
+                                str = (formatNumber(date.getHours()) + ":" + formatNumber(date.getMinutes()) + ":" + formatNumber(date.getSeconds()));
+                                break;
+                            case 'r':
+                                var hours = (date.getHours() % 12 || 12);
+                                var ampm = date.getHours() < 12 ? "AM" : "PM";
+                                str = formatNumber(hours) + ":" + formatNumber(date.getMinutes()) + ":" + formatNumber(date.getSeconds()) + " " + ampm;
+                                break;
+                            case 'D':
+                                str = formatNumber(date.getMonth()) + "/" + formatNumber(date.getDate()) + "/" + formatNumber(date.getFullYear());
+                                break;
+                            case 'F':
+                                str = formatNumber(date.getFullYear()) + "-" + formatNumber(date.getMonth()) + "-" + formatNumber(date.getDate());
+                                break;
+                            case 'c':
+                                str = date;
+                                break;
+                            case 'B':
+                                var fullMonths = dateTime.getMonths(false);
+                                if (fullMonths.length > 0) {
+                                    str = fullMonths[date.getMonth()];
+                                }
+                                break;
+                            case 'h':
+                            case 'b':
+                                var shortMonths = dateTime.getMonths(true);
+                                if (shortMonths.length > 0) {
+                                    str = shortMonths[date.getMonth()];
+                                }
+                                break;
+                            case 'A':
+                                var longDays = dateTime.getDaysOfWeek(false);
+                                if (longDays.length > 0) {
+                                    str = longDays[date.getDay()];
+                                }
+                                break;
+                            case 'a':
+                                var shortDays = dateTime.getDaysOfWeek(true);
+                                if (shortDays.length > 0) {
+                                    str = shortDays[date.getDay()];
+                                }
+                                break;
+                            case 'C':
+                                str = formatNumber(parseInt(date.getFullYear() / 100));
+                                break;
+                            case 'Y':
+                                str = date.getFullYear();
+                                break;
+                            case 'y':
+                                str = formatNumber(parseInt(date.getFullYear() % 100));
+                                break;
+                            case 'm':
+                                str = formatNumber(date.getMonth() + 1);
+                                break;
+                            case 'd':
+                                str = formatNumber(date.getDate());
+                                break;
+                            case 'e':
+                                str = formatNumber(date.getDate());
+                                break;
+                        }
+                        pattern = pattern.substr(0, index) + str + pattern.substr(index + exp.length + 1, pattern.length);
+                    }
+                }
+                return pattern;
+            } else {
+                return "";
+            }
+            function formatNumber(number) {
+                return (number < 10 ? "0" : "") + number;
+            }
+        }
+    }
+}).provider("dateTime", function dateTimeProvider() {
+    var months, daysOfWeek, shortChars;
+    if (window.localStorage.getItem('paperui.language') == 'de') {
+        months = [ 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ];
+        daysOfWeek = [ 'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag' ];
+        shortChars = 2;
+    } else {
+        months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+        daysOfWeek = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+        shortChars = 3;
+    }
+    return {
+        getMonths : function(shortNames) {
+            if (shortNames) {
+                var shortMonths = [];
+                for (var i = 0; i < months.length; i++) {
+                    shortMonths.push(months[i].substr(0, 3));
+                }
+                return shortMonths;
+            }
+            return months;
+        },
+        $get : function() {
+            return {
+                getMonths : function(shortNames) {
+                    if (shortNames) {
+                        var shortMonths = [];
+                        for (var i = 0; i < months.length; i++) {
+                            shortMonths.push(months[i].substr(0, 3));
+                        }
+                        return shortMonths;
+                    }
+                    return months;
+                },
+                getDaysOfWeek : function(shortNames) {
+                    if (shortNames) {
+                        var shortDaysOfWeek = [];
+                        for (var i = 0; i < daysOfWeek.length; i++) {
+                            shortDaysOfWeek.push(daysOfWeek[i].substr(0, shortChars));
+                        }
+                        return shortDaysOfWeek;
+                    }
+                    return daysOfWeek;
+                }
             }
         }
     }

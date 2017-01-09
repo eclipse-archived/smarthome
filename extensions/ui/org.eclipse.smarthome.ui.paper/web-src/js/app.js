@@ -1,4 +1,4 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig) {
+angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -97,11 +97,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             redirectTo : '/control'
         });
     }
-    if (window.localStorage.getItem('paperui.language') == 'de') {
-        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ];
-    } else {
-        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-    }
+    $mdDateLocaleProvider.shortMonths = dateTimeProvider.getMonths(true);
     $mdDateLocaleProvider.formatDate = function(date) {
         if (!date) {
             return null;
