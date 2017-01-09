@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -222,6 +223,10 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         executeRules(rules, event);
     }
 
+    private void receiveThingStatus(ThingStatusInfoChangedEvent event) {
+
+    }
+
     private void internalItemAdded(Item item) {
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
@@ -358,7 +363,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
-            ChannelTriggeredEvent.TYPE);
+            ChannelTriggeredEvent.TYPE, ThingStatusInfoChangedEvent.TYPE);
 
     @Override
     public Set<String> getSubscribedEventTypes() {
@@ -376,6 +381,8 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             receiveCommand((ItemCommandEvent) event);
         } else if (event instanceof ChannelTriggeredEvent) {
             receiveThingTrigger((ChannelTriggeredEvent) event);
+        } else if (event instanceof ThingStatusInfoChangedEvent) {
+            receiveThingStatus((ThingStatusInfoChangedEvent) event);
         }
     }
 }
