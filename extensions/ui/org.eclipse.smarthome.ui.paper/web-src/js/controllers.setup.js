@@ -96,12 +96,14 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         });
     };
     $scope.bindings;
-    $scope.$watch("data.discoveryResultsss", function() {
-        refreshBindings();
+    $scope.$watch("data.discoveryResults", function(results) {
+        if (results) {
+            refreshBindings();
+        }
     })
     function refreshBindings() {
         $scope.bindings = [];
-        if ($scope.data && $scope.data.bindings && $scope.data.bindings.length > 0) {
+        if ($scope.data && $scope.data.discoveryResults && $scope.data.bindings && $scope.data.bindings.length > 0) {
             var arr = [];
             for (var i = 0; i < $scope.data.bindings.length; i++) {
                 var a = $.grep($scope.data.discoveryResults, function(result) {
