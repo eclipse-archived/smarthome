@@ -88,7 +88,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             self.showToast('success', text, actionText, actionUrl);
         }
     };
-}).factory('configService', function(itemService, thingService, $filter, itemRepository) {
+}).factory('configService', function(itemService, thingRepository, $filter, itemRepository) {
     return {
         getRenderingModel : function(configParameters, configGroups) {
             var parameters = [];
@@ -137,6 +137,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         } else {
                             parameter.element = 'select';
                         }
+                    } else if (parameter.context.toUpperCase() === 'RULE') {
+                        parameter.element = 'select';
                     } else if (parameter.context.toUpperCase() === 'DATE') {
                         if (parameter.type.toUpperCase() === 'TEXT') {
                             parameter.element = 'date';
@@ -151,8 +153,6 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         } else {
                             parameter.element = 'select';
                         }
-                        thingList = thingList === undefined ? thingService.getAll() : thingList;
-                        parameter.options = thingList;
                     } else if (parameter.context.toUpperCase() === 'TIME') {
                         parameter.element = 'input';
                         if (parameter.type.toUpperCase() === 'TEXT') {
@@ -230,11 +230,57 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 }
 
             }
-            return this.getItemConfigs(parameters);
+            parameters = this.getItemConfigs(parameters)
+            return this.getThingAndRuleConfig(parameters);
+        },
+        getThingAndRuleConfig : function(configParams) {
+            var self = this, hasOneItem;
+            var configParameters = configParams;
+            for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
+                var parameterItems = $.grep(configParameters[i].parameters, function(value) {
+                    return value.context && (value.context.toUpperCase() == "THING" || value.context.toUpperCase() == "RULE");
+                });
+                if (parameterItems.length > 0) {
+                    hasOneItem = true;
+                }
+                if (hasOneItem) {
+                    thingRepository.getAll(function(things) {
+                        for (var g_i = 0; g_i < configParameters.length; g_i++) {
+                            for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
+                                if (configParameters[g_i].parameters[i].context) {
+                                    if (configParameters[g_i].parameters[i].context.toUpperCase() === "THING") {
+                                        configParameters[g_i].parameters[i].options = self.filterByAttributes(things, configParameters[g_i].parameters[i].filterCriteria);
+                                    } else if (configParameters[g_i].parameters[i].context.toUpperCase() === "RULE") {
+                                        configParameters[g_i].parameters[i].options = getChannelsFromThings(things, configParameters[g_i].parameters[i].filterCriteria);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                function getChannelsFromThings(arr, filter) {
+                    if (!filter || filter.length == 0) {
+                        return [];
+                    } else {
+                        var channels = [];
+                        for (var i = 0; i < arr.length; i++) {
+                            var filteredChannels = self.filterByAttributes(arr[i].channels, filter);
+                            for (var j = 0; j < filteredChannels.length; j++) {
+                                filteredChannels[j].label = arr[i].label;
+                                filteredChannels[j].value = filteredChannels[j].uid;
+                            }
+                            channels = channels.concat(filteredChannels);
+                        }
+                        return channels;
+                    }
+
+                }
+            }
+            return configParameters;
         },
         getItemConfigs : function(configParams) {
             var self = this, hasOneItem = false;
-            configParameters = configParams;
+            var configParameters = configParams;
             for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
                 var parameterItems = $.grep(configParameters[i].parameters, function(value) {
                     return value.context && value.context.toUpperCase() == "ITEM";
