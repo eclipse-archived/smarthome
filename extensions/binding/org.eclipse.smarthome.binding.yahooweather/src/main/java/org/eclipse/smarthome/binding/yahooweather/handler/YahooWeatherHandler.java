@@ -55,6 +55,9 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
+    private final int MAX_DATA_AGE = 3 * 60 * 60 * 1000; // 3h
+    private long lastUpdateTime;
+
     private BigDecimal location;
     private BigDecimal refresh;
 
@@ -160,9 +163,26 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private synchronized boolean updateWeatherData() {
         try {
-            weatherData = getWeatherData(
+            String data = getWeatherData(
                     "SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location.toPlainString());
-            if (weatherData != null) {
+            if (data != null) {
+                if (data.contains("\"results\":null")) {
+                    if (isCurrentDataExpired()) {
+                        weatherData = null;
+                        logger.trace(
+                                "The Yahoo Weather API did not return any data. Omiting the old result because it became too old.");
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
+                                "The Yahoo Weather API did not return any data.");
+                        return false;
+                    } else {
+                        // simply keep the old data
+                        logger.trace("The Yahoo Weather API did not return any data. Keeping the old result.");
+                        return false;
+                    }
+                } else {
+                    lastUpdateTime = System.currentTimeMillis();
+                    weatherData = data;
+                }
                 updateStatus(ThingStatus.ONLINE);
                 return true;
             }
@@ -170,7 +190,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
         }
+        weatherData = null;
         return false;
+    }
+
+    private boolean isCurrentDataExpired() {
+        return lastUpdateTime + MAX_DATA_AGE < System.currentTimeMillis();
     }
 
     private final Cache<String, String> CACHE = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS)
