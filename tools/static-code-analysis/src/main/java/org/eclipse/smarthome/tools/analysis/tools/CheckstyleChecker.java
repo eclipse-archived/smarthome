@@ -83,11 +83,14 @@ public class CheckstyleChecker extends AbstractChecker {
         // Add the static-code-analysis plugin as dependency to maven-checkstyle-plugin, because this plugin contains
         // custom checks
         Dependency dep = dependency(SMARTHOME_TOOLS_GROUP_ID, SMARTHOME_TOOLS_ARTIFACT_ID, mavenProject.getVersion());
+        
+        // Maven may load an older version, if I not specify any
+        Dependency checktyle = dependency("com.puppycrawl.tools", "checkstyle", "7.2");
 
         Xpp3Dom config = configuration(element("sourceDirectory", mavenProject.getBasedir().toString()));
 
         executeCheck(MAVEN_CHECKSTYLE_PLUGIN_GROUP_ID, MAVEN_CHECKSTYLE_PLUGIN_ARTIFACT_ID, checkstyleMavenVersion,
-                MAVEN_CHECKSTYLE_PLUGIN_GOAL, config, dep);
+                MAVEN_CHECKSTYLE_PLUGIN_GOAL, config, dep,checktyle);
 
         log.debug("Checkstyle execution has been finished.");
 
