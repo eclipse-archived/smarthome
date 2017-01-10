@@ -110,8 +110,10 @@ Context is used to provide some semantic details about the parameter. The UI use
   <tr><td>Time</td><td>Text/Integer</td><td>hh:mm/number</td></tr>
   <tr><td>Color</td><td>Text</td><td>#000000 - #ffffff (hex color)</td></tr>
   <tr><td>Item</td><td>Text</td><td>Item name</td></tr>
-  <tr><td>Thing</td><td>Text</td><td>UID of thing</td></tr>
+  <tr><td>Thing</td><td>Text</td><td>UID of a thing</td></tr>
   <tr><td>Day of week</td><td>Text</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td></tr>
+  <tr><td>Channel</td><td>Text</td><td>UID of a channel<br></td></tr>
+  <tr><td>Rule</td><td>Text</td><td>UID of a rule<br></td></tr>
 </table>
 
 Further, the <strong>item</strong> context can contain criteria to filter the list of items. For example:
@@ -127,6 +129,14 @@ In the case of above filter only those items will be shown that satisfy the filt
 
 ```
 (type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
+
+```
+Similarly, the <strong>Channel</strong> context can contain criteria to filter channels based on <strong>kind</strong> field. The value of <strong>kind</strong> can either be STATE or TRIGGER. For Example:
+
+```xml
+<filter>
+  <criteria name="kind">STATE|TRIGGER</criteria>
+</filter>
 ```
 
 Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
