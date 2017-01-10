@@ -88,7 +88,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             self.showToast('success', text, actionText, actionUrl);
         }
     };
-}).factory('configService', function(itemService, thingRepository, $filter, itemRepository) {
+}).factory('configService', function(itemService, thingRepository, ruleRepository, $filter, itemRepository) {
     return {
         getRenderingModel : function(configParameters, configGroups) {
             var parameters = [];
@@ -137,8 +137,20 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         } else {
                             parameter.element = 'select';
                         }
-                    } else if (parameter.context.toUpperCase() === 'RULE') {
+                    } else if (parameter.context.toUpperCase() === 'CHANNEL') {
                         parameter.element = 'select';
+                    } else if (parameter.context.toUpperCase() === "RULE") {
+                        parameter.element = 'select';
+                        function encloseParameter(parameter) {
+                            var param = parameter;
+                            ruleRepository.getAll(function(rules) {
+                                for (var j_r = 0; j_r < rules.length; j_r++) {
+                                    rules[j_r].value = rules[j_r].uid;
+                                }
+                                param.options = rules;
+                            });
+                        }
+                        encloseParameter(parameter);
                     } else if (parameter.context.toUpperCase() === 'DATE') {
                         if (parameter.type.toUpperCase() === 'TEXT') {
                             parameter.element = 'date';
@@ -231,14 +243,14 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
 
             }
             parameters = this.getItemConfigs(parameters)
-            return this.getThingAndRuleConfig(parameters);
+            return this.getChannelsConfig(parameters);
         },
-        getThingAndRuleConfig : function(configParams) {
+        getChannelsConfig : function(configParams) {
             var self = this, hasOneItem;
             var configParameters = configParams;
             for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
                 var parameterItems = $.grep(configParameters[i].parameters, function(value) {
-                    return value.context && (value.context.toUpperCase() == "THING" || value.context.toUpperCase() == "RULE");
+                    return value.context && (value.context.toUpperCase() == "THING" || value.context.toUpperCase() == "CHANNEL");
                 });
                 if (parameterItems.length > 0) {
                     hasOneItem = true;
@@ -250,7 +262,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                                 if (configParameters[g_i].parameters[i].context) {
                                     if (configParameters[g_i].parameters[i].context.toUpperCase() === "THING") {
                                         configParameters[g_i].parameters[i].options = self.filterByAttributes(things, configParameters[g_i].parameters[i].filterCriteria);
-                                    } else if (configParameters[g_i].parameters[i].context.toUpperCase() === "RULE") {
+                                    } else if (configParameters[g_i].parameters[i].context.toUpperCase() === "CHANNEL") {
                                         configParameters[g_i].parameters[i].options = getChannelsFromThings(things, configParameters[g_i].parameters[i].filterCriteria);
                                     }
                                 }
