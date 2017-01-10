@@ -440,5 +440,60 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
         assertNotNull extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID)
     }
 
+    @Test
+    void 'assert that updated discovery result is stored properly in cache'() {
+        ThingUID thingUID = new ThingUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE, "foo")
+        ThingTypeUID thingTypeUID = new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE);
+
+        ScanListener scanListener =  new ScanListener() {
+                    public boolean discoveryFinished = false;
+                    @Override
+                    void onFinished() {
+                        discoveryFinished = true;
+                    }
+
+                    @Override
+                    void onErrorOccurred(Exception exception) {}
+                }
+
+        AsyncResultWrapper<DiscoveryResult> discoveryListenerResult = new AsyncResultWrapper<DiscoveryResult>()
+        DiscoveryListener discoveryListenerMock = [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
+                discoveryListenerResult.set result
+            },
+            removeOlderThings: { DiscoveryService source, long timestamp, Collection<ThingTypeUID> thingTypeUIDs ->
+                []
+            }
+        ] as DiscoveryListener;
+
+        inbox.remove(thingUID);
+        boolean discoveryFinished = false;
+        discoveryServiceRegistry.startScan(thingTypeUID, scanListener);
+        waitForAssert ({ assertTrue(scanListener.discoveryFinished) });
+
+        discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
+        waitForAssert ({ assertNotNull(discoveryListenerResult.getWrappedObject()) });
+
+        assertEquals [:], discoveryListenerResult.getWrappedObject().getProperties();
+
+        discoveryServiceRegistry.removeDiscoveryListener(discoveryListenerMock);
+
+        discoveryListenerResult.set null;
+
+        Map<String, Object> props = ["ip":"0.0.0.0"];
+
+        extendedDiscoveryServiceMock.setDiscoveryProperties(props);
+
+        inbox.remove(thingUID);
+        scanListener.discoveryFinished = false;
+        discoveryServiceRegistry.startScan(thingTypeUID, scanListener);
+        waitForAssert ({ assertTrue(scanListener.discoveryFinished) });
+
+        discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
+        waitForAssert ({ assertNotNull(discoveryListenerResult.getWrappedObject()) });
+
+        assertEquals  props, discoveryListenerResult.getWrappedObject().getProperties();
+
+    }
 
 }
