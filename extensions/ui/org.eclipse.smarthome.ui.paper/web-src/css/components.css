@@ -727,6 +727,25 @@ textarea.scriptArea {
     margin-left: 10px;
 }
 
+.ruleNameDesc md-input-container {
+	margin-top: 9px;
+	margin-bottom: 9px;
+}
+
+.ruleNameDesc md-input-container.rules-input input {
+	font-size: 20px;
+	font-weight: 500;
+	color: rgba(0, 0, 0, .87);
+}
+
+.ruleNameDesc md-input-container.rules-input textarea {
+	font-weight: 500;
+}
+
+.moduleLabel {
+	font-size: 16px;
+}
+
 .customMessage {
     color: rgb(221, 44, 0);
     font-size: 12px;
