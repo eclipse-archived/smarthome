@@ -1,0 +1,9 @@
+rule "Initialize demo items"
+when
+  System started
+then
+  DemoLocation.postUpdate("52,9")
+  DemoContact.postUpdate(OPEN)
+  DemoString.postUpdate("Hello SmartHome!")
+  DemoDateTime.postUpdate(new DateTimeType())
+end
