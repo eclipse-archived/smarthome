@@ -138,19 +138,32 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             parameter.element = 'select';
                         }
                     } else if (parameter.context.toUpperCase() === 'CHANNEL') {
-                        parameter.element = 'select';
+                        if (parameter.multiple) {
+                            parameter.element = 'multiSelect';
+                            parameter.limitToOptions = true;
+                        } else {
+                            parameter.element = 'select';
+                        }
+                        parameter.context = 'channel';
                     } else if (parameter.context.toUpperCase() === "RULE") {
-                        parameter.element = 'select';
+                        if (parameter.multiple) {
+                            parameter.element = 'multiSelect';
+                            parameter.limitToOptions = true;
+                        } else {
+                            parameter.element = 'select';
+                        }
                         function encloseParameter(parameter) {
                             var param = parameter;
                             ruleRepository.getAll(function(rules) {
                                 for (var j_r = 0; j_r < rules.length; j_r++) {
                                     rules[j_r].value = rules[j_r].uid;
+                                    rules[j_r].label = rules[j_r].name;
                                 }
                                 param.options = rules;
                             });
                         }
                         encloseParameter(parameter);
+                        parameter.context = 'rule';
                     } else if (parameter.context.toUpperCase() === 'DATE') {
                         if (parameter.type.toUpperCase() === 'TEXT') {
                             parameter.element = 'date';
@@ -271,21 +284,16 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     });
                 }
                 function getChannelsFromThings(arr, filter) {
-                    if (!filter || filter.length == 0) {
-                        return [];
-                    } else {
-                        var channels = [];
-                        for (var i = 0; i < arr.length; i++) {
-                            var filteredChannels = self.filterByAttributes(arr[i].channels, filter);
-                            for (var j = 0; j < filteredChannels.length; j++) {
-                                filteredChannels[j].label = arr[i].label;
-                                filteredChannels[j].value = filteredChannels[j].uid;
-                            }
-                            channels = channels.concat(filteredChannels);
+                    var channels = [];
+                    for (var i = 0; i < arr.length; i++) {
+                        var filteredChannels = self.filterByAttributes(arr[i].channels, filter);
+                        for (var j = 0; j < filteredChannels.length; j++) {
+                            filteredChannels[j].label = arr[i].label;
+                            filteredChannels[j].value = filteredChannels[j].uid;
                         }
-                        return channels;
+                        channels = channels.concat(filteredChannels);
                     }
-
+                    return channels;
                 }
             }
             return configParameters;

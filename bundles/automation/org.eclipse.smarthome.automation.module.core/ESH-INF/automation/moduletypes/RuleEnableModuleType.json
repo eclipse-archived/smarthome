@@ -28,7 +28,8 @@
 					"label": "Rules UIDs.",
 					"description": "Specifies the rules that should be enabled or disabled.",
 					"required": true,
-					"multiple": true
+                    "multiple": true,
+					"context":"rule"
 				}
 			]
 		}
