@@ -1,0 +1,3 @@
+yahooweather:weather:berlin [ location=638242 ]
+yahooweather:weather:losangeles "Los Angeles" [ location=2442047, refresh=120 ]
+

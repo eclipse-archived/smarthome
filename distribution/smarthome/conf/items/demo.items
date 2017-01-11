@@ -1,0 +1,12 @@
+Group:Switch:OR(ON,OFF) DemoSwitchGroup [ "home-group" ]
+
+Switch DemoSwitch (DemoSwitchGroup)
+Dimmer DemoDimmer (DemoSwitchGroup)
+Rollershutter DemoRollershutter
+Color DemoColor	(DemoSwitchGroup)
+DateTime DemoDateTime
+Location DemoLocation
+String DemoString
+Contact DemoContact
+
+Number Weather_Temperature "Outside Temperature [%.1f °C]" <temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
