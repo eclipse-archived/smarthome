@@ -122,7 +122,13 @@
                "context":"channel",
                "label":"Channel",
                "description":"the id of the channel which should be observed for triggers",
-               "required":true
+               "required":true,               
+               "filterCriteria":[
+                  {
+                     "value": "TRIGGER",
+                     "name": "kind"
+                  }
+               ]
             }
          ],
          "children":[
