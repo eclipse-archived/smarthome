@@ -16,12 +16,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.yahooweather.internal.ExpiringCache;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -36,10 +36,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 
 /**
  * The {@link YahooWeatherHandler} is responsible for handling commands, which are
@@ -56,6 +52,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
     private final int MAX_DATA_AGE = 3 * 60 * 60 * 1000; // 3h
+    private final int CACHE_EXPIRY = 10 * 1000; // 10s
     private long lastUpdateTime;
 
     private BigDecimal location;
@@ -198,10 +195,10 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         return lastUpdateTime + MAX_DATA_AGE < System.currentTimeMillis();
     }
 
-    private final Cache<String, String> CACHE = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS)
-            .maximumSize(5).build(new CacheLoader<String, String>() {
+    private final ExpiringCache<String, String> CACHE = new ExpiringCache<String, String>(CACHE_EXPIRY,
+            new ExpiringCache.LoadAction<String, String>() {
                 @Override
-                public String load(String query) throws Exception {
+                public String load(String query) throws IOException {
                     try {
                         URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
                                 + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
@@ -215,11 +212,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             });
 
     private String getWeatherData(String query) throws IOException {
-        try {
-            return CACHE.get(query);
-        } catch (ExecutionException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+        return CACHE.get(query);
     }
 
     private State getHumidity() {
