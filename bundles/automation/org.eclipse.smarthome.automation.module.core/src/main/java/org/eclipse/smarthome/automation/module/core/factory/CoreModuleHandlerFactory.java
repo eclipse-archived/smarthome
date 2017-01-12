@@ -18,10 +18,12 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
-import org.eclipse.smarthome.automation.module.core.handler.EventConditionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
-import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ItemCommandTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.RuleEnableHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -37,14 +39,16 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
+public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(BasicModuleHandlerFactory.class);
+    private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays.asList(new String[] {
-            ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION,
-            GenericEventTriggerHandler.MODULE_TYPE_ID, EventConditionHandler.MODULETYPE_ID,
-            EventConditionHandler.MODULETYPE_ID, CompareConditionHandler.MODULE_TYPE, RuleEnableHandler.UID });
+    private static final Collection<String> types = Arrays.asList(
+            new String[] { ItemCommandTriggerHandler.MODULE_TYPE_ID, ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID,
+                    ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID, ItemStateConditionHandler.ITEM_STATE_CONDITION,
+                    ItemCommandActionHandler.ITEM_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
+                    GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
+                    CompareConditionHandler.MODULE_TYPE, RuleEnableHandler.UID });
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -81,8 +85,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemStateConditionHandler) {
                 ((ItemStateConditionHandler) handler).setItemRegistry(this.itemRegistry);
-            } else if (handler instanceof ItemPostCommandActionHandler) {
-                ((ItemPostCommandActionHandler) handler).setItemRegistry(this.itemRegistry);
+            } else if (handler instanceof ItemCommandActionHandler) {
+                ((ItemCommandActionHandler) handler).setItemRegistry(this.itemRegistry);
             }
         }
     }
@@ -96,8 +100,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         for (ModuleHandler handler : handlers.values()) {
             if (handler instanceof ItemStateConditionHandler) {
                 ((ItemStateConditionHandler) handler).unsetItemRegistry(this.itemRegistry);
-            } else if (handler instanceof ItemPostCommandActionHandler) {
-                ((ItemPostCommandActionHandler) handler).unsetItemRegistry(this.itemRegistry);
+            } else if (handler instanceof ItemCommandActionHandler) {
+                ((ItemCommandActionHandler) handler).unsetItemRegistry(this.itemRegistry);
             }
         }
         this.itemRegistry = null;
@@ -111,8 +115,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
         for (ModuleHandler handler : handlers.values()) {
-            if (handler instanceof ItemPostCommandActionHandler) {
-                ((ItemPostCommandActionHandler) handler).setEventPublisher(eventPublisher);
+            if (handler instanceof ItemCommandActionHandler) {
+                ((ItemCommandActionHandler) handler).setEventPublisher(eventPublisher);
             }
         }
     }
@@ -125,8 +129,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
         for (ModuleHandler handler : handlers.values()) {
-            if (handler instanceof ItemPostCommandActionHandler) {
-                ((ItemPostCommandActionHandler) handler).unsetEventPublisher(eventPublisher);
+            if (handler instanceof ItemCommandActionHandler) {
+                ((ItemCommandActionHandler) handler).unsetEventPublisher(eventPublisher);
             }
         }
     }
@@ -160,6 +164,23 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                             this.bundleContext);
                     return triggerHandler;
                 }
+            } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof ItemCommandTriggerHandler) {
+                    return handler;
+                } else {
+                    final ItemCommandTriggerHandler triggerHandler = new ItemCommandTriggerHandler((Trigger) module,
+                            this.bundleContext);
+                    return triggerHandler;
+                }
+            } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
+                    || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof ItemStateTriggerHandler) {
+                    return handler;
+                } else {
+                    final ItemStateTriggerHandler triggerHandler = new ItemStateTriggerHandler((Trigger) module,
+                            this.bundleContext);
+                    return triggerHandler;
+                }
             }
         } else if (module instanceof Condition) {
             // Handle conditions
@@ -173,11 +194,12 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     conditionHandler.setItemRegistry(itemRegistry);
                     return conditionHandler;
                 }
-            } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof EventConditionHandler) {
+            } else if (GenericEventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof GenericEventConditionHandler) {
                     return handler;
                 } else {
-                    final EventConditionHandler eventConditionHandler = new EventConditionHandler((Condition) module);
+                    final GenericEventConditionHandler eventConditionHandler = new GenericEventConditionHandler(
+                            (Condition) module);
                     return eventConditionHandler;
                 }
             } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
@@ -192,11 +214,11 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         } else if (module instanceof Action) {
             // Handle actions
 
-            if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof ItemPostCommandActionHandler) {
+            if (ItemCommandActionHandler.ITEM_COMMAND_ACTION.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof ItemCommandActionHandler) {
                     return handler;
                 } else {
-                    final ItemPostCommandActionHandler postCommandActionHandler = new ItemPostCommandActionHandler(
+                    final ItemCommandActionHandler postCommandActionHandler = new ItemCommandActionHandler(
                             (Action) module);
                     postCommandActionHandler.setEventPublisher(eventPublisher);
                     postCommandActionHandler.setItemRegistry(itemRegistry);

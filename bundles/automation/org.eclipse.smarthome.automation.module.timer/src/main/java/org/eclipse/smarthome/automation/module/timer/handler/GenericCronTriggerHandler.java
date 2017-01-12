@@ -31,21 +31,21 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Knauf - Initial Contribution
  *
  */
-public class TimerTriggerHandler extends BaseTriggerModuleHandler {
+public class GenericCronTriggerHandler extends BaseTriggerModuleHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(TimerTriggerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(GenericCronTriggerHandler.class);
 
     private JobDetail job;
     private CronTrigger trigger;
     private Scheduler scheduler;
 
-    public static final String MODULE_TYPE_ID = "TimerTrigger";
+    public static final String MODULE_TYPE_ID = "timer.GenericCronTrigger";
     public static final String CALLBACK_CONTEXT_NAME = "CALLBACK";
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
     private static final String CFG_CRON_EXPRESSION = "cronExpression";
 
-    public TimerTriggerHandler(Trigger module) {
+    public GenericCronTriggerHandler(Trigger module) {
         super(module);
         String cronExpression = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
         this.trigger = TriggerBuilder.newTrigger().withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())

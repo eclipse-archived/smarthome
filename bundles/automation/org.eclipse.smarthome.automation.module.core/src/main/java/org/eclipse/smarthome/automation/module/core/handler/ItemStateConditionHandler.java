@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemStateConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class ItemStateConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
 
-    public static final String ITEM_STATE_CONDITION = "ItemStateCondition";
+    public static final String ITEM_STATE_CONDITION = "core.ItemStateCondition";
 
     private ItemRegistry itemRegistry;
 

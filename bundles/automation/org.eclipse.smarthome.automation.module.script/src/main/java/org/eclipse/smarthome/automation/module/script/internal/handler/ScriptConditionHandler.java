@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  *
  */
-public class ScriptConditionHandler extends AbstractScriptModuleHandler<Condition>implements ConditionHandler {
+public class ScriptConditionHandler extends AbstractScriptModuleHandler<Condition> implements ConditionHandler {
 
     public final Logger logger = LoggerFactory.getLogger(ScriptConditionHandler.class);
 
-    public static final String SCRIPT_CONDITION = "ScriptCondition";
+    public static final String SCRIPT_CONDITION = "script.ScriptCondition";
 
     public ScriptConditionHandler(Condition module) {
         super(module);
