@@ -14,6 +14,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareProvider;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
 
 /**
  * The {@link Firmware} is the description of a firmware to be installed on the physical device of a {@link Thing}. A
@@ -196,7 +196,7 @@ public final class Firmware implements Comparable<Firmware> {
                 MessageDigest md = MessageDigest.getInstance("MD5");
 
                 try (DigestInputStream dis = new DigestInputStream(inputStream, md)) {
-                    bytes = ByteStreams.toByteArray(dis);
+                    bytes = IOUtils.toByteArray(dis);
                 } catch (IOException ioEx) {
                     logger.error(String.format("Cannot read firmware with UID %s.", uid), ioEx);
                     return null;
