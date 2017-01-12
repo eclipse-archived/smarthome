@@ -23,17 +23,17 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class EventConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
-    public final Logger logger = LoggerFactory.getLogger(EventConditionHandler.class);
+public class GenericEventConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
+    public final Logger logger = LoggerFactory.getLogger(GenericEventConditionHandler.class);
 
-    public static final String MODULETYPE_ID = "EventCondition";
+    public static final String MODULETYPE_ID = "core.GenericEventCondition";
 
     private static final String TOPIC = "topic";
     private static final String EVENTTYPE = "eventType";
     private static final String SOURCE = "source";
     private static final String PAYLOAD = "payload";
 
-    public EventConditionHandler(Condition module) {
+    public GenericEventConditionHandler(Condition module) {
         super(module);
     }
 
@@ -51,8 +51,9 @@ public class EventConditionHandler extends BaseModuleHandler<Condition>implement
             } else {
                 return false;
             }
-        } else
+        } else {
             return true;
+        }
     }
 
     @Override

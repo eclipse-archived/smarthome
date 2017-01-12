@@ -78,6 +78,7 @@ A given **Module type** has the following elements:
     tags - shows how a given value should be considered (e.g. as a Temperature)
 
 **Supported Types**
+
 The types supported in the **input/output** objects can be any string and the following validation is performed:
 
 - if the input type and the output type are equal as string the connection is valid
@@ -94,18 +95,13 @@ The types in the **Configuration** object are restricted to the following:
 
 ## Defining Rules via JSON
 
-
-
 **JSON schemas for:**
 
  * [module types](../development/rules/ModuleTypes_schema.json)
  * [rule templates](../development/rules/Templates_schema.json)
  * [rule instances](../development/rules/Rules_schema.json)
 
-
 ### Sample Rules
-
-    
 
  * **Sample rule instance referencing module types:**
 
@@ -473,6 +469,7 @@ The above example uses two rule configuration properties: "condition_operator" a
 
 
 ### GenericEventTrigger
+
 GenericEventTrigger has 3 configuration paramters: `eventTopic`,` eventSource` and `eventTypes` and one output: 'event'.
 
       {  
@@ -517,7 +514,8 @@ GenericEventTrigger has 3 configuration paramters: `eventTopic`,` eventSource` a
       }
 
 
-### CompareCondition
+### GenericCompareCondition
+
 This module type is used to compare a value against a configuration property using an operator like `<, >, =`.
 The value to be compared can be specified either as an input or as a configuration property.
 

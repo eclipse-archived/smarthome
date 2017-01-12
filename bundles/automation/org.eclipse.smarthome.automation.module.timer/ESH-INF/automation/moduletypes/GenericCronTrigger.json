@@ -1,9 +1,10 @@
 {  
    "triggers":[  
       {  
-         "uid":"TimerTrigger",
-         "label":"Timer Trigger",
+         "uid":"timer.GenericCronTrigger",
+         "label":"Cron Trigger",
          "description":"This triggers a rule based on a cron expression",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"cronExpression",

@@ -22,8 +22,9 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
  */
 public class SayActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
-    public static final String TYPE_ID = "SayAction";
+    public static final String TYPE_ID = "media.SayAction";
     private static final String PARAM_TEXT = "text";
+    private static final String PARAM_SINK = "sink";
 
     private final VoiceManager voiceManager;
 
@@ -35,8 +36,8 @@ public class SayActionHandler extends BaseModuleHandler<Action> implements Actio
     @Override
     public Map<String, Object> execute(Map<String, ?> context) {
         String text = module.getConfiguration().get(PARAM_TEXT).toString();
-        voiceManager.say(text);
+        String sink = (String) module.getConfiguration().get(PARAM_SINK);
+        voiceManager.say(text, null, sink);
         return null;
     }
-
 }

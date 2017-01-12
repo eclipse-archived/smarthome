@@ -12,13 +12,12 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
-import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.RuleStatusInfo
 import org.eclipse.smarthome.automation.Trigger
-import org.eclipse.smarthome.automation.module.timer.handler.TimerTriggerHandler
+import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.ItemProvider
@@ -68,7 +67,7 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'check if timer trigger moduleType is registered'(){
         def mtr = getService(ModuleTypeRegistry) as ModuleTypeRegistry
         waitForAssert({
-            assertThat mtr.get(TimerTriggerHandler.MODULE_TYPE_ID), is(notNullValue())
+            assertThat mtr.get(GenericCronTriggerHandler.MODULE_TYPE_ID), is(notNullValue())
         },3000,100)
     }
 
@@ -81,7 +80,9 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
+        def triggers = [
+            new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)
+        ]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
@@ -133,7 +134,11 @@ class RuntimeRuleTest extends OSGiTest{
          * ensure that the lamp item state if OFF after this check
          */
         logger.info("Check auto update");
-        for (state in [OnOffType.OFF, OnOffType.ON, OnOffType.OFF]) {
+        for (state in [
+            OnOffType.OFF,
+            OnOffType.ON,
+            OnOffType.OFF
+        ]) {
             lampItem.send(state);
             waitForAssert({
                 assertThat lampItem.state,is(state);
@@ -148,17 +153,17 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
+        def triggers = [
+            new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)
+        ]
 
         def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
-        def actions = [new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)]
-
-        def conditionConfig = new Configuration([operator:"=", itemName:testItemName, state:"OFF"])
-        def conditions = [new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)]
+        def actions = [
+            new Action("MyItemPostCommandAction", "core.ItemCommandAction", actionConfig, null)
+        ]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
-        rule.conditions =  conditions
         rule.actions = actions
         rule.name="MyTimerTriggerTestRule"
         logger.info("Rule created: "+rule.getUID())

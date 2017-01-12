@@ -14,7 +14,7 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
-import org.eclipse.smarthome.automation.module.timer.handler.TimerTriggerHandler;
+import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays.asList(new String[] { TimerTriggerHandler.MODULE_TYPE_ID });
+    private static final Collection<String> types = Arrays.asList(new String[] { GenericCronTriggerHandler.MODULE_TYPE_ID });
 
     @Override
     public void activate(BundleContext bundleContext) {
@@ -48,11 +48,11 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
         ModuleHandler handler = handlers.get(ruleUID + module.getId());
         String moduleTypeUID = module.getTypeUID();
 
-        if (TimerTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            TimerTriggerHandler timerTriggerHandler = handler != null && handler instanceof TimerTriggerHandler
-                    ? (TimerTriggerHandler) handler : null;
+        if (GenericCronTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
+            GenericCronTriggerHandler timerTriggerHandler = handler != null && handler instanceof GenericCronTriggerHandler
+                    ? (GenericCronTriggerHandler) handler : null;
             if (timerTriggerHandler == null) {
-                timerTriggerHandler = new TimerTriggerHandler((Trigger) module);
+                timerTriggerHandler = new GenericCronTriggerHandler((Trigger) module);
                 handlers.put(ruleUID + module.getId(), timerTriggerHandler);
             }
             return timerTriggerHandler;

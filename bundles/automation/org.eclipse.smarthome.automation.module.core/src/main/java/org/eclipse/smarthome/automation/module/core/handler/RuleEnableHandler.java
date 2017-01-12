@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *Example:
  *
  *"id": "RuleAction",
- *"type": "RuleEnablementAction",
+ *"type": "core.RuleEnablementAction",
  *"configuration": {
  *     "enable": true,
  *     "ruleUIDs": ["UID1", "UID2", "UID3"]
@@ -42,7 +42,7 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
     /**
      * This filed contains the type of this handler so it can be recognized from the factory.
      */
-    public final static String UID = "RuleEnablementAction";
+    public final static String UID = "core.RuleEnablementAction";
 
     /**
      * This field is a key to the 'enable' property of the {@link Action}.
