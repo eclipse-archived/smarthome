@@ -61,5 +61,33 @@
       <property name="processJavadoc" value="true"/>
       <property name="severity" value="info" />
     </module>
+    
+    <!-- Rules for Java Naming Convention -->
+    
+    <module name="PackageName">
+      <property name="format"
+              value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+      <property name="severity" value="info" />
+    </module>
+    <module name="TypeName">
+      <property name="tokens"
+              value="INTERFACE_DEF,CLASS_DEF"/>
+      <property name="severity" value="info" />
+    </module>
+    <module name="MethodName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="ConstantName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="LocalFinalVariableName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="LocalVariableName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="StaticVariableName">
+      <property name="severity" value="info" />
+    </module>
   </module>
 </module>
