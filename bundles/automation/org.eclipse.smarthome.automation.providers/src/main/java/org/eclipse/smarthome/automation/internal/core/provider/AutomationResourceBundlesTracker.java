@@ -82,7 +82,6 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
         bTracker.close();
         bTracker = null;
         rImporter.deactivate();
-        rImporter = null;
     }
 
     @SuppressWarnings({ "rawtypes" })
