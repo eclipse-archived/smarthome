@@ -176,7 +176,7 @@ public class RuleResource implements SatisfiableRESTResource {
 
     @GET
     @Path("/{ruleUID}/config")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the rule configuration values.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
