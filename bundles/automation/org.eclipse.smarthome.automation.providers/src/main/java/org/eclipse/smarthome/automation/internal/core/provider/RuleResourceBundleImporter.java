@@ -80,9 +80,6 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     @Override
     protected void processAutomationProvider(Bundle bundle) {
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-        if (getPreviousPortfolio(vendor) != null) {
-            return;
-        }
         logger.debug("Parse rules from bundle '{}' ", bundle.getSymbolicName());
         Enumeration<URL> urlEnum = null;
         try {
@@ -97,6 +94,10 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         if (urlEnum != null) {
             while (urlEnum.hasMoreElements()) {
                 URL url = urlEnum.nextElement();
+                if (getPreviousPortfolio(vendor) != null
+                        && (waitingProviders.get(bundle) == null || !waitingProviders.get(bundle).contains(url))) {
+                    return;
+                }
                 if (url.getPath().endsWith(File.separator)) {
                     continue;
                 }

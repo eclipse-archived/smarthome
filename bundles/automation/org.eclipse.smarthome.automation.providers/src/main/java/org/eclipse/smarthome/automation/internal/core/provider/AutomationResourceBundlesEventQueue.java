@@ -47,6 +47,8 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
      */
     private boolean running = false;
 
+    private Thread runningThread;
+
     /**
      * This field is for synchronization purposes
      */
@@ -100,6 +102,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
                         continue;
                     }
                     running = false;
+                    runningThread = null;
                     notifyAll();
                     return;
                 }
@@ -135,6 +138,13 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             closed = true;
             notifyAll();
         }
+        Thread runningThread = this.runningThread;
+        if (runningThread != null) {
+            try {
+                runningThread.join(30000);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     /**
@@ -155,13 +165,13 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             shared = false;
         }
         if (queue.add(event)) {
-            logger.debug("Process bundle event {}, for automation bundle '{}' ", event.getType(), event.getBundle()
-                    .getSymbolicName());
+            logger.debug("Process bundle event {}, for automation bundle '{}' ", event.getType(),
+                    event.getBundle().getSymbolicName());
             if (running) {
                 notifyAll();
             } else {
-                Thread th = new Thread(this, "Automation Provider Processing Queue");
-                th.start();
+                runningThread = new Thread(this, "Automation Provider Processing Queue");
+                runningThread.start();
                 running = true;
             }
         }
@@ -216,8 +226,8 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             if (running) {
                 notifyAll();
             } else {
-                Thread th = new Thread(this, "Automation Provider Processing Queue");
-                th.start();
+                runningThread = new Thread(this, "Automation Provider Processing Queue");
+                runningThread.start();
                 running = true;
             }
         }
