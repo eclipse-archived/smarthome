@@ -1135,6 +1135,10 @@ background-color: green;
     color: rgba(0,0,0,0.72);
 }
 
+md-dialog-content .dropdown dt input {
+	width: 85%;
+}
+
 input[type=number].multiSel::-webkit-inner-spin-button, 
 input[type=number].multiSel::-webkit-outer-spin-button { 
     -webkit-appearance: none;
