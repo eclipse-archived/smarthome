@@ -76,7 +76,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     @Override
     public EventFilter getEventFilter() {
-        return null;
+        return this;
     }
 
     @Override

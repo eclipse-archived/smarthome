@@ -74,7 +74,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
 
     @Override
     public EventFilter getEventFilter() {
-        return null;
+        return this;
     }
 
     @Override
