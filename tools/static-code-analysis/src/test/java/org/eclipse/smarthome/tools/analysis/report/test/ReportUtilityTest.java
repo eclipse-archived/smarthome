@@ -23,25 +23,30 @@ import org.junit.Test;
 
 public class ReportUtilityTest {
 
-    public static final String TARGET_RELATIVE_DIR = "target" + File.separator + "test-classes" + File.separator
-            + "report";
-    public static final String TARGET_ABSOLUTE_DIR = System.getProperty("user.dir") + File.separator
-            + TARGET_RELATIVE_DIR;
-    public static final String RESULT_FILE_PATH = TARGET_ABSOLUTE_DIR + File.separator + ReportUtility.RESULT_FILE_NAME;
+  public static final String TARGET_RELATIVE_DIR = "target" + File.separator + "test-classes"
+      + File.separator + "report";
+  public static final String TARGET_ABSOLUTE_DIR = System.getProperty("user.dir") + File.separator
+      + TARGET_RELATIVE_DIR;
+  public static final String RESULT_FILE_PATH = TARGET_ABSOLUTE_DIR + File.separator
+      + ReportUtility.RESULT_FILE_NAME;
 
-    @Test(expected = MojoFailureException.class)
-    public void assertReportIsCreatedAndBuildFails() throws Exception {
-        File file = new File(RESULT_FILE_PATH);
+  @Test(expected = MojoFailureException.class)
+  public void assertReportIsCreatedAndBuildFails() throws Exception {
+    File file = new File(RESULT_FILE_PATH);
 
-        if (file.exists()) {
-            file.delete();
-        }
-
-        assertFalse(file.exists());
-
-        ReportUtility.mergeReports(TARGET_ABSOLUTE_DIR, true, null);
-
-        assertTrue(file.exists());
+    if (file.exists()) {
+      file.delete();
     }
+
+    assertFalse(file.exists());
+
+    ReportUtility utility = new ReportUtility();
+    utility.setFailOnError(true);
+    utility.setSummaryReport(null);
+    utility.setTargetDirectory(TARGET_ABSOLUTE_DIR);
+    utility.execute();
+
+    assertTrue(file.exists());
+  }
 
 }
