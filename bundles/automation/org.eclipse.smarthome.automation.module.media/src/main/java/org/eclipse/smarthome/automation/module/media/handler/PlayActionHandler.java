@@ -25,8 +25,9 @@ import org.slf4j.LoggerFactory;
  */
 public class PlayActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
-    public static final String TYPE_ID = "PlayAction";
+    public static final String TYPE_ID = "media.PlayAction";
     public static final String PARAM_SOUND = "sound";
+    public static final String PARAM_SINK = "sink";
 
     private final Logger logger = LoggerFactory.getLogger(PlayActionHandler.class);
 
@@ -40,8 +41,9 @@ public class PlayActionHandler extends BaseModuleHandler<Action> implements Acti
     @Override
     public Map<String, Object> execute(Map<String, ?> context) {
         String sound = module.getConfiguration().get(PARAM_SOUND).toString();
+        String sink = (String) module.getConfiguration().get(PARAM_SINK);
         try {
-            audioManager.playFile(sound);
+            audioManager.playFile(sound, sink);
         } catch (AudioException e) {
             logger.error("Error playing sound '{}': {}", sound, e.getMessage());
         }

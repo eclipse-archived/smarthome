@@ -10,7 +10,7 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.automation.module.core.factory.basicmodulehandlerfactory">
    
-   <implementation class="org.eclipse.smarthome.automation.module.core.factory.BasicModuleHandlerFactory"/>
+   <implementation class="org.eclipse.smarthome.automation.module.core.factory.CoreModuleHandlerFactory"/>
    
    <service>
       <provide interface="org.eclipse.smarthome.automation.handler.ModuleHandlerFactory"/>

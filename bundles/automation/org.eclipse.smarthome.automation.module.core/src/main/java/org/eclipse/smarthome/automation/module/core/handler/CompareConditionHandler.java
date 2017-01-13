@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues - Initial contribution and API
  *
  */
-public class CompareConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class CompareConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
     public final Logger logger = LoggerFactory.getLogger(CompareConditionHandler.class);
 
-    public static final String MODULE_TYPE = "GenericCompareCondition";
+    public static final String MODULE_TYPE = "core.GenericCompareCondition";
 
     public static final String INPUT_LEFT_OBJECT = "input";
     public static final String INPUT_LEFT_FIELD = "inputproperty";
