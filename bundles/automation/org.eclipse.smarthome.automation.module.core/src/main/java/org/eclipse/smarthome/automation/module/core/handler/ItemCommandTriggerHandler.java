@@ -71,7 +71,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
 
     @Override
     public EventFilter getEventFilter() {
-        return null;
+        return this;
     }
 
     @Override
