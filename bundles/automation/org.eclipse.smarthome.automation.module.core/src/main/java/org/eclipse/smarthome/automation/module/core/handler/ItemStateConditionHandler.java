@@ -99,12 +99,24 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
                     return !itemState.equals(compareState);
                 case "<":
                     if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) < 0 ? true : false;
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) < 0;
+                    }
+                    break;
+                case "<=":
+                case "=<":
+                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) <= 0;
                     }
                     break;
                 case ">":
                     if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) > 0 ? true : false;
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) > 0;
+                    }
+                    break;
+                case ">=":
+                case "=>":
+                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) >= 0;
                     }
                     break;
                 default:
