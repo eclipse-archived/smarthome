@@ -504,8 +504,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             String rUID = ruleEngine.getUniqueId();
             ruleWithUID = initRuleId(rUID, element);
         }
-        super.added(provider, ruleWithUID);
         postRuleAddedEvent(ruleWithUID);
+        super.added(provider, ruleWithUID);
         updateRuleByTemplate(provider, ruleWithUID);
     }
 
@@ -527,8 +527,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             ruleWithUID = initRuleId(rUID, element);
         }
         Rule resolvedRule = resolveRuleByTemplate(ruleWithUID);
-        super.updated(provider, oldElement, resolvedRule);
         postRuleUpdatedEvent(resolvedRule, oldElement);
+        super.updated(provider, oldElement, resolvedRule);
     }
 
     @Override

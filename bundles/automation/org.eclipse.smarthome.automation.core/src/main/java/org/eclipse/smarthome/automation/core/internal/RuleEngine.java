@@ -308,7 +308,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         synchronized (this) {
             rules.put(rUID, runtimeRule);
             if (isEnabled) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
                 setRule(runtimeRule);
             } else {
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
@@ -351,7 +350,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             unregister(oldRule);
             rules.put(rUID, runtimeRule);
             if (isEnabled) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
                 setRule(runtimeRule);
             } else {
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
@@ -704,7 +702,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
         if (isEnabled) {
             if (status == RuleStatus.DISABLED) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
                 setRule(runtimeRule);
             } else {
                 logger.debug("The rule rId = " + rUID + " is already enabled.");
