@@ -7,17 +7,13 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
-import java.io.IOException
-import java.lang.reflect.WeakCache.Value;
-
 import javax.servlet.ServletException
-import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio
-import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;;
 
 public class RadioServiceMock extends HttpServlet {
 
