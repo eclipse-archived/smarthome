@@ -24,18 +24,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an implementation of an ActionHandler. It posts command events on
- * items to change their state.
+ * This is an implementation of an ActionHandler. It sends commands for items.
  *
  * @author Benedikt Niehues - Initial contribution and API
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemPostCommandActionHandler extends BaseModuleHandler<Action>implements ActionHandler {
+public class ItemCommandActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ItemPostCommandActionHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ItemCommandActionHandler.class);
 
-    public static final String ITEM_POST_COMMAND_ACTION = "ItemPostCommandAction";
+    public static final String ITEM_COMMAND_ACTION = "core.ItemCommandAction";
     private static final String ITEM_NAME = "itemName";
     private static final String COMMAND = "command";
 
@@ -43,12 +42,12 @@ public class ItemPostCommandActionHandler extends BaseModuleHandler<Action>imple
     private EventPublisher eventPublisher;
 
     /**
-     * constructs a new ItemPostCommandActionHandler
+     * constructs a new ItemCommandActionHandler
      *
      * @param module
      * @param moduleTypes
      */
-    public ItemPostCommandActionHandler(Action module) {
+    public ItemCommandActionHandler(Action module) {
         super(module);
     }
 
@@ -103,15 +102,15 @@ public class ItemPostCommandActionHandler extends BaseModuleHandler<Action>imple
                 Item item = itemRegistry.getItem(itemName);
                 Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
                 ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
-                logger.debug("Executing ItemPostCommandAction on Item {} with Command {}",
-                        itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
+                logger.debug("Executing ItemCommandAction on Item {} with Command {}", itemCommandEvent.getItemName(),
+                        itemCommandEvent.getItemCommand());
                 eventPublisher.post(itemCommandEvent);
             } catch (ItemNotFoundException e) {
                 logger.error("Item with name {} not found in ItemRegistry.", itemName);
             }
         } else {
             logger.error(
-                    "Command was not posted because either the configuration was not correct or a Service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
+                    "Command was not posted because either the configuration was not correct or a service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
                     itemName, command, eventPublisher, itemRegistry);
         }
         return null;
