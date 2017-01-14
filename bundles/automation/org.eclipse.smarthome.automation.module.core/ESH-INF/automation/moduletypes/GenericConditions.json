@@ -64,7 +64,7 @@
         {
           "name":"operator",
           "type":"TEXT",
-          "description":"the compare operator, allowed are <, >, =, matches",
+          "description":"the compare operator, allowed are <,>,=,!=,>=,<= matches",
           "required":true,
           "defaultValue":"="
         }

@@ -94,6 +94,16 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                         } else {
                             return compare(toCompare, rightValue) > 0;
                         }
+                    case "gte":
+                    case "GTE":
+                    case ">=":
+                    case "=>":
+                        // Greater or equal
+                        if (toCompare == null || rightValue == null) {
+                            return false;
+                        } else {
+                            return compare(toCompare, rightValue) >= 0;
+                        }
                     case "lt":
                     case "LT":
                     case "<":
@@ -101,6 +111,15 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                             return false;
                         } else {
                             return compare(toCompare, rightValue) < 0;
+                        }
+                    case "lte":
+                    case "LTE":
+                    case "<=":
+                    case "=<":
+                        if (toCompare == null || rightValue == null) {
+                            return false;
+                        } else {
+                            return compare(toCompare, rightValue) <= 0;
                         }
                     case "matches":
                         // Matcher...
