@@ -127,12 +127,8 @@ class RuntimeRuleTest extends OSGiTest{
         //Creation of RULE
         def triggerConfig = new Configuration([eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
         def actionConfig = new Configuration([itemName:"myLampItem2", command:"ON"])
-        def triggers = [
-            new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig)
-        ]
-        def actions = [
-            new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
-        ]
+        def triggers = [new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig)]
+        def actions = [new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)]
 
         def rule = new Rule("myRule21"+new Random().nextInt())
         rule.triggers = triggers
@@ -226,6 +222,19 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat handler.isSatisfied([input:20.9d]), is(true)
         assertThat handler.isSatisfied([input:21.1d]), is(false)
 
+        condition.configuration=[right:"21", operator:"<="]
+        assertThat handler.isSatisfied([input:20]), is(true)
+        assertThat handler.isSatisfied([input:21]), is(true)
+        assertThat handler.isSatisfied([input:22]), is(false)
+
+        assertThat handler.isSatisfied([input:20l]), is(true)
+        assertThat handler.isSatisfied([input:21l]), is(true)
+        assertThat handler.isSatisfied([input:22l]), is(false)
+
+        assertThat handler.isSatisfied([input:20.9d]), is(true)
+        assertThat handler.isSatisfied([input:21.0d]), is(true)
+        assertThat handler.isSatisfied([input:21.1d]), is(false)
+
         condition.configuration=[right:"21", operator:">"]
         assertThat handler.isSatisfied([input:20]), is(false)
         assertThat handler.isSatisfied([input:22]), is(true)
@@ -236,6 +245,19 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat handler.isSatisfied([input:20.9d]), is(false)
         assertThat handler.isSatisfied([input:21.1d]), is(true)
 
+        condition.configuration=[right:"21", operator:">="]
+        assertThat handler.isSatisfied([input:20]), is(false)
+        assertThat handler.isSatisfied([input:21]), is(true)
+        assertThat handler.isSatisfied([input:22]), is(true)
+
+        assertThat handler.isSatisfied([input:20l]), is(false)
+        assertThat handler.isSatisfied([input:21l]), is(true)
+        assertThat handler.isSatisfied([input:22l]), is(true)
+
+        assertThat handler.isSatisfied([input:20.9d]), is(false)
+        assertThat handler.isSatisfied([input:21.0d]), is(true)
+        assertThat handler.isSatisfied([input:21.1d]), is(true)
+        
         condition.configuration=[right:".*anything.*", operator:"matches"]
         assertThat handler.isSatisfied([input:'something matches?']), is(false)
         assertThat handler.isSatisfied([input:'anything matches?']), is(true)
@@ -269,12 +291,8 @@ class RuntimeRuleTest extends OSGiTest{
         //Test the creation of a rule out of
         def triggerConfig = new Configuration([itemName:"myMotionItem3"])
         def actionConfig = new Configuration([itemName:"myLampItem3", command:"ON"])
-        def triggers = [
-            new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)
-        ]
-        def actions = [
-            new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null)
-        ]
+        def triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+        def actions = [new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null)]
 
         def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
         rule.triggers = triggers
@@ -347,10 +365,7 @@ class RuntimeRuleTest extends OSGiTest{
         def firstRuleUID = "FirstTestRule"
         def secondRuleUID = "SecondTestRule"
         def thirdRuleUID = "ThirdTestRule"
-        def firstConfig = [
-            "FirstTestRule",
-            "SecondTestRule"
-        ]
+        def firstConfig = ["FirstTestRule", "SecondTestRule"]
         def secondConfig = ["FirstTestRule"]
 
         def firstRuleAction = "firstRuleAction"
@@ -359,12 +374,8 @@ class RuntimeRuleTest extends OSGiTest{
         try {
             def triggerConfig = new Configuration([itemName:"myMotionItem3"])
             def actionConfig = new Configuration([enable:false, ruleUIDs:firstConfig])
-            def triggers = [
-                new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)
-            ]
-            def actions = [
-                new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)
-            ]
+            def triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+            def actions = [new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)]
             def rule = new Rule(firstRuleAction)
             rule.triggers = triggers
             rule.actions = actions
@@ -389,12 +400,8 @@ class RuntimeRuleTest extends OSGiTest{
 
             triggerConfig = new Configuration([itemName:"myMotionItem3"])
             actionConfig = new Configuration([enable:true, ruleUIDs:secondConfig])
-            triggers = [
-                new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)
-            ]
-            actions = [
-                new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)
-            ]
+            triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+            actions = [new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)]
             rule = new Rule(secondRuleAction)
             rule.triggers = triggers
             rule.actions = actions
