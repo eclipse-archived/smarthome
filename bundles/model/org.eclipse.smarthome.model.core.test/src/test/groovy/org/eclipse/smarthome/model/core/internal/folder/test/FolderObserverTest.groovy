@@ -108,7 +108,6 @@ class FolderObserverTest extends OSGiTest {
          */
         registerService(modelParserMock)
         modelRepo = new ModelRepoMock()
-        registerService(modelRepo)
         folderObserverService = getService(ManagedService, FolderObserver)
         assertThat("Folder Observer service cannot be found",folderObserverService, is(notNullValue()))
         /*
@@ -448,12 +447,52 @@ class FolderObserverTest extends OSGiTest {
         }
     }
 
+    @Test
+    void 'test that an exception does not kill the watcher'() {
+        def modelRepo = new ModelRepoMock() {
+                    @Override
+                    boolean addOrRefreshModel(String name, InputStream inputStream) {
+                        super.addOrRefreshModel(name, inputStream)
+                        throw new RuntimeException("intentional failure.")
+                    };
+                }
+        folderObserverService.setModelRepository(modelRepo)
+
+        String validExtension = "java"
+        Dictionary<String, String> configProps = new Hashtable<String, String>()
+        configProps.put(EXISTING_SUBDIR_NAME, "txt,jpg," + validExtension)
+
+        String mockFileWithValidExtName = "MockFileForModification" + "." + validExtension
+        String mockFileWithValidExtPath = EXISTING_SUBDIR_PATH + File.separatorChar + mockFileWithValidExtName
+        File mockFileWithValidExt = new File(mockFileWithValidExtPath)
+        mockFileWithValidExt.createNewFile()
+
+        config.update(configProps)
+        if(!SystemUtils.IS_OS_WINDOWS) {
+            mockFileWithValidExt << INITIAL_FILE_CONTENT
+        }
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+
+        waitForAssert {
+            assertThat modelRepo.isAddOrRefreshModelMethodCalled, is(true)
+        }
+
+        modelRepo.clean()
+
+        mockFileWithValidExt << "Additional content"
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+
+        waitForAssert {
+            assertThat modelRepo.isAddOrRefreshModelMethodCalled, is(true)
+        }
+    }
+
     private static class ModelRepoMock implements ModelRepository{
 
-        public static boolean isAddOrRefreshModelMethodCalled
-        public static boolean isRemoveModelMethodCalled
-        public static String calledFileName
-        public static String fileContent
+        public boolean isAddOrRefreshModelMethodCalled = false
+        public boolean isRemoveModelMethodCalled = false
+        public String calledFileName
+        public String fileContent
 
         @Override
         public boolean addOrRefreshModel(String name, InputStream inputStream) {
