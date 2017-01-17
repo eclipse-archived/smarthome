@@ -141,6 +141,9 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             setItemToFunction();
         }
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
+            if ($scope.item.category == "") {
+                $scope.item.category = null;
+            }
             itemService.create({
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
