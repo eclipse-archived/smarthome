@@ -204,12 +204,16 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.inputType = 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
+                    parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
+                    insertEmptyOption(parameter);
                     if (parameter.multiple) {
                         parameter.element = 'multiSelect';
-                        parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
-                    } else if (parameter.options && parameter.options.length > 0) {
-                        parameter.element = "select";
-                        parameter.options = parameter.options;
+                    } else if (parameter.options.length > 0) {
+                        if (!parameter.limitToOptions) {
+                            parameter.element = "multiSelect";
+                        } else {
+                            parameter.element = "select";
+                        }
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'text';
@@ -217,11 +221,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 } else if (parameter.type.toUpperCase() === 'BOOLEAN') {
                     parameter.element = 'switch';
                 } else if (parameter.type.toUpperCase() === 'INTEGER' || parameter.type.toUpperCase() === 'DECIMAL') {
+                    parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
                     if (parameter.multiple) {
                         parameter.element = 'multiSelect';
-                    } else if (parameter.options && parameter.options.length > 0) {
-                        parameter.element = "select";
-                        parameter.options = parameter.options;
+                    } else if (parameter.options.length > 0) {
+                        if (!parameter.limitToOptions) {
+                            parameter.element = "multiSelect";
+                        } else {
+                            parameter.element = "select";
+                        }
                     } else {
                         parameter.element = 'input';
                     }
@@ -314,7 +322,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     for (var g_i = 0; g_i < configParameters.length; g_i++) {
                         for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
                             if (configParameters[g_i].parameters[i].context && configParameters[g_i].parameters[i].context.toUpperCase() === "ITEM") {
-                                configParameters[g_i].parameters[i].options = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
+                                var filteredItems = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
+                                configParameters[g_i].parameters[i].options = $filter('orderBy')(filteredItems, "label");
                             }
                         }
                     }
@@ -788,3 +797,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         }
     }
 });
+function insertEmptyOption(parameter) {
+    if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
+        parameter.options.splice(0, 0, {
+            label : '',
+            value : null
+        })
+    }
+}

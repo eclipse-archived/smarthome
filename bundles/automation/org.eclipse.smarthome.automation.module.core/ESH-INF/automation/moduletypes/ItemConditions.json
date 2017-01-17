@@ -19,6 +19,7 @@
          "label":"Operator",
          "description":"the compare operator (one of =,<,>,!=,>=,<=)",
          "required":false,
+         "limitToOptions":true,
          "options":[
             {
             "label": "=",

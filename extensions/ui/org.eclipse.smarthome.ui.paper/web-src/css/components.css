@@ -1248,3 +1248,8 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+.multiSelect ul li {
+	outline: none;
+	cursor: pointer;
+}
