@@ -13,6 +13,12 @@
 
 <module name="Checker">
 
+  <!-- Rules for Code Formatting -->
+  <module name="FileTabCharacter">
+    <property name="severity" value="info" />
+    <property name="fileExtensions" value="java"/>
+  </module>
+  
   <!--See http://checkstyle.sourceforge.net/config_header.html#Header -->
   <module name="Header">
     <!--  This property represents the severity level of a check violation. The valid options are: 
