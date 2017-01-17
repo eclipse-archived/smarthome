@@ -205,6 +205,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     }
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
                     parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
+                    insertEmptyOption(parameter);
                     if (parameter.multiple) {
                         parameter.element = 'multiSelect';
                     } else if (parameter.options.length > 0) {
@@ -796,3 +797,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         }
     }
 });
+function insertEmptyOption(parameter) {
+    if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
+        parameter.options.splice(0, 0, {
+            label : '',
+            value : null
+        })
+    }
+}

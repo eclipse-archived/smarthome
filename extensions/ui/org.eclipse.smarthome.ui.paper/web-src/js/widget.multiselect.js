@@ -1,4 +1,4 @@
-angular.module('PaperUI').directive('multiSelect', function() {
+angular.module('PaperUI').directive('multiSelect', function($filter) {
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
@@ -183,6 +183,10 @@ angular.module('PaperUI').directive('multiSelect', function() {
                 }
                 return -1;
             }
+
+            scope.$on("ngRepeatFinished", function() {
+                scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
+            })
         }
     };
 }).directive('selectValidation', function() {
