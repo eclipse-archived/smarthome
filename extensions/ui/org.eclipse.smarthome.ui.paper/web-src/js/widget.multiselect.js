@@ -133,6 +133,14 @@ angular.module('PaperUI').directive('multiSelect', function() {
             scope.$watch('filterText', function() {
                 if (scope.parameter.optionList && scope.parameter.optionList.length > 0) {
                     originalList = originalList.length == 0 ? scope.parameter.optionList : originalList;
+                    for (var i = 0; i < scope.parameter.optionList.length; i++) {
+                        if (searchInOptionList(originalList, scope.parameter.optionList[i].value) == -1) {
+                            originalList.push({
+                                value : scope.parameter.optionList[i].value,
+                                label : scope.parameter.optionList[i].label
+                            });
+                        }
+                    }
                     var filteredOptions = $.grep(originalList, function(option) {
                         var optionValue = (option.label + "").toLowerCase();
                         return optionValue.indexOf(("" + scope.filterText).toLowerCase()) != -1;
@@ -155,7 +163,7 @@ angular.module('PaperUI').directive('multiSelect', function() {
             function addOptionToParam() {
                 for (var i = 0; i < scope.parameter.options.length; i++) {
                     var value = scope.parameter.context == 'item' ? scope.parameter.options[i].name : scope.parameter.context == 'thing' ? scope.parameter.options[i].UID : scope.parameter.options[i].value;
-                    var index = searchInOptionList(scope.parameter, value);
+                    var index = searchInOptionList(scope.parameter.optionList, value);
                     if (index == -1) {
                         index = scope.parameter.optionList.length;
                     }
@@ -166,10 +174,10 @@ angular.module('PaperUI').directive('multiSelect', function() {
                 }
             }
 
-            function searchInOptionList(parameter, searchItem) {
+            function searchInOptionList(optionList, searchItem) {
 
-                for (var i = 0; i < parameter.optionList.length; i++) {
-                    if (parameter.optionList[i].value == searchItem) {
+                for (var i = 0; i < optionList.length; i++) {
+                    if (optionList[i].value == searchItem) {
                         return i;
                     }
                 }
