@@ -47,7 +47,7 @@
 								<div ng-switch-when="select" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
 
-									<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'|| parameter.context=='rule'">
+									<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options" ng-finish-render> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'|| parameter.context=='rule'">
 										{{ option.label?option.label:option.name }}
 										<span class="md-caption" style="color: grey;">({{ option.name?option.name: parameter.context=='thing'?option.UID:parameter.context=='channel'?option.id:'' }}) </span>
 									</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
@@ -71,10 +71,10 @@
 											</a>
 										</dt>
 										<dd>
-											<div class="mutliSelect col-xs-12">
+											<div class="multiSelect col-xs-12">
 												<ul class="col-xs-12">
-													<li ng-repeat="option in parameter.optionList track by $index" on-finish-render>
-														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" ng-click="updateInConfig(option.value,$index)" />
+													<li ng-repeat="option in parameter.optionList track by $index" ng-click="updateInConfig(option.value,option.label)"  on-finish-render>
+														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)"/>
 														{{option.label}}
 														<span class="md-caption" style="color: grey;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'">({{ option.value }}) </span>
 													</li>
