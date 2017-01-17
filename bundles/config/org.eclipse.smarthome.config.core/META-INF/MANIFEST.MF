@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
+ com.google.gson.annotations,
  org.apache.commons.lang.reflect,
  org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.osgi,

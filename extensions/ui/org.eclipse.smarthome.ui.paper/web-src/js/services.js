@@ -130,6 +130,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 }
                 parameter.locale = window.localStorage.getItem('paperui.language');
                 parameter.filterText = "";
+                if (parameter['default']) {
+                    parameter.defaultValue = parameter['default'];
+                }
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         if (parameter.multiple) {
@@ -239,9 +242,6 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         for (var k = 0; k < parameter.options.length; k++) {
                             parameter.options[k].value = parseInt(parameter.options[k].value);
                         }
-                    }
-                    if (parameter.defaultValue) {
-                        parameter.defaultValue = parseInt(parameter.defaultValue);
                     }
                 } else {
                     parameter.element = 'input';

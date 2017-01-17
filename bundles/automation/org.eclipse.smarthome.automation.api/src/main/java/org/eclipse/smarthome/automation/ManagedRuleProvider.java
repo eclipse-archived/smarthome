@@ -7,9 +7,9 @@
  */
 package org.eclipse.smarthome.automation;
 
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleProvider;
-import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
+import org.eclipse.smarthome.core.common.registry.AbstractManagedProvider;
 
 /**
  * Implementation of a rule provider that uses the storage service for persistence
@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, String> implements RuleProvider {
+public class ManagedRuleProvider extends AbstractManagedProvider<Rule, String, RuleDTO> implements RuleProvider {
 
     @Override
     protected String getKey(Rule element) {
@@ -33,6 +33,16 @@ public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, St
     @Override
     protected String keyToString(String key) {
         return key;
+    }
+
+    @Override
+    protected Rule toElement(String key, RuleDTO persistableElement) {
+        return RuleDTOMapper.map(persistableElement);
+    }
+
+    @Override
+    protected RuleDTO toPersistableElement(Rule element) {
+        return RuleDTOMapper.map(element);
     }
 
 }

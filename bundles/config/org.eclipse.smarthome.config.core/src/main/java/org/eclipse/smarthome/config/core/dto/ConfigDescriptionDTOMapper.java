@@ -8,14 +8,12 @@
 package org.eclipse.smarthome.config.core.dto;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
-import org.eclipse.smarthome.config.core.FilterCriteria;
-import org.eclipse.smarthome.config.core.ParameterOption;
 
 /**
  * {@link ConfigDescriptionDTOMapper} maps {@link ConfigDescription}s to the data transfer object
@@ -47,26 +45,7 @@ public class ConfigDescriptionDTOMapper {
      * @return the parameter DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterDTO> mapParameters(List<ConfigDescriptionParameter> parameters) {
-
-        List<ConfigDescriptionParameterDTO> configDescriptionParameterBeans = new ArrayList<>(parameters.size());
-        for (ConfigDescriptionParameter configDescriptionParameter : parameters) {
-            ConfigDescriptionParameterDTO configDescriptionParameterBean = new ConfigDescriptionParameterDTO(
-                    configDescriptionParameter.getName(), configDescriptionParameter.getType(),
-                    configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
-                    configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
-                    configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
-                    configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
-                    configDescriptionParameter.getDefault(), configDescriptionParameter.getLabel(),
-                    configDescriptionParameter.getDescription(), mapOptions(configDescriptionParameter.getOptions()),
-                    mapFilterCriteria(configDescriptionParameter.getFilterCriteria()),
-                    configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
-                    configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit(),
-                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel(),
-                    configDescriptionParameter.isVerifyable());
-            configDescriptionParameterBeans.add(configDescriptionParameterBean);
-        }
-        return configDescriptionParameterBeans;
-
+        return parameters.stream().map(ConfigDescriptionParameterDTOMapper::map).collect(Collectors.toList());
     }
 
     /**
@@ -88,28 +67,6 @@ public class ConfigDescriptionDTOMapper {
         }
 
         return parameterGroupBeans;
-    }
-
-    private static List<FilterCriteriaDTO> mapFilterCriteria(List<FilterCriteria> filterCriteria) {
-        if (filterCriteria == null) {
-            return null;
-        }
-        List<FilterCriteriaDTO> result = new LinkedList<FilterCriteriaDTO>();
-        for (FilterCriteria criteria : filterCriteria) {
-            result.add(new FilterCriteriaDTO(criteria.getName(), criteria.getValue()));
-        }
-        return result;
-    }
-
-    private static List<ParameterOptionDTO> mapOptions(List<ParameterOption> options) {
-        if (options == null) {
-            return null;
-        }
-        List<ParameterOptionDTO> result = new LinkedList<ParameterOptionDTO>();
-        for (ParameterOption option : options) {
-            result.add(new ParameterOptionDTO(option.getValue(), option.getLabel()));
-        }
-        return result;
     }
 
 }
