@@ -71,10 +71,10 @@
 											</a>
 										</dt>
 										<dd>
-											<div class="mutliSelect col-xs-12">
+											<div class="multiSelect col-xs-12">
 												<ul class="col-xs-12">
-													<li ng-repeat="option in parameter.optionList track by $index" on-finish-render>
-														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" ng-click="updateInConfig(option.value,$index)" />
+													<li ng-repeat="option in parameter.optionList track by $index" ng-click="updateInConfig(option.value,option.label)"  on-finish-render>
+														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)"/>
 														{{option.label}}
 														<span class="md-caption" style="color: grey;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'">({{ option.value }}) </span>
 													</li>

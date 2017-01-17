@@ -5,18 +5,36 @@ angular.module('PaperUI').directive('multiSelect', function() {
             scope.filterText = "";
             scope.parameter.optionList = [];
             var originalList = [];
+            var placeholder = [];
             if (scope.configuration[scope.parameter.name]) {
-                for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
-                    var inParam = $.grep(scope.parameter.options, function(option) {
-                        return option.value == scope.configuration[scope.parameter.name][i];
-                    }).length > 0;
-                    if (!inParam) {
-                        scope.parameter.optionList.push({
-                            value : scope.configuration[scope.parameter.name][i],
-                            label : scope.configuration[scope.parameter.name][i]
-                        });
+                if (Array.isArray(scope.configuration[scope.parameter.name])) {
+                    for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
+                        var label = searchOptionAndGetLabel(scope.configuration[scope.parameter.name][i]);
+                        if (label) {
+                            placeholder.push(label);
+                        }
+                    }
+                } else {
+                    var label = searchOptionAndGetLabel(scope.configuration[scope.parameter.name]);
+                    if (label) {
+                        placeholder.push(label);
                     }
                 }
+            }
+            function searchOptionAndGetLabel(value) {
+                var inParam = $.grep(scope.parameter.options, function(option) {
+                    return option.value == value;
+                });
+                if (inParam.length == 0) {
+                    scope.parameter.optionList.push({
+                        value : value,
+                        label : value
+                    });
+                    return value;
+                } else if (inParam.length > 0) {
+                    return inParam[0].label;
+                }
+                return "";
             }
             $(document).bind('click', function(e) {
                 var $clicked = $(e.target);
@@ -64,23 +82,40 @@ angular.module('PaperUI').directive('multiSelect', function() {
 
             scope.searchInConfig = function(optionValue) {
                 if (scope.configuration && scope.configuration[scope.parameter.name]) {
-                    if (scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
+                    if (Array.isArray(scope.configuration[scope.parameter.name]) && scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
+                        return true;
+                    } else if (scope.configuration[scope.parameter.name] === optionValue) {
                         return true;
                     }
                 }
                 return false;
             }
 
-            scope.updateInConfig = function(optionValue) {
-                if (scope.configuration && !scope.configuration[scope.parameter.name]) {
+            scope.updateInConfig = function(optionValue, optionLabel) {
+                optionLabel = optionLabel ? optionLabel : optionValue;
+                if (scope.parameter.multiple && scope.configuration && !scope.configuration[scope.parameter.name]) {
                     scope.configuration[scope.parameter.name] = [];
                 }
                 if (optionValue && !this.searchInConfig(optionValue)) {
-                    scope.configuration[scope.parameter.name].push(optionValue);
+                    if (Array.isArray(scope.configuration[scope.parameter.name])) {
+                        scope.configuration[scope.parameter.name].push(optionValue);
+                    } else {
+                        scope.configuration[scope.parameter.name] = optionValue;
+                        placeholder = [];
+                    }
+                    placeholder.push(optionLabel);
                 } else {
                     var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
                     if (index != -1) {
-                        scope.configuration[scope.parameter.name].splice(index, 1);
+                        if (Array.isArray(scope.configuration[scope.parameter.name])) {
+                            scope.configuration[scope.parameter.name].splice(index, 1);
+                        } else {
+                            scope.configuration[scope.parameter.name] = "";
+                        }
+                        var p_index = placeholder.indexOf(optionLabel);
+                        if (p_index != -1) {
+                            placeholder.splice(p_index, 1);
+                        }
                     }
                 }
             }
@@ -111,7 +146,7 @@ angular.module('PaperUI').directive('multiSelect', function() {
                     if (parameter.context == "thing" || parameter.context == "item") {
                         return configuration[parameter.name].length == 1 ? '1 option selected' : configuration[parameter.name].length + ' options selected';
                     } else {
-                        return configuration[parameter.name].toString();
+                        return placeholder.toString();
                     }
                 }
                 return parameter.options.length == 0 || (parameter.options.length > 0 && !parameter.limitToOptions) ? 'Add or search' : 'Search';

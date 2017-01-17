@@ -204,12 +204,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.inputType = 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
+                    parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
                     if (parameter.multiple) {
                         parameter.element = 'multiSelect';
-                        parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
-                    } else if (parameter.options && parameter.options.length > 0) {
-                        parameter.element = "select";
-                        parameter.options = parameter.options;
+                    } else if (parameter.options.length > 0) {
+                        if (!parameter.limitToOptions) {
+                            parameter.element = "multiSelect";
+                        } else {
+                            parameter.element = "select";
+                        }
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'text';
@@ -217,11 +220,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 } else if (parameter.type.toUpperCase() === 'BOOLEAN') {
                     parameter.element = 'switch';
                 } else if (parameter.type.toUpperCase() === 'INTEGER' || parameter.type.toUpperCase() === 'DECIMAL') {
+                    parameter.options = parameter.options && parameter.options.length > 0 ? parameter.options : [];
                     if (parameter.multiple) {
                         parameter.element = 'multiSelect';
-                    } else if (parameter.options && parameter.options.length > 0) {
-                        parameter.element = "select";
-                        parameter.options = parameter.options;
+                    } else if (parameter.options.length > 0) {
+                        if (!parameter.limitToOptions) {
+                            parameter.element = "multiSelect";
+                        } else {
+                            parameter.element = "select";
+                        }
                     } else {
                         parameter.element = 'input';
                     }
