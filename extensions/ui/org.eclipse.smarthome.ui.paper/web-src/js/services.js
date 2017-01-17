@@ -321,7 +321,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     for (var g_i = 0; g_i < configParameters.length; g_i++) {
                         for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
                             if (configParameters[g_i].parameters[i].context && configParameters[g_i].parameters[i].context.toUpperCase() === "ITEM") {
-                                configParameters[g_i].parameters[i].options = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
+                                var filteredItems = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
+                                configParameters[g_i].parameters[i].options = $filter('orderBy')(filteredItems, "label");
                             }
                         }
                     }
