@@ -50,6 +50,8 @@ The devices support the following channels:
 | control | Player       | This channel supports controlling the zoneplayer, e.g. start/stop/next/previous | all |
 | coordinator | String | UDN of the coordinator for the current group | all |
 | currentalbum | String | Name of the album currently playing | all |
+| currentalbumart | Image | Cover art of the album currently playing | all |
+| currentalbumarturl | String | Cover art URL of the album currently playing | all |
 | currentartist | String | Name of the artist currently playing | all |
 | currenttitle | String | Title of the song currently playing | all |
 | currenttrack | String       | This channel indicates the name of the track or radio station currently playing | all |

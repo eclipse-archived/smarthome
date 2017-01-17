@@ -10,7 +10,9 @@ package org.eclipse.smarthome.binding.sonos.handler;
 import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +29,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
@@ -44,6 +47,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
@@ -471,6 +475,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "CurrentTrackURI":
                     updateChannel(CURRENTTRACKURI);
                     break;
+                case "CurrentAlbumArtURI":
+                    updateChannel(CURRENTALBUMART);
+                    updateChannel(CURRENTALBUMARTURL);
+                    break;
 
                 case "CurrentSleepTimerGeneration":
                     if (value.equals("0")) {
@@ -515,7 +523,35 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
+    private URL getAlbumArtUrl() {
+        URL url = null;
+        String albumArtURI = stateMap.get("CurrentAlbumArtURI");
+        if (albumArtURI != null) {
+            try {
+                if (albumArtURI.startsWith("http")) {
+                    url = new URL(albumArtURI);
+                } else if (albumArtURI.startsWith("/")) {
+                    URL serviceDescrUrl = service.getDescriptorURL(this);
+                    if (serviceDescrUrl != null) {
+                        url = new URL(serviceDescrUrl.getProtocol(), serviceDescrUrl.getHost(),
+                                serviceDescrUrl.getPort(), albumArtURI);
+                    }
+                }
+            } catch (MalformedURLException e) {
+                logger.debug("Failed to build a valid album art URL from {}: {}", albumArtURI, e.getMessage());
+                url = null;
+            }
+        }
+        return url;
+    }
+
     protected void updateChannel(String channeldD) {
+        if (!isLinked(channeldD)) {
+            return;
+        }
+
+        URL url;
+
         State newState = UnDefType.UNDEF;
         switch (channeldD) {
             case STATE:
@@ -617,6 +653,25 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CURRENTALBUM:
                 if (stateMap.get("CurrentAlbum") != null) {
                     newState = new StringType(stateMap.get("CurrentAlbum"));
+                }
+                break;
+            case CURRENTALBUMART:
+                url = getAlbumArtUrl();
+                if (url != null) {
+                    try {
+                        InputStream input = url.openStream();
+                        newState = new RawType(IOUtils.toByteArray(input));
+                        IOUtils.closeQuietly(input);
+                    } catch (IOException e) {
+                        logger.debug("Failed to download the album cover art: {}", e.getMessage());
+                        newState = UnDefType.UNDEF;
+                    }
+                }
+                break;
+            case CURRENTALBUMARTURL:
+                url = getAlbumArtUrl();
+                if (url != null) {
+                    newState = new StringType(url.toExternalForm());
                 }
                 break;
             case CURRENTTRANSPORTURI:
@@ -934,6 +989,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         if (needsUpdating) {
+            String albumArtURI = (currentTrack != null && currentTrack.getAlbumArtUri() != null
+                    && !currentTrack.getAlbumArtUri().isEmpty()) ? currentTrack.getAlbumArtUri() : "";
             for (String member : getZoneGroupMembers()) {
                 try {
                     ZonePlayerHandler memberHandler = getHandlerByName(member);
@@ -944,6 +1001,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                         memberHandler.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
                         memberHandler.onValueReceived("CurrentURIFormatted", (resultString != null) ? resultString : "",
                                 "AVTransport");
+                        memberHandler.onValueReceived("CurrentAlbumArtURI", albumArtURI, "AVTransport");
                     }
                 } catch (IllegalStateException e) {
                     logger.warn("Cannot update media data for group member ({})", e.getMessage());

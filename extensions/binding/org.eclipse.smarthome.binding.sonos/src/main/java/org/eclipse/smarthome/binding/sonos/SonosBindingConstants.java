@@ -54,6 +54,8 @@ public class SonosBindingConstants {
     public final static String ALARMRUNNING = "alarmrunning";
     public final static String CONTROL = "control";
     public final static String CURRENTALBUM = "currentalbum";
+    public final static String CURRENTALBUMART = "currentalbumart";
+    public final static String CURRENTALBUMARTURL = "currentalbumarturl";
     public final static String CURRENTARTIST = "currentartist";
     public final static String CURRENTTITLE = "currenttitle";
     public final static String CURRENTTRACK = "currenttrack";
