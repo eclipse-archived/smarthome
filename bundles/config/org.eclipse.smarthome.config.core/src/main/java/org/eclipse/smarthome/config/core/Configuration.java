@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Configuration {
 
-    final private Map<String, Object> properties;
+    private final Map<String, Object> properties;
 
     private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
@@ -207,6 +207,24 @@ public class Configuration {
             return false;
         }
         return this.hashCode() == obj.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Configuration[");
+        boolean first = true;
+        for (final Map.Entry<String, Object> prop : properties.entrySet()) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(String.format("{key=%s; type=%s; value=%s}", prop.getKey(),
+                    prop.getValue().getClass().getSimpleName(), prop.getValue()));
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
 }
