@@ -7,36 +7,39 @@
  */
 package org.eclipse.smarthome.automation.module.timer.handler;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This is an ModuleHandler implementation for Triggers which trigger the rule
- * based on a cron expression. The cron expression can be set with the
- * configuration.
+ * This is a ConditionHandler implementation, which checks the current day of the week against a specified list.
  *
  * @author Kai Kreuzer - Initial Contribution
  *
  */
 public class DayOfWeekConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(DayOfWeekConditionHandler.class);
+
     public static final String MODULE_TYPE_ID = "timer.DayOfWeekCondition";
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
     private static final String CFG_DAYS = "days";
 
-    private final ArrayList<Integer> days;
+    private final Set<Integer> days;
 
     @SuppressWarnings("unchecked")
     public DayOfWeekConditionHandler(Condition module) {
         super(module);
         try {
-            days = new ArrayList<>();
+            days = new HashSet<>();
             for (String day : (Iterable<String>) module.getConfiguration().get(CFG_DAYS)) {
                 switch (day) {
                     case "SUN":
@@ -60,9 +63,10 @@ public class DayOfWeekConditionHandler extends BaseModuleHandler<Condition> impl
                     case "SAT":
                         days.add(7);
                         break;
+                    default:
+                        logger.warn("Ignoring illegal weekday '{}'", day);
                 }
             }
-            days.toArray(new Integer[days.size()]);
         } catch (Exception e) {
             throw new IllegalArgumentException("'days' parameter must be an array of strings.");
         }

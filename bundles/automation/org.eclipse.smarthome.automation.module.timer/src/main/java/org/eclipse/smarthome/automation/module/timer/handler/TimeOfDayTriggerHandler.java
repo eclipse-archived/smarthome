@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.automation.module.timer.handler;
 
+import java.text.ParseException;
+
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
@@ -20,8 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This is an ModuleHandler implementation for Triggers which trigger the rule
- * based on a cron expression. The cron expression can be set with the
- * configuration.
+ * at a specific time (format 'hh:mm').
  *
  * @author Kai Kreuzer - Initial Contribution
  *
@@ -40,13 +41,13 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
 
     public TimeOfDayTriggerHandler(Trigger module) {
         super(module);
-        String time = (String) module.getConfiguration().get(CFG_TIME);
+        String time = module.getConfiguration().get(CFG_TIME).toString();
         try {
             String[] parts = time.split(":");
 
             expression = new RecurrenceExpression("FREQ=DAILY;BYHOUR=" + parts[0] + ";BYMINUTE=" + parts[1]);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("'time' parameter is not in valid format ' hh:mm'.", e);
+        } catch (ArrayIndexOutOfBoundsException | ParseException e) {
+            throw new IllegalArgumentException("'time' parameter is not in valid format 'hh:mm'.", e);
         }
         scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool(TimerModuleHandlerFactory.THREADPOOLNAME);
     }
