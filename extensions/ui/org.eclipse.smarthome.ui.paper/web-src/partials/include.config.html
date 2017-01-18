@@ -73,8 +73,8 @@
 										<dd>
 											<div class="multiSelect col-xs-12">
 												<ul class="col-xs-12">
-													<li ng-repeat="option in parameter.optionList track by $index" ng-click="updateInConfig(option.value,option.label)"  on-finish-render>
-														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)"/>
+													<li ng-repeat="option in parameter.optionList track by $index" ng-click="updateInConfig(option.value,option.label)" on-finish-render>
+														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" />
 														{{option.label}}
 														<span class="md-caption" style="color: grey;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'">({{ option.value }}) </span>
 													</li>
@@ -146,7 +146,7 @@
 								</span>
 							</div>
 							<div class="parameter col-sm-6 col-xs-12 dayParameter" ng-switch-when="dayofweek" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
-								<label class="config-textInput">Day of week</label>
+								<label class="config-textInput">{{parameter.label?parameter.label:'Day of week'}}</label>
 								<input ng-required="parameter.required" type="hidden" ng-model="configuration[parameter.name]" />
 								<div day-of-week multi="{{parameter.multiple}}" ng-required="{{parameter.required}}" ng-model="configuration[parameter.name]" class="dayOfWeek col-xs-12 configContainer">
 									<button value="MON" class="md-button dow-button">M</button>
