@@ -99,13 +99,6 @@ abstract public class GenericItem implements ActiveItem {
         }
     }
 
-    public void initialize() {
-    }
-
-    public void dispose() {
-        this.eventPublisher = null;
-    }
-
     /**
      * {@inheritDoc}
      */
