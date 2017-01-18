@@ -210,6 +210,9 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                     element[0].children[nodeIndex].addEventListener('click', function(event) {
                         $(element[0]).removeClass('border-invalid');
                         if (attrs.multi == "true") {
+                            if (!scope.configuration[scope.parameter.name]) {
+                                scope.configuration[scope.parameter.name] = [];
+                            }
                             var index = scope.configuration[scope.parameter.name].indexOf(event.target.value)
                             if (index == -1) {
                                 scope.configuration[scope.parameter.name].push(event.target.value);
@@ -217,8 +220,11 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                             } else {
                                 scope.configuration[scope.parameter.name].splice(index, 1);
                                 $(event.target).removeClass('dow-selected');
-                                if (attrs.ngRequired && scope.configuration[scope.parameter.name].length == 0) {
-                                    $(element[0]).addClass('border-invalid');
+                                if (scope.configuration[scope.parameter.name].length == 0) {
+                                    scope.configuration[scope.parameter.name] = null;
+                                    if (attrs.required) {
+                                        $(element[0]).addClass('border-invalid');
+                                    }
                                 }
                             }
                         } else {
@@ -229,9 +235,9 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                                 scope.configuration[scope.parameter.name] = event.target.value;
                                 $(event.target).addClass('dow-selected');
                             } else {
-                                scope.configuration[scope.parameter.name] = "";
+                                scope.configuration[scope.parameter.name] = null;
                                 $(event.target).removeClass('dow-selected');
-                                if (attrs.ngRequired == "true") {
+                                if (attrs.required) {
                                     $(element[0]).addClass('border-invalid');
                                 }
                             }
