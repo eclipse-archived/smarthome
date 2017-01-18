@@ -254,12 +254,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private void initializeItem(Item item) throws IllegalArgumentException {
         ItemUtil.assertValidItemName(item.getName());
 
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.setEventPublisher(eventPublisher);
-            genericItem.setStateDescriptionProviders(stateDescriptionProviders);
-            genericItem.initialize();
-        }
+        injectServices(item);
 
         if (item instanceof GroupItem) {
             // fill group with its members
@@ -268,6 +263,22 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
         // add the item to all relevant groups
         addToGroupItems(item, item.getGroupNames());
+    }
+
+    private void injectServices(Item item) {
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.setEventPublisher(eventPublisher);
+            genericItem.setStateDescriptionProviders(stateDescriptionProviders);
+        }
+    }
+
+    private void clearServices(Item item) {
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.setEventPublisher(null);
+            genericItem.setStateDescriptionProviders(null);
+        }
     }
 
     private void addMembersToGroupItem(GroupItem groupItem) {
@@ -298,11 +309,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     protected void onRemoveElement(Item element) {
+        clearServices(element);
         removeFromGroupItems(element, element.getGroupNames());
     }
 
     @Override
     protected void onUpdateElement(Item oldItem, Item item) {
+        clearServices(oldItem);
+        injectServices(item);
         removeFromGroupItems(oldItem, oldItem.getGroupNames());
         addToGroupItems(item, item.getGroupNames());
         if (item instanceof GroupItem) {
