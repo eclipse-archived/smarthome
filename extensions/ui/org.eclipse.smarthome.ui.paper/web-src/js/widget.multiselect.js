@@ -69,15 +69,18 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                     }
                     scope.updateInConfig(scope.filterText);
                     scope.filterText = "";
-                    element.find("dd ul").slideDown('fast');
+                    setTimeout(function() {
+                        element.find("dd ul").slideDown('fast');
+                    });
                 }
-                $event.stopImmediatePropagation();
+                $event.preventDefault();
             }
 
             scope.onEnterPress = function($event) {
                 if (((scope.parameter.options.length == 0) || (scope.parameter.options.length > 0 && !scope.parameter.limitToOptions)) && $event.keyCode == 13) {
                     scope.addItemToList($event);
                 }
+                $event.stopImmediatePropagation();
             }
 
             scope.searchInConfig = function(optionValue) {
@@ -146,11 +149,12 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                         return optionValue.indexOf(("" + scope.filterText).toLowerCase()) != -1;
                     });
                     scope.parameter.optionList = filteredOptions && filteredOptions.length > 0 ? filteredOptions : originalList;
+                    scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
                 }
             });
 
             scope.getPlaceHolderText = function(configuration, parameter) {
-                if (configuration[parameter.name] && configuration[parameter.name].length > 0) {
+                if (configuration[parameter.name] && ("" + configuration[parameter.name]).length > 0) {
                     if (parameter.context == "thing" || parameter.context == "item") {
                         return configuration[parameter.name].length == 1 ? '1 option selected' : configuration[parameter.name].length + ' options selected';
                     } else {

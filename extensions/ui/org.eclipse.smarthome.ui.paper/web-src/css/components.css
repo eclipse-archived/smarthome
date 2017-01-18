@@ -1152,6 +1152,22 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	text-overflow: ellipsis;
 }
 
+.multiSel::-webkit-input-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel::-moz-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel:-ms-input-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel:-moz-placeholder { 
+	color: rgba(0,0,0,0.72);
+}
+
 .dropdown dt i.enableColor {
 	color: #4CAF50;
 }
