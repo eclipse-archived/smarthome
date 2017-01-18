@@ -102,7 +102,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
         if ((thing instanceof Bridge) && !(thingHandler instanceof BridgeHandler)) {
             throw new IllegalStateException(
-                    "Created handler of bridge ' " + thing.getUID() + "' must implement the BridgeHandler interface.");
+                    "Created handler of bridge '" + thing.getUID() + "' must implement the BridgeHandler interface.");
         }
         setHandlerContext(thingHandler);
         registerConfigStatusProvider(thing, thingHandler);
