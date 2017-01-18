@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.module.script.internal.handler;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -51,21 +50,19 @@ abstract public class AbstractScriptModuleHandler<T extends Module> extends Base
         if (executionContext == null) {
             executionContext = engine.getContext();
         }
-        // add the rule context to the script engine (only for this execution)
-        for (Entry<String, ?> entry : context.entrySet()) {
 
-            final HashMap<String, Object> jsonObj = new HashMap<String, Object>();
+        // make the whole context available as "context"
+        executionContext.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
+
+        // add the single context entries without their prefix to the scope
+        for (Entry<String, ?> entry : context.entrySet()) {
             Object value = entry.getValue();
             String key = entry.getKey();
             int dotIndex = key.indexOf('.');
             if (dotIndex != -1) {
-                String jsonKey = key.substring(dotIndex + 1);
-                key = key.substring(0, dotIndex);
-                jsonObj.put(jsonKey, value);
-                executionContext.setAttribute(key, jsonObj, ScriptContext.ENGINE_SCOPE);
-            } else {
-                executionContext.setAttribute(key, value, ScriptContext.ENGINE_SCOPE);
+                key = key.substring(dotIndex + 1);
             }
+            executionContext.setAttribute(key, value, ScriptContext.ENGINE_SCOPE);
         }
         return executionContext;
     }
