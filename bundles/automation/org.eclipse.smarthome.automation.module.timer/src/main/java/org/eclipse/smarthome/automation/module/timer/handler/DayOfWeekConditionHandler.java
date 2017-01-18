@@ -65,9 +65,10 @@ public class DayOfWeekConditionHandler extends BaseModuleHandler<Condition> impl
                         break;
                     default:
                         logger.warn("Ignoring illegal weekday '{}'", day);
+                        break;
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException("'days' parameter must be an array of strings.");
         }
     }
