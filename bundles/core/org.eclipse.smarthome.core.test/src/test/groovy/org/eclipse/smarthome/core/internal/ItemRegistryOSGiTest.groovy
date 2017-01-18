@@ -179,24 +179,24 @@ class ItemRegistryOSGiTest extends OSGiTest {
     @Test
     void 'assert getItemsByTag can filter by class and tag'() {
 
-      assertThat itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG).size(), is(0)
+        assertThat itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG).size(), is(0)
 
-      registerService itemProvider
+        registerService itemProvider
 
-      def items = itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG)
-      assertThat items.size(), is(2)
-      assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
-      assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))
+        def items = itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG)
+        assertThat items.size(), is(2)
+        assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
+        assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))
     }
 
     @Test
     void 'assert getItemsByTag can filter by class and tag with GenericItem'() {
 
-      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(0)
+        assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(0)
 
-      registerService itemProvider
+        registerService itemProvider
 
-      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3)
+        assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3)
     }
 
     @Test
@@ -353,6 +353,31 @@ class ItemRegistryOSGiTest extends OSGiTest {
         itemsChangeListener.removed(itemProvider, newItem)
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent, is(instanceOf(ItemRemovedEvent))
+    }
+
+    @Test
+    void 'assert that a changed item still has an event publisher'() {
+        registerService itemProvider
+
+        // add new item
+        def item = new SwitchItem("SomeSwitch")
+        assertThat item.eventPublisher, is(nullValue())
+        itemsChangeListener.added(itemProvider, item)
+        assertThat item.eventPublisher, is(notNullValue())
+
+        // update item
+        def oldItem = item;
+        def newItem = new SwitchItem("SomeSwitch")
+        assertThat oldItem.eventPublisher, is(notNullValue())
+        assertThat newItem.eventPublisher, is(nullValue())
+        itemsChangeListener.updated(itemProvider, oldItem, newItem)
+        assertThat oldItem.eventPublisher, is(nullValue())
+        assertThat newItem.eventPublisher, is(notNullValue())
+
+        // remove item
+        assertThat newItem.eventPublisher, is(notNullValue())
+        itemsChangeListener.removed(itemProvider, newItem)
+        assertThat newItem.eventPublisher, is(nullValue())
     }
 
 }
