@@ -135,7 +135,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             File[] files = file.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    importResources(f);
+                    if (!file.getName().startsWith(".")) {
+                        importResources(f);
+                    }
                 }
             } else {
                 try {
