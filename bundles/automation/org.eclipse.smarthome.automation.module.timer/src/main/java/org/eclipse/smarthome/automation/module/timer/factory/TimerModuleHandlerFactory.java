@@ -52,33 +52,13 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
     @Override
     protected ModuleHandler internalCreate(Module module, String ruleUID) {
         logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
-        ModuleHandler handler = handlers.get(ruleUID + module.getId());
         String moduleTypeUID = module.getTypeUID();
-
         if (GenericCronTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            GenericCronTriggerHandler timerTriggerHandler = handler != null
-                    && handler instanceof GenericCronTriggerHandler ? (GenericCronTriggerHandler) handler : null;
-            if (timerTriggerHandler == null) {
-                timerTriggerHandler = new GenericCronTriggerHandler((Trigger) module);
-                handlers.put(ruleUID + module.getId(), timerTriggerHandler);
-            }
-            return timerTriggerHandler;
+            return new GenericCronTriggerHandler((Trigger) module);
         } else if (TimeOfDayTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            TimeOfDayTriggerHandler timeTriggerHandler = handler != null && handler instanceof TimeOfDayTriggerHandler
-                    ? (TimeOfDayTriggerHandler) handler : null;
-            if (timeTriggerHandler == null) {
-                timeTriggerHandler = new TimeOfDayTriggerHandler((Trigger) module);
-                handlers.put(ruleUID + module.getId(), timeTriggerHandler);
-            }
-            return timeTriggerHandler;
+            return new TimeOfDayTriggerHandler((Trigger) module);
         } else if (DayOfWeekConditionHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
-            DayOfWeekConditionHandler dowConditionHandler = handler != null
-                    && handler instanceof DayOfWeekConditionHandler ? (DayOfWeekConditionHandler) handler : null;
-            if (dowConditionHandler == null) {
-                dowConditionHandler = new DayOfWeekConditionHandler((Condition) module);
-                handlers.put(ruleUID + module.getId(), dowConditionHandler);
-            }
-            return dowConditionHandler;
+            return new DayOfWeekConditionHandler((Condition) module);
         } else {
             logger.error("The module handler type '{}' is not supported.", moduleTypeUID);
         }
