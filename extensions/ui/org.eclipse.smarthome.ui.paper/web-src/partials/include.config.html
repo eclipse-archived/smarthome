@@ -67,7 +67,7 @@
 											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" select-validation="{{parameter.required}}">
 												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{getPlaceHolderText(configuration,parameter)}}" value="" ng-model="parameter.filterText" ng-keypress="onEnterPress($event)" />
 
-												<i ng-if="parameter.options.length==0 || (parameter.options.length>0 && !parameter.limitToOptions)" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
+												<i ng-if="parameter.multiple && !parameter.limitToOptions" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
 											</a>
 										</dt>
 										<dd>

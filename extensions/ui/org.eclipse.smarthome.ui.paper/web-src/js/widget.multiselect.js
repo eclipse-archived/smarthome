@@ -98,27 +98,31 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 if (scope.parameter.multiple && scope.configuration && !scope.configuration[scope.parameter.name]) {
                     scope.configuration[scope.parameter.name] = [];
                 }
-                if (optionValue && !this.searchInConfig(optionValue)) {
-                    if (Array.isArray(scope.configuration[scope.parameter.name])) {
-                        scope.configuration[scope.parameter.name].push(optionValue);
-                    } else {
-                        scope.configuration[scope.parameter.name] = optionValue;
-                        placeholder = [];
-                    }
-                    placeholder.push(optionLabel);
-                } else {
-                    var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
-                    if (index != -1) {
+                if (optionValue) {
+                    if (!this.searchInConfig(optionValue)) {
                         if (Array.isArray(scope.configuration[scope.parameter.name])) {
-                            scope.configuration[scope.parameter.name].splice(index, 1);
+                            scope.configuration[scope.parameter.name].push(optionValue);
                         } else {
-                            scope.configuration[scope.parameter.name] = "";
+                            scope.configuration[scope.parameter.name] = optionValue;
+                            placeholder = [];
                         }
-                        var p_index = placeholder.indexOf(optionLabel);
-                        if (p_index != -1) {
-                            placeholder.splice(p_index, 1);
+                        placeholder.push(optionLabel);
+                    } else {
+                        var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
+                        if (index != -1) {
+                            if (Array.isArray(scope.configuration[scope.parameter.name])) {
+                                scope.configuration[scope.parameter.name].splice(index, 1);
+                            } else {
+                                scope.configuration[scope.parameter.name] = "";
+                            }
+                            var p_index = placeholder.indexOf(optionLabel);
+                            if (p_index != -1) {
+                                placeholder.splice(p_index, 1);
+                            }
                         }
                     }
+                } else if (!scope.parameter.multiple) {
+                    scope.configuration[scope.parameter.name] = "";
                 }
             }
 
