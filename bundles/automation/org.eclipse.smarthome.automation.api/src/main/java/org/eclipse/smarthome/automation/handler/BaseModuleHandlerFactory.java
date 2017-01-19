@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.handler;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ import org.osgi.framework.BundleContext;
  */
 abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    protected Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+    private Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
     protected BundleContext bundleContext;
 
     public void activate(BundleContext bundleContext) {
@@ -35,15 +36,29 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
         dispose();
     }
 
+    protected Map<String, ModuleHandler> getHandlers() {
+        return Collections.unmodifiableMap(handlers);
+    }
+
     @Override
     public ModuleHandler getHandler(Module module, String ruleUID) {
-        ModuleHandler handler = internalCreate(module, ruleUID);
-        if (handler != null) {
-            handlers.put(ruleUID + module.getId(), handler);
+        ModuleHandler handler = handlers.get(ruleUID + module.getId());
+        if (handler == null) {
+            handler = internalCreate(module, ruleUID);
+            if (handler != null) {
+                handlers.put(ruleUID + module.getId(), handler);
+            }
         }
         return handler;
     }
 
+    /**
+     * Create a new handler for the given module.
+     *
+     * @param module the {@link Module} for which a handler shoult be created
+     * @param ruleUID the id of the rule for which the handler should be created
+     * @return A {@link ModuleHandler} instance or <code>null</code> if thins module type is not supported
+     */
     abstract protected ModuleHandler internalCreate(Module module, String ruleUID);
 
     public void dispose() {
