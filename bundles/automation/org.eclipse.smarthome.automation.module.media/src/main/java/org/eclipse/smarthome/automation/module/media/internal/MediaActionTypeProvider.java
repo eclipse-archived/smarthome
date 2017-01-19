@@ -66,10 +66,11 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
     private List<ConfigDescriptionParameter> getConfigDesc(Locale locale) {
         ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
                 .create(PlayActionHandler.PARAM_SOUND, Type.TEXT).withRequired(true).withLabel("Sound")
-                .withDescription("the sound to play").withOptions(getSoundOptions()).build();
+                .withDescription("the sound to play").withOptions(getSoundOptions()).withLimitToOptions(true).build();
         ConfigDescriptionParameter param2 = ConfigDescriptionParameterBuilder
-                .create(PlayActionHandler.PARAM_SINK, Type.TEXT).withRequired(true).withLabel("Sink")
-                .withDescription("the audio sink id").withOptions(getSinkOptions(locale)).build();
+                .create(PlayActionHandler.PARAM_SINK, Type.TEXT).withRequired(false).withLabel("Sink")
+                .withDescription("the audio sink id").withOptions(getSinkOptions(locale)).withLimitToOptions(true)
+                .build();
         List<ConfigDescriptionParameter> params = new ArrayList<>(2);
         params.add(param1);
         params.add(param2);
