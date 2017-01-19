@@ -290,7 +290,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     }
 
     private synchronized void updateModuleHandlerFactoryMap(Collection<String> removedTypes) {
-        for (Iterator< String>it = removedTypes.iterator(); it.hasNext();) {
+        for (Iterator<String> it = removedTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             moduleHandlerFactories.remove(moduleTypeName);
         }
@@ -488,7 +488,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     if (sb == null) {
                         sb = new StringBuffer();
                     }
-                    String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' fails";
+                    String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' failed: "
+                            + t.getMessage();
                     sb.append(message).append("\n");
                     logger.trace(message);
                 }
@@ -556,7 +557,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     private void register(RuntimeRule rule) {
         RuleEngineCallback reCallback = getRuleEngineCallback(rule);
-        for (Iterator< Trigger>it = rule.getTriggers().iterator(); it.hasNext();) {
+        for (Iterator<Trigger> it = rule.getTriggers().iterator(); it.hasNext();) {
             RuntimeTrigger t = (RuntimeTrigger) it.next();
             TriggerHandler triggerHandler = t.getModuleHandler();
             triggerHandler.setRuleEngineCallback(reCallback);
@@ -649,7 +650,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private RuntimeRule removeRuleEntry(RuntimeRule r) {
         unregister(r);
         synchronized (this) {
-            for (Iterator< Map.Entry<String, Set<String>>>it = mapModuleTypeToRules.entrySet().iterator(); it
+            for (Iterator<Map.Entry<String, Set<String>>> it = mapModuleTypeToRules.entrySet().iterator(); it
                     .hasNext();) {
                 Map.Entry<String, Set<String>> e = it.next();
                 Set<String> rules = e.getValue();
@@ -716,7 +717,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
-        for (Iterator< String>it = moduleTypes.iterator(); it.hasNext();) {
+        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
             synchronized (this) {
@@ -763,7 +764,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     private void removeMissingModuleTypes(Collection<String> moduleTypes) {
         Map<String, List<String>> mapMissingHandlers = null;
-        for (Iterator< String>it = moduleTypes.iterator(); it.hasNext();) {
+        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
             synchronized (this) {
@@ -965,7 +966,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return true;
         }
         RuleStatus ruleStatus = null;
-        for (Iterator< Condition>it = conditions.iterator(); it.hasNext();) {
+        for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(rule.getUID());
             if (ruleStatus != RuleStatus.RUNNING) {
                 return false;
@@ -994,7 +995,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
         RuleStatus ruleStatus = null;
         RuntimeAction action = null;
-        for (Iterator< Action>it = actions.iterator(); it.hasNext();) {
+        for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(rule.getUID());
             if (ruleStatus != RuleStatus.RUNNING) {
                 return;
@@ -1029,7 +1030,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     public synchronized void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            for (Iterator< RuntimeRule>it = rules.values().iterator(); it.hasNext();) {
+            for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
                 RuntimeRule r = it.next();
                 removeRuleEntry(r);
                 it.remove();
@@ -1088,7 +1089,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         if (rules != null) {
             Set<String> col = rules.keySet();
             if (col != null) {
-                for (Iterator< String>it = col.iterator(); it.hasNext();) {
+                for (Iterator<String> it = col.iterator(); it.hasNext();) {
                     String rUID = it.next();
                     if (rUID != null && rUID.startsWith(ID_PREFIX)) {
                         String sNum = rUID.substring(ID_PREFIX.length());
