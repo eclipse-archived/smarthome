@@ -5,6 +5,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
             scope.parameter.optionList = [];
             var originalList = [];
             var placeholder = [];
+            scope.isNullSelected = false;
             if (scope.configuration[scope.parameter.name]) {
                 if (Array.isArray(scope.configuration[scope.parameter.name])) {
                     for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
@@ -83,17 +84,24 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
             }
 
             scope.searchInConfig = function(optionValue) {
-                if (scope.configuration && scope.configuration[scope.parameter.name]) {
-                    if (Array.isArray(scope.configuration[scope.parameter.name]) && scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
-                        return true;
-                    } else if (scope.configuration[scope.parameter.name] === optionValue) {
-                        return true;
+                if (optionValue) {
+                    if (scope.configuration && scope.configuration[scope.parameter.name]) {
+                        if (Array.isArray(scope.configuration[scope.parameter.name]) && scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
+                            return true;
+                        } else if (scope.configuration[scope.parameter.name] == optionValue) {
+                            return true;
+                        }
                     }
+                    return false;
+                } else {
+                    return scope.isNullSelected;
                 }
-                return false;
             }
 
             scope.updateInConfig = function(optionValue, optionLabel) {
+                if (optionValue != undefined && optionValue != null) {
+                    optionValue = "" + optionValue;
+                }
                 optionLabel = optionLabel ? optionLabel : optionValue;
                 if (scope.parameter.multiple && scope.configuration && !scope.configuration[scope.parameter.name]) {
                     scope.configuration[scope.parameter.name] = [];
@@ -106,6 +114,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                             scope.configuration[scope.parameter.name] = optionValue;
                             placeholder = [];
                         }
+                        scope.isNullSelected = false;
                         placeholder.push(optionLabel);
                     } else {
                         var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
@@ -119,10 +128,18 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                             if (p_index != -1) {
                                 placeholder.splice(p_index, 1);
                             }
+                            // /isNullSelected = true;
                         }
                     }
                 } else if (!scope.parameter.multiple) {
                     scope.configuration[scope.parameter.name] = "";
+                    if (!scope.isNullSelected) {
+                        scope.isNullSelected = true;
+                        // return true;
+                    } else {
+                        scope.isNullSelected = false;
+                        // return false;
+                    }
                 }
             }
 
