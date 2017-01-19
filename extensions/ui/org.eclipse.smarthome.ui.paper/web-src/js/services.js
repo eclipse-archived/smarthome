@@ -129,6 +129,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     }, true);
                 }
                 parameter.locale = window.localStorage.getItem('paperui.language');
+                parameter.filterText = "";
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         if (parameter.multiple) {
@@ -482,6 +483,13 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : null;
                     } else if (!hasValue) {
                         configuration[parameter.name] = parameter.defaultValue;
+                    }
+                    if (!parameter.limitToOptions && parameter.filterText && parameter.filterText.length > 0) {
+                        if (Array.isArray(configuration[parameter.name])) {
+                            configuration[parameter.name].push(parameter.filterText);
+                        } else {
+                            configuration[parameter.name] = parameter.filterText
+                        }
                     }
                 });
             }

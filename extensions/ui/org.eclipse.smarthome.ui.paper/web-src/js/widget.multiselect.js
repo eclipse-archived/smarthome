@@ -2,7 +2,6 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
-            scope.filterText = "";
             scope.parameter.optionList = [];
             var originalList = [];
             var placeholder = [];
@@ -28,7 +27,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 if (inParam.length == 0) {
                     scope.parameter.optionList.push({
                         value : value,
-                        label : value
+                        label : value + ""
                     });
                     return value;
                 } else if (inParam.length > 0) {
@@ -58,20 +57,17 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
 
             scope.addItemToList = function($event) {
                 var inParam = $.grep(scope.parameter.optionList, function(option) {
-                    return option.value == scope.filterText;
+                    return option.value == scope.parameter.filterText;
                 }).length > 0;
                 if (!inParam) {
-                    if (scope.filterText) {
+                    if (scope.parameter.filterText) {
                         scope.parameter.optionList.push({
-                            value : scope.filterText,
-                            label : scope.filterText
+                            value : scope.parameter.filterText,
+                            label : scope.parameter.filterText
                         });
                     }
-                    scope.updateInConfig(scope.filterText);
-                    scope.filterText = "";
-                    setTimeout(function() {
-                        element.find("dd ul").slideDown('fast');
-                    });
+                    scope.updateInConfig(scope.parameter.filterText);
+                    scope.parameter.filterText = "";
                 }
                 $event.preventDefault();
             }
@@ -80,6 +76,9 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 if (((scope.parameter.options.length == 0) || (scope.parameter.options.length > 0 && !scope.parameter.limitToOptions)) && $event.keyCode == 13) {
                     scope.addItemToList($event);
                 }
+                setTimeout(function() {
+                    element.find("dd ul").slideDown('fast');
+                });
                 $event.stopImmediatePropagation();
             }
 
@@ -133,23 +132,22 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 }
             });
 
-            scope.$watch('filterText', function() {
+            scope.$watch('parameter.filterText', function() {
                 if (scope.parameter.optionList && scope.parameter.optionList.length > 0) {
                     originalList = originalList.length == 0 ? scope.parameter.optionList : originalList;
                     for (var i = 0; i < scope.parameter.optionList.length; i++) {
                         if (searchInOptionList(originalList, scope.parameter.optionList[i].value) == -1) {
                             originalList.push({
                                 value : scope.parameter.optionList[i].value,
-                                label : scope.parameter.optionList[i].label
+                                label : scope.parameter.optionList[i].label + ""
                             });
                         }
                     }
                     var filteredOptions = $.grep(originalList, function(option) {
                         var optionValue = (option.label + "").toLowerCase();
-                        return optionValue.indexOf(("" + scope.filterText).toLowerCase()) != -1;
+                        return optionValue.indexOf(("" + scope.parameter.filterText).toLowerCase()) != -1;
                     });
                     scope.parameter.optionList = filteredOptions && filteredOptions.length > 0 ? filteredOptions : originalList;
-                    scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
                 }
             });
 
@@ -173,7 +171,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                     }
                     scope.parameter.optionList[index] = {
                         value : value,
-                        label : scope.parameter.options[i].label
+                        label : scope.parameter.options[i].label + ""
                     };
                 }
             }
@@ -187,10 +185,12 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 }
                 return -1;
             }
+            element.find('.multiList').on('mousewheel', function(e) {
+                var event = e.originalEvent, d = event.wheelDelta || -event.detail;
 
-            scope.$on("ngRepeatFinished", function() {
-                scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
-            })
+                this.scrollTop += (d < 0 ? 1 : -1) * 5;
+                e.preventDefault();
+            });
         }
     };
 }).directive('selectValidation', function() {
