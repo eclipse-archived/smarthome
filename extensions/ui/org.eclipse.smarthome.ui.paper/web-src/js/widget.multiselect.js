@@ -2,10 +2,10 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
-            scope.filterText = "";
             scope.parameter.optionList = [];
             var originalList = [];
             var placeholder = [];
+            scope.isNullSelected = false;
             if (scope.configuration[scope.parameter.name]) {
                 if (Array.isArray(scope.configuration[scope.parameter.name])) {
                     for (var i = 0; i < scope.configuration[scope.parameter.name].length; i++) {
@@ -28,7 +28,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 if (inParam.length == 0) {
                     scope.parameter.optionList.push({
                         value : value,
-                        label : value
+                        label : value + ""
                     });
                     return value;
                 } else if (inParam.length > 0) {
@@ -58,20 +58,17 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
 
             scope.addItemToList = function($event) {
                 var inParam = $.grep(scope.parameter.optionList, function(option) {
-                    return option.value == scope.filterText;
+                    return option.value == scope.parameter.filterText;
                 }).length > 0;
                 if (!inParam) {
-                    if (scope.filterText) {
+                    if (scope.parameter.filterText) {
                         scope.parameter.optionList.push({
-                            value : scope.filterText,
-                            label : scope.filterText
+                            value : scope.parameter.filterText,
+                            label : scope.parameter.filterText
                         });
                     }
-                    scope.updateInConfig(scope.filterText);
-                    scope.filterText = "";
-                    setTimeout(function() {
-                        element.find("dd ul").slideDown('fast');
-                    });
+                    scope.updateInConfig(scope.parameter.filterText);
+                    scope.parameter.filterText = "";
                 }
                 $event.preventDefault();
             }
@@ -80,45 +77,68 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 if (((scope.parameter.options.length == 0) || (scope.parameter.options.length > 0 && !scope.parameter.limitToOptions)) && $event.keyCode == 13) {
                     scope.addItemToList($event);
                 }
+                setTimeout(function() {
+                    element.find("dd ul").slideDown('fast');
+                });
                 $event.stopImmediatePropagation();
             }
 
             scope.searchInConfig = function(optionValue) {
-                if (scope.configuration && scope.configuration[scope.parameter.name]) {
-                    if (Array.isArray(scope.configuration[scope.parameter.name]) && scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
-                        return true;
-                    } else if (scope.configuration[scope.parameter.name] === optionValue) {
-                        return true;
+                if (optionValue) {
+                    if (scope.configuration && scope.configuration[scope.parameter.name]) {
+                        if (Array.isArray(scope.configuration[scope.parameter.name]) && scope.configuration[scope.parameter.name].indexOf(optionValue) !== -1) {
+                            return true;
+                        } else if (scope.configuration[scope.parameter.name] == optionValue) {
+                            return true;
+                        }
                     }
+                    return false;
+                } else {
+                    return scope.isNullSelected;
                 }
-                return false;
             }
 
             scope.updateInConfig = function(optionValue, optionLabel) {
+                if (optionValue != undefined && optionValue != null) {
+                    optionValue = "" + optionValue;
+                }
                 optionLabel = optionLabel ? optionLabel : optionValue;
                 if (scope.parameter.multiple && scope.configuration && !scope.configuration[scope.parameter.name]) {
                     scope.configuration[scope.parameter.name] = [];
                 }
-                if (optionValue && !this.searchInConfig(optionValue)) {
-                    if (Array.isArray(scope.configuration[scope.parameter.name])) {
-                        scope.configuration[scope.parameter.name].push(optionValue);
-                    } else {
-                        scope.configuration[scope.parameter.name] = optionValue;
-                        placeholder = [];
-                    }
-                    placeholder.push(optionLabel);
-                } else {
-                    var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
-                    if (index != -1) {
+                if (optionValue) {
+                    if (!this.searchInConfig(optionValue)) {
                         if (Array.isArray(scope.configuration[scope.parameter.name])) {
-                            scope.configuration[scope.parameter.name].splice(index, 1);
+                            scope.configuration[scope.parameter.name].push(optionValue);
                         } else {
-                            scope.configuration[scope.parameter.name] = "";
+                            scope.configuration[scope.parameter.name] = optionValue;
+                            placeholder = [];
                         }
-                        var p_index = placeholder.indexOf(optionLabel);
-                        if (p_index != -1) {
-                            placeholder.splice(p_index, 1);
+                        scope.isNullSelected = false;
+                        placeholder.push(optionLabel);
+                    } else {
+                        var index = scope.configuration[scope.parameter.name].indexOf(optionValue);
+                        if (index != -1) {
+                            if (Array.isArray(scope.configuration[scope.parameter.name])) {
+                                scope.configuration[scope.parameter.name].splice(index, 1);
+                            } else {
+                                scope.configuration[scope.parameter.name] = "";
+                            }
+                            var p_index = placeholder.indexOf(optionLabel);
+                            if (p_index != -1) {
+                                placeholder.splice(p_index, 1);
+                            }
+                            // /isNullSelected = true;
                         }
+                    }
+                } else if (!scope.parameter.multiple) {
+                    scope.configuration[scope.parameter.name] = "";
+                    if (!scope.isNullSelected) {
+                        scope.isNullSelected = true;
+                        // return true;
+                    } else {
+                        scope.isNullSelected = false;
+                        // return false;
                     }
                 }
             }
@@ -133,23 +153,22 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 }
             });
 
-            scope.$watch('filterText', function() {
+            scope.$watch('parameter.filterText', function() {
                 if (scope.parameter.optionList && scope.parameter.optionList.length > 0) {
                     originalList = originalList.length == 0 ? scope.parameter.optionList : originalList;
                     for (var i = 0; i < scope.parameter.optionList.length; i++) {
                         if (searchInOptionList(originalList, scope.parameter.optionList[i].value) == -1) {
                             originalList.push({
                                 value : scope.parameter.optionList[i].value,
-                                label : scope.parameter.optionList[i].label
+                                label : scope.parameter.optionList[i].label + ""
                             });
                         }
                     }
                     var filteredOptions = $.grep(originalList, function(option) {
                         var optionValue = (option.label + "").toLowerCase();
-                        return optionValue.indexOf(("" + scope.filterText).toLowerCase()) != -1;
+                        return optionValue.indexOf(("" + scope.parameter.filterText).toLowerCase()) != -1;
                     });
                     scope.parameter.optionList = filteredOptions && filteredOptions.length > 0 ? filteredOptions : originalList;
-                    scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
                 }
             });
 
@@ -173,7 +192,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                     }
                     scope.parameter.optionList[index] = {
                         value : value,
-                        label : scope.parameter.options[i].label
+                        label : scope.parameter.options[i].label + ""
                     };
                 }
             }
@@ -187,10 +206,12 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                 }
                 return -1;
             }
+            element.find('.multiList').on('mousewheel', function(e) {
+                var event = e.originalEvent, d = event.wheelDelta || -event.detail;
 
-            scope.$on("ngRepeatFinished", function() {
-                scope.parameter.optionList = $filter('orderBy')(scope.parameter.optionList, 'label');
-            })
+                this.scrollTop += (d < 0 ? 1 : -1) * 5;
+                e.preventDefault();
+            });
         }
     };
 }).directive('selectValidation', function() {
