@@ -41,27 +41,27 @@ public class DayOfWeekConditionHandler extends BaseModuleHandler<Condition> impl
         try {
             days = new HashSet<>();
             for (String day : (Iterable<String>) module.getConfiguration().get(CFG_DAYS)) {
-                switch (day) {
+                switch (day.toUpperCase()) {
                     case "SUN":
-                        days.add(1);
+                        days.add(Calendar.SUNDAY);
                         break;
                     case "MON":
-                        days.add(2);
+                        days.add(Calendar.MONDAY);
                         break;
                     case "TUE":
-                        days.add(3);
+                        days.add(Calendar.TUESDAY);
                         break;
                     case "WED":
-                        days.add(4);
+                        days.add(Calendar.WEDNESDAY);
                         break;
                     case "THU":
-                        days.add(5);
+                        days.add(Calendar.THURSDAY);
                         break;
                     case "FRI":
-                        days.add(6);
+                        days.add(Calendar.FRIDAY);
                         break;
                     case "SAT":
-                        days.add(7);
+                        days.add(Calendar.SATURDAY);
                         break;
                     default:
                         logger.warn("Ignoring illegal weekday '{}'", day);
