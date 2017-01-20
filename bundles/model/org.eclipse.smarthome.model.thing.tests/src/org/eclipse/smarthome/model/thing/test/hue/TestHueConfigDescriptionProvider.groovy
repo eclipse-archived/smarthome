@@ -32,7 +32,6 @@ class TestHueConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
-        System.err.println(uri)
         if (uri.equals(new URI("hue:LCT001:color"))) {
             ConfigDescriptionParameter paramDefault = new ConfigDescriptionParameter("defaultConfig", Type.TEXT) {
                         String getDefault() {
