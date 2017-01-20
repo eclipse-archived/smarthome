@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.model.core.internal;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,10 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.util.Diagnostician;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -36,6 +41,7 @@ import com.google.common.collect.Lists;
 
 /**
  * @author Oliver Libutzki - Added reloadAllModelsOfType method
+ * @author Simon Kaufmann - added validation of models before loading them
  *
  */
 public class ModelRepositoryImpl implements ModelRepository {
@@ -73,20 +79,33 @@ public class ModelRepositoryImpl implements ModelRepository {
     }
 
     @Override
-    public boolean addOrRefreshModel(String name, InputStream inputStream) {
-        Resource resource = getResource(name);
-        if (resource == null) {
-            synchronized (resourceSet) {
-                // try again to retrieve the resource as it might have been created by now
-                resource = getResource(name);
-                if (resource == null) {
-                    // seems to be a new file
-                    // don't use XMI as a default
-                    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().remove("*");
-                    resource = resourceSet.createResource(URI.createURI(name));
-                    if (resource != null) {
-                        logger.info("Loading model '{}'", name);
-                        try {
+    public boolean addOrRefreshModel(String name, final InputStream originalInputStream) {
+        Resource resource = null;
+        try {
+            InputStream inputStream = null;
+            if (originalInputStream != null) {
+                byte[] bytes = IOUtils.toByteArray(originalInputStream);
+                String validationResult = validateModel(name, new ByteArrayInputStream(bytes));
+                if (validationResult != null) {
+                    logger.warn("Configuration model '{}' has errors, therefore ignoring it: {}", name,
+                            validationResult);
+                    removeModel(name);
+                    return false;
+                }
+                inputStream = new ByteArrayInputStream(bytes);
+            }
+            resource = getResource(name);
+            if (resource == null) {
+                synchronized (resourceSet) {
+                    // try again to retrieve the resource as it might have been created by now
+                    resource = getResource(name);
+                    if (resource == null) {
+                        // seems to be a new file
+                        // don't use XMI as a default
+                        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().remove("*");
+                        resource = resourceSet.createResource(URI.createURI(name));
+                        if (resource != null) {
+                            logger.info("Loading model '{}'", name);
                             Map<String, String> options = new HashMap<String, String>();
                             options.put(XtextResource.OPTION_ENCODING, "UTF-8");
                             if (inputStream == null) {
@@ -98,19 +117,14 @@ public class ModelRepositoryImpl implements ModelRepository {
                             resource.load(inputStream, options);
                             notifyListeners(name, EventType.ADDED);
                             return true;
-                        } catch (IOException e) {
-                            logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
-                            resourceSet.getResources().remove(resource);
+                        } else {
+                            logger.warn("Ignoring file '{}' as we do not have a parser for it.", name);
                         }
-                    } else {
-                        logger.warn("Ignoring file '{}' as we do not have a parser for it.", name);
                     }
                 }
-            }
-        } else {
-            synchronized (resourceSet) {
-                resource.unload();
-                try {
+            } else {
+                synchronized (resourceSet) {
+                    resource.unload();
                     logger.info("Refreshing model '{}'", name);
                     if (inputStream != null) {
                         resource.load(inputStream, Collections.EMPTY_MAP);
@@ -119,10 +133,12 @@ public class ModelRepositoryImpl implements ModelRepository {
                     }
                     notifyListeners(name, EventType.MODIFIED);
                     return true;
-                } catch (IOException e) {
-                    logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
-                    resourceSet.getResources().remove(resource);
                 }
+            }
+        } catch (IOException e) {
+            logger.warn("Configuration model '{}' cannot be parsed correctly!", name, e);
+            if (resource != null) {
+                resourceSet.getResources().remove(resource);
             }
         }
         return false;
@@ -200,6 +216,62 @@ public class ModelRepositoryImpl implements ModelRepository {
 
     private Resource getResource(String name) {
         return resourceSet.getResource(URI.createURI(name), false);
+    }
+
+    /**
+     * Validates the given model.
+     *
+     * There are two "layers" of validation
+     * <ol>
+     * <li>
+     * errors when loading the resource. Usually these are syntax violations which irritate the parser. They will be
+     * returned as a String.
+     * <li>
+     * all kinds of other errors (i.e. violations of validation checks) will only be logged, but not included in the
+     * return value.
+     * </ol>
+     * <p>
+     * Validation will be done on a separate resource, in order to keep the original one intact in case its content
+     * needs to be removed because of syntactical errors.
+     *
+     * @param name
+     * @param inputStream
+     * @return error messages as a String if any syntactical error were found, <code>null</code> otherwise
+     * @throws IOException if there was an error with the given {@link InputStream}, loading the resource from there
+     */
+    private String validateModel(String name, InputStream inputStream) throws IOException {
+        // use another resource for validation in order to keep the original one for emergency-removal in case of errors
+        Resource resource = resourceSet.createResource(URI.createURI("tmp_" + name));
+        try {
+            resource.load(inputStream, Collections.EMPTY_MAP);
+            StringBuilder criticalErrors = new StringBuilder();
+            StringBuilder warnings = new StringBuilder();
+
+            if (resource != null && !resource.getContents().isEmpty()) {
+                // Check for syntactical errors
+                for (Diagnostic diagnostic : resource.getErrors()) {
+                    criticalErrors.append(MessageFormat.format("[{0},{1}]: {2}\n", diagnostic.getLine(),
+                            diagnostic.getColumn(), diagnostic.getMessage()));
+                }
+                if (criticalErrors.length() > 0) {
+                    return criticalErrors.toString();
+                }
+
+                // Check for validation errors, but log them only
+                org.eclipse.emf.common.util.Diagnostic diagnostic = Diagnostician.INSTANCE
+                        .validate(resource.getContents().get(0));
+                for (org.eclipse.emf.common.util.Diagnostic d : diagnostic.getChildren()) {
+                    warnings.append(d.getMessage());
+                    warnings.append("\n");
+                }
+                if (warnings.length() > 0) {
+                    logger.warn("Validation error(s) in configuration model '{}':\n {}", name, warnings);
+                }
+            }
+        } finally {
+            resourceSet.getResources().remove(resource);
+        }
+        return null;
     }
 
     private void notifyListeners(String name, EventType type) {
