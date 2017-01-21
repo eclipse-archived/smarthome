@@ -31,6 +31,8 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.autobridge.AutoBridgeBindingConfigProvider;
+import org.eclipse.smarthome.core.autobridge.AutoBridgeType;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
@@ -122,6 +124,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             .synchronizedSetMultimap(HashMultimap.<ThingHandlerFactory, ThingHandler> create());
 
     private ThingTypeRegistry thingTypeRegistry;
+
+    private Collection<AutoBridgeBindingConfigProvider> audoBridgeConfigProviders = new CopyOnWriteArraySet<>();
 
     private ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -358,43 +362,100 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         for (final ChannelUID channelUID : boundChannels) {
             // make sure a command event is not sent back to its source
             if (!channelUID.toString().equals(commandEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        handler.handleCommand(channelUID, command);
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+
+                AutoBridgeType bridgeType = null;
+                for (AutoBridgeBindingConfigProvider provider : audoBridgeConfigProviders) {
+                    AutoBridgeType ab = provider.bridgeType(itemName);
+                    if (ab != null) {
+                        bridgeType = ab;
+                    }
+                }
+
+                if (bridgeType == null) {
+                    bridgeType = AutoBridgeType.ALL;
+                }
+
+                boolean bridgeAllowed = false;
+                switch (bridgeType) {
+                    case ALL: {
+                        bridgeAllowed = true;
+                        logger.trace("Item '{}' is set to bridge the command event '{}' to Channel '{}'", itemName,
+                                command, channelUID.toString());
+                        break;
+                    }
+                    case NONE: {
+                        logger.trace("Item '{}' is set to not bridge the command event '{}' to Channel '{}'", itemName,
+                                command, channelUID.toString());
+                        break;
+                    }
+                    case INTER: {
+                        if (commandEvent.getSource() == null) {
+                            bridgeAllowed = true;
+                        } else if (!channelUID.getBindingId()
+                                .equals(new ChannelUID(commandEvent.getSource()).getBindingId())) {
+                            bridgeAllowed = true;
+                        } else {
+                            logger.trace(
+                                    "Item '{}' is set to not bridge the command event '{}' between Channels of binding '{}'",
+                                    itemName, command, channelUID.getBindingId());
+                        }
+                        break;
+                    }
+                    case INTRA: {
+                        if (commandEvent.getSource() == null) {
+                            bridgeAllowed = true;
+                        } else if (channelUID.getBindingId()
+                                .equals(new ChannelUID(commandEvent.getSource()).getBindingId())) {
+                            bridgeAllowed = true;
+                        } else {
+                            logger.trace(
+                                    "Item '{}' is set to not bridge the command event '{}' between a Channel of binding '{}' to a Channel of binding '{}'",
+                                    itemName, command, new ChannelUID(commandEvent.getSource()).getBindingId(),
+                                    channelUID.getBindingId());
+                        }
+                        break;
+                    }
+                }
+
+                if (bridgeAllowed) {
+                    Thing thing = getThing(channelUID.getThingUID());
+                    if (thing != null) {
+                        final ThingHandler handler = thing.getHandler();
+                        if (handler != null) {
+                            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                                logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'",
+                                        command, itemName, channelUID);
+                                try {
+                                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                                        @Override
+                                        public Void call() throws Exception {
+                                            handler.handleCommand(channelUID, command);
+                                            return null;
+                                        }
+                                    });
+                                } catch (TimeoutException ex) {
+                                    logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
+                                            handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                                } catch (Exception ex) {
+                                    logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+                                }
+                            } else {
+                                logger.info(
+                                        "Not delegating command '{}' for item '{}' to handler for channel '{}', "
+                                                + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                                        command, itemName, channelUID);
                             }
                         } else {
-                            logger.info(
-                                    "Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    command, itemName, channelUID);
+                            logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                                    + "because no handler is assigned. Maybe the binding is not installed or not "
+                                    + "propertly initialized.", command, itemName, channelUID);
                         }
                     } else {
-                        logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", command, itemName, channelUID);
+                        logger.warn(
+                                "Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                                        + "because no thing with the UID '{}' could be found.",
+                                command, itemName, channelUID, channelUID.getThingUID());
                     }
-                } else {
-                    logger.warn(
-                            "Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            command, itemName, channelUID, channelUID.getThingUID());
                 }
             }
         }
@@ -408,46 +469,104 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         for (final ChannelUID channelUID : boundChannels) {
             // make sure an update event is not sent back to its source
             if (!channelUID.toString().equals(updateEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        handler.handleUpdate(channelUID, newState);
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing {} takes more than {}ms for processing event",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+
+                AutoBridgeType bridgeType = null;
+                for (AutoBridgeBindingConfigProvider provider : audoBridgeConfigProviders) {
+                    AutoBridgeType ab = provider.bridgeType(itemName);
+                    if (ab != null) {
+                        bridgeType = ab;
+                    }
+                }
+
+                if (bridgeType == null) {
+                    bridgeType = AutoBridgeType.ALL;
+                }
+
+                boolean bridgeAllowed = false;
+                switch (bridgeType) {
+                    case ALL: {
+                        bridgeAllowed = true;
+                        logger.trace("Item '{}' is set to bridge the update event '{}' to Channel '{}'", itemName,
+                                newState, channelUID.toString());
+                        break;
+                    }
+                    case NONE: {
+                        logger.trace("Item '{}' is set to not bridge the update event '{}' to Channel '{}'", itemName,
+                                newState, channelUID.toString());
+                        break;
+                    }
+                    case INTER: {
+                        if (updateEvent.getSource() == null) {
+                            bridgeAllowed = true;
+                        } else if (!channelUID.getBindingId()
+                                .equals(new ChannelUID(updateEvent.getSource()).getBindingId())) {
+                            bridgeAllowed = true;
+                        } else {
+                            logger.trace(
+                                    "Item '{}' is set to not bridge the update event '{}' between Channels of binding '{}'",
+                                    itemName, newState, channelUID.getBindingId());
+                        }
+                        break;
+                    }
+                    case INTRA: {
+                        if (updateEvent.getSource() == null) {
+                            bridgeAllowed = true;
+                        } else if (channelUID.getBindingId()
+                                .equals(new ChannelUID(updateEvent.getSource()).getBindingId())) {
+                            bridgeAllowed = true;
+                        } else {
+                            logger.trace(
+                                    "Item '{}' is set to not bridge the update event '{}' between a Channel of binding '{}' to a Channel of binding '{}'",
+                                    itemName, newState, new ChannelUID(updateEvent.getSource()).getBindingId(),
+                                    channelUID.getBindingId());
+                        }
+                        break;
+                    }
+                }
+
+                if (bridgeAllowed) {
+                    Thing thing = getThing(channelUID.getThingUID());
+                    if (thing != null) {
+                        final ThingHandler handler = thing.getHandler();
+                        if (handler != null) {
+                            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                                logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'",
+                                        newState, itemName, channelUID);
+                                try {
+                                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                                        @Override
+                                        public Void call() throws Exception {
+                                            handler.handleUpdate(channelUID, newState);
+                                            return null;
+                                        }
+                                    });
+                                } catch (TimeoutException ex) {
+                                    logger.warn("Handler for thing {} takes more than {}ms for processing event",
+                                            handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                                } catch (Exception ex) {
+                                    logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+                                }
+                            } else {
+                                logger.info(
+                                        "Not delegating update '{}' for item '{}' to handler for channel '{}', "
+                                                + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                                        newState, itemName, channelUID);
                             }
                         } else {
-                            logger.info(
-                                    "Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    newState, itemName, channelUID);
+                            logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                                    + "because no handler is assigned. Maybe the binding is not installed or not "
+                                    + "propertly initialized.", newState, itemName, channelUID);
                         }
                     } else {
-                        logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", newState, itemName, channelUID);
+                        logger.warn(
+                                "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                                        + "because no thing with the UID '{}' could be found.",
+                                newState, itemName, channelUID, channelUID.getThingUID());
                     }
-                } else {
-                    logger.warn(
-                            "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            newState, itemName, channelUID, channelUID.getThingUID());
                 }
             }
         }
+
     }
 
     @Override
@@ -1100,6 +1219,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetBundleProcessor(BundleProcessor bundleProcessor) {
         initializationVetoManager.removeBundleProcessor(bundleProcessor);
+    }
+
+    public void addBindingConfigProvider(AutoBridgeBindingConfigProvider provider) {
+        audoBridgeConfigProviders.add(provider);
+    }
+
+    public void removeBindingConfigProvider(AutoBridgeBindingConfigProvider provider) {
+        audoBridgeConfigProviders.remove(provider);
     }
 
 }
