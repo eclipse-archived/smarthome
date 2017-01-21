@@ -32,7 +32,8 @@ EventTrigger:
 	ChangedEventTrigger |
 	EventEmittedTrigger |
 	TimerTrigger |
-	SystemTrigger
+	SystemTrigger |
+	ThingStateChangedEventTrigger
 ;
 
 CommandEventTrigger:
@@ -72,6 +73,9 @@ SystemOnShutdownTrigger:
 	'System' 'shuts down'
 ;
 
+ThingStateChangedEventTrigger:
+    'Thing' thing=ThingUid 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+;
 	
 ItemName :
 	ID
@@ -87,4 +91,8 @@ ValidCommand:
 
 ValidTrigger:
 	ID | Number | STRING
+;
+
+ThingUid:
+    ID | STRING
 ;
