@@ -26,6 +26,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
+import org.eclipse.smarthome.model.script.engine.IThingRegistryProvider
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -57,6 +58,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
     @Inject
     IItemRegistryProvider itemRegistryProvider
+
+    @Inject
+    IThingRegistryProvider thingRegistryProvider
 
     @Inject
     StateAndCommandProvider stateAndCommandProvider
@@ -107,6 +111,19 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                 }
             ]
 
+            val thingRegistry = thingRegistryProvider.get
+            val things = thingRegistry?.getAll()
+            things?.forEach [ thing |
+                val name = thing.getUID().toString()
+                if (fieldNames.add(name)) {
+                    members += ruleModel.toField(name, ruleModel.newTypeRef(thing.class)) [
+                        static = true
+                    ]
+                } else {
+                    logger.warn("Duplicate field: '{}'. Ignoring '{}'.", name, thing.class.name)
+                }
+            ]
+
             members += ruleModel.rules.map [ rule |
                 rule.toMethod("_" + rule.name, ruleModel.newTypeRef(Void.TYPE)) [
                     static = true
@@ -122,7 +139,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                         val eventTypeRef = ruleModel.newTypeRef(ChannelTriggeredEvent)
                         parameters += rule.toParameter(VAR_RECEIVED_EVENT, eventTypeRef)
                     }
-
+                    if (containsThingSateChangedEventTrigger(rule)) {
+                        val stateTypeRef = ruleModel.newTypeRef(State)
+                        parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef)
+                    }
                     body = rule.script
                 ]
             ]
@@ -153,6 +173,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                 return true;
             }
         }
+        return false;
+    }
+
+    def private boolean containsThingSateChangedEventTrigger(Rule rule) {
         return false;
     }
 }
