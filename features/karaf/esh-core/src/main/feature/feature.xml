@@ -15,7 +15,12 @@
     <feature dependency="true">esh-tp</feature>
     <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.9.2)(!(version&gt;=2.9.3)))"</requirement>
     <requirement>esh.tp;filter:="(feature=jax-rs)"</requirement>
+
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
     <bundle start-level="75">mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.xml/${project.version}</bundle>
