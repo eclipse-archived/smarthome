@@ -8,13 +8,12 @@
 package org.eclipse.smarthome.tools.analysis.checkstyle;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+import java.util.Set;
 
-import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
+import org.apache.ivy.osgi.core.BundleInfo;
+import org.eclipse.smarthome.tools.analysis.checkstyle.api.AbstractStaticCheck;
+
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 
 /**
@@ -23,48 +22,33 @@ import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
  * @author Svilen Valkanov
  *
  */
-public class ExportInternalPackageCheck extends AbstractFileSetCheck {
+public class ExportInternalPackageCheck extends AbstractStaticCheck {
 
-    public final static String MANIFEST_EXTENSTION = "MF";
-    public final static String EXPORT_PACKAGE_HEADER = "Export-Package";
+  public final static String MANIFEST_EXTENSTION = "MF";
+  public final static String MESSAGE_INTERNAL_PACKAGE_EXPORTED = "Remove internal package export";
+  public final static String MESSAGE_FILE_EMPTY = "File is empty !";
 
-    public ExportInternalPackageCheck() {
-        setFileExtensions(MANIFEST_EXTENSTION);
+  public ExportInternalPackageCheck() {
+    setFileExtensions(MANIFEST_EXTENSTION);
+  }
+
+  @Override
+  protected void processFiltered(File file, List<String> lines) throws CheckstyleException {
+    if (isEmpty(file)) {
+      log(0, MESSAGE_FILE_EMPTY, new Integer(0));
+      return;
+    }
+    BundleInfo manifest = parseManifestFromFile(file);
+    Set<?> exports = manifest.getExports();
+
+    int lineNumber = 0;
+    for (Object export : exports) {
+      String pacakgeName = export.toString();
+      if (pacakgeName.contains(".internal")) {
+        lineNumber = findLineNumber(lines, pacakgeName, lineNumber);
+        log(lineNumber, MESSAGE_INTERNAL_PACKAGE_EXPORTED + " " + pacakgeName, new Integer(0));
+      }
     }
 
-    @Override
-    protected void processFiltered(File file, List<String> lines) throws CheckstyleException {
-        try {
-            Manifest manifest = new Manifest(new FileInputStream(file));
-            Attributes attributes = manifest.getMainAttributes();
-            String value = attributes.getValue(EXPORT_PACKAGE_HEADER);
-            if (value == null) {
-                return;
-            }
-            
-            String[] packages = value.split(",");
-         
-            for (String packageName : packages) {
-                if (packageName.contains(".internal")) {
-                    log(findLineNumber(lines, packageName), "Remove internal package export " + packageName, new Integer(0));
-                }
-            }
-
-        } catch (IOException e) {
-
-        }
-
-    }
-
-    private int findLineNumber(List<String> lines, String text) {
-        int number = 0;
-        for (String line : lines) {
-            number++;
-            if (line.contains(text)) {
-                return number;
-            }
-        }
-        return number;
-    }
-
+  }
 }

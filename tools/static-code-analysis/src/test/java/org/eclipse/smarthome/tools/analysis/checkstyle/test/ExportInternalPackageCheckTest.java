@@ -7,15 +7,11 @@
  */
 package org.eclipse.smarthome.tools.analysis.checkstyle.test;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.eclipse.smarthome.tools.analysis.checkstyle.ExportInternalPackageCheck;
+import org.eclipse.smarthome.tools.analysis.checkstyle.api.AbstractStaticCheckTest;
 import org.junit.Test;
 
-import com.google.checkstyle.test.base.BaseCheckTestSupport;
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
-import com.puppycrawl.tools.checkstyle.api.Configuration;
 
 /**
  * Tests for {@link ExportInternalPackageCheck}
@@ -23,35 +19,80 @@ import com.puppycrawl.tools.checkstyle.api.Configuration;
  * @author Svilen Valkanov
  *
  */
-public class ExportInternalPackageCheckTest extends BaseCheckTestSupport {
-    @Override
-    protected String getPath(String fileName) throws IOException {
-        return new File(
-                "src/test/resources/checks/checkstyle/exportInternalPackageCheckTest" + File.separator + fileName)
-                        .getCanonicalPath();
-    }
+public class ExportInternalPackageCheckTest extends AbstractStaticCheckTest {
 
-    @Test
-    public void testManifestFileThatExportsInternalPackage() throws Exception {
-        DefaultConfiguration config = createCheckConfig(ExportInternalPackageCheck.class);
-        String testFileName = "MANIFEST.MF";
-        int lineNumber = 12;
+  private final String testDirectory = "exportInternalPackageCheckTest";
 
-        String[] expectedMessages = {
-                lineNumber + ": Remove internal package export org.eclipse.smarthome.buildtools.internal" };
+  @Test
+  public void testManifestFileExportsSingleInternalPackage() throws Exception {
+    DefaultConfiguration config = createCheckConfig(ExportInternalPackageCheck.class);
 
-        String filePath = getPath(testFileName);
+    String testFileName = "singleInternalPackageExported.MF";
+    String testFilePath = testDirectory + "/" + testFileName;
 
-        Integer[] warnList = { lineNumber };
+    String internalPackageName = "org.eclipse.smarthome.buildtools.internal";
+    int lineNumber = 12;
 
-        verify(config, filePath, expectedMessages, warnList);
-    }
+    String[] expectedMessages = generateExpectedMessages(lineNumber,
+        ExportInternalPackageCheck.MESSAGE_INTERNAL_PACKAGE_EXPORTED + " " + internalPackageName);
 
-    @Override
-    protected DefaultConfiguration createCheckerConfig(Configuration config) {
-        DefaultConfiguration dc = new DefaultConfiguration("root");
-        dc.addChild(config);
-        return dc;
-    }
+    String filePath = getPath(testFilePath);
+
+    verify(config, filePath, expectedMessages);
+  }
+
+  @Test
+  public void testManifestFileExportsMultipleInternalPackages() throws Exception {
+    DefaultConfiguration config = createCheckConfig(ExportInternalPackageCheck.class);
+
+    String testFileName = "multipleInternalPackagesExported.MF";
+    String testFilePath = testDirectory + "/" + testFileName;
+
+    String firstInternalPackageName = "org.eclipse.smarthome.buildtools.internal";
+    int firstLineNumber = 12;
+    String secondInternalPackageName = "org.eclipse.smarthome.buildtools.internal.test";
+    int secondLineNumber = 13;
+
+    String[] expectedMessages = generateExpectedMessages(firstLineNumber,
+        ExportInternalPackageCheck.MESSAGE_INTERNAL_PACKAGE_EXPORTED + " "
+            + firstInternalPackageName,
+        secondLineNumber, ExportInternalPackageCheck.MESSAGE_INTERNAL_PACKAGE_EXPORTED + " "
+            + secondInternalPackageName);
+
+    String filePath = getPath(testFilePath);
+
+    verify(config, filePath, expectedMessages);
+  }
+
+  @Test
+  public void testEmptyFile() throws Exception {
+    DefaultConfiguration config = createCheckConfig(ExportInternalPackageCheck.class);
+
+    String emptyFileName = "emptyManifest.MF";
+    String testFilePath = testDirectory + "/" + emptyFileName;
+    int lineNumber = 0;
+
+    String[] expectedMessages = generateExpectedMessages(lineNumber,
+        ExportInternalPackageCheck.MESSAGE_FILE_EMPTY);
+
+    String filePath = getPath(testFilePath);
+
+    verify(config, filePath, expectedMessages);
+  }
+
+  @Test
+  public void noInternalPackageExported() throws Exception {
+    DefaultConfiguration config = createCheckConfig(ExportInternalPackageCheck.class);
+
+    String emptyFileName = "noInternalPackageExported.MF";
+    String testFilePath = testDirectory + "/" + emptyFileName;
+
+    String[] expectedMessages = {};
+    Integer[] warnList = {};
+
+    String filePath = getPath(testFilePath);
+
+    verify(config, filePath, expectedMessages);
+  }
 
 }

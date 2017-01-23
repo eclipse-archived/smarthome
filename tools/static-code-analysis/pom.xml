@@ -28,6 +28,8 @@
     <maven.plugin.annotations.version>3.5</maven.plugin.annotations.version>
     <maven.plugin.plugin.version>3.5</maven.plugin.plugin.version>
     <mojo.executor.version>2.2.0</mojo.executor.version>
+    <org.apache.ivy.version>2.3.0</org.apache.ivy.version>
+    <org.jsoup.version>1.7.1</org.jsoup.version>
   </properties>
 
   <dependencies>
@@ -99,6 +101,16 @@
         <groupId>org.twdata.maven</groupId>
         <artifactId>mojo-executor</artifactId>
         <version>${mojo.executor.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ivy</groupId>
+      <artifactId>ivy</artifactId>
+      <version>${org.apache.ivy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${org.jsoup.version}</version>
     </dependency>
   </dependencies>
 
