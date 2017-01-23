@@ -44,6 +44,9 @@
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.ThingRegistry
     </capability>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
     </capability>
 
