@@ -12,6 +12,8 @@ import org.eclipse.smarthome.tools.analysis.checkstyle.api.AbstractStaticCheckTe
 import org.junit.Test;
 
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
+import com.puppycrawl.tools.checkstyle.TreeWalker;
+import com.puppycrawl.tools.checkstyle.api.Configuration;
 
 /**
  * Tests for {@link ExportInternalPackageCheck}
@@ -22,6 +24,13 @@ import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
 public class ExportInternalPackageCheckTest extends AbstractStaticCheckTest {
 
   private final String testDirectory = "exportInternalPackageCheckTest";
+
+  @Override
+  protected DefaultConfiguration createCheckerConfig(Configuration config) {
+    DefaultConfiguration configParent = createCheckConfig(TreeWalker.class);
+    configParent.addChild(config);
+    return configParent;
+  }
 
   @Test
   public void testManifestFileExportsSingleInternalPackage() throws Exception {
