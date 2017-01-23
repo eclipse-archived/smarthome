@@ -14,8 +14,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.puppycrawl.tools.checkstyle.BaseCheckTestSupport;
-import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
-import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
 import com.puppycrawl.tools.checkstyle.api.Configuration;
 
 /**
@@ -45,21 +43,6 @@ public abstract class AbstractStaticCheckTest extends BaseCheckTestSupport {
     } catch (URISyntaxException e) {
       return null;
     }
-  }
-
-  /**
-   * *
-   * Creates a default configuration for all checks that extend {@link AbstractFileSetCheck}.
-   *
-   * @param configuration - the configuration for the specific check
-   * @return - DefaultConfiguration object that is a child of the root configuration (in the
-   *         configuration file the root is named "Checker")
-   */
-  @Override
-  protected DefaultConfiguration createCheckerConfig(Configuration config) {
-    DefaultConfiguration dc = new DefaultConfiguration("root");
-    dc.addChild(config);
-    return dc;
   }
 
   /**
