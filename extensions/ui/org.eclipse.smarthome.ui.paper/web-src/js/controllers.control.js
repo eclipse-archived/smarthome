@@ -24,19 +24,21 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.refresh = function() {
+        getThings();
         itemRepository.getAll(function(items) {
-            $scope.tabs = [];
-            // $scope.items['All'] = items;
+            $scope.items = items;
         }, true);
     }
     $scope.channelTypes = [];
     $scope.thingTypes = [];
     $scope.thingChannels = [];
     $scope.isLoadComplete = false;
-    var thingList, thingCounter = 0;
+    var thingList, thingCounter;
     function getThings() {
         thingService.getAll().$promise.then(function(things) {
             thingList = things;
+            thingCounter = 0;
+            $scope.things = [];
             $scope.isLoadComplete = false;
             thingTypeService.getAll().$promise.then(function(thingTypes) {
                 $scope.thingTypes = thingTypes;
@@ -177,7 +179,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.masonry();
     });
     $scope.refresh();
-    getThings();
 
 }).controller('ControlController', function($scope, $timeout, $filter, itemService, util) {
 
