@@ -9,6 +9,8 @@ package org.eclipse.smarthome.designer.core.config
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.util.Collections
+import java.util.Set
 import org.eclipse.core.resources.IContainer
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
@@ -18,9 +20,8 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.preferences.InstanceScope
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.smarthome.model.script.engine.action.ActionService
 import org.eclipse.smarthome.designer.core.CoreActivator
-import java.util.Collections
+import org.eclipse.smarthome.model.script.engine.action.ActionService
 
 class PluginProjectCreator implements IProjectCreator {
 
@@ -111,15 +112,8 @@ class PluginProjectCreator implements IProjectCreator {
 			Bundle-Version: 1.0.0.qualifier
 			Bundle-Vendor: Eclipse.org/SmartHome
 			Require-Bundle: org.eclipse.xtext.xbase.lib
-			Import-Package: org.eclipse.smarthome.model.script.actions,
-			 org.joda.time,
-			 org.osgi.service.cm,
-			 org.eclipse.smarthome.core.library.types,
-			 org.eclipse.smarthome.core.library.items,
-			 org.eclipse.smarthome.core.items,
-             org.eclipse.smarthome.core.types,
-             org.eclipse.smarthome.core.persistence«IF !importedPackages.empty»,«ENDIF»
-			«FOR importPackage : importedPackages SEPARATOR ","»
+			Import-Package: org.osgi.service.cm,
+			«FOR importPackage : allImportedPackages SEPARATOR ","»
 				«" " + importPackage»
 			«ENDFOR»
 			Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -131,6 +125,18 @@ class PluginProjectCreator implements IProjectCreator {
 			metaInfFolder.create(false, true, null);
 		createFile("MANIFEST.MF", metaInfFolder, manifestContent)
 	}
+	
+	def Set<String> getAllImportedPackages() {
+        val ret = newHashSet("org.eclipse.smarthome.model.script.actions",
+            "org.joda.time",
+            "org.eclipse.smarthome.core.library.types",
+            "org.eclipse.smarthome.core.library.items",
+            "org.eclipse.smarthome.core.items",
+            "org.eclipse.smarthome.core.types",
+            "org.eclipse.smarthome.core.persistence")
+        ret.addAll(getImportedPackages())
+        return ret
+    }
 	
 	def private getImportedPackages() {
 		val actionServices = CoreActivator.actionServiceTracker.services?.filter(ActionService)
