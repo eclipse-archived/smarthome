@@ -200,7 +200,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
 
         if (item.type === 'DateTime') {
-            var date = new Date(item.state);
+            var dateArr = item.state.split(/[^0-9]/);
+            var date;
+            if (dateArr.length > 5) {
+                date = new Date(dateArr[0], dateArr[1] - 1, dateArr[2], dateArr[3], dateArr[4], dateArr[5]);
+            }
+            if (!date) {
+                return '-';
+            }
             if (item.stateDescription && item.stateDescription.pattern) {
                 return util.timePrint(item.stateDescription.pattern, date);
             } else {
