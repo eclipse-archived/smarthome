@@ -74,7 +74,7 @@
 											<div class="multiSelect col-xs-12">
 												<ul class="multiList">
 													<li ng-repeat="option in parameter.optionList | orderBy:'label' track by $index" ng-click="updateInConfig(option.value,option.label)" on-finish-render>
-														<input type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" />
+														<input ng-if="parameter.multiple" type="checkbox" value="{{option.value}}" ng-checked="searchInConfig(option.value)" />
 														{{option.label}}
 														<span class="md-caption" style="color: grey;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'">({{ option.value }}) </span>
 													</li>

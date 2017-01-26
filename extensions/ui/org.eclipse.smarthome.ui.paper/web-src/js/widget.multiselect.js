@@ -141,6 +141,9 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
                         // return false;
                     }
                 }
+                if (!scope.parameter.multiple) {
+                    element.find("dd ul").slideUp('fast');
+                }
             }
 
             scope.$watch('parameter.options', function() {
