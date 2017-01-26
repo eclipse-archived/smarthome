@@ -41,6 +41,8 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
 
     private String itemName;
     private String command;
+    private String topic;
+
     private Set<String> types;
     private BundleContext bundleContext;
 
@@ -59,7 +61,8 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
         this.types = Collections.singleton(ItemCommandEvent.TYPE);
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put("event.topics", "smarthome/items/*");
+        this.topic = "smarthome/items/" + itemName + "/command";
+        properties.put("event.topics", topic);
         eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class.getName(), this,
                 properties);
     }
@@ -105,7 +108,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
     @Override
     public boolean apply(Event event) {
         logger.trace("->FILTER: {}:{}", event.getTopic(), itemName);
-        return event.getTopic().contains(itemName);
+        return event.getTopic().equals(topic);
     }
 
 }
