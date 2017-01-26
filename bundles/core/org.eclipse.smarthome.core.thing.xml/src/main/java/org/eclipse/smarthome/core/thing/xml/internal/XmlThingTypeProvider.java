@@ -19,13 +19,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
-import org.eclipse.smarthome.core.thing.type.BridgeType;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 
@@ -103,7 +99,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
     private Map<Bundle, List<ThingType>> bundleThingTypesMap;
 
-    private ThingTypeI18nUtil thingTypeI18nUtil;
+    private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
 
     public XmlThingTypeProvider() {
         this.bundleThingTypesMap = new ConcurrentHashMap<>(10);
@@ -149,57 +145,27 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     }
 
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
+        // Create a localized thing type key (used for caching localized thing types).
+        final LocalizedThingTypeKey localizedThingTypeKey = getLocalizedThingTypeKey(thingType, locale);
 
-        LocalizedThingTypeKey localizedThingTypeKey = getLocalizedThingTypeKey(thingType, locale);
-
-        ThingType cacheEntry = localizedThingTypeCache.get(localizedThingTypeKey);
+        // Check if there is already an entry in our cache.
+        final ThingType cacheEntry = localizedThingTypeCache.get(localizedThingTypeKey);
         if (cacheEntry != null) {
             return cacheEntry;
         }
 
-        if (this.thingTypeI18nUtil != null) {
-            String label = this.thingTypeI18nUtil.getLabel(bundle, thingType.getUID(), thingType.getLabel(), locale);
-            String description = this.thingTypeI18nUtil.getDescription(bundle, thingType.getUID(),
-                    thingType.getDescription(), locale);
-
-            List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
-                    thingType.getChannelDefinitions().size());
-
-            for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-                String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle,
-                        channelDefinition.getChannelTypeUID(), channelDefinition.getLabel(), locale);
-                String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle,
-                        channelDefinition.getChannelTypeUID(), channelDefinition.getDescription(), locale);
-                localizedChannelDefinitions
-                        .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
-                                channelDefinition.getProperties(), channelLabel, channelDescription));
-            }
-
-            List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
-                    thingType.getChannelGroupDefinitions().size());
-            for (ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
-                localizedChannelGroupDefinitions.add(channelGroupDefinition);
-            }
-
-            if (thingType instanceof BridgeType) {
-                BridgeType bridgeType = (BridgeType) thingType;
-                BridgeType localizedBridgeType = new BridgeType(bridgeType.getUID(),
-                        bridgeType.getSupportedBridgeTypeUIDs(), label, description, thingType.isListed(),
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
-                        bridgeType.getConfigDescriptionURI());
-                localizedThingTypeCache.put(localizedThingTypeKey, localizedBridgeType);
-                return localizedBridgeType;
-            } else {
-                ThingType localizedThingType = new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
-                        label, description, thingType.isListed(), localizedChannelDefinitions,
-                        localizedChannelGroupDefinitions, thingType.getProperties(),
-                        thingType.getConfigDescriptionURI());
-                localizedThingTypeCache.put(localizedThingTypeKey, localizedThingType);
-                return localizedThingType;
-            }
-
+        // Check if there is a localization service available.
+        if (thingTypeI18nLocalizationService != null) {
+            // Fetch the localized thing type.
+            final ThingType localizedThingType = thingTypeI18nLocalizationService.createLocalizedThingType(bundle,
+                    thingType, locale);
+            // Put the localized thing type in our cache, so we could reuse it.
+            localizedThingTypeCache.put(localizedThingTypeKey, localizedThingType);
+            return localizedThingType;
+        } else {
+            // There is no localization service available, return the non-localized one.
+            return thingType;
         }
-        return thingType;
     }
 
     private LocalizedThingTypeKey getLocalizedThingTypeKey(ThingType thingType, Locale locale) {
@@ -281,12 +247,14 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     }
 
     @Bind
-    public void setI18nProvider(I18nProvider i18nProvider) {
-        this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
+    public void setThingTypeI18nLocalizationService(
+            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
+        this.thingTypeI18nLocalizationService = thingTypeI18nLocalizationService;
     }
 
     @Unbind
-    public void unsetI18nProvider(I18nProvider i18nProvider) {
-        this.thingTypeI18nUtil = null;
+    public void unsetThingTypeI18nLocalizationService(
+            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
+        this.thingTypeI18nLocalizationService = null;
     }
 }
