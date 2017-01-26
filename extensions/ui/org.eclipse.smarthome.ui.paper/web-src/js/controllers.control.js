@@ -25,18 +25,20 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     $scope.refresh = function() {
         itemRepository.getAll(function(items) {
-            $scope.tabs = [];
-            // $scope.items['All'] = items;
+            $scope.items = items;
         }, true);
+        getThings();
     }
     $scope.channelTypes = [];
     $scope.thingTypes = [];
     $scope.thingChannels = [];
     $scope.isLoadComplete = false;
-    var thingList, thingCounter = 0;
+    var thingList, thingCounter;
     function getThings() {
+        $scope.things = [];
         thingService.getAll().$promise.then(function(things) {
             thingList = things;
+            thingCounter = 0;
             $scope.isLoadComplete = false;
             thingTypeService.getAll().$promise.then(function(thingTypes) {
                 $scope.thingTypes = thingTypes;
@@ -76,7 +78,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             });
         });
         thingCounter++;
-        if (thingHasChannels(thing)) {
+        if (thingHasChannels(thing) && $scope.things.indexOf(thing) == -1) {
             $scope.things.push(thing);
         }
         getTabs();
@@ -105,16 +107,24 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }
         for ( var value in arr) {
-            $scope.tabs.push({
-                name : value
-            });
+            if (!hasTab(value)) {
+                $scope.tabs.push({
+                    name : value
+                });
+            }
         }
-        if (otherTab) {
+        if (otherTab && !hasTab("OTHER")) {
             $scope.tabs.push({
                 name : "OTHER"
             });
         }
         $scope.isLoadComplete = true;
+    }
+
+    function hasTab(name) {
+        return $.grep($scope.tabs, function(tab) {
+            return tab.name == name;
+        }).length > 0;
     }
 
     function getThingTypeLocal(thingTypeUID) {
@@ -177,7 +187,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.masonry();
     });
     $scope.refresh();
-    getThings();
 
 }).controller('ControlController', function($scope, $timeout, $filter, itemService, util) {
 
