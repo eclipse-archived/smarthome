@@ -283,8 +283,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
                 if (oldThingHandlerFactory != null) {
                     ThingHandler thingHandler = thing.getHandler();
-                    unregisterHandler(thing, oldThingHandlerFactory);
-                    disposeHandler(thing, thingHandler);
+                    unregisterAndDisposeHandler(oldThingHandlerFactory, thing, thingHandler);
                     waitUntilHandlerUnregistered(thing, 60 * 1000);
                 } else {
                     logger.debug("No ThingHandlerFactory available that can handle {}", thing.getThingTypeUID());
@@ -476,8 +475,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (thingHandler != null) {
             final ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
             if (thingHandlerFactory != null) {
-                unregisterHandler(thing, thingHandlerFactory);
-                disposeHandler(thing, thingHandler);
+                unregisterAndDisposeHandler(thingHandlerFactory, thing, thingHandler);
                 if (thingTrackerEvent == ThingTrackerEvent.THING_REMOVED) {
                     SafeMethodCaller.call(new SafeMethodCaller.Action<Void>() {
                         @Override
@@ -754,12 +752,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private void unregisterHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
         synchronized (thing) {
             if (isHandlerRegistered(thing)) {
-                if (!isBridge(thing)) {
-                    doUnregisterHandler(thing, thingHandlerFactory);
-                } else {
-                    unregisterChildHandlers((Bridge) thing, thingHandlerFactory);
-                    doUnregisterHandler(thing, thingHandlerFactory);
-                }
+                doUnregisterHandler(thing, thingHandlerFactory);
             }
         }
     }
@@ -802,6 +795,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                 @Override
                 public Void call() throws Exception {
+                    setThingStatus(thingHandler.getThing(),
+                            buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
                     thingHandler.dispose();
                     return null;
                 }
@@ -815,16 +810,24 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private void unregisterChildHandlers(Bridge bridge, ThingHandlerFactory thingHandlerFactory) {
+    private void unregisterAndDisposeChildHandlers(Bridge bridge, ThingHandlerFactory thingHandlerFactory) {
         addThingsToBridge(bridge);
         for (Thing child : bridge.getThings()) {
             ThingHandler handler = child.getHandler();
             if (handler != null) {
                 logger.debug("Unregister and dispose child '{}' of bridge '{}'.", child.getUID(), bridge.getUID());
-                unregisterHandler(child, thingHandlerFactory);
-                disposeHandler(child, handler);
+                unregisterAndDisposeHandler(thingHandlerFactory, child, handler);
             }
         }
+    }
+
+    private void unregisterAndDisposeHandler(ThingHandlerFactory thingHandlerFactory, Thing thing,
+            ThingHandler handler) {
+        if (isBridge(thing)) {
+            unregisterAndDisposeChildHandlers((Bridge) thing, thingHandlerFactory);
+        }
+        disposeHandler(thing, handler);
+        unregisterHandler(thing, thingHandlerFactory);
     }
 
     private void addThingsToBridge(Bridge bridge) {
@@ -1021,8 +1024,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         for (ThingHandler thingHandler : handlers) {
             Thing thing = thingHandler.getThing();
             if (thing != null && isHandlerRegistered(thing)) {
-                unregisterHandler(thing, thingHandlerFactory);
-                disposeHandler(thing, thingHandler);
+                unregisterAndDisposeHandler(thingHandlerFactory, thing, thingHandler);
             }
         }
         thingHandlersByFactory.removeAll(thingHandlerFactory);
