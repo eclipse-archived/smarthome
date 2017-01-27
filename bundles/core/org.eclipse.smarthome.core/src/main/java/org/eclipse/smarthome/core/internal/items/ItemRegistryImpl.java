@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -63,6 +65,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
 
     private Map<String, Integer> stateDescriptionProviderRanking = new ConcurrentHashMap<>();
+
+    private Set<Provider<Item>> providersInLifecyclePhase = Collections.synchronizedSet(new HashSet<Provider<Item>>());
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
@@ -397,6 +401,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     @Override
     protected void notifyListenersAboutAddedElement(Item element) {
         super.notifyListenersAboutAddedElement(element);
+        if (!providersInLifecyclePhase.contains(getProvider(element))) {
+            postEvent(ItemEventFactory.createCreatedEvent(element));
+        }
         postEvent(ItemEventFactory.createAddedEvent(element));
     }
 
@@ -404,6 +411,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     protected void notifyListenersAboutRemovedElement(Item element) {
         super.notifyListenersAboutRemovedElement(element);
         postEvent(ItemEventFactory.createRemovedEvent(element));
+        if (!providersInLifecyclePhase.contains(getProvider(element))) {
+            postEvent(ItemEventFactory.createDeletedEvent(element));
+        }
     }
 
     @Override
@@ -470,6 +480,47 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             for (Item item : getItems()) {
                 ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
             }
+        }
+    }
+
+    private Provider<Item> getProvider(Item item) {
+        for (Entry<Provider<Item>, Collection<Item>> entry : elementMap.entrySet()) {
+            if (entry.getValue().contains(item)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void added(Provider<Item> provider, Item element) {
+        synchronized (provider) {
+            super.added(provider, element);
+        }
+    }
+
+    @Override
+    public void removed(Provider<Item> provider, Item element) {
+        synchronized (provider) {
+            super.removed(provider, element);
+        }
+    }
+
+    @Override
+    protected void addProvider(Provider<Item> provider) {
+        synchronized (provider) {
+            providersInLifecyclePhase.add(provider);
+            super.addProvider(provider);
+            providersInLifecyclePhase.remove(provider);
+        }
+    }
+
+    @Override
+    protected void removeProvider(Provider<Item> provider) {
+        synchronized (provider) {
+            providersInLifecyclePhase.add(provider);
+            super.removeProvider(provider);
+            providersInLifecyclePhase.remove(provider);
         }
     }
 

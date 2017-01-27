@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventSubscriber
+import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
@@ -22,7 +23,10 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.core.thing.events.AbstractThingRegistryEvent
 import org.eclipse.smarthome.core.thing.events.ThingAddedEvent
+import org.eclipse.smarthome.core.thing.events.ThingCreatedEvent
+import org.eclipse.smarthome.core.thing.events.ThingDeletedEvent
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent
 import org.eclipse.smarthome.core.thing.events.ThingUpdatedEvent
 import org.eclipse.smarthome.test.AsyncResultWrapper
@@ -67,32 +71,51 @@ class ThingRegistryOSGiTest extends OSGiTest {
 
     @Test
     void 'assert that ThingRegistryEventSubscribers receive events about thing changes'() {
-        def receivedEvent = null
+        StorageService storageService = getService(StorageService)
+        def List<AbstractThingRegistryEvent> receivedEvents = new ArrayList<AbstractThingRegistryEvent>()
         def thingRegistryEventSubscriber = [
-            receive: { event -> receivedEvent = event },
-            getSubscribedEventTypes: { Sets.newHashSet(ThingAddedEvent.TYPE, ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE) },
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ThingAddedEvent.TYPE, ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE, ThingCreatedEvent.TYPE, ThingDeletedEvent.TYPE)
+            },
             getEventFilter: { null },
         ] as EventSubscriber
         registerService thingRegistryEventSubscriber
 
         // add new thing
+        receivedEvents.clear()
         managedThingProvider.add(THING)
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ThingAddedEvent))
-        receivedEvent = null
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(2))}
+        assertThat receivedEvents.get(0), is(instanceOf(ThingCreatedEvent))
+        assertThat receivedEvents.get(1), is(instanceOf(ThingAddedEvent))
+
+        // remove provider
+        receivedEvents.clear()
+        managedThingProvider = null
+        unregisterService(storageService)
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ThingRemovedEvent))
+
+        // add provider
+        receivedEvents.clear()
+        registerService(storageService, StorageService.class.getName())
+        managedThingProvider = getService(ManagedThingProvider)
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ThingAddedEvent))
 
         // update thing
+        receivedEvents.clear()
         def updatedThing = ThingBuilder.create(THING_UID).build()
         managedThingProvider.update(updatedThing)
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ThingUpdatedEvent))
-        receivedEvent = null
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(1))}
+        assertThat receivedEvents.get(0), is(instanceOf(ThingUpdatedEvent))
 
         // remove thing
+        receivedEvents.clear()
         managedThingProvider.remove(THING.getUID())
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent, is(instanceOf(ThingRemovedEvent))
-        receivedEvent = null
+        waitForAssert {assertThat receivedEvents.size(), is(equalTo(2))}
+        assertThat receivedEvents.get(0), is(instanceOf(ThingRemovedEvent))
+        assertThat receivedEvents.get(1), is(instanceOf(ThingDeletedEvent))
     }
 
     @Test
