@@ -11,8 +11,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import java.text.SimpleDateFormat
-
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayTriggerHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
@@ -34,9 +32,6 @@ class TimeOfDayTriggerHandlerTest extends OSGiTest{
     final Logger logger = LoggerFactory.getLogger(RuntimeRuleTest.class)
     VolatileStorageService volatileStorageService = new VolatileStorageService()
     def RuleRegistry ruleRegistry
-    Calendar cal = Calendar.getInstance();
-    SimpleDateFormat sdf = new SimpleDateFormat("EEE");
-    String dayOfWeek = sdf.format(cal.getTime()).toUpperCase();
 
     @Before
     void before() {
