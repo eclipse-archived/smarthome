@@ -30,7 +30,7 @@
         "type": "script.ScriptAction",
         "configuration": {  
           "type": "application/javascript",
-          "script": "print(items.MyTrigger), print(things.getAll()), print(context.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')"
+          "script": "print(items.MyTrigger), print(things.getAll()), print(ctx.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')"
         }
       }
     ]
