@@ -48,7 +48,7 @@ class DayOfWeekConditionHandlerTest extends OSGiTest{
     VolatileStorageService volatileStorageService = new VolatileStorageService()
     def RuleRegistry ruleRegistry
     Calendar cal = Calendar.getInstance();
-    SimpleDateFormat sdf = new SimpleDateFormat("EEE");
+    SimpleDateFormat sdf = new SimpleDateFormat("EEE", Locale.ENGLISH);
     String dayOfWeek = sdf.format(cal.getTime()).toUpperCase();
 
     @Before
