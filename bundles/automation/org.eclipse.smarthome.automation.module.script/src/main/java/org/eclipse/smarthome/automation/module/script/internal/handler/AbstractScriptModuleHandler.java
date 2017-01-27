@@ -51,8 +51,9 @@ abstract public class AbstractScriptModuleHandler<T extends Module> extends Base
             executionContext = engine.getContext();
         }
 
-        // make the whole context available as "context"
-        executionContext.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
+        // make the whole context available as "ctx"
+        // Note: We don't use "context" here as it doesn't work on all JVM versions!
+        executionContext.setAttribute("ctx", context, ScriptContext.ENGINE_SCOPE);
 
         // add the single context entries without their prefix to the scope
         for (Entry<String, ?> entry : context.entrySet()) {
