@@ -51,21 +51,26 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
     public PersistenceModelManager() {
     }
 
-    protected void setModelRepository(ModelRepository modelRepository) {
-        this.modelRepository = modelRepository;
+    protected void activate() {
         modelRepository.addModelRepositoryChangeListener(this);
         for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
             String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
-            manager.stopEventHandling(serviceName);
             manager.startEventHandling(serviceName);
         }
     }
 
-    protected void unsetModelRepository(ModelRepository modelRepository) {
+    protected void deactivate() {
         modelRepository.removeModelRepositoryChangeListener(this);
         for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
             manager.stopEventHandling(modelName);
         }
+    }
+
+    protected void setModelRepository(ModelRepository modelRepository) {
+        this.modelRepository = modelRepository;
+    }
+
+    protected void unsetModelRepository(ModelRepository modelRepository) {
         this.modelRepository = null;
     }
 
