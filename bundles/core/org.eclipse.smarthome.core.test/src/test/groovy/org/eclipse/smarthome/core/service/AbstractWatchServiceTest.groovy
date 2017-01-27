@@ -86,7 +86,7 @@ class AbstractWatchServiceTest extends OSGiTest {
         watchService = new RelativeWatchService(WATCHED_DIRECTORY,true,false)
 
         // File created in a subdirectory of the watched directory
-        assertByRelativePath("subdir" + File.separatorChar + "subDirWatchFile")
+        assertByRelativePath("subDir" + File.separatorChar + "subDirWatchFile")
     }
 
     @Test
