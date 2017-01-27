@@ -118,7 +118,7 @@ class ScriptRuleTest extends OSGiTest {
         assertThat action, is(notNullValue())
         assertThat action.typeUID, is("script.ScriptAction")
         assertThat action.configuration.get("type"), is("application/javascript")
-        assertThat action.configuration.get("script"), is("print(items.MyTrigger), print(things.getAll()), print(context.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')")
+        assertThat action.configuration.get("script"), is("print(items.MyTrigger), print(things.getAll()), print(ctx.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')")
         def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
 
