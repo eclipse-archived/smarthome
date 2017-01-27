@@ -78,10 +78,6 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         } else {
             logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
         }
-        if (moduleHandler != null) {
-            handlers.put(ruleUID + module.getId(), moduleHandler);
-        }
-
         return moduleHandler;
     }
 

@@ -82,7 +82,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
-        for (ModuleHandler handler : handlers.values()) {
+        for (ModuleHandler handler : getHandlers().values()) {
             if (handler instanceof ItemStateConditionHandler) {
                 ((ItemStateConditionHandler) handler).setItemRegistry(this.itemRegistry);
             } else if (handler instanceof ItemCommandActionHandler) {
@@ -97,7 +97,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      * @param itemRegistry
      */
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
-        for (ModuleHandler handler : handlers.values()) {
+        for (ModuleHandler handler : getHandlers().values()) {
             if (handler instanceof ItemStateConditionHandler) {
                 ((ItemStateConditionHandler) handler).unsetItemRegistry(this.itemRegistry);
             } else if (handler instanceof ItemCommandActionHandler) {
@@ -114,7 +114,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-        for (ModuleHandler handler : handlers.values()) {
+        for (ModuleHandler handler : getHandlers().values()) {
             if (handler instanceof ItemCommandActionHandler) {
                 ((ItemCommandActionHandler) handler).setEventPublisher(eventPublisher);
             }
@@ -128,7 +128,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
-        for (ModuleHandler handler : handlers.values()) {
+        for (ModuleHandler handler : getHandlers().values()) {
             if (handler instanceof ItemCommandActionHandler) {
                 ((ItemCommandActionHandler) handler).unsetEventPublisher(eventPublisher);
             }
@@ -149,81 +149,41 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
     @Override
     protected synchronized ModuleHandler internalCreate(final Module module, final String ruleUID) {
         logger.trace("create {} -> {} : {}", module.getId(), module.getTypeUID(), ruleUID);
-
-        final ModuleHandler handler = handlers.get(ruleUID + module.getId());
         final String moduleTypeUID = module.getTypeUID();
-
         if (module instanceof Trigger) {
             // Handle triggers
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof GenericEventTriggerHandler) {
-                    return handler;
-                } else {
-                    final GenericEventTriggerHandler triggerHandler = new GenericEventTriggerHandler((Trigger) module,
-                            this.bundleContext);
-                    return triggerHandler;
-                }
+                return new GenericEventTriggerHandler((Trigger) module,
+                        this.bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof ItemCommandTriggerHandler) {
-                    return handler;
-                } else {
-                    final ItemCommandTriggerHandler triggerHandler = new ItemCommandTriggerHandler((Trigger) module,
-                            this.bundleContext);
-                    return triggerHandler;
-                }
+                return new ItemCommandTriggerHandler((Trigger) module,
+                        this.bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof ItemStateTriggerHandler) {
-                    return handler;
-                } else {
-                    final ItemStateTriggerHandler triggerHandler = new ItemStateTriggerHandler((Trigger) module,
-                            this.bundleContext);
-                    return triggerHandler;
-                }
+                return new ItemStateTriggerHandler((Trigger) module,
+                        this.bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions
 
             if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof ItemStateConditionHandler) {
-                    return handler;
-                } else {
-                    final ItemStateConditionHandler conditionHandler = new ItemStateConditionHandler(
-                            (Condition) module);
-                    conditionHandler.setItemRegistry(itemRegistry);
-                    return conditionHandler;
-                }
+                new ItemStateConditionHandler((Condition) module).setItemRegistry(itemRegistry);
+                return new ItemStateConditionHandler((Condition) module);
             } else if (GenericEventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof GenericEventConditionHandler) {
-                    return handler;
-                } else {
-                    final GenericEventConditionHandler eventConditionHandler = new GenericEventConditionHandler(
-                            (Condition) module);
-                    return eventConditionHandler;
-                }
+                return new GenericEventConditionHandler(
+                        (Condition) module);
             } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof CompareConditionHandler) {
-                    return handler;
-                } else {
-                    final CompareConditionHandler compareConditionHandler = new CompareConditionHandler(
-                            (Condition) module);
-                    return compareConditionHandler;
-                }
+                return new CompareConditionHandler((Condition) module);
             }
         } else if (module instanceof Action) {
             // Handle actions
 
             if (ItemCommandActionHandler.ITEM_COMMAND_ACTION.equals(moduleTypeUID)) {
-                if (handler != null && handler instanceof ItemCommandActionHandler) {
-                    return handler;
-                } else {
-                    final ItemCommandActionHandler postCommandActionHandler = new ItemCommandActionHandler(
-                            (Action) module);
-                    postCommandActionHandler.setEventPublisher(eventPublisher);
-                    postCommandActionHandler.setItemRegistry(itemRegistry);
-                    return postCommandActionHandler;
-                }
+                final ItemCommandActionHandler postCommandActionHandler = new ItemCommandActionHandler((Action) module);
+                postCommandActionHandler.setEventPublisher(eventPublisher);
+                postCommandActionHandler.setItemRegistry(itemRegistry);
+                return postCommandActionHandler;
             } else if (RuleEnableHandler.UID.equals(moduleTypeUID)) {
                 return new RuleEnableHandler((Action) module, ruleRegistry);
             }
