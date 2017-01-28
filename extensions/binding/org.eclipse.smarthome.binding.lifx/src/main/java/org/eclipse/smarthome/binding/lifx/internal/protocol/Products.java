@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
+import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+
 /**
  * Enumerates the LIFX products, their IDs and feature set.
  *
@@ -62,6 +65,20 @@ public enum Products {
         return name;
     }
 
+    public ThingTypeUID getThingTypeUID() {
+        if (isColor()) {
+            if (isInfrared()) {
+                return LifxBindingConstants.THING_TYPE_COLORIRLIGHT;
+            } else if (isMultiZone()) {
+                return LifxBindingConstants.THING_TYPE_COLORMZLIGHT;
+            } else {
+                return LifxBindingConstants.THING_TYPE_COLORLIGHT;
+            }
+        } else {
+            return LifxBindingConstants.THING_TYPE_WHITELIGHT;
+        }
+    }
+
     public boolean isColor() {
         return color;
     }
@@ -74,15 +91,38 @@ public enum Products {
         return multiZone;
     }
 
-    public static Products getProductFromProductID(long id) throws IllegalArgumentException {
-
-        for (Products c : Products.values()) {
-            if (c.productID == id) {
-                return c;
+    /**
+     * Returns a product that has the given thing type UID.
+     *
+     * @param uid a thing type UID
+     * @return a product that has the given thing type UID
+     * @throws IllegalArgumentException when <code>uid</code> is not a valid LIFX thing type UID
+     */
+    public static Products getLikelyProduct(ThingTypeUID uid) throws IllegalArgumentException {
+        for (Products product : Products.values()) {
+            if (product.getThingTypeUID().equals(uid)) {
+                return product;
             }
         }
 
-        throw new IllegalArgumentException(id + " is not a valid product ID.");
+        throw new IllegalArgumentException(uid + " is not a valid product thing type UID");
+    }
+
+    /**
+     * Returns the product that has the given product ID.
+     *
+     * @param id the product ID
+     * @return the product that has the given product ID
+     * @throws IllegalArgumentException when <code>id</code> is not a valid LIFX product ID
+     */
+    public static Products getProductFromProductID(long id) throws IllegalArgumentException {
+        for (Products product : Products.values()) {
+            if (product.productID == id) {
+                return product;
+            }
+        }
+
+        throw new IllegalArgumentException(id + " is not a valid product ID");
     }
 
 }

@@ -54,8 +54,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link LifxLightDiscovery} provides support for auto-discovery of LIFX
  * lights.
@@ -111,8 +109,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     public LifxLightDiscovery() throws IllegalArgumentException {
-        super(Sets.newHashSet(LifxBindingConstants.THING_TYPE_COLORLIGHT, LifxBindingConstants.THING_TYPE_COLORIRLIGHT,
-                LifxBindingConstants.THING_TYPE_WHITELIGHT), 1, true);
+        super(LifxBindingConstants.SUPPORTED_THING_TYPES, 1, true);
     }
 
     @Override
@@ -503,7 +500,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         try {
             String macAsLabel = light.macAddress.getAsLabel();
             Products product = light.products;
-            ThingUID thingUID = getUID(macAsLabel, product.isColor(), product.isInfrared());
+            ThingUID thingUID = new ThingUID(product.getThingTypeUID(), macAsLabel);
 
             String label = light.label;
             if (StringUtils.isBlank(label)) {
@@ -518,18 +515,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         } catch (IllegalArgumentException e) {
             logger.trace("Ignoring packet: {}", e);
             return null;
-        }
-    }
-
-    private ThingUID getUID(String hex, boolean color, boolean infrared) {
-        if (color) {
-            if (infrared) {
-                return new ThingUID(LifxBindingConstants.THING_TYPE_COLORIRLIGHT, hex);
-            } else {
-                return new ThingUID(LifxBindingConstants.THING_TYPE_COLORLIGHT, hex);
-            }
-        } else {
-            return new ThingUID(LifxBindingConstants.THING_TYPE_WHITELIGHT, hex);
         }
     }
 

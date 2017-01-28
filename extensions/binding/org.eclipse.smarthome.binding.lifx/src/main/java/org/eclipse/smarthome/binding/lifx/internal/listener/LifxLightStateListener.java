@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.binding.lifx.internal.listener;
 
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightState;
+import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
-import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -20,12 +20,12 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 public interface LifxLightStateListener {
 
     /**
-     * Called when the HSB property changes.
+     * Called when the colors property changes.
      *
-     * @param oldHSB the old HSB value
-     * @param newHSB the new HSB value
+     * @param oldColors the old colors value
+     * @param newColors the new colors value
      */
-    void handleHSBChange(HSBType oldHSB, HSBType newHSB);
+    void handleColorsChange(HSBK[] oldColors, HSBK[] newColors);
 
     /**
      * Called when the power state property changes.
@@ -34,14 +34,6 @@ public interface LifxLightStateListener {
      * @param newPowerState the new power state value
      */
     void handlePowerStateChange(PowerState oldPowerState, PowerState newPowerState);
-
-    /**
-     * Called when the temperature property changes.
-     *
-     * @param oldTemperature the old temperature value
-     * @param newTemperature the new temperature value
-     */
-    void handleTemperatureChange(PercentType oldTemperature, PercentType newTemperature);
 
     /**
      * Called when the infrared property changes.
