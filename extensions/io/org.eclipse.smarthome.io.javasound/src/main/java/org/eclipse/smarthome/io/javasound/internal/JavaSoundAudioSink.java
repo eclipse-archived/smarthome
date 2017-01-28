@@ -124,6 +124,7 @@ public class JavaSoundAudioSink implements AudioSink {
         } else {
             Runtime.getRuntime()
                     .exec(new String[] { "osascript", "-e", "set volume output volume " + volume.intValue() });
+            macVolumeValue = volume;
         }
     }
 
