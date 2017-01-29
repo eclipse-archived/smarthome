@@ -140,7 +140,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
         try (final InputStream stream = prepareInputStream(streamId, resp)) {
             if (stream == null) {
-                logger.debug("Received request for invalid stream id at {}", req.getRequestURI());
+                logger.info("Received request for invalid stream id at {}", req.getRequestURI());
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 IOUtils.copy(stream, resp.getOutputStream());
