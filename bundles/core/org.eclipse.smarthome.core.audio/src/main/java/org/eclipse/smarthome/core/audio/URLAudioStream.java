@@ -46,7 +46,7 @@ public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream
             throw new IllegalArgumentException("url must not be null!");
         }
         this.url = url;
-        this.audioFormat = new AudioFormat(AudioFormat.CODEC_MP3, AudioFormat.CODEC_MP3, false, 16, null, null);
+        this.audioFormat = new AudioFormat(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3, false, 16, null, null);
         this.inputStream = createInputStream();
     }
 
