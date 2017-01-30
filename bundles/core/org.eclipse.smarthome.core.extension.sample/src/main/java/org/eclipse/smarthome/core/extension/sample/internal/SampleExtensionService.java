@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,10 @@ import org.eclipse.smarthome.core.extension.ExtensionType;
  *
  */
 public class SampleExtensionService implements ExtensionService {
+
+    private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+
+    private static final String[] COLOR_VALUES = new String[] { "80", "C8", "FF" };
 
     private EventPublisher eventPublisher;
 
@@ -59,10 +64,29 @@ public class SampleExtensionService implements ExtensionService {
                 String typeId = type.getId();
                 String version = "1.0";
                 String link = (Math.random() < 0.5) ? null : "http://lmgtfy.com/?q=" + name;
-                Extension extension = new Extension(id, typeId, label, version, link, installed);
+                String description = createDescription();
+                String imageLink = null;
+                String backgroundColor = createRandomColor();
+                Extension extension = new Extension(id, typeId, label, version, link, installed, description,
+                        backgroundColor, imageLink);
                 extensions.put(extension.getId(), extension);
             }
         }
+    }
+
+    private static final Random random = new Random();
+
+    private String createRandomColor() {
+        StringBuilder ret = new StringBuilder("#");
+        for (int i = 0; i < 3; i++) {
+            ret.append(COLOR_VALUES[random.nextInt(COLOR_VALUES.length)]);
+        }
+        return ret.toString();
+    }
+
+    private String createDescription() {
+        int index = StringUtils.indexOf(LOREM_IPSUM, ' ', random.nextInt(LOREM_IPSUM.length()));
+        return LOREM_IPSUM.substring(0, index);
     }
 
     protected void deactivate() {
