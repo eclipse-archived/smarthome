@@ -7,8 +7,14 @@
  */
 package org.eclipse.smarthome.io.rest.core.extensions;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -57,15 +63,16 @@ public class ExtensionResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ExtensionResource.class);
 
-    private ExtensionService extensionService;
+    private Set<ExtensionService> extensionServices = new CopyOnWriteArraySet<>();
+
     private EventPublisher eventPublisher;
 
-    protected void setExtensionService(ExtensionService featureService) {
-        this.extensionService = featureService;
+    protected void addExtensionService(ExtensionService featureService) {
+        this.extensionServices.add(featureService);
     }
 
-    protected void unsetExtensionService(ExtensionService featureService) {
-        this.extensionService = null;
+    protected void removeExtensionService(ExtensionService featureService) {
+        this.extensionServices.remove(featureService);
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
@@ -87,7 +94,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
             @HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        return extensionService.getExtensions(locale);
+        return getAllExtensions(locale);
     }
 
     @GET
@@ -95,10 +102,10 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extension types.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public List<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
+    public Set<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        return extensionService.getTypes(locale);
+        return getAllExtensionTypes(locale);
     }
 
     @GET
@@ -110,6 +117,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
             @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
+        ExtensionService extensionService = getExtensionService(extensionId);
         Object responseObject = extensionService.getExtension(extensionId, locale);
         if (responseObject != null) {
             return Response.ok(responseObject).build();
@@ -128,12 +136,14 @@ public class ExtensionResource implements SatisfiableRESTResource {
             @Override
             public void run() {
                 try {
+                    ExtensionService extensionService = getExtensionService(extensionId);
                     extensionService.install(extensionId);
                 } catch (Exception e) {
                     logger.error("Exception while installing extension: {}", e.getMessage());
                     postFailureEvent(extensionId, e.getMessage());
                 }
             }
+
         });
         return Response.ok().build();
     }
@@ -147,6 +157,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
             @Override
             public void run() {
                 try {
+                    ExtensionService extensionService = getExtensionService(extensionId);
                     extensionService.uninstall(extensionId);
                 } catch (Exception e) {
                     logger.error("Exception while uninstalling extension: {}", e.getMessage());
@@ -166,7 +177,41 @@ public class ExtensionResource implements SatisfiableRESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return extensionService != null;
+        return !extensionServices.isEmpty();
+    }
+
+    private List<Extension> getAllExtensions(Locale locale) {
+        List<Extension> ret = new ArrayList<>();
+        for (ExtensionService extensionService : extensionServices) {
+            ret.addAll(extensionService.getExtensions(locale));
+        }
+        return ret;
+    }
+
+    private Set<ExtensionType> getAllExtensionTypes(Locale locale) {
+        final Collator coll = Collator.getInstance(locale);
+        coll.setStrength(Collator.PRIMARY);
+        Set<ExtensionType> ret = new TreeSet<>(new Comparator<ExtensionType>() {
+            @Override
+            public int compare(ExtensionType o1, ExtensionType o2) {
+                return coll.compare(o1.getLabel(), o2.getLabel());
+            }
+        });
+        for (ExtensionService extensionService : extensionServices) {
+            ret.addAll(extensionService.getTypes(locale));
+        }
+        return ret;
+    }
+
+    private ExtensionService getExtensionService(final String extensionId) {
+        for (ExtensionService extensionService : extensionServices) {
+            for (Extension extension : extensionService.getExtensions(Locale.getDefault())) {
+                if (extensionId.equals(extension.getId())) {
+                    return extensionService;
+                }
+            }
+        }
+        throw new IllegalArgumentException("No extension service registered for " + extensionId);
     }
 
 }
