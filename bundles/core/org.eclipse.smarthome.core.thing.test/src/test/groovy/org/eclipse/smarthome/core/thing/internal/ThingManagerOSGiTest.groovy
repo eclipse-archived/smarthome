@@ -365,30 +365,32 @@ class ThingManagerOSGiTest extends OSGiTest {
     void 'ThingManager handles bridge-thing handler life cycle correctly'() {
         initCalledCounter = 0
         disposedCalledCounter = 0
-        ThingHandlerCallback callback
 
         def bridge = BridgeBuilder.create(new ThingTypeUID("binding:test"), new ThingUID("binding:test:someBridgeUID-1")).build()
         def bridgeInitCalled = false
         def bridgeInitCalledOrder = 0
         def bridgeDisposedCalled = false
         def bridgeDisposedCalledOrder = 0
+        def ThingHandlerCallback bridgeCallback
+        def bridgeCallbackWasNull = false
         def bridgeHandler = [
-            setCallback: { callbackArg -> callback = callbackArg },
+            setCallback: { callbackArg -> bridgeCallback = callbackArg },
             initialize: {
                 bridgeInitCalled = true
                 bridgeInitCalledOrder = ++initCalledCounter
-                callback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
+                bridgeCallback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
             },
             dispose: {
                 bridgeDisposedCalled = true
                 bridgeDisposedCalledOrder = ++disposedCalledCounter
+                bridgeCallbackWasNull = bridgeCallback == null
             },
             thingDisposed: { thing -> },
             childHandlerInitialized: { thingHandler, thing -> },
             childHandlerDisposed: { thingHandler, thing -> },
             getThing: { bridge },
             handleRemoval: {
-                callback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build())
+                bridgeCallback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build())
             }
         ] as BridgeHandler
 
@@ -397,21 +399,24 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingInitCalledOrder = 0
         def thingDisposedCalled = false
         def thingDisposedCalledOrder = 0
+        def ThingHandlerCallback thingCallback
+        def thingCallbackWasNull = false
         def thingHandler = [
-            setCallback: {},
+            setCallback: { callbackArg -> thingCallback = callbackArg },
             initialize: {
                 thingInitCalled = true
                 thingInitCalledOrder = ++initCalledCounter
-                callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
+                bridgeCallback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build())
             },
             dispose: {
                 thingDisposedCalled = true
                 thingDisposedCalledOrder = ++disposedCalledCounter
+                thingCallbackWasNull = thingCallback == null
             },
             bridgeStatusChanged: { },
             getThing: { thing },
             handleRemoval: {
-                callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build())
+                bridgeCallback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build())
             }
         ] as ThingHandler
 
@@ -465,6 +470,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert ({ assertThat bridge.getStatusInfo(), is(statusInfo) })
 
         // remove thing - provokes thing disposal
+        bridgeCallbackWasNull = false
+        thingCallbackWasNull = false
         thingRegistry.remove(thing.getUID())
         waitForAssert ({ assertThat thingDisposedCalled, is(true) })
         waitForAssert ({ assertThat thingDisposedCalledOrder, is(1) })
@@ -472,6 +479,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert ({ assertThat bridge.getStatusInfo(), is(statusInfo) })
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         waitForAssert ({ assertThat thing.getStatusInfo(), is(statusInfo) })
+        assertThat thingCallbackWasNull, is(false)
 
         // add thing again - provokes thing initialization
         thingRegistry.add(thing)
@@ -482,6 +490,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert ({ assertThat thing.getStatusInfo(), is(statusInfo) })
 
         // remove bridge - provokes thing & bridge disposal
+        bridgeCallbackWasNull = false
+        thingCallbackWasNull = false
         thingRegistry.remove(bridge.getUID())
         waitForAssert ({ assertThat thingDisposedCalled, is(true) })
         waitForAssert ({ assertThat thingDisposedCalledOrder, is(2) })
@@ -492,6 +502,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         waitForAssert ({ assertThat thing.getStatusInfo(), is(statusInfo) })
         waitForAssert ({ assertThat bridge.getStatusInfo(), is(statusInfo) })
+        assertThat bridgeCallbackWasNull, is(false)
+        assertThat thingCallbackWasNull, is(false)
 
         // add bridge again
         thingRegistry.add(bridge)
@@ -506,6 +518,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert ({ assertThat bridge.getStatusInfo(), is(statusInfo) })
 
         // unregister factory
+        bridgeCallbackWasNull = false
+        thingCallbackWasNull = false
         unregisterService(thingHandlerFactory)
         waitForAssert ({ assertThat thingDisposedCalled, is(true) })
         waitForAssert ({ assertThat thingDisposedCalledOrder, is(4) })
@@ -514,6 +528,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         waitForAssert ({ assertThat thing.getStatusInfo(), is(statusInfo) })
         waitForAssert ({ assertThat bridge.getStatusInfo(), is(statusInfo) })
+        assertThat bridgeCallbackWasNull, is(false)
+        assertThat thingCallbackWasNull, is(false)
     }
 
     @Test
