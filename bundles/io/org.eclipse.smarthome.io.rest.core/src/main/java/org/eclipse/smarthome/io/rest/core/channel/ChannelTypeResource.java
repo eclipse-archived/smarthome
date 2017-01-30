@@ -134,7 +134,7 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
 
         return new ChannelTypeDTO(channelType.getUID().toString(), channelType.getLabel(), channelType.getDescription(),
                 channelType.getCategory(), channelType.getItemType(), channelType.getKind(), parameters,
-                parameterGroups, channelType.getState(), channelType.getTags());
+                parameterGroups, channelType.getState(), channelType.getTags(), channelType.isAdvanced());
     }
 
     private Set<ChannelTypeDTO> convertToChannelTypeDTOs(List<ChannelType> channelTypes, Locale locale) {
