@@ -41,6 +41,14 @@
   <module name="org.eclipse.smarthome.tools.analysis.checkstyle.ExportInternalPackageCheck">
     <property name="severity" value="warning" />
   </module>
+  
+  <module name="org.eclipse.smarthome.tools.analysis.checkstyle.MavenPomderivedInClasspathCheck">
+    <property name="severity" value="warning" />
+  </module>
+  
+  <module name="org.eclipse.smarthome.tools.analysis.checkstyle.OverridingParentPomConfigurationCheck">
+    <property name="severity" value="warning" />
+  </module>
 
   <module name="TreeWalker">
     <!-- See http://checkstyle.sourceforge.net/config_coding.html#IllegalThrows -->
