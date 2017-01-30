@@ -23,6 +23,9 @@ public interface ExtensionService {
     /**
      * Retrieves all extensions
      *
+     * It is expected that this method is rather cheap to call and will return quickly, i.e. some caching should be
+     * implemented if required.
+     *
      * @param locale the locale to use for the result
      * @return the localized extensions
      */
@@ -47,6 +50,7 @@ public interface ExtensionService {
 
     /**
      * Installs the given extension.
+     *
      * This can be a long running process. The framework makes sure that this is called within a separate thread and
      * ExtensionEvents will be sent upon its completion.
      *
@@ -56,6 +60,7 @@ public interface ExtensionService {
 
     /**
      * Uninstalls the given extension.
+     *
      * This can be a long running process. The framework makes sure that this is called within a separate thread and
      * ExtensionEvents will be sent upon its completion.
      *
