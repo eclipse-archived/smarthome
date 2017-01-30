@@ -296,7 +296,9 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}")
     @ApiOperation(value = "Removes a thing from the registry. Set \'force\' to __true__ if you want the thing te be removed immediately.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 202, message = "ACCEPTED for asynchronous deletion."),
+            @ApiResponse(code = 200, message = "OK, was deleted."),
+            @ApiResponse(code = 409, message = "CONFLICT, Thing could not be deleted because it's not managed."),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response remove(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
