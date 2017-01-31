@@ -318,29 +318,30 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
             ArrayList<Future<?>> obsoleteFutures = new ArrayList<Future<?>>();
             synchronized (futures) {
                 ArrayList<Future<?>> taskFutures = futures.get(task);
-                if (taskFutures.size() != 0) {
-                    logger.trace("Runnable '{}' has {} Futures to be removed", task.toString(), taskFutures.size());
-                    for (Future<?> future : taskFutures) {
-                        future.cancel(false);
-                        timestamps.remove(future);
-                        obsoleteFutures.add(future);
+                if (taskFutures != null) {
+                    if (taskFutures.size() != 0) {
+                        logger.trace("Runnable '{}' has {} Futures to be removed", task.toString(), taskFutures.size());
+                        for (Future<?> future : taskFutures) {
+                            future.cancel(false);
+                            timestamps.remove(future);
+                            obsoleteFutures.add(future);
+                        }
+                    }
+
+                    for (Future<?> future : obsoleteFutures) {
+                        taskFutures.remove(future);
+                    }
+
+                    super.purge();
+
+                    if (taskFutures.size() == 0) {
+                        futures.remove(task);
+                        return true;
                     }
                 }
-
-                for (Future<?> future : obsoleteFutures) {
-                    taskFutures.remove(future);
-                }
-
-                super.purge();
-
-                if (taskFutures.size() == 0) {
-                    futures.remove(task);
-                    return true;
-                } else {
-                    return false;
-                }
+                return false;
             }
-        }
 
+        }
     }
 }
