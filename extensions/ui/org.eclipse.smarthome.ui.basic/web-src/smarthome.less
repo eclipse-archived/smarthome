@@ -672,3 +672,13 @@ html.flexbox-legacy {
 		}
 	}
 }
+
+// MS Edge hacks
+@supports (-ms-ime-align:auto) {
+	.mdl-slider.mdl-slider.is-upgraded {
+		-ms-appearance: none;
+		height: 32px;
+ 		margin: 0;
+	}
+}
+
