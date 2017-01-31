@@ -11,16 +11,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -30,7 +26,6 @@ import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemUtil;
-import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
@@ -52,8 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider>
-        implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
@@ -66,72 +60,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
-    }
-
-    @Override
-    public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
-
-        Map<String, Item> oldItemsMap = new HashMap<>();
-        Collection<Item> oldItems = elementMap.get(provider);
-
-        // if the provider did not provide any old item names, we check if we
-        // know them and pass them further on to our listeners
-        if (oldItemNames == null || oldItemNames.isEmpty()) {
-            oldItemNames = new HashSet<String>();
-            if (oldItems != null && oldItems.size() > 0) {
-                for (Item oldItem : oldItems) {
-                    oldItemsMap.put(oldItem.getName(), oldItem);
-                }
-            }
-        } else {
-            for (Item item : oldItems) {
-                if (oldItemNames.contains(item.getName())) {
-                    oldItemsMap.put(item.getName(), item);
-                }
-            }
-        }
-
-        Collection<Item> providedItems = provider.getAll();
-        List<Item> items = new CopyOnWriteArrayList<Item>();
-        elementMap.put(provider, items);
-        for (Item item : providedItems) {
-            Item oldItem = oldItemsMap.get(item.getName());
-            if (oldItem == null) {
-                // it is a new item
-                try {
-                    onAddElement(item);
-                    items.add(item);
-                    for (RegistryChangeListener<Item> listener : listeners) {
-                        listener.added(item);
-                    }
-                } catch (IllegalArgumentException ex) {
-                    logger.warn("Could not add item: " + ex.getMessage(), ex);
-                }
-            } else if (!oldItem.equals(item)) {
-                // it is a modified item
-                try {
-                    onAddElement(item);
-                    items.add(item);
-                    for (RegistryChangeListener<Item> listener : listeners) {
-                        listener.updated(oldItem, item);
-                    }
-                } catch (IllegalArgumentException ex) {
-                    logger.warn("Could not add item: " + ex.getMessage(), ex);
-                }
-            } else {
-                // it has not been modified, so keep the old instance
-                items.add(oldItem);
-            }
-            oldItemsMap.remove(item.getName());
-        }
-
-        // send a remove notification for all remaining old items
-        for (Item removedItem : oldItemsMap.values()) {
-            for (RegistryChangeListener<Item> listener : listeners) {
-                listener.removed(removedItem);
-            }
-        }
-
     }
 
     /*
