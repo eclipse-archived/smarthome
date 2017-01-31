@@ -14,11 +14,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -245,7 +247,7 @@ public class ModelRepositoryImpl implements ModelRepository {
         try {
             resource.load(inputStream, Collections.EMPTY_MAP);
             StringBuilder criticalErrors = new StringBuilder();
-            StringBuilder warnings = new StringBuilder();
+            List<String> warnings = new LinkedList<>();
 
             if (resource != null && !resource.getContents().isEmpty()) {
                 // Check for syntactical errors
@@ -261,11 +263,11 @@ public class ModelRepositoryImpl implements ModelRepository {
                 org.eclipse.emf.common.util.Diagnostic diagnostic = Diagnostician.INSTANCE
                         .validate(resource.getContents().get(0));
                 for (org.eclipse.emf.common.util.Diagnostic d : diagnostic.getChildren()) {
-                    warnings.append(d.getMessage());
-                    warnings.append("\n");
+                    warnings.add(d.getMessage());
                 }
-                if (warnings.length() > 0) {
-                    logger.warn("Validation error(s) in configuration model '{}':\n {}", name, warnings);
+                if (warnings.size() > 0) {
+                    logger.info("Validation issues found in configuration model '{}', using it anyway:\n{}", name,
+                            StringUtils.join(warnings, "\n"));
                 }
             }
         } finally {
