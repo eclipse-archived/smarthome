@@ -82,12 +82,23 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
         }
         return null;
     };
+    this.findByIndex = function(condition) {
+        for (var i = 0; i < $rootScope.data[dataType].length; i++) {
+            var element = $rootScope.data[dataType][i];
+            if (condition(element)) {
+                return i;
+            }
+        }
+        return -1;
+    };
     this.add = function(element) {
         $rootScope.data[dataType].push(element);
     };
-    this.remove = function(element) {
-        if ($rootScope.data[dataType].indexOf(element) !== -1) {
+    this.remove = function(element, index) {
+        if (typeof (index) === 'undefined' && $rootScope.data[dataType].indexOf(element) !== -1) {
             $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
+        } else if (typeof (index) !== 'undefined' && index !== -1) {
+            $rootScope.data[dataType].splice(index, 1);
         }
     };
     this.update = function(element) {
@@ -106,11 +117,14 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     var repository = new Repository($q, $rootScope, inboxService, 'discoveryResults')
     $rootScope.data.discoveryResults = [];
     eventService.onEvent('smarthome/inbox/*', function(topic, discoveryResult) {
-        if (topic.indexOf("added") > -1) {
+        var index = repository.findByIndex(function(result) {
+            return discoveryResult.thingUID == result.thingUID;
+        });
+        if (topic.indexOf("added") > -1 && index == -1) {
             repository.add(discoveryResult);
         }
-        if (topic.indexOf("removed") > -1) {
-            repository.remove(discoveryResult);
+        if (topic.indexOf("removed") > -1 && index != -1) {
+            repository.remove(discoveryResult, index);
         }
     });
     return repository;
