@@ -596,7 +596,6 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 var c = {}, c_i, c_l;
                 for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
                     c = channelTypes[c_i];
-                    c.advanced = false;
                     var id = c.UID.split(':', 2);
                     if (id[1] == channelId) {
                         return c;
