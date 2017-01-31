@@ -18,14 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -59,6 +57,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
     private Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
 
     private ModelRepository modelRepository = null;
+
+    private Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
 
     private Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
 
@@ -336,29 +336,50 @@ public class GenericItemProvider extends AbstractProvider<Item>
             switch (type) {
                 case ADDED:
                     processBindingConfigsFromModel(modelName);
-                    for (ProviderChangeListener<Item> listener : listeners) {
-                        if (listener instanceof ItemsChangeListener) {
-                            ((ItemsChangeListener) listener).allItemsChanged(this, null);
-                        }
+                    Collection<Item> allNewItems = getAll();
+                    itemsMap.put(modelName, allNewItems);
+                    for (Item item : allNewItems) {
+                        notifyListenersAboutAddedElement(item);
                     }
                     break;
                 case MODIFIED:
-                    // TODO implement "diff & merge" for items in modified resources
                     processBindingConfigsFromModel(modelName);
-                    for (ProviderChangeListener<Item> listener : listeners) {
-                        if (listener instanceof ItemsChangeListener) {
-                            ((ItemsChangeListener) listener).allItemsChanged(this, null);
+                    Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
+                    Map<String, Item> newItems = toItemMap(getAll());
+                    itemsMap.put(modelName, newItems.values());
+                    for (Item newItem : newItems.values()) {
+                        if (oldItems.containsKey(newItem.getName())) {
+                            Item oldItem = oldItems.get(newItem.getName());
+                            if (!oldItem.equals(newItem)) {
+                                notifyListenersAboutUpdatedElement(oldItem, newItem);
+                            }
+                        } else {
+                            notifyListenersAboutAddedElement(newItem);
+                        }
+                    }
+                    for (Item oldItem : oldItems.values()) {
+                        if (!newItems.containsKey(oldItem.getName())) {
+                            notifyListenersAboutRemovedElement(oldItem);
                         }
                     }
                     break;
                 case REMOVED:
                     Collection<Item> itemsFromModel = getItemsFromModel(modelName);
+                    itemsMap.remove(modelName);
                     for (Item item : itemsFromModel) {
                         notifyListenersAboutRemovedElement(item);
                     }
                     break;
             }
         }
+    }
+
+    private Map<String, Item> toItemMap(Collection<Item> items) {
+        Map<String, Item> ret = new HashMap<>();
+        for (Item item : items) {
+            ret.put(item.getName(), item);
+        }
+        return ret;
     }
 
     /**
