@@ -912,9 +912,11 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     private void updateContext(String ruleUID, String moduleUID, Map<String, ?> outputs) {
         Map<String, Object> context = getContext(ruleUID);
-        for (Map.Entry<String, ?> entry : outputs.entrySet()) {
-            String key = moduleUID + OUTPUT_SEPARATOR + entry.getKey();
-            context.put(key, entry.getValue());
+        if (outputs != null) {
+            for (Map.Entry<String, ?> entry : outputs.entrySet()) {
+                String key = moduleUID + OUTPUT_SEPARATOR + entry.getKey();
+                context.put(key, entry.getValue());
+            }
         }
     }
 

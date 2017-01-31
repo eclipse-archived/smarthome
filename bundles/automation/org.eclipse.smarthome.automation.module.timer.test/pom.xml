@@ -27,11 +27,6 @@
           <dependencies>
             <dependency>
               <type>eclipse-plugin</type>
-              <artifactId>org.eclipse.smarthome.core.scheduler</artifactId>
-              <version>0.0.0</version>
-            </dependency>
-            <dependency>
-              <type>eclipse-plugin</type>
               <artifactId>org.eclipse.smarthome.automation.api</artifactId>
               <version>0.0.0</version>
             </dependency>
