@@ -377,7 +377,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
-        var channelType = $scope.getChannelTypeByUID($scope.thing.UID + ':' + channelID);
+        var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
