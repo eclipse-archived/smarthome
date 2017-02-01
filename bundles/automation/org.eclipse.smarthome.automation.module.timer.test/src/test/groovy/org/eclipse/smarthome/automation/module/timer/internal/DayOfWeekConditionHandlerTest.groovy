@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory
  */
 class DayOfWeekConditionHandlerTest extends OSGiTest{
 
-    final Logger logger = LoggerFactory.getLogger(RuntimeRuleTest.class)
+    final Logger logger = LoggerFactory.getLogger(DayOfWeekConditionHandlerTest.class)
     VolatileStorageService volatileStorageService = new VolatileStorageService()
     def RuleRegistry ruleRegistry
     Calendar cal = Calendar.getInstance();
