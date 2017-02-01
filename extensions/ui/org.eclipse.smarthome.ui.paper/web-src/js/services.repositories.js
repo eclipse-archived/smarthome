@@ -192,11 +192,6 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
             existingThing.item = item
         });
     });
-    eventService.onEvent('smarthome/items/*/updated', function(topic, itemUpdate) {
-        updateInRepository(itemNameToThingUID(topic.split('/')[2]), true, function(existingThing) {
-            existingThing.item = itemUpdate[0]
-        });
-    });
 
     eventService.onEvent('smarthome/links/*/added', function(topic, link) {
         var channelItem = link.channelUID.split(':'), thingUID;
@@ -234,9 +229,39 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     });
 
     return repository;
-}).factory('itemRepository', function($q, $rootScope, itemService) {
+}).factory('itemRepository', function($q, $rootScope, itemService, eventService) {
     var repository = new Repository($q, $rootScope, itemService, 'items')
     $rootScope.data.items = [];
+    eventService.onEvent('smarthome/items/*/updated', function(topic, itemUpdate) {
+        if (topic.split('/').length > 2) {
+            var index = repository.findByIndex(function(item) {
+                return item.name == topic.split('/')[2]
+            });
+            if (index !== -1) {
+                $rootScope.data.items[index] = itemUpdate[0];
+            }
+        }
+    });
+    eventService.onEvent('smarthome/items/*/added', function(topic, itemAdded) {
+        if (topic.split('/').length > 2) {
+            var index = repository.findByIndex(function(item) {
+                return item.name == itemAdded.name
+            });
+            if (index === -1 && $rootScope.data.items) {
+                $rootScope.data.items.push(itemAdded);
+            }
+        }
+    });
+    eventService.onEvent('smarthome/items/*/removed', function(topic, itemRemoved) {
+        if (topic.split('/').length > 2) {
+            var index = repository.findByIndex(function(item) {
+                return item.name == itemRemoved.name
+            });
+            if (index !== -1) {
+                $rootScope.data.items.splice(index, 1);
+            }
+        }
+    });
     return repository;
 }).factory('ruleRepository', function($q, $rootScope, ruleService, eventService) {
     var repository = new Repository($q, $rootScope, ruleService, 'rules', true)
