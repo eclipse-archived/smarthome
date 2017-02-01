@@ -66,11 +66,15 @@ import com.google.common.collect.Sets
  * this tests the RuleEngine
  * @author Benedikt Niehues - initial contribution
  * @author Marin Mitev - various fixes and extracted JSON parser test to separate file
+ * @author Victor Toni - Added scope property test
  *
  */
 class AutomationIntegrationTest extends OSGiTest{
 
     final Logger logger = LoggerFactory.getLogger(AutomationIntegrationTest.class)
+
+    final String scope = getClass().getSimpleName()
+
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
@@ -227,7 +231,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21_ConnectionTest")
+        def rule = new Rule("myRule21_ConnectionTest", scope)
         rule.triggers = triggers
         rule.conditions = conditions
         rule.actions = actions
@@ -236,7 +240,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         ruleRegistry.add(rule)
 
-        logger.info("Rule created and added: "+rule.getUID())
+        logger.info("Rule created and added: "+rule.getUID()+", scope: " + rule.getScope())
 
         def ruleEvents = [] as List<RuleStatusInfoEvent>
 
@@ -284,7 +288,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21_UNINITIALIZED")
+        def rule = new Rule("myRule21_UNINITIALIZED", scope)
         rule.triggers = triggers
         rule.conditions = conditions
         rule.actions = actions
@@ -292,6 +296,8 @@ class AutomationIntegrationTest extends OSGiTest{
         rule.name="RuleByJAVA_API"+new Random().nextInt()
 
         ruleRegistry.add(rule)
+
+        logger.info("Rule created and added: "+rule.getUID()+", scope: " + rule.getScope())
 
         assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
     }
@@ -312,7 +318,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
 
         moduleBundle.start()
-        ruleRegistry.setEnabled(rule.UID,true)
+        ruleRegistry.setEnabled(rule.UID, true)
         waitForAssert({
             logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID))
             assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
@@ -350,6 +356,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a rule based on a composite modules is initialized and executed correctly' () {
+        def random = new Random().nextInt()
         def triggerConfig = new Configuration([itemName:"myMotionItem3"])
         def condition1Config = new Configuration([itemName:"myMotionItem3", state:"ON"])
         def eventInputs = [event:"ItemStateChangeTrigger3.event"]
@@ -362,12 +369,12 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
+        def rule = new Rule("myRule21"+random+ "_COMPOSITE", scope)
         rule.triggers = triggers
         rule.actions = actions
         rule.name="RuleByJAVA_API_WIthCompositeTrigger"
 
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: " + rule.getScope())
 
         def ruleRegistry = getService(RuleRegistry)
         ruleRegistry.add(rule)
@@ -415,6 +422,8 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that ruleNow method executes actions of the rule' () {
+        def random = new Random().nextInt()
+
         def triggerConfig = new Configuration([eventTopic:"runNowEventTopic/*"])
         def actionConfig = new Configuration([itemName:"myLampItem3", command:"TOGGLE"])
         def actionConfig2 = new Configuration([itemName:"myLampItem3", command:"ON"])
@@ -428,10 +437,10 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandActionId3", "core.ItemCommandAction", actionConfig3, null)
         ]
 
-        def rule = new Rule("runNowRule"+new Random().nextInt())
+        def rule = new Rule("runNowRule"+random, scope)
         rule.triggers = triggers
         rule.actions = actions
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: "+rule.getScope())
 
         ruleRegistry.add(rule)
 
@@ -475,6 +484,8 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'test chain of composite Modules' () {
+        def random = new Random().nextInt()
+
         def triggerConfig = new Configuration([itemName:"myMotionItem4"])
         def eventInputs = [event:"ItemStateChangeTrigger4.event"]
         def actionConfig = new Configuration([itemName:"myLampItem4", command:"ON"])
@@ -485,12 +496,12 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction4", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
+        def rule = new Rule("myRule21"+random+ "_COMPOSITE", scope)
         rule.triggers = triggers
         rule.actions = actions
         rule.name="RuleByJAVA_API_ChainedComposite"
 
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: " + rule.getScope())
 
         def ruleRegistry = getService(RuleRegistry)
         ruleRegistry.add(rule)
@@ -550,7 +561,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21")
+        def rule = new Rule("myRule21", scope)
         rule.triggers = triggers
         rule.actions = actions
 
@@ -558,7 +569,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def tags = ["myRule21"] as Set
         rule.tags = tags
 
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: "+rule.getScope())
 
         ruleRegistry.add(rule)
         ruleRegistry.setEnabled(rule.UID, true)
@@ -602,7 +613,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags, is(notNullValue())
         assertThat template.tags.size(), is(not(0))
         def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
-        def templateRule = new Rule("templateRuleUID")
+        def templateRule = new Rule("templateRuleUID", scope)
         templateRule.templateUID = "SimpleTestTemplate"
         templateRule.configuration = configs
         ruleRegistry.add(templateRule)
@@ -634,7 +645,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags.size(), is(not(0))
 
         def configs = new Configuration([onItem:"xtempl_MotionItem", ifState: ".*ON.*", updateItem:"xtempl_LampItem", updateCommand:"ON"])
-        def templateRule = new Rule("xtemplateRuleUID")
+        def templateRule = new Rule("xtemplateRuleUID", scope)
         templateRule.templateUID = "TestTemplateWithCompositeModules"
         templateRule.configuration = configs
 
@@ -733,23 +744,23 @@ class AutomationIntegrationTest extends OSGiTest{
      */
     private Rule createSimpleRule(){
         logger.info("createSimpleRule")
-        def rand = new Random().nextInt()
+        def random = new Random().nextInt()
         def triggerConfig = new Configuration([eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
         def actionConfig = new Configuration([itemName:"myLampItem2", command:"ON"])
-        def triggerUID = "ItemStateChangeTrigger_"+rand
+        def triggerUID = "ItemStateChangeTrigger_"+random
         def triggers = [
             new Trigger(triggerUID, "core.GenericEventTrigger", triggerConfig)
         ]
         def actions = [
-            new Action("ItemPostCommandAction_"+rand, "core.ItemCommandAction", actionConfig, null)
+            new Action("ItemPostCommandAction_"+random, "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule_"+rand)
+        def rule = new Rule("myRule_"+random, scope)
         rule.triggers = triggers
         rule.actions = actions
-        rule.name="RuleByJAVA_API_"+rand
+        rule.name="RuleByJAVA_API_"+random
 
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: "+rule.getScope())
         return rule
     }
 
@@ -775,7 +786,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction"+random, "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule_"+random)
+        def rule = new Rule("myRule_"+random, scope)
         rule.triggers = triggers
         rule.conditions = conditions
         rule.actions = actions
@@ -784,7 +795,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def tags = ["myRule_"+random] as Set
         rule.tags = tags
 
-        logger.info("Rule created: "+rule.getUID())
+        logger.info("Rule created: "+rule.getUID()+", scope: "+rule.getScope())
 
         ruleRegistry.add(rule)
         ruleRegistry.setEnabled(rule.UID, true)
@@ -794,6 +805,7 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.get(rule.UID)
             assertThat rule2, is(notNullValue())
+            assertThat rule2.scope, is(equalTo(scope))
             def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid).status as RuleStatus
             assertThat ruleStatus2, is(RuleStatus.IDLE)
         }, 10000, 200)

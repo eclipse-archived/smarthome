@@ -80,6 +80,7 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Persistence implementation & updating rules from providers
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
+ * @author Victor Toni - Added search capability for scope property
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvider>
         implements RuleRegistry, StatusInfoCallback, RegistryChangeListener<RuleTemplate> {
@@ -254,7 +255,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * @return a rule with UID
      */
     protected Rule initRuleId(String rUID, Rule rule) {
-        Rule ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
+        Rule ruleWithUID = new Rule(rUID, rule.getScope(), rule.getTriggers(), rule.getConditions(), rule.getActions(),
                 rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
                 rule.getVisibility());
         ruleWithUID.setName(rule.getName());
@@ -415,6 +416,33 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         return result;
     }
 
+    /**
+     * Implementation note:<br/>
+     * Searching for {@code null} is allowed, returning all rules without an scope.
+     */
+    @Override
+    public Collection<Rule> getByScope(String scope) {
+        Collection<Rule> result = new LinkedList<Rule>();
+        if (scope != null) {
+            for (Collection<Rule> rules : elementMap.values()) {
+                for (Rule rule : rules) {
+                    if (scope.equals(rule.getScope())) {
+                        result.add(RuleUtils.getRuleCopy(rule));
+                    }
+                }
+            }
+        } else {
+            for (Collection<Rule> rules : elementMap.values()) {
+                for (Rule rule : rules) {
+                    if (rule.getScope() == null) {
+                        result.add(RuleUtils.getRuleCopy(rule));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     @Override
     public synchronized void setEnabled(String uid, boolean isEnabled) {
         if (disabledRulesStorage == null) {
@@ -475,7 +503,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 logger.debug("Rule template {} does not exist.", templateUID);
                 return rule;
             } else {
-                Rule resolvedRule = new Rule(rule.getUID(), RuleUtils.getTriggersCopy(template.getTriggers()),
+                Rule resolvedRule = new Rule(rule.getUID(), rule.getScope(),
+                        RuleUtils.getTriggersCopy(template.getTriggers()),
                         RuleUtils.getConditionsCopy(template.getConditions()),
                         RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
                         rule.getConfiguration(), null, rule.getVisibility());

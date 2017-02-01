@@ -81,14 +81,14 @@ public class RuleUtils {
 
     /**
      * This method creates copy of the rule
-     * 
+     *
      * @param rule the rule which has to be copied
      * @return copy of the rule.
      */
     public static Rule getRuleCopy(Rule r) {
-        Rule rule = new Rule(r.getUID(), getTriggersCopy(r.getTriggers()), getConditionsCopy(r.getConditions()),
-                getActionsCopy(r.getActions()), r.getConfigurationDescriptions(), r.getConfiguration(),
-                r.getTemplateUID(), r.getVisibility());
+        Rule rule = new Rule(r.getUID(), r.getScope(), getTriggersCopy(r.getTriggers()),
+                getConditionsCopy(r.getConditions()), getActionsCopy(r.getActions()), r.getConfigurationDescriptions(),
+                r.getConfiguration(), r.getTemplateUID(), r.getVisibility());
         rule.setName(r.getName());
         rule.setTags(r.getTags());
         rule.setDescription(r.getDescription());

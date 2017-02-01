@@ -34,8 +34,11 @@ import org.junit.Test;
  *
  * @author Marin Mitev - initial version
  * @author Thomas Höfer - Added config description parameter unit
+ * @author Victor Toni - Added checks for scope
  */
 public class RuleEngineTest {
+
+    private final String scope = getClass().getSimpleName();
 
     private RuleEngine createRuleEngine() {
         RuleEngine ruleEngine = new RuleEngine();
@@ -50,20 +53,27 @@ public class RuleEngineTest {
     @Test
     public void testAddRetrieveRules() {
         RuleEngine ruleEngine = createRuleEngine();
-        Rule rule0 = new Rule(ruleEngine.getUniqueId());
+
+        Rule rule0 = new Rule(ruleEngine.getUniqueId(), scope);
         ruleEngine.addRule(rule0, true);
+
         Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
         Assert.assertNotNull("null returned instead of rules list", rules);
         Assert.assertEquals("empty rules list is returned", 1, rules.size());
         Assert.assertEquals("Returned rule with wrong UID", "rule_1", rules.iterator().next().getUID());
+
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1, true);
+
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
+
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
         Assert.assertEquals("Returned rule with wrong UID", "rule1", rule1Get.getUID());
+
         Rule rule2 = createRule();
         ruleEngine.addRule(rule2, true);
+
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
         Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuntimeRule("rule1"));
@@ -123,6 +133,45 @@ public class RuleEngineTest {
      *
      */
     @Test
+    public void testRuleScope() {
+        RuleEngine ruleEngine = createRuleEngine();
+
+        Rule rule1 = new Rule("ruleWithScope1", scope);
+        ruleEngine.addRule(rule1, true);
+
+        Rule rule2 = new Rule("ruleWithoutScope2");
+        ruleEngine.addRule(rule2, true);
+
+        Rule rule3 = new Rule("ruleWithScope3", scope);
+        ruleEngine.addRule(rule3, true);
+
+        Rule rule4 = new Rule("ruleWithoutScope4");
+        ruleEngine.addRule(rule4, true);
+
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("ruleWithScope1");
+        Assert.assertNotNull("Cannot find rule by UID", rule1Get);
+        Assert.assertNotNull("rule.getScope is null", rule1Get.getScope());
+        Assert.assertEquals("rule.getScope does not match", scope, rule1Get.getScope());
+
+        RuntimeRule rule2Get = ruleEngine.getRuntimeRule("ruleWithoutScope2");
+        Assert.assertNotNull("Cannot find rule by UID", rule2Get);
+        Assert.assertNull("rule.getScope is NOT null", rule2Get.getScope());
+
+        RuntimeRule rule3Get = ruleEngine.getRuntimeRule("ruleWithScope3");
+        Assert.assertNotNull("Cannot find rule by UID", rule3Get);
+        Assert.assertNotNull("rule.getScope is null", rule3Get.getScope());
+        Assert.assertEquals("rule.getScope does not match", scope, rule3Get.getScope());
+
+        RuntimeRule rule4Get = ruleEngine.getRuntimeRule("ruleWithoutScope4");
+        Assert.assertNotNull("Cannot find rule by UID", rule4Get);
+        Assert.assertNull("rule.getScope is NOT null", rule4Get.getScope());
+    }
+
+    /**
+     * test editing rule tags
+     *
+     */
+    @Test
     public void testRuleTags() {
         RuleEngine ruleEngine = createRuleEngine();
 
@@ -151,6 +200,54 @@ public class RuleEngineTest {
     }
 
     /**
+     * test setting and searching rule with/without scopes
+     *
+     */
+    @Test
+    public void testRuleNonNullScope() {
+        RuleEngine ruleEngine = createRuleEngine();
+
+        Rule rule1 = new Rule("ruleWithScope1", scope);
+        Rule rule2 = new Rule("ruleWithScope2", scope);
+
+        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule2, true);
+
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("ruleWithScope1");
+        Assert.assertNotNull("Cannot find rule by UID", rule1Get);
+        Assert.assertNotNull("rule.getScope is null", rule1Get.getScope());
+        Assert.assertEquals("rule.getScope doe not match empty", scope, rule1Get.getScope());
+
+        RuntimeRule rule2Get = ruleEngine.getRuntimeRule("ruleWithScope2");
+        Assert.assertNotNull("Cannot find rule by UID", rule2Get);
+        Assert.assertNotNull("rule.getScope is null", rule2Get.getScope());
+        Assert.assertEquals("rule.getScope does not match", scope, rule2Get.getScope());
+    }
+
+    /**
+     * test setting and searching rule with/without scopes
+     *
+     */
+    @Test
+    public void testRuleNullScope() {
+        RuleEngine ruleEngine = createRuleEngine();
+
+        Rule rule1 = new Rule("ruleWithNullScope1");
+        Rule rule2 = new Rule("ruleWithNullScope2");
+
+        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule2, true);
+
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("ruleWithNullScope1");
+        Assert.assertNotNull("Cannot find rule by UID", rule1Get);
+        Assert.assertNull("rule.getScope is NOT null", rule1Get.getScope());
+
+        RuntimeRule rule2Get = ruleEngine.getRuntimeRule("ruleWithNullScope2");
+        Assert.assertNotNull("Cannot find rule by UID", rule2Get);
+        Assert.assertNull("rule.getScope is NOT null", rule2Get.getScope());
+    }
+
+    /**
      * test rule configurations with null
      *
      */
@@ -158,7 +255,7 @@ public class RuleEngineTest {
     public void testRuleConfigNull() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule3 = new Rule("rule3");
+        Rule rule3 = new Rule("rule3", scope);
         rule3.setTriggers(createTriggers("typeUID"));
         rule3.setConditions(createConditions("typeUID"));
         rule3.setActions(createActions("typeUID"));
@@ -179,7 +276,7 @@ public class RuleEngineTest {
         Configuration configurations = new Configuration();
         configurations.put("config1", 5);
 
-        Rule rule4 = new Rule("rule4");
+        Rule rule4 = new Rule("rule4", scope);
         rule4.setTriggers(createTriggers("typeUID"));
         rule4.setConditions(createConditions("typeUID"));
         rule4.setActions(createActions("typeUID"));
@@ -298,8 +395,13 @@ public class RuleEngineTest {
                 rule2Get.getModule("conditionId2"));
     }
 
+    /**
+     * Creates a rule with the fixed UID "rule1".
+     *
+     * @return created rule
+     */
     private Rule createRule() {
-        Rule rule = new Rule("rule1");
+        Rule rule = new Rule("rule1", scope);
         rule.setTriggers(createTriggers("typeUID"));
         rule.setConditions(createConditions("typeUID"));
         rule.setActions(createActions("typeUID"));
@@ -307,7 +409,7 @@ public class RuleEngineTest {
     }
 
     private Rule createAutoMapRule() {
-        Rule rule = new Rule("AutoMapRule");
+        Rule rule = new Rule("AutoMapRule", scope);
         rule.setTriggers(createTriggers(ModuleTypeRegistryMockup.TRIGGER_TYPE));
         rule.setConditions(createConditions(ModuleTypeRegistryMockup.CONDITION_TYPE));
         rule.setActions(createActions(ModuleTypeRegistryMockup.ACTION_TYPE));

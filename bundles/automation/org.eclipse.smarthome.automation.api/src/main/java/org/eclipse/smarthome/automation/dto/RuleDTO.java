@@ -19,6 +19,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * This is a data transfer object that is used to serialize rules.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Victor Toni - Added scope property
  */
 public class RuleDTO {
 
@@ -29,6 +30,7 @@ public class RuleDTO {
     public List<ConfigDescriptionParameter> configDescriptions;
     public String templateUID;
     public String uid;
+    public String scope;
     public String name;
     public Set<String> tags;
     public Visibility visibility;

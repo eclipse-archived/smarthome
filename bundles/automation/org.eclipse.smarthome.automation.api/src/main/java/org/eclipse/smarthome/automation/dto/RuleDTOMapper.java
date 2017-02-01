@@ -15,6 +15,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Victor Toni - Changed for scope property support
  */
 public class RuleDTOMapper {
 
@@ -25,7 +26,7 @@ public class RuleDTOMapper {
     }
 
     public static Rule map(final RuleDTO ruleDto) {
-        final Rule rule = new Rule(ruleDto.uid, TriggerDTOMapper.mapDto(ruleDto.triggers),
+        final Rule rule = new Rule(ruleDto.uid, ruleDto.scope, TriggerDTOMapper.mapDto(ruleDto.triggers),
                 ConditionDTOMapper.mapDto(ruleDto.conditions), ActionDTOMapper.mapDto(ruleDto.actions),
                 ruleDto.configDescriptions, new Configuration(ruleDto.configuration), ruleDto.templateUID,
                 ruleDto.visibility);
@@ -43,6 +44,7 @@ public class RuleDTOMapper {
         to.configDescriptions = from.getConfigurationDescriptions();
         to.templateUID = from.getTemplateUID();
         to.uid = from.getUID();
+        to.scope = from.getScope();
         to.name = from.getName();
         to.tags = from.getTags();
         to.visibility = from.getVisibility();

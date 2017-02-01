@@ -2,6 +2,7 @@
   {  
     "name": "ItemSampleRule",
 	"uid": "ItemSampleRule",
+	"scope": "ItemSampleRuleScope",
     "tags": [  
       "sample",
 	  "item",
@@ -35,6 +36,7 @@
   {  
     "uid": "ItemSampleRuleWithReferences",
     "name": "ItemSampleRuleWithReferences",
+    "scope": "ItemSampleRuleWithReferencesScope",
     "templateUID": "TemplateSampleRuleWithReferences",
     "tags": [  
       "sample",

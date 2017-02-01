@@ -184,7 +184,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      */
     private Rule setUID(Vendor vendor, Rule rule) {
         String uid = vendor.getVendorID() + vendor.count();
-        Rule r = new Rule(uid, rule.getTriggers(), rule.getConditions(), rule.getActions(),
+        Rule r = new Rule(uid, rule.getScope(), rule.getTriggers(), rule.getConditions(), rule.getActions(),
                 rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
                 rule.getVisibility());
         r.setName(rule.getName());
