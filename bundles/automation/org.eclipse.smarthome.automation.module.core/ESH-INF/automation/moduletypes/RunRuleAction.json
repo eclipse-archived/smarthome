@@ -1,0 +1,20 @@
+{
+	"actions": [
+		{
+			"uid": "core.RunRuleAction",
+			"label": "run rules",
+			"description": "runs/executes a rule or a group of rules specified by their UIDs.",
+			"configDescriptions": [
+				{
+					"name": "ruleUIDs",
+					"type": "TEXT",
+					"label": "Rules",
+					"description": "Specifies the rules that should be executed.",
+					"required": true,
+					"multiple": true,
+					"context":"rule"
+				}
+			]
+		}
+	]
+}
