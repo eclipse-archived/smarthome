@@ -8,8 +8,11 @@
 		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
 		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 	</div>
-	<div class="container">
+	<div style="text-align: right; max-width: 98%" ng-init="showCards=false;">
+		<i class="material-icons cursor-pointer" style="margin-right: 10px; margin-top: 10px" ng-click="showCards=false">view_list</i> <i class="material-icons cursor-pointer" ng-click="showCards=true">view_module</i>
+	</div>
 
+	<div class="container" ng-show="!showCards">
 		<div class="extension fab-item text-left" ng-repeat="extension in extensionType.extensions | filter:searchText">
 			<div class="circle" ng-class="{'green': extension.installed}">{{extension.label.substring(0,1).toUpperCase()}}</div>
 			<div class="cbody item-content">
@@ -22,6 +25,30 @@
 				</div>
 			</div>
 			<hr class="border-line" ng-show="!$last" aria-hidden="false">
+		</div>
+	</div>
+	<div class="container" ng-if="showCards">
+		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
+			<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
+				<div class="card item" style="background-color: {{extension.backgroundColor}}">
+					<img ng-class="{'itemIcon':!extension.imageLink}" class="square" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';this.className='itemIcon'"/>
+					<span class="square itemIcon-text">{{extension.label?extension.label.substring(0,1).toUpperCase():''}}</span>
+					<div class="item-content">
+						<div class="pull-left">
+							<div class="md-title">{{extension.label}}</div>
+							<p>{{extension.id}} - {{extension.version}}</p>
+						</div>
+						<div style="float: right">
+							<i ng-click="openExternalLink(extension.link)" class="material-icons cursor-pointer col-xs-3 launch-icon">launch</i>
+						</div>
+					</div>
+					<div ng-bind-html="extension.description" class="description"></div>
+					<div style="text-align: right">
+						<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
+						<md-button aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 

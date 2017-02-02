@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
@@ -72,6 +72,17 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             $window.open(link, '_blank');
         }
     }
+
+    $scope.masonry = function() {
+        $timeout(function() {
+            var itemContainer = '#extensions-' + $scope.selectedIndex;
+            new Masonry(itemContainer, {});
+        }, 100, true);
+    }
+    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+        $scope.masonry();
+    });
+
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
         var extension = $scope.getExtension(extensionId);
         if (extension) {
