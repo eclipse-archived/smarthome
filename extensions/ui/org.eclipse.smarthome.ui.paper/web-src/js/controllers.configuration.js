@@ -377,7 +377,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
-        var channelType = $scope.getChannelTypeById(channelID);
+        var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
@@ -476,8 +476,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         })[0];
     }
 
-    $scope.getChannelTypeById = function(channelId) {
-        return thingConfigService.getChannelTypeById($scope.thingType, $scope.channelTypes, channelId);
+    $scope.getChannelTypeByUID = function(channelUID) {
+        return thingConfigService.getChannelTypeByUID($scope.thingType, $scope.channelTypes, channelUID);
     };
 
     $scope.getChannelFromChannelTypes = function(channelUID) {
@@ -503,7 +503,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         if (channels) {
             for (var i = 0, len = channels.length; i < len; i++) {
                 var channel = channels[i];
-                var channelType = $scope.getChannelTypeById(channel.id);
+                var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
                 if (channelType && channelType.advanced) {
                     return true;
                 }
