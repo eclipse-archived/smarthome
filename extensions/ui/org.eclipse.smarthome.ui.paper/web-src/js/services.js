@@ -559,45 +559,42 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             var self = this;
             self.thingType = thingType, self.channelTypes = channelTypes, self.channels = channels;
             return $.grep(channels, function(channel, i) {
-                var channelType = self.getChannelTypeById(self.thingType, self.channelTypes, channel.id);
+                var channelType = self.getChannelTypeByUID(self.thingType, self.channelTypes, channel.channelTypeUID);
                 return channelType ? advanced == channelType.advanced : true;
             });
         },
-        getChannelTypeById : function(thingType, channelTypes, channelId) {
+        getChannelTypeByUID : function(thingType, channelTypes, channelUID) {
             if (thingType) {
-                var cid_part = channelId.split('#', 2)
-                if (cid_part.length == 1) {
+                if (thingType.channels && thingType.channels.length > 0) {
                     var c, c_i, c_l;
                     for (c_i = 0, c_l = thingType.channels.length; c_i < c_l; ++c_i) {
                         c = thingType.channels[c_i];
-                        if (c.id == channelId) {
+                        if (c.typeUID == channelUID) {
                             return c;
                         }
                     }
-                } else if (cid_part.length == 2) {
-                    var cg, cg_i, cg_l;
+                }
+                if (thingType.channelGroups && thingType.channelGroups.length > 0) {
                     var c, c_i, c_l;
+                    var cg, cg_i, cg_l;
                     for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
                         cg = thingType.channelGroups[cg_i];
                         if (cg.id == cid_part[0]) {
                             for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
                                 c = cg.channels[c_i];
-                                if (c.id == cid_part[1]) {
+                                if (c.typeUID == channelUID) {
                                     return c;
                                 }
                             }
                         }
                     }
-                } else {
-                    return;
                 }
             }
             if (channelTypes) {
                 var c = {}, c_i, c_l;
                 for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
                     c = channelTypes[c_i];
-                    var id = c.UID.split(':', 2);
-                    if (id[1] == channelId) {
+                    if (c.UID == channelUID) {
                         return c;
                     }
                 }
