@@ -32,6 +32,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
+ * @author Victor Toni - Added scope property
  */
 public class Rule {
 
@@ -42,6 +43,7 @@ public class Rule {
     protected List<ConfigDescriptionParameter> configDescriptions;
     protected String templateUID;
     protected String uid;
+    protected String scope;
     protected String name;
     protected Set<String> tags;
     protected Visibility visibility;
@@ -59,7 +61,18 @@ public class Rule {
      * @param uid is the unique identifier of created rule.
      */
     public Rule(String uid) {
+        this(uid, null);
+    }
+
+    /**
+     * Constructor creates an empty rule with specified rule uid
+     *
+     * @param uid is the unique identifier of created rule.
+     * @param scope in which the rule was created.
+     */
+    public Rule(String uid, String scope) {
         this.uid = uid;
+        this.scope = scope;
     }
 
     /**
@@ -80,7 +93,35 @@ public class Rule {
             List<Action> actions, //
             List<ConfigDescriptionParameter> configDescriptions, //
             Configuration configurations, String templateUID, Visibility visibility) {
-        this.uid = uid;
+
+        this(uid, null, triggers, //
+                conditions, //
+                actions, //
+                configDescriptions, //
+                configurations, templateUID, visibility);
+    }
+
+    /**
+     * Utility constructor which creates a rule from modules or template.
+     *
+     * @param uid is the unique identifier of the rule.
+     * @param scope in which the rule was created.
+     * @param triggers trigger modules
+     * @param conditions condition modules
+     * @param actions action modules
+     * @param configurations are values of rule template. It is available when the rule is created from template and the
+     *            template is not resolved.
+     * @param templateUID the unique identifier of RuleTemplate. It is available when the rule is created from template
+     *            and the template is not resolved.
+     * @param visibility visibility of rule
+     */
+    public Rule(String uid, String scope, List<Trigger> triggers, //
+            List<Condition> conditions, //
+            List<Action> actions, //
+            List<ConfigDescriptionParameter> configDescriptions, //
+            Configuration configurations, String templateUID, Visibility visibility) {
+
+        this(uid, scope);
         setTriggers(triggers);
         setConditions(conditions);
         setActions(actions);
@@ -98,6 +139,16 @@ public class Rule {
      */
     public String getUID() {
         return uid;
+    }
+
+    /**
+     * This method is used for getting the scope of the Rule. This property is set by the RuleEngine when
+     * the {@link Rule} is added. It's an optional property.
+     *
+     * @return scope of this {@link Rule}
+     */
+    public String getScope() {
+        return scope;
     }
 
     /**

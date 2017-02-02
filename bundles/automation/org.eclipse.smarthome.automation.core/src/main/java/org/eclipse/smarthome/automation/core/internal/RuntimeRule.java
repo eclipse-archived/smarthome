@@ -23,6 +23,7 @@ import org.eclipse.smarthome.automation.Trigger;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Victor Toni - added support for Scope property
  *
  */
 public class RuntimeRule extends Rule {
@@ -36,9 +37,10 @@ public class RuntimeRule extends Rule {
      *            has to be created.
      */
     protected RuntimeRule(Rule rule) {
-        super(rule.getUID(), getRuntimeTriggersCopy(rule.getTriggers()), getRuntimeConditionsCopy(rule.getConditions()),
-                getRuntimeActionsCopy(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration(),
-                rule.getTemplateUID(), rule.getVisibility());
+        super(rule.getUID(), rule.getScope(), getRuntimeTriggersCopy(rule.getTriggers()),
+                getRuntimeConditionsCopy(rule.getConditions()), getRuntimeActionsCopy(rule.getActions()),
+                rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
+                rule.getVisibility());
         setName(rule.getName());
         setTags(rule.getTags());
         setDescription(rule.getDescription());

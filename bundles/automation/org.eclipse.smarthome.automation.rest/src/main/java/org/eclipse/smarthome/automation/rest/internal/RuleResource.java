@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -21,6 +22,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -63,6 +65,7 @@ import io.swagger.annotations.ResponseHeader;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
+ * @author Victor Toni - Support search by tags and scope
  */
 @Path("rules")
 @Api("rules")
@@ -85,11 +88,46 @@ public class RuleResource implements SatisfiableRESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get all available rules.", response = EnrichedRuleDTO.class, responseContainer = "Collection")
+    @ApiOperation(value = "Get available rules, optionally filtered by tags and/or scope.", response = EnrichedRuleDTO.class, responseContainer = "Collection")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getAll() {
-        Collection<EnrichedRuleDTO> rules = enrich(ruleRegistry.getAll());
-        return Response.ok(rules).build();
+    public Response get(@QueryParam("scope") String scope, @QueryParam("tags") List<String> tags) {
+        Collection<Rule> allRules = ruleRegistry.getAll();
+        if (null == scope && null == tags) {
+            Collection<EnrichedRuleDTO> enrichedRules = enrich(allRules);
+            return Response.ok(enrichedRules).build();
+        } else {
+            Collection<Rule> someRules = allRules;
+            // get only correctly tagged rules if tags were a query parameter
+            if (null != tags && !tags.isEmpty()) {
+                someRules = ruleRegistry.getByTags(tags.toArray(new String[0]));
+            }
+
+            Collection<EnrichedRuleDTO> enrichedRules;
+            // no scope parameter used
+            if (null == scope) {
+                enrichedRules = enrich(someRules);
+            } else {
+                enrichedRules = new ArrayList<>(someRules.size());
+
+                // want to search for rules without scope or empty scope
+                if ("".equals(scope)) {
+                    for (Rule rule : someRules) {
+                        if (null == rule.getScope() || "".equals(rule.getScope())) {
+                            enrichedRules.add(EnrichedRuleDTOMapper.map(rule, ruleRegistry));
+                        }
+                    }
+                } else {
+                    // querey parameter is a named scope
+                    for (Rule rule : someRules) {
+                        if (scope.equals(rule.getScope())) {
+                            enrichedRules.add(EnrichedRuleDTOMapper.map(rule, ruleRegistry));
+                        }
+                    }
+                }
+            }
+
+            return Response.ok(enrichedRules).build();
+        }
     }
 
     private Collection<EnrichedRuleDTO> enrich(Collection<Rule> rules) {

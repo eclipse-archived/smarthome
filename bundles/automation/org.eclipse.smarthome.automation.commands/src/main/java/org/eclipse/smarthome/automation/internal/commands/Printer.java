@@ -39,6 +39,7 @@ import org.eclipse.smarthome.config.core.ParameterOption;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Yordan Mihaylov - updates related to api changes
+ * @author Victor Toni - updates to support Scope property of Rules
  *
  */
 public class Printer {
@@ -47,6 +48,7 @@ public class Printer {
     private static final int COLUMN_ID = 7;
     private static final int COLUMN_UID = 93;
     private static final int COLUMN_RULE_UID = 36;
+    private static final int COLUMN_RULE_SCOPE = 12;
     private static final int COLUMN_RULE_NAME = 36;
     private static final int COLUMN_RULE_STATUS = 15;
     private static final int COLUMN_PROPERTY = 28;
@@ -57,6 +59,7 @@ public class Printer {
     private static final int COLUMN_CONFIG_PARAMETER_PROP_VALUE = 36;
     private static final String ID = "ID";
     private static final String UID = "UID";
+    private static final String SCOPE = "SCOPE";
     private static final String NAME = "NAME";
     private static final String STATUS = "STATUS";
     private static final String TAGS = "TAGS";
@@ -92,10 +95,12 @@ public class Printer {
      */
     static String printRules(AutomationCommandsPluggable autoCommands, Map<String, String> ruleUIDs) {
 
-        int[] columnWidths = new int[] { COLUMN_ID, COLUMN_RULE_UID, COLUMN_RULE_NAME, COLUMN_RULE_STATUS };
+        int[] columnWidths = new int[] { COLUMN_ID, COLUMN_RULE_UID, COLUMN_RULE_SCOPE, COLUMN_RULE_NAME,
+                COLUMN_RULE_STATUS };
         List<String> columnValues = new ArrayList<String>();
         columnValues.add(ID);
         columnValues.add(UID);
+        columnValues.add(SCOPE);
         columnValues.add(NAME);
         columnValues.add(STATUS);
         String titleRow = Utils.getRow(columnWidths, columnValues);
@@ -104,11 +109,13 @@ public class Printer {
         for (int i = 1; i <= ruleUIDs.size(); i++) {
             String id = new Integer(i).toString();
             String uid = ruleUIDs.get(id);
-            columnValues.set(0, id);
-            columnValues.set(1, uid);
             Rule rule = autoCommands.getRule(uid);
-            columnValues.set(2, rule.getName());
-            columnValues.set(3, autoCommands.getRuleStatus(uid).toString());
+            int col = 0;
+            columnValues.set(col++, id);
+            columnValues.set(col++, uid);
+            columnValues.set(col++, rule.getScope());
+            columnValues.set(col++, rule.getName());
+            columnValues.set(col++, autoCommands.getRuleStatus(uid).toString());
             rulesRows.add(Utils.getRow(columnWidths, columnValues));
         }
         return Utils.getTableContent(TABLE_WIDTH, columnWidths, rulesRows, titleRow);
@@ -170,6 +177,11 @@ public class Printer {
         ruleProperty.set(0, UID);
         ruleProperty.add(rule.getUID());
         ruleContent.add(Utils.getRow(columnWidths, ruleProperty));
+        if (rule.getScope() != null) {
+            ruleProperty.set(0, SCOPE);
+            ruleProperty.set(1, rule.getScope());
+            ruleContent.add(Utils.getRow(columnWidths, ruleProperty));
+        }
         if (rule.getName() != null) {
             ruleProperty.set(0, NAME);
             ruleProperty.set(1, rule.getName());

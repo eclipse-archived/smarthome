@@ -54,6 +54,7 @@ import com.google.common.collect.Sets
  *
  * @author Benedikt Niehues - initial contribution
  * @author Marin Mitev - make the test to pass on each run
+ * @author Victor Toni - added checks for scope property
  *
  */
 class AutomationIntegrationJsonTest extends OSGiTest{
@@ -204,6 +205,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && !it.tags.contains("references")} as Rule
         assertThat rule, is(notNullValue())
         assertThat rule.name, is("ItemSampleRule")
+        assertThat rule.scope, is("ItemSampleRuleScope")
         assertTrue rule.tags.any{it == "sample"}
         assertTrue rule.tags.any{it == "item"}
         assertTrue rule.tags.any{it == "rule"}
@@ -242,6 +244,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && it.tags.contains("references")} as Rule
         assertThat rule, is(notNullValue())
         assertThat rule.name, is("ItemSampleRuleWithReferences")
+        assertThat rule.scope, is("ItemSampleRuleWithReferencesScope")
         assertTrue rule.tags.any{it == "sample"}
         assertTrue rule.tags.any{it == "item"}
         assertTrue rule.tags.any{it == "rule"}

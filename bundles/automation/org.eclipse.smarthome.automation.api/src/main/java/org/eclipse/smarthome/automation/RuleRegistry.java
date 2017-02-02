@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * </ul>
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Victor Toni - Added search capability for scope property
  */
 public interface RuleRegistry extends Registry<Rule, String> {
 
@@ -62,6 +63,14 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @return collection of {@link Rule}s having specified tags.
      */
     public Collection<Rule> getByTags(String... tags);
+
+    /**
+     * This method is used to get collection of {@link Rule}s which share the same scope.
+     *
+     * @param scope to the rules
+     * @return collection of {@link Rule}s having specified scope.
+     */
+    public Collection<Rule> getByScope(String scope);
 
     /**
      * This method is used for changing <b>enabled</b> state of the {@link Rule}.
