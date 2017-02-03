@@ -100,7 +100,8 @@ public class ThingTypeXmlResult {
                 String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
 
                 ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id,
-                        new ChannelGroupTypeUID(typeUID));
+                        new ChannelGroupTypeUID(typeUID), channelGroupTypeReference.getLabel(),
+                        channelGroupTypeReference.getDescription());
 
                 channelGroupTypeDefinitions.add(channelGroupDefinition);
 

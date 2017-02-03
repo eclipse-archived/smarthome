@@ -23,16 +23,21 @@ public class ChannelGroupDefinition {
 
     private String id;
     private ChannelGroupTypeUID typeUID;
+    private final String label;
+    private final String description;
 
     /**
      * Creates a new instance of this class with the specified parameters.
      *
      * @param id the identifier of the channel group (must neither be null nor empty)
      * @param typeUID the type UID of the channel group (must not be null)
+     * @param label the label for the channel group to override ChannelGroupType (could be null)
+     * @param description the description for the channel group to override ChannelGroupType (could be null)
      *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelGroupDefinition(String id, ChannelGroupTypeUID typeUID) throws IllegalArgumentException {
+    public ChannelGroupDefinition(String id, ChannelGroupTypeUID typeUID, String label, String description)
+            throws IllegalArgumentException {
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }
@@ -43,6 +48,20 @@ public class ChannelGroupDefinition {
 
         this.id = id;
         this.typeUID = typeUID;
+        this.label = label;
+        this.description = description;
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param id the identifier of the channel group (must neither be null nor empty)
+     * @param typeUID the type UID of the channel group (must not be null)
+     *
+     * @throws IllegalArgumentException if the ID is null or empty, or the type is null
+     */
+    public ChannelGroupDefinition(String id, ChannelGroupTypeUID typeUID) throws IllegalArgumentException {
+        this(id, typeUID, null, null);
     }
 
     /**
@@ -61,6 +80,27 @@ public class ChannelGroupDefinition {
      */
     public ChannelGroupTypeUID getTypeUID() {
         return this.typeUID;
+    }
+
+    /**
+     * Returns the label (if set).
+     * If no label is set, getLabel will return null and the default label for the {@link ChannelGroupType} is used.
+     *
+     * @return the label for the channel group. Can be null.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Returns the description (if set).
+     * If no description is set, getDescription will return null and the default description for the
+     * {@link ChannelGroupType} is used.
+     *
+     * @return the description for the channel group. Can be null.
+     */
+    public String getDescription() {
+        return this.description;
     }
 
     @Override

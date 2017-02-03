@@ -57,7 +57,12 @@ public class ThingTypeI18nLocalizationService {
         final List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
                 thingType.getChannelGroupDefinitions().size());
         for (final ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
-            localizedChannelGroupDefinitions.add(channelGroupDefinition);
+            final String channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle,
+                    channelGroupDefinition.getTypeUID(), channelGroupDefinition.getLabel(), locale);
+            final String channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
+                    channelGroupDefinition.getTypeUID(), channelGroupDefinition.getDescription(), locale);
+            localizedChannelGroupDefinitions.add(new ChannelGroupDefinition(channelGroupDefinition.getId(),
+                    channelGroupDefinition.getTypeUID(), channelGroupLabel, channelGroupDescription));
         }
 
         if (thingType instanceof BridgeType) {
