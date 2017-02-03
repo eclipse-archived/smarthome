@@ -148,7 +148,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
             super.execute(command);
         } else {
             if (command == null) {
-                throw new NullPointerException();
+                throw new IllegalArgumentException("Command can not be null.");
             }
 
             // ignore incoming tasks when the executor is shutdown

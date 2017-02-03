@@ -269,7 +269,7 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
 
         public void schedule(final Runnable task, final Expression expression) {
             if (task == null || expression == null) {
-                throw new NullPointerException();
+                throw new IllegalArgumentException("Task can not be scheduled as task or expression is null.");
             }
 
             if (monitor == null) {

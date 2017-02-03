@@ -369,7 +369,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
         if (lightStatusListener == null) {
-            throw new NullPointerException("It's not allowed to pass a null LightStatusListener.");
+            throw new IllegalArgumentException("It's not allowed to pass a null LightStatusListener.");
         }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
