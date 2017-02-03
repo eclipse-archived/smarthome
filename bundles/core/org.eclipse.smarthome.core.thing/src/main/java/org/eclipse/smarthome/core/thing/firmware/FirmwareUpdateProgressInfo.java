@@ -169,7 +169,7 @@ public final class FirmwareUpdateProgressInfo {
         if (pending != other.pending) {
             return false;
         }
-        if (progress != other.progress) {
+        if (!progress.equals(other.progress)) {
             return false;
         }
         if (progressStep != other.progressStep) {
