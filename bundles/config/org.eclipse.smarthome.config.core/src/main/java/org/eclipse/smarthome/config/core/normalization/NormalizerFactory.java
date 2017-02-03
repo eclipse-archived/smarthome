@@ -43,11 +43,11 @@ public final class NormalizerFactory {
      *
      * @param configDescriptionParameter the config description parameter (must not be null)
      * @return the corresponding {@link Normalizer} (not null)
-     * @throws NullPointerException if the given config description parameter is null
+     * @throws IllegalArgumentException if the given config description parameter is null
      */
     public static Normalizer getNormalizer(ConfigDescriptionParameter configDescriptionParameter) {
         if (configDescriptionParameter == null) {
-            throw new NullPointerException("The config description parameter must not be null.");
+            throw new IllegalArgumentException("The config description parameter must not be null.");
         }
 
         Normalizer ret = normalizers.get(configDescriptionParameter.getType());
