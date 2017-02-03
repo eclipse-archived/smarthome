@@ -68,7 +68,7 @@ public class EventListener {
      * Stops this {@link EventListener}.
      */
     public synchronized void stop() {
-        if (pollingScheduler != null || !pollingScheduler.isCancelled()) {
+        if (pollingScheduler != null && !pollingScheduler.isCancelled()) {
             pollingScheduler.cancel(true);
             pollingScheduler = null;
             unsubscribe();
