@@ -128,7 +128,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        if (bridgeStatusInfo.equals(ThingStatus.ONLINE)) {
+        if (bridgeStatusInfo.getStatus().equals(ThingStatus.ONLINE)) {
             updateStatus(ThingStatus.ONLINE);
             onSubscription();
             onUpdate();
