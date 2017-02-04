@@ -57,7 +57,7 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
     /**
      * This logger is used to log warning message if at some point {@link RuleRegistry} service becomes unavailable.
      */
-    private final static Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(RuleEnableHandler.class);
 
     /**
      * This field stores the UIDs of the rules to which the action will be applied.
@@ -73,10 +73,6 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
      * Reference to {@link RuleRegistry} service that will be used to enable and disable rules.
      */
     private RuleRegistry ruleRegistry;
-
-    static {
-        logger = LoggerFactory.getLogger(RuleEnableHandler.class);
-    }
 
     @SuppressWarnings("unchecked")
     public RuleEnableHandler(final Action module, final RuleRegistry ruleRegistry) {
