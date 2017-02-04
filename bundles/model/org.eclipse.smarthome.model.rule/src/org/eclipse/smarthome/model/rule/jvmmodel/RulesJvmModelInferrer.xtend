@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory
 import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
 import org.eclipse.smarthome.model.script.engine.IThingRegistryProvider
+import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -139,7 +140,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                         val eventTypeRef = ruleModel.newTypeRef(ChannelTriggeredEvent)
                         parameters += rule.toParameter(VAR_RECEIVED_EVENT, eventTypeRef)
                     }
-                    if (containsThingSateChangedEventTrigger(rule)) {
+                    if (containsThingStateChangedEventTrigger(rule)) {
                         val stateTypeRef = ruleModel.newTypeRef(State)
                         parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef)
                     }
@@ -176,7 +177,12 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
         return false;
     }
 
-    def private boolean containsThingSateChangedEventTrigger(Rule rule) {
+    def private boolean containsThingStateChangedEventTrigger(Rule rule) {
+        for (EventTrigger trigger : rule.getEventtrigger()) {
+            if (trigger instanceof ThingStateChangedEventTrigger) {
+                return true;
+            }
+        }
         return false;
     }
 }
