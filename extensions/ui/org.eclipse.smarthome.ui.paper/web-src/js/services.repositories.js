@@ -238,7 +238,9 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
                 return item.name == topic.split('/')[2]
             });
             if (index !== -1) {
-                $rootScope.data.items[index] = itemUpdate[0];
+                $rootScope.$apply(function() {
+                    $rootScope.data.items[index] = itemUpdate[0];
+                });
             }
         }
     });
@@ -248,7 +250,9 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
                 return item.name == itemAdded.name
             });
             if (index === -1 && $rootScope.data.items) {
-                $rootScope.data.items.push(itemAdded);
+                $rootScope.$apply(function() {
+                    $rootScope.data.items.push(itemAdded);
+                });
             }
         }
     });
@@ -258,7 +262,9 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
                 return item.name == itemRemoved.name
             });
             if (index !== -1) {
-                $rootScope.data.items.splice(index, 1);
+                $rootScope.$apply(function() {
+                    $rootScope.data.items.splice(index, 1);
+                });
             }
         }
     });

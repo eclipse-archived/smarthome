@@ -299,9 +299,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Zoom' : {},
     }
 
-    $scope.getLabel = function(itemCategory, label, defaultLabel) {
-        if (label) {
-            return label;
+    $scope.getLabel = function(itemCategory, name, defaultLabel) {
+        if (name) {
+            var item = $.grep($scope.items, function(item) {
+                return item.name == name;
+            });
+            if (item.length > 0) {
+                return item[0].label;
+            }
         }
 
         if (itemCategory) {
