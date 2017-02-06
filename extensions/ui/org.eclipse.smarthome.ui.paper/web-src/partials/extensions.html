@@ -1,6 +1,8 @@
 <section id="main" class="white-bg extensions header-tabs">
 	<div class="header-toolbar">
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+		<md-button ng-click="changeView(false)" aria-label="Refresh"> <i class="material-icons">view_list</i></md-button>
+		<md-button ng-click="changeView(true)" aria-label="Refresh"> <i class="material-icons">view_module</i></md-button>
 	</div>
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes" ng-disabled="tab.disabled" label="{{extensionType.label}}" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
@@ -8,9 +10,7 @@
 		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
 		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 	</div>
-	<div style="text-align: right; max-width: 98%" ng-init="showCards=false;">
-		<i class="material-icons cursor-pointer" style="margin-right: 10px; margin-top: 10px" ng-click="showCards=false">view_list</i> <i class="material-icons cursor-pointer" ng-click="showCards=true">view_module</i>
-	</div>
+	<div style="text-align: right; max-width: 98%"></div>
 
 	<div class="container" ng-show="!showCards">
 		<div class="extension fab-item text-left" ng-repeat="extension in extensionType.extensions | filter:searchText">
@@ -27,18 +27,17 @@
 			<hr class="border-line" ng-show="!$last" aria-hidden="false">
 		</div>
 	</div>
-	<div class="container" ng-if="showCards">
+	<div class="container" ng-if="showCards" ng-class="{'showCards':showCards}">
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
 			<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
-					<img ng-class="{'itemIcon':!extension.imageLink}" class="square" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';this.className='itemIcon'"/>
-					<span class="square itemIcon-text">{{extension.label?extension.label.substring(0,1).toUpperCase():''}}</span>
+					<img ng-class="{'itemIcon':!extension.imageLink}" class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';this.className='itemIcon'" />
 					<div class="item-content">
 						<div class="pull-left">
 							<div class="md-title">{{extension.label}}</div>
 							<p>{{extension.id}} - {{extension.version}}</p>
 						</div>
-						<div style="float: right">
+						<div style="float: right" ng-if="extension.link">
 							<i ng-click="openExternalLink(extension.link)" class="material-icons cursor-pointer col-xs-3 launch-icon">launch</i>
 						</div>
 					</div>
@@ -46,6 +45,7 @@
 					<div style="text-align: right">
 						<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
 						<md-button aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
+						<md-progress-circular md-mode="indeterminate" ng-show="extension.inProgress" style="margin-right: 25px;"></md-progress-circular>
 					</div>
 				</div>
 			</div>

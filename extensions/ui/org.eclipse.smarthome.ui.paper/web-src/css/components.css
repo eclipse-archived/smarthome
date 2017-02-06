@@ -330,6 +330,19 @@ md-slider.md-default-theme.hue .md-thumb:after {
     padding: 2px;
 }
 
+.extensions .header-toolbar button {
+	margin:8px 0px 8px 0px;
+}
+
+.extensions .container.showCards {
+	margin-top: 10px;
+}
+
+.showCards .fab-item .item-content {
+    margin-left: 100px;
+    min-height: 60px;
+}
+
 .fab-item .circle {
 	border-radius: 50%;
 	width: 56px;
@@ -341,8 +354,8 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	line-height: 54px;
 }
 
-.fab-item .square {
-    width: 56px;
+.fab-item .rectangle {
+    width: 83px;
     height: 56px;
     background-color: #CCC;
     position: absolute;
