@@ -579,7 +579,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     var cg, cg_i, cg_l;
                     for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
                         cg = thingType.channelGroups[cg_i];
-                        if (cg.id == cid_part[0]) {
+                        if (cg && cg.channels) {
                             for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
                                 c = cg.channels[c_i];
                                 if (c.typeUID == channelUID) {
