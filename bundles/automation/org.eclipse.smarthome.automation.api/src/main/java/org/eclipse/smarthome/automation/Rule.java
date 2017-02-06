@@ -248,8 +248,8 @@ public class Rule {
         return conditions;
     }
 
-    public void setConditions(List<Condition> conditoins) {
-        this.conditions = (conditoins == null) ? new ArrayList<Condition>(3) : conditoins;
+    public void setConditions(List<Condition> conditions) {
+        this.conditions = (conditions == null) ? new ArrayList<Condition>(3) : conditions;
     }
 
     public List<Action> getActions() {
