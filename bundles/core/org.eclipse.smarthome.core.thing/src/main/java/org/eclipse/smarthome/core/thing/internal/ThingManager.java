@@ -499,7 +499,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             if (oldThing != thing) {
                 thing.setHandler(thingHandler);
             }
-            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+            if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
                 try {
                     // prevent infinite loops by not informing handler about self-initiated update
                     if (!thingUpdatedLock.contains(thingUID)) {
@@ -615,34 +615,41 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (!isHandlerRegistered(thing)) {
             return;
         }
-        initializationVetoManager.applyActionFor(thing.getHandler());
+        synchronized (thing) {
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                logger.debug("Attempt to initialize the already initialized thing '{}' will be ignored.",
+                        thing.getUID());
+                return;
+            }
+            if (isInitializing(thing)) {
+                logger.debug("Attempt to initialize a handler twice for thing '{}' at the same time will be ignored.",
+                        thing.getUID());
+                return;
+            }
+            if (thing.getHandler().getThing() != thing) {
+                logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
+                        thing.getUID());
+            }
+            ThingType thingType = getThingType(thing);
+            applyDefaultConfiguration(thing, thingType);
+            if (isInitializable(thing, thingType)) {
+                setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
+                doInitializeHandler(thing.getHandler());
+            } else {
+                logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
+                setThingStatus(thing,
+                        buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
+            }
+        }
     }
 
-    private final BundleProcessorVetoManager<ThingHandler> initializationVetoManager = new BundleProcessorVetoManager<>(
-            new BundleProcessorVetoManager.Action<ThingHandler>() {
+    private final BundleProcessorVetoManager<Thing> initializationVetoManager = new BundleProcessorVetoManager<>(
+            new BundleProcessorVetoManager.Action<Thing>() {
                 @Override
-                public void apply(ThingHandler thingHandler) {
-                    Thing thing = thingHandler.getThing();
-                    synchronized (thing) {
-                        if (!isInitializing(thing)) {
-                            ThingType thingType = getThingType(thing);
-                            applyDefaultConfiguration(thing, thingType);
-                            if (isInitializable(thing, thingType)) {
-                                setThingStatus(thing,
-                                        buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
-                                doInitializeHandler(thingHandler);
-                            } else {
-                                logger.debug("Thing '{}' not initializable, check required configuration parameters.",
-                                        thing.getUID());
-                                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
-                                        ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
-                            }
-                        } else {
-                            logger.debug(
-                                    "Attempt to initialize a handler twice for thing '{}' at the same time will be ignored.",
-                                    thing.getUID());
-                        }
-                    }
+                public void apply(final Thing thing) {
+                    final ThingHandlerFactory thingHandlerFactory = getThingHandlerFactory(thing);
+                    registerHandler(thing, thingHandlerFactory);
+                    initializeHandler(thing);
                 }
             });
 
@@ -967,8 +974,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         if (thingHandlerFactory != null) {
-            registerHandler(thing, thingHandlerFactory);
-            initializeHandler(thing);
+            initializationVetoManager.applyActionFor(thingHandlerFactory.getClass(), thing);
         } else {
             logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
                     thing.getUID());
