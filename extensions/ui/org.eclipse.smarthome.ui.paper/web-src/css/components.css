@@ -361,8 +361,8 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .fab-item .rectangle {
-    width: 83px;
-    height: 56px;
+    max-width: 83px;
+    max-height: 56px;
     background-color: transparent;
     position: absolute;
     text-align: center;
