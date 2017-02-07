@@ -31,7 +31,10 @@
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
 			<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
-					<img ng-show="extension.imageLink" class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
+					<div class="imageAlign">
+					    <span class="verticalAlign"></span>
+						<img ng-show="extension.imageLink" class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
+					</div>
 					<div class="item-content">
 						<div class="pull-left">
 							<div class="md-title">{{extension.label}}</div>

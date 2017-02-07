@@ -349,6 +349,19 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	text-align: -moz-right;
 }
 
+.showCards .verticalAlign {
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.showCards .imageAlign {
+	width: 83px;
+	height: 56px;
+	float: left;
+	text-align: center
+}
+
 .fab-item .circle {
 	border-radius: 50%;
 	width: 56px;
@@ -364,7 +377,6 @@ md-slider.md-default-theme.hue .md-thumb:after {
     max-width: 83px;
     max-height: 56px;
     background-color: transparent;
-    position: absolute;
     text-align: center;
     font-size: 30px;
     line-height: 54px;
