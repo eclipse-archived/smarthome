@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.ui.internal.proxy;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
@@ -68,6 +70,7 @@ public class ProxyServlet extends AsyncProxyServlet {
     private static final String CONFIG_MAX_THREADS = "maxThreads";
     private static final int DEFAULT_MAX_THREADS = 8;
     private static final String ATTR_URI = ProxyServlet.class.getName() + ".URI";
+    private static final String ATTR_SERVLET_EXCEPTION = ProxyServlet.class.getName() + ".ProxyServletException";
 
     private final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
 
@@ -171,7 +174,7 @@ public class ProxyServlet extends AsyncProxyServlet {
      * {@inheritDoc}
      *
      * Add Basic Authentication header to request if user and password are specified in URI.
-     * After Jetty is upgrade past 9.2.9, change to copyRequestHeaders to avoid deprecated warning.
+     * After Jetty is upgraded past 9.2.9, change to copyRequestHeaders to avoid deprecated warning.
      */
     @SuppressWarnings("deprecation")
     @Override
@@ -194,11 +197,45 @@ public class ProxyServlet extends AsyncProxyServlet {
     }
 
     /**
+     * Encapsulate the HTTP status code and message in an exception.
+     */
+    static class ProxyServletException extends Exception {
+        static final long serialVersionUID = -1L;
+        private final int code;
+
+        public ProxyServletException(int code, String message) {
+            super(message);
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     protected String rewriteTarget(HttpServletRequest request) {
         return Objects.toString(uriFromRequest(request), null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onProxyRewriteFailed(HttpServletRequest request, HttpServletResponse response) {
+        ProxyServletException pse = (ProxyServletException) request.getAttribute(ATTR_SERVLET_EXCEPTION);
+        if (pse != null) {
+            try {
+                response.sendError(pse.getCode(), pse.getMessage());
+            } catch (IOException ioe) {
+                response.setStatus(pse.getCode());
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        }
     }
 
     /**
@@ -209,66 +246,77 @@ public class ProxyServlet extends AsyncProxyServlet {
      */
     private URI uriFromRequest(HttpServletRequest request) {
 
-        // Return any URI we've already saved for this request
-        URI uri = (URI) request.getAttribute(ATTR_URI);
-        if (uri != null) {
-            return uri;
-        }
-
-        String sitemapName = request.getParameter("sitemap");
-        if (sitemapName == null) {
-            logger.error("Parameter 'sitemap' must be provided!");
-            return null;
-        }
-
-        String widgetId = request.getParameter("widgetId");
-        if (widgetId == null) {
-            logger.error("Parameter 'widgetId' must be provided!");
-            return null;
-        }
-
-        Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapName);
-        if (sitemap == null) {
-            logger.error("Sitemap '{}' could not be found!", sitemapName);
-            return null;
-        }
-
-        Widget widget = itemUIRegistry.getWidget(sitemap, widgetId);
-        if (widget == null) {
-            logger.error("Widget '{}' could not be found!", widgetId);
-            return null;
-        }
-
-        String uriString = null;
-        if (widget instanceof Image) {
-            uriString = ((Image) widget).getUrl();
-        } else if (widget instanceof Video) {
-            uriString = ((Video) widget).getUrl();
-        } else {
-            logger.error("Widget type '{}' is not supported!", widget.getClass().getName());
-            return null;
-        }
-
-        String itemName = widget.getItem();
-        if (itemName != null) {
-            State state = itemUIRegistry.getItemState(itemName);
-            if (state != null && state instanceof StringType) {
-                try {
-                    uri = URI.create(state.toString());
-                    request.setAttribute(ATTR_URI, uri);
-                    return uri;
-                } catch (IllegalArgumentException ex) {
-                    // fall thru
+        try {
+            // Return any URI we've already saved for this request
+            URI uri = (URI) request.getAttribute(ATTR_URI);
+            if (uri != null) {
+                return uri;
+            } else {
+                // Since the input is the same as before, there is no point continuing
+                ProxyServletException pse = (ProxyServletException) request.getAttribute(ATTR_SERVLET_EXCEPTION);
+                if (pse != null) {
+                    return null;
                 }
             }
-        }
 
-        try {
-            uri = URI.create(uriString);
-            request.setAttribute(ATTR_URI, uri);
-            return uri;
-        } catch (IllegalArgumentException e) {
-            logger.error("URI '{}' is not valid: {}", uriString, e.getMessage());
+            String sitemapName = request.getParameter("sitemap");
+            if (sitemapName == null) {
+                throw new ProxyServletException(HttpServletResponse.SC_BAD_REQUEST,
+                        "Parameter 'sitemap' must be provided!");
+            }
+
+            String widgetId = request.getParameter("widgetId");
+            if (widgetId == null) {
+                throw new ProxyServletException(HttpServletResponse.SC_BAD_REQUEST,
+                        "Parameter 'widgetId' must be provided!");
+            }
+
+            Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapName);
+            if (sitemap == null) {
+                throw new ProxyServletException(HttpServletResponse.SC_NOT_FOUND,
+                        String.format("Sitemap '%s' could not be found!", sitemapName));
+            }
+
+            Widget widget = itemUIRegistry.getWidget(sitemap, widgetId);
+            if (widget == null) {
+                throw new ProxyServletException(HttpServletResponse.SC_NOT_FOUND,
+                        String.format("Widget '%s' could not be found!", widgetId));
+            }
+
+            String uriString = null;
+            if (widget instanceof Image) {
+                uriString = ((Image) widget).getUrl();
+            } else if (widget instanceof Video) {
+                uriString = ((Video) widget).getUrl();
+            } else {
+                throw new ProxyServletException(HttpServletResponse.SC_FORBIDDEN,
+                        String.format("Widget type '%s' is not supported!", widget.getClass().getName()));
+            }
+
+            String itemName = widget.getItem();
+            if (itemName != null) {
+                State state = itemUIRegistry.getItemState(itemName);
+                if (state != null && state instanceof StringType) {
+                    try {
+                        uri = URI.create(state.toString());
+                        request.setAttribute(ATTR_URI, uri);
+                        return uri;
+                    } catch (IllegalArgumentException ex) {
+                        // fall thru
+                    }
+                }
+            }
+
+            try {
+                uri = URI.create(uriString);
+                request.setAttribute(ATTR_URI, uri);
+                return uri;
+            } catch (IllegalArgumentException iae) {
+                throw new ProxyServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        String.format("URI '%s' is not a valid URI.", uriString));
+            }
+        } catch (ProxyServletException pse) {
+            request.setAttribute(ATTR_SERVLET_EXCEPTION, pse);
             return null;
         }
     }
