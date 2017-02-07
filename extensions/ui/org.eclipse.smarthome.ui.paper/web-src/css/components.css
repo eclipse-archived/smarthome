@@ -343,6 +343,12 @@ md-slider.md-default-theme.hue .md-thumb:after {
     min-height: 60px;
 }
 
+.showCards .fab-item .actions {
+	text-align: right;
+	text-align: -webkit-right;
+	text-align: -moz-right;
+}
+
 .fab-item .circle {
 	border-radius: 50%;
 	width: 56px;
@@ -357,7 +363,7 @@ md-slider.md-default-theme.hue .md-thumb:after {
 .fab-item .rectangle {
     width: 83px;
     height: 56px;
-    background-color: #CCC;
+    background-color: transparent;
     position: absolute;
     text-align: center;
     font-size: 30px;

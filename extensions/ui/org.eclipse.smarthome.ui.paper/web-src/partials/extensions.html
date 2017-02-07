@@ -31,7 +31,7 @@
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
 			<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
-					<img ng-class="{'itemIcon':!extension.imageLink}" class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';this.className='itemIcon'" />
+					<img ng-show="extension.imageLink" class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
 					<div class="item-content">
 						<div class="pull-left">
 							<div class="md-title">{{extension.label}}</div>
@@ -42,7 +42,7 @@
 						</div>
 					</div>
 					<div ng-bind-html="extension.description" class="description"></div>
-					<div style="text-align: right">
+					<div class="actions">
 						<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
 						<md-button aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
 						<md-progress-circular md-mode="indeterminate" ng-show="extension.inProgress" style="margin-right: 25px;"></md-progress-circular>
