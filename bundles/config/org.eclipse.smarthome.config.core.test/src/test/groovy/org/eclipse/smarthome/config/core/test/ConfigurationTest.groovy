@@ -83,7 +83,7 @@ class ConfigurationTest {
 
         def configuration = new Configuration(orgProperties)
 
-        assertThat configuration.get("intField"), is(equalTo(1))
+        assertThat configuration.get("intField"), is(equalTo(BigDecimal.ONE))
 
         configuration.setProperties(newProperties)
 

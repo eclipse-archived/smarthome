@@ -8,11 +8,15 @@
 package org.eclipse.smarthome.config.core;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.normalization.Normalizer;
 import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
@@ -63,9 +67,49 @@ public class ConfigUtil {
         if (configDescriptionParameter != null) {
             Normalizer normalizer = NormalizerFactory.getNormalizer(configDescriptionParameter);
             return normalizer.normalize(value);
-        } else {
-            return value instanceof Double ? BigDecimal.valueOf((Double) value) : value;
+        } else if (value == null || value instanceof Boolean || value instanceof String
+                || value instanceof BigDecimal) {
+            return value;
+        } else if (value instanceof Number) {
+            return new BigDecimal(value.toString());
+        } else if (value instanceof Collection) {
+            return normalizeCollection((Collection) value);
         }
+        throw new IllegalArgumentException(
+                "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
+    }
+
+    private static Collection normalizeCollection(Collection collection) {
+        if (collection.size() != 0) {
+            List list = new ArrayList(collection);
+            Type type = getType(list.get(0));
+            for (ListIterator it = list.listIterator(); it.hasNext();) {
+                Object value = it.next();
+                Type valueType = getType(value);
+                if (type != valueType) {
+                    throw new IllegalArgumentException(
+                            "Invalid configuration property. Heterogeneous collection value!");
+                } else {
+                    if (valueType == Type.DECIMAL && !(value instanceof BigDecimal)) {
+                        it.set((new BigDecimal(value.toString())));
+                    }
+                }
+            }
+            return list;
+        }
+        return collection;
+    }
+
+    private static Type getType(Object value) {
+        if (value instanceof String) {
+            return Type.TEXT;
+        } else if (value instanceof Boolean) {
+            return Type.BOOLEAN;
+        } else if (value instanceof Number) {
+            return Type.DECIMAL;
+        }
+        throw new IllegalArgumentException(
+                "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
     }
 
     /**
