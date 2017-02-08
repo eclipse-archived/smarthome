@@ -299,6 +299,11 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     OR
     <channel-groups>
       <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      OR
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel-group>
       ...
     </channel-groups>
 
@@ -330,6 +335,11 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     OR
     <channel-groups>
       <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      OR
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel-group>
       ...
     </channel-groups>
 
