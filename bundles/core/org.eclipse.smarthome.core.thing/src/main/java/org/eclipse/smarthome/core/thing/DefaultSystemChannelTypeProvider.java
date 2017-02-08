@@ -7,10 +7,12 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
+
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.EventOption;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 
 /**
  * Implementation providing default system wide channel types
@@ -39,7 +42,11 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_CHANNEL_SIGNAL_STRENGTH = new ChannelType(
             new ChannelTypeUID("system:signal-strength"), false, "Number", "Signal Strength", null, "QualityOfService",
-            null, null, null);
+            null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(4), BigDecimal.ONE, null, true,
+                    Arrays.asList(new StateOption("0", "no signal"), new StateOption("1", "weak"),
+                            new StateOption("2", "average"), new StateOption("3", "good"), new StateOption("4", "excellent"))),
+            null);
 
     /**
      * Low battery default system wide {@link ChannelType}. Represents a low battery warning with possible values
@@ -53,8 +60,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
      */
     public static final ChannelType SYSTEM_CHANNEL_BATTERY_LEVEL = new ChannelType(
-            new ChannelTypeUID("system:battery-level"), false, "Number", "Battery Level", null, "Battery", null, null,
-            null);
+            new ChannelTypeUID("system:battery-level"), false, "Number", "Battery Level", null, "Battery", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %%", true, null), null);
 
     /**
      * System wide trigger {@link ChannelType} without event options.
