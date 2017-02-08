@@ -808,6 +808,9 @@ class InboxOSGITest extends OSGiTest {
         keysInConfigDescription.each {
             Object thingConfItem = addedThing.getConfiguration().get(it)
             Object descResultParam = discoveryResultProperties.get(it)
+            if(descResultParam instanceof Number){
+                descResultParam = new BigDecimal(descResultParam.toString())
+            }
             assertFalse thingConfItem == null
             assertFalse descResultParam == null
             assertTrue thingConfItem.equals(descResultParam)

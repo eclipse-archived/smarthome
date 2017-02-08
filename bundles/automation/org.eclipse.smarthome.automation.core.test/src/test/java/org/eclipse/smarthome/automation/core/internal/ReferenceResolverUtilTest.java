@@ -1,5 +1,6 @@
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class ReferenceResolverUtilTest {
         context.put(CONTEXT_PROPERTY1, "value1");
         context.put(CONTEXT_PROPERTY2, "value2");
         context.put(CONTEXT_PROPERTY3, "value3");
-        context.put(CONTEXT_PROPERTY4, 12345);
+        context.put(CONTEXT_PROPERTY4, new BigDecimal(12345));
 
         // module configuration with references
         moduleConfiguration.put("simpleReference", String.format("${%s}", CONTEXT_PROPERTY4));
