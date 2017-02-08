@@ -167,8 +167,20 @@ public class ThingTypeResource implements SatisfiableRESTResource {
             String id = channelGroupDefinition.getId();
             ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
 
-            String label = channelGroupType.getLabel();
-            String description = channelGroupType.getDescription();
+            // Default to the channelGroupDefinition label to override the
+            // channelGroupType
+            String label = channelGroupDefinition.getLabel();
+            if (label == null) {
+                label = channelGroupType.getLabel();
+            }
+
+            // Default to the channelGroupDefinition description to override the
+            // channelGroupType
+            String description = channelGroupDefinition.getDescription();
+            if (description == null) {
+                description = channelGroupType.getDescription();
+            }
+
             List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
             List<ChannelDefinitionDTO> channelDefinitionDTOs = convertToChannelDefinitionDTOs(channelDefinitions,
                     locale);
