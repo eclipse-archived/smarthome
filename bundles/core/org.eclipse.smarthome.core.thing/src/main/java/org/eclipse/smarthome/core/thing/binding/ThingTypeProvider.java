@@ -32,12 +32,12 @@ public interface ThingTypeProvider {
     Collection<ThingType> getThingTypes(Locale locale);
 
     /**
-     * Provides a thing type for the given UID or null if no no type for the
+     * Provides a thing type for the given UID or null if no type for the
      * given UID exists.
      *
      * @param locale
      *            locale (can be null)
-     * @return thing type for the given UID or null if no no type for the given
+     * @return thing type for the given UID or null if no type for the given
      *         UID exists
      */
     ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale);
