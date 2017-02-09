@@ -199,10 +199,11 @@ public class SafeMethodCaller {
                 getLogger().debug("Timeout of {}ms exceeded, thread {} ({}) in state {} is at {}.{}({}:{}).", timeout,
                         thread.getName(), thread.getId(), thread.getState().toString(), element.getClassName(),
                         element.getMethodName(), element.getFileName(), element.getLineNumber());
+                throw e;
             } else {
-                getLogger().debug("Timeout of {}ms exceeded with no thread info available.", timeout);
+                getLogger().debug("Timeout of {}ms exceeded but the task was still queued.", timeout);
             }
-            throw e;
+            return null;
         }
     }
 
