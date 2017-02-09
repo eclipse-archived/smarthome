@@ -219,7 +219,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             return;
         }
         if (shared) {
-            queue = new LinkedList<BundleEvent>();
+            this.queue = new LinkedList<BundleEvent>();
             shared = false;
         }
         if (this.queue.addAll(queue)) {

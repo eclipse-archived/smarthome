@@ -63,6 +63,15 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("rawtypes")
 public abstract class AbstractResourceBundleProvider<E> {
 
+    public AbstractResourceBundleProvider() {
+        logger = LoggerFactory.getLogger(this.getClass());
+        providedObjectsHolder = new ConcurrentHashMap<String, E>();
+        providerPortfolio = new ConcurrentHashMap<Vendor, List<String>>();
+        queue = new AutomationResourceBundlesEventQueue(this);
+        parsers = new ConcurrentHashMap<String, Parser<E>>();
+        waitingProviders = new ConcurrentHashMap<Bundle, List<URL>>();
+    }
+
     /**
      * This static field provides a root directory for automation object resources in the bundle resources.
      * It is common for all resources - {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s.
@@ -98,7 +107,7 @@ public abstract class AbstractResourceBundleProvider<E> {
     /**
      * This Map collects all binded {@link Parser}s.
      */
-    protected Map<String, Parser<E>> parsers = new ConcurrentHashMap<String, Parser<E>>();
+    protected Map<String, Parser<E>> parsers;
 
     /**
      * This Map provides structure for fast access to the provided automation objects. This provides opportunity for
@@ -121,7 +130,7 @@ public abstract class AbstractResourceBundleProvider<E> {
      * This Map holds bundles whose {@link Parser} for resources is missing in the moment of processing the bundle.
      * Later, if the {@link Parser} appears, they will be added again in the {@link #queue} for processing.
      */
-    protected Map<Bundle, List<URL>> waitingProviders = new ConcurrentHashMap<Bundle, List<URL>>();
+    protected Map<Bundle, List<URL>> waitingProviders;
 
     /**
      * This field provides an access to the queue for processing bundles.
@@ -133,10 +142,6 @@ public abstract class AbstractResourceBundleProvider<E> {
     @SuppressWarnings("unchecked")
     protected void activate(BundleContext bc) {
         this.bc = bc;
-        logger = LoggerFactory.getLogger(this.getClass());
-        providedObjectsHolder = new ConcurrentHashMap<String, E>();
-        providerPortfolio = new ConcurrentHashMap<Vendor, List<String>>();
-        queue = new AutomationResourceBundlesEventQueue(this);
     }
 
     protected void deactivate() {

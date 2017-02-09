@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,7 +27,8 @@ public class RuntimeCondition extends Condition {
     private Set<Connection> connections;
 
     public RuntimeCondition(Condition condition) {
-        super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
+        super(condition.getId(), condition.getTypeUID(),
+                new Configuration(condition.getConfiguration().getProperties()), condition.getInputs());
         setConnections(Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());
