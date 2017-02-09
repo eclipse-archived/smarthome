@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This is a class to be used within the {@link RuleEngine} for resolved rules.
@@ -37,8 +38,9 @@ public class RuntimeRule extends Rule {
      */
     protected RuntimeRule(Rule rule) {
         super(rule.getUID(), getRuntimeTriggersCopy(rule.getTriggers()), getRuntimeConditionsCopy(rule.getConditions()),
-                getRuntimeActionsCopy(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration(),
-                rule.getTemplateUID(), rule.getVisibility());
+                getRuntimeActionsCopy(rule.getActions()), rule.getConfigurationDescriptions(),
+                new Configuration(rule.getConfiguration().getProperties()), rule.getTemplateUID(),
+                rule.getVisibility());
         setName(rule.getName());
         setTags(rule.getTags());
         setDescription(rule.getDescription());

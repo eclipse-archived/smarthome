@@ -277,8 +277,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             for (ProviderChangeListener<E> listener : listeners) {
                 if (oldElement != null) {
                     listener.updated(this, oldElement, newElement);
+                } else {
+                    listener.added(this, newElement);
                 }
-                listener.added(this, newElement);
             }
         }
     }
