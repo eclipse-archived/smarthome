@@ -299,6 +299,21 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             });
         }
     };
+}).directive('verticalAlign', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            element[0].addEventListener("load", function() {
+                calculateMargin();
+            });
+            function calculateMargin() {
+                var diff = 56 - element[0].clientHeight;
+                if (diff > 0) {
+                    element[0].style.cssText = 'margin-top:' + Math.floor(diff / 2) + 'px';
+                }
+            }
+        }
+    };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
     var original = $location.path;
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {

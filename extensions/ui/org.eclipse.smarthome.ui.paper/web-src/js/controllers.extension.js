@@ -1,8 +1,10 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
     $scope.extensionTypes = [];
+    var view = window.localStorage.getItem('paperui.extension.view')
+    $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
     $scope.refresh = function() {
         extensionService.getAllTypes(function(extensionTypes) {
             $scope.extensionTypes = [];
@@ -26,6 +28,15 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                 });
             });
         });
+    }
+
+    $scope.changeView = function(showCards) {
+        if (showCards) {
+            window.localStorage.setItem('paperui.extension.view', 'card');
+        } else {
+            window.localStorage.setItem('paperui.extension.view', 'list');
+        }
+        $scope.showCards = showCards;
     }
 
     $scope.getType = function(extensionTypeId) {
@@ -72,6 +83,17 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             $window.open(link, '_blank');
         }
     }
+
+    $scope.masonry = function() {
+        $timeout(function() {
+            var itemContainer = '#extensions-' + $scope.selectedIndex;
+            new Masonry(itemContainer, {});
+        }, 100, true);
+    }
+    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+        $scope.masonry();
+    });
+
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
         var extension = $scope.getExtension(extensionId);
         if (extension) {
