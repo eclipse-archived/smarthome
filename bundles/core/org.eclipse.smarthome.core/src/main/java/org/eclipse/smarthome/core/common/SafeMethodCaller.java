@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SafeMethodCaller {
 
+    private static final String SAFE_CALL_POOL_NAME = "safeCall";
+
     /**
      * Executable Action. See {@link SafeMethodCaller#call(Action)}
      *
@@ -182,9 +184,13 @@ public class SafeMethodCaller {
 
     private static <V> V callAsynchronous(final Callable<V> callable, int timeout)
             throws InterruptedException, ExecutionException, TimeoutException {
+        if (Thread.currentThread().getName().startsWith(SAFE_CALL_POOL_NAME + "-")) {
+            getLogger().trace("Already in a SafeMethodCaller context, executing {} directly.", callable);
+            return executeDirectly(callable);
+        }
         CallableWrapper<V> wrapper = new CallableWrapper<>(callable);
         try {
-            Future<V> future = ThreadPoolManager.getPool("safeCall").submit(wrapper);
+            Future<V> future = ThreadPoolManager.getPool(SAFE_CALL_POOL_NAME).submit(wrapper);
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             if (wrapper.getThread() != null) {
@@ -203,6 +209,14 @@ public class SafeMethodCaller {
                 getLogger().debug("Timeout of {}ms exceeded with no thread info available.", timeout);
             }
             throw e;
+        }
+    }
+
+    private static <V> V executeDirectly(final Callable<V> callable) throws ExecutionException {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            throw new ExecutionException(e);
         }
     }
 
