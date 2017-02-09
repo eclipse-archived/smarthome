@@ -373,7 +373,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                     }
                                 });
                             } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
+                                logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
                                         handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                             } catch (Exception ex) {
                                 logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
@@ -423,7 +423,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                     }
                                 });
                             } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing {} takes more than {}ms for processing event",
+                                logger.warn("Handler for thing {} takes more than {}ms for handling an update",
                                         handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                             } catch (Exception ex) {
                                 logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
