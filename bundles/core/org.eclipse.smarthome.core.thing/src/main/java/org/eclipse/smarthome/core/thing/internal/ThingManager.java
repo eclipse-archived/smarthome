@@ -65,7 +65,6 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -73,8 +72,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
@@ -100,11 +97,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
-
-    private final Multimap<Bundle, Object> initializerVetoes = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
-    private final Multimap<Long, ThingHandler> initializerQueue = Multimaps
-            .synchronizedListMultimap(LinkedListMultimap.<Long, ThingHandler> create());
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
@@ -261,8 +253,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private Set<ThingUID> registerHandlerLock = new HashSet<>();
 
     private Set<ThingUID> thingUpdatedLock = new HashSet<>();
-
-    private Set<BundleProcessor> bundleProcessors = new HashSet<>();
 
     @Override
     public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
@@ -977,26 +967,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         if (thingHandlerFactory != null) {
-            try {
-                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        registerHandler(thing, thingHandlerFactory);
-                        initializeHandler(thing);
-                        return null;
-                    }
-                });
-            } catch (TimeoutException e) {
-                logger.warn("Registering a handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                        SafeMethodCaller.DEFAULT_TIMEOUT);
-            } catch (Exception ex) {
-                ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                        ThingStatusDetail.HANDLER_REGISTERING_ERROR,
-                        ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-                setThingStatus(thing, statusInfo);
-                logger.error("Exception occured while registering the handler for thing '{}' using factory '{}': {}",
-                        thing.getUID(), thingHandlerFactory, ex.getMessage(), ex);
-            }
+            registerHandler(thing, thingHandlerFactory);
+            initializeHandler(thing);
         } else {
             logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
                     thing.getUID());
