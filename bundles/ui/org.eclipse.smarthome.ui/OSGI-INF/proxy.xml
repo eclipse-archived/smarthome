@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.ui.proxy">
-   <implementation class="org.eclipse.smarthome.ui.internal.proxy.ProxyServlet"/>
+   <implementation class="org.eclipse.smarthome.ui.internal.proxy.ProxyServletService"/>
 
    <property name="service.pid" type="String" value="org.eclipse.smarthome.proxy"/>
 

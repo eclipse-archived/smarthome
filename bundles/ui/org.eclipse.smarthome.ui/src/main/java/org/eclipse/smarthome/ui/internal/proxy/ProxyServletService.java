@@ -11,19 +11,18 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Objects;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.proxy.AsyncProxyServlet;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -61,20 +60,23 @@ import org.slf4j.LoggerFactory;
  * This servlet also supports data streams, such as a webcam video stream etc.
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Svilen Valkanov - Replaced Apache HttpClient with Jetty
- * @author John Cocula - added optional Image/Video item= support; refactor
+ * @author John Cocula - added optional Image/Video item= support; refactored to allow use of later spec servlet
  */
-public class ProxyServlet extends AsyncProxyServlet {
+public class ProxyServletService extends HttpServlet {
 
+    /** the alias for this servlet */
     public static final String PROXY_ALIAS = "proxy";
+
     private static final String CONFIG_MAX_THREADS = "maxThreads";
     private static final int DEFAULT_MAX_THREADS = 8;
-    private static final String ATTR_URI = ProxyServlet.class.getName() + ".URI";
-    private static final String ATTR_SERVLET_EXCEPTION = ProxyServlet.class.getName() + ".ProxyServletException";
+    public static final String ATTR_URI = ProxyServletService.class.getName() + ".URI";
+    public static final String ATTR_SERVLET_EXCEPTION = ProxyServletService.class.getName() + ".ProxyServletException";
 
-    private final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
+    private final Logger logger = LoggerFactory.getLogger(ProxyServletService.class);
 
     private static final long serialVersionUID = -4716754591953017793L;
+
+    private Servlet versionSpecificServlet;
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
@@ -104,22 +106,20 @@ public class ProxyServlet extends AsyncProxyServlet {
         this.httpService = null;
     }
 
-    protected void activate(Map<String, Object> config) {
-        try {
-            logger.debug("Starting up proxy servlet at /{}", PROXY_ALIAS);
-            Hashtable<String, String> props = propsFromConfig(config);
-            httpService.registerServlet("/" + PROXY_ALIAS, this, props, createHttpContext());
-        } catch (NamespaceException | ServletException e) {
-            logger.error("Error during servlet startup: {}", e.getMessage());
+    /**
+     * Register a Servlet API 3.0-compatible version instead of the 2.4-compatible one, if possible.
+     * Eclipse SmartHome is supported on OSGi R4.2 containers which only support Servlet API 2.4.
+     */
+    private Servlet getVersionSpecificServlet() {
+        if (versionSpecificServlet == null) {
+            try {
+                ServletRequest.class.getMethod("startAsync");
+                versionSpecificServlet = new ProxyServlet30(this);
+            } catch (Exception e) {
+                versionSpecificServlet = new ProxyServlet24(this);
+            }
         }
-    }
-
-    protected void deactivate() {
-        try {
-            httpService.unregister("/" + PROXY_ALIAS);
-        } catch (IllegalArgumentException e) {
-            // ignore, had not been registered before
-        }
+        return versionSpecificServlet;
     }
 
     /**
@@ -137,12 +137,33 @@ public class ProxyServlet extends AsyncProxyServlet {
             }
         }
 
-        // must specify, per http://stackoverflow.com/a/27625380
+        // must specify for Jetty proxy servlet, per http://stackoverflow.com/a/27625380
         if (props.get(CONFIG_MAX_THREADS) == null) {
             props.put(CONFIG_MAX_THREADS, String.valueOf(DEFAULT_MAX_THREADS));
         }
 
         return props;
+    }
+
+    protected void activate(Map<String, Object> config) {
+        try {
+            Servlet servlet = getVersionSpecificServlet();
+
+            logger.debug("Starting up '{}' servlet  at /{}", servlet.getServletInfo(), PROXY_ALIAS);
+
+            Hashtable<String, String> props = propsFromConfig(config);
+            httpService.registerServlet("/" + PROXY_ALIAS, servlet, props, createHttpContext());
+        } catch (NamespaceException | ServletException e) {
+            logger.error("Error during servlet startup: {}", e.getMessage());
+        }
+    }
+
+    protected void deactivate() {
+        try {
+            httpService.unregister("/" + PROXY_ALIAS);
+        } catch (IllegalArgumentException e) {
+            // ignore, had not been registered before
+        }
     }
 
     /**
@@ -151,49 +172,7 @@ public class ProxyServlet extends AsyncProxyServlet {
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {
-        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-        return defaultHttpContext;
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Image and Video Widget Proxy";
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Override <code>newHttpClient</code> so we can proxy to HTTPS URIs.
-     */
-    @Override
-    protected HttpClient newHttpClient() {
-        return new HttpClient(new SslContextFactory());
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Add Basic Authentication header to request if user and password are specified in URI.
-     * After Jetty is upgraded past 9.2.9, change to copyRequestHeaders to avoid deprecated warning.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    protected void copyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
-        super.copyHeaders(clientRequest, proxyRequest);
-
-        // check if the URI uses credentials and configure the HTTP client accordingly
-        URI uri = uriFromRequest(clientRequest);
-        if (uri != null && uri.getUserInfo() != null) {
-            String[] userInfo = uri.getUserInfo().split(":");
-
-            if (userInfo.length == 2) {
-                String user = userInfo[0];
-                String password = userInfo[1];
-
-                String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
-                proxyRequest.header(HttpHeader.AUTHORIZATION, basicAuthentication);
-            }
-        }
+        return httpService.createDefaultHttpContext();
     }
 
     /**
@@ -214,37 +193,13 @@ public class ProxyServlet extends AsyncProxyServlet {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String rewriteTarget(HttpServletRequest request) {
-        return Objects.toString(uriFromRequest(request), null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onProxyRewriteFailed(HttpServletRequest request, HttpServletResponse response) {
-        ProxyServletException pse = (ProxyServletException) request.getAttribute(ATTR_SERVLET_EXCEPTION);
-        if (pse != null) {
-            try {
-                response.sendError(pse.getCode(), pse.getMessage());
-            } catch (IOException ioe) {
-                response.setStatus(pse.getCode());
-            }
-        } else {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }
-    }
-
-    /**
      * Determine which URI to address based on the request contents.
      *
-     * @param request the servlet request
+     * @param request the servlet request. New attributes may be added to the request in order to cache the result for
+     *            future calls.
      * @return the URI indicated by the request, or <code>null</code> if not possible
      */
-    private URI uriFromRequest(HttpServletRequest request) {
+    URI uriFromRequest(HttpServletRequest request) {
 
         try {
             // Return any URI we've already saved for this request
@@ -252,9 +207,9 @@ public class ProxyServlet extends AsyncProxyServlet {
             if (uri != null) {
                 return uri;
             } else {
-                // Since the input is the same as before, there is no point continuing
                 ProxyServletException pse = (ProxyServletException) request.getAttribute(ATTR_SERVLET_EXCEPTION);
                 if (pse != null) {
+                    // If we errored on this request before, there is no point continuing
                     return null;
                 }
             }
@@ -318,6 +273,47 @@ public class ProxyServlet extends AsyncProxyServlet {
         } catch (ProxyServletException pse) {
             request.setAttribute(ATTR_SERVLET_EXCEPTION, pse);
             return null;
+        }
+    }
+
+    /**
+     * If the URI contains user info in the form <code>user:pass</code>, attempt to preempt the server
+     * returning a 401 by providing Basic Authentication support in the initial request to the server.
+     *
+     * @param uri the URI which may contain user info
+     * @param request the outgoing request to which an authorization header may be added
+     */
+    void maybeAppendAuthHeader(URI uri, Request request) {
+        if (uri != null && uri.getUserInfo() != null) {
+            String[] userInfo = uri.getUserInfo().split(":");
+
+            if (userInfo.length >= 2) {
+                String user = userInfo[0];
+                String password = userInfo[1];
+
+                String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
+                request.header(HttpHeader.AUTHORIZATION, basicAuthentication);
+            }
+        }
+    }
+
+    /**
+     * Send the most specific error back to the client.
+     *
+     * @param request the request which may be marked with an error
+     * @param response the reponse to which to send the error
+     */
+    void sendError(HttpServletRequest request, HttpServletResponse response) {
+        ProxyServletException pse = (ProxyServletException) request
+                .getAttribute(ProxyServletService.ATTR_SERVLET_EXCEPTION);
+        if (pse != null) {
+            try {
+                response.sendError(pse.getCode(), pse.getMessage());
+            } catch (IOException ioe) {
+                response.setStatus(pse.getCode());
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }
 }
