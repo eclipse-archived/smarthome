@@ -254,7 +254,10 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             newState = OnlineOfflineType.ONLINE;
         }
 
-        Iterable<Rule> rules = triggerManager.getRules(THINGCHANGE, thing, oldState, newState);
+        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thing, newState);
+        executeRules(rules);
+
+        rules = triggerManager.getRules(THINGCHANGE, thing, oldState, newState);
         executeRules(rules, oldState);
     }
 

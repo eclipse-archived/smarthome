@@ -33,6 +33,7 @@ EventTrigger:
 	EventEmittedTrigger |
 	TimerTrigger |
 	SystemTrigger |
+	ThingStateUpdateEventTrigger |
 	ThingStateChangedEventTrigger
 ;
 
@@ -71,6 +72,10 @@ SystemOnStartupTrigger:
 SystemOnShutdownTrigger:
 	{SystemOnShutdownTrigger}
 	'System' 'shuts down'
+;
+
+ThingStateUpdateEventTrigger:
+    'Thing' thing=ThingUid 'received update' (state=ValidState)?
 ;
 
 ThingStateChangedEventTrigger:

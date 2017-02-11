@@ -37,6 +37,7 @@ import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.SystemOnShutdownTrigger;
 import org.eclipse.smarthome.model.rule.rules.SystemOnStartupTrigger;
 import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger;
+import org.eclipse.smarthome.model.rule.rules.ThingStateUpdateEventTrigger;
 import org.eclipse.smarthome.model.rule.rules.TimerTrigger;
 import org.eclipse.smarthome.model.rule.rules.UpdateEventTrigger;
 import org.quartz.CronScheduleBuilder;
@@ -78,6 +79,7 @@ public class RuleTriggerManager {
         STARTUP, // fires when the rule engine bundle starts and once as soon as all required items are available
         SHUTDOWN, // fires when the rule engine bundle is stopped
         TIMER, // fires at a given time
+        THINGUPDATE, // fires whenever the thing state is updated.
         THINGCHANGE, // fires if the thing state is changed by the update
     }
 
@@ -85,6 +87,7 @@ public class RuleTriggerManager {
     private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
+    private Map<String, Set<Rule>> thingUpdateEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> thingChangedEventTriggeredRules = Maps.newHashMap();
     // Maps from channelName -> Rules
     private Map<String, Set<Rule>> triggerEventTriggeredRules = Maps.newHashMap();
@@ -137,6 +140,9 @@ public class RuleTriggerManager {
                 break;
             case TRIGGER:
                 result = Iterables.concat(triggerEventTriggeredRules.values());
+                break;
+            case THINGUPDATE:
+                result = Iterables.concat(thingUpdateEventTriggeredRules.values());
                 break;
             case THINGCHANGE:
                 result = Iterables.concat(thingChangedEventTriggeredRules.values());
@@ -226,6 +232,10 @@ public class RuleTriggerManager {
         }
 
         return result;
+    }
+
+    public Iterable<Rule> getRules(TriggerTypes triggerType, Thing thing, State state) {
+        return internalGetThingRules(triggerType, thing, null, state);
     }
 
     public Iterable<Rule> getRules(TriggerTypes triggerType, Thing thing, State oldState, State newState) {
@@ -353,6 +363,27 @@ public class RuleTriggerManager {
         thingStateTypes.add(OnlineOfflineType.class);
 
         switch (triggerType) {
+            case THINGUPDATE:
+                if (newType instanceof State) {
+                    State state = (State) newType;
+                    for (Rule rule : rules) {
+                        for (EventTrigger t : rule.getEventtrigger()) {
+                            if (t instanceof ThingStateUpdateEventTrigger) {
+                                ThingStateUpdateEventTrigger tt = (ThingStateUpdateEventTrigger) t;
+                                if (tt.getThing().equals(thingUid)) {
+                                    if (tt.getState() != null) {
+                                        State triggerState = TypeParser.parseState(thingStateTypes, tt.getState());
+                                        if (!state.equals(triggerState)) {
+                                            continue;
+                                        }
+                                    }
+                                    result.add(rule);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
             case THINGCHANGE:
                 if (newType instanceof State && oldType instanceof State) {
                     State newState = (State) newType;
@@ -420,6 +451,9 @@ public class RuleTriggerManager {
                 }
                 timerEventTriggeredRules.clear();
                 break;
+            case THINGUPDATE:
+                thingUpdateEventTriggeredRules.clear();
+                break;
             case THINGCHANGE:
                 thingChangedEventTriggeredRules.clear();
                 break;
@@ -437,6 +471,7 @@ public class RuleTriggerManager {
         clear(COMMAND);
         clear(TIMER);
         clear(TRIGGER);
+        clear(THINGUPDATE);
         clear(THINGCHANGE);
     }
 
@@ -492,6 +527,14 @@ public class RuleTriggerManager {
                     triggerEventTriggeredRules.put(eeTrigger.getChannel(), rules);
                 }
                 rules.add(rule);
+            } else if (t instanceof ThingStateUpdateEventTrigger) {
+                ThingStateUpdateEventTrigger tsuTrigger = (ThingStateUpdateEventTrigger) t;
+                Set<Rule> rules = thingUpdateEventTriggeredRules.get(tsuTrigger);
+                if (rules == null) {
+                    rules = new HashSet<Rule>();
+                    thingUpdateEventTriggeredRules.put(tsuTrigger.getThing(), rules);
+                }
+                rules.add(rule);
             } else if (t instanceof ThingStateChangedEventTrigger) {
                 ThingStateChangedEventTrigger tscTrigger = (ThingStateChangedEventTrigger) t;
                 Set<Rule> rules = thingChangedEventTriggeredRules.get(tscTrigger.getThing());
@@ -540,6 +583,10 @@ public class RuleTriggerManager {
                 timerEventTriggeredRules.remove(rule);
                 removeTimerRule(rule);
                 break;
+            case THINGUPDATE:
+                for (Set<Rule> rules : thingUpdateEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
             case THINGCHANGE:
                 for (Set<Rule> rules : thingChangedEventTriggeredRules.values()) {
                     rules.remove(rule);
@@ -572,6 +619,7 @@ public class RuleTriggerManager {
         removeRules(STARTUP, Collections.singletonList(systemStartupTriggeredRules), ruleModel);
         removeRules(SHUTDOWN, Collections.singletonList(systemShutdownTriggeredRules), ruleModel);
         removeRules(TIMER, Collections.singletonList(timerEventTriggeredRules), ruleModel);
+        removeRules(THINGUPDATE, thingUpdateEventTriggeredRules.values(), ruleModel);
         removeRules(THINGCHANGE, thingChangedEventTriggeredRules.values(), ruleModel);
     }
 
