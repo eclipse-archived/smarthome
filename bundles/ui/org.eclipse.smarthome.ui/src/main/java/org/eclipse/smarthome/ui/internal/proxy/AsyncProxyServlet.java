@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.proxy.AsyncProxyServlet;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
@@ -23,13 +22,13 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
  *
  * @author John Cocula - new version that uses Jetty proxy classes
  */
-public class ProxyServlet30 extends AsyncProxyServlet {
+public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet {
 
     private static final long serialVersionUID = -4716754591953017795L;
 
     private final ProxyServletService service;
 
-    ProxyServlet30(ProxyServletService service) {
+    AsyncProxyServlet(ProxyServletService service) {
         super();
         this.service = service;
     }

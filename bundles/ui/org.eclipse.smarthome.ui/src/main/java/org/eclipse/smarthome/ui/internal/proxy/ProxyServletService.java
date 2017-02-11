@@ -76,7 +76,7 @@ public class ProxyServletService extends HttpServlet {
 
     private static final long serialVersionUID = -4716754591953017793L;
 
-    private Servlet versionSpecificServlet;
+    private Servlet impl;
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
@@ -107,19 +107,19 @@ public class ProxyServletService extends HttpServlet {
     }
 
     /**
-     * Register a Servlet API 3.0-compatible version instead of the 2.4-compatible one, if possible.
-     * Eclipse SmartHome is supported on OSGi R4.2 containers which only support Servlet API 2.4.
+     * Return the async in preference to the blocking proxy servlet, if possible.
+     * Supported OSGi containers might only support Servlet API 2.4 (blocking only).
      */
-    private Servlet getVersionSpecificServlet() {
-        if (versionSpecificServlet == null) {
+    private Servlet getImpl() {
+        if (impl == null) {
             try {
                 ServletRequest.class.getMethod("startAsync");
-                versionSpecificServlet = new ProxyServlet30(this);
+                impl = new AsyncProxyServlet(this);
             } catch (Exception e) {
-                versionSpecificServlet = new ProxyServlet24(this);
+                impl = new BlockingProxyServlet(this);
             }
         }
-        return versionSpecificServlet;
+        return impl;
     }
 
     /**
@@ -147,7 +147,7 @@ public class ProxyServletService extends HttpServlet {
 
     protected void activate(Map<String, Object> config) {
         try {
-            Servlet servlet = getVersionSpecificServlet();
+            Servlet servlet = getImpl();
 
             logger.debug("Starting up '{}' servlet  at /{}", servlet.getServletInfo(), PROXY_ALIAS);
 

@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * @author Svilen Valkanov - Replaced Apache HttpClient with Jetty
  * @author John Cocula - refactored to support alternate implementation
  */
-public class ProxyServlet24 extends HttpServlet {
+public class BlockingProxyServlet extends HttpServlet {
 
-    private final Logger logger = LoggerFactory.getLogger(ProxyServlet24.class);
+    private final Logger logger = LoggerFactory.getLogger(BlockingProxyServlet.class);
 
     private static final long serialVersionUID = -4716754591953017794L;
 
@@ -50,7 +50,7 @@ public class ProxyServlet24 extends HttpServlet {
     /** Timeout for HTTP requests in ms */
     private static final int TIMEOUT = 15000;
 
-    ProxyServlet24(ProxyServletService service) {
+    BlockingProxyServlet(ProxyServletService service) {
         super();
         this.service = service;
         if (!httpClient.isStarted()) {
