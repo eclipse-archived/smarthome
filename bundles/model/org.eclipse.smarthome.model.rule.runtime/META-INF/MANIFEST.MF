@@ -28,6 +28,7 @@ Import-Package: org.eclipse.smarthome.core.common.registry,
  org.quartz.spi,
  org.quartz.utils,
  org.slf4j
-Require-Bundle: org.eclipse.smarthome.model.rule
+Require-Bundle: org.eclipse.smarthome.model.rule,
+ org.eclipse.smarthome.core
 Export-Package: org.eclipse.smarthome.model.rule.runtime
 Bundle-ActivationPolicy: lazy

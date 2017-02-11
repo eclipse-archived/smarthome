@@ -22,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -34,6 +36,7 @@ import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.SystemOnShutdownTrigger;
 import org.eclipse.smarthome.model.rule.rules.SystemOnStartupTrigger;
+import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger;
 import org.eclipse.smarthome.model.rule.rules.TimerTrigger;
 import org.eclipse.smarthome.model.rule.rules.UpdateEventTrigger;
 import org.quartz.CronScheduleBuilder;
@@ -74,13 +77,15 @@ public class RuleTriggerManager {
         TRIGGER, // fires whenever a trigger is emitted on a channel
         STARTUP, // fires when the rule engine bundle starts and once as soon as all required items are available
         SHUTDOWN, // fires when the rule engine bundle is stopped
-        TIMER // fires at a given time
+        TIMER, // fires at a given time
+        THINGCHANGE, // fires if the thing state is changed by the update
     }
 
     // lookup maps for different triggering conditions
     private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
+    private Map<String, Set<Rule>> thingChangedEventTriggeredRules = Maps.newHashMap();
     // Maps from channelName -> Rules
     private Map<String, Set<Rule>> triggerEventTriggeredRules = Maps.newHashMap();
     private Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
@@ -133,6 +138,8 @@ public class RuleTriggerManager {
             case TRIGGER:
                 result = Iterables.concat(triggerEventTriggeredRules.values());
                 break;
+            case THINGCHANGE:
+                result = Iterables.concat(thingChangedEventTriggeredRules.values());
             default:
                 result = Sets.newHashSet();
         }
@@ -219,6 +226,10 @@ public class RuleTriggerManager {
         }
 
         return result;
+    }
+
+    public Iterable<Rule> getRules(TriggerTypes triggerType, Thing thing, State oldState, State newState) {
+        return internalGetThingRules(triggerType, thing, oldState, newState);
     }
 
     private Iterable<Rule> getAllRules(TriggerTypes type, String itemName) {
@@ -331,6 +342,53 @@ public class RuleTriggerManager {
         return result;
     }
 
+    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, Thing thing, Type oldType, Type newType) {
+        List<Rule> result = Lists.newArrayList();
+        String thingUid = thing.getUID().getAsString();
+        Iterable<Rule> rules = getAllRules(triggerType, thingUid);
+        if (rules == null) {
+            rules = Lists.newArrayList();
+        }
+        List<Class<? extends State>> thingStateTypes = new ArrayList<Class<? extends State>>();
+        thingStateTypes.add(OnlineOfflineType.class);
+
+        switch (triggerType) {
+            case THINGCHANGE:
+                if (newType instanceof State && oldType instanceof State) {
+                    State newState = (State) newType;
+                    State oldState = (State) oldType;
+                    for (Rule rule : rules) {
+                        for (EventTrigger t : rule.getEventtrigger()) {
+                            if (t instanceof ThingStateChangedEventTrigger) {
+                                ThingStateChangedEventTrigger ct = (ThingStateChangedEventTrigger) t;
+                                if (ct.getThing().equals(thingUid)) {
+                                    if (ct.getOldState() != null) {
+                                        State triggerOldState = TypeParser.parseState(thingStateTypes,
+                                                ct.getOldState());
+                                        if (!oldState.equals(triggerOldState)) {
+                                            continue;
+                                        }
+                                    }
+                                    if (ct.getNewState() != null) {
+                                        State triggerNewState = TypeParser.parseState(thingStateTypes,
+                                                ct.getNewState());
+                                        if (!newState.equals(triggerNewState)) {
+                                            continue;
+                                        }
+                                    }
+                                    result.add(rule);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
     /**
      * Removes all rules with a given trigger type from the mapping tables.
      *
@@ -362,6 +420,9 @@ public class RuleTriggerManager {
                 }
                 timerEventTriggeredRules.clear();
                 break;
+            case THINGCHANGE:
+                thingChangedEventTriggeredRules.clear();
+                break;
         }
     }
 
@@ -376,6 +437,7 @@ public class RuleTriggerManager {
         clear(COMMAND);
         clear(TIMER);
         clear(TRIGGER);
+        clear(THINGCHANGE);
     }
 
     /**
@@ -430,6 +492,14 @@ public class RuleTriggerManager {
                     triggerEventTriggeredRules.put(eeTrigger.getChannel(), rules);
                 }
                 rules.add(rule);
+            } else if (t instanceof ThingStateChangedEventTrigger) {
+                ThingStateChangedEventTrigger tscTrigger = (ThingStateChangedEventTrigger) t;
+                Set<Rule> rules = thingChangedEventTriggeredRules.get(tscTrigger.getThing());
+                if (rules == null) {
+                    rules = new HashSet<Rule>();
+                    thingChangedEventTriggeredRules.put(tscTrigger.getThing(), rules);
+                }
+                rules.add(rule);
             }
         }
     }
@@ -470,6 +540,11 @@ public class RuleTriggerManager {
                 timerEventTriggeredRules.remove(rule);
                 removeTimerRule(rule);
                 break;
+            case THINGCHANGE:
+                for (Set<Rule> rules : thingChangedEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
+                break;
         }
     }
 
@@ -497,6 +572,7 @@ public class RuleTriggerManager {
         removeRules(STARTUP, Collections.singletonList(systemStartupTriggeredRules), ruleModel);
         removeRules(SHUTDOWN, Collections.singletonList(systemShutdownTriggeredRules), ruleModel);
         removeRules(TIMER, Collections.singletonList(timerEventTriggeredRules), ruleModel);
+        removeRules(THINGCHANGE, thingChangedEventTriggeredRules.values(), ruleModel);
     }
 
     private void removeRules(TriggerTypes type, Collection<? extends Collection<Rule>> ruleSets, RuleModel model) {

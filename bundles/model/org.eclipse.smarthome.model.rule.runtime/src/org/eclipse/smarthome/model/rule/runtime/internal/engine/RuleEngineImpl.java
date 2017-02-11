@@ -30,6 +30,12 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.types.Command;
@@ -73,6 +79,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
     private ScriptEngine scriptEngine;
+    private ThingRegistry thingRegistry;
 
     private RuleTriggerManager triggerManager;
 
@@ -162,6 +169,14 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.scriptEngine = null;
     }
 
+    public void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    public void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
+    }
+
     @Override
     public void allItemsChanged(Collection<String> oldItemNames) {
         // add the current items again
@@ -224,7 +239,23 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private void receiveThingStatus(ThingStatusInfoChangedEvent event) {
+        ThingUID thingUid = event.getThingUID();
+        Thing thing = this.thingRegistry.get(thingUid);
+        ThingStatusInfo oldStatus = event.getOldStatusInfo();
+        ThingStatusInfo newStatus = event.getStatusInfo();
+        State oldState = OnlineOfflineType.OFFLINE;
+        State newState = OnlineOfflineType.OFFLINE;
 
+        if (oldStatus.getStatus() == ThingStatus.ONLINE) {
+            oldState = OnlineOfflineType.ONLINE;
+        }
+
+        if (newStatus.getStatus() == ThingStatus.ONLINE) {
+            newState = OnlineOfflineType.ONLINE;
+        }
+
+        Iterable<Rule> rules = triggerManager.getRules(THINGCHANGE, thing, oldState, newState);
+        executeRules(rules, oldState);
     }
 
     private void internalItemAdded(Item item) {
