@@ -28,6 +28,7 @@ import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
 import org.eclipse.smarthome.model.script.engine.IThingRegistryProvider
 import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
+import org.eclipse.smarthome.model.rule.rules.ThingStateUpdateEventTrigger
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -144,6 +145,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                         val stateTypeRef = ruleModel.newTypeRef(State)
                         parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef)
                     }
+
                     body = rule.script
                 ]
             ]

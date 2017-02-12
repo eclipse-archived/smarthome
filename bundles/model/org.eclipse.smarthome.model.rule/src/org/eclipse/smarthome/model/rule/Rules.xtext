@@ -75,11 +75,11 @@ SystemOnShutdownTrigger:
 ;
 
 ThingStateUpdateEventTrigger:
-    'Thing' thing=ThingUid 'received update' (state=ValidState)?
+    'Thing' thing=STRING 'received update' (state=ValidState)?
 ;
 
 ThingStateChangedEventTrigger:
-    'Thing' thing=ThingUid 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+    'Thing' thing=STRING 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
 ;
 	
 ItemName :
@@ -96,8 +96,4 @@ ValidCommand:
 
 ValidTrigger:
 	ID | Number | STRING
-;
-
-ThingUid:
-    ID | STRING
 ;

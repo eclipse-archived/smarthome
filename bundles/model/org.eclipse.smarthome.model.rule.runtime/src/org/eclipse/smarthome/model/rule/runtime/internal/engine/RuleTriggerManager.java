@@ -23,7 +23,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -234,26 +233,30 @@ public class RuleTriggerManager {
         return result;
     }
 
-    public Iterable<Rule> getRules(TriggerTypes triggerType, Thing thing, State state) {
-        return internalGetThingRules(triggerType, thing, null, state);
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, State state) {
+        return internalGetThingRules(triggerType, thingUid, null, state);
     }
 
-    public Iterable<Rule> getRules(TriggerTypes triggerType, Thing thing, State oldState, State newState) {
-        return internalGetThingRules(triggerType, thing, oldState, newState);
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, State oldState, State newState) {
+        return internalGetThingRules(triggerType, thingUid, oldState, newState);
     }
 
-    private Iterable<Rule> getAllRules(TriggerTypes type, String itemName) {
+    private Iterable<Rule> getAllRules(TriggerTypes type, String name) {
         switch (type) {
             case STARTUP:
                 return systemStartupTriggeredRules;
             case SHUTDOWN:
                 return systemShutdownTriggeredRules;
             case UPDATE:
-                return updateEventTriggeredRules.get(itemName);
+                return updateEventTriggeredRules.get(name);
             case CHANGE:
-                return changedEventTriggeredRules.get(itemName);
+                return changedEventTriggeredRules.get(name);
             case COMMAND:
-                return commandEventTriggeredRules.get(itemName);
+                return commandEventTriggeredRules.get(name);
+            case THINGUPDATE:
+                return thingUpdateEventTriggeredRules.get(name);
+            case THINGCHANGE:
+                return thingChangedEventTriggeredRules.get(name);
             default:
                 return Sets.newHashSet();
         }
@@ -352,9 +355,9 @@ public class RuleTriggerManager {
         return result;
     }
 
-    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, Thing thing, Type oldType, Type newType) {
+    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, String thingUid, Type oldType,
+            Type newType) {
         List<Rule> result = Lists.newArrayList();
-        String thingUid = thing.getUID().getAsString();
         Iterable<Rule> rules = getAllRules(triggerType, thingUid);
         if (rules == null) {
             rules = Lists.newArrayList();

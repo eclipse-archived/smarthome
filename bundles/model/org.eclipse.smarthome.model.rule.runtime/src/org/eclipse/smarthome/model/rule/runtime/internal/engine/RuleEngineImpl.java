@@ -31,11 +31,9 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.types.Command;
@@ -239,8 +237,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private void receiveThingStatus(ThingStatusInfoChangedEvent event) {
-        ThingUID thingUid = event.getThingUID();
-        Thing thing = this.thingRegistry.get(thingUid);
+        String thingUid = event.getThingUID().getAsString();
         ThingStatusInfo oldStatus = event.getOldStatusInfo();
         ThingStatusInfo newStatus = event.getStatusInfo();
         State oldState = OnlineOfflineType.OFFLINE;
@@ -254,11 +251,13 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             newState = OnlineOfflineType.ONLINE;
         }
 
-        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thing, newState);
+        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thingUid, newState);
         executeRules(rules);
 
-        rules = triggerManager.getRules(THINGCHANGE, thing, oldState, newState);
-        executeRules(rules, oldState);
+        if (oldState != newState) {
+            rules = triggerManager.getRules(THINGCHANGE, thingUid, oldState, newState);
+            executeRules(rules, oldState);
+        }
     }
 
     private void internalItemAdded(Item item) {
