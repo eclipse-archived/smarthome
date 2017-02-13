@@ -38,16 +38,16 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.q42.jue.Config;
-import nl.q42.jue.FullConfig;
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-import nl.q42.jue.exceptions.ApiException;
-import nl.q42.jue.exceptions.DeviceOffException;
-import nl.q42.jue.exceptions.LinkButtonException;
-import nl.q42.jue.exceptions.UnauthorizedException;
+import org.eclipse.smarthome.binding.hue.internal.Config;
+import org.eclipse.smarthome.binding.hue.internal.FullConfig;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
+import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
 
 /**
  * {@link HueBridgeHandler} is the handler for a hue bridge and connects it to
@@ -60,6 +60,7 @@ import nl.q42.jue.exceptions.UnauthorizedException;
  * @author Thomas Höfer - added thing properties
  * @author Stefan Bußweiler - Added new thing status handling
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 

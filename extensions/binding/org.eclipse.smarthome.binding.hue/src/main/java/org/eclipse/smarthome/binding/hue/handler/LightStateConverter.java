@@ -14,10 +14,10 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 
-import nl.q42.jue.State;
-import nl.q42.jue.State.AlertMode;
-import nl.q42.jue.State.Effect;
-import nl.q42.jue.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.State.AlertMode;
+import org.eclipse.smarthome.binding.hue.internal.State.Effect;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 
 /**
  * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome
@@ -28,6 +28,7 @@ import nl.q42.jue.StateUpdate;
  * @author Kai Kreuzer - made code static
  * @author Andre Fuechsel - added method for brightness
  * @author Yordan Zhelev - added method for alert
+ * @author Denis Dudnik - switched to internally integrated source of Jue library, minor code cleanup
  *
  */
 public class LightStateConverter {
@@ -84,8 +85,7 @@ public class LightStateConverter {
      * @return light state containing the 'on' value
      */
     public static StateUpdate toOnOffLightState(OnOffType onOffType) {
-        StateUpdate stateUpdate = new StateUpdate().setOn(OnOffType.ON.equals(onOffType));
-        return stateUpdate;
+        return new StateUpdate().setOn(OnOffType.ON.equals(onOffType));
     }
 
     /**
@@ -97,7 +97,7 @@ public class LightStateConverter {
      * @return light state containing the brightness and the 'on' value
      */
     public static StateUpdate toBrightnessLightState(PercentType percentType) {
-        boolean on = percentType.equals(PercentType.ZERO) ? false : true;
+        boolean on = !percentType.equals(PercentType.ZERO);
         final StateUpdate stateUpdate = new StateUpdate().setOn(on);
 
         int brightness = (int) Math.round(percentType.floatValue() * BRIGHTNESS_FACTOR);
@@ -111,7 +111,7 @@ public class LightStateConverter {
      * Adjusts the given brightness using the {@link IncreaseDecreaseType} and
      * returns the updated value.
      *
-     * @param type
+     * @param command
      *            The {@link IncreaseDecreaseType} to be used
      * @param currentBrightness
      *            The current brightness
@@ -138,8 +138,7 @@ public class LightStateConverter {
     public static StateUpdate toColorTemperatureLightState(PercentType percentType) {
         int colorTemperature = MIN_COLOR_TEMPERATURE
                 + Math.round((COLOR_TEMPERATURE_RANGE * percentType.floatValue()) / 100);
-        StateUpdate stateUpdate = new StateUpdate().setColorTemperature(colorTemperature);
-        return stateUpdate;
+        return new StateUpdate().setColorTemperature(colorTemperature);
     }
 
     /**
@@ -162,7 +161,7 @@ public class LightStateConverter {
     }
 
     /**
-     * Transforms {@link HueLightState} into {@link PercentType} representing
+     * Transforms Hue Light {@link State} into {@link PercentType} representing
      * the color temperature.
      *
      * @param lightState
@@ -176,7 +175,7 @@ public class LightStateConverter {
     }
 
     /**
-     * Transforms {@link HueLightState} into {@link PercentType} representing
+     * Transforms Hue Light {@link State} into {@link PercentType} representing
      * the brightness.
      *
      * @param lightState
@@ -200,7 +199,7 @@ public class LightStateConverter {
     }
 
     /**
-     * Transforms {@link HueLightState} into {@link HSBType} representing the
+     * Transforms Hue Light {@link State} into {@link HSBType} representing the
      * color.
      *
      * @param lightState
@@ -216,10 +215,9 @@ public class LightStateConverter {
         saturationInPercent = restrictToBounds(saturationInPercent);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
-        HSBType hsbType = new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
+        return new HSBType(new DecimalType(hue / HUE_FACTOR),
+                new PercentType(saturationInPercent),
                 new PercentType(brightnessInPercent));
-
-        return hsbType;
     }
 
     /**
@@ -237,7 +235,7 @@ public class LightStateConverter {
      *         {@link StringType} represents unsupported mode.
      */
     public static StateUpdate toAlertState(StringType alertType) {
-        AlertMode alertMode = null;
+        AlertMode alertMode;
 
         switch (alertType.toString()) {
             case ALERT_MODE_NONE:

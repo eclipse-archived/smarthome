@@ -11,10 +11,10 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import nl.q42.jue.FullLight
-import nl.q42.jue.HueBridge
-import nl.q42.jue.MockedHttpClient
-import nl.q42.jue.HttpClient.Result
+import org.eclipse.smarthome.binding.hue.internal.FullLight
+import org.eclipse.smarthome.binding.hue.internal.HueBridge
+import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
+import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.HueThingHandlerFactory
@@ -43,6 +43,7 @@ import org.junit.Test
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - added test 'assert start search is called()'
  *                        - modified tests after introducing the generic thing types
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightDiscoveryServiceOSGITest extends AbstractHueOSGiTest {
 
