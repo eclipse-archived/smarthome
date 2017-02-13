@@ -19,7 +19,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 /**
  * Executes the
@@ -44,6 +43,12 @@ public class PmdChecker extends AbstractChecker {
      */
     @Parameter(property = "maven.pmd.version", defaultValue = "3.7")
     private String mavenPmdVersion;
+
+    /**
+     * A list with artifacts that contain additional checks for PMD
+     */
+    @Parameter
+    private Dependency[] pmdPlugins;
 
     /**
      * Location of the properties files that contains configuration options for the maven-pmd-plugin
@@ -75,12 +80,10 @@ public class PmdChecker extends AbstractChecker {
                 element("targetDirectory", userProps.getProperty("pmd.custom.targetDirectory")),
                 element("rulesets", element("ruleset", rulesetPath)));
 
-        // Add the static-code-analysis plugin as dependency to maven-pmd-plugin, because this plugin
-        // contains custom checks
-        Dependency dep = MojoExecutor.dependency(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
+        Dependency[] allDependencies = getDependencies(pmdPlugins, null);
 
         executeCheck(MAVEN_PMD_PLUGIN_GROUP_ID, MAVEN_PMD_PLUGIN_ARTIFACT_ID, mavenPmdVersion, MAVEN_PMD_PLUGIN_GOAL,
-                configuration, dep);
+                configuration, allDependencies);
 
         log.debug("PMD execution has been finished.");
 

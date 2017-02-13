@@ -21,6 +21,7 @@ Parameters:
 | ------ | ------| -------- |
 | **ruleset** | String | The type of the ruleset that will be used (default value is **bundle**)|
 | **maven.pmd.version** | String | The version of the maven-pmd-plugin that will be used (Default value is **3.7**)|
+| **pmdPlugins** | Dependency [] | A list with artifacts that contain additional checks for PMD |
 
 **static-code-analysis:checkstyle**
 
@@ -33,6 +34,7 @@ Parameters:
 | ------ | ------| -------- |
 | **ruleset** | String | The type of the ruleset that will be used (Default value is **bundle**)|
 | **maven.checkstyle.version** | String | The version of the maven-checkstyle-plugin that will be used (default value is **2.17**)|
+| **checkstylePlugins** | Dependency [] | A list with artifacts that contain additional checks for Checkstyle |
 
 **static-code-analysis:findbugs**
 
@@ -45,6 +47,7 @@ Parameters:
 | ------ | ------| -------- |
 | **ruleset** | String | The type of the ruleset that will be used (default value is **bundle**)|
 | **findbugs.maven.version** | String | The version of the findbugs-maven-plugin that will be used (default value is **3.0.1**)|
+| **findbugsPlugins** | Dependency [] | A list with artifacts that contain additional detectors/patterns for FindBugs |
 
 **static-code-analysis:report**
 

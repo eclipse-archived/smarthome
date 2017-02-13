@@ -10,6 +10,8 @@ package org.eclipse.smarthome.tools.analysis.tools;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
@@ -20,7 +22,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.twdata.maven.mojoexecutor.MojoExecutor;
+import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 /**
  * Executes the <a href="http://gleclaire.github.io/findbugs-maven-plugin/index.html">findbugs-maven-plugin</a>
@@ -37,13 +39,19 @@ public class FindBugsChecker extends AbstractChecker {
      * The type of the ruleset that will be used
      */
     @Parameter(property = "ruleset", defaultValue = "bundle")
-    protected String rulesetType;
+    private String rulesetType;
 
     /**
      * The version of the findbugs-maven-plugin that will be used
      */
     @Parameter(property = "maven.findbugs.version", defaultValue = "3.0.1")
     private String findBugsPluginVersion;
+
+    /**
+     * A list with artifacts that contain additional checks for FindBugs
+     */
+    @Parameter
+    private Dependency[] findbugsPlugins;
 
     /**
      * Location of the properties file that contains configuration options for the
@@ -106,23 +114,42 @@ public class FindBugsChecker extends AbstractChecker {
         // These configuration properties are not exposed from the findbugs-maven-plugin as user
         // properties, so they have to be set direct in the configuration
         Xpp3Dom config = configuration(element("outputDirectory", outputDir), element("xmlOutputDirectory", outputDir),
-                element("findbugsXmlOutputDirectory", outputDir),
-                element("plugins", element("plugin", element("groupId", plugin.getGroupId()),
-                        element("artifactId", plugin.getArtifactId()), element("version", plugin.getVersion()))));
+                element("findbugsXmlOutputDirectory", outputDir), getFindBugsPlugins());
 
         // If this dependency is missing, findbugs can not load the core plugin because of classpath
         // issues
         Dependency findBugsDep = dependency("com.google.code.findbugs", "findbugs", findBugsPluginVersion);
-
-        // Add the static-code-analysis plugin as dependency to findbugs-maven-plugin, because this
-        // plugin contains custom checks
-        Dependency dep = MojoExecutor.dependency(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
+        Dependency[] allDependencies = getDependencies(findbugsPlugins, findBugsDep);
 
         executeCheck(FINDBUGS_MAVEN_PLUGIN_GROUP_ID, FINDBUGS_MAVEN_PLUGIN_ARTIFACT_ID, findBugsPluginVersion,
-                FINDBUGS_MAVEN_PLUGIN_GOAL, config, findBugsDep, dep);
+                FINDBUGS_MAVEN_PLUGIN_GOAL, config, allDependencies);
 
         log.debug("FindBugs execution has been finished.");
 
+    }
+
+    /**
+     * Creates a "plugins" element used in the findbugs-maven-plugin configuration
+     */
+    private Element getFindBugsPlugins() {
+        List<Element> pluginList = new LinkedList<>();
+        // Add static code analysis as plugin
+        pluginList.add(createPlugin(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion()));
+
+        // Add additional dependencies
+        if (findbugsPlugins != null) {
+            for (Dependency artifact : findbugsPlugins) {
+                Element element = createPlugin(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+                pluginList.add(element);
+            }
+        }
+        Element plugins = new Element("plugins", pluginList.toArray(new Element[pluginList.size()]));
+        return plugins;
+    }
+
+    private Element createPlugin(String groudId, String artifactId, String version) {
+        return element("plugin", element("groupId", groudId), element("artifactId", artifactId),
+                element("version", version));
     }
 
 }

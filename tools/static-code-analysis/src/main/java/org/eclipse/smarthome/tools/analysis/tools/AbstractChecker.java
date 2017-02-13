@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.tools.analysis.tools;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.dependency;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -139,5 +142,38 @@ public abstract class AbstractChecker extends AbstractMojo {
 
         MojoExecutor.executeMojo(plugin, goal, configuration,
                 MojoExecutor.executionEnvironment(mavenProject, mavenSession, pluginManager));
+    }
+
+    /**
+     * Create an array that contains all necessary dependencies in order to run some the static code analysis tools.
+     * It adds the static-code-analysis artifact as dependency as well, so all checks included there can be used from
+     * the analysis tools.
+     *
+     * @param additionalArtifacts - artifacts that contain custom checks
+     * @param coreDependency - a dependency to the tool itself, used to specify a certain version of the used tool
+     * @return dependencies
+     */
+    protected Dependency[] getDependencies(Dependency[] additionalArtifacts, Dependency coreDependency) {
+        List<Dependency> dependencies = new LinkedList<Dependency>();
+
+        // First add the core dependency
+        if (coreDependency != null) {
+            getLog().info("Adding dependency to " + coreDependency.getArtifactId() + ":" + coreDependency.getVersion());
+            dependencies.add(coreDependency);
+        }
+
+        // Add the static-code-analysis artifact as dependency to findbugs-maven-plugin, because this
+        // plugin contains custom checks
+        Dependency staticCode = dependency(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
+        dependencies.add(staticCode);
+
+        // Add additional dependencies
+        if (additionalArtifacts != null) {
+            for (Dependency dependency : additionalArtifacts) {
+                getLog().info("Adding dependency to " + dependency.getArtifactId() + ":" + dependency.getVersion());
+                dependencies.add(dependency);
+            }
+        }
+        return dependencies.toArray(new Dependency[dependencies.size()]);
     }
 }

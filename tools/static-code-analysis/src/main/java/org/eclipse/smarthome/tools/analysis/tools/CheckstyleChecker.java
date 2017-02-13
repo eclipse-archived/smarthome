@@ -45,6 +45,12 @@ public class CheckstyleChecker extends AbstractChecker {
     private String checkstyleMavenVersion;
 
     /**
+     * A list with artifacts that contain additional checks for Checkstyle
+     */
+    @Parameter
+    private Dependency[] checkstylePlugins;
+
+    /**
      * Location of the properties file that contains configuration options for the
      * maven-checkstyle-plugin
      */
@@ -85,17 +91,14 @@ public class CheckstyleChecker extends AbstractChecker {
         log.debug("Config file found at " + absoluteLocation);
         userProps.setProperty(key, absoluteLocation);
 
-        // Add the static-code-analysis plugin as dependency to maven-checkstyle-plugin, because this
-        // plugin contains custom checks
-        Dependency dep = dependency(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
-
         // Maven may load an older version, if I not specify any
         Dependency checktyle = dependency("com.puppycrawl.tools", "checkstyle", "7.2");
+        Dependency[] allDependencies = getDependencies(checkstylePlugins, checktyle);
 
         Xpp3Dom config = configuration(element("sourceDirectory", mavenProject.getBasedir().toString()));
 
         executeCheck(MAVEN_CHECKSTYLE_PLUGIN_GROUP_ID, MAVEN_CHECKSTYLE_PLUGIN_ARTIFACT_ID, checkstyleMavenVersion,
-                MAVEN_CHECKSTYLE_PLUGIN_GOAL, config, dep, checktyle);
+                MAVEN_CHECKSTYLE_PLUGIN_GOAL, config, allDependencies);
 
         log.debug("Checkstyle execution has been finished.");
 
