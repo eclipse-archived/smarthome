@@ -591,7 +591,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
-        thingTypeRegistry = null;
+        this.thingTypeRegistry = null;
     }
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
@@ -599,7 +599,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-        configDescRegistry = null;
+        this.configDescRegistry = null;
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {

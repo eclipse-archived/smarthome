@@ -126,8 +126,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            console.println(String.format("REMOVED [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]", flag.name(),
-                    thingTypeUID, label, thingUID, bridgeId, properties));
+            console.println(String.format("REMOVED [%s]: %s [label=%s, thingId=%s, bridgeId=%s, properties=%s]",
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
             inbox.remove(thingUID);
         }
     }
