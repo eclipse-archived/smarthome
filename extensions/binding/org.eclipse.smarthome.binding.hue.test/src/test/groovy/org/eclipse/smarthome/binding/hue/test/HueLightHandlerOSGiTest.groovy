@@ -10,9 +10,9 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
-import nl.q42.jue.MockedHttpClient
-import nl.q42.jue.HttpClient.Result
+
+import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
+import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
@@ -33,7 +33,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
@@ -51,6 +50,7 @@ import org.junit.Test
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
  * @author Andre Fuechsel - modified tests after introducing the generic thing types
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
