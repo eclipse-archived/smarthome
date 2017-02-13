@@ -57,7 +57,7 @@ Parameters:
 | ------ | ------| -------- |
 | **report.targetDir** | String | The directory where the individual report will be generated (default value is **${project.build.directory}/code-analysis**) |
 | **report.summary.targetDir** | String | The directory where the summary report, containing links to the individual reports will be generated (Default value is **${session.executionRootDirectory}/target**)|
-| **report.fail.on.errorr** | Boolean | Describes of the build should fail if high priority error is found (Default value is **true**)|
+| **report.fail.on.error** | Boolean | Describes of the build should fail if high priority error is found (Default value is **true**)|
 
 
 ## Usage

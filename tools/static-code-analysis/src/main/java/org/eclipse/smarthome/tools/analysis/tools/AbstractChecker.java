@@ -25,7 +25,9 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
@@ -38,9 +40,6 @@ import org.twdata.maven.mojoexecutor.MojoExecutor;
  */
 public abstract class AbstractChecker extends AbstractMojo {
 
-    protected static final String SMARTHOME_TOOLS_ARTIFACT_ID = "static-code-analysis";
-    protected static final String SMARTHOME_TOOLS_GROUP_ID = "org.eclipse.smarthome.tools";
-
     @Component
     protected MavenProject mavenProject;
 
@@ -49,6 +48,12 @@ public abstract class AbstractChecker extends AbstractMojo {
 
     @Component
     private BuildPluginManager pluginManager;
+
+    /**
+     * The Plugin Descriptor
+     */
+    @Parameter(defaultValue = "${plugin}", readonly = true, required = true)
+    protected PluginDescriptor plugin;
 
     private static URLClassLoader mavenRuntimeClasspathClassLoader = null;
 

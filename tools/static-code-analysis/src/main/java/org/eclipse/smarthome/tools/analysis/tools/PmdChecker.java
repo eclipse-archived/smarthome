@@ -22,7 +22,9 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 /**
- * Executes the <a href="https://maven.apache.org/plugins/maven-pmd-plugin/index.html">maven-pmd-plugin</a> with a
+ * Executes the
+ * <a href="https://maven.apache.org/plugins/maven-pmd-plugin/index.html">maven-pmd-plugin</a> with
+ * a
  * predefined ruleset file and configuration properties
  *
  * @author Svilen Valkanov
@@ -67,16 +69,15 @@ public class PmdChecker extends AbstractChecker {
         String ruleset = PMD_RULESET_DIR + "/" + rulesetType + ".xml";
         String rulesetPath = cl.getResource(ruleset).toString();
 
-        // These configuration properties are not exposed from the maven-pmd-plugin as user properties, so they
-        // have to be set direct in the configuration
+        // These configuration properties are not exposed from the maven-pmd-plugin as user properties,
+        // so they have to be set direct in the configuration
         Xpp3Dom configuration = configuration(
                 element("targetDirectory", userProps.getProperty("pmd.custom.targetDirectory")),
                 element("rulesets", element("ruleset", rulesetPath)));
 
-        // Add the static-code-analysis plugin as dependency to maven-pmd-plugin, because this plugin contains custom
-        // checks
-        Dependency dep = MojoExecutor.dependency(SMARTHOME_TOOLS_GROUP_ID, SMARTHOME_TOOLS_ARTIFACT_ID,
-                mavenProject.getVersion());
+        // Add the static-code-analysis plugin as dependency to maven-pmd-plugin, because this plugin
+        // contains custom checks
+        Dependency dep = MojoExecutor.dependency(plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
 
         executeCheck(MAVEN_PMD_PLUGIN_GROUP_ID, MAVEN_PMD_PLUGIN_ARTIFACT_ID, mavenPmdVersion, MAVEN_PMD_PLUGIN_GOAL,
                 configuration, dep);
