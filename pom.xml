@@ -487,6 +487,13 @@
             <version>${project.version}</version>
             <configuration>
               <ruleset>bundle</ruleset>
+              <findbugsPlugins>
+                <findbugsPlugin>
+                   <groupId>jp.skypencil.findbugs.slf4j</groupId>
+                   <artifactId>bug-pattern</artifactId>
+                   <version>1.2.4</version>
+                </findbugsPlugin>
+              </findbugsPlugins>
             </configuration>
           </plugin>
         </plugins>
@@ -507,6 +514,13 @@
             <version>${project.version}</version>
             <configuration>
               <ruleset>binding</ruleset>
+              <findbugsPlugins>
+                <findbugsPlugin>
+                   <groupId>jp.skypencil.findbugs.slf4j</groupId>
+                   <artifactId>bug-pattern</artifactId>
+                  <version>1.2.4</version>
+                </findbugsPlugin>
+              </findbugsPlugins>
             </configuration>
           </plugin>
         </plugins>
