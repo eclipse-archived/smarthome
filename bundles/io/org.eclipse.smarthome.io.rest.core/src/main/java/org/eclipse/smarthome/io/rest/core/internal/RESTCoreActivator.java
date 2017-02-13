@@ -38,7 +38,7 @@ public class RESTCoreActivator implements BundleActivator {
      */
     @Override
     public void stop(BundleContext context) throws Exception {
-        context = null;
+        RESTCoreActivator.context = null;
         mExcMapper.unregister();
     }
 
