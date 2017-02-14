@@ -115,7 +115,7 @@ public class ProxyServletService extends HttpServlet {
             try {
                 ServletRequest.class.getMethod("startAsync");
                 impl = new AsyncProxyServlet(this);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 impl = new BlockingProxyServlet(this);
             }
         }
