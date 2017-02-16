@@ -326,8 +326,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         for (Module m : modules) {
             String mId = m.getId();
             if (mId == null || !mId.matches("[A-Za-z0-9_-]*")) {
-                throw new IllegalArgumentException("Invalid module uid: " + mId != null ? mId
-                        : "null" + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
+                throw new IllegalArgumentException("Invalid module uid: " + (mId != null ? mId
+                        : "null") + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
             }
         }
     }
