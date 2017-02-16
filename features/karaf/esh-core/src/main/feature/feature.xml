@@ -78,6 +78,9 @@
   <feature name="esh-automation-api" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.api/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.automation.RuleRegistry
+    </capability>
   </feature>
 
   <feature name="esh-automation-commands" version="${project.version}">
