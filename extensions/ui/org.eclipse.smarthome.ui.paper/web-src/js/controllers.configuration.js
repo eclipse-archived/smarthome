@@ -759,7 +759,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.thing.configuration = $scope.configuration;
         }
     });
-    $scope.getThing(false);
+    $scope.getThing(true);
 }).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channelUID, thing) {
     $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);
     $scope.thing = thing;
