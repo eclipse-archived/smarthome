@@ -44,26 +44,18 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                 $scope.thingTypes = thingTypes;
                 channelTypeService.getAll().$promise.then(function(channels) {
                     $scope.channelTypes = channels;
-                    for (var i = 0; i < thingList.length; i++) {
-                        var thingTypeUIDs = thingList[i].thingTypeUID;
-                        var enclosed = (function() {
-                            var thingTypeUID = thingTypeUIDs;
-                            var index = i;
-                            return function() {
-                                var thingTypeComplete = getThingTypeLocal(thingTypeUID);
-                                if (!thingTypeComplete) {
-                                    thingTypeService.getByUid({
-                                        thingTypeUID : thingTypeUID
-                                    }, function(thingType) {
-                                        thingTypes.push(thingType);
-                                        renderThing(thingList[index], thingType, $scope.channelTypes);
-                                    });
-                                } else {
-                                    renderThing(thingList[index], thingTypeComplete, $scope.channelTypes);
+                    var thingTypesUsed = getUsedThingTypesUIDs(thingList);
+                    for (var i = 0; i < thingTypesUsed.length; i++) {
+                        thingTypeService.getByUid({
+                            thingTypeUID : thingTypesUsed[i]
+                        }, function(thingType) {
+                            thingTypes.push(thingType);
+                            for (var t_i = 0; t_i < thingList.length; t_i++) {
+                                if (thingList[t_i].thingTypeUID === thingType.UID) {
+                                    renderThing(thingList[t_i], thingType, $scope.channelTypes);
                                 }
                             }
-                        })();
-                        enclosed();
+                        });
                     }
                 });
             });
@@ -132,6 +124,18 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             return thingType.UID == thingTypeUID;
         });
         return thingTypeComplete.length > 0 ? thingTypeComplete : null;
+    }
+
+    function getUsedThingTypesUIDs(things) {
+        var thingTypeUIDs = [];
+        if (things) {
+            for (var i = 0; i < things.length; i++) {
+                if (thingTypeUIDs.indexOf(things[i].thingTypeUID) == -1) {
+                    thingTypeUIDs.push(things[i].thingTypeUID);
+                }
+            }
+        }
+        return thingTypeUIDs;
     }
 
     $scope.tabComparator = function(actual, expected) {
