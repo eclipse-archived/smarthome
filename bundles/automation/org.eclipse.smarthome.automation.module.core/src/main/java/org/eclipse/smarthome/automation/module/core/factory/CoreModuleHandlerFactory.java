@@ -154,25 +154,21 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             // Handle triggers
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemCommandTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemStateTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new ItemStateTriggerHandler((Trigger) module, this.bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions
-
             if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID)) {
-                new ItemStateConditionHandler((Condition) module).setItemRegistry(itemRegistry);
-                return new ItemStateConditionHandler((Condition) module);
+                ItemStateConditionHandler handler = new ItemStateConditionHandler((Condition) module);
+                handler.setItemRegistry(itemRegistry);
+                return handler;
             } else if (GenericEventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventConditionHandler(
-                        (Condition) module);
+                return new GenericEventConditionHandler((Condition) module);
             } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
                 return new CompareConditionHandler((Condition) module);
             }
