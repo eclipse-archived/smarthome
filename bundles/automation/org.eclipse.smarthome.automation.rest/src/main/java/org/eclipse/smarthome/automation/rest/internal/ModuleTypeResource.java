@@ -76,25 +76,13 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
         final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
 
         if (type == null || type.equals("trigger")) {
-            if (tags == null) {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getTriggers(locale)));
-            } else {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType> getByTags(locale, tags)));
-            }
+            modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getTriggers(locale, tags)));
         }
         if (type == null || type.equals("condition")) {
-            if (tags == null) {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale)));
-            } else {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType> getByTags(locale, tags)));
-            }
+            modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale, tags)));
         }
-        if (type == null || type.equals("action")) {
-            if (tags == null) {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale)));
-            } else {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType> getByTags(locale, tags)));
-            }
+        if (type == null || type.equals("condition")) {
+            modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale, tags)));
         }
         return Response.ok(modules).build();
     }
