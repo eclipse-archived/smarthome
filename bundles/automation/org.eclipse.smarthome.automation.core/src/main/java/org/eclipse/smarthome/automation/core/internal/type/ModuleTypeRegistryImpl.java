@@ -133,59 +133,75 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
     }
 
     @Override
-    public Collection<TriggerType> getTriggers(Locale locale) {
-        return getAll(TriggerType.class, locale);
-    }
-
-    @Override
-    public Collection<TriggerType> getTriggers() {
-        return getAll(TriggerType.class);
-    }
-
-    @Override
-    public Collection<ConditionType> getConditions() {
-        return getAll(ConditionType.class);
-    }
-
-    @Override
-    public Collection<ConditionType> getConditions(Locale locale) {
-        return getAll(ConditionType.class, locale);
-    }
-
-    @Override
-    public Collection<ActionType> getActions() {
-        return getAll(ActionType.class);
-    }
-
-    @Override
-    public Collection<ActionType> getActions(Locale locale) {
-        return getAll(ActionType.class, locale);
-    }
-
-    private <T extends ModuleType> Collection<T> getAll(Class<T> classModuleType) {
-        return getAll(classModuleType, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends ModuleType> Collection<T> getAll(Class<T> moduleType, Locale locale) {
-        Collection<T> result = new ArrayList<T>(20);
-        Collection<ModuleType> moduleTypes = null;
-        for (Provider<ModuleType> provider : elementMap.keySet()) {
-            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            if (moduleTypes != null) {
-                for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
-                    ModuleType mt = it.next();
-                    if (moduleType != null) {
-                        if (moduleType.isInstance(mt)) {
-                            result.add((T) createCopy(mt));
-                        }
-                    } else {
-                        result.add((T) createCopy(mt));
-                    }
-                }
+    public Collection<TriggerType> getTriggers(Locale locale, String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(locale, tags);
+        Collection<TriggerType> triggerTypes = new ArrayList<TriggerType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof TriggerType) {
+                triggerTypes.add((TriggerType) mt);
             }
         }
-        return result;
+        return triggerTypes;
+    }
+
+    @Override
+    public Collection<TriggerType> getTriggers(String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(tags);
+        Collection<TriggerType> triggerTypes = new ArrayList<TriggerType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof TriggerType) {
+                triggerTypes.add((TriggerType) mt);
+            }
+        }
+        return triggerTypes;
+    }
+
+    @Override
+    public Collection<ConditionType> getConditions(String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(tags);
+        Collection<ConditionType> conditionTypes = new ArrayList<ConditionType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof ConditionType) {
+                conditionTypes.add((ConditionType) mt);
+            }
+        }
+        return conditionTypes;
+    }
+
+    @Override
+    public Collection<ConditionType> getConditions(Locale locale, String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(locale, tags);
+        Collection<ConditionType> conditionTypes = new ArrayList<ConditionType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof ConditionType) {
+                conditionTypes.add((ConditionType) mt);
+            }
+        }
+        return conditionTypes;
+    }
+
+    @Override
+    public Collection<ActionType> getActions(String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(tags);
+        Collection<ActionType> actionTypes = new ArrayList<ActionType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof ActionType) {
+                actionTypes.add((ActionType) mt);
+            }
+        }
+        return actionTypes;
+    }
+
+    @Override
+    public Collection<ActionType> getActions(Locale locale, String... tags) {
+        Collection<ModuleType> moduleTypes = getByTags(locale, tags);
+        Collection<ActionType> actionTypes = new ArrayList<ActionType>();
+        for (ModuleType mt : moduleTypes) {
+            if (mt instanceof ActionType) {
+                actionTypes.add((ActionType) mt);
+            }
+        }
+        return actionTypes;
     }
 
     private ModuleType createCopy(ModuleType mType) {
