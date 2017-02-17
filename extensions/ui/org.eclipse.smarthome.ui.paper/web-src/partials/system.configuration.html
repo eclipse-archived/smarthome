@@ -1,8 +1,9 @@
+<div ng-controller="SystemController">
 <div class="header-toolbar">
-	<md-button ng-click="saveConfigurations()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+	<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 </div>
 <div class="section-header"></div>
-<div style="margin-top: 80px;" ng-if="page === 'system'" ng-controller="SystemController">
+<div style="margin-top: 80px;" ng-if="page === 'system'">
 	<div class="container">
 		<div class="row">
 			<div class="col-xs-12" ng-show="service.found" ng-repeat="service in services | orderBy:'label'">
@@ -28,4 +29,5 @@
 			<span>No configurable service active yet. You can bootstrap a service by adding a configuration.</span>
 		</p>
 	</div>
+</div>
 </div>
