@@ -844,7 +844,7 @@ md-input-container .md-errors-spacer {
 	font-style:italic;
 }
 
-.item-edit, .inboxContainer {
+.item-edit {
 	margin-top: 20px;
 }
 
@@ -1328,4 +1328,8 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	color: black;
 	background-color: transparent;
 	font-size: 16px;
+}
+
+.inboxSearch {
+	margin-bottom: 10px;
 }
