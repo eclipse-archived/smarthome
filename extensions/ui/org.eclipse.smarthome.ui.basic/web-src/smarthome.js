@@ -1339,6 +1339,7 @@
 		_t.loading = _t.root.querySelector(o.uiLoadingBar);
 		_t.layoutTitle = document.querySelector(o.layoutTitle);
 		_t.iconType = document.body.getAttribute(o.iconTypeAttribute);
+		_t.notification = document.querySelector(o.notify);
 
 		function setTitle(title) {
 			document.querySelector("title").innerHTML = title;
@@ -1542,6 +1543,15 @@
 			});
 		};
 
+		_t.showNotification = function(text) {
+			_t.notification.innerHTML = text;
+			_t.notification.classList.remove(o.notifyHidden);
+		};
+
+		_t.hideNotification = function() {
+			_t.notification.classList.add(o.notifyHidden);
+		};
+
 		historyStack.replace(_t.page, document.location.href);
 
 		(function() {
@@ -1581,6 +1591,7 @@
 
 		_t.navigate = function(){};
 		_t.source = new EventSource(subscribeLocation);
+
 		_t.source.addEventListener("event", function(payload) {
 			if (_t.paused) {
 				return;
@@ -1630,6 +1641,10 @@
 				}
 			}
 		});
+
+		_t.source.onerror = function() {
+			_t.connectionError();
+		};
 	}
 
 	function ChangeListenerLongpolling() {
@@ -1732,6 +1747,64 @@
 		var
 			_t = this;
 
+		_t.subscribeRequestURL = "/rest/sitemaps/events/subscribe";
+		_t.reconnectInterval = null;
+		_t.subscribeResponse = null;
+		_t.suppressErrorsState = false;
+
+		function initSubscription(address) {
+			if (featureSupport.eventSource) {
+				ChangeListenerEventsource.call(_t, address);
+			} else {
+				ChangeListenerLongpolling.call(_t);
+			}
+		}
+
+		function connectionRestoredNavigateCallback() {
+			// This will override _t.navigate back to
+			// its normal state
+			_t.startSubscriber(_t.subscribeResponse);
+			_t.subscribeResponse = null;
+		}
+
+		_t.connectionRestored = function(response) {
+			clearInterval(_t.reconnectInterval);
+
+			// Temporarily replace navigation callback
+			_t.navigate = connectionRestoredNavigateCallback;
+
+			// Once navigation is completed, this will be used
+			// to restart SSE subscription
+			_t.subscribeResponse = response;
+
+			smarthome.UI.hideNotification();
+			// Reload current page without affecting the history
+			smarthome.UI.navigate(smarthome.UI.page, false);
+		};
+
+		_t.connectionError = function() {
+			if (_t.suppressErrorsState) {
+				return;
+			}
+
+			var
+				notify = renderTemplate(o.notifyTemplateOffline, {});
+
+			smarthome.UI.showNotification(notify);
+
+			_t.reconnectInterval = setInterval(function() {
+				ajax({
+					url: _t.subscribeRequestURL,
+					type: "POST",
+					callback: _t.connectionRestored
+				});
+			}, 10000);
+		};
+
+		_t.suppressErrors = function() {
+			_t.suppressErrorsState = true;
+		};
+
 		_t.startSubscriber = function(response) {
 			var
 				responseJSON,
@@ -1765,17 +1838,13 @@
 
 			smarthome.subscriptionId = subscriptionId;
 
-			if (featureSupport.eventSource) {
-				ChangeListenerEventsource.call(_t, subscribeLocation +
-					"?sitemap=" + sitemap +
-					"&pageid=" + page);
-			} else {
-				ChangeListenerLongpolling.call(_t);
-			}
+			initSubscription(subscribeLocation +
+				"?sitemap=" + sitemap +
+				"&pageid=" + page);
 		};
 
 		ajax({
-			url: "/rest/sitemaps/events/subscribe",
+			url: _t.subscribeRequestURL,
 			type: "POST",
 			callback: _t.startSubscriber
 		});
@@ -1786,6 +1855,10 @@
 		smarthome.UI.layoutChangeProxy = new VisibilityChangeProxy(100, 50);
 		smarthome.UI.initControls();
 		smarthome.changeListener = new ChangeListener();
+
+		window.addEventListener("beforeunload", function() {
+			smarthome.changeListener.suppressErrors();
+		});
 	});
 })({
 	itemAttribute: "data-item",
@@ -1830,5 +1903,8 @@
 		background: ".colorpicker__background",
 		colorpicker: ".colorpicker",
 		button: ".colorpicker__buttons > button"
-	}
+	},
+	notify: ".mdl-notify__container",
+	notifyHidden: "mdl-notify--hidden",
+	notifyTemplateOffline: "template-offline-notify"
 });
