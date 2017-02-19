@@ -52,6 +52,13 @@
 				</div>
 			</div>
 		</script>
+		<script type="text/html" id="template-offline-notify">
+			<div class="mdl-notify">
+				<div class="mdl-notify__text">
+					Offline: waiting for connection to become available
+				</div>
+			</div>
+		</script>
 	</head>
 	<body class="mdl-color--grey-100 mdl-color-text--grey-700" data-sitemap="%sitemap%" data-page-id="%id%" data-icon-type="%icon_type%">
 	<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -76,5 +83,6 @@
 			</div>
 		</main>
 	</div>
+	<div class="mdl-notify__container mdl-notify--hidden"></div>
 	</body>
 </html>
