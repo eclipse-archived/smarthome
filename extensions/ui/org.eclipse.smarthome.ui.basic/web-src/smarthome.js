@@ -1076,6 +1076,8 @@
 		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
 		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
 		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+		_t.longPress = false;
+		_t.pressed = false;
 
 		_t.setValue = function(value) {
 			var
@@ -1101,12 +1103,27 @@
 		}
 
 		function onMouseDown(command) {
+			_t.pressed = true;
+			_t.longPress = false;
+
 			interval = setInterval(function() {
+				_t.longPress = true;
 				emitEvent(command);
 			}, repeatInterval);
 		}
 
-		function onMouseUp() {
+		function onMouseUp(command) {
+			if (!_t.pressed) {
+				return;
+			}
+
+			if (!_t.longPress) {
+				emitEvent(command);
+			}
+
+			_t.pressed = false;
+			_t.longPress = false;
+
 			clearInterval(interval);
 		}
 
@@ -1135,23 +1152,25 @@
 
 		var
 			upButtonMouseDown = onMouseDown.bind(null, "INCREASE"),
-			downButtonMouseDown = onMouseDown.bind(null, "DECREASE");
+			downButtonMouseDown = onMouseDown.bind(null, "DECREASE"),
+			upButtonMouseUp = onMouseUp.bind(null, "ON"),
+			downButtonMouseUp = onMouseUp.bind(null, "OFF");
 
 		// Up button
 		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
 		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
-		_t.buttonUp.addEventListener("mouseleave", onMouseUp);
 
-		_t.buttonUp.addEventListener("touchend", onMouseUp);
-		_t.buttonUp.addEventListener("mouseup", onMouseUp);
+		_t.buttonUp.addEventListener("mouseleave", upButtonMouseUp);
+		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
+		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
 
 		// Down button
 		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
 		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
 
-		_t.buttonDown.addEventListener("touchend", onMouseUp);
-		_t.buttonDown.addEventListener("mouseup", onMouseUp);
-		_t.buttonDown.addEventListener("mouseleave", onMouseUp);
+		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseleave", downButtonMouseUp);
 
 		// Stop button
 		_t.buttonPick.addEventListener("click", onPick);
