@@ -39,7 +39,7 @@ Import-Package: javax.imageio,
 Bundle-ClassPath: .,
  lib/xchart-2.2.1.jar
 Bundle-SymbolicName: org.eclipse.smarthome.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.ui.chart,
  org.eclipse.smarthome.ui.items
 Service-Component: OSGI-INF/genericitemuiprovider.xml, OSGI-INF/itemuiregistry.xml,

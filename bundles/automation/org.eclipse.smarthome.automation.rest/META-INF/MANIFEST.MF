@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Automation REST API
 Bundle-SymbolicName: org.eclipse.smarthome.automation.rest
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: io.swagger.annotations;resolution:=optional,
  javax.ws.rs,
  javax.ws.rs.core,

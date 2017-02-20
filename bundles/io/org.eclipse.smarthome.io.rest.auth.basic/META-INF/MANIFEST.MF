@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Basic Auth Support for REST Interface
 Bundle-SymbolicName: org.eclipse.smarthome.io.rest.auth.basic
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.eclipsesource.jaxrs.provider.security,
  javax.ws.rs.container,
  javax.ws.rs.core,

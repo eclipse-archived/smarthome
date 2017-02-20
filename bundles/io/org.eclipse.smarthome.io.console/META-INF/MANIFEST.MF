@@ -18,7 +18,7 @@ Import-Package: org.apache.commons.lang,
 Bundle-SymbolicName: org.eclipse.smarthome.io.console
 Originally-Created-By: Apache Maven Bundle Plugin
 Service-Component: OSGI-INF/*.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions
 Bundle-ActivationPolicy: lazy

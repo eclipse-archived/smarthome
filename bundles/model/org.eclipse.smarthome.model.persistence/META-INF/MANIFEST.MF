@@ -37,7 +37,7 @@ Import-Package: com.google.common.base,
  org.osgi.service.cm,
  org.osgi.service.event,
  org.slf4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model.persistence,
  org.eclipse.smarthome.model.persistence.extensions,
  org.eclipse.smarthome.model.persistence.formatting,
