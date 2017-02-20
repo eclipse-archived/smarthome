@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.smarthome.feature.designer_0.9.0.qualifier.jar" id="org.eclipse.smarthome.feature.designer" version="0.9.0.qualifier">
-      <category name="org.eclipse.smarthome"/>
-   </feature>
-   <feature url="features/org.eclipse.smarthome.feature.designer.source_0.9.0.qualifier.jar" id="org.eclipse.smarthome.feature.designer.source" version="0.9.0.qualifier">
-      <category name="org.eclipse.smarthome"/>
-   </feature>
    <feature url="features/org.eclipse.smarthome.feature.test_0.9.0.qualifier.jar" id="org.eclipse.smarthome.feature.test" version="0.9.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
