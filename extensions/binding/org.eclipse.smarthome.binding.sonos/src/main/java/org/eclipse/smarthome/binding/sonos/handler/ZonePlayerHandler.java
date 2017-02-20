@@ -920,38 +920,41 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             boolean opmlUrlSucceeded = false;
             if (opmlUrl != null) {
                 String stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
-                String url = opmlUrl;
-                url = StringUtils.replace(url, "%id", stationID);
-                url = StringUtils.replace(url, "%serial", getMACAddress());
+                String mac = getMACAddress();
+                if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
+                    String url = opmlUrl;
+                    url = StringUtils.replace(url, "%id", stationID);
+                    url = StringUtils.replace(url, "%serial", mac);
 
-                String response = null;
-                try {
-                    response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
-                } catch (IOException e) {
-                    logger.debug("Request to device failed: {}", e);
-                }
+                    String response = null;
+                    try {
+                        response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
+                    } catch (IOException e) {
+                        logger.debug("Request to device failed: {}", e);
+                    }
 
-                if (response != null) {
-                    List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
+                    if (response != null) {
+                        List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
 
-                    if (fields != null && fields.size() > 0) {
+                        if (fields != null && fields.size() > 0) {
 
-                        opmlUrlSucceeded = true;
+                            opmlUrlSucceeded = true;
 
-                        resultString = new String();
-                        // radio name should be first field
-                        title = fields.get(0);
+                            resultString = new String();
+                            // radio name should be first field
+                            title = fields.get(0);
 
-                        Iterator<String> listIterator = fields.listIterator();
-                        while (listIterator.hasNext()) {
-                            String field = listIterator.next();
-                            resultString = resultString + field;
-                            if (listIterator.hasNext()) {
-                                resultString = resultString + " - ";
+                            Iterator<String> listIterator = fields.listIterator();
+                            while (listIterator.hasNext()) {
+                                String field = listIterator.next();
+                                resultString = resultString + field;
+                                if (listIterator.hasNext()) {
+                                    resultString = resultString + " - ";
+                                }
                             }
-                        }
 
-                        needsUpdating = true;
+                            needsUpdating = true;
+                        }
                     }
                 }
             }
