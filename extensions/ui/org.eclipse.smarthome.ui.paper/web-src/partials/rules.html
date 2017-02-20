@@ -38,7 +38,7 @@
 		<div class="showCards">
 			<div ng-repeat="extensionType in extensionTypes | filter: {'typeId':'binding'}" id="extensions-0">
 				<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions" on-finish-render>
-					<div class="card item pointer" style="background-color: {{extension.backgroundColor" ng-click="installRuleExtenstion(extension.id)">
+					<div class="card item pointer" style="background-color: {{extension.backgroundColor}}" ng-click="installRuleExtenstion(extension.id)">
 						<div class="imageAlign">
 							<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
 						</div>
@@ -52,11 +52,6 @@
 							</div>
 						</div>
 						<div ng-bind-html="extension.description" class="description"></div>
-						<div class="actions" ng-if="">
-							<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
-							<md-button aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
-							<md-progress-circular md-mode="indeterminate" ng-show="extension.inProgress" style="margin-right: 25px;"></md-progress-circular>
-						</div>
 					</div>
 				</div>
 			</div>
