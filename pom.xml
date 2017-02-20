@@ -150,8 +150,8 @@
           <version>${tycho-version}</version>
           <configuration>
             <encoding>UTF-8</encoding>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
           </configuration>
         </plugin>
         <plugin>
@@ -231,6 +231,8 @@
           <version>3.6.1</version>
           <configuration>
             <compilerId>groovy-eclipse-compiler</compilerId>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
           </configuration>
           <executions>
             <execution>
@@ -302,7 +304,7 @@
           <artifactId>xtend-maven-plugin</artifactId>
           <version>${xtext-version}</version>
           <configuration>
-            <javaSourceVersion>1.7</javaSourceVersion>
+            <javaSourceVersion>${maven.compiler.source}</javaSourceVersion>
           </configuration>
           <executions>
             <execution>
