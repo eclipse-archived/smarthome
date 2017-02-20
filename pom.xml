@@ -41,6 +41,10 @@
   <description>This is the Eclipse SmartHome project</description>
 
   <properties>
+    <esh.java.version>1.8</esh.java.version>
+    <maven.compiler.source>${esh.java.version}</maven.compiler.source>
+    <maven.compiler.target>${esh.java.version}</maven.compiler.target>
+    <maven.compiler.compilerVersion>${esh.java.version}</maven.compiler.compilerVersion>
     <tycho-version>1.0.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.9.2</xtext-version>
