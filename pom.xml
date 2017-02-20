@@ -41,7 +41,7 @@
   <description>This is the Eclipse SmartHome project</description>
 
   <properties>
-    <tycho-version>0.23.1</tycho-version>
+    <tycho-version>1.0.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.9.2</xtext-version>
     <karaf.version>4.0.3</karaf.version>
