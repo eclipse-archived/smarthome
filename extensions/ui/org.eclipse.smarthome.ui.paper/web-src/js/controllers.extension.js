@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $mdDialog) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
@@ -86,7 +86,7 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
 
     $scope.masonry = function() {
         $timeout(function() {
-            var itemContainer = '#extensions-' + $scope.selectedIndex;
+            var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
             new Masonry(itemContainer, {});
         }, 100, true);
     }
@@ -104,6 +104,13 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             } else if (topic.indexOf("installed") > -1) {
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
+                if (extension.type == "ruletemplate") {
+                    $mdDialog.show({
+                        controller : 'TemplateDialogController',
+                        templateUrl : 'partials/dialog.ruletemplate.html',
+                        hasBackdrop : true
+                    });
+                }
             } else {
                 toastService.showDefaultToast('Install or uninstall of extension ' + extension.label + ' failed.');
             }

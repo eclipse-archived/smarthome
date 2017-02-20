@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('PaperUI.controllers.rules', []).controller('RulesPageController', function($scope, $location, $mdDialog) {
+angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ]).controller('RulesPageController', function($scope, $location, $mdDialog, toastService) {
     $scope.navigateTo = function(path) {
         $location.path('rules/' + path);
     };
@@ -31,6 +31,10 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         }
 
         return rule;
+    }
+    $scope.installRuleExtenstion = function(id) {
+        toastService.showDefaultToast('Template installation initiated.');
+        $scope.install(id);
     }
 }).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
@@ -72,10 +76,12 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     $scope.ruleOptionSelected = function(event, value) {
         if (value == 0) {
             $scope.navigateTo('new');
-        } else {
-            $scope.openDialog('RuleTemplateController', 'partials/dialog.ruletemplate.html', {
+        } else if (value == 1) {
+            $scope.openDialog('TemplateDialogController', 'partials/dialog.ruletemplate.html', {
                 event : event
             });
+        } else {
+            $scope.navigateTo('catalog');
         }
     };
     $scope.runRule = function(ruleUID, e) {
@@ -196,41 +202,46 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
             $scope.navigateTo('');
         });
     };
-}).controller('RuleTemplateController', function($scope, $location, ruleService, configService, toastService, $mdDialog, sharedProperties) {
-    $scope.templateData = ruleService.getRuleTemplates();
-    $scope.templateStep = 1;
-
-    $scope.selectTemplate = function() {
-        var res = configService.getRenderingModel($scope.templateData[$scope.templateIndex].configDescriptions);
-        $scope.name = $scope.templateData[$scope.templateIndex].label;
-        $scope.description = $scope.templateData[$scope.templateIndex].description;
-        angular.forEach(res, function(value) {
-            sharedProperties.updateParams(value);
+}).controller('RuleTemplateController', function($scope, $location, templateRepository, ruleService, configService, toastService) {
+    $scope.setTitle("Configure rule");
+    var templateUID = $scope.path[3];
+    if (templateUID) {
+        templateRepository.getOne(function(template) {
+            return template.uid == templateUID;
+        }, function(template) {
+            if (template) {
+                $scope.parameters = configService.getRenderingModel(template.configDescriptions);
+                $scope.name = template.label;
+                $scope.description = template.description;
+                $scope.configuration = configService.setConfigDefaults({}, $scope.parameters);
+                $scope.templateUID = template.uid;
+            }
         });
-        $scope.templateStep = 2;
-        $scope.parameters = sharedProperties.getParams();
-        $scope.configuration = configService.setConfigDefaults({}, $scope.parameters);
-    };
+    }
 
     $scope.saveRule = function() {
-        sharedProperties.resetParams();
         $scope.configuration = configService.replaceEmptyValues($scope.configuration);
         var rule = {
-            templateUID : $scope.templateData[$scope.templateIndex].uid,
+            templateUID : $scope.templateUID,
             name : $scope.name,
             description : $scope.description,
             configuration : $scope.configuration
         };
         ruleService.add(rule).$promise.then(function() {
             toastService.showDefaultToast('Rule added.');
-            $mdDialog.hide();
             $location.path('rules/');
         });
 
     };
-
+}).controller('TemplateDialogController', function($scope, $mdDialog, toastService, templateRepository, $location) {
+    templateRepository.getAll(function(templates) {
+        $scope.templateData = templates;
+    });
+    $scope.openConfig = function(templateUID) {
+        $mdDialog.hide();
+        $location.path('rules/template/' + templateUID);
+    };
     $scope.close = function() {
-        sharedProperties.resetParams();
         $mdDialog.hide();
     };
 }).controller('RuleRemoveController', function($scope, $mdDialog, toastService, ruleService, rule) {

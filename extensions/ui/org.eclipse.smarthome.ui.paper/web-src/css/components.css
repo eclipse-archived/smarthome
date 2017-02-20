@@ -509,7 +509,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	position: relative;
 }
 
-.selection-list>div:hover {
+.selection-list>div:hover, .pointer {
 	cursor: pointer;
 }
 
