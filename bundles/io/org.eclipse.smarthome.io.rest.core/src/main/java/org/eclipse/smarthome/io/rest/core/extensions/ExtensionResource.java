@@ -127,7 +127,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     }
 
     @POST
-    @Path("/{extensionId: [a-zA-Z_0-9-]*}/install")
+    @Path("/{extensionId: [a-zA-Z_0-9-:]*}/install")
     @ApiOperation(value = "Installs the extension with the given ID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response installExtension(
@@ -149,7 +149,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     }
 
     @POST
-    @Path("/{extensionId: [a-zA-Z_0-9-]*}/uninstall")
+    @Path("/{extensionId: [a-zA-Z_0-9-:]*}/uninstall")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response uninstallExtension(
             final @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
