@@ -148,11 +148,6 @@
           <groupId>${tycho-groupid}</groupId>
           <artifactId>tycho-compiler-plugin</artifactId>
           <version>${tycho-version}</version>
-          <configuration>
-            <encoding>UTF-8</encoding>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
@@ -231,8 +226,6 @@
           <version>3.6.1</version>
           <configuration>
             <compilerId>groovy-eclipse-compiler</compilerId>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
           </configuration>
           <executions>
             <execution>
@@ -303,9 +296,6 @@
           <groupId>org.eclipse.xtend</groupId>
           <artifactId>xtend-maven-plugin</artifactId>
           <version>${xtext-version}</version>
-          <configuration>
-            <javaSourceVersion>${maven.compiler.source}</javaSourceVersion>
-          </configuration>
           <executions>
             <execution>
               <goals>
