@@ -44,7 +44,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         Object operatorObj = this.module.getConfiguration().get(OPERATOR);
         String operator = (operatorObj != null && operatorObj instanceof String) ? (String) operatorObj : null;
         Object rightObj = this.module.getConfiguration().get(RIGHT_OP);

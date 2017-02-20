@@ -72,7 +72,7 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
+    public boolean isSatisfied(Map<String, Object> inputs) {
         String itemName = (String) module.getConfiguration().get(ITEM_NAME);
         String state = (String) module.getConfiguration().get(STATE);
         String operator = (String) module.getConfiguration().get(OPERATOR);

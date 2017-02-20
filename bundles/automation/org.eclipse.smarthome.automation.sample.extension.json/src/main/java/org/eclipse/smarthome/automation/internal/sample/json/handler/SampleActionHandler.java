@@ -19,7 +19,7 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
  * @author Vasil Ilchev - Initial Contribution
  * @author Kai Kreuzer - refactored and simplified customized module handling
  */
-public class SampleActionHandler extends BaseModuleHandler<Action>implements ActionHandler {
+public class SampleActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
     /**
      * Constructs SampleActionHandler
@@ -36,7 +36,7 @@ public class SampleActionHandler extends BaseModuleHandler<Action>implements Act
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> inputs) {
+    public Map<String, Object> execute(Map<String, Object> inputs) {
         Object message = getMessage(inputs);
         if (message == null) {
             message = "";

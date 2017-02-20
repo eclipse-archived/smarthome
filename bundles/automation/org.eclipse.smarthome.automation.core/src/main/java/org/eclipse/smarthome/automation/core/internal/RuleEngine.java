@@ -981,7 +981,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             RuntimeCondition c = (RuntimeCondition) it.next();
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, Object> context = getContext(rule.getUID(), c.getConnections());
-            if (!tHandler.isSatisfied(context)) {
+            if (!tHandler.isSatisfied(Collections.unmodifiableMap(context))) {
                 logger.debug("The condition '{}' of rule '{}' is unsatisfied.",
                         new Object[] { c.getId(), rule.getUID() });
                 return false;
@@ -1013,7 +1013,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             Map<String, Object> context = getContext(rUID, action.getConnections());
             try {
 
-                Map<String, ?> outputs = aHandler.execute(context);
+                Map<String, ?> outputs = aHandler.execute(Collections.unmodifiableMap(context));
                 if (outputs != null) {
                     context = getContext(rUID);
                     updateContext(rUID, action.getId(), outputs);
