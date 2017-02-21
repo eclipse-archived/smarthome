@@ -10,9 +10,7 @@
 
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>
-	<md-button ng-show="templateStep==1" ng-disabled="myForm.$invalid" ng-click="selectTemplate()">Next</md-button>
-	<md-button ng-disabled="myForm.$invalid" ng-click="openConfig(templateUID)">Save</md-button>
-
+	<md-button ng-disabled="myForm.$invalid" ng-click="openConfig(templateUID)">Next</md-button>
 </div>
 
 </md-dialog>

@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $mdDialog) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $location) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
@@ -105,14 +105,11 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
                 if (extension.type == "ruletemplate") {
-                    $mdDialog.show({
-                        controller : 'TemplateDialogController',
-                        templateUrl : 'partials/dialog.ruletemplate.html',
-                        hasBackdrop : true
-                    });
+                    $location.path("rules/template/" + extension.id)
                 }
             } else {
                 toastService.showDefaultToast('Install or uninstall of extension ' + extension.label + ' failed.');
+                $scope.$broadcast("RuleExtensionFailed");
             }
         }
     });

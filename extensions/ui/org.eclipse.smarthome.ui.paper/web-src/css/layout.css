@@ -324,7 +324,7 @@ header a.open-menu {
 /* Section / Toolbar */
 section.configMain, section#main {
 	padding: 0px;
-	margin-top: 40px;
+	padding-top: 40px;
 }
 
 .header-toolbar {

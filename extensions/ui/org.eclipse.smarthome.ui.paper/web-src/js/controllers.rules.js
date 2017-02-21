@@ -4,6 +4,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
     $scope.navigateTo = function(path) {
         $location.path('rules/' + path);
     };
+    $scope.inProgress = false;
 
     $scope.openDialog = function(ctrl, url, params) {
         $mdDialog.show({
@@ -35,7 +36,11 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
     $scope.installRuleExtenstion = function(id) {
         toastService.showDefaultToast('Template installation initiated.');
         $scope.install(id);
+        $scope.inProgress = true;
     }
+    $scope.$on("RuleExtensionFailed", function() {
+        $scope.inProgress = false;
+    })
 }).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
 

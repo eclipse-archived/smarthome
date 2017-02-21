@@ -6,7 +6,7 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template','Rule from catelog']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
+					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template','Rule from catalog']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
 			</div>
 		</div>
@@ -36,7 +36,7 @@
 	</div>
 	<div class="container extensions" ng-if="page === 'catalog'" ng-controller="RulesPageController">
 		<div class="showCards">
-			<div ng-repeat="extensionType in extensionTypes | filter: {'typeId':'binding'}" id="extensions-0">
+			<div ng-repeat="extensionType in extensionTypes | filter: {'typeId':'ruletemplate'}" id="extensions-0">
 				<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions" on-finish-render>
 					<div class="card item pointer" style="background-color: {{extension.backgroundColor}}" ng-click="installRuleExtenstion(extension.id)">
 						<div class="imageAlign">
@@ -47,14 +47,18 @@
 								<div class="md-title">{{extension.label}}</div>
 								<p>{{extension.id}} - {{extension.version}}</p>
 							</div>
-							<div style="float: right" ng-if="extension.link">
+							<div style="position: absolute; right: 8px;" ng-if="extension.link">
 								<i ng-click="openExternalLink(extension.link)" class="material-icons cursor-pointer col-xs-3 launch-icon">launch</i>
 							</div>
 						</div>
-						<div ng-bind-html="extension.description" class="description"></div>
+						<div ng-bind-html="extension.description" class="description rule-ext-desc"></div>
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="backdrop" ng-show="inProgress"></div>
+		<div class="progressbar">
+			<md-progress-circular md-mode="indeterminate" ng-show="inProgress"></md-progress-circular>
 		</div>
 	</div>
 
@@ -156,16 +160,16 @@
 		</div>
 	</div>
 	<div ng-show="page=='template'" ng-init="form={}" class="white-bg">
-	<div class="header-toolbar">
-            <md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
-        </div>
-        <div class="section-header">
-            <div class="container">
-                <div class="toolbar">
-                    <md-button ng-disabled="form.configForm.$invalid" title="Save" ng-click="saveRule()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
-                </div>
-            </div>
-        </div>
+		<div class="header-toolbar">
+			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button ng-disabled="form.configForm.$invalid" title="Save" ng-click="saveRule()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
+				</div>
+			</div>
+		</div>
 		<div class="container rules-container">
 			<div class="bindings row">
 				<div class="row">
