@@ -37,11 +37,14 @@ import org.jupnp.model.meta.RemoteDeviceIdentity;
  */
 public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
-    /** Map from UPnP model name to model number for supported radios; filled in static initializer below. */
+    /** Map from UPnP manufacturer to model number for supported radios; filled in static initializer below. */
     private static final Map<String, Set<String>> SUPPORTED_RADIO_MODELS = new HashMap<String, Set<String>>();
 
     static {
         // to allow case-insensitive match: add all values UPPER-CASE!
+
+        // format: MANUFACTURER -> MODEL NAME, as shown e.g. by UPnP Tester as explained here:
+        // https://community.openhab.org/t/internet-radio-i-need-your-help/2131
 
         // list of medion internet radios taken from: http://internetradio.medion.com/
         final Set<String> medionRadios = new HashSet<String>();
@@ -74,6 +77,16 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         hamaRadios.add("DIR3000");
         hamaRadios.add("DIR3100");
         hamaRadios.add("DIR3110");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/5
+        final Set<String> ttmicroRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("TTMICRO AS", ttmicroRadios);
+        ttmicroRadios.add("PINELL SUPERSOUND");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/7
+        final Set<String> revoRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("REVO TECHNOLOGIES LTD", revoRadios);
+        revoRadios.add("SUPERCONNECT");
     }
 
     @Override
@@ -161,15 +174,17 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                 if (modelNumber != null) {
                     if (manufacturer != null) {
                         final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(manufacturer.toUpperCase());
-                        if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase()))
+                        if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
+                        }
                     }
                     // check model name and number
                     final String modelName = modelDetails.getModelName();
                     if (modelName != null) {
                         final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(modelName.toUpperCase());
-                        if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase()))
+                        if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
+                        }
                     }
                 }
             }
