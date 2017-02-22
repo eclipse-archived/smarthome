@@ -37,7 +37,7 @@
 	<div class="container extensions" ng-if="page === 'catalog'" ng-controller="RulesPageController">
 		<div class="showCards">
 			<div ng-repeat="extensionType in extensionTypes | filter: {'typeId':'ruletemplate'}" id="extensions-0">
-				<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions" on-finish-render>
+				<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions" on-finish-render>
 					<div class="card item pointer" style="background-color: {{extension.backgroundColor}}" ng-click="installRuleExtenstion(extension.id)">
 						<div class="imageAlign">
 							<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
