@@ -319,6 +319,9 @@ header a.open-menu {
 	header a.open-menu:hover {
 		text-decoration: none;
 	}
+	.backdrop {
+	   top:64px;
+	}
 }
 
 /* Section / Toolbar */

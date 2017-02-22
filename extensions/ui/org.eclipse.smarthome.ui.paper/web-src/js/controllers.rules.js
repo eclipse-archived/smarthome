@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ]).controller('RulesPageController', function($scope, $location, $mdDialog, toastService) {
+angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ]).controller('RulesPageController', function($scope, $location, $mdDialog, toastService, $timeout) {
     $scope.navigateTo = function(path) {
         $location.path('rules/' + path);
     };
@@ -34,8 +34,10 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
         return rule;
     }
     $scope.installRuleExtenstion = function(id) {
-        toastService.showDefaultToast('Template installation initiated.');
         $scope.install(id);
+        $timeout(function() {
+            $scope.inProgress = false;
+        }, 30000);
         $scope.inProgress = true;
     }
     $scope.$on("RuleExtensionFailed", function() {
