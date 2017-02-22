@@ -29,7 +29,7 @@
 	</div>
 	<div class="container" ng-if="showCards" ng-class="{'showCards':showCards}">
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
-			<div class="extension fab-item text-left col-lg-4" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
+			<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions | filter:searchText" on-finish-render>
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
 					<div class="imageAlign">
 						<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
