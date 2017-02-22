@@ -87,6 +87,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
                 Command command = ((ItemCommandEvent) event).getItemCommand();
                 if (this.command == null || this.command.equals(command.toFullString())) {
                     values.put("command", command);
+                    values.put("event", event);
                     ruleEngineCallback.triggered(this.module, values);
                 }
             }
