@@ -207,10 +207,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.addModuleHandlerFactory(moduleHandlerFactory);
     }
 
-    protected void updatedModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
-        ruleEngine.updateModuleHandlerFactory(moduleHandlerFactory);
-    }
-
     protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         ruleEngine.removeModuleHandlerFactory(moduleHandlerFactory);
     }

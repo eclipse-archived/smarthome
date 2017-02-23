@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -192,6 +193,21 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     @Override
     public void added(ModuleType moduleType) {
         String moduleTypeName = moduleType.getUID();
+        Collection<ModuleHandlerFactory> moduleHandlerFactories = new LinkedList<ModuleHandlerFactory>();
+        synchronized (this) {
+            if (this.moduleHandlerFactories.get(moduleTypeName) == null) {
+                moduleHandlerFactories.addAll(this.moduleHandlerFactories.values());
+            }
+        }
+        for (ModuleHandlerFactory moduleHandlerFactory : moduleHandlerFactories) {
+            Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+            if (moduleTypes.contains(moduleTypeName)) {
+                synchronized (this) {
+                    this.moduleHandlerFactories.put(moduleTypeName, moduleHandlerFactory);
+                }
+                break;
+            }
+        }
         Set<String> rules = null;
         synchronized (this) {
             Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
@@ -248,37 +264,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         addNewModuleTypes(moduleHandlerFactory, moduleTypes);
     }
 
-    protected void updateModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
-        logger.debug("ModuleHandlerFactory updated, updating handlers");
-        Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
-        Collection<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
-        Collection<String> removedTypes = new ArrayList<String>();
-
-        Set<Entry<String, ModuleHandlerFactory>> snapshot = new HashSet<Map.Entry<String, ModuleHandlerFactory>>();
-        synchronized (this) {
-            snapshot.addAll(moduleHandlerFactories.entrySet());
-        }
-        for (Map.Entry<String, ModuleHandlerFactory> entry : snapshot) {
-            if (entry.getValue().equals(moduleHandlerFactory)) {
-                String key = entry.getKey();
-                if (types.contains(key)) {
-                    newTypes.remove(key);
-                } else {
-                    removedTypes.add(key);
-                }
-            }
-        }
-
-        if (removedTypes.size() > 0) {
-            removeMissingModuleTypes(removedTypes);
-            updateModuleHandlerFactoryMap(removedTypes);
-        }
-
-        if (newTypes.size() > 0) {
-            addNewModuleTypes(moduleHandlerFactory, newTypes);
-        }
-    }
-
     protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         if (moduleHandlerFactory instanceof CompositeModuleHandlerFactory) {
             compositeFactory.deactivate();
@@ -326,8 +311,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         for (Module m : modules) {
             String mId = m.getId();
             if (mId == null || !mId.matches("[A-Za-z0-9_-]*")) {
-                throw new IllegalArgumentException("Invalid module uid: " + (mId != null ? mId
-                        : "null") + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
+                throw new IllegalArgumentException("Invalid module uid: " + (mId != null ? mId : "null")
+                        + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
             }
         }
     }
