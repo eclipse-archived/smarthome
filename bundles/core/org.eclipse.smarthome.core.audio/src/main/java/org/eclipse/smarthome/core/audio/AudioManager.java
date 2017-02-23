@@ -35,7 +35,7 @@ public interface AudioManager {
      * Plays the passed audio stream on the given sink.
      *
      * @param audioStream The audio stream to play
-     * @param sinkId The id of the audio sink to use or null
+     * @param sinkId The id of the audio sink or group of audio sinks to use, or null
      */
     void play(AudioStream audioStream, String sinkId);
 
@@ -47,7 +47,7 @@ public interface AudioManager {
     void playFile(String fileName) throws AudioException;
 
     /**
-     * Plays an audio file from the "sounds" folder using the given audio sink.
+     * Plays an audio file from the "sounds" folder using the given audio sink or group of audio sinks
      *
      * @throws AudioException in case the file does not exist or cannot be opened
      */
@@ -61,10 +61,10 @@ public interface AudioManager {
     void stream(String url) throws AudioException;
 
     /**
-     * Stream audio from the passed url to the given sink
+     * Stream audio from the passed url to the given sink or group of audio sinks
      *
      * @param url The url to stream from or null if streaming should be stopped
-     * @param sinkId The id of the audio sink to use or null
+     * @param sinkId The id of the audio sink or group of audio sinks to use or null
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(String url, String sinkId) throws AudioException;
@@ -78,10 +78,10 @@ public interface AudioManager {
     PercentType getVolume(String sinkId);
 
     /**
-     * Sets the volume for a sink.
+     * Sets the volume for a sink or group of audio sinks
      *
      * @param volume the volume to set as a value between 0 and 100
-     * @param sinkId the sink to set the volume
+     * @param sinkId the sink or group of audio sinks to set the volume
      */
     void setVolume(PercentType volume, String sinkId);
 
@@ -144,5 +144,61 @@ public interface AudioManager {
      * @return ids of matching sinks
      */
     Set<String> getSinks(String pattern);
+
+    /**
+     * Create a named (empty) group of Sinks
+     *
+     * @param groupId the id of the group to be created
+     * @return true if the creation was successful (e.g. no duplicate)
+     */
+    boolean createGroup(String groupId);
+
+    /**
+     * Remove the named group of Sinks
+     *
+     * @param groupId the id of the group to be removed
+     */
+    void removeGroup(String groupId);
+
+    /**
+     * Add a sink to a named group of Sinks
+     *
+     * @param sinkId the id of the group to be created
+     * @param groupId the id of the group to be created
+     * @return ids of sinks in the group
+     */
+    Set<String> addToGroup(String sinkId, String groupId);
+
+    /**
+     * Remove a sink to a named group of Sinks
+     *
+     * @param sinkId the id of the group to be created
+     * @param groupId the id of the group to be created
+     * @return ids of sinks in the group
+     */
+    Set<String> removeFromGroup(String sinkId, String groupId);
+
+    /**
+     * Get a list of sink ids that belong to a group
+     *
+     * @param groupId the id of the group to be queried
+     * @return ids of the sinks in the group
+     */
+    Set<String> getGroup(String groupId);
+
+    /**
+     * Get a list of groups
+     *
+     * @return ids of the groups
+     */
+    Set<String> getGroups();
+
+    /**
+     * Get a list of sink ids that match a given pattern
+     *
+     * @param pattern pattern to search, can include `*` and `?` placeholders
+     * @return ids of matching sinks
+     */
+    Set<String> getGroups(String pattern);
 
 }

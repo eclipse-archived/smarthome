@@ -173,9 +173,19 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     @Override
     public String serve(FixedLengthAudioStream stream, int seconds) {
+        boolean found = false;
         String streamId = UUID.randomUUID().toString();
-        multiTimeStreams.put(streamId, stream);
-        streamTimeouts.put(streamId, System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds));
+        for (String aStreamId : multiTimeStreams.keySet()) {
+            if (multiTimeStreams.get(aStreamId) == stream) {
+                streamTimeouts.put(aStreamId, System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds));
+                streamId = aStreamId;
+                found = true;
+            }
+        }
+        if (!found) {
+            multiTimeStreams.put(streamId, stream);
+            streamTimeouts.put(streamId, System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds));
+        }
         return getRelativeURL(streamId);
     }
 

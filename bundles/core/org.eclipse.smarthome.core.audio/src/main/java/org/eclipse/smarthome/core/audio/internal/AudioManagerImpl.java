@@ -18,6 +18,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
@@ -49,9 +55,14 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(AudioManager.class);
 
+    protected static final long THREAD_TIMEOUT = 65L;
+    protected static final long THREAD_MONITOR_SLEEP = 60000;
+    protected ExecutorService audioPool;
+
     // service maps
     private Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();
     private Map<String, AudioSink> audioSinks = new ConcurrentHashMap<>();
+    private Map<String, Set<AudioSink>> audioSinkGroups = new ConcurrentHashMap<>();
 
     /**
      * default settings filled through the service configuration
@@ -61,6 +72,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     protected void activate(Map<String, Object> config) {
         modified(config);
+
+        audioPool = Executors.newCachedThreadPool(new NamedThreadFactory("audio", Thread.MAX_PRIORITY));
+        ((ThreadPoolExecutor) audioPool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
+        ((ThreadPoolExecutor) audioPool).allowCoreThreadTimeOut(true);
     }
 
     protected void deactivate() {
@@ -81,18 +96,45 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public void play(AudioStream audioStream, String sinkId) {
+    public void play(final AudioStream audioStream, String sinkId) {
         if (audioStream != null) {
             AudioSink sink = getSink(sinkId);
+            Set<String> sinks = this.getGroup(sinkId);
 
             if (sink != null) {
                 try {
                     sink.process(audioStream);
+                    return;
                 } catch (UnsupportedAudioFormatException e) {
                     logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
                 }
+            } else if (sinks.size() > 0) {
+                for (final String aSink : sinks) {
+                    // SafeMethodCaller.call(new SafeMethodCaller.Action<Void>() {
+                    // @Override
+                    // public Void call() {
+                    // logger.debug("Playing {} on {}", audioStream.toString(), aSink);
+                    // long stamp = System.currentTimeMillis();
+                    // play(audioStream, aSink);
+                    // logger.debug("Call completed in {} ms", System.currentTimeMillis() - stamp);
+                    // return null;
+                    // }
+                    // }, 10000);
+                    audioPool.submit(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            logger.debug("Playing {} on {}", audioStream.toString(), aSink);
+                            long stamp = System.currentTimeMillis();
+                            play(audioStream, aSink);
+                            logger.debug("Playing {} on {} completed in {} ms", audioStream.toString(), aSink,
+                                    System.currentTimeMillis() - stamp);
+                        }
+                    });
+                }
             } else {
-                logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream.toString());
+                logger.warn("Failed playing audio stream '{}' as no audio sink or group was found.",
+                        audioStream.toString());
             }
         }
     }
@@ -116,15 +158,29 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public void stream(String url, String sinkId) throws AudioException {
+    public void stream(final String url, String sinkId) throws AudioException {
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
         AudioSink sink = getSink(sinkId);
+        Set<String> sinks = this.getGroup(sinkId);
 
         if (sink != null) {
             try {
                 sink.process(audioStream);
             } catch (UnsupportedAudioFormatException e) {
                 logger.error("Error playing '{}': {}", url, e.getMessage());
+            }
+        } else if (sinks.size() > 0) {
+            for (final String aSink : sinks) {
+                audioPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            stream(url, aSink);
+                        } catch (AudioException e) {
+                            logger.error("Error streaming '{}': {}", url, e.getMessage());
+                        }
+                    }
+                });
             }
         }
     }
@@ -146,8 +202,9 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public void setVolume(PercentType volume, String sinkId) {
+    public void setVolume(final PercentType volume, String sinkId) {
         AudioSink sink = getSink(sinkId);
+        Set<String> sinks = this.getGroup(sinkId);
 
         if (sink != null) {
             try {
@@ -155,6 +212,20 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             } catch (IOException e) {
                 logger.error("An exception occured while setting the volume of sink {} : '{}'", sink.getId(),
                         e.getMessage());
+            }
+        } else if (sinks.size() > 0) {
+            for (final String aSink : sinks) {
+                audioPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            getSink(aSink).setVolume(volume);
+                        } catch (IOException e) {
+                            logger.error("An exception occured while setting the volume of sink {} : '{}'", aSink,
+                                    e.getMessage());
+                        }
+                    }
+                });
             }
         }
     }
@@ -276,6 +347,113 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     protected void removeAudioSink(AudioSink audioSink) {
         this.audioSinks.remove(audioSink.getId());
+    }
+
+    @Override
+    public boolean createGroup(String groupId) {
+        if (this.audioSinkGroups.get(groupId) == null) {
+            this.audioSinkGroups.put(groupId, new HashSet<AudioSink>());
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void removeGroup(String groupId) {
+        this.audioSinkGroups.remove(groupId);
+    }
+
+    @Override
+    public Set<String> addToGroup(String sinkId, String groupId) {
+        Set<AudioSink> sinks = this.audioSinkGroups.get(groupId);
+        if (sinks != null) {
+            if (getSink(sinkId) != null) {
+                sinks.add(getSink(sinkId));
+            }
+            return getGroup(groupId);
+        } else {
+            return new HashSet<String>();
+        }
+    }
+
+    @Override
+    public Set<String> removeFromGroup(String sinkId, String groupId) {
+        Set<AudioSink> sinks = this.audioSinkGroups.get(groupId);
+        if (sinks != null) {
+            if (getSink(sinkId) != null) {
+                sinks.remove(getSink(sinkId));
+            }
+            return getGroup(groupId);
+        } else {
+            return new HashSet<String>();
+        }
+    }
+
+    @Override
+    public Set<String> getGroup(String groupId) {
+        Set<AudioSink> sinks = this.audioSinkGroups.get(groupId);
+        Set<String> ids = new HashSet<String>();
+        if (sinks != null) {
+            for (AudioSink sink : sinks) {
+                ids.add(sink.getId());
+            }
+        }
+
+        return ids;
+    }
+
+    @Override
+    public Set<String> getGroups() {
+        return this.audioSinkGroups.keySet();
+    }
+
+    @Override
+    public Set<String> getGroups(String pattern) {
+        String regex = pattern.replace("?", ".?").replace("*", ".*?");
+        Set<String> matchedGroups = new HashSet<String>();
+
+        for (String aGroup : this.audioSinkGroups.keySet()) {
+            if (aGroup.matches(regex)) {
+                matchedGroups.add(aGroup);
+            }
+        }
+
+        return matchedGroups;
+    }
+
+    protected class NamedThreadFactory implements ThreadFactory {
+
+        protected final ThreadGroup group;
+        protected final AtomicInteger threadNumber = new AtomicInteger(1);
+        protected final String namePrefix;
+        protected final String name;
+        protected final int priority;
+
+        public NamedThreadFactory(String threadPool, int priority) {
+            this.name = threadPool;
+            this.namePrefix = "ESH-" + threadPool + "-";
+            this.priority = priority;
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+            if (!t.isDaemon()) {
+                t.setDaemon(true);
+            }
+            if (t.getPriority() != priority) {
+                t.setPriority(priority);
+            }
+
+            return t;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
 }
