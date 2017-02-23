@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayTriggerHandler;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,16 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return types;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
     }
 
     @Override

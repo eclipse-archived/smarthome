@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.smarthome.automation.Action;
@@ -17,6 +16,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.media.handler.PlayActionHandler;
 import org.eclipse.smarthome.automation.module.media.handler.SayActionHandler;
 import org.eclipse.smarthome.core.audio.AudioManager;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 
 import com.google.common.collect.ImmutableList;
@@ -29,8 +29,16 @@ public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
     private AudioManager audioManager;
 
     @Override
-    public Collection<String> getTypes() {
-        return new ArrayList<>(types);
+    public Collection<String> getAll() {
+        return types;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
     }
 
     @Override
@@ -63,4 +71,5 @@ public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
     protected void unsetVoiceManager(VoiceManager voiceManager) {
         this.voiceManager = null;
     }
+
 }

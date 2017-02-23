@@ -7,6 +7,7 @@ Bundle-Vendor: Bosch Software Innovations GmbH
 Import-Package: org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,

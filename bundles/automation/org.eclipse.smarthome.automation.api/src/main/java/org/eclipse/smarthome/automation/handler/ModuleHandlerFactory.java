@@ -7,30 +7,23 @@
  */
 package org.eclipse.smarthome.automation.handler;
 
-import java.util.Collection;
-
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * This interface is a factory of {@link ModuleHandler} instances. It is used to
  * create {@link TriggerHandler}, {@link ConditionHandler} and {@link ActionHandler} objects
  * base on the type of the passed {@link Module} instance. The ModuleHandlerFactory
- * is register as service in OSGi framework and it can serve more then one
+ * is registered as service in OSGi framework and it can serve more then one
  * module types. It is used by automation parser to associate {@link ModuleHandler} instance to passed {@link Module}
- * instance.
+ * instance. Furthermore due to the Provider interface, the ModuleHandlerFactory is able to add and remove
+ * provided ModuleTypes.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
+ * @author Simon Merschjohann - added provider ability
  */
-public interface ModuleHandlerFactory {
-
-    /**
-     * This method is used to return UIDs of module types supported by this {@link ModuleHandlerFactory}
-     *
-     * @return collection of module type unequal ids supported by this factory.
-     */
-    public Collection<String> getTypes();
-
+public interface ModuleHandlerFactory extends Provider<String> {
     /**
      * This method is used to get a ModuleHandler instance for the passed module
      * instance
@@ -45,7 +38,7 @@ public interface ModuleHandlerFactory {
     /**
      * This method signalizes the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
      * must take care of invalidating caches and disposing the Handlers.
-     * 
+     *
      * @param module
      */
     public void ungetHandler(Module module, String ruleUID, ModuleHandler handler);

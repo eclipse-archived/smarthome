@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptActionHandler;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptConditionHandler;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return types;
     }
 
@@ -65,4 +66,11 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
         return null;
     }
 
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
 }

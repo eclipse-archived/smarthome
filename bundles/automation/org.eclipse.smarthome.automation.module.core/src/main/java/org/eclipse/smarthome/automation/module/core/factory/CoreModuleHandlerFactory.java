@@ -25,6 +25,7 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemCommandTriggerHa
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.RuleEnableHandler;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.service.component.ComponentContext;
@@ -71,8 +72,16 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return types;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
     }
 
     /**

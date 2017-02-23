@@ -31,6 +31,7 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +73,16 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * @see org.eclipse.smarthome.automation.handler.ModuleHandlerFactory#getTypes()
      */
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return null;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -192,5 +201,4 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
         mtRegistry = null;
         ruleEngine = null;
     }
-
 }
