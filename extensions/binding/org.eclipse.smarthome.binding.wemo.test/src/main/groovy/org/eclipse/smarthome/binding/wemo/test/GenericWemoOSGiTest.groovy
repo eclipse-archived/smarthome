@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
@@ -51,6 +52,7 @@ import org.jupnp.model.types.DeviceType
 import org.jupnp.model.types.ServiceId
 import org.jupnp.model.types.ServiceType
 import org.jupnp.model.types.UDN
+import org.osgi.service.cm.ConfigurationAdmin
 import org.osgi.service.http.HttpService
 
 import com.google.common.collect.ImmutableSet
@@ -113,7 +115,29 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         //UPnP IO Service is required from the WemoDiscoveryService and WemoHandlerFactory
         upnpIOService = getService(UpnpIOService.class)
         assertThat(UpnpIOService, is(notNullValue()))
+
+        setSimpleMode(false)
     }
+
+    protected void setSimpleMode(boolean enabled) {
+        // Deactivate simple mode that create items and links automatically
+        ConfigurationAdmin configAdmin
+        configAdmin = getService(ConfigurationAdmin)
+        assertThat configAdmin, is(notNullValue())
+        def config = configAdmin.getConfiguration("org.eclipse.smarthome.links")
+        def properties = config.getProperties()
+        if (properties == null) {
+            properties = new Properties()
+        }
+        properties.put("autoLinks", enabled)
+        config.update(properties)
+
+        // Wait until simple mode is deactivated.
+        ThingLinkManager thinkLinkManager = getService(ThingLinkManager.class)
+        assertThat thinkLinkManager, is(notNullValue())
+        waitFor { return thinkLinkManager.isAutoLinksEnabled() == enabled }
+    }
+
 
     protected registerServlet(String ServletURL, HttpServlet servlet) {
         HttpService httpService = getService(HttpService.class)
@@ -151,7 +175,6 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         }
         // If a new test is implemented with different Item Type testItem from this Type must be created here
 
-        System.out.println("add item to registry: " + testItem.getName())
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
