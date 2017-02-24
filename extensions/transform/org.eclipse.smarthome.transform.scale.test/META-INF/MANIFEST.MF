@@ -5,5 +5,5 @@ Bundle-SymbolicName: org.eclipse.smarthome.transform.scale.test
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.transform.scale
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.junit, org.hamcrest.core

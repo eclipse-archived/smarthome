@@ -10,7 +10,7 @@ Please ensure that you have the following prerequisites installed on your machin
 
 1. [Git](https://git-scm.com/downloads)
 1. [Maven 3.x](https://maven.apache.org/download.cgi)
-1. [Oracle JDK 7 or 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+1. [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installer automatically prepares the IDE so that it comes with all required plug-ins, the correct workspace encoding settings, pre-configured code formatters and more. Simply follow these steps:
 

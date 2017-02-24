@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Automation Script Globals
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.defaultscope
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.collect,
  org.apache.commons.collections.keyvalue,
  org.apache.commons.io,

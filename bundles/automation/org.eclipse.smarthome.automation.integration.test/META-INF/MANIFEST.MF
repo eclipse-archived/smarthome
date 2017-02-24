@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Automation Integration Test
 Bundle-SymbolicName: org.eclipse.smarthome.automation.integration.test;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.collect,
  groovy.lang,
  org.codehaus.groovy.reflection,

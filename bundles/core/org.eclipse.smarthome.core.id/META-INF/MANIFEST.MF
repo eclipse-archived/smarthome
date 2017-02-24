@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-Name: Eclipse SmartHome Core ID
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
