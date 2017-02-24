@@ -38,6 +38,11 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
+								<id>org.eclipse.equinox.cm</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
 								<id>org.eclipse.equinox.ds</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
@@ -80,6 +85,11 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
 					<bundleStartLevel>
+						<bundle>
+							<id>org.eclipse.equinox.cm</id>
+							<level>1</level>
+							<autoStart>true</autoStart>
+						</bundle>
 						<bundle>
 							<id>org.eclipse.equinox.ds</id>
 							<level>1</level>
@@ -141,7 +151,9 @@
 							<autoStart>true</autoStart>
 						</bundle>
 					</bundleStartLevel>
-					<!--This property should specify the symbolic name of a bundle which contains a directory called jettyhome/. The` jettyhome/` directory should have a subdirectory called etc/ that contains the xml files to be applied to Jetty on startup. The jetty-osgi-boot.jar contains a` jettyhome/` directory with a default set of xml configuration files.  -->
+					<!--This property should specify the symbolic name of a bundle which contains a directory called jettyhome/. The` jettyhome/` 
+						directory should have a subdirectory called etc/ that contains the xml files to be applied to Jetty on startup. The jetty-osgi-boot.jar 
+						contains a` jettyhome/` directory with a default set of xml configuration files. -->
 					<argLine>-Djetty.home.bundle=org.eclipse.jetty.osgi.boot</argLine>
 				</configuration>
 			</plugin>
