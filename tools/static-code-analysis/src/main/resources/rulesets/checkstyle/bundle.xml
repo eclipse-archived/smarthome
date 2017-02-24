@@ -64,13 +64,15 @@
       <property name="format" value="(TODO)|(FIXME)" />
       <property name="severity" value="info" />
     </module>
-    <module name="JavadocType">
+    <module name="org.eclipse.smarthome.tools.analysis.checkstyle.JavadocFilterCheck">
+      <property name="severity" value="warning" />
       <property name="scope" value="public"/>
-      <property name="severity" value="info" />
+      <property name="checkInnerUnits" value="false"/>
       <property name="allowMissingParamTags" value="true"/>
       <property name="allowUnknownTags" value="true"/>
       <property name="tokens" value="INTERFACE_DEF,CLASS_DEF" />
-    </module>  
+      <message key="javadoc.missing" value="Missing Javadoc comment."/>
+    </module>
     <module name="UnusedImports">
       <property name="processJavadoc" value="true"/>
       <property name="severity" value="info" />
