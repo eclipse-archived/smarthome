@@ -23,7 +23,6 @@ What you need before you start:
 
 Make sure that the "mvn" command is available on your path
 
-
 2. Checkout
 ===========
 
@@ -35,16 +34,9 @@ git clone https://github.com/eclipse/smarthome.git
 ======================
 
 To build Eclipse SmartHome from the sources, Maven takes care of everything:
-- set MAVEN_OPTS to "-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
+- set MAVEN_OPTS to "-Xms512m -Xmx1024m"
 - change into the smarthome directory ("cd smarthome“)
 - run "mvn clean install" to compile and package all sources
 
-The build result will be available in the folder 
-smarthome/distribution/target. Both the repository as well as
-the designer zips are placed in there.
-
-4. Starting the designer
-========================
-
-- unzip the file eclipsesmarthome-incubation-0.x.0-designer-<platform>.zip to a local folder
-- run the executable „Eclipse-SmartHome-Designer[.exe]"
+The p2 repository that contains all bundles as a build result will be available in the folder 
+`products/org.eclipse.smarthome.repo/target`.
