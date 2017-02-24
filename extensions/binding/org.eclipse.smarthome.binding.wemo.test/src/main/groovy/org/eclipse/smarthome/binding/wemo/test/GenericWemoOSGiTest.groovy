@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.wemo.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.Namespace
 
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -55,6 +54,8 @@ import org.jupnp.model.types.UDN
 import org.osgi.service.http.HttpService
 
 import com.google.common.collect.ImmutableSet
+
+import groovy.xml.Namespace
 
 /**
  * Generic test class for all Wemo related tests that contains methods and constants used across the different test classes
@@ -150,6 +151,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         }
         // If a new test is implemented with different Item Type testItem from this Type must be created here
 
+        System.out.println("add item to registry: " + testItem.getName())
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
