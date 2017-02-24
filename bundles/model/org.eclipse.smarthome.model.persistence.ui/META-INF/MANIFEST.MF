@@ -22,7 +22,7 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.designer.ui,
  org.eclipse.xtext.xbase.lib
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model.persistence.ui.contentassist,
  org.eclipse.smarthome.model.persistence.ui.contentassist.antlr,
  org.eclipse.smarthome.model.persistence.ui.internal,

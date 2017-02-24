@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Core Voice
 Bundle-SymbolicName: org.eclipse.smarthome.core.voice
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Import-Package: org.apache.commons.collections.map,
  org.apache.commons.io,

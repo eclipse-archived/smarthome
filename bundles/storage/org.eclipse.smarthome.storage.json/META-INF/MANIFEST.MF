@@ -18,6 +18,6 @@ Import-Package: com.google.gson,
  org.osgi.service.event,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.storage.json;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml
