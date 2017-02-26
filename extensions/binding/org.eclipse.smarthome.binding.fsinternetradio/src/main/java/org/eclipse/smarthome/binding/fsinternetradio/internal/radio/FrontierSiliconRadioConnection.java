@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
  * @author Rainer Ostendorf
  * @author Patrick Koenemann
  * @author Svilen Valkanov - replaced Apache HttpClient with Jetty
- * @author Mihaela Memova - changed the calling of the stopHttpClient() method, fixed the hardcoded URL path, fixed the for loop condition part
+ * @author Mihaela Memova - changed the calling of the stopHttpClient() method, fixed the hardcoded URL path, fixed the
+ *         for loop condition part
  */
 public class FrontierSiliconRadioConnection {
 
@@ -84,7 +85,8 @@ public class FrontierSiliconRadioConnection {
 
         logger.trace("opening URL: {}", url);
 
-        Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
+        Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SOCKET_TIMEOUT,
+                TimeUnit.MILLISECONDS);
 
         try {
             ContentResponse response = request.send();
@@ -168,8 +170,15 @@ public class FrontierSiliconRadioConnection {
                 ContentResponse response = request.send();
                 final int statusCode = response.getStatus();
                 if (statusCode != HttpStatus.OK_200) {
-                    String reason = response.getReason();
-                    logger.warn("Method failed: {}  {}", statusCode, reason);
+                    /*-
+                     * Issue: https://github.com/eclipse/smarthome/issues/2548
+                     * If the session expired, we might get a 404 here. That's ok, remember that we are not logged-in
+                     * and try again. Print warning only if this happens in the last iteration.
+                     */
+                    if (i >= 2) {
+                        String reason = response.getReason();
+                        logger.warn("Method failed: {}  {}", statusCode, reason);
+                    }
                     isLoggedIn = false;
                     continue;
                 }
