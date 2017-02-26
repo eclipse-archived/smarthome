@@ -17,5 +17,6 @@
    </service>
    
    <property name="parser.type" type="String" value="parser.template"/>
+   <property name="format" type="String" value="json"/>
 
 </scr:component>
