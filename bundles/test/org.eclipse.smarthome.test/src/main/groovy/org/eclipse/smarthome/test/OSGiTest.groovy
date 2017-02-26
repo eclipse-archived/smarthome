@@ -91,8 +91,8 @@ abstract class OSGiTest {
      * @param filter
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T> T getService(Class<T> clazz, Class<? extends T> implementationClass){
-        getService(clazz, { ServiceReference<?> serviceReference ->
+    protected <T,I extends T> I getService(Class<T> clazz, Class<I> implementationClass){
+        (I) getService(clazz, { ServiceReference<?> serviceReference ->
             implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())
         })
     }
