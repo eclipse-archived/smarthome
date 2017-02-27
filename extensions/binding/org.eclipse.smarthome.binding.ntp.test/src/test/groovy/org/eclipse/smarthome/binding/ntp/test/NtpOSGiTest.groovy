@@ -50,8 +50,18 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
+<<<<<<< HEAD
 import org.junit.Ignore
 import org.junit.Test
+=======
+<<<<<<< HEAD
+import org.junit.Ignore
+import org.junit.Test
+=======
+import org.junit.Test
+import org.junit.Ignore
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -84,6 +94,10 @@ class NtpOSGiTest extends OSGiTest {
     // No bundle in ESH is exporting a package from which we can use item types as constants, so we will use String.
     private def final ACCEPTED_ITEM_TYPE_STRING = "String"
     private def final ACCEPTED_ITEM_TYPE_DATE_TIME = "DateTime"
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> Initial Release
 
     enum UpdateEventType{
         HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
@@ -94,6 +108,21 @@ class NtpOSGiTest extends OSGiTest {
             this.updateEventType = updateEventType
         }
 
+<<<<<<< HEAD
+=======
+=======
+    
+    enum UpdateEventType{
+        HANDLE_COMMAND("handleCommand"), CHANNEL_LINKED("channelLinked");
+        
+        private String updateEventType
+        
+        public UpdateEventType(String updateEventType){
+            this.updateEventType = updateEventType
+        }
+        
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
         public String getUpdateEventType(){
             return updateEventType
         }
@@ -406,7 +435,15 @@ class NtpOSGiTest extends OSGiTest {
         itemRegistry.add(testItem)
 
         def ManagedItemChannelLinkProvider itemChannelLinkProvider
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+
+=======
+        
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
         // Wait for the item , linked to the NTP thing to be added to the ManagedThingProvider.
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -460,7 +497,15 @@ class NtpOSGiTest extends OSGiTest {
                         testItemState,
                         is(instanceOf(DateTimeType))
             }
+<<<<<<< HEAD
         }, 30000, 100)
+=======
+<<<<<<< HEAD
+        }, 30000, 100)
+=======
+        })
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
 
         return testItemState
     }
@@ -474,9 +519,21 @@ class NtpOSGiTest extends OSGiTest {
 
     private String getStringChannelTimeZoneFromItemRegistry(){
         String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString()
+<<<<<<< HEAD
         /* This method is used only in tests for the string channel,
          where we have set the format for the date in advance.
          Because of that format, we know that the time zone will be the
+=======
+<<<<<<< HEAD
+        /* This method is used only in tests for the string channel,
+         where we have set the format for the date in advance.
+         Because of that format, we know that the time zone will be the
+=======
+        /* This method is used only in tests for the string channel, 
+         where we have set the format for the date in advance. 
+         Because of that format, we know that the time zone will be the 
+>>>>>>> e879552... Implemented tests for NTP Binding (#2243)
+>>>>>>> Initial Release
          last word of the string from the item registry.*/
         // FIXME: This can happen a lot easier with Java 8 date time API, so tests can be adapted, if there is an upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ")
