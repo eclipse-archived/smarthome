@@ -87,6 +87,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
     }
 
     public void deactivate() {
+        for (String root : this.configurationRoots) {
+            deactivateWatchService(root + File.separator + rootSubdirectory);
+        }
         urls.clear();
         parsers.clear();
         synchronized (listeners) {
