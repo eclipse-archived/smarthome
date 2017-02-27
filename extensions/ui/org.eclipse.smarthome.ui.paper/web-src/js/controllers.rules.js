@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ]).controller('RulesPageController', function($scope, $location, $mdDialog, toastService, $timeout) {
+angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ]).controller('RulesPageController', function($scope, $location, $mdDialog, toastService, $timeout, templateRepository) {
     $scope.navigateTo = function(path) {
         $location.path('rules/' + path);
     };
@@ -33,12 +33,25 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
 
         return rule;
     }
-    $scope.installRuleExtenstion = function(id) {
-        $scope.install(id);
-        $timeout(function() {
-            $scope.inProgress = false;
-        }, 30000);
-        $scope.inProgress = true;
+    $scope.installRuleExtenstion = function(id, installed) {
+        if (!installed) {
+            $scope.install(id);
+            $timeout(function() {
+                $scope.inProgress = false;
+            }, 30000);
+            $scope.inProgress = true;
+        } else {
+            templateRepository.getOne(function(template) {
+                return template.uid == id;
+            }, function(template) {
+                if (template) {
+                    $scope.navigateTo("template/" + id);
+                } else {
+                    toastService.showDefaultToast('Rule template could not be found.');
+                    $scope.$broadcast("RuleExtensionFailed");
+                }
+            });
+        }
     }
     $scope.$on("RuleExtensionFailed", function() {
         $scope.inProgress = false;

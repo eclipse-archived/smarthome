@@ -94,8 +94,12 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         $scope.masonry();
     });
 
-    eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
-        var extension = $scope.getExtension(extensionId);
+    eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
+        var id = extensionObject;
+        if (extensionObject && Array.isArray(extensionObject)) {
+            id = extensionObject[0]
+        }
+        var extension = $scope.getExtension(id);
         if (extension) {
             extension.inProgress = false;
             if (topic.indexOf("uninstalled") > -1) {
@@ -105,9 +109,8 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
                 if (extension.type == "ruletemplate") {
-                    // 
                     templateRepository.getOne(function(template) {
-                        return template.id == extension.id;
+                        return template.uid == extension.id;
                     }, function(template) {
                         if (template) {
                             $location.path("rules/template/" + extension.id);
@@ -118,7 +121,8 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                     });
                 }
             } else {
-                toastService.showDefaultToast('Install or uninstall of extension ' + extension.label + ' failed.');
+                var msg = Array.isArray(extensionObject) ? extensionObject[1] : 'Install or uninstall of extension ' + extension.label + ' failed.';
+                toastService.showDefaultToast(msg);
                 $scope.$broadcast("RuleExtensionFailed");
             }
         }
