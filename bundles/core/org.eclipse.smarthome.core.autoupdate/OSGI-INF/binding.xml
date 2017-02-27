@@ -12,9 +12,11 @@
    <implementation class="org.eclipse.smarthome.core.autoupdate.internal.AutoUpdateBinding"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
+      <provide interface="org.eclipse.smarthome.core.autoupdate.AutoUpdateConfigurator"/>
    </service>
    
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
    <reference bind="addBindingConfigProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider" name="AutoUpdateBindingConfigProvider" policy="dynamic" unbind="removeBindingConfigProvider"/>
    <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
+   <reference bind="setItemChannelLinkRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="dynamic" unbind="unsetItemChannelLinkRegistry"/>
 </scr:component>
