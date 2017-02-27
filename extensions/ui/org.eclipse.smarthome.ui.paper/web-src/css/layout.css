@@ -455,3 +455,12 @@ md-toast {
 	width: 100%;
 	text-align: center;
 }
+
+@media all and (min-width: 2240px){
+    md-tab-content.md-right:not(.md-active){
+        display:none;
+    }
+    md-tab-content.md-left:not(.md-active){
+        display:none;
+    }
+}
