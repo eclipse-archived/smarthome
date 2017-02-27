@@ -243,6 +243,14 @@ abstract class OSGiTest {
         registeredServices.clear()
     }
 
+    protected void disableItemAutoUpdate(){
+        def autoupdateConfig = [
+            autoUpdate: { String itemName -> return false }
+
+        ] as AutoUpdateBindingConfigProvider
+        registerService(autoupdateConfig)
+    }
+
     protected void enableItemAutoUpdate(){
         def autoupdateConfig = [
             autoUpdate: { String itemName -> return true }
