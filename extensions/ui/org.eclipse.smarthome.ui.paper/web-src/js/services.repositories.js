@@ -290,4 +290,8 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     });
 
     return repository;
+}).factory('templateRepository', function($q, $rootScope, templateService) {
+    var repository = new Repository($q, $rootScope, templateService, 'templates')
+    $rootScope.data.templates = [];
+    return repository;
 });

@@ -458,11 +458,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 'Content-Type' : 'text/plain'
             }
         },
-        getRuleTemplates : {
-            method : 'GET',
-            url : restConfig.restPath + '/templates',
-            isArray : true
-        },
         runRule : {
             method : 'POST',
             params : {
@@ -553,6 +548,21 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 channelTypeUID : '@channelTypeUID'
             },
             url : restConfig.restPath + '/channel-types/:channelTypeUID'
+        },
+    });
+}).factory('templateService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/channel-types', {}, {
+        getAll : {
+            method : 'GET',
+            url : restConfig.restPath + '/templates',
+            isArray : true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                templateUID : '@templateUID'
+            },
+            url : restConfig.restPath + '/templates/:templateUID'
         },
     });
 });
