@@ -13,7 +13,7 @@
                "description":"the name of the item",
                "required":true
             },
-            {  
+            {
                "name":"command",
                "type":"TEXT",
                "label":"Command",
@@ -49,13 +49,20 @@
            }
          ],
          "outputs":[
-            {
+           {
                "name":"command",
                "type":"command",
                "description":"the received command",
                "label":"Command"
+           },
+           {
+               "name":"event",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "label":"Event",
+               "description":"The events which was sent.",
+               "reference":"event"
             }
-          ]
+         ]
       },
       {
          "uid":"core.ItemStateUpdateTrigger",
@@ -70,7 +77,7 @@
                "description":"the name of the item",
                "required":true
             },
-            {  
+            {
                "name":"state",
                "type":"TEXT",
                "label":"State",
@@ -107,10 +114,17 @@
          ],
          "outputs":[
             {
-               "name":"state",
-               "type":"state",
-               "description":"the item state",
-               "label":"State"
+                "name":"state",
+                "type":"state",
+                "description":"the item state",
+                "label":"State"
+            },
+            {
+                "name":"event",
+                "type":"org.eclipse.smarthome.core.events.Event",
+                "label":"Event",
+                "description":"The events which was sent.",
+                "reference":"event"
             }
           ]
       },
@@ -127,7 +141,41 @@
                "description":"the name of the item",
                "required":true
             },
-            {  
+            {
+               "name":"previousState",
+               "type":"TEXT",
+               "label":"Previous State",
+               "description":"the required previous state of the item",
+               "required":false,
+               "limitToOptions":false,
+               "options":[
+               {
+                  "label": "ON",
+                  "value": "ON"
+               },
+               {
+                  "label": "OFF",
+                  "value": "OFF"
+               },
+               {
+                  "label": "OPEN",
+                  "value": "OPEN"
+               },
+               {
+                  "label": "CLOSED",
+                  "value": "CLOSED"
+               },
+               {
+                  "label": "UP",
+                  "value": "UP"
+               },
+               {
+                  "label": "DOWN",
+                  "value": "DOWN"
+               }
+               ]
+           },
+           {
                "name":"state",
                "type":"TEXT",
                "label":"State",
@@ -174,6 +222,13 @@
                "type":"state",
                "description":"the old item state",
                "label":"Old State"
+            },
+            {
+               "name":"event",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "label":"Event",
+               "description":"The events which was sent.",
+               "reference":"event"
             }
          ]
       }

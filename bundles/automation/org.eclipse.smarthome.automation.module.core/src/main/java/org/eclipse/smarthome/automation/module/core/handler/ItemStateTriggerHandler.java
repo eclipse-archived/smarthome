@@ -34,14 +34,15 @@ import com.google.common.collect.Maps;
  * configuration.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Simon Merschjohann
  *
  */
 public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
-
     private final Logger logger = LoggerFactory.getLogger(ItemStateTriggerHandler.class);
 
     private String itemName;
     private String state;
+    private String previousState;
     private Set<String> types;
     private BundleContext bundleContext;
 
@@ -50,6 +51,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
 
     private static final String CFG_ITEMNAME = "itemName";
     private static final String CFG_STATE = "state";
+    private static final String CFG_PREVIOUS_STATE = "previousState";
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration eventSubscriberRegistration;
@@ -58,6 +60,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
         super(module);
         this.itemName = (String) module.getConfiguration().get(CFG_ITEMNAME);
         this.state = (String) module.getConfiguration().get(CFG_STATE);
+        this.previousState = (String) module.getConfiguration().get(CFG_PREVIOUS_STATE);
         this.types = Collections.singleton(
                 UPDATE_MODULE_TYPE_ID.equals(module.getTypeUID()) ? ItemStateEvent.TYPE : ItemStateChangedEvent.TYPE);
         this.bundleContext = bundleContext;
@@ -85,20 +88,32 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
             Map<String, Object> values = Maps.newHashMap();
             if (event instanceof ItemStateEvent && UPDATE_MODULE_TYPE_ID.equals(module.getTypeUID())) {
                 State state = ((ItemStateEvent) event).getItemState();
-                if (this.state == null || this.state.equals(state.toFullString())) {
+                if ((this.state == null || this.state.equals(state.toFullString()))) {
                     values.put("state", state);
                 }
             } else if (event instanceof ItemStateChangedEvent && CHANGE_MODULE_TYPE_ID.equals(module.getTypeUID())) {
                 State state = ((ItemStateChangedEvent) event).getItemState();
-                if (this.state == null || this.state.equals(state.toFullString())) {
-                    values.put("oldState", ((ItemStateChangedEvent) event).getOldItemState());
+                State oldState = ((ItemStateChangedEvent) event).getOldItemState();
+
+                if (stateMatches(this.state, state) && stateMatches(this.previousState, oldState)) {
+                    values.put("oldState", oldState);
                     values.put("newState", state);
                 }
             }
             if (!values.isEmpty()) {
+                values.put("event", event);
                 ruleEngineCallback.triggered(this.module, values);
             }
         }
+    }
+
+    private boolean stateMatches(String requiredState, State state) {
+        if (requiredState == null) {
+            return true;
+        }
+
+        String reqState = requiredState.trim();
+        return reqState.isEmpty() || reqState.equals(state.toFullString());
     }
 
     /**
