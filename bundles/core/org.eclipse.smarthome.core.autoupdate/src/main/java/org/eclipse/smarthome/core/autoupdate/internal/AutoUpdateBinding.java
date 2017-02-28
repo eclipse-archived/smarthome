@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.autoupdate.internal;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,6 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AutoUpdateBinding extends AbstractItemEventSubscriber implements AutoUpdateConfigurator {
 
+    private final Map<ChannelUID, Boolean> BINDING_GLOBAL_TRUE = new HashMap<>();
+    private final Map<ChannelUID, Boolean> BINDING_GLOBAL_FALSE = new HashMap<>();
+
     private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 
     protected volatile ItemRegistry itemRegistry;
@@ -54,8 +58,8 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber implements Au
     /** to keep track of all binding config providers */
     protected Collection<AutoUpdateBindingConfigProvider> providers = new CopyOnWriteArraySet<>();
 
-    // Storage for binding ID specific enable / disable
-    protected Map<String, Boolean> bindingIdSettings = new ConcurrentHashMap<>();
+    // Binding specific settings
+    protected Map<String, Map<ChannelUID, Boolean>> bindingSpecificSettings = new ConcurrentHashMap<>();
 
     protected EventPublisher eventPublisher = null;
 
@@ -92,22 +96,67 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber implements Au
     }
 
     @Override
-    public void addAutoUpdateByBindingIdConfig(String bindingId, boolean autoUpdate) {
-        if (bindingIdSettings.containsKey(bindingId)) {
-            throw new IllegalArgumentException(
-                    String.format("There is already an configuration for given binding ID '%s'.", bindingId));
+    public void addAutoUpdateByBindingIdConfig(String bindingId, boolean autoUpdate)
+            throws IllegalArgumentException, IllegalStateException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null) {
+            bindingSpecificSettings.put(bindingId, autoUpdate ? BINDING_GLOBAL_TRUE : BINDING_GLOBAL_FALSE);
         } else {
-            bindingIdSettings.put(bindingId, autoUpdate);
+            if (settings == BINDING_GLOBAL_TRUE || settings == BINDING_GLOBAL_FALSE) {
+                throw new IllegalArgumentException(
+                        String.format("There is already an configuration for given binding ID '%s'.", bindingId));
+            } else {
+                throw new IllegalStateException(String.format(
+                        "There is already a channel specific configuration for the given binding ID '%s'.", bindingId));
+            }
         }
     }
 
     @Override
-    public void removeAutoUpdateByBindingIdConfig(String bindingId) {
-        if (!bindingIdSettings.containsKey(bindingId)) {
+    public void removeAutoUpdateByBindingIdConfig(String bindingId) throws IllegalArgumentException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null || (settings != BINDING_GLOBAL_TRUE && settings != BINDING_GLOBAL_FALSE)) {
             throw new IllegalArgumentException(
                     String.format("There is no configuration for given binding ID '%s'.", bindingId));
+        } else {
+            settings.remove(bindingId);
         }
-        bindingIdSettings.remove(bindingId);
+    }
+
+    @Override
+    public void addAutoUpdateByChannelUidConfig(ChannelUID channelUid, boolean autoUpdate)
+            throws IllegalArgumentException, IllegalStateException {
+        final String bindingId = channelUid.getBindingId();
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null) {
+            final Map<ChannelUID, Boolean> newSettings = new ConcurrentHashMap<>();
+            newSettings.put(channelUid, autoUpdate);
+            bindingSpecificSettings.put(bindingId, newSettings);
+        } else {
+            if (settings == BINDING_GLOBAL_TRUE || settings == BINDING_GLOBAL_FALSE) {
+                throw new IllegalArgumentException(
+                        String.format("There is already an configuration for given binding ID '%s'.", bindingId));
+            } else {
+                if (settings.containsKey(channelUid)) {
+                    throw new IllegalStateException(String.format(
+                            "There is already a channel specific configuration for the given binding ID '%s'.",
+                            bindingId));
+                } else {
+                    settings.put(channelUid, autoUpdate);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void removeAutoUpdateByChannelUidConfig(ChannelUID channelUid) throws IllegalArgumentException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(channelUid.getBindingId());
+        if (settings == null || !settings.containsKey(channelUid)) {
+            throw new IllegalArgumentException(
+                    String.format("There is no configuration for given channel UID '%s'.", channelUid));
+        } else {
+            settings.remove(channelUid);
+        }
     }
 
     /**
@@ -161,7 +210,29 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber implements Au
             final Set<ChannelUID> channelUIDs = itemChannelLinkRegistry.getBoundChannels(itemName);
 
             for (final ChannelUID channelUID : channelUIDs) {
-                final Boolean au = bindingIdSettings.get(channelUID.getBindingId());
+                final Boolean au;
+
+                final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(channelUID.getBindingId());
+                if (settings == null) {
+                    au = null;
+                } else {
+                    if (settings == BINDING_GLOBAL_TRUE) {
+                        au = true;
+                    } else if (settings == BINDING_GLOBAL_FALSE) {
+                        au = false;
+                    } else {
+                        final Boolean channelSettings = settings.get(channelUID);
+                        if (channelSettings == null) {
+                            au = null;
+                        } else if (channelSettings) {
+                            au = true;
+                        } else {
+                            au = false;
+                        }
+                    }
+                }
+
+                // Now 'au' is set and we need to handle the different options: unset, set to true, set to false
                 if (au == null) {
                     // There is no setting for the binding ID, keep value unchanged.
                     continue;
