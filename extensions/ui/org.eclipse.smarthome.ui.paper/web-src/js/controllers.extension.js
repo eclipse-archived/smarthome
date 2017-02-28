@@ -109,16 +109,7 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
                 if (extension.type == "ruletemplate") {
-                    templateRepository.getOne(function(template) {
-                        return template.uid == extension.id;
-                    }, function(template) {
-                        if (template) {
-                            $location.path("rules/template/" + extension.id);
-                        } else {
-                            toastService.showDefaultToast('Rule template could not be found.');
-                            $scope.$broadcast("RuleExtensionFailed");
-                        }
-                    });
+                    $scope.$broadcast("RuleExtensionInstalled", extension.id);
                 }
             } else {
                 var msg = Array.isArray(extensionObject) ? extensionObject[1] : 'Install or uninstall of extension ' + extension.label + ' failed.';

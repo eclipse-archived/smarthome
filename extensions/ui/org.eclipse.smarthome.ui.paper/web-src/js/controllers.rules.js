@@ -41,21 +41,29 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             }, 30000);
             $scope.inProgress = true;
         } else {
-            templateRepository.getOne(function(template) {
-                return template.uid == id;
-            }, function(template) {
-                if (template) {
-                    $scope.navigateTo("template/" + id);
-                } else {
-                    toastService.showDefaultToast('Rule template could not be found.');
-                    $scope.$broadcast("RuleExtensionFailed");
-                }
-            });
+            fetchTemplate(id);
         }
     }
     $scope.$on("RuleExtensionFailed", function() {
         $scope.inProgress = false;
     })
+
+    $scope.$on("RuleExtensionInstalled", function(event, id) {
+        fetchTemplate(id);
+    })
+
+    function fetchTemplate(id) {
+        templateRepository.getOne(function(template) {
+            return template.uid == id;
+        }, function(template) {
+            if (template) {
+                $location.path("rules/template/" + template.uid);
+            } else {
+                toastService.showDefaultToast('Rule template could not be found.');
+                $scope.inProgress = false;
+            }
+        });
+    }
 }).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
 
