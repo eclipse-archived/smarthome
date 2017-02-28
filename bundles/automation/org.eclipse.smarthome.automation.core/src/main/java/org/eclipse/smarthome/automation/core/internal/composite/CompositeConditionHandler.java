@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal.composite;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +39,11 @@ public class CompositeConditionHandler
      * @see org.eclipse.smarthome.automation.handler.ConditionHandler#isSatisfied(java.util.Map)
      */
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         List<Condition> children = getChildren();
         Map<String, Object> compositeContext = getCompositeContext(context);
         for (Condition child : children) {
-            Map<String, Object> childContext = getChildContext(child, compositeContext);
+            Map<String, Object> childContext = Collections.unmodifiableMap(getChildContext(child, compositeContext));
             ConditionHandler childHandler = moduleHandlerMap.get(child);
             boolean isSatisfied = childHandler.isSatisfied(childContext);
             if (!isSatisfied) {

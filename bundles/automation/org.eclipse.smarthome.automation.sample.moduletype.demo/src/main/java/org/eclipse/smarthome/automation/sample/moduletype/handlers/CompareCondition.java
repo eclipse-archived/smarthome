@@ -154,7 +154,7 @@ public class CompareCondition extends BaseModuleHandler<Condition> implements Co
      * It compares the value from the input with the value from {@link Condition}'s configuration.
      */
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
+    public boolean isSatisfied(Map<String, Object> inputs) {
         final Integer value = (Integer) inputs.get(INPUT_NAME);
         if (value == null) {
             return false;

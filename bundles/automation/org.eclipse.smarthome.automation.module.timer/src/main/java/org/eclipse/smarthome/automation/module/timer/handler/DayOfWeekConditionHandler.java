@@ -74,7 +74,7 @@ public class DayOfWeekConditionHandler extends BaseModuleHandler<Condition> impl
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         int dow = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
         return days.contains(dow);
     }

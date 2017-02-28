@@ -28,7 +28,7 @@ public class TemperatureConditionHandler extends BaseModuleHandler<Condition> im
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         Number left = (Number) context.get(TemperatureConditionType.INPUT_CURRENT_TEMPERATURE);
         Number right = (Number) module.getConfiguration().get(TemperatureConditionType.CONFIG_TEMPERATURE);
         String operator = (String) module.getConfiguration().get(TemperatureConditionType.CONFIG_OPERATOR);

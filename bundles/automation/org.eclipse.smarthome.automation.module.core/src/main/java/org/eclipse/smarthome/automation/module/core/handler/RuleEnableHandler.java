@@ -97,7 +97,7 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         for (String uid : UIDs) {
             if (ruleRegistry != null) {
                 ruleRegistry.setEnabled(uid, enable);

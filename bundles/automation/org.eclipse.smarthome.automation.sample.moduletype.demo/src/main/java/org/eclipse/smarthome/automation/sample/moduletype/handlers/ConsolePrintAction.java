@@ -83,7 +83,7 @@ public class ConsolePrintAction extends BaseModuleHandler<Action> implements Act
      * @return values map of values which must be set to outputs of the {@link Action}.
      */
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         final Integer inputValue = (Integer) context.get(INPUT_NAME);
         System.out
                 .println("Type UID: " + module.getTypeUID() + ", rule ID " + ruleUID + ", Input value: " + inputValue);
