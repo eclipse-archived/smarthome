@@ -84,14 +84,16 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         }
     }
 
-    $scope.masonry = function() {
-        $timeout(function() {
-            var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
-            new Masonry(itemContainer, {});
-        }, 100, true);
+    $scope.masonry = function(showCards) {
+        if (showCards) {
+            $timeout(function() {
+                var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
+                new Masonry(itemContainer, {});
+            }, 100, true);
+        }
     }
     $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-        $scope.masonry();
+        $scope.masonry(true);
     });
 
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
