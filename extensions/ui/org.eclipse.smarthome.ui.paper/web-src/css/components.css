@@ -509,7 +509,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	position: relative;
 }
 
-.selection-list>div:hover {
+.selection-list>div:hover, .pointer {
 	cursor: pointer;
 }
 
@@ -1330,6 +1330,28 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	font-size: 16px;
 }
 
+.extensions .card .description.rule-ext-desc {
+	padding-bottom: 10px;
+	padding-top:4px;
+}
+
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: #a8a8a8;
+	opacity: 0.8;
+	z-index: 998;
+	height: 100%;
+	width: 100%;
+}
+
+.progressbar {
+	 position:fixed;
+	 top: 50%;
+	 left: 50%;
+     z-index:999;
+}
 .inboxSearch {
 	margin-bottom: 10px;
 }

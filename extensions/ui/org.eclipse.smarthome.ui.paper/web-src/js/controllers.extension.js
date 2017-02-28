@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $location, templateRepository) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
@@ -86,7 +86,7 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
 
     $scope.masonry = function() {
         $timeout(function() {
-            var itemContainer = '#extensions-' + $scope.selectedIndex;
+            var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
             new Masonry(itemContainer, {});
         }, 100, true);
     }
@@ -94,8 +94,12 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         $scope.masonry();
     });
 
-    eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
-        var extension = $scope.getExtension(extensionId);
+    eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
+        var id = extensionObject;
+        if (extensionObject && Array.isArray(extensionObject)) {
+            id = extensionObject[0]
+        }
+        var extension = $scope.getExtension(id);
         if (extension) {
             extension.inProgress = false;
             if (topic.indexOf("uninstalled") > -1) {
@@ -104,8 +108,13 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             } else if (topic.indexOf("installed") > -1) {
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
+                if (extension.type == "ruletemplate") {
+                    $scope.$broadcast("RuleExtensionInstalled", extension.id);
+                }
             } else {
-                toastService.showDefaultToast('Install or uninstall of extension ' + extension.label + ' failed.');
+                var msg = Array.isArray(extensionObject) ? extensionObject[1] : 'Install or uninstall of extension ' + extension.label + ' failed.';
+                toastService.showDefaultToast(msg);
+                $scope.$broadcast("RuleExtensionFailed");
             }
         }
     });

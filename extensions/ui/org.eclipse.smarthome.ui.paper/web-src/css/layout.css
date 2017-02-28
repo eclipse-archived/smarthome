@@ -319,12 +319,15 @@ header a.open-menu {
 	header a.open-menu:hover {
 		text-decoration: none;
 	}
+	.backdrop {
+	   top:64px;
+	}
 }
 
 /* Section / Toolbar */
 section.configMain, section#main {
 	padding: 0px;
-	margin-top: 40px;
+	padding-top: 40px;
 }
 
 .header-toolbar {
