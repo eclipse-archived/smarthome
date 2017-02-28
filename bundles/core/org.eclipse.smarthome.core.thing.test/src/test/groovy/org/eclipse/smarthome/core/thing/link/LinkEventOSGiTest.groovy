@@ -22,7 +22,7 @@ import org.junit.Test
 import com.google.common.collect.Sets
 
 /**
- * Event Tests for {@link ItemChannelLinkRegistry} and {@link ItemThingLinkRegistry}.
+ * Event Tests for {@link ItemChannelLinkRegistry}.
  *
  * @author Dennis Nobel - Initial contribution
  */
