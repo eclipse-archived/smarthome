@@ -41,8 +41,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     /**
      * Returns a set of bound channels for the given item name.
      *
-     * @param itemName
-     *            item name
+     * @param itemName item name
      * @return set of bound channels for the given item name
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
@@ -93,15 +92,10 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     /**
      * Returns a set of bound things for the given item name.
      *
-     * @deprecated Will be removed soon. Use {@link ItemThingLinkRegistry#getLinkedThings(String)} instead.
-     *
-     * @param itemName
-     *            item name
+     * @param itemName item name
      * @return set of bound things for the given item name
      */
-    @Deprecated
     public Set<Thing> getBoundThings(String itemName) {
-
         Set<Thing> things = new HashSet<>();
         Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
 
