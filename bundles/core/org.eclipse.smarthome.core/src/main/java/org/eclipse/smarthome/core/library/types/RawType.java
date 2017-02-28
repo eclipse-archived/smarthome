@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.util.Arrays;
+import java.util.Base64;
 
-import org.eclipse.smarthome.core.internal.PortableBase64;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
@@ -37,7 +37,7 @@ public class RawType implements PrimitiveType, State {
     }
 
     public static RawType valueOf(String value) {
-        return new RawType(PortableBase64.getDecoder().decode(value));
+        return new RawType(Base64.getDecoder().decode(value));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RawType implements PrimitiveType, State {
 
     @Override
     public String toFullString() {
-        return PortableBase64.getEncoder().encode(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     @Override
