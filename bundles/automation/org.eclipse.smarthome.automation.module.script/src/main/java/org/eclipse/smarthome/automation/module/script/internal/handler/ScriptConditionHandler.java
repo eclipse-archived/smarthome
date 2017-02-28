@@ -36,7 +36,7 @@ public class ScriptConditionHandler extends AbstractScriptModuleHandler<Conditio
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         Object type = module.getConfiguration().get(SCRIPT_TYPE);
         Object script = module.getConfiguration().get(SCRIPT);
         if (type instanceof String) {

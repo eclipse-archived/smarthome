@@ -94,7 +94,7 @@ public class ItemCommandActionHandler extends BaseModuleHandler<Action> implemen
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> inputs) {
+    public Map<String, Object> execute(Map<String, Object> inputs) {
         String itemName = (String) module.getConfiguration().get(ITEM_NAME);
         String command = (String) module.getConfiguration().get(COMMAND);
         if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {

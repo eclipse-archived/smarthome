@@ -57,7 +57,7 @@ public class GenericEventConditionHandler extends BaseModuleHandler<Condition> i
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
+    public boolean isSatisfied(Map<String, Object> inputs) {
         Event event = inputs.get("event") != null ? (Event) inputs.get("event") : null;
         if (event != null) {
             return isConfiguredAndMatches(TOPIC, event.getTopic()) && isConfiguredAndMatches(SOURCE, event.getSource())

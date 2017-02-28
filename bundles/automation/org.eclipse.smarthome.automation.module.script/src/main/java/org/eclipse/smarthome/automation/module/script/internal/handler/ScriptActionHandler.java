@@ -49,7 +49,7 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> imp
     }
 
     @Override
-    public Map<String, Object> execute(final Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         Object tmp;
         tmp = module.getConfiguration().get(SCRIPT_TYPE);
         if (tmp instanceof String) {
