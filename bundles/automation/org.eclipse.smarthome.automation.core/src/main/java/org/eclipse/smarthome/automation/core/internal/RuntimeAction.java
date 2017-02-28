@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,8 +34,7 @@ public class RuntimeAction extends Action {
      * @param action another action which is uses as base of created
      */
     public RuntimeAction(Action action) {
-        super(action.getId(), action.getTypeUID(), new Configuration(action.getConfiguration().getProperties()),
-                action.getInputs());
+        super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
         setConnections(Connection.getConnections(action.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(action.getLabel());
         setDescription(action.getDescription());

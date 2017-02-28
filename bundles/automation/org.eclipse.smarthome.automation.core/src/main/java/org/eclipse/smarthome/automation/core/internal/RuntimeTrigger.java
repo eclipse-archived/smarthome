@@ -25,7 +25,7 @@ public class RuntimeTrigger extends Trigger {
     }
 
     public RuntimeTrigger(Trigger trigger) {
-        super(trigger.getId(), trigger.getTypeUID(), new Configuration(trigger.getConfiguration().getProperties()));
+        super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());
     }
