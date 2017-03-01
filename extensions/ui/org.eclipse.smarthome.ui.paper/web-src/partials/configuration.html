@@ -256,7 +256,7 @@
 						</div>
 						<div class="cbody item-content">
 							<div flex="85">
-								<h3 class="clickable" ng-click="setSelectedOption(1,item)">{{item.label}}&nbsp;</h3>
+								<h3 ng-class="{'clickable':item.type=='Group'}" ng-click="setSelectedOption(1,item)">{{item.label}}&nbsp;</h3>
 								<p>
 									{{item.name}}<i class="material-icons copy-clipboard" copyclipboard="{{item.name}}">content_copy</i>
 								</p>
