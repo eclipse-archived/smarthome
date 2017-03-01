@@ -182,40 +182,60 @@ public class MarketplaceExtensionService implements ExtensionService {
     @Override
     public void install(String extensionId) {
         Extension ext = getExtension(extensionId, null);
-        if (ext instanceof MarketplaceExtension && !ext.isInstalled()) {
-            MarketplaceExtension mpExt = (MarketplaceExtension) ext;
-            String type = getType(extensionId);
-            switch (type) {
-                case EXT_TYPE_RULE_TEMPLATE:
-                    installRuleTemplate(extensionId, mpExt);
-                    break;
-                case EXT_TYPE_BINDING:
-                    installBinding(extensionId, mpExt);
-                    break;
-                default:
-                    postFailureEvent(extensionId, "Id not known.");
-                    break;
+        if (ext instanceof MarketplaceExtension) {
+            if (!ext.isInstalled()) {
+                MarketplaceExtension mpExt = (MarketplaceExtension) ext;
+                String type = getType(extensionId);
+                if (type != null) {
+                    switch (type) {
+                        case EXT_TYPE_RULE_TEMPLATE:
+                            installRuleTemplate(extensionId, mpExt);
+                            break;
+                        case EXT_TYPE_BINDING:
+                            installBinding(extensionId, mpExt);
+                            break;
+                        default:
+                            postFailureEvent(extensionId, "Extension type " + type + " not known.");
+                            break;
+                    }
+                } else {
+                    postFailureEvent(extensionId, "Extension not known.");
+                }
+            } else {
+                postFailureEvent(extensionId, "Extension is already installed.");
             }
+        } else {
+            postFailureEvent(extensionId, "Extension not known.");
         }
     }
 
     @Override
     public void uninstall(String extensionId) {
         Extension ext = getExtension(extensionId, null);
-        if (ext != null && ext.isInstalled()) {
-            String type = getType(extensionId);
-            switch (type) {
-                case EXT_TYPE_RULE_TEMPLATE:
-                    marketplaceRuleTemplateProvider.remove(extensionId);
-                    postUninstalledEvent(extensionId);
-                    break;
-                case EXT_TYPE_BINDING:
-                    uninstallBinding(extensionId);
-                    break;
-                default:
-                    postFailureEvent(extensionId, "Id not known.");
-                    break;
+        if (ext != null) {
+            if (ext.isInstalled()) {
+                String type = getType(extensionId);
+                if (type != null) {
+                    switch (type) {
+                        case EXT_TYPE_RULE_TEMPLATE:
+                            marketplaceRuleTemplateProvider.remove(extensionId);
+                            postUninstalledEvent(extensionId);
+                            break;
+                        case EXT_TYPE_BINDING:
+                            uninstallBinding(extensionId);
+                            break;
+                        default:
+                            postFailureEvent(extensionId, "Extension type " + type + " not known.");
+                            break;
+                    }
+                } else {
+                    postFailureEvent(extensionId, "Extension not known.");
+                }
+            } else {
+                postFailureEvent(extensionId, "Extension is not installed.");
             }
+        } else {
+            postFailureEvent(extensionId, "Extension not known.");
         }
     }
 
@@ -276,24 +296,19 @@ public class MarketplaceExtensionService implements ExtensionService {
     }
 
     private void postInstalledEvent(String extensionId) {
-        if (eventPublisher != null) {
-            Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
-            eventPublisher.post(event);
-        }
+        Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
+        eventPublisher.post(event);
     }
 
     private void postUninstalledEvent(String extensionId) {
-        if (eventPublisher != null) {
-            Event event = ExtensionEventFactory.createExtensionUninstalledEvent(extensionId);
-            eventPublisher.post(event);
-        }
+        Event event = ExtensionEventFactory.createExtensionUninstalledEvent(extensionId);
+        eventPublisher.post(event);
     }
 
     private void postFailureEvent(String extensionId, String msg) {
-        if (eventPublisher != null) {
-            Event event = ExtensionEventFactory.createExtensionFailureEvent(extensionId, msg);
-            eventPublisher.post(event);
-        }
+        Event event = ExtensionEventFactory.createExtensionFailureEvent(extensionId, msg);
+        eventPublisher.post(event);
+
     }
 
     private String getExtensionId(Node node) {
@@ -345,9 +360,14 @@ public class MarketplaceExtensionService implements ExtensionService {
                 while (lineIterator.hasNext()) {
                     String line = lineIterator.nextLine();
                     String[] parts = line.split(";");
-                    try {
-                        map.put(parts[0], Long.valueOf(parts[1]));
-                    } catch (Exception e) {
+                    if (parts.length == 2) {
+                        try {
+                            map.put(parts[0], Long.valueOf(parts[1]));
+                        } catch (NumberFormatException e) {
+                            logger.debug("Cannot parse '{}' as a number in file {} - ignoring it.", parts[1],
+                                    dataFile.getName());
+                        }
+                    } else {
                         logger.debug("Invalid line in file {} - ignoring it:\n{}", dataFile.getName(), line);
                     }
                 }

@@ -68,7 +68,7 @@ public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvi
         this.parser = parser;
     }
 
-    protected void unseteParser(Parser<RuleTemplate> parser) {
+    protected void unsetParser(Parser<RuleTemplate> parser) {
         this.parser = null;
     }
 

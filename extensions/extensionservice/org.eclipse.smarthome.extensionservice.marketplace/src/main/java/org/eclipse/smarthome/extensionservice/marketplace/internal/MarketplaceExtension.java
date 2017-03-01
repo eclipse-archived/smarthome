@@ -17,14 +17,14 @@ import org.eclipse.smarthome.core.extension.Extension;
  */
 public class MarketplaceExtension extends Extension {
 
+    // we mark it as transient, so that it isn't serialized through GSON
+    private transient String downloadUrl;
+
     public MarketplaceExtension(String id, String type, String label, String version, String link, boolean installed,
             String description, String backgroundColor, String imageLink, String downloadUrl) {
         super(id, type, label, version, link, installed, description, backgroundColor, imageLink);
         this.downloadUrl = downloadUrl;
     }
-
-    // we mark it as transient, so that it isn't serialized through GSON
-    private transient String downloadUrl;
 
     /**
      * returns the download url for the content of this extension
