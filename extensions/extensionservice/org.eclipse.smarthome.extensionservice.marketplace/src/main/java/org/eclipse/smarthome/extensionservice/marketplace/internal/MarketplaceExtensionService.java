@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
@@ -61,14 +62,16 @@ public class MarketplaceExtensionService implements ExtensionService {
     private List<ExtensionType> extensionTypes;
     private MarketplaceProxy proxy;
     private EventPublisher eventPublisher;
+    private BundleContext bundleContext;
     private MarketplaceRuleTemplateProvider marketplaceRuleTemplateProvider;
     private Map<String, Long> installedBindings;
+    private Pattern labelPattern = Pattern.compile("<.*>"); // checks for the existence of any xml element
+    private Pattern descriptionPattern = Pattern.compile("<(javascript|div|font)"); // checks for the existence of some
+                                                                                    // invalid elements
 
     private boolean includeBindings = true;
     private boolean includeRuleTemplates = true;
     private int maturityLevel = 1;
-
-    private BundleContext bundleContext;
 
     protected void activate(BundleContext bundleContext, Map<String, Object> config) {
         this.bundleContext = bundleContext;
@@ -150,14 +153,22 @@ public class MarketplaceExtensionService implements ExtensionService {
 
     private MarketplaceExtension convertToExtension(Node node) {
         String extId = getExtensionId(node);
+
+        String name = node.name;
+        String desc = node.shortdescription;
+
+        if (!validName(name) || !validDescription(desc)) {
+            logger.debug("Ignoring node {} due to invalid content.", node.id);
+            return null;
+        }
         if (MP_PACKAGETYPE_BINDING.equals(node.packagetypes)) {
-            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_BINDING, node.name, node.version,
-                    node.supporturl, isInstalled(extId), node.shortdescription, null, node.image, node.updateurl);
+            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_BINDING, name, node.version,
+                    node.supporturl, isInstalled(extId), desc, null, node.image, node.updateurl);
             return ext;
         } else if (MP_PACKAGETYPE_RULE_TEMPLATE.equals(node.packagetypes)) {
             String version = StringUtils.isNotEmpty(node.version) ? node.version : "1.0";
-            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_RULE_TEMPLATE, node.name, version,
-                    node.supporturl, isInstalled(extId), node.shortdescription, null, node.image, node.updateurl);
+            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_RULE_TEMPLATE, name, version,
+                    node.supporturl, isInstalled(extId), desc, null, node.image, node.updateurl);
             return ext;
         } else {
             return null;
@@ -323,7 +334,7 @@ public class MarketplaceExtensionService implements ExtensionService {
             default:
                 return null;
         }
-        sb.append(node.id); // todo: remove illegal chars
+        sb.append(node.id.replaceAll("[^a-zA-Z0-9_]", ""));
         return sb.toString();
     }
 
@@ -409,6 +420,14 @@ public class MarketplaceExtensionService implements ExtensionService {
                 logger.debug("Unknown maturity level value '{}' - using 'Alpha' instead.", maturity);
                 return 0;
         }
+    }
+
+    private boolean validName(String name) {
+        return !labelPattern.matcher(name).find();
+    }
+
+    private boolean validDescription(String desc) {
+        return !descriptionPattern.matcher(desc).find();
     }
 
     private void constructTypeList() {
