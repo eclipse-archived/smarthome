@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService) {
+angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService, imageService) {
     $scope.items = [];
     $scope.selectedIndex = 0;
     $scope.tabs = [];
@@ -153,6 +153,13 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                     } else {
                         item.state = parsedValue;
                     }
+                }
+                if (item.type && item.type == "Image") {
+                    imageService.getItemState(item.name).then(function(state) {
+                        item.state = state;
+                        item.imageLoaded = true;
+                    });
+                    item.imageLoaded = false;
                 }
                 return item;
             }
