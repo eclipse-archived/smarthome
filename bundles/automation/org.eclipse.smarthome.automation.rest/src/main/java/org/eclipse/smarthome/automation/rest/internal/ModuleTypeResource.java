@@ -81,7 +81,7 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
         if (type == null || type.equals("condition")) {
             modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale, tags)));
         }
-        if (type == null || type.equals("condition")) {
+        if (type == null || type.equals("action")) {
             modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale, tags)));
         }
         return Response.ok(modules).build();
