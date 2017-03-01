@@ -599,6 +599,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 toastService.showDefaultToast('Thing removal initiated.');
             }
             $mdDialog.hide();
+        }, function() {
+            $mdDialog.hide();
         });
     }
 }).controller('LinkChannelDialogController', function($rootScope, $scope, $mdDialog, $filter, toastService, itemRepository, itemService, sharedProperties, params) {
