@@ -153,7 +153,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void theStringChannelIsUpdatedWithTheRightTimeZone() {
+    public void testStringChannelTimeZoneUpdate() {
         final String expectedTimeZonePDT = "PDT";
         final String expectedTimeZonePST = "PST";
 
@@ -177,7 +177,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
     @Ignore("the dateTime channel is updated with a time from the system timezone")
     @Test
-    public void theDateTimeChannelIsUpdatedWithTheRightTimeZone() {
+    public void testDateTimeChannelTimeZoneUpdate() {
         final String expectedTimeZone = "-0700";
 
         Configuration configuration = new Configuration();
@@ -206,7 +206,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
     @Ignore("the time zone in the calendar is lost after the serialization of the state")
     @Test
-    public void theCalendarOfTheDateTimeChannelIsUpdatedWithTheRightTimeZone() {
+    public void testDateTimeChannelCalendarTimeZoneUpdate() {
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
 
@@ -220,7 +220,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifNoTimeZoneIsSetInTheConfigurationTheStringChannelIsUpdatedWithTheDefaultOne() {
+    public void testStringChannelDefaultTimeZoneUpdate() {
         final String expectedTimeZoneEEST = "EEST";
         final String expectedTimeZoneEET = "EET";
 
@@ -243,7 +243,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifNoTimeZoneIsSetInTheConfigurationTheDateTimeChannelIsUpdatedWithTheDefaultOne() {
+    public void testDateTimeChannelDefaultTimeZoneUpdate() {
         Calendar systemCalendar = Calendar.getInstance();
         String expectedTimeZone = getDateTimeChannelTimeZone(new DateTimeType(systemCalendar).toString());
 
@@ -268,7 +268,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifNoTimeZoneIsSetInTheConfigurationTheCalendarOfTheDateTimeChannelIsUpdatedWithTheDefaultOne() {
+    public void testDateTimeChannelCalendarDefaultTimeZoneUpdate() {
         Configuration configuration = new Configuration();
 
         // Initialize with configuration with no time zone property set.
@@ -282,7 +282,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void theStringChannelIsUpdatedWithTheRightFormatting() {
+    public void testStringChannelFormatting() {
         final String formatPattern = "EEE, d MMM yyyy HH:mm:ss Z";
 
         Configuration configuration = new Configuration();
@@ -298,7 +298,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifNoPropertyForFormattingIsSetInTheConfigurationOfTheStringChannelTheDefaultFormattingIsUsed() {
+    public void testStringChannelDefaultFormatting() {
         Configuration configuration = new Configuration();
 
         // Initialize with configuration with no property for formatting set.
@@ -310,7 +310,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifThePropertyForFormattingInTheConfigurationOfTheStringChannelIsEmptyStringTheDefaultFormattingIsUsed() {
+    public void testEmptyStringPropertyFormatting() {
         Configuration configuration = new Configuration();
 
         Configuration channelConfig = new Configuration();
@@ -325,7 +325,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void ifThePropertyForFormattingInTheConfigurationOfTheStringChannelIsNullTheDefaultFormattingIsUsed() {
+    public void testNullPropertyFormatting() {
         Configuration configuration = new Configuration();
 
         Configuration channelConfig = new Configuration();
@@ -339,35 +339,35 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void theStatusOfThingWithDateTimeChannelIsUpdatedWithCommunicationErrorWhenUnknownHostIsSetInTheConfiguraion() {
+    public void testDateTimeChannelWithUnknownHost() {
         assertCommunicationError(ACCEPTED_ITEM_TYPE_DATE_TIME);
     }
 
     @Test
-    public void theStatusOfThingWithStringChannelIsUpdatedWithCommunicationErrorWhenUnknownHostIsSetInTheConfiguraion() {
+    public void testStringChannelWithUnknownHost() {
         assertCommunicationError(ACCEPTED_ITEM_TYPE_STRING);
     }
 
     @Test
-    public void theStringChannelIsUpdatedOnHandleCommand() {
+    public void testStringChannelHandleCommand() {
         assertEventIsReceived(UpdateEventType.HANDLE_COMMAND, NtpBindingConstants.CHANNEL_STRING,
                 ACCEPTED_ITEM_TYPE_STRING);
     }
 
     @Test
-    public void theDateTimeChannelIsUpdatedOnHandleCommand() {
+    public void testDateTimeChannelHandleCommand() {
         assertEventIsReceived(UpdateEventType.HANDLE_COMMAND, NtpBindingConstants.CHANNEL_DATE_TIME,
                 ACCEPTED_ITEM_TYPE_DATE_TIME);
     }
 
     @Test
-    public void timeIsRefreshedWhenStringChannelIsLinked() {
+    public void testStringChannelLinking() {
         assertEventIsReceived(UpdateEventType.CHANNEL_LINKED, NtpBindingConstants.CHANNEL_STRING,
                 ACCEPTED_ITEM_TYPE_STRING);
     }
 
     @Test
-    public void timeIsRefreshedWhenDateTimeChannelIsLinked() {
+    public void testDateTimeChannelLinking() {
         assertEventIsReceived(UpdateEventType.CHANNEL_LINKED, NtpBindingConstants.CHANNEL_DATE_TIME,
                 ACCEPTED_ITEM_TYPE_DATE_TIME);
     }
