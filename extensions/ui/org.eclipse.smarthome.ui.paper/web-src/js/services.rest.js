@@ -53,6 +53,19 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 'Content-Type' : 'text/plain'
             }
         },
+        getItemState : {
+            method : 'GET',
+            params : {
+                itemName : '@itemName'
+            },
+            url : restConfig.restPath + '/items/:itemName/state',
+            transformResponse : function(data) {
+                return data;
+            },
+            headers : {
+                'Content-Type' : 'text/plain'
+            }
+        },
         sendCommand : {
             method : 'POST',
             params : {
@@ -565,4 +578,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/templates/:templateUID'
         },
     });
+}).factory('imageService', function(restConfig, $http) {
+    return {
+        getItemState : function(itemName) {
+            var promise = $http.get(restConfig.restPath + "/items/" + itemName + "/state").then(function(response) {
+                return response.data;
+            });
+            return promise;
+        }
+    }
 });
