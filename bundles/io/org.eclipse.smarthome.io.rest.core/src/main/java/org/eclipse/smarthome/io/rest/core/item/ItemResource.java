@@ -203,7 +203,7 @@ public class ItemResource implements SatisfiableRESTResource {
 
             // we cannot use JSONResponse.createResponse() bc. MediaType.TEXT_PLAIN
             // return JSONResponse.createResponse(Status.OK, item.getState().toString(), null);
-            return Response.ok(item.getState().toString()).build();
+            return Response.ok(item.getState().toFullString()).build();
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);
