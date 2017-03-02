@@ -575,19 +575,19 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.hasProperties = function(properties) {
         return util.hasProperties(properties);
     }
-    
-    $scope.showDescription=function(channel,channelType){
-        var popup = $mdDialog.alert({
-            title: channel.label?channel.label:channel.channelType?channel.channelType.label:channel.id,
-            textContent: channel.description?channel.description:channel.channelType?channel.channelType.description:'No description available',
-            ok: 'Close'
-          });
 
-          $mdDialog
-            .show( popup )
-            .finally(function() {
-              alert = undefined;
+    $scope.showDescription = function(channel, channelType) {
+        var description = channel.description ? channel.description : channel.channelType ? channel.channelType.description : null;
+        if (description) {
+            popup = $mdDialog.alert({
+                title : channel.label ? channel.label : channel.channelType ? channel.channelType.label : channel.id,
+                textContent : description,
+                ok : 'Close'
             });
+            $mdDialog.show(popup).finally(function() {
+             popup = undefined;
+            });
+        }
     }
 
     $scope.$watch('thing.channels', function() {
