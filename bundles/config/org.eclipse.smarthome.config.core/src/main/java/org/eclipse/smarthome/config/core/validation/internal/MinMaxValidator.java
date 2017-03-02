@@ -67,6 +67,6 @@ final class MinMaxValidator implements ConfigDescriptionParameterValidator {
 
     private static ConfigValidationMessage createMinMaxViolationMessage(String parameterName, MessageKey messageKey,
             int minMax) {
-        return new ConfigValidationMessage(parameterName, messageKey.defaultMessage, messageKey.key, minMax);
+        return new ConfigValidationMessage(parameterName, messageKey.defaultMessage, messageKey.key, String.valueOf(minMax));
     }
 }
