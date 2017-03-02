@@ -84,6 +84,8 @@
 						<input type="hidden" ng-value="id" />
 					</div>
 				</div>
+				<h3 ng-show="$scope.parameters && $scope.parameters.length>0">Configurations</h3>
+				<div ng-include="'partials/include.config.html'"></div>
 				<div class="row">
 					<div class="col-md-5 item-wrapper">
 						<h3 class="md-title md-title-nospace">
