@@ -1308,7 +1308,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
     }
 
-    private void resolveConfiguration(RuntimeRule rule) {
+    protected void resolveConfiguration(Rule rule) {
         List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
         Map<String, Object> configuration = rule.getConfiguration().getProperties();
         if (configuration != null) {

@@ -486,6 +486,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 resolvedRule.setName(rule.getName());
                 resolvedRule.setTags(rule.getTags());
                 resolvedRule.setDescription(rule.getDescription());
+
+                // TODO this provide config resolution twice - It must be done only in RuleEngine. Remove it.
+                ruleEngine.resolveConfiguration(resolvedRule);
+
                 return resolvedRule;
             }
         }
