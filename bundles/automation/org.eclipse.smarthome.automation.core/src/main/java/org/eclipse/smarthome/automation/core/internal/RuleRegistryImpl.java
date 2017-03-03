@@ -578,4 +578,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.runNow(ruleUID);
     }
 
+	@Override
+	public void runNow(String ruleUID, boolean considerConditions) {
+		ruleEngine.runNow(ruleUID, considerConditions);
+	}
+
 }

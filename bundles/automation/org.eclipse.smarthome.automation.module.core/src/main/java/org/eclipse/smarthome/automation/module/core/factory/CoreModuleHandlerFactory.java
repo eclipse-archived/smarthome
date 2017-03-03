@@ -24,8 +24,8 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHan
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
-import org.eclipse.smarthome.automation.module.core.handler.RuleEnableHandler;
-import org.eclipse.smarthome.automation.module.core.handler.RunRuleHandler;
+import org.eclipse.smarthome.automation.module.core.handler.RuleEnablementActionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.RunRuleActionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.service.component.ComponentContext;
@@ -49,7 +49,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                     ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID, ItemStateConditionHandler.ITEM_STATE_CONDITION,
                     ItemCommandActionHandler.ITEM_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
                     GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
-                    CompareConditionHandler.MODULE_TYPE, RuleEnableHandler.UID, RunRuleHandler.UID });
+                    CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID });
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -181,10 +181,10 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                 postCommandActionHandler.setEventPublisher(eventPublisher);
                 postCommandActionHandler.setItemRegistry(itemRegistry);
                 return postCommandActionHandler;
-            } else if (RuleEnableHandler.UID.equals(moduleTypeUID)) {
-                return new RuleEnableHandler((Action) module, ruleRegistry);
-            } else if (RunRuleHandler.UID.equals(moduleTypeUID)){
-            	return new RunRuleHandler((Action)module, ruleRegistry);
+            } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
+                return new RuleEnablementActionHandler((Action) module, ruleRegistry);
+            } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)){
+            	return new RunRuleActionHandler((Action)module, ruleRegistry);
             }
         }
 

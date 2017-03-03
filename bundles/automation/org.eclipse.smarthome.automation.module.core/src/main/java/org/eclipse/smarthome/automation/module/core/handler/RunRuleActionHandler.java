@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 1997, 2016 by ProSyst Software GmbH and others.
+ * Copyright (c) 2017 by Deutsche Telekom AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is a handler for RunRuleAction module type.
- * It runs the rules which's UIDs are passed by the 'ruleUIDs' property.
- * !!! If a rule's status is not IDLE that rule can not run !!!
+ * This class is a handler for RunRuleAction module type. It runs the rules
+ * which's UIDs are passed by the 'ruleUIDs' property. If a rule's status is not
+ * IDLE that rule can not run!
  *
  * <pre>
  *Example:
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues initial contribution
  *
  */
-public class RunRuleHandler extends BaseModuleHandler<Action> implements ActionHandler {
+public class RunRuleActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
     /**
      * The UID for this handler for identification in the factory.
@@ -47,11 +47,12 @@ public class RunRuleHandler extends BaseModuleHandler<Action> implements ActionH
      * the key for the 'rulesUIDs' property of the {@link Action}.
      */
     private final static String RULE_UIDS_KEY = "ruleUIDs";
+    private final static String CONSIDER_CONDITIONS_KEY = "considerConditions";
 
     /**
      * The logger
      */
-    private final static Logger logger = LoggerFactory.getLogger(RunRuleHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(RunRuleActionHandler.class);
 
     /**
      * the UIDs of the rules to be executed.
@@ -59,13 +60,18 @@ public class RunRuleHandler extends BaseModuleHandler<Action> implements ActionH
     private final List<String> ruleUIDs;
 
     /**
+     * boolean to express if the conditions should be considered, defaults to
+     * true;
+     */
+    private boolean considerConditions = true;
+
+    /**
      * the {@link RuleRegistry} is used to run rules.
      */
     private RuleRegistry ruleRegistry;
 
-
     @SuppressWarnings("unchecked")
-    public RunRuleHandler(final Action module, final RuleRegistry ruleRegistry) {
+    public RunRuleActionHandler(final Action module, final RuleRegistry ruleRegistry) {
         super(module);
         final Configuration config = module.getConfiguration();
         if (config == null) {
@@ -74,23 +80,26 @@ public class RunRuleHandler extends BaseModuleHandler<Action> implements ActionH
 
         ruleUIDs = (List<String>) config.get(RULE_UIDS_KEY);
         if (ruleUIDs == null) {
-            throw new IllegalArgumentException("'ruleUIDs' property can not be null.");
+            throw new IllegalArgumentException("'ruleUIDs' property must not be null.");
+        }
+        if (config.get(CONSIDER_CONDITIONS_KEY) != null && config.get(CONSIDER_CONDITIONS_KEY) instanceof Boolean) {
+            this.considerConditions = ((Boolean) config.get(CONSIDER_CONDITIONS_KEY)).booleanValue();
         }
 
         this.ruleRegistry = ruleRegistry;
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
-    	// execute each rule after the other; at the moment synchronously
+    public Map<String, Object> execute(Map<String, Object> context) {
+        // execute each rule after the other; at the moment synchronously
         for (String uid : ruleUIDs) {
             if (ruleRegistry != null) {
-                ruleRegistry.runNow(uid);
+                ruleRegistry.runNow(uid, considerConditions);
             } else {
-                logger.warn("Action is not applyed to {} because RuleRegistry is not available.", uid);
+                logger.warn("Action is not applied to {} because RuleRegistry is not available.", uid);
             }
         }
-        //no outputs from this module
+        // no outputs from this module
         return null;
     }
 }

@@ -114,5 +114,14 @@ public interface RuleRegistry extends Registry<Rule, String> {
      *
      */
     public void runNow(String ruleUID);
+    
+    /**
+	 * Same as {@link RuleRegistry#runNow(String)} with additional option to enable/disable evaluation of
+	 * conditions defined in the target rule
+	 * 
+	 * @param ruleUID
+	 * @param considerConditions
+	 */
+	public void runNow(String ruleUID, boolean considerConditions);
 
 }

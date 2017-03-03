@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+ * Copyright (c) 2017 by Deutsche Telekom AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ class RunRuleModuleTest extends OSGiTest{
                     new SwitchItem("switch1"),
                     new SwitchItem("switch2"),
                     new SwitchItem("switch3"),
-					new SwitchItem("ruleTrigger")
+                    new SwitchItem("ruleTrigger")
                 ]
             },
             addProviderChangeListener: {},
@@ -79,41 +79,47 @@ class RunRuleModuleTest extends OSGiTest{
     }
 
 
-    
+
     @Test
     public void 'assert that a scene is activated by a rule'() {
         //Creation of scene RULE
-		def sceneRuleAction1Config = new Configuration([itemName:"switch1", command:"ON"])
-		def sceneRuleAction2Config = new Configuration([itemName:"switch2", command:"ON"])
-		def sceneRuleAction3Config = new Configuration([itemName:"switch3", command:"ON"])
-		def sceneRuleActions = [new Action("sceneItemPostCommandAction1","core.ItemCommandAction",sceneRuleAction1Config,null),
-			new Action("sceneItemPostCommandAction2","core.ItemCommandAction",sceneRuleAction2Config,null),
-			new Action("sceneItemPostCommandAction3","core.ItemCommandAction",sceneRuleAction3Config,null)]
-		def sceneRule = new Rule("exampleSceneRule")
-		sceneRule.actions=sceneRuleActions
-		sceneRule.name="Example Scene"
-		logger.info("SceneRule created: "+sceneRule.getUID())
-		//creation of outer rule
-		def outerRuleTriggerConfig = new Configuration([eventSource:"ruleTrigger", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
+        def sceneRuleAction1Config = new Configuration([itemName:"switch1", command:"ON"])
+        def sceneRuleAction2Config = new Configuration([itemName:"switch2", command:"ON"])
+        def sceneRuleAction3Config = new Configuration([itemName:"switch3", command:"ON"])
+        def sceneRuleActions = [
+            new Action("sceneItemPostCommandAction1","core.ItemCommandAction",sceneRuleAction1Config,null),
+            new Action("sceneItemPostCommandAction2","core.ItemCommandAction",sceneRuleAction2Config,null),
+            new Action("sceneItemPostCommandAction3","core.ItemCommandAction",sceneRuleAction3Config,null)
+        ]
+        def sceneRule = new Rule("exampleSceneRule")
+        sceneRule.actions=sceneRuleActions
+        sceneRule.name="Example Scene"
+        logger.info("SceneRule created: "+sceneRule.getUID())
+        //creation of outer rule
+        def outerRuleTriggerConfig = new Configuration([eventSource:"ruleTrigger", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
         def outerRuleActionConfig = new Configuration([ruleUIDs:"[exampleSceneRule]"])
-        def outerRuleTriggers = [new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig)]
-        def outerRuleActions = [new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null)]
+        def outerRuleTriggers = [
+            new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig)
+        ]
+        def outerRuleActions = [
+            new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null)
+        ]
         def outerRule = new Rule("sceneActivationRule")
         outerRule.triggers = outerRuleTriggers
         outerRule.actions = outerRuleActions
-		outerRule.name="scene activator"
+        outerRule.name="scene activator"
 
         logger.info("SceneActivationRule created: "+outerRule.getUID())
 
         def ruleRegistry = getService(RuleRegistry) as RuleRegistry
         ruleRegistry.add(sceneRule)
         ruleRegistry.setEnabled(sceneRule.UID, true)
-		ruleRegistry.add(outerRule)
-		ruleRegistry.setEnabled(outerRule.UID, true)
+        ruleRegistry.add(outerRule)
+        ruleRegistry.setEnabled(outerRule.UID, true)
 
         waitForAssert({
             assertThat ruleRegistry.getStatusInfo(outerRule.UID).status, is(RuleStatus.IDLE)
-			assertThat ruleRegistry.getStatusInfo(sceneRule.UID).status, is(RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatusInfo(sceneRule.UID).status, is(RuleStatus.IDLE)
         })
         //TEST RULE
 
@@ -140,22 +146,22 @@ class RunRuleModuleTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-		//trigger rule by switching triggerItem ON
+        //trigger rule by switching triggerItem ON
         ruleTriggerItem.send(OnOffType.ON)
-		
+
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/switch3/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
-        
-		def switch1 = itemRegistry.getItem("switch1")
-		def switch2 = itemRegistry.getItem("switch2")
-		def switch3 = itemRegistry.getItem("switch3")
-		assertThat switch1, is(notNullValue())
-		assertThat switch2, is(notNullValue())
-		assertThat switch3, is(notNullValue())
-				
+
+        def switch1 = itemRegistry.getItem("switch1")
+        def switch2 = itemRegistry.getItem("switch2")
+        def switch3 = itemRegistry.getItem("switch3")
+        assertThat switch1, is(notNullValue())
+        assertThat switch2, is(notNullValue())
+        assertThat switch3, is(notNullValue())
+
         assertThat switch1.state, is(OnOffType.ON)
-		assertThat switch2.state, is(OnOffType.ON)
-		assertThat switch3.state, is(OnOffType.ON)
+        assertThat switch2.state, is(OnOffType.ON)
+        assertThat switch3.state, is(OnOffType.ON)
     }
 }
