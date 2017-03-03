@@ -17,6 +17,7 @@
 
   <modules>
     <module>binding</module>
+    <module>extensionservice</module>
     <module>io</module>
     <module>transform</module>
     <module>ui</module>
