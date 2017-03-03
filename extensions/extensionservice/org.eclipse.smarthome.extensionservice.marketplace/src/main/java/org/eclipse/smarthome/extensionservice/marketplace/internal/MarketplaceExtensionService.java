@@ -7,34 +7,26 @@
  */
 package org.eclipse.smarthome.extensionservice.marketplace.internal;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.extension.Extension;
 import org.eclipse.smarthome.core.extension.ExtensionEventFactory;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
+import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceExtension;
+import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceExtensionHandler;
+import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceHandlerException;
 import org.eclipse.smarthome.extensionservice.marketplace.internal.model.Node;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,24 +39,14 @@ import org.slf4j.LoggerFactory;
  */
 public class MarketplaceExtensionService implements ExtensionService {
 
-    private static final String BINDING_FILE = "installedBindingsMap.csv";
     // constants used in marketplace nodes
     private static final String MP_PACKAGETYPE_BINDING = "binding";
     private static final String MP_PACKAGETYPE_RULE_TEMPLATE = "rule_template";
 
-    // constants used to construct extension IDs
-    private static final String EXT_PREFIX = "market:";
-    private static final String EXT_TYPE_RULE_TEMPLATE = "ruletemplate";
-    private static final String EXT_TYPE_BINDING = "binding";
-
     private final Logger logger = LoggerFactory.getLogger(MarketplaceExtensionService.class);
 
-    private List<ExtensionType> extensionTypes;
     private MarketplaceProxy proxy;
     private EventPublisher eventPublisher;
-    private BundleContext bundleContext;
-    private MarketplaceRuleTemplateProvider marketplaceRuleTemplateProvider;
-    private Map<String, Long> installedBindings;
     private Pattern labelPattern = Pattern.compile("<.*>"); // checks for the existence of any xml element
     private Pattern descriptionPattern = Pattern.compile("<(javascript|div|font)"); // checks for the existence of some
                                                                                     // invalid elements
@@ -72,18 +54,15 @@ public class MarketplaceExtensionService implements ExtensionService {
     private boolean includeBindings = true;
     private boolean includeRuleTemplates = true;
     private int maturityLevel = 1;
+    private Set<MarketplaceExtensionHandler> extensionHandlers = new HashSet<>();
 
-    protected void activate(BundleContext bundleContext, Map<String, Object> config) {
-        this.bundleContext = bundleContext;
-        installedBindings = loadInstalledBindingsMap();
+    protected void activate(Map<String, Object> config) {
         this.proxy = new MarketplaceProxy();
         modified(config);
     }
 
     protected void deactivate() {
         this.proxy = null;
-        this.installedBindings = null;
-        this.bundleContext = null;
     }
 
     protected void modified(Map<String, Object> config) {
@@ -104,16 +83,6 @@ public class MarketplaceExtensionService implements ExtensionService {
                         "maturity");
             }
         }
-        constructTypeList();
-    }
-
-    protected void setMarketplaceRuleTemplateProvider(MarketplaceRuleTemplateProvider marketplaceRuleTemplateProvider) {
-        this.marketplaceRuleTemplateProvider = marketplaceRuleTemplateProvider;
-    }
-
-    protected void unsetMarketplaceRuleTemplateProvider(
-            MarketplaceRuleTemplateProvider marketplaceRuleTemplateProvider) {
-        this.marketplaceRuleTemplateProvider = null;
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
@@ -122,6 +91,14 @@ public class MarketplaceExtensionService implements ExtensionService {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    protected void addExtensionHandler(MarketplaceExtensionHandler handler) {
+        this.extensionHandlers.add(handler);
+    }
+
+    protected void removeExtensionHandler(MarketplaceExtensionHandler handler) {
+        this.extensionHandlers.remove(handler);
     }
 
     @Override
@@ -143,12 +120,24 @@ public class MarketplaceExtensionService implements ExtensionService {
                 continue;
             }
 
-            Extension ext = convertToExtension(node);
+            MarketplaceExtension ext = convertToExtension(node);
             if (ext != null) {
-                exts.add(ext);
+                if (setInstalledFlag(ext)) {
+                    exts.add(ext);
+                }
             }
         }
         return exts;
+    }
+
+    private boolean setInstalledFlag(MarketplaceExtension ext) {
+        for (MarketplaceExtensionHandler handler : extensionHandlers) {
+            if (handler.supports(ext)) {
+                ext.setInstalled(handler.isInstalled(ext));
+                return true;
+            }
+        }
+        return false;
     }
 
     private MarketplaceExtension convertToExtension(Node node) {
@@ -162,13 +151,13 @@ public class MarketplaceExtensionService implements ExtensionService {
             return null;
         }
         if (MP_PACKAGETYPE_BINDING.equals(node.packagetypes)) {
-            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_BINDING, name, node.version,
-                    node.supporturl, isInstalled(extId), desc, null, node.image, node.updateurl);
+            MarketplaceExtension ext = new MarketplaceExtension(extId, MarketplaceExtension.EXT_TYPE_BINDING, name,
+                    node.version, node.supporturl, false, desc, null, node.image, node.updateurl, node.packageformat);
             return ext;
         } else if (MP_PACKAGETYPE_RULE_TEMPLATE.equals(node.packagetypes)) {
             String version = StringUtils.isNotEmpty(node.version) ? node.version : "1.0";
-            MarketplaceExtension ext = new MarketplaceExtension(extId, EXT_TYPE_RULE_TEMPLATE, name, version,
-                    node.supporturl, isInstalled(extId), desc, null, node.image, node.updateurl);
+            MarketplaceExtension ext = new MarketplaceExtension(extId, MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE,
+                    name, version, node.supporturl, false, desc, null, node.image, node.updateurl, node.packageformat);
             return ext;
         } else {
             return null;
@@ -187,123 +176,73 @@ public class MarketplaceExtensionService implements ExtensionService {
 
     @Override
     public List<ExtensionType> getTypes(Locale locale) {
-        return extensionTypes;
+        ArrayList<ExtensionType> types = new ArrayList<>(2);
+        List<Extension> exts = getExtensions(locale);
+        if (includeBindings) {
+            for (Extension ext : exts) {
+                if (ext.getType().equals(MarketplaceExtension.EXT_TYPE_BINDING)) {
+                    types.add(new ExtensionType(MarketplaceExtension.EXT_TYPE_BINDING, "Bindings"));
+                    break;
+                }
+            }
+        }
+        if (includeRuleTemplates) {
+            for (Extension ext : exts) {
+                if (ext.getType().equals(MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE)) {
+                    types.add(new ExtensionType(MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE, "Rule Templates"));
+                    break;
+                }
+            }
+        }
+        return Collections.unmodifiableList(types);
     }
 
     @Override
     public void install(String extensionId) {
         Extension ext = getExtension(extensionId, null);
         if (ext instanceof MarketplaceExtension) {
-            if (!ext.isInstalled()) {
-                MarketplaceExtension mpExt = (MarketplaceExtension) ext;
-                String type = getType(extensionId);
-                if (type != null) {
-                    switch (type) {
-                        case EXT_TYPE_RULE_TEMPLATE:
-                            installRuleTemplate(extensionId, mpExt);
-                            break;
-                        case EXT_TYPE_BINDING:
-                            installBinding(extensionId, mpExt);
-                            break;
-                        default:
-                            postFailureEvent(extensionId, "Extension type " + type + " not known.");
-                            break;
+            MarketplaceExtension mpExt = (MarketplaceExtension) ext;
+            for (MarketplaceExtensionHandler handler : extensionHandlers) {
+                if (handler.supports(mpExt)) {
+                    if (!handler.isInstalled(mpExt)) {
+                        try {
+                            handler.install(mpExt);
+                            postInstalledEvent(extensionId);
+                        } catch (MarketplaceHandlerException e) {
+                            postFailureEvent(extensionId, e.getMessage());
+                        }
+                    } else {
+                        postFailureEvent(extensionId, "Extension is already installed.");
                     }
-                } else {
-                    postFailureEvent(extensionId, "Extension not known.");
+                    return;
                 }
-            } else {
-                postFailureEvent(extensionId, "Extension is already installed.");
             }
-        } else {
-            postFailureEvent(extensionId, "Extension not known.");
         }
+        postFailureEvent(extensionId, "Extension not known.");
     }
 
     @Override
     public void uninstall(String extensionId) {
         Extension ext = getExtension(extensionId, null);
-        if (ext != null) {
-            if (ext.isInstalled()) {
-                String type = getType(extensionId);
-                if (type != null) {
-                    switch (type) {
-                        case EXT_TYPE_RULE_TEMPLATE:
-                            marketplaceRuleTemplateProvider.remove(extensionId);
+        if (ext instanceof MarketplaceExtension) {
+            MarketplaceExtension mpExt = (MarketplaceExtension) ext;
+            for (MarketplaceExtensionHandler handler : extensionHandlers) {
+                if (handler.supports(mpExt)) {
+                    if (handler.isInstalled(mpExt)) {
+                        try {
+                            handler.uninstall(mpExt);
                             postUninstalledEvent(extensionId);
-                            break;
-                        case EXT_TYPE_BINDING:
-                            uninstallBinding(extensionId);
-                            break;
-                        default:
-                            postFailureEvent(extensionId, "Extension type " + type + " not known.");
-                            break;
+                        } catch (MarketplaceHandlerException e) {
+                            postFailureEvent(extensionId, e.getMessage());
+                        }
+                    } else {
+                        postFailureEvent(extensionId, "Extension is not installed.");
                     }
-                } else {
-                    postFailureEvent(extensionId, "Extension not known.");
+                    return;
                 }
-            } else {
-                postFailureEvent(extensionId, "Extension is not installed.");
             }
-        } else {
-            postFailureEvent(extensionId, "Extension not known.");
         }
-    }
-
-    private void installRuleTemplate(String extensionId, MarketplaceExtension mpExt) {
-        String url = mpExt.getDownloadUrl();
-        try {
-            String template = getTemplate(url);
-            marketplaceRuleTemplateProvider.addTemplateAsJSON(extensionId, template);
-            postInstalledEvent(extensionId);
-        } catch (ParsingException e) {
-            postFailureEvent(extensionId, "Template is not valid.");
-            logger.error("Rule template from marketplace is invalid: {}", e.getMessage());
-        } catch (IOException e) {
-            postFailureEvent(extensionId, "Template cannot be downloaded.");
-            logger.error("Rule template from marketplace cannot be downloaded: {}", e.getMessage());
-        }
-    }
-
-    private void installBinding(String extensionId, MarketplaceExtension mpExt) {
-        String url = mpExt.getDownloadUrl();
-        try {
-            Bundle bundle = bundleContext.installBundle(url);
-            installedBindings.put(extensionId, bundle.getBundleId());
-            persistInstalledBindingsMap(installedBindings);
-            postInstalledEvent(extensionId);
-        } catch (BundleException e) {
-            postFailureEvent(extensionId, "Binding cannot be installed: " + e.getMessage());
-        }
-    }
-
-    private void uninstallBinding(String extensionId) {
-        Long id = installedBindings.get(extensionId);
-        if (id != null) {
-            Bundle bundle = bundleContext.getBundle(id);
-            if (bundle != null) {
-                try {
-                    bundle.uninstall();
-                    installedBindings.remove(extensionId);
-                    persistInstalledBindingsMap(installedBindings);
-                    postUninstalledEvent(extensionId);
-                } catch (BundleException e) {
-                    postFailureEvent(extensionId, "Failed deinstalling binding: " + e.getMessage());
-                }
-            } else {
-                // we do not have such a bundle, so let's remove it from our internal map
-                installedBindings.remove(extensionId);
-                persistInstalledBindingsMap(installedBindings);
-                postFailureEvent(extensionId, "Id not known.");
-            }
-        } else {
-            postFailureEvent(extensionId, "Id not known.");
-        }
-    }
-
-    private String getTemplate(String urlString) throws IOException {
-        URL url = new URL(urlString);
-        return IOUtils.toString(url);
+        postFailureEvent(extensionId, "Extension not known.");
     }
 
     private void postInstalledEvent(String extensionId) {
@@ -323,87 +262,19 @@ public class MarketplaceExtensionService implements ExtensionService {
     }
 
     private String getExtensionId(Node node) {
-        StringBuilder sb = new StringBuilder(EXT_PREFIX);
+        StringBuilder sb = new StringBuilder(MarketplaceExtension.EXT_PREFIX);
         switch (node.packagetypes) {
             case MP_PACKAGETYPE_RULE_TEMPLATE:
-                sb.append(EXT_TYPE_RULE_TEMPLATE).append("-");
+                sb.append(MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE).append("-");
                 break;
             case MP_PACKAGETYPE_BINDING:
-                sb.append(EXT_TYPE_BINDING).append("-");
+                sb.append(MarketplaceExtension.EXT_TYPE_BINDING).append("-");
                 break;
             default:
                 return null;
         }
         sb.append(node.id.replaceAll("[^a-zA-Z0-9_]", ""));
         return sb.toString();
-    }
-
-    private boolean isInstalled(String extensionId) {
-        String type = getType(extensionId);
-        if (type == null) {
-            return false;
-        }
-        switch (type) {
-            case EXT_TYPE_RULE_TEMPLATE:
-                return marketplaceRuleTemplateProvider.get(extensionId) != null;
-            case EXT_TYPE_BINDING:
-                return installedBindings.containsKey(extensionId);
-            default:
-                return false;
-        }
-    }
-
-    private String getType(String extensionId) {
-        if (extensionId.startsWith(EXT_PREFIX)) {
-            String idWithoutPrefix = extensionId.substring(EXT_PREFIX.length());
-            return idWithoutPrefix.substring(0, idWithoutPrefix.lastIndexOf('-'));
-        } else {
-            return null;
-        }
-    }
-
-    private Map<String, Long> loadInstalledBindingsMap() {
-        File dataFile = bundleContext.getDataFile(BINDING_FILE);
-        if (dataFile != null && dataFile.exists()) {
-            try (FileReader reader = new FileReader(dataFile)) {
-                LineIterator lineIterator = IOUtils.lineIterator(reader);
-                Map<String, Long> map = new HashMap<>();
-                while (lineIterator.hasNext()) {
-                    String line = lineIterator.nextLine();
-                    String[] parts = line.split(";");
-                    if (parts.length == 2) {
-                        try {
-                            map.put(parts[0], Long.valueOf(parts[1]));
-                        } catch (NumberFormatException e) {
-                            logger.debug("Cannot parse '{}' as a number in file {} - ignoring it.", parts[1],
-                                    dataFile.getName());
-                        }
-                    } else {
-                        logger.debug("Invalid line in file {} - ignoring it:\n{}", dataFile.getName(), line);
-                    }
-                }
-                return map;
-            } catch (IOException e) {
-                logger.debug("File '{}' for installed bindings does not exist.", dataFile.getName());
-                // ignore and just return an empty map
-            }
-        }
-        return new HashMap<>();
-    }
-
-    private synchronized void persistInstalledBindingsMap(Map<String, Long> map) {
-        File dataFile = bundleContext.getDataFile(BINDING_FILE);
-        if (dataFile != null) {
-            try (FileWriter writer = new FileWriter(dataFile)) {
-                for (Entry<String, Long> entry : map.entrySet()) {
-                    writer.write(entry.getKey() + ";" + entry.getValue() + System.lineSeparator());
-                }
-            } catch (IOException e) {
-                logger.warn("Failed writing file '{}': {}", dataFile.getName(), e.getMessage());
-            }
-        } else {
-            logger.debug("System does not support bundle data files -> not persisting installed binding info");
-        }
     }
 
     private int toMaturityLevel(String maturity) {
@@ -428,16 +299,5 @@ public class MarketplaceExtensionService implements ExtensionService {
 
     private boolean validDescription(String desc) {
         return !descriptionPattern.matcher(desc).find();
-    }
-
-    private void constructTypeList() {
-        ArrayList<ExtensionType> types = new ArrayList<>(2);
-        if (includeBindings) {
-            types.add(new ExtensionType(EXT_TYPE_BINDING, "Bindings"));
-        }
-        if (includeRuleTemplates) {
-            types.add(new ExtensionType(EXT_TYPE_RULE_TEMPLATE, "Rule Templates"));
-        }
-        extensionTypes = Collections.unmodifiableList(types);
     }
 }

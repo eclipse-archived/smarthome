@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.extensionservice.marketplace.internal;
+package org.eclipse.smarthome.extensionservice.marketplace.automation.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
