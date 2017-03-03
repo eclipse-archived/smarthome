@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.core.validation.internal;
 
+import java.math.BigDecimal;
+
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -47,7 +49,7 @@ final class MinMaxValidator implements ConfigDescriptionParameterValidator {
         TypeIntrospection typeIntrospection = TypeIntrospections.get(parameter.getType());
 
         if (parameter.getMinimum() != null) {
-            int min = parameter.getMinimum().intValue();
+            BigDecimal min = parameter.getMinimum();
             if (typeIntrospection.isMinViolated(value, min)) {
                 return createMinMaxViolationMessage(parameter.getName(), typeIntrospection.getMinViolationMessageKey(),
                         min);
@@ -55,7 +57,7 @@ final class MinMaxValidator implements ConfigDescriptionParameterValidator {
         }
 
         if (parameter.getMaximum() != null) {
-            int max = parameter.getMaximum().intValue();
+            BigDecimal max = parameter.getMaximum();
             if (typeIntrospection.isMaxViolated(value, max)) {
                 return createMinMaxViolationMessage(parameter.getName(), typeIntrospection.getMaxViolationMessageKey(),
                         max);
@@ -66,7 +68,7 @@ final class MinMaxValidator implements ConfigDescriptionParameterValidator {
     }
 
     private static ConfigValidationMessage createMinMaxViolationMessage(String parameterName, MessageKey messageKey,
-            int minMax) {
-        return new ConfigValidationMessage(parameterName, messageKey.defaultMessage, messageKey.key, minMax);
+            BigDecimal minMax) {
+        return new ConfigValidationMessage(parameterName, messageKey.defaultMessage, messageKey.key, String.valueOf(minMax));
     }
 }
