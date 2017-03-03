@@ -23,7 +23,7 @@ The following table lists the thing types of the supported LIFX devices:
 | LIFX A19                     | colorlight   |
 | LIFX BR30                    | colorlight   |
 | LIFX Z                       | colorlight   |
-|                              |
+|                              |              |
 | LIFX+ A19                    | colorirlight |
 | LIFX+ BR30                   | colorirlight |
 |                              |              |
@@ -79,10 +79,19 @@ The **porch** light is a LIFX+ BR30 that has a *colorirlight* thing type which s
 
 Finally, **kitchen** is a White 800 (Low Voltage) light that has a *whitelight* thing type which supports *brightness* and *temperature* channels.
 
+Either create a single *Color* item linked to the *color* channel and define *Switch*, *Slider* and *Colorpicker* entries with this item in the sitemap.
+Or create items for each type (*Color*, *Switch*, *Dimmer*) and define the correspondent entries in the sitemap.
+
+
 ### demo.things:
 
 ```
 Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ] {
+	Channels:
+		Type color : color [ powerOnBrightness= ]
+}
+
+Thing lifx:colorlight:living2 [ deviceId="D073D5A2A2A2" ] {
 	Channels:
 		Type color : color [ powerOnBrightness= ]
 }
@@ -100,17 +109,19 @@ Thing lifx:whitelight:kitchen [ deviceId="D073D5C3C3C3", fadetime=150 ]
 
 ```
 // Living
-Switch Living_Toggle { channel="lifx:colorlight:living:color" }
-Dimmer Living_Dimmer { channel="lifx:colorlight:living:color" }
 Color Living_Color { channel="lifx:colorlight:living:color" }
 Dimmer Living_Temperature { channel="lifx:colorlight:living:temperature" }
 
+// Living2 (alternative approach)
+Color Living2_Color { channel="lifx:colorlight:living2:color" }
+Switch Living2_Switch { channel="lifx:colorlight:living2:color" }
+Dimmer Living2_Dimmer { channel="lifx:colorlight:living2:color" }
+Dimmer Living2_Temperature { channel="lifx:colorlight:living2:temperature" }
+
 // Porch
-Switch Porch_Toggle { channel="lifx:colorirlight:porch:color" }
-Dimmer Porch_Dimmer { channel="lifx:colorirlight:porch:color" }
 Color Porch_Color { channel="lifx:colorirlight:porch:color" }
-Dimmer Porch_Temperature { channel="lifx:colorirlight:porch:temperature" }
 Dimmer Porch_Infrared { channel="lifx:colorirlight:porch:infrared" }
+Dimmer Porch_Temperature { channel="lifx:colorirlight:porch:temperature" }
 
 // Kitchen
 Switch Kitchen_Toggle { channel="lifx:whitelight:kichen:brightness" }
@@ -125,15 +136,22 @@ Dimmer Kitchen_Temperature { channel="lifx:whitelight:kitchen:temperature" }
 sitemap demo label="Main Menu"
 {
 	Frame label="Living" {
-		Switch item=Living_Toggle
-		Slider item=Living_Dimmer
+		Switch item=Living_Color
+		Slider item=Living_Color
 		Colorpicker item=Living_Color
 		Slider item=Living_Temperature
 	}
 
+	Frame label="Living2" {
+        	Switch item=Living2_Toggle
+        	Slider item=Living2_Dimmer
+        	Colorpicker item=Living2_Color
+        	Slider item=Living2_Temperature
+    }
+
 	Frame label="Porch" {
-		Switch item=Porch_Toggle
-		Slider item=Porch_Dimmer
+		Switch item=Porch_Color
+		Slider item=Porch_Color
 		Colorpicker item=Porch_Color
 		Slider item=Porch_Temperature
 		Slider item=Porch_Infrared
