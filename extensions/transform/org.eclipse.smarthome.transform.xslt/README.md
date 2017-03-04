@@ -30,8 +30,8 @@ transform/helloworld.xsl:
 
 output:
 
-```
-hello
+```xml
+<reRoot><reNode>hello world</reNode></reRoot>
 ```
 
 Other examples may be found [here](https://en.wikipedia.org/wiki/XSLT#XSLT_examples).
