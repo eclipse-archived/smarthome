@@ -4,11 +4,6 @@ Extract an element of a JSON string using a [JsonPath expression](https://github
 
 Return `null` if the JsonPath expression could not be found.
 
-## Testing Tools
-
-* [http://jsonpath.com/](http://jsonpath.com/)
-* [http://www.jsonquerytool.com/](http://www.jsonquerytool.com/)
-
 ## Example
 
 Given the JsonPath expression `$.device.status.temperature`:
@@ -17,3 +12,7 @@ Given the JsonPath expression `$.device.status.temperature`:
 |-------|--------|
 | `{ "device": { "status": { "temperature": 23.2 }}}` | `23.2` |
 
+## Testing Tools
+
+* [http://jsonpath.com/](http://jsonpath.com/)
+* [http://www.jsonquerytool.com/](http://www.jsonquerytool.com/)

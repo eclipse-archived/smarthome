@@ -8,7 +8,7 @@ To organize the various transformations one might use subfolders.
 
 ## Example
 
-binary.map:
+transform/binary.map:
 
 ```properties
 key=value

@@ -14,5 +14,5 @@ With the input string `My network does not work.`:
 
 | regular expression | output |
 |--------------------|--------|
-| `s/work/cast/g`    | `My netcast does not cast.` |
-| `.*(\snot).*`      | ` not` |
+| `s/work/cast/g`    | `"My netcast does not cast."` |
+| `.*(\snot).*`      | `" not"` |
