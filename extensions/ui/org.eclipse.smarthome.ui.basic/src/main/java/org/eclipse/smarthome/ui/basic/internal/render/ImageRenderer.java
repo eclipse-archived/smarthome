@@ -7,10 +7,14 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
@@ -52,9 +56,30 @@ public class ImageRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%id%", widgetId);
         snippet = preprocessSnippet(snippet, w);
 
-        String sitemap = w.eResource().getURI().path();
-
-        String url = "../proxy?sitemap=" + sitemap + "&amp;widgetId=" + widgetId + "&amp;t=" + (new Date()).getTime();
+        String sitemap = null;
+        if (w.eResource() != null) {
+            sitemap = w.eResource().getURI().path();
+        }
+        boolean validUrl = false;
+        if (image.getUrl() != null && !image.getUrl().isEmpty()) {
+            try {
+                URI.create(image.getUrl());
+                validUrl = true;
+            } catch (IllegalArgumentException ex) {
+            }
+        }
+        String proxiedUrl = "../proxy?sitemap=" + sitemap + "&amp;widgetId=" + widgetId;
+        State state = itemUIRegistry.getState(w);
+        String url;
+        if (state instanceof RawType) {
+            url = state.toFullString();
+        } else if ((sitemap != null) && ((state instanceof StringType) || validUrl)) {
+            url = proxiedUrl + "&amp;t=" + (new Date()).getTime();
+        } else {
+            url = "images/none.png";
+        }
+        snippet = StringUtils.replace(snippet, "%valid_url%", validUrl ? "true" : "false");
+        snippet = StringUtils.replace(snippet, "%proxied_url%", proxiedUrl);
         snippet = StringUtils.replace(snippet, "%url%", url);
 
         sb.append(snippet);

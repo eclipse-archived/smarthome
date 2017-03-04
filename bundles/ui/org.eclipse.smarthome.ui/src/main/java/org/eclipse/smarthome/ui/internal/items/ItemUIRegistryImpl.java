@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.ImageItem;
 import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
@@ -239,6 +240,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
         if (itemType.equals(PlayerItem.class)) {
             return createPlayerButtons();
+        }
+        if (itemType.equals(ImageItem.class)) {
+            return SitemapFactory.eINSTANCE.createImage();
         }
 
         return null;

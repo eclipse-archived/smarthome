@@ -405,10 +405,21 @@
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
-		_t.url = _t.image.getAttribute("src").replace(/&t=\d+/g, "");
+		_t.url = parentNode.getAttribute("data-proxied-url");
+		_t.validUrl = parentNode.getAttribute("data-valid-url") === "true";
 
-		_t.setValuePrivate = function() {
-			_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
+		_t.setValuePrivate = function(value, itemState) {
+			if (itemState.startsWith("data:")) {
+				// Image element associated to an item of type ImageItem
+				_t.image.setAttribute("src", itemState);
+			} else if ((itemState !== "UNDEF") || (_t.validUrl)) {
+				// Image element associated to an item of type StringItem (URL)
+				// Or no associated item but url is set and valid in the image element
+				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
+			} else {
+				// No associated item and url is not set or not valid in the image element
+				_t.image.setAttribute("src", "images/none.png");
+			}
 		};
 
 		if (_t.updateInterval === 0) {

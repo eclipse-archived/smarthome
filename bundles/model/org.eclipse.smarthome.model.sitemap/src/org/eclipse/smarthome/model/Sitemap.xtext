@@ -43,7 +43,7 @@ Group:
 
 Image:
     'Image' (('item=' item=ItemRef)? & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? &
-    ('url=' url=STRING) & ('refresh=' refresh=INT)? &
+    ('url=' url=STRING)? & ('refresh=' refresh=INT)? &
     ('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
     ('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
     ('iconcolor=[' (IconColor+=ColorArray (',' IconColor+=ColorArray)* ']'))? &

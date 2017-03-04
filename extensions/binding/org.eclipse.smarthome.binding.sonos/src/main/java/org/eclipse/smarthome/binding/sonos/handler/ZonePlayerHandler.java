@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -659,8 +660,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 url = getAlbumArtUrl();
                 if (url != null) {
                     try {
-                        InputStream input = url.openStream();
-                        newState = new RawType(IOUtils.toByteArray(input));
+                        URLConnection connection = url.openConnection();
+                        String contentType = connection.getContentType();
+                        InputStream input = connection.getInputStream();
+                        if (contentType == null) {
+                            contentType = URLConnection.guessContentTypeFromStream(input);
+                            if (contentType == null) {
+                                contentType = RawType.DEFAULT_MIME_TYPE;
+                            }
+                        }
+                        newState = new RawType(IOUtils.toByteArray(input), contentType);
                         IOUtils.closeQuietly(input);
                     } catch (IOException e) {
                         logger.debug("Failed to download the album cover art: {}", e.getMessage());
