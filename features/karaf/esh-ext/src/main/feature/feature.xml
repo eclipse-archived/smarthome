@@ -63,6 +63,7 @@
   <feature name="esh-extensionservice-marketplace-automation" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-automation-api</feature>
+    <feature>esh-extensionservice-marketplace</feature>
     <bundle>mvn:org.eclipse.smarthome.extensionservice/org.eclipse.smarthome.extensionservice.marketplace.automation/${project.version}</bundle>
   </feature>
 
