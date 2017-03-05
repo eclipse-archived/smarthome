@@ -23,11 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides local access to the market place content. Once started, it downloads the catalog and then makes
- * its content available from memory.
- *
- * Note that there is no progressive/lazy browsing implemented yet, but the service downloads the whole catalog.
- * Once the marketplace is filled with a lot of content, this will need to be addressed.
+ * This is a {@link RuleTemplateProvider}, which gets its content from the marketplace extension service
+ * and stores it through the ESH storage service.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *

@@ -62,6 +62,7 @@ public class MarketplaceExtensionService implements ExtensionService {
     }
 
     protected void deactivate() {
+        this.proxy.dispose();
         this.proxy = null;
     }
 
@@ -258,7 +259,6 @@ public class MarketplaceExtensionService implements ExtensionService {
     private void postFailureEvent(String extensionId, String msg) {
         Event event = ExtensionEventFactory.createExtensionFailureEvent(extensionId, msg);
         eventPublisher.post(event);
-
     }
 
     private String getExtensionId(Node node) {

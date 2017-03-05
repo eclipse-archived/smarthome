@@ -11,6 +11,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
@@ -39,6 +41,7 @@ public class MarketplaceProxy {
     private Node[] cachedNodes = null;
     private long refresh_interval = 3600;
     private long retry_delay = 60;
+    private ScheduledFuture<?> refreshJob;
 
     /**
      * Creates a new instance, which immediately schedules a synchronization with the marketplace content.
@@ -46,7 +49,7 @@ public class MarketplaceProxy {
     public MarketplaceProxy() {
         try {
             url = new URL(MP_URL);
-            ThreadPoolManager.getScheduledPool("marketplace").scheduleWithFixedDelay(() -> refresh(), 0,
+            this.refreshJob = Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> refresh(), 0,
                     refresh_interval, TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Something is very wrong - cannot instantiate URL " + MP_URL);
@@ -85,5 +88,12 @@ public class MarketplaceProxy {
     public synchronized void refresh() {
         cachedNodes = null;
         getNodes();
+    }
+
+    public void dispose() {
+        if (this.refreshJob != null && !this.refreshJob.isCancelled()) {
+            this.refreshJob.cancel(true);
+            this.refreshJob = null;
+        }
     }
 }

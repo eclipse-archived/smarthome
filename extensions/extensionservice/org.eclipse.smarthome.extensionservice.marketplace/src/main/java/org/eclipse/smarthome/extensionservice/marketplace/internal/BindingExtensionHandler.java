@@ -73,6 +73,7 @@ public class BindingExtensionHandler implements MarketplaceExtensionHandler {
         String url = ext.getDownloadUrl();
         try {
             Bundle bundle = bundleContext.installBundle(url);
+            bundle.start();
             installedBindings.put(ext.getId(), bundle.getBundleId());
             persistInstalledBindingsMap(installedBindings);
         } catch (BundleException e) {
@@ -87,6 +88,7 @@ public class BindingExtensionHandler implements MarketplaceExtensionHandler {
             Bundle bundle = bundleContext.getBundle(id);
             if (bundle != null) {
                 try {
+                    bundle.stop();
                     bundle.uninstall();
                     installedBindings.remove(ext.getId());
                     persistInstalledBindingsMap(installedBindings);
