@@ -10,13 +10,13 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
+
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.HueBridge
+import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException
 import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException
 import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException
-
-import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
-import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.core.thing.Bridge
@@ -62,7 +62,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -87,7 +87,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -110,7 +110,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -136,7 +136,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -162,7 +162,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
@@ -187,7 +187,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
         hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
@@ -204,9 +204,9 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
             it
         }
 
-        createBridgeThing(configuration)
+        Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
                 .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
@@ -225,9 +225,9 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
             it
         }
 
-        createBridgeThing(configuration)
+        Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
                 .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)

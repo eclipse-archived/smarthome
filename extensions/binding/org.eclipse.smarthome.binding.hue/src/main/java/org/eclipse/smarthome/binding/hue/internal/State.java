@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.hue.internal;
  */
 public class State {
     private boolean on;
-    private int bri;
+    protected int bri;
     private int hue;
     private int sat;
     private float[] xy;
