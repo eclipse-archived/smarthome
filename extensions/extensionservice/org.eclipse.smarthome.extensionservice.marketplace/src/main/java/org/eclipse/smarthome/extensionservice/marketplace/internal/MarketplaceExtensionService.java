@@ -146,6 +146,7 @@ public class MarketplaceExtensionService implements ExtensionService {
 
         String name = node.name;
         String desc = node.shortdescription;
+        String version = StringUtils.isNotEmpty(node.version) ? node.version : "1.0";
 
         if (!validName(name) || !validDescription(desc)) {
             logger.debug("Ignoring node {} due to invalid content.", node.id);
@@ -153,10 +154,9 @@ public class MarketplaceExtensionService implements ExtensionService {
         }
         if (MP_PACKAGETYPE_BINDING.equals(node.packagetypes)) {
             MarketplaceExtension ext = new MarketplaceExtension(extId, MarketplaceExtension.EXT_TYPE_BINDING, name,
-                    node.version, node.supporturl, false, desc, null, node.image, node.updateurl, node.packageformat);
+                    version, node.supporturl, false, desc, null, node.image, node.updateurl, node.packageformat);
             return ext;
         } else if (MP_PACKAGETYPE_RULE_TEMPLATE.equals(node.packagetypes)) {
-            String version = StringUtils.isNotEmpty(node.version) ? node.version : "1.0";
             MarketplaceExtension ext = new MarketplaceExtension(extId, MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE,
                     name, version, node.supporturl, false, desc, null, node.image, node.updateurl, node.packageformat);
             return ext;
