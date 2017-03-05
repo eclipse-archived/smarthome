@@ -73,7 +73,11 @@ public class BindingExtensionHandler implements MarketplaceExtensionHandler {
         String url = ext.getDownloadUrl();
         try {
             Bundle bundle = bundleContext.installBundle(url);
-            bundle.start();
+            try {
+                bundle.start();
+            } catch (BundleException e) {
+                logger.warn("Installed bundle, but failed to start it: {}", e.getMessage());
+            }
             installedBindings.put(ext.getId(), bundle.getBundleId());
             persistInstalledBindingsMap(installedBindings);
         } catch (BundleException e) {
