@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # Sonos Binding
 
 This binding integrates the [Sonos Multi-Room Audio system](http://www.sonos.com).

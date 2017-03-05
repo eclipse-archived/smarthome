@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # <bindingName> Binding
 
 _Give some details about what this binding is meant for - a protocol, system, specific device._
