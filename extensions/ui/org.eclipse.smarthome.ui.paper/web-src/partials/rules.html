@@ -6,7 +6,7 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template','Rule from catalog']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
+					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
 			</div>
 		</div>
