@@ -55,6 +55,18 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.yahooweather/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-extensionservice-marketplace" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.extensionservice/org.eclipse.smarthome.extensionservice.marketplace/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-extensionservice-marketplace-automation" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-automation-api</feature>
+    <feature>esh-extensionservice-marketplace</feature>
+    <bundle>mvn:org.eclipse.smarthome.extensionservice/org.eclipse.smarthome.extensionservice.marketplace.automation/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-transform-exec" description="Exec Transformation" version="${project.version}">
     <feature>esh-base</feature>
     <bundle start-level="75">mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.exec/${project.version}</bundle>

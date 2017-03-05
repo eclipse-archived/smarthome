@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.extensionservice.marketplace.binding">
+   <implementation class="org.eclipse.smarthome.extensionservice.marketplace.internal.BindingExtensionHandler"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.extensionservice.marketplace.MarketplaceExtensionHandler"/>
+   </service>
+</scr:component>
