@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,7 @@ public class MarketplaceProxy {
     private Node[] cachedNodes = null;
     private long refresh_interval = 3600;
     private long retry_delay = 60;
+    private ScheduledExecutorService executorService;
     private ScheduledFuture<?> refreshJob;
 
     /**
@@ -49,8 +51,9 @@ public class MarketplaceProxy {
     public MarketplaceProxy() {
         try {
             url = new URL(MP_URL);
-            this.refreshJob = Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> refresh(), 0,
-                    refresh_interval, TimeUnit.SECONDS);
+            this.executorService = Executors.newSingleThreadScheduledExecutor();
+            this.refreshJob = this.executorService.scheduleWithFixedDelay(() -> refresh(), 0, refresh_interval,
+                    TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Something is very wrong - cannot instantiate URL " + MP_URL);
         }
@@ -95,5 +98,6 @@ public class MarketplaceProxy {
             this.refreshJob.cancel(true);
             this.refreshJob = null;
         }
+        this.executorService.shutdown();
     }
 }
