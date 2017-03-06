@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class ApiException extends Exception {
-	public ApiException() {}
-	
-	public ApiException(String message) {
-		super(message);
-	}
+    public ApiException() {
+    }
+
+    public ApiException(String message) {
+        super(message);
+    }
 }

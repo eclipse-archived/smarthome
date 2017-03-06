@@ -85,7 +85,7 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     /**
      * Builds the bridge properties.
-     * 
+     *
      * @param host the ip of the bridge
      * @param serialNumber the id of the bridge
      * @return the bridge properties
@@ -155,12 +155,12 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
         } catch (JsonParseException je) {
             logger.debug("Invalid json respone from Hue NUPnP service. Can't discover bridges");
         }
-        return new ArrayList<BridgeJsonParameters>();
+        return new ArrayList<>();
     }
 
     /**
      * Introduced in order to enable testing.
-     * 
+     *
      * @param url the url
      * @return the http request result as String
      * @throws IOException if request failed
