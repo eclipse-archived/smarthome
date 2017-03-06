@@ -206,7 +206,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
         Set<String> matchedSources = new HashSet<String>();
 
-        for (String aSource : audioSources.keySet()) {
+        for (String aSource : audioSinks.keySet()) {
             if (aSource.matches(regex)) {
                 matchedSources.add(aSource);
             }

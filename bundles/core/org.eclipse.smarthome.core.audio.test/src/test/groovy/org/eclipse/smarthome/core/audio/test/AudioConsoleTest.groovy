@@ -29,6 +29,8 @@ public class AudioConsoleTest extends AudioOSGiTest {
 
     private def consoleOutput
     private def consoleMock = [println: {String s -> consoleOutput = s}] as Console
+    
+    private def testTimeout = 1;
 
     @Before
     public void setUp(){
@@ -62,7 +64,7 @@ public class AudioConsoleTest extends AudioOSGiTest {
 
         audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
 
-        String path = audioServlet.serve(audioStream)
+        String path = audioServlet.serve(audioStream, testTimeout)
         String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
 
         String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, url]
@@ -79,7 +81,7 @@ public class AudioConsoleTest extends AudioOSGiTest {
 
         audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
 
-        String path = audioServlet.serve(audioStream)
+        String path = audioServlet.serve(audioStream, testTimeout)
         String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
 
         String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, audioSinkFake.getId(), url]
