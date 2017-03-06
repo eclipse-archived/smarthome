@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -203,7 +203,7 @@ public class ItemResource implements SatisfiableRESTResource {
 
             // we cannot use JSONResponse.createResponse() bc. MediaType.TEXT_PLAIN
             // return JSONResponse.createResponse(Status.OK, item.getState().toString(), null);
-            return Response.ok(item.getState().toString()).build();
+            return Response.ok(item.getState().toFullString()).build();
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);

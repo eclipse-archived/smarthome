@@ -97,7 +97,7 @@ public class ConnectionValidator {
         ActionType type = (ActionType) mtRegistry.get(action.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
-            throw new IllegalArgumentException("Condition Type \"" + action.getTypeUID() + "\" does not exist!");
+            throw new IllegalArgumentException("Action Type \"" + action.getTypeUID() + "\" does not exist!");
         }
 
         List<Input> inputs = type.getInputs(); // get inputs of the condition according to module type definition

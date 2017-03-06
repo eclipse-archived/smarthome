@@ -5,7 +5,7 @@
   <artifactId>org.eclipse.smarthome.core.id.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <version>0.9.0-SNAPSHOT</version>
-  <name>Eclipse SmartHome Thing Tests</name>
+  <name>Eclipse SmartHome ID Tests</name>
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>core</artifactId>

@@ -35,4 +35,4 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.sitemap.util,
  org.eclipse.smarthome.model.validation
 Service-Component: OSGI-INF/sitemapprovider.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.yahooweather.internal.ExpiringCache;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -49,6 +50,10 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     private static final String LOCATION_PARAM = "location";
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
+
+    private final int MAX_DATA_AGE = 3 * 60 * 60 * 1000; // 3h
+    private final int CACHE_EXPIRY = 10 * 1000; // 10s
+    private long lastUpdateTime;
 
     private BigDecimal location;
     private BigDecimal refresh;
@@ -139,11 +144,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         Collection<ConfigStatusMessage> configStatus = new ArrayList<>();
 
         try {
-            String locationData = getWeatherData("SELECT location FROM weather.forecast WHERE woeid = " + location);
+            String locationData = getWeatherData(
+                    "SELECT location FROM weather.forecast WHERE woeid = " + location.toPlainString());
             String city = getValue(locationData, "location", "city");
             if (city == null) {
                 configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM)
-                        .withMessageKeySuffix("location-not-found").withArguments(location).build());
+                        .withMessageKeySuffix("location-not-found").withArguments(location.toPlainString()).build());
             }
         } catch (IOException e) {
             logger.debug("Communication error occurred while getting Yahoo weather information.", e);
@@ -154,8 +160,26 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private synchronized boolean updateWeatherData() {
         try {
-            weatherData = getWeatherData("SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location);
-            if (weatherData != null) {
+            String data = getWeatherData(
+                    "SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location.toPlainString());
+            if (data != null) {
+                if (data.contains("\"results\":null")) {
+                    if (isCurrentDataExpired()) {
+                        weatherData = null;
+                        logger.trace(
+                                "The Yahoo Weather API did not return any data. Omiting the old result because it became too old.");
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
+                                "The Yahoo Weather API did not return any data.");
+                        return false;
+                    } else {
+                        // simply keep the old data
+                        logger.trace("The Yahoo Weather API did not return any data. Keeping the old result.");
+                        return false;
+                    }
+                } else {
+                    lastUpdateTime = System.currentTimeMillis();
+                    weatherData = data;
+                }
                 updateStatus(ThingStatus.ONLINE);
                 return true;
             }
@@ -163,19 +187,32 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
         }
+        weatherData = null;
         return false;
     }
 
+    private boolean isCurrentDataExpired() {
+        return lastUpdateTime + MAX_DATA_AGE < System.currentTimeMillis();
+    }
+
+    private final ExpiringCache<String, String> CACHE = new ExpiringCache<String, String>(CACHE_EXPIRY,
+            new ExpiringCache.LoadAction<String, String>() {
+                @Override
+                public String load(String query) throws IOException {
+                    try {
+                        URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
+                                + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
+                        URLConnection connection = url.openConnection();
+                        return IOUtils.toString(connection.getInputStream());
+                    } catch (MalformedURLException e) {
+                        logger.debug("Constructed query url '{}' is not valid: {}", query, e.getMessage());
+                        throw e;
+                    }
+                }
+            });
+
     private String getWeatherData(String query) throws IOException {
-        try {
-            URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
-                    + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
-            URLConnection connection = url.openConnection();
-            return IOUtils.toString(connection.getInputStream());
-        } catch (MalformedURLException e) {
-            logger.debug("Constructed query url '{}' is not valid: {}", query, e.getMessage());
-            return null;
-        }
+        return CACHE.get(query);
     }
 
     private State getHumidity() {

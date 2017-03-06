@@ -47,7 +47,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     private Set<String> types;
     private BundleContext bundleContext;
 
-    public static final String MODULE_TYPE_ID = "GenericEventTrigger";
+    public static final String MODULE_TYPE_ID = "core.GenericEventTrigger";
 
     private static final String CFG_EVENT_TOPIC = "eventTopic";
     private static final String CFG_EVENT_SOURCE = "eventSource";
@@ -76,14 +76,14 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     @Override
     public EventFilter getEventFilter() {
-        return null;
+        return this;
     }
 
     @Override
     public void receive(Event event) {
         if (ruleEngineCallback != null) {
-            logger.trace("Received Event: Source: " + event.getSource() + " Topic: " + event.getTopic() + " Type: "
-                    + event.getType() + " Payload: " + event.getPayload());
+            logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
+                    event.getTopic(), event.getType(), event.getPayload());
             if (!event.getTopic().contains(source)) {
                 return;
             }

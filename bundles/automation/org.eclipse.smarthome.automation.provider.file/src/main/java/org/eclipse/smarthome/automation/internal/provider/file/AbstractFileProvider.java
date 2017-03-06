@@ -87,6 +87,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
     }
 
     public void deactivate() {
+        for (String root : this.configurationRoots) {
+            deactivateWatchService(root + File.separator + rootSubdirectory);
+        }
         urls.clear();
         parsers.clear();
         synchronized (listeners) {
@@ -135,7 +138,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             File[] files = file.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    importResources(f);
+                    if (!file.isHidden()) {
+                        importResources(f);
+                    }
                 }
             } else {
                 try {
@@ -275,8 +280,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             for (ProviderChangeListener<E> listener : listeners) {
                 if (oldElement != null) {
                     listener.updated(this, oldElement, newElement);
+                } else {
+                    listener.added(this, newElement);
                 }
-                listener.added(this, newElement);
             }
         }
     }

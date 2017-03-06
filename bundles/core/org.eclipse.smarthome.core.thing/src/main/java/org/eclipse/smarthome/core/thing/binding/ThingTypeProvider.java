@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,12 +32,12 @@ public interface ThingTypeProvider {
     Collection<ThingType> getThingTypes(Locale locale);
 
     /**
-     * Provides a thing type for the given UID or null if no no type for the
+     * Provides a thing type for the given UID or null if no type for the
      * given UID exists.
      *
      * @param locale
      *            locale (can be null)
-     * @return thing type for the given UID or null if no no type for the given
+     * @return thing type for the given UID or null if no type for the given
      *         UID exists
      */
     ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale);

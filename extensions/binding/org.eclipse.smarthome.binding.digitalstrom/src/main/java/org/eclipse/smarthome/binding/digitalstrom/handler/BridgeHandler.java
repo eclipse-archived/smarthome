@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -654,8 +654,8 @@ public class BridgeHandler extends BaseBridgeHandler
                     setStatus(ThingStatus.ONLINE);
                     break;
                 case STOPPED:
-                    if (!getThing().getStatusInfo().equals(ThingStatusDetail.COMMUNICATION_ERROR)
-                            && !getThing().getStatusInfo().equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
+                    if (!getThing().getStatusInfo().getStatusDetail().equals(ThingStatusDetail.COMMUNICATION_ERROR)
+                            && !getThing().getStatusInfo().getStatusDetail().equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "DeviceStatusManager is stopped.");
                     }
                     break;

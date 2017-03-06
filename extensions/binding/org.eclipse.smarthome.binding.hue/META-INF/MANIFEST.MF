@@ -4,9 +4,8 @@ Bundle-Name: Eclipse SmartHome hue Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.hue;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .,
- lib/jue.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
 Import-Package: com.google.common.collect,
  com.google.gson,
  com.google.gson.annotations,

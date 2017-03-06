@@ -26,10 +26,11 @@ public interface ActionHandler extends ModuleHandler {
      * The Method is called by the RuleEngine to execute a {@link Rule} {@link Action}.
      *
      *
-     * @param context contains action input values and snapshot of all module output values. The output ids are defined
+     * @param context is an unmodifiable map containing action input values and snapshot of output values of triggers
+     *            and executed actions. The output ids are defined
      *            in form: ModuleId.outputId
-     * @return values map of values which must be set to outputs of the {@link Action}.
+     * @return values map of values which must be set to outputs of the {@link Action} (may be null).
      */
-    public Map<String, Object> execute(Map<String, ?> context);
+    public Map<String, Object> execute(Map<String, Object> context);
 
 }

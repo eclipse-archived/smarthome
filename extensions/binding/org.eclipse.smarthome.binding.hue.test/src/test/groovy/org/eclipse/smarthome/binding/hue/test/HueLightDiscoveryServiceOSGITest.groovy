@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,10 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import nl.q42.jue.FullLight
-import nl.q42.jue.MockedHttpClient
-import nl.q42.jue.HttpClient.Result
+import org.eclipse.smarthome.binding.hue.internal.FullLight
+import org.eclipse.smarthome.binding.hue.internal.HueBridge
+import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
+import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.HueThingHandlerFactory
@@ -42,6 +43,7 @@ import org.junit.Test
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - added test 'assert start search is called()'
  *                        - modified tests after introducing the generic thing types
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightDiscoveryServiceOSGITest extends AbstractHueOSGiTest {
 
@@ -178,20 +180,21 @@ class HueLightDiscoveryServiceOSGITest extends AbstractHueOSGiTest {
 
     private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
             MockedHttpClient mockedHttpClient) {
+        waitForAssert {
+            // mock HttpClient
+            def hueBridgeField = HueBridgeHandler.class.getDeclaredField("bridge")
+            hueBridgeField.accessible = true
+            def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+            assertThat hueBridgeValue, is(notNullValue())
 
-        // mock HttpClient
-        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
-        hueBridgeField.accessible = true
-        def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+            def httpClientField = HueBridge.class.getDeclaredField("http")
+            httpClientField.accessible = true
+            httpClientField.set(hueBridgeValue, mockedHttpClient)
 
-        def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
-        httpClientField.accessible = true
-        httpClientField.set(hueBridgeValue, mockedHttpClient)
-
-        def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
-        usernameField.accessible = true
-        usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
-
+            def usernameField = HueBridge.class.getDeclaredField("username")
+            usernameField.accessible = true
+            usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
+        }
         hueBridgeHandler.initialize()
     }
 }

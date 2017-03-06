@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
@@ -38,6 +38,7 @@ import nl.q42.jue.HueBridge;
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - changed search timeout, changed discovery result creation to support generic thing types
  * @author Thomas Höfer - Added representation
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 

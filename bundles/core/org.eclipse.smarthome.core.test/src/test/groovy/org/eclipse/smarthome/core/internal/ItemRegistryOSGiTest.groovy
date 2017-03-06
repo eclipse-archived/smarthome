@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.GroupItem
@@ -20,12 +21,10 @@ import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
-import org.eclipse.smarthome.core.items.ItemsChangeListener
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.NumberItem
-import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
@@ -45,7 +44,7 @@ class ItemRegistryOSGiTest extends OSGiTest {
 
     ItemRegistry itemRegistry
     ItemProvider itemProvider
-    ItemsChangeListener itemsChangeListener
+    ProviderChangeListener<Item> itemsChangeListener
     def ITEM_NAME = "switchItem"
     def CAMERA_ITEM_NAME1 = "cameraItem1"
     def CAMERA_ITEM_NAME2 = "cameraItem2"
@@ -179,24 +178,24 @@ class ItemRegistryOSGiTest extends OSGiTest {
     @Test
     void 'assert getItemsByTag can filter by class and tag'() {
 
-      assertThat itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG).size(), is(0)
+        assertThat itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG).size(), is(0)
 
-      registerService itemProvider
+        registerService itemProvider
 
-      def items = itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG)
-      assertThat items.size(), is(2)
-      assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
-      assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))
+        def items = itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG)
+        assertThat items.size(), is(2)
+        assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
+        assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))
     }
 
     @Test
     void 'assert getItemsByTag can filter by class and tag with GenericItem'() {
 
-      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(0)
+        assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(0)
 
-      registerService itemProvider
+        registerService itemProvider
 
-      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3)
+        assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3)
     }
 
     @Test
@@ -273,36 +272,6 @@ class ItemRegistryOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert itemRegistry keeps same instance on item updates without changes'() {
-        def items = new HashSet<Item>()
-        def itemToKeep = new SwitchItem("Keep");
-        items.add(itemToKeep);
-
-        def itemProvider2 = [
-            getAll: { items },
-            addProviderChangeListener: {def icl -> itemsChangeListener = icl},
-            removeProviderChangeListener: {def icl -> itemsChangeListener = icl },
-            allItemsChanged: {}] as ItemProvider
-
-        registerService itemProvider2
-
-        assertThat itemRegistry.getItem("Keep") == itemToKeep, is(true)
-
-        items.clear()
-        items.add(new SwitchItem("Keep"))
-        itemsChangeListener.allItemsChanged(itemProvider2, null)
-
-        assertThat itemRegistry.getItem("Keep") == itemToKeep, is(true)
-
-        items.clear()
-        def modifiedItem = new StringItem("Keep")
-        items.add(modifiedItem)
-        itemsChangeListener.allItemsChanged(itemProvider2, null)
-
-        assertThat itemRegistry.getItem("Keep") == modifiedItem, is(true)
-    }
-
-    @Test
     void 'assert itemRegistry is thread safe'() {
         registerService itemProvider
 
@@ -353,6 +322,31 @@ class ItemRegistryOSGiTest extends OSGiTest {
         itemsChangeListener.removed(itemProvider, newItem)
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent, is(instanceOf(ItemRemovedEvent))
+    }
+
+    @Test
+    void 'assert that a changed item still has an event publisher'() {
+        registerService itemProvider
+
+        // add new item
+        def item = new SwitchItem("SomeSwitch")
+        assertThat item.eventPublisher, is(nullValue())
+        itemsChangeListener.added(itemProvider, item)
+        assertThat item.eventPublisher, is(notNullValue())
+
+        // update item
+        def oldItem = item;
+        def newItem = new SwitchItem("SomeSwitch")
+        assertThat oldItem.eventPublisher, is(notNullValue())
+        assertThat newItem.eventPublisher, is(nullValue())
+        itemsChangeListener.updated(itemProvider, oldItem, newItem)
+        assertThat oldItem.eventPublisher, is(nullValue())
+        assertThat newItem.eventPublisher, is(notNullValue())
+
+        // remove item
+        assertThat newItem.eventPublisher, is(notNullValue())
+        itemsChangeListener.removed(itemProvider, newItem)
+        assertThat newItem.eventPublisher, is(nullValue())
     }
 
 }

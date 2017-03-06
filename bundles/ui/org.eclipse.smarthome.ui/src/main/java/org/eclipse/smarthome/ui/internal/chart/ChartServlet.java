@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,16 @@
  */
 package org.eclipse.smarthome.ui.internal.chart;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
@@ -50,20 +53,20 @@ import org.slf4j.LoggerFactory;
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
+    private static final int CHART_HEIGHT = 240;
+    private static final int CHART_WIDTH = 480;
+    private static final String dateFormat = "yyyyMMddHHmm";
+    private static final DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
 
     private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
     private String providerName = "default";
+    private int defaultHeight = CHART_HEIGHT;
+    private int defaultWidth = CHART_WIDTH;
+    private double scale = 1.0;
 
     // The URI of this servlet
     public static final String SERVLET_NAME = "/chart";
-
-    protected static final Color[] LINECOLORS = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA,
-            Color.ORANGE, Color.CYAN, Color.PINK, Color.DARK_GRAY, Color.YELLOW };
-    protected static final Color[] AREACOLORS = new Color[] { new Color(255, 0, 0, 30), new Color(0, 255, 0, 30),
-            new Color(0, 0, 255, 30), new Color(255, 0, 255, 30), new Color(255, 128, 0, 30),
-            new Color(0, 255, 255, 30), new Color(255, 0, 128, 30), new Color(255, 128, 128, 30),
-            new Color(255, 255, 0, 30) };
 
     protected static final Map<String, Long> PERIODS = new HashMap<String, Long>();
 
@@ -139,7 +142,7 @@ public class ChartServlet extends HttpServlet {
     }
 
     /**
-     * Handle the initial or an changed configuration.
+     * Handle the initial or a changed configuration.
      *
      * @param config the configuration
      */
@@ -148,41 +151,104 @@ public class ChartServlet extends HttpServlet {
             return;
         }
 
-        final Object value = config.get("provider");
-        if (value instanceof String) {
-            providerName = (String) value;
+        final String providerNameString = Objects.toString(config.get("provider"), null);
+        if (providerNameString != null) {
+            providerName = providerNameString;
+        }
+
+        final String defaultHeightString = Objects.toString(config.get("defaultHeight"), null);
+        if (defaultHeightString != null) {
+            defaultHeight = Integer.parseInt(defaultHeightString);
+        }
+
+        final String defaultWidthString = Objects.toString(config.get("defaultWidth"), null);
+        if (defaultWidthString != null) {
+            defaultWidth = Integer.parseInt(defaultWidthString);
+        }
+
+        final String scaleString = Objects.toString(config.get("scale"), null);
+        if (scaleString != null) {
+            scale = Double.parseDouble(scaleString);
+            // Set scale to normal if the custom value is unrealistically low
+            if (scale < 0.1) {
+                scale = 1.0;
+            }
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        logger.debug("Received incoming chart request: ", req);
+        logger.debug("Received incoming chart request: {}", req);
 
-        int width = 480;
+        int width = defaultWidth;
         try {
             width = Integer.parseInt(req.getParameter("w"));
         } catch (Exception e) {
         }
-        int height = 240;
+        int height = defaultHeight;
         try {
-            height = Integer.parseInt(req.getParameter("h"));
+            String h = req.getParameter("h");
+            if (h != null) {
+                Double d = Double.parseDouble(h) * scale;
+                height = d.intValue();
+            }
         } catch (Exception e) {
         }
+
+        // To avoid ambiguity you are not allowed to specify period, begin and end time at the same time.
+        if (req.getParameter("period") != null && req.getParameter("begin") != null
+                && req.getParameter("end") != null) {
+            throw new ServletException("Do not specify the three parameters period, begin and end at the same time.");
+        }
+
+        // Read out the parameter period, begin and end and save them.
+        Date timeBegin = null;
+        Date timeEnd = null;
+
         Long period = PERIODS.get(req.getParameter("period"));
         if (period == null) {
             // use a day as the default period
             period = PERIODS.get("D");
         }
-        // Create the start and stop time
-        Date timeEnd = new Date();
-        Date timeBegin = new Date(timeEnd.getTime() - period);
+
+        if (req.getParameter("begin") != null) {
+            try {
+                timeBegin = dateFormatter.parse(req.getParameter("begin"));
+            } catch (ParseException e) {
+                throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
+            }
+        }
+
+        if (req.getParameter("end") != null) {
+            try {
+                timeEnd = dateFormatter.parse(req.getParameter("end"));
+            } catch (ParseException e) {
+                throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
+            }
+        }
+
+        // Set begin and end time and check legality.
+        if (timeBegin == null && timeEnd == null) {
+            timeEnd = new Date();
+            timeBegin = new Date(timeEnd.getTime() - period);
+            logger.debug("No begin or end is specified, use now as end and now-period as begin.");
+        } else if (timeEnd == null) {
+            timeEnd = new Date(timeBegin.getTime() + period);
+            logger.debug("No end is specified, use begin + period as end.");
+        } else if (timeBegin == null) {
+            timeBegin = new Date(timeEnd.getTime() - period);
+            logger.debug("No begin is specified, use end-period as begin");
+        } else if (timeEnd.before(timeBegin)) {
+            throw new ServletException("The end is before the begin.");
+        }
 
         // If a persistence service is specified, find the provider
         String serviceName = req.getParameter("service");
 
         ChartProvider provider = getChartProviders().get(providerName);
-        if (provider == null)
+        if (provider == null) {
             throw new ServletException("Could not get chart provider.");
+        }
 
         // Set the content type to that provided by the chart provider
         res.setContentType("image/" + provider.getChartType());
@@ -191,7 +257,7 @@ public class ChartServlet extends HttpServlet {
                     req.getParameter("items"), req.getParameter("groups"));
             ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
         } catch (ItemNotFoundException e) {
-            logger.debug("Item not found error while generating chart.");
+            logger.debug(e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
         }

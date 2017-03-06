@@ -26,7 +26,7 @@ Import-Package: javax.servlet,
  org.osgi.service.http,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.ui.classic
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/webappservlet.xml, OSGI-INF/pagerenderer.xml,
  OSGI-INF/cmdservlet.xml, OSGI-INF/grouprenderer.xml, OSGI-INF/framerenderer.xml,
  OSGI-INF/switchrenderer.xml, OSGI-INF/selectionrenderer.xml, 

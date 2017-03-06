@@ -318,6 +318,50 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	background: white;
 }
 
+.extensions .card .item-content {
+	padding-top: 5px;
+}
+
+.extensions .card.item {
+	padding: 7px 7px 0px 7px;
+}
+
+.extensions .card .description {
+    padding: 2px;
+}
+
+.extensions .header-toolbar button {
+	margin:8px 0px 8px 0px;
+}
+
+.extensions .container.showCards {
+	margin-top: 10px;
+}
+
+.showCards .fab-item .item-content {
+    margin-left: 100px;
+    min-height: 60px;
+}
+
+.showCards .fab-item .actions {
+	text-align: right;
+	text-align: -webkit-right;
+	text-align: -moz-right;
+}
+
+.showCards .verticalAlign {
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.showCards .imageAlign {
+	width: 83px;
+	height: 56px;
+	float: left;
+	text-align: center
+}
+
 .fab-item .circle {
 	border-radius: 50%;
 	width: 56px;
@@ -327,6 +371,15 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	text-align: center;
 	font-size: 30px;
 	line-height: 54px;
+}
+
+.fab-item .rectangle {
+    max-width: 83px;
+    max-height: 56px;
+    background-color: transparent;
+    text-align: center;
+    font-size: 30px;
+    line-height: 54px;
 }
 
 .fab-item .circle.green {
@@ -456,7 +509,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	position: relative;
 }
 
-.selection-list>div:hover {
+.selection-list>div:hover, .pointer {
 	cursor: pointer;
 }
 
@@ -702,6 +755,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .cursor-pointer {
 	cursor: pointer;
+	outline: none;
 }
 
 textarea.scriptArea {
@@ -723,8 +777,35 @@ textarea.scriptArea {
 }
 
 .ruleNameDesc {
-    margin-top: 3%;
+    margin-top: 1%;
     margin-left: 10px;
+}
+
+.ruleNameDesc md-input-container:first-child{
+    margin-bottom: 0px
+}
+
+.ruleNameDesc md-input-container {
+	margin-top: 9px;
+	margin-bottom: 9px;
+}
+
+.ruleNameDesc md-input-container.rules-input input {
+	font-size: 20px;
+	font-weight: 500;
+	color: rgba(0, 0, 0, .87);
+}
+
+.ruleNameDesc md-input-container.rules-input textarea {
+	font-weight: 500;
+}
+
+.ruleNameDesc md-input-container.rules-input.md-input-has-value textarea {
+    font-weight: 300;
+}
+
+.moduleLabel {
+	font-size: 16px;
 }
 
 .customMessage {
@@ -1108,6 +1189,10 @@ background-color: green;
     color: rgba(0,0,0,0.72);
 }
 
+md-dialog-content .dropdown dt input {
+	width: 85%;
+}
+
 input[type=number].multiSel::-webkit-inner-spin-button, 
 input[type=number].multiSel::-webkit-outer-spin-button { 
     -webkit-appearance: none;
@@ -1119,6 +1204,22 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .multiSel {
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.multiSel::-webkit-input-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel::-moz-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel:-ms-input-placeholder {
+	color: rgba(0,0,0,0.72);
+}
+
+.multiSel:-moz-placeholder { 
+	color: rgba(0,0,0,0.72);
 }
 
 .dropdown dt i.enableColor {
@@ -1193,6 +1294,11 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	font-weight: 300;
 }
 
+.textControl .minDimension {
+	min-height: 40px;
+	min-width: 140px;
+}
+
 .searchBox {
 	transition:all linear 0.2s;
 }
@@ -1211,4 +1317,41 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .search.itemSearch {
 	padding-top: 5px;
 	padding-bottom: 5px;
+}
+
+.multiSelect ul li {
+	outline: none;
+	cursor: pointer;
+}
+
+.material-icons.launch-icon {
+	color: black;
+	background-color: transparent;
+	font-size: 16px;
+}
+
+.extensions .card .description.rule-ext-desc {
+	padding-bottom: 10px;
+	padding-top:4px;
+}
+
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: #a8a8a8;
+	opacity: 0.8;
+	z-index: 998;
+	height: 100%;
+	width: 100%;
+}
+
+.progressbar {
+	 position:fixed;
+	 top: 50%;
+	 left: 50%;
+     z-index:999;
+}
+.inboxSearch {
+	margin-bottom: 10px;
 }

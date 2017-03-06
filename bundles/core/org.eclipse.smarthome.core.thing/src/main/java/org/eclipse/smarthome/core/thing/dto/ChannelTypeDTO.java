@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ public class ChannelTypeDTO {
     public StateDescription stateDescription;
     public Set<String> tags;
     public String UID;
+    public boolean advanced;
 
     public ChannelTypeDTO() {
     }
@@ -39,7 +40,7 @@ public class ChannelTypeDTO {
     public ChannelTypeDTO(String UID, String label, String description, String category, String itemType,
             ChannelKind kind, List<ConfigDescriptionParameterDTO> parameters,
             List<ConfigDescriptionParameterGroupDTO> parameterGroups, StateDescription stateDescription,
-            Set<String> tags) {
+            Set<String> tags, boolean advanced) {
         this.UID = UID;
         this.label = label;
         this.description = description;
@@ -50,5 +51,6 @@ public class ChannelTypeDTO {
         this.tags = tags;
         this.kind = kind.toString();
         this.itemType = itemType;
+        this.advanced = advanced;
     }
 }

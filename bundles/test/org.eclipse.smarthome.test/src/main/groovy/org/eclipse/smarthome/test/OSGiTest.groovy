@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,8 +91,8 @@ abstract class OSGiTest {
      * @param filter
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T> T getService(Class<T> clazz, Class<? extends T> implementationClass){
-        getService(clazz, { ServiceReference<?> serviceReference ->
+    protected <T,I extends T> I getService(Class<T> clazz, Class<I> implementationClass){
+        (I) getService(clazz, { ServiceReference<?> serviceReference ->
             implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())
         })
     }
@@ -181,11 +181,27 @@ abstract class OSGiTest {
      * After this time the condition is checked again. By a default the specified sleep time is 50 ms.
      * The default timeout is 10000 ms.
      *
-     * @param condition closure that must not have an argument
+     * @param assertion closure that must not have an argument
      * @param timeout timeout, default is 10000ms
      * @param sleepTime interval for checking the condition, default is 50ms
      */
     protected void waitForAssert(Closure<?> assertion, int timeout = 10000, int sleepTime = 50) {
+        waitForAssert(assertion, null, timeout, sleepTime)
+    }
+
+    /**
+     * When this method is called it waits until the assertion is fulfilled or the timeout is reached.
+     * The assertion is specified by a closure, that must throw an Exception, if the assertion is not fulfilled.
+     * When the assertion is not fulfilled Thread.sleep is called at the current Thread for a specified time.
+     * After this time the condition is checked again. By a default the specified sleep time is 50 ms.
+     * The default timeout is 10000 ms.
+     *
+     * @param assertion closure that must not have an argument
+     * @param beforeLastCall close that must not have an arugment and should be executed in front of the last call to ${code assertion}.
+     * @param timeout timeout, default is 10000ms
+     * @param sleepTime interval for checking the condition, default is 50ms
+     */
+    protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall, int timeout = 10000, int sleepTime = 50) {
         def waitingTime = 0
         while(waitingTime < timeout) {
             try {
@@ -195,6 +211,9 @@ abstract class OSGiTest {
                 waitingTime += sleepTime
                 sleep sleepTime
             }
+        }
+        if (beforeLastCall != null) {
+            beforeLastCall()
         }
         assertion()
     }
@@ -222,6 +241,14 @@ abstract class OSGiTest {
             service.unregister()
         }
         registeredServices.clear()
+    }
+
+    protected void disableItemAutoUpdate(){
+        def autoupdateConfig = [
+            autoUpdate: { String itemName -> return false }
+
+        ] as AutoUpdateBindingConfigProvider
+        registerService(autoupdateConfig)
     }
 
     protected void enableItemAutoUpdate(){

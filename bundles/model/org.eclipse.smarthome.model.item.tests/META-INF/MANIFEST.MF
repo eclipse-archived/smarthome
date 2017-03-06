@@ -11,6 +11,8 @@ Import-Package: groovy.lang,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.test,
  org.hamcrest;core=split,
@@ -21,5 +23,5 @@ Import-Package: groovy.lang,
  org.junit.runner.notification;version="4.0.0",
  org.junit.runners;version="4.0.0",
  org.junit.runners.model;version="4.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.model.item

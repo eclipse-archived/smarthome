@@ -28,7 +28,7 @@ To subscribe to events a developer can listen to `/rest/events`. In general any 
 
 ### Events
 
-The framework broadcasts all events on the Eclipse SmartHome event bus also as an SEE event. A complete list of the framework event types can found in the [Event chapter](events.html).
+The framework broadcasts all events on the Eclipse SmartHome event bus also as an SSE event. A complete list of the framework event types can be found in the [Event chapter](events.html).
 
 All events are represented as JSON objects on the stream with the following format:
 

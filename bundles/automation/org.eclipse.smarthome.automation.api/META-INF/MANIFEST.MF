@@ -24,4 +24,4 @@ Export-Package:
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

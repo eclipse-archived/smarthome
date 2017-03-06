@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,8 @@ public class SonosBindingConstants {
     public final static String ALARMRUNNING = "alarmrunning";
     public final static String CONTROL = "control";
     public final static String CURRENTALBUM = "currentalbum";
+    public final static String CURRENTALBUMART = "currentalbumart";
+    public final static String CURRENTALBUMARTURL = "currentalbumarturl";
     public final static String CURRENTARTIST = "currentartist";
     public final static String CURRENTTITLE = "currenttitle";
     public final static String CURRENTTRACK = "currenttrack";

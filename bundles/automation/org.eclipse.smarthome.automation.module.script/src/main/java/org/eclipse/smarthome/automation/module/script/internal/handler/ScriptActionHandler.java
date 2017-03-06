@@ -26,44 +26,42 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class ScriptActionHandler extends AbstractScriptModuleHandler<Action>implements ActionHandler {
+public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> implements ActionHandler {
+
+    public static final String SCRIPT_ACTION_ID = "script.ScriptAction";
 
     private final Logger logger = LoggerFactory.getLogger(ScriptActionHandler.class);
-
-    public static final String SCRIPT_ACTION_ID = "ScriptAction";
+    private final String ruleUid;
 
     /**
      * constructs a new ScriptActionHandler
      *
      * @param module
+     * @param ruleUid the UID of the rule this handler is used for
      */
-    public ScriptActionHandler(Action module) {
+    public ScriptActionHandler(Action module, final String ruleUid) {
         super(module);
+        this.ruleUid = ruleUid;
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
-        Object type = module.getConfiguration().get(SCRIPT_TYPE);
-        Object script = module.getConfiguration().get(SCRIPT);
-        if (type instanceof String) {
-            if (script instanceof String) {
-                ScriptEngine engine = ScriptModuleActivator.getScriptEngine((String) type);
+    public Map<String, Object> execute(Map<String, Object> context) {
+        Object tmp;
+        tmp = module.getConfiguration().get(SCRIPT_TYPE);
+        if (tmp instanceof String) {
+            final String type = (String) tmp;
+            tmp = module.getConfiguration().get(SCRIPT);
+            if (tmp instanceof String) {
+                final String script = (String) tmp;
+                final ScriptEngine engine = ScriptModuleActivator.getScriptEngine(type);
                 if (engine != null) {
-                    ScriptContext executionContext = getExecutionContext(engine, context);
-                    try {
-                        Object result = engine.eval((String) script, executionContext);
-                        HashMap<String, Object> resultMap = new HashMap<String, Object>();
-                        resultMap.put("result", result);
-                        return resultMap;
-                    } catch (ScriptException e) {
-                        logger.error("Script execution failed: {}", e.getMessage());
-                    }
+                    return execute(engine, new HashMap<>(context), type, script);
                 } else {
-                    logger.debug("No engine available for script type '{}' in action '{}'.",
-                            new Object[] { type, module.getId() });
+                    logger.debug("No engine available for script type '{}' in action '{}'.", type, module.getId());
                 }
             } else {
                 logger.debug("Script is missing in the configuration of action '{}'.", module.getId());
@@ -72,6 +70,21 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action>impl
             logger.debug("Script type is missing in the configuration of action '{}'.", module.getId());
         }
         return null;
+    }
+
+    private Map<String, Object> execute(final ScriptEngine engine, final Map<String, Object> context,
+            final String scriptType, final String script) {
+        context.put("ruleUID", ruleUid);
+        final ScriptContext executionContext = getExecutionContext(engine, context);
+        try {
+            Object result = engine.eval(script, executionContext);
+            HashMap<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("result", result);
+            return resultMap;
+        } catch (ScriptException e) {
+            logger.error("Script execution failed: {}", e.getMessage());
+            return null;
+        }
     }
 
 }

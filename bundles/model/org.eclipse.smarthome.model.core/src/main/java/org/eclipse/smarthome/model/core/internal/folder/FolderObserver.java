@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@ package org.eclipse.smarthome.model.core.internal.folder;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -261,23 +262,25 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     }
 
     @SuppressWarnings("rawtypes")
-    private static void checkFile(ModelRepository modelRepo, final File file, Kind kind) {
+    private static void checkFile(final ModelRepository modelRepo, final File file, final Kind kind) {
         if (modelRepo != null && file != null) {
             try {
                 synchronized (FolderObserver.class) {
-                    if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY) && file != null) {
+                    if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
                         if (parsers.contains(getExtension(file.getName()))) {
-                            modelRepo.addOrRefreshModel(file.getName(), FileUtils.openInputStream(file));
+                            try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
+                                modelRepo.addOrRefreshModel(file.getName(), inputStream);
+                            }
                         } else {
                             ignoredFiles.add(file);
                         }
-                    } else if (kind == ENTRY_DELETE && file != null) {
+                    } else if (kind == ENTRY_DELETE) {
                         modelRepo.removeModel(file.getName());
                     }
                 }
-            } catch (IOException e) {
-                LoggerFactory.getLogger(FolderObserver.class)
-                        .warn("Cannot open file '" + file.getAbsolutePath() + "' for reading.", e);
+            } catch (Exception e) {
+                LoggerFactory.getLogger(FolderObserver.class).error("Error handling update of file '{}': {}.",
+                        file.getAbsolutePath(), e.getMessage(), e);
             }
         }
     }

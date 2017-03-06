@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="MACROMAN"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
@@ -24,12 +24,8 @@
     <module>org.eclipse.smarthome.feature.runtime.console.equinox</module>
     <module>org.eclipse.smarthome.feature.runtime.console.rfc147</module>
     <module>org.eclipse.smarthome.feature.runtime.binding</module>
-    <module>org.eclipse.smarthome.feature.dependencies.designer</module>
-    <module>org.eclipse.smarthome.feature.designer</module>
     <module>org.eclipse.smarthome.feature.test</module>
     <module>karaf</module>
-    <module>karaf-tp</module>
-    <module>karaf-verify</module>
   </modules>
 
 </project>

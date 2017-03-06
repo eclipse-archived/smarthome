@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome MQTT Transport Bundle
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mqtt;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.transport.mqtt
 Import-Package: javax.net,
  javax.net.ssl,

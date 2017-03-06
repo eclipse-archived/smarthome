@@ -207,7 +207,7 @@ public class ScriptModuleActivator implements BundleActivator {
      * @param provider the provider holding the elements that should be added to the scope
      */
     private static void initializeNashornScope(ScriptEngine engine, ScriptScopeProvider provider) {
-        if (!AbstractScriptModuleHandler.class.getClassLoader().getParent().toString().contains("ExtClassLoader")) {
+        if (!checkForExtClassLoader()) {
             logger.warn(
                     "Found wrong classloader: To prevent class loading problems use this directive: -Dorg.osgi.framework.bundle.parent=ext");
         }
@@ -229,6 +229,15 @@ public class ScriptModuleActivator implements BundleActivator {
             engine.eval(scriptToEval);
         } catch (Exception e) {
             logger.error("Exception while importing scope: {}", e.getMessage());
+        }
+    }
+
+    private static boolean checkForExtClassLoader() {
+        final ClassLoader parentClassLoader = AbstractScriptModuleHandler.class.getClassLoader().getParent();
+        if (parentClassLoader == null) {
+            return false;
+        } else {
+            return parentClassLoader.toString().contains("ExtClassLoader");
         }
     }
 

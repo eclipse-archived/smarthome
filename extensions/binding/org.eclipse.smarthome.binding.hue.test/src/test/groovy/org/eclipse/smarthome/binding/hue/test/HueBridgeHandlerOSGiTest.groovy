@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,10 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import nl.q42.jue.HueBridge
-import nl.q42.jue.exceptions.ApiException
-import nl.q42.jue.exceptions.LinkButtonException
-import nl.q42.jue.exceptions.UnauthorizedException
+import org.eclipse.smarthome.binding.hue.internal.HueBridge
+import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException
+import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException
+import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
@@ -34,6 +34,7 @@ import org.junit.Test
  *
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 

@@ -41,6 +41,18 @@
 		<description>Name of the album currently playing</description>
 	</channel-type>
 
+	<channel-type id="currentalbumart">
+		<item-type>Image</item-type>
+		<label>Current Album Cover Art</label>
+		<description>Cover art of the album currently playing</description>
+	</channel-type>
+
+	<channel-type id="currentalbumarturl" advanced="true">
+		<item-type>String</item-type>
+		<label>Current Album Cover Art URL</label>
+		<description>Cover art URL of the album currently playing</description>
+	</channel-type>
+
 	<channel-type id="currentartist">
 		<item-type>String</item-type>
 		<label>Current Artist</label>

@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Thing Model Runtime
 Bundle-SymbolicName: org.eclipse.smarthome.model.thing.runtime;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.smarthome.model.core,
  org.osgi.framework,
  org.slf4j

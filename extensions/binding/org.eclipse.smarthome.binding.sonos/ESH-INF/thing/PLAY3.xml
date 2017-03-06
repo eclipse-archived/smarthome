@@ -16,6 +16,8 @@
 			<channel id="alarmrunning" typeId="alarmrunning" />
 			<channel id="control" typeId="control" />
 			<channel id="currentalbum" typeId="currentalbum" />
+			<channel id="currentalbumart" typeId="currentalbumart" />
+			<channel id="currentalbumarturl" typeId="currentalbumarturl" />
 			<channel id="currentartist" typeId="currentartist" />
 			<channel id="currenttitle" typeId="currenttitle" />
 			<channel id="currenttrack" typeId="currenttrack" />

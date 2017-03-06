@@ -11,4 +11,4 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.http,
  org.osgi.util.tracker
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

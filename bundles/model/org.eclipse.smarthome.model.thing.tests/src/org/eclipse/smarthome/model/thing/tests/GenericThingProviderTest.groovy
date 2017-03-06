@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,15 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.events.AbstractThingRegistryEvent
+import org.eclipse.smarthome.core.thing.events.ThingAddedEvent
+import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent
+import org.eclipse.smarthome.core.thing.events.ThingUpdatedEvent
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.model.core.ModelRepository
@@ -22,6 +27,8 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import com.google.common.collect.Sets
 
 class GenericThingProviderTest extends OSGiTest {
 
@@ -421,5 +428,118 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat actualThings.size(), is(1)
         assertThat actualThings.find {"hue:LCT001:bulb2".equals(it.UID.toString())}, is(notNullValue())
     }
+
+    @Test
+    void 'assert that updating an embedded Thing causes the right behavior wrt adding and updating and no removed events are sent'() {
+        List<AbstractThingRegistryEvent> receivedEvents = new ArrayList<>()
+        def thingEventSubscriber = [
+            receive: { event ->
+                receivedEvents.add(event as AbstractThingRegistryEvent)
+            },
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ThingUpdatedEvent.TYPE, ThingRemovedEvent.TYPE, ThingAddedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService(thingEventSubscriber)
+
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
+                LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        assertThat thingRegistry.getAll().size(), is(2)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(equalTo(2))
+            receivedEvents.each { assertThat it, isA(ThingAddedEvent) }
+        }
+        receivedEvents.clear()
+
+        String newModel =
+                '''
+            Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ]  {
+                LCT001 bulb1 [ lightId = "2" ] { Switch : notification }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(newModel.bytes))
+        assertThat thingRegistry.getAll().size(), is(2)
+
+        waitForAssert {
+            assertThat receivedEvents.size(), is(equalTo(2))
+            receivedEvents.each { assertThat it, isA(ThingUpdatedEvent) }
+        }
+
+    }
+
+    @Test
+    void 'assert that an empty model does not cause any harm'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model = ''''''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(0)
+    }
+
+    @Test
+    void 'assert that default configurations are applied to channels'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+            Bridge hue:bridge:myBridge @ "basement" [ ] {
+                LCT001 myBulb [ lightId = "1" ] {
+                    Type color : myChannel []
+                }
+            }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        // ensure a standard channel has its default values
+        assertThat actualThings.find {"hue:LCT001:myBridge:myBulb".equals(it.UID.toString())}.getChannel("color").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+
+        // ensure a user-defined channel has its default values
+        assertThat actualThings.find {"hue:LCT001:myBridge:myBulb".equals(it.UID.toString())}.getChannel("myChannel").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+    }
+
+    @Test
+    void 'assert that channels within channel groups can be overridden'() {
+        assertThat thingRegistry.getAll().size(), is(0)
+
+        String model =
+                '''
+                Bridge hue:bridge:myBridge [] {
+                    Thing grouped myGroupedThing [] {
+                        Type color : group#bar [
+                            myProp="successful",
+                            customConfig="yes"
+                        ]
+                    }
+                }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def List<Thing> actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(equalTo(2))
+
+        // ensure the non-declared channel is there and has its default properties
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo"), is(notNullValue())
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#foo").getConfiguration().get("customConfig"), is(equalTo("none"))
+
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar"), is(notNullValue())
+        // ensure the non-declared default property is there
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("defaultConfig"), is(equalTo("defaultValue"))
+        // ensure overriding a default property worked
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("customConfig"), is(equalTo("yes"))
+        // ensure an additional property can be set
+        assertThat actualThings.find {"hue:grouped:myBridge:myGroupedThing".equals(it.UID.toString())}.getChannel("group#bar").getConfiguration().get("myProp"), is(equalTo("successful"))
+    }
+
 
 }

@@ -105,20 +105,20 @@ class ScriptRuleTest extends OSGiTest {
         assertThat rule.name, is("DemoScriptRule")
         def trigger = rule.triggers.find{it.id.equals("trigger")} as Trigger
         assertThat trigger, is(notNullValue())
-        assertThat trigger.typeUID, is("GenericEventTrigger")
+        assertThat trigger.typeUID, is("core.GenericEventTrigger")
         assertThat trigger.configuration.get("eventSource"), is ("MyTrigger")
         assertThat trigger.configuration.get("eventTopic"), is("smarthome/items/MyTrigger/state")
         assertThat trigger.configuration.get("eventTypes"), is("ItemStateEvent")
         def condition1 = rule.conditions.find{it.id.equals("condition")} as Condition
         assertThat condition1, is(notNullValue())
-        assertThat condition1.typeUID, is("ScriptCondition")
+        assertThat condition1.typeUID, is("script.ScriptCondition")
         assertThat condition1.configuration.get("type"), is("application/javascript")
-        assertThat condition1.configuration.get("script"), is("trigger.event.itemState==ON")
+        assertThat condition1.configuration.get("script"), is("event.itemState==ON")
         def action = rule.actions.find{it.id.equals("action")} as Action
         assertThat action, is(notNullValue())
-        assertThat action.typeUID, is("ScriptAction")
+        assertThat action.typeUID, is("script.ScriptAction")
         assertThat action.configuration.get("type"), is("application/javascript")
-        assertThat action.configuration.get("script"), is("print(items.MyTrigger), print(things.getAll()), print(trigger.event), events.sendCommand('ScriptItem', 'ON')")
+        assertThat action.configuration.get("script"), is("print(items.MyTrigger), print(things.getAll()), print(ctx.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')")
         def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
 

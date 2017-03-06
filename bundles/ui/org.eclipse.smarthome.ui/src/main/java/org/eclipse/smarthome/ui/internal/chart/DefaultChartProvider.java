@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,11 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,21 +25,23 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
 import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.knowm.xchart.Chart;
+import org.knowm.xchart.ChartBuilder;
+import org.knowm.xchart.Series;
+import org.knowm.xchart.SeriesMarker;
+import org.knowm.xchart.StyleManager.LegendPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.xeiam.xchart.Chart;
-import com.xeiam.xchart.ChartBuilder;
-import com.xeiam.xchart.Series;
-import com.xeiam.xchart.SeriesMarker;
-import com.xeiam.xchart.StyleManager.LegendPosition;
 
 /**
  * This servlet generates time-series charts for a given set of items. It
@@ -139,8 +142,11 @@ public class DefaultChartProvider implements ChartProvider {
         chart.getStyleManager().setDatePattern(pattern);
         chart.getStyleManager().setAxisTickLabelsFont(new Font("SansSerif", Font.PLAIN, 11));
         chart.getStyleManager().setChartPadding(5);
-        chart.getStyleManager().setLegendBackgroundColor(Color.LIGHT_GRAY);
-        chart.getStyleManager().setChartBackgroundColor(Color.LIGHT_GRAY);
+        chart.getStyleManager().setPlotBackgroundColor(new Color(254, 254, 254));
+        chart.getStyleManager().setLegendBackgroundColor(new Color(224, 224, 224, 160));
+        chart.getStyleManager().setChartBackgroundColor(new Color(224, 224, 224, 224));
+        chart.getStyleManager().setLegendFont(new Font("SansSerif", Font.PLAIN, 10));
+        chart.getStyleManager().setLegendSeriesLineLength(10);
 
         chart.getStyleManager().setXAxisMin(startTime.getTime());
         chart.getStyleManager().setXAxisMax(endTime.getTime());
@@ -197,15 +203,15 @@ public class DefaultChartProvider implements ChartProvider {
         if (seriesCounter == 0) {
             chart.getStyleManager().setLegendVisible(false);
 
-            Collection<Date> xData = new ArrayList<Date>();
-            Collection<Number> yData = new ArrayList<Number>();
+            List<Date> xData = new ArrayList<Date>();
+            List<Number> yData = new ArrayList<Number>();
 
             xData.add(startTime);
             yData.add(0);
             xData.add(endTime);
             yData.add(0);
 
-            Series series = chart.addDateSeries("NONE", xData, yData);
+            Series series = chart.addSeries("NONE", xData, yData);
             series.setMarker(SeriesMarker.NONE);
             series.setLineStyle(new BasicStroke(0f));
         }
@@ -226,6 +232,19 @@ public class DefaultChartProvider implements ChartProvider {
         return lBufferedImage;
     }
 
+    double convertData(State state) {
+        if (state instanceof DecimalType) {
+            return ((DecimalType) state).doubleValue();
+        } else if (state instanceof OnOffType) {
+            return (state == OnOffType.OFF) ? 0 : 1;
+        } else if (state instanceof OpenClosedType) {
+            return (state == OpenClosedType.CLOSED) ? 0 : 1;
+        } else {
+            logger.debug("Unsupported item type in chart: {}", state.getClass().toString());
+            return 0;
+        }
+    }
+
     boolean addItem(Chart chart, QueryablePersistenceService service, Date timeBegin, Date timeEnd, Item item,
             int seriesCounter) {
         Color color = LINECOLORS[seriesCounter % LINECOLORS.length];
@@ -243,32 +262,70 @@ public class DefaultChartProvider implements ChartProvider {
             label = item.getName();
         }
 
-        // Define the data filter
-        FilterCriteria filter = new FilterCriteria();
+        Iterable<HistoricItem> result;
+        FilterCriteria filter;
+
+        // Generate data collections
+        List<Date> xData = new ArrayList<Date>();
+        List<Number> yData = new ArrayList<Number>();
+
+        // Declare state here so it will hold the last value at the end of the process
+        State state = null;
+
+        // First, get the value at the start time.
+        // This is necessary for values that don't change often otherwise data will start
+        // after the start of the graph (or not at all if there's no change during the graph period)
+        filter = new FilterCriteria();
+        filter.setEndDate(timeBegin);
+        filter.setItemName(item.getName());
+        filter.setPageSize(1);
+        filter.setOrdering(Ordering.DESCENDING);
+        result = service.query(filter);
+        if (result.iterator().hasNext()) {
+            HistoricItem historicItem = result.iterator().next();
+
+            state = historicItem.getState();
+            xData.add(timeBegin);
+            yData.add(convertData(state));
+        }
+
+        // Now, get all the data between the start and end time
         filter.setBeginDate(timeBegin);
         filter.setEndDate(timeEnd);
-        filter.setItemName(item.getName());
+        filter.setPageSize(Integer.MAX_VALUE);
         filter.setOrdering(Ordering.ASCENDING);
 
         // Get the data from the persistence store
-        Iterable<HistoricItem> result = service.query(filter);
+        result = service.query(filter);
         Iterator<HistoricItem> it = result.iterator();
-
-        // Generate data collections
-        Collection<Date> xData = new ArrayList<Date>();
-        Collection<Number> yData = new ArrayList<Number>();
 
         // Iterate through the data
         while (it.hasNext()) {
             HistoricItem historicItem = it.next();
-            org.eclipse.smarthome.core.types.State state = historicItem.getState();
-            if (state instanceof DecimalType) {
-                xData.add(historicItem.getTimestamp());
-                yData.add((DecimalType) state);
+
+            // For 'binary' states, we need to replicate the data
+            // to avoid diagonal lines
+            if (state instanceof OnOffType || state instanceof OpenClosedType) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(historicItem.getTimestamp());
+                cal.add(Calendar.MILLISECOND, -1);
+                xData.add(cal.getTime());
+                yData.add(convertData(state));
             }
+
+            state = historicItem.getState();
+            xData.add(historicItem.getTimestamp());
+            yData.add(convertData(state));
+        }
+
+        // Lastly, add the final state at the endtime
+        if (state != null) {
+            xData.add(timeEnd);
+            yData.add(convertData(state));
         }
 
         // Add the new series to the chart - only if there's data elements to display
+        // The chart engine will throw an exception if there's no data
         if (xData.size() == 0) {
             return false;
         }
@@ -279,7 +336,7 @@ public class DefaultChartProvider implements ChartProvider {
             yData.add(yData.iterator().next());
         }
 
-        Series series = chart.addDateSeries(label, xData, yData);
+        Series series = chart.addSeries(label, xData, yData);
         series.setLineStyle(new BasicStroke(1.5f));
         series.setMarker(SeriesMarker.NONE);
         series.setLineColor(color);
@@ -287,8 +344,7 @@ public class DefaultChartProvider implements ChartProvider {
         // If the start value is below the median, then count legend position down
         // Otherwise count up.
         // We use this to decide whether to put the legend in the top or bottom corner.
-        if (yData.iterator().next().floatValue() > ((series.getyMax().floatValue() - series.getyMin().floatValue()) / 2
-                + series.getyMin().floatValue())) {
+        if (yData.iterator().next().floatValue() > ((series.getYMax() - series.getYMin()) / 2 + series.getYMin())) {
             legendPosition++;
         } else {
             legendPosition--;

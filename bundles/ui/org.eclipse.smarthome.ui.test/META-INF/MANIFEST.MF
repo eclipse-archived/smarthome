@@ -6,7 +6,7 @@ Bundle-ManifestVersion: 2
 Fragment-Host: org.eclipse.smarthome.ui
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.ui.test
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Import-Package: org.junit;version="4.0.0",
  org.mockito,

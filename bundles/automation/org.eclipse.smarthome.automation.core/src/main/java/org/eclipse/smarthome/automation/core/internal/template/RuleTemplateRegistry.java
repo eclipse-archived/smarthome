@@ -88,8 +88,8 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
                 Configuration c = new Configuration();
                 c.setProperties(t.getConfiguration().getProperties());
                 Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), c);
-                trigger.setLabel(trigger.getLabel());
-                trigger.setDescription(trigger.getDescription());
+                trigger.setLabel(t.getLabel());
+                trigger.setDescription(t.getDescription());
                 res.add(trigger);
             }
         }
@@ -104,8 +104,8 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
                 conf.setProperties(c.getConfiguration().getProperties());
                 Condition condition = new Condition(c.getId(), c.getTypeUID(), conf,
                         new HashMap<String, String>(c.getInputs()));
-                condition.setLabel(condition.getLabel());
-                condition.setDescription(condition.getDescription());
+                condition.setLabel(c.getLabel());
+                condition.setDescription(c.getDescription());
                 res.add(condition);
             }
         }

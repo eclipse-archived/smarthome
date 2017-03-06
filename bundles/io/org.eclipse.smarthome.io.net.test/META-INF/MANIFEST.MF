@@ -5,6 +5,6 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.net.test
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.io.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.junit;version="4.0.0",
  org.hamcrest.core

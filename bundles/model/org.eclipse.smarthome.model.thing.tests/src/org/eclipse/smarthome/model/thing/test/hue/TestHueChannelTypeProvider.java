@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -34,7 +35,10 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
     public static final ChannelTypeUID COLOR_TEMP_CHANNEL_TYPE_UID = new ChannelTypeUID("hue:color_temperature");
     public static final ChannelTypeUID COLOR_CHANNEL_TYPE_UID = new ChannelTypeUID("hue:color");
 
+    public static final ChannelGroupTypeUID GROUP_CHANNEL_GROUP_TYPE_UID = new ChannelGroupTypeUID("hue", "group");
+
     private List<ChannelType> channelTypes;
+    private List<ChannelGroupType> channelGroupTypes;
 
     public TestHueChannelTypeProvider() {
         try {
@@ -49,6 +53,13 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
                     "colorTemperatureLabel", "description", null, null, null,
                     new URI("Xhue", "XLCT001:Xcolor_temperature", null));
             channelTypes = Lists.newArrayList(ctColor, ctColorTemperature, ctColorX, ctColorTemperatureX);
+
+            ChannelGroupType groupX = new ChannelGroupType(GROUP_CHANNEL_GROUP_TYPE_UID, false, "Channel Group",
+                    "Channel Group",
+                    Lists.newArrayList(new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
+                            new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)));
+            channelGroupTypes = Lists.newArrayList(groupX);
+
         } catch (Exception willNeverBeThrown) {
         }
     }
@@ -70,12 +81,17 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
 
     @Override
     public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
+        for (ChannelGroupType channelGroupType : channelGroupTypes) {
+            if (channelGroupType.getUID().equals(channelGroupTypeUID)) {
+                return channelGroupType;
+            }
+        }
         return null;
     }
 
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-        return Lists.newArrayList();
+        return channelGroupTypes;
     }
 
 }

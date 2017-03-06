@@ -33,7 +33,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class SampleConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class SampleConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
     public static final String OPERATOR_LESS = "<";
     public static final String OPERATOR_GREATER = ">";
     public static final String OPERATOR_EQUAL = "=";
@@ -57,7 +57,7 @@ public class SampleConditionHandler extends BaseModuleHandler<Condition>implemen
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
+    public boolean isSatisfied(Map<String, Object> inputs) {
         String conditionInput = (String) inputs.get(CONDITION_INPUT_NAME);
         if (conditionInput == null) {
             conditionInput = "";

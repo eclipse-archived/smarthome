@@ -53,7 +53,7 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
                 ScriptConditionHandler handler = new ScriptConditionHandler((Condition) module);
                 return handler;
             } else if (ScriptActionHandler.SCRIPT_ACTION_ID.equals(moduleTypeUID) && module instanceof Action) {
-                ScriptActionHandler handler = new ScriptActionHandler((Action) module);
+                ScriptActionHandler handler = new ScriptActionHandler((Action) module, ruleUID);
                 return handler;
             } else {
                 logger.error("The ModuleHandler is not supported: {}", moduleTypeUID);

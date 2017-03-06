@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,8 +41,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     /**
      * Returns a set of bound channels for the given item name.
      *
-     * @param itemName
-     *            item name
+     * @param itemName item name
      * @return set of bound channels for the given item name
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
@@ -93,15 +92,10 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     /**
      * Returns a set of bound things for the given item name.
      *
-     * @deprecated Will be removed soon. Use {@link ItemThingLinkRegistry#getLinkedThings(String)} instead.
-     *
-     * @param itemName
-     *            item name
+     * @param itemName item name
      * @return set of bound things for the given item name
      */
-    @Deprecated
     public Set<Thing> getBoundThings(String itemName) {
-
         Set<Thing> things = new HashSet<>();
         Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
 
