@@ -4,7 +4,7 @@ Bundle-Name: Eclipse Smarthome Audio Test
 Bundle-SymbolicName: org.eclipse.smarthome.core.audio.test
 Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.core.audio
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,

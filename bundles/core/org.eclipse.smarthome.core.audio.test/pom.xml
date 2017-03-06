@@ -163,7 +163,7 @@
               <autoStart>true</autoStart>
             </bundle>
           </bundleStartLevel>
-          <argLine>-Dorg.osgi.service.http.port=8080 -Djetty.home.bundle=org.eclipse.jetty.osgi.boot</argLine>
+          <argLine>-Dorg.osgi.service.http.port=9090 -Djetty.home.bundle=org.eclipse.jetty.osgi.boot</argLine>
         </configuration>
       </plugin>
     </plugins>
