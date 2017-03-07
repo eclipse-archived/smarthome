@@ -9,12 +9,12 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,6 +57,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -85,7 +87,7 @@ import com.google.gson.JsonSyntaxException;
  *
  */
 @SuppressWarnings("rawtypes")
-public class RuleEngine implements RegistryChangeListener<ModuleType> {
+public class RuleEngine implements RegistryChangeListener<ModuleType>, ProviderChangeListener<String> {
 
     /**
      * Constant defining separator between module uid and output name.
@@ -193,14 +195,14 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     @Override
     public void added(ModuleType moduleType) {
         String moduleTypeName = moduleType.getUID();
-        Collection<ModuleHandlerFactory> moduleHandlerFactories = new LinkedList<ModuleHandlerFactory>();
+        Collection<ModuleHandlerFactory> moduleHandlerFactories = new HashSet<ModuleHandlerFactory>();
         synchronized (this) {
             if (this.moduleHandlerFactories.get(moduleTypeName) == null) {
                 moduleHandlerFactories.addAll(this.moduleHandlerFactories.values());
             }
         }
         for (ModuleHandlerFactory moduleHandlerFactory : moduleHandlerFactories) {
-            Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+            Collection<String> moduleTypes = moduleHandlerFactory.getAll();
             if (moduleTypes.contains(moduleTypeName)) {
                 synchronized (this) {
                     this.moduleHandlerFactories.put(moduleTypeName, moduleHandlerFactory);
@@ -260,7 +262,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     protected void addModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         logger.debug("ModuleHandlerFactory added.");
-        Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+        Collection<String> moduleTypes = moduleHandlerFactory.getAll();
         addNewModuleTypes(moduleHandlerFactory, moduleTypes);
     }
 
@@ -269,7 +271,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             compositeFactory.deactivate();
             compositeFactory = null;
         }
-        Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
+        Collection<String> moduleTypes = moduleHandlerFactory.getAll();
         removeMissingModuleTypes(moduleTypes);
         updateModuleHandlerFactoryMap(moduleTypes);
     }
@@ -279,6 +281,32 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             String moduleTypeName = it.next();
             moduleHandlerFactories.remove(moduleTypeName);
         }
+    }
+
+    /**
+     * called by ModuleHandlerFactory if new ModuleType is supported
+     */
+    @Override
+    public void added(Provider<String> provider, String element) {
+        addNewModuleTypes((ModuleHandlerFactory) provider, Arrays.asList(element));
+    }
+
+    /**
+     * called by ModuleHandlerFactory if support for a ModuleType is dropped
+     */
+    @Override
+    public void removed(Provider<String> provider, String element) {
+        Collection<String> modulesTypes = Arrays.asList(element);
+        removeMissingModuleTypes(modulesTypes);
+        updateModuleHandlerFactoryMap(modulesTypes);
+    }
+
+    /**
+     * never called by ModuleHandlerFactory
+     */
+    @Override
+    public void updated(Provider<String> provider, String oldelement, String element) {
+        logger.warn("unexpected updated() called");
     }
 
     /**

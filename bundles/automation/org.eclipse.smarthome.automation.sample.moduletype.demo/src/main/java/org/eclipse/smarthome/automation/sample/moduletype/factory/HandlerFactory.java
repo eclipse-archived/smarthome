@@ -31,6 +31,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.sample.moduletype.handlers.CompareCondition;
 import org.eclipse.smarthome.automation.sample.moduletype.handlers.ConsolePrintAction;
 import org.eclipse.smarthome.automation.sample.moduletype.handlers.ConsoleTrigger;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,9 +95,17 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
      * handlers.
      */
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return types;
     }
+    
+    @Override 
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) { 
+    } 
+ 
+    @Override 
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) { 
+    } 
 
     /**
      * This method is called when all of the services required by this factory are available.

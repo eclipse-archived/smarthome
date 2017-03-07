@@ -26,6 +26,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.type.LightsTrigger
 import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditionType;
 import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
 import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeActionType;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class WelcomeHomeHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public Collection<String> getTypes() {
+    public Collection<String> getAll() {
         return TYPES;
     }
 
@@ -97,5 +98,13 @@ public class WelcomeHomeHandlerFactory extends BaseModuleHandlerFactory {
             logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
         }
         return moduleHandler;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<String> listener) {
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<String> listener) {
     }
 }
