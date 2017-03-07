@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Plamen Peev
  *
  */
-public class RuleEnableHandler extends BaseModuleHandler<Action> implements ActionHandler {
+public class RuleEnablementActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
     /**
      * This filed contains the type of this handler so it can be recognized from the factory.
@@ -57,7 +57,7 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
     /**
      * This logger is used to log warning message if at some point {@link RuleRegistry} service becomes unavailable.
      */
-    private final Logger logger = LoggerFactory.getLogger(RuleEnableHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(RuleEnablementActionHandler.class);
 
     /**
      * This field stores the UIDs of the rules to which the action will be applied.
@@ -75,7 +75,7 @@ public class RuleEnableHandler extends BaseModuleHandler<Action> implements Acti
     private RuleRegistry ruleRegistry;
 
     @SuppressWarnings("unchecked")
-    public RuleEnableHandler(final Action module, final RuleRegistry ruleRegistry) {
+    public RuleEnablementActionHandler(final Action module, final RuleRegistry ruleRegistry) {
         super(module);
         final Configuration config = module.getConfiguration();
         if (config == null) {
