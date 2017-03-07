@@ -64,11 +64,19 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             }
         });
     }
-}).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, sharedProperties) {
+}).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, extensionService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
-
+    $scope.ruleOptions = [ 'New rule', 'Rule from template' ];
     $scope.refresh = function(force) {
         ruleRepository.getAll(null, force);
+        extensionService.getAll(function(extensions) {
+            var hasRuleExtensions = $.grep(extensions, function(extension) {
+                return extension.type == "ruletemplate";
+            }).length > 0;
+            if (hasRuleExtensions) {
+                $scope.ruleOptions.push('Rule from catalog');
+            }
+        });
     };
 
     $scope.configure = function(rule) {
