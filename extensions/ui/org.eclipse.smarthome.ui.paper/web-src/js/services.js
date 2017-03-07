@@ -368,7 +368,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         if (param.context.toUpperCase() === 'TIME') {
                             value = (value.getHours() < 10 ? '0' : '') + value.getHours() + ':' + (value.getMinutes() < 10 ? '0' : '') + value.getMinutes();
                         } else if (param.context.toUpperCase() === 'DATE') {
-                            value = (value.getFullYear() + '-' + (value.getMonth() < 10 ? '0' : '') + (value.getMonth() + 1) + '-' + value.getDate());
+                            value = (value.getFullYear() + '-' + (value.getMonth() + 1 < 10 ? '0' : '') + (value.getMonth() + 1) + '-' + value.getDate());
                         }
                     }
                 }
@@ -449,7 +449,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         if (date) {
                             if (typeof sending !== "undefined" && sending) {
                                 if (parameter.context.toUpperCase() === 'DATE') {
-                                    configuration[parameter.name] = date instanceof Date ? (date.getFullYear() + '-' + (date.getMonth() < 10 ? '0' : '') + (date.getMonth() + 1) + '-' + date.getDate()) : date;
+                                    configuration[parameter.name] = date instanceof Date ? (date.getFullYear() + '-' + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + '-' + date.getDate()) : date;
                                 } else {
                                     configuration[parameter.name] = date instanceof Date ? (date.getHours() < 10 ? '0' : '') + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() : date;
                                 }
@@ -689,10 +689,10 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                                 str = formatNumber(hours) + ":" + formatNumber(date.getMinutes()) + ":" + formatNumber(date.getSeconds()) + " " + ampm;
                                 break;
                             case 'D':
-                                str = formatNumber(date.getMonth()) + "/" + formatNumber(date.getDate()) + "/" + formatNumber(date.getFullYear());
+                                str = formatNumber(date.getMonth() + 1) + "/" + formatNumber(date.getDate()) + "/" + formatNumber(date.getFullYear());
                                 break;
                             case 'F':
-                                str = formatNumber(date.getFullYear()) + "-" + formatNumber(date.getMonth()) + "-" + formatNumber(date.getDate());
+                                str = formatNumber(date.getFullYear()) + "-" + formatNumber(date.getMonth() + 1) + "-" + formatNumber(date.getDate());
                                 break;
                             case 'c':
                                 str = date;
