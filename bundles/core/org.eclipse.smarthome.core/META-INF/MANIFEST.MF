@@ -38,6 +38,7 @@ Import-Package:
  com.google.common.base,
  com.google.common.collect,
  com.google.gson,
+ javax.measure,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -68,7 +69,12 @@ Import-Package:
  org.osgi.service.event,
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ tec.uom.lib.common,
+ tec.uom.se,
+ tec.uom.se.format,
+ tec.uom.se.quantity,
+ tec.uom.se.unit 
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smartho
  me.core.internal.events,org.eclipse.smarthome.core.internal.items,org.e
  clipse.smarthome.core.internal.logging
