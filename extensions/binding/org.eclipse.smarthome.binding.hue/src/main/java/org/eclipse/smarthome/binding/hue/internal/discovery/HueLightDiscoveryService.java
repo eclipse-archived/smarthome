@@ -18,6 +18,8 @@ import java.util.Set;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -27,9 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-
-import org.eclipse.smarthome.binding.hue.internal.FullLight;
-import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected

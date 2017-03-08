@@ -18,11 +18,12 @@ import com.google.gson.reflect.TypeToken;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class PortalDiscoveryResult {
-	public final static Type gsonType = new TypeToken<List<PortalDiscoveryResult>>(){}.getType();
-	
-	private String internalipaddress;
-	
-	public String getIPAddress() {
-		return internalipaddress;
-	}
+    public final static Type gsonType = new TypeToken<List<PortalDiscoveryResult>>() {
+    }.getType();
+
+    private String internalipaddress;
+
+    public String getIPAddress() {
+        return internalipaddress;
+    }
 }

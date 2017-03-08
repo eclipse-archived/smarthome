@@ -23,7 +23,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.hue.internal.Config;
+import org.eclipse.smarthome.binding.hue.internal.FullConfig;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage;
+import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -37,17 +47,6 @@ import org.eclipse.smarthome.core.thing.binding.ConfigStatusBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.eclipse.smarthome.binding.hue.internal.Config;
-import org.eclipse.smarthome.binding.hue.internal.FullConfig;
-import org.eclipse.smarthome.binding.hue.internal.FullLight;
-import org.eclipse.smarthome.binding.hue.internal.HueBridge;
-import org.eclipse.smarthome.binding.hue.internal.State;
-import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
-import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
-import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
-import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
-import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
 
 /**
  * {@link HueBridgeHandler} is the handler for a hue bridge and connects it to
@@ -156,7 +155,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
             }
         }
-        
+
         private boolean isReachable(String ipAddress) {
             try {
                 // note that InetAddress.isReachable is unreliable, see

@@ -19,20 +19,21 @@ import com.google.gson.reflect.TypeToken;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 public class Schedule {
-	public final static Type gsonType = new TypeToken<Map<String, Schedule>>(){}.getType();
-	
-	private String id;
-	private String name;
-	
-	void setId(String id) {
-		this.id = id;
-	}
-	
-	public String getId() {
-		return id;
-	}
-	
-	public String getName() {
-		return name;
-	}
+    public final static Type gsonType = new TypeToken<Map<String, Schedule>>() {
+    }.getType();
+
+    private String id;
+    private String name;
+
+    void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -13,5 +13,5 @@ package org.eclipse.smarthome.binding.hue.internal;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class NewLightsResponse {
-	public String lastscan;
+    public String lastscan;
 }
