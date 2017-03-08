@@ -31,7 +31,7 @@ public interface AutoUpdateConfigurator {
     /**
      * Add an auto-update configuration for a channel UID.
      *
-     * @param channelUID the channel UID
+     * @param channelUid the channel UID
      * @param autoUpdate the auto-update setting
      * @throws IllegalArgumentException if there is already a configuration for the given channel UID
      * @throws IllegalStateException if there is already a configuration for the binding ID of that channel
@@ -42,7 +42,7 @@ public interface AutoUpdateConfigurator {
     /**
      * Remove an auto-update configuration for a channel UID.
      *
-     * @param channelUID the channel UID
+     * @param channelUid the channel UID
      * @throws IllegalArgumentException if there is no configuration for the given channel UID
      */
     void removeAutoUpdateByChannelUidConfig(ChannelUID channelUid) throws IllegalArgumentException;

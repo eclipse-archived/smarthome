@@ -119,7 +119,7 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber implements Au
             throw new IllegalArgumentException(
                     String.format("There is no configuration for given binding ID '%s'.", bindingId));
         } else {
-            settings.remove(bindingId);
+            bindingSpecificSettings.remove(bindingId);
         }
     }
 
