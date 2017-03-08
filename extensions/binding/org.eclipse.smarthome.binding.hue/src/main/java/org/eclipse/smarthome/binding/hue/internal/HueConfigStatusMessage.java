@@ -12,7 +12,7 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 /**
  * The {@link HueConfigStatusMessage} defines
  * the keys to be used for {@link ConfigStatusMessage}s.
- * 
+ *
  * @author Alexander Kostadinov - Initial contribution
  *
  */

@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class GroupTableFullException extends ApiException {
-	public GroupTableFullException() {}
-	
-	public GroupTableFullException(String message) {
-		super(message);
-	}
+    public GroupTableFullException() {
+    }
+
+    public GroupTableFullException(String message) {
+        super(message);
+    }
 }

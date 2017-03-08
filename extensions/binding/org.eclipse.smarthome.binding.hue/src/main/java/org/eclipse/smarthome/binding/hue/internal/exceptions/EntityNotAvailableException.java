@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class EntityNotAvailableException extends ApiException {
-	public EntityNotAvailableException() {}
-	
-	public EntityNotAvailableException(String message) {
-		super(message);
-	}
+    public EntityNotAvailableException() {
+    }
+
+    public EntityNotAvailableException(String message) {
+        super(message);
+    }
 }

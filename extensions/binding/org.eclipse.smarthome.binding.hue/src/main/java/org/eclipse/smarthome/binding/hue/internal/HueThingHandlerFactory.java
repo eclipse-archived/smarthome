@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -98,8 +97,8 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     private synchronized void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
         HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
         discoveryService.activate();
-        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext.registerService(
-                DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
+        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
+                .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
 
     @Override
@@ -108,8 +107,8 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
             if (serviceReg != null) {
                 // remove discovery service, if bridge handler is removed
-                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext.getService(serviceReg
-                        .getReference());
+                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
+                        .getService(serviceReg.getReference());
                 service.deactivate();
                 serviceReg.unregister();
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());

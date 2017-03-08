@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class UnauthorizedException extends ApiException {
-	public UnauthorizedException() {}
-	
-	public UnauthorizedException(String message) {
-		super(message);
-	}
+    public UnauthorizedException() {
+    }
+
+    public UnauthorizedException(String message) {
+        super(message);
+    }
 }

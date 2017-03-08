@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class DeviceOffException extends ApiException {
-	public DeviceOffException() {}
-	
-	public DeviceOffException(String message) {
-		super(message);
-	}
+    public DeviceOffException() {
+    }
+
+    public DeviceOffException(String message) {
+        super(message);
+    }
 }

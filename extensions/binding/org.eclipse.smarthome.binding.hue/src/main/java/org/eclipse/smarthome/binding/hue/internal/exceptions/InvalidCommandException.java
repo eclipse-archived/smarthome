@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class InvalidCommandException extends ApiException {
-	public InvalidCommandException() {}
-	
-	public InvalidCommandException(String message) {
-		super(message);
-	}
+    public InvalidCommandException() {
+    }
+
+    public InvalidCommandException(String message) {
+        super(message);
+    }
 }
