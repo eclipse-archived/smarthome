@@ -3,14 +3,14 @@ Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: YahooWeather Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-SymbolicName: org.eclipse.smarthome.binding.yahooweather;singleto
- n:=true
+Bundle-SymbolicName: org.eclipse.smarthome.binding.yahooweather;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.binding.yahooweather,
  org.eclipse.smarthome.binding.yahooweather.handler
-Import-Package: 
+Import-Package: javax.measure,
+ javax.measure.quantity,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.yahooweather,
@@ -18,10 +18,13 @@ Import-Package:
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.status,
  org.eclipse.smarthome.core.cache,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.net.http,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+

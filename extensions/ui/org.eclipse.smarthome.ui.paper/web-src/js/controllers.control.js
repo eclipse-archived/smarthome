@@ -119,11 +119,14 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         })
         angular.forEach(items, function(item) {
 
-            if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
-                var parsedValue = Number(item.state);
-                if (isNaN(parsedValue)) {
-                    item.state = null;
-                } else {
+            if ((item.type && (item.type.indexOf("Number") === 0 || item.type == "Rollershutter")) || (item.groupType && item.groupType.indexOf("Number") === 0)) {
+                var state = '' + item.state;
+                if (state.indexOf(' ') > 0) {
+                    item.unit = state.substring(state.indexOf(' ') + 1);
+                    state = state.substring(0, state.indexOf(' '));
+                }
+                var parsedValue = Number(state);
+                if (!isNaN(parsedValue)) {
                     item.state = parsedValue;
                 }
             }
@@ -308,6 +311,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         }
     };
 
+}).controller('NumberItemController', function($scope) {
+    $scope.updateState = function() {
+        var state = $scope.item.unit ? $scope.item.state + ' ' + $scope.item.unit : $scope.item.state;
+        $scope.sendCommand(state, false);
+        $scope.editMode = false;
+    };
 }).controller('ImageItemController', function($scope, itemService) {
 
     $scope.refreshCameraImage = function() {

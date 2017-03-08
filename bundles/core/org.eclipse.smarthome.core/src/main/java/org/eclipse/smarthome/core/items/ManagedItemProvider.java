@@ -74,6 +74,8 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         public List<String> functionParams;
 
+        public String dimension;
+
     }
 
     private static final @NonNull String ITEM_TYPE_GROUP = "Group";

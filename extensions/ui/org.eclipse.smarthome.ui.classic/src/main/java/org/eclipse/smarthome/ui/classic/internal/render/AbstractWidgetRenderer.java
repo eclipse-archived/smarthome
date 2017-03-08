@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppActivator;
@@ -245,6 +246,14 @@ public abstract class AbstractWidgetRenderer implements WidgetRenderer {
     @Override
     public void setConfig(WebAppConfig config) {
         this.config = config;
+    }
+
+    protected String getUnitForWidget(Widget widget) {
+        return itemUIRegistry.getUnitForWidget(widget);
+    }
+
+    protected State convertStateToLabelUnit(QuantityType<?> state, String label) {
+        return itemUIRegistry.convertStateToLabelUnit(state, label);
     }
 
 }

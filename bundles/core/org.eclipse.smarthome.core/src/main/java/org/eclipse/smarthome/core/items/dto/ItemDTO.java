@@ -17,7 +17,7 @@ import java.util.Set;
 
 /**
  * This is a data transfer object that is used to serialize items.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - added tag support
  *

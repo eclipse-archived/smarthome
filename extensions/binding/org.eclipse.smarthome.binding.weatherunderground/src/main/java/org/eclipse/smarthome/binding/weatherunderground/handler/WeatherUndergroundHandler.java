@@ -12,11 +12,10 @@
  */
 package org.eclipse.smarthome.binding.weatherunderground.handler;
 
+import static org.eclipse.smarthome.core.library.unit.MetricPrefix.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,15 +24,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
+
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonCurrent;
 import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonData;
-import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonUtils;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonForecast;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonForecastDay;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -326,18 +335,24 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         LANG_ISO_TO_WU_CODES.put("ZW", "ZW");
     }
 
-    private LocaleProvider localeProvider;
+    private final LocaleProvider localeProvider;
+
+    private final UnitProvider unitProvider;
 
     private WeatherUndergroundJsonData weatherData;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Gson gson;
+    private final Gson gson;
 
-    public WeatherUndergroundHandler(Thing thing, LocaleProvider localeProvider) {
+    private final Map<String, Integer> forecastMap;
+
+    public WeatherUndergroundHandler(@NonNull Thing thing, LocaleProvider localeProvider, UnitProvider unitProvider) {
         super(thing);
         this.localeProvider = localeProvider;
+        this.unitProvider = unitProvider;
         gson = new Gson();
+        forecastMap = initForecastDayMap();
     }
 
     @Override
@@ -441,57 +456,190 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * @param channelId the id identifying the channel to be updated
      */
     private void updateChannel(String channelId) {
-        Channel channel = getThing().getChannel(channelId);
-        if (channel != null && isLinked(channelId)) {
-            // Get the source unit property from the channel when defined
-            String sourceUnit = (String) channel.getConfiguration()
-                    .get(WeatherUndergroundBindingConstants.PROPERTY_SOURCE_UNIT);
-            if (sourceUnit == null) {
-                sourceUnit = "";
-            } else if (sourceUnit.length() > 0) {
-                sourceUnit = sourceUnit.substring(0, 1).toUpperCase() + sourceUnit.substring(1);
-            }
-
-            // Get the value corresponding to the channel
-            // from the last weather data retrieved
-            Object value;
-            try {
-                value = WeatherUndergroundJsonUtils.getValue(channelId + sourceUnit, weatherData);
-            } catch (Exception e) {
-                logger.debug("Update channel {}: Can't get value: {}", channelId, e.getMessage());
-                return;
-            }
-
-            // Build a State from this value
+        if (isLinked(channelId)) {
             State state = null;
-            if (value == null) {
-                state = UnDefType.UNDEF;
-            } else if (value instanceof Calendar) {
-                state = new DateTimeType((Calendar) value);
-            } else if (value instanceof BigDecimal) {
-                state = new DecimalType((BigDecimal) value);
-            } else if (value instanceof Integer) {
-                state = new DecimalType(BigDecimal.valueOf(((Integer) value).longValue()));
-            } else if (value instanceof String) {
-                state = new StringType(value.toString());
-            } else if (value instanceof URL) {
-                state = HttpUtil.downloadImage(((URL) value).toExternalForm(), FETCH_TIMEOUT_MS);
-                if (state == null) {
-                    logger.debug("Failed to download the content of URL {}", ((URL) value).toExternalForm());
-                    state = UnDefType.UNDEF;
-                }
-            } else {
-                logger.debug("Update channel {}: Unsupported value type {}", channelId,
-                        value.getClass().getSimpleName());
+            if (channelId.startsWith("current")) {
+                state = updateCurrentObservationChannel(channelId, weatherData.getCurrent());
+            } else if (channelId.startsWith("forecast")) {
+                state = updateForecastChannel(channelId, weatherData.getForecast());
             }
-            logger.debug("Update channel {} with state {} ({})", channelId, (state == null) ? "null" : state.toString(),
-                    (value == null) ? "null" : value.getClass().getSimpleName());
+
+            logger.debug("Update channel {} with state {}", channelId, (state == null) ? "null" : state.toString());
 
             // Update the channel
             if (state != null) {
                 updateState(channelId, state);
+            } else {
+                updateState(channelId, UnDefType.NULL);
             }
         }
+    }
+
+    private State updateCurrentObservationChannel(String channelId, WeatherUndergroundJsonCurrent current) {
+        WUQuantity quantity;
+        String channelTypeId = getChannelTypeId(channelId);
+        switch (channelTypeId) {
+            case "location":
+                return undefOrState(current.getLocation(), new StringType(current.getLocation()));
+            case "stationId":
+                return undefOrState(current.getStationId(), new StringType(current.getStationId()));
+            case "observationTime":
+                return undefOrState(current.getObservationTime(), new DateTimeType(current.getObservationTime()));
+            case "conditions":
+                return undefOrState(current.getConditions(), new StringType(current.getConditions()));
+            case "temperature":
+                quantity = getTemperature(current.getTemperatureC(), current.getTemperatureF());
+                return undefOrQuantity(quantity);
+            case "relativeHumidity":
+                return undefOrDecimal(current.getRelativeHumidity());
+            case "windDirection":
+                return undefOrState(current.getWindDirection(), new StringType(current.getWindDirection()));
+            case "windDirectionDegrees":
+                return undefOrDecimal(current.getWindDirectionDegrees());
+            case "windSpeed":
+                quantity = getSpeed(current.getWindSpeedKmh(), current.getWindSpeedMph());
+                return undefOrQuantity(quantity);
+            case "windGust":
+                quantity = getSpeed(current.getWindGustKmh(), current.getWindGustMph());
+                return undefOrQuantity(quantity);
+            case "pressure":
+                quantity = getPressure(current.getPressureHPa(), current.getPressureInHg());
+                return undefOrQuantity(quantity);
+            case "pressureTrend":
+                return undefOrState(current.getPressureTrend(), new StringType(current.getPressureTrend()));
+            case "dewPoint":
+                quantity = getTemperature(current.getDewPointC(), current.getDewPointF());
+                return undefOrQuantity(quantity);
+            case "heatIndex":
+                quantity = getTemperature(current.getHeatIndexC(), current.getHeatIndexF());
+                return undefOrQuantity(quantity);
+            case "windChill":
+                quantity = getTemperature(current.getWindChillC(), current.getWindChillF());
+                return undefOrQuantity(quantity);
+            case "feelingTemperature":
+                quantity = getTemperature(current.getFeelingTemperatureC(), current.getFeelingTemperatureF());
+                return undefOrQuantity(quantity);
+            case "visibility":
+                quantity = getWUQuantity(KILO(SIUnits.METRE), ImperialUnits.MILE, current.getVisibilityKm(),
+                        current.getVisibilityMi());
+                return undefOrQuantity(quantity);
+            case "solarRadiation":
+                return undefOrQuantity(new WUQuantity(current.getSolarRadiation(), SmartHomeUnits.IRRADIANCE));
+            case "UVIndex":
+                return undefOrDecimal(current.getUVIndex());
+            case "precipitationDay":
+                quantity = getPrecipitation(current.getPrecipitationDayMm(), current.getPrecipitationDayIn());
+                return undefOrQuantity(quantity);
+            case "precipitationHour":
+                quantity = getPrecipitation(current.getPrecipitationHourMm(), current.getPrecipitationHourIn());
+                return undefOrQuantity(quantity);
+            case "iconKey":
+                return undefOrState(current.getIconKey(), new StringType(current.getIconKey()));
+            case "icon":
+                State icon = HttpUtil.downloadImage(current.getIcon().toExternalForm());
+                if (icon == null) {
+                    logger.debug("Failed to download the content of URL {}", current.getIcon().toExternalForm());
+                    return null;
+                }
+                return icon;
+            default:
+                return null;
+        }
+    }
+
+    private State updateForecastChannel(String channelId, WeatherUndergroundJsonForecast forecast) {
+        WUQuantity quantity;
+        int day = getDay(channelId);
+        WeatherUndergroundJsonForecastDay dayForecast = forecast.getSimpleForecast(day);
+
+        String channelTypeId = getChannelTypeId(channelId);
+        switch (channelTypeId) {
+            case "forecastTime":
+                return undefOrState(dayForecast.getForecastTime(), new DateTimeType(dayForecast.getForecastTime()));
+            case "conditions":
+                return undefOrState(dayForecast.getConditions(), new StringType(dayForecast.getConditions()));
+            case "minTemperature":
+                quantity = getTemperature(dayForecast.getMinTemperatureC(), dayForecast.getMinTemperatureF());
+                return undefOrQuantity(quantity);
+            case "maxTemperature":
+                quantity = getTemperature(dayForecast.getMaxTemperatureC(), dayForecast.getMaxTemperatureF());
+                return undefOrQuantity(quantity);
+            case "relativeHumidity":
+                return undefOrDecimal(dayForecast.getRelativeHumidity());
+            case "probaPrecipitation":
+                return undefOrDecimal(dayForecast.getProbaPrecipitation());
+            case "precipitationDay":
+                quantity = getPrecipitation(dayForecast.getPrecipitationDayMm(), dayForecast.getPrecipitationDayIn());
+                return undefOrQuantity(quantity);
+            case "snow":
+                quantity = getWUQuantity(CENTI(SIUnits.METRE), ImperialUnits.INCH, dayForecast.getSnowCm(),
+                        dayForecast.getSnowIn());
+                return undefOrQuantity(quantity);
+            case "maxWindDirection":
+                return undefOrState(dayForecast.getMaxWindDirection(),
+                        new StringType(dayForecast.getMaxWindDirection()));
+            case "maxWindDirectionDegrees":
+                return undefOrDecimal(dayForecast.getMaxWindDirectionDegrees());
+            case "maxWindSpeed":
+                quantity = getSpeed(dayForecast.getMaxWindSpeedKmh(), dayForecast.getMaxWindSpeedMph());
+                return undefOrQuantity(quantity);
+            case "averageWindDirection":
+                return undefOrState(dayForecast.getAverageWindDirection(),
+                        new StringType(dayForecast.getAverageWindDirection()));
+            case "averageWindDirectionDegrees":
+                return undefOrDecimal(dayForecast.getAverageWindDirectionDegrees());
+            case "averageWindSpeed":
+                quantity = getSpeed(dayForecast.getAverageWindSpeedKmh(), dayForecast.getAverageWindSpeedMph());
+                return undefOrQuantity(quantity);
+            case "iconKey":
+                return undefOrState(dayForecast.getIconKey(), new StringType(dayForecast.getIconKey()));
+            case "icon":
+                State icon = HttpUtil.downloadImage(dayForecast.getIcon().toExternalForm());
+                if (icon == null) {
+                    logger.debug("Failed to download the content of URL {}", dayForecast.getIcon().toExternalForm());
+                    return null;
+                }
+                return icon;
+            default:
+                return null;
+        }
+    }
+
+    private State undefOrState(Object value, State state) {
+        return value == null ? null : state;
+    }
+
+    private <T extends Quantity<T>> State undefOrQuantity(WUQuantity quantity) {
+        return quantity.value == null ? null : new QuantityType<>(quantity.value, quantity.unit);
+    }
+
+    private State undefOrDecimal(Number value) {
+        return value == null ? null : new DecimalType(value.doubleValue());
+    }
+
+    private int getDay(String channelId) {
+        String channel = channelId.split("#")[0];
+
+        return forecastMap.get(channel);
+    }
+
+    private String getChannelTypeId(String channelId) {
+        return channelId.substring(channelId.indexOf("#") + 1);
+    }
+
+    private Map<String, Integer> initForecastDayMap() {
+        Map<String, Integer> forecastMap = new HashMap<>();
+        forecastMap.put("forecastToday", Integer.valueOf(1));
+        forecastMap.put("forecastTomorrow", Integer.valueOf(2));
+        forecastMap.put("forecastDay2", Integer.valueOf(3));
+        forecastMap.put("forecastDay3", Integer.valueOf(4));
+        forecastMap.put("forecastDay4", Integer.valueOf(5));
+        forecastMap.put("forecastDay5", Integer.valueOf(6));
+        forecastMap.put("forecastDay6", Integer.valueOf(7));
+        forecastMap.put("forecastDay7", Integer.valueOf(8));
+        forecastMap.put("forecastDay8", Integer.valueOf(9));
+        forecastMap.put("forecastDay9", Integer.valueOf(10));
+        return forecastMap;
     }
 
     /**
@@ -505,18 +653,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
         weatherData = getWeatherData(USUAL_FEATURES, StringUtils.trimToEmpty(config.location));
         return weatherData != null;
-    }
-
-    /**
-     * Request a geolookup feature to the Weather Underground service
-     * for a location given as parameter
-     *
-     * @param location the location to provide to the Weather Underground service
-     * @return true if success or false in case of error
-     */
-    private boolean checkWeatherLocation(String location) {
-        WeatherUndergroundJsonData data = getWeatherData(Collections.singleton(FEATURE_GEOLOOKUP), location);
-        return data != null;
     }
 
     /**
@@ -570,31 +706,27 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             }
 
             // Map the JSON response to an object
-            if (response != null) {
-                result = gson.fromJson(response, WeatherUndergroundJsonData.class);
-                if (result == null) {
-                    errorDetail = "no data returned";
-                } else if (result.getResponse() == null) {
-                    errorDetail = "missing response sub-object";
-                } else if (result.getResponse().getErrorDescription() != null) {
-                    if ("keynotfound".equals(result.getResponse().getErrorType())) {
-                        error = "API key has to be fixed";
-                        statusDescr = "@text/offline.comm-error-invalid-api-key";
-                    }
-                    errorDetail = result.getResponse().getErrorDescription();
-                } else {
-                    resultOk = true;
-                    for (String feature : features) {
-                        if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
-                            resultOk = false;
-                            errorDetail = "missing current_observation sub-object";
-                        } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
-                            resultOk = false;
-                            errorDetail = "missing forecast sub-object";
-                        } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
-                            resultOk = false;
-                            errorDetail = "missing location sub-object";
-                        }
+            result = gson.fromJson(response, WeatherUndergroundJsonData.class);
+            if (result.getResponse() == null) {
+                errorDetail = "missing response sub-object";
+            } else if (result.getResponse().getErrorDescription() != null) {
+                if ("keynotfound".equals(result.getResponse().getErrorType())) {
+                    error = "API key has to be fixed";
+                    statusDescr = "@text/offline.comm-error-invalid-api-key";
+                }
+                errorDetail = result.getResponse().getErrorDescription();
+            } else {
+                resultOk = true;
+                for (String feature : features) {
+                    if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
+                        resultOk = false;
+                        errorDetail = "missing current_observation sub-object";
+                    } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
+                        resultOk = false;
+                        errorDetail = "missing forecast sub-object";
+                    } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
+                        resultOk = false;
+                        errorDetail = "missing location sub-object";
                     }
                 }
             }
@@ -621,5 +753,37 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
 
         return resultOk ? result : null;
+    }
+
+    private WUQuantity getTemperature(BigDecimal siValue, BigDecimal imperialValue) {
+        return getWUQuantity(SIUnits.CELSIUS, ImperialUnits.FAHRENHEIT, siValue, imperialValue);
+    }
+
+    private WUQuantity getSpeed(BigDecimal siValue, BigDecimal imperialValue) {
+        return getWUQuantity(SIUnits.KILOMETRE_PER_HOUR, ImperialUnits.MILES_PER_HOUR, siValue, imperialValue);
+    }
+
+    private WUQuantity getPressure(BigDecimal siValue, BigDecimal imperialValue) {
+        return getWUQuantity(HECTO(SIUnits.PASCAL), ImperialUnits.INCH_OF_MERCURY, siValue, imperialValue);
+    }
+
+    private WUQuantity getPrecipitation(BigDecimal siValue, BigDecimal imperialValue) {
+        return getWUQuantity(MILLI(SIUnits.METRE), ImperialUnits.INCH, siValue, imperialValue);
+    }
+
+    private <T extends Quantity<T>> WUQuantity getWUQuantity(Unit<T> siUnit, Unit<T> imperialUnit, BigDecimal siValue,
+            BigDecimal imperialValue) {
+        boolean isSI = unitProvider.getMeasurementSystem().equals(SIUnits.getInstance());
+        return new WUQuantity(isSI ? siValue : imperialValue, isSI ? siUnit : imperialUnit);
+    }
+
+    private class WUQuantity {
+        private WUQuantity(BigDecimal value, Unit<?> unit) {
+            this.value = value;
+            this.unit = unit;
+        }
+
+        private final Unit<?> unit;
+        private final BigDecimal value;
     }
 }

@@ -10,6 +10,8 @@ Export-Package: org.eclipse.smarthome.model.thing
 Fragment-Host: org.eclipse.smarthome.model.thing
 Import-Package: 
  groovy.lang,
+ javax.measure,
+ javax.measure.quantity,
  org.apache.log4j,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,

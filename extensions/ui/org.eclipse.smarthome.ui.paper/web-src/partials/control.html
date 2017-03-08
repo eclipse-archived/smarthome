@@ -95,7 +95,7 @@
 									</div>
 									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
 								</div>
-								<div ng-if="::(item.type === 'Number')" class="numberWidget">
+								<div ng-if="::(item.type.indexOf('Number') === 0)" ng-controller="NumberItemController" class="numberWidget">
 									<div layout="row" layout-align="start center">
 										<div flex="40" layout="row" layout-align="start center">
 											<p>

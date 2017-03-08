@@ -16,7 +16,10 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Calendar;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -44,16 +47,15 @@ public class WeatherUndergroundJsonUtils {
     /**
      * Iterates through the fields and returns the getter value.
      */
-    @SuppressWarnings("all")
     private static Object getValue(Object data, String[] fields, int index) throws Exception {
         if (data == null) {
             return null;
         }
         String fieldName = fields[index];
-        Method method = data.getClass().getMethod(toGetterString(fieldName), null);
-        Object result = method.invoke(data, (Object[]) null);
-        if (index + 1 < fields.length) {
-            result = getValue(result, fields, index + 1);
+        Method method = data.getClass().getMethod(toGetterString(fieldName));
+        Object result = method.invoke(data);
+        if (++index < fields.length) {
+            result = getValue(result, fields, index);
         }
         return result;
     }
@@ -74,22 +76,21 @@ public class WeatherUndergroundJsonUtils {
      *
      * @param value the Epoch value as a string
      *
-     * @return the Calendar object representing the date and time of the Epoch
+     * @return the ZonedDateTime object representing the date and time of the Epoch
      *         or null in case of conversion error
      */
-    public static Calendar convertToCalendar(String value) {
-        Calendar result = null;
+    public static ZonedDateTime convertToZonedDateTime(String value) {
         if (isValid(value)) {
             try {
-                result = Calendar.getInstance();
-                result.setTimeInMillis(Long.valueOf(value) * 1000);
-            } catch (NumberFormatException e) {
-                LoggerFactory.getLogger(WeatherUndergroundJsonUtils.class).debug("Cannot convert {} to Calendar",
+                Instant epochSeconds = Instant.ofEpochSecond(Long.valueOf(value));
+                return ZonedDateTime.ofInstant(epochSeconds, TimeZone.getDefault().toZoneId());
+            } catch (DateTimeException e) {
+                LoggerFactory.getLogger(WeatherUndergroundJsonUtils.class).debug("Cannot convert {} to ZonedDateTime",
                         value);
-                result = null;
             }
         }
-        return result;
+
+        return null;
     }
 
     /**

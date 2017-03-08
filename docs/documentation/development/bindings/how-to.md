@@ -81,15 +81,26 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
 </thing-type>
 
 <channel-type id="temperature">
-    <item-type>Number</item-type>
+    <item-type>Number:Temperature</item-type>
     <label>Temperature</label>
-    <description>Current temperature in degrees celsius</description>
+    <description>Current temperature</description>
     <category>Temperature</category>
-    <state readOnly="true" />
+    <state readOnly="true" pattern="%.1f %unit%" />
 </channel-type>
 ```
 
-The channel type definition allows one to specify a category and additional meta information for the state of the linked item. Together with the definition of the `readOnly` attribute, user interfaces get an idea how to render an item for this channel. For example, a channel with the category `Temperature` which is readable only, indicates that this is a sensor for temperature. In that case the user interface can render an appropriate icon and label for the current value. If the `readOnly` flag is set to `false` (which is the default value), the user interface could render a slider to change the temperature, since this means it is temperature actuator. Restrictions of the state such as the minimum or maximum value can also be specified.
+The channel type definition allows one to specify a category and additional meta information for the state of the linked item. 
+Together with the definition of the `readOnly` attribute, user interfaces get an idea how to render an item for this channel.
+For example, a channel with the category `Temperature` which is readable only, indicates that this is a sensor for temperature.
+In that case the user interface can render an appropriate icon and label for the current value. 
+
+The label is further described by the `state` tags `pattern` attribute: 
+In this case the temperature should be rendered with one decimal place followed by the unit the binding specifies for the current measurement. 
+The `Number:Temperature` item type describes this channels ability to send state updates using the type `QuantityType` with a value and a unit. 
+For detailed information about _dimensions_ and _units_ see the [QuantityType definition](../../concepts/units-of-measurement.html#quantitytype). 
+
+If the `readOnly` flag is set to `false` (which is the default value), the user interface could render a slider to change the temperature, since this means it is temperature actuator. 
+Restrictions of the state such as the minimum or maximum value can also be specified.
 
 In order to give user interfaces a chance to render good default UIs for things, the binding should specify as much meta data as possible. For a complete list of possible configuration options and categories please see the [Thing Definition](thing-definition.html#channels) section.
 

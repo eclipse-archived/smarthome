@@ -7,34 +7,32 @@ Bundle-SymbolicName: org.eclipse.smarthome.model.script.tests;singleton:
  =true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.script
 Import-Package: 
- groovy.lang,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
+ javax.measure,
+ javax.measure.quantity,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.engine,
  org.eclipse.smarthome.model.script.engine.action,
+ org.eclipse.smarthome.model.script.lib,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.xtext.xbase,
- org.hamcrest.core,
  org.hamcrest;core=split,
- org.junit.runner.manipulation;version="4.0.0",
- org.junit.runner.notification;version="4.0.0",
- org.junit.runner;version="4.0.0",
- org.junit.runners.model;version="4.0.0",
- org.junit.runners;version="4.0.0",
+ org.hamcrest.core,
  org.junit;version="4.0.0",
  org.slf4j
 Require-Bundle: 
- com.google.guava,
  org.eclipse.core.runtime,
  org.eclipse.xtend.lib,
  org.eclipse.xtext.xbase.lib

@@ -13,21 +13,20 @@
 package org.eclipse.smarthome.model.script.interpreter;
 
 import com.google.inject.Inject
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.library.types.QuantityType
 import org.eclipse.smarthome.core.types.Type
+import org.eclipse.smarthome.model.script.engine.ScriptError
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException
 import org.eclipse.smarthome.model.script.lib.NumberExtensions
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
+import org.eclipse.smarthome.model.script.script.QuantityLiteral
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmIdentifiableElement
 import org.eclipse.xtext.naming.QualifiedName
-import org.eclipse.xtext.nodemodel.INode
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.util.CancelIndicator
-import org.eclipse.xtext.util.LineAndColumn
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
@@ -36,7 +35,6 @@ import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
-import org.eclipse.smarthome.model.script.engine.ScriptError
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -136,10 +134,17 @@ public class ScriptInterpreter extends XbaseInterpreter {
     }
 
     override protected doEvaluate(XExpression expression, IEvaluationContext context, CancelIndicator indicator) {
-        if (expression == null) {
+        if (expression === null) {
             return null
+        } else if (expression instanceof QuantityLiteral) {
+            return doEvaluate(expression as QuantityLiteral, context, indicator)
+        } else {
+            return super.doEvaluate(expression, context, indicator)
         }
-        return super.doEvaluate(expression, context, indicator)
+    }
+
+    def  protected  Object doEvaluate(QuantityLiteral literal, IEvaluationContext context, CancelIndicator indicator) {
+        return QuantityType.valueOf(literal.value + " " + literal.unit.substring(1,literal.unit.length-1));
     }
 
     override Object _doEvaluate(XCastedExpression castedExpression, IEvaluationContext context,
