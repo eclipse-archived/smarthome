@@ -6,4 +6,5 @@ then
   DemoContact.postUpdate(OPEN)
   DemoString.postUpdate("Hello SmartHome!")
   DemoDateTime.postUpdate(new DateTimeType())
+  DemoNumber.postUpdate(12.34)
 end

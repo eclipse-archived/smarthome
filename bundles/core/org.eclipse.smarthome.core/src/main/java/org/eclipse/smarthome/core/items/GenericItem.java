@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -77,6 +78,10 @@ public abstract class GenericItem implements ActiveItem {
     protected @Nullable String category;
 
     private @Nullable List<StateDescriptionProvider> stateDescriptionProviders;
+
+    protected @Nullable UnitProvider unitProvider;
+
+    protected @Nullable ItemStateConverter itemStateConverter;
 
     public GenericItem(String type, String name) {
         this.name = name;
@@ -157,12 +162,33 @@ public abstract class GenericItem implements ActiveItem {
         groupNames.remove(groupItemName);
     }
 
+    /**
+     * Disposes this item. Clears all injected services and unregisters all change listeners.
+     * This does not remove this item from its groups. Removing from groups should be done externally to retain the
+     * member order in case this item is exchanged in a group.
+     */
+    public void dispose() {
+        this.listeners.clear();
+        this.eventPublisher = null;
+        this.stateDescriptionProviders = null;
+        this.unitProvider = null;
+        this.itemStateConverter = null;
+    }
+
     public void setEventPublisher(@Nullable EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
     public void setStateDescriptionProviders(@Nullable List<StateDescriptionProvider> stateDescriptionProviders) {
         this.stateDescriptionProviders = stateDescriptionProviders;
+    }
+
+    public void setUnitProvider(@Nullable UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
+    }
+
+    public void setItemStateConverter(@Nullable ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = itemStateConverter;
     }
 
     protected void internalSend(Command command) {

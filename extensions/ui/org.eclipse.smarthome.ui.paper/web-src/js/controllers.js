@@ -95,7 +95,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                         updateState = false;
                     }
                 }
-                if (item.type === "Number" || item.groupType === "Number") {
+                if (item.type.indexOf("Number") === 0 || item.groupType.indexOf("Number") === 0) {
+                    if (state.indexOf(' ') > 0) {
+                        item.unit = state.substring(state.indexOf(' ') + 1);
+                        state = state.substring(0, state.indexOf(' '));
+                    }
                     var parsedValue = Number(state);
                     if (!isNaN(parsedValue)) {
                         state = parsedValue;

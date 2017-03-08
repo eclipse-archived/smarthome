@@ -57,7 +57,11 @@ ModelChannel:
 ;
 
 ModelItemType :
-	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | ID
+	BaseModelItemType | 'Number:' ID
+;
+
+BaseModelItemType :
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' | 'Call'
 ;
 
 ModelProperty:

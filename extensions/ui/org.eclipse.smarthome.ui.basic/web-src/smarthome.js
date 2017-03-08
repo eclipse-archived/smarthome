@@ -548,7 +548,7 @@
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value, itemState) {
+		_t.setValuePrivate = function(value) {
 			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
@@ -565,9 +565,9 @@
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[itemState] !== undefined)
+				(_t.valueMap[value] !== undefined)
 			) {
-				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
+				_t.valueMap[value].classList.add(o.buttonActiveClass);
 			}
 		};
 
@@ -786,8 +786,16 @@
 		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
 		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 
+		_t.unit = _t.parentNode.getAttribute("data-unit");
+
 		_t.setValuePrivate = function(value, itemState) {
-			_t.value = itemState * 1;
+			if (itemState.indexOf(" ") > 0) {
+				var stateAndUnit = itemState.split(" ");
+				_t.value = stateAndUnit[0] * 1;
+				_t.unit = stateAndUnit[1];
+				} else {
+					_t.value = itemState * 1;
+					}
 			_t.valueNode.innerHTML = value;
 		};
 
@@ -798,10 +806,15 @@
 			value = value > _t.max ? _t.max : value;
 			value = value < _t.min ? _t.min : value;
 
+			var command = value;
+			if (_t.unit) {
+				command = value + " " + _t.unit;
+			}
+
 			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
 					item: _t.item,
-					value: value
+					value: command
 			}));
 
 			_t.value = value;
@@ -1311,6 +1324,8 @@
 		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.locked = false;
 
+		_t.unit = _t.parentNode.getAttribute("data-unit");
+
 		(function() {
 			var
 				value = parseInt(_t.input.getAttribute("data-state"), 10);
@@ -1327,9 +1342,13 @@
 		})();
 
 		function emitEvent() {
+			var command = _t.input.value;
+			if (_t.unit) {
+				command = command + " " + _t.unit;
+			}
 			_t.parentNode.dispatchEvent(createEvent("control-change", {
 				item: _t.item,
-				value: _t.input.value
+				value: command
 			}));
 		}
 

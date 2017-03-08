@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.weatherunderground.internal.json;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 /**
  * The {@link WeatherUndergroundJsonForecastDay} is the Java class used
@@ -65,8 +65,8 @@ public class WeatherUndergroundJsonForecastDay {
      *
      * @return the forecast date and time or null if not defined
      */
-    public Calendar getForecastTime() {
-        return WeatherUndergroundJsonUtils.convertToCalendar((date == null) ? null : date.getEpoch());
+    public ZonedDateTime getForecastTime() {
+        return WeatherUndergroundJsonUtils.convertToZonedDateTime((date == null) ? null : date.getEpoch());
     }
 
     /**

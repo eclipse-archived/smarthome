@@ -87,14 +87,21 @@ public abstract class AbstractResourceIconProvider implements IconProvider {
             return getResource(iconSetId, resourceWithoutState);
         }
 
-        String resourceWithState = category.toLowerCase() + "-" + state.toLowerCase() + "."
+        String iconState;
+        if (state.contains(" ")) {
+            iconState = state.substring(0, state.indexOf(" "));
+        } else {
+            iconState = state;
+        }
+
+        String resourceWithState = category.toLowerCase() + "-" + iconState.toLowerCase() + "."
                 + format.toString().toLowerCase();
         if (hasResource(iconSetId, resourceWithState)) {
             return getResource(iconSetId, resourceWithState);
         } else {
             // let's treat all percentage-based categories
             try {
-                Double stateAsDouble = Double.valueOf(state);
+                Double stateAsDouble = Double.valueOf(iconState);
                 if (stateAsDouble >= 0 && stateAsDouble <= 100) {
                     for (int i = stateAsDouble.intValue(); i >= 0; i--) {
                         String resourceWithNumberState = category.toLowerCase() + "-" + i + "."

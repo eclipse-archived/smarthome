@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Setpoint;
 import org.eclipse.smarthome.model.sitemap.Widget;
@@ -61,10 +62,15 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
         }
 
         // if the current state is a valid value, we calculate the up and down step values
-        if (state instanceof DecimalType) {
-            DecimalType actState = (DecimalType) state;
-            BigDecimal newLower = actState.toBigDecimal().subtract(step);
-            BigDecimal newHigher = actState.toBigDecimal().add(step);
+        if (state instanceof DecimalType || state instanceof QuantityType) {
+            BigDecimal currentState;
+            if (state instanceof DecimalType) {
+                currentState = ((DecimalType) state).toBigDecimal();
+            } else {
+                currentState = ((QuantityType<?>) state).toBigDecimal();
+            }
+            BigDecimal newLower = currentState.subtract(step);
+            BigDecimal newHigher = currentState.add(step);
             if (newLower.compareTo(minValue) < 0) {
                 newLower = minValue;
             }
@@ -73,6 +79,11 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
             }
             newLowerState = newLower.toString();
             newHigherState = newHigher.toString();
+
+            if (state instanceof QuantityType) {
+                newLowerState = newLowerState + " " + ((QuantityType<?>) state).getUnit().toString();
+                newHigherState = newHigherState + " " + ((QuantityType<?>) state).getUnit().toString();
+            }
         }
 
         String snippetName = "setpoint";

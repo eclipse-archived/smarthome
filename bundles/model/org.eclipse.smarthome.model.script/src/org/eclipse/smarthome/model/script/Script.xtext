@@ -11,11 +11,23 @@ Script returns XBlockExpression:
 	(expressions+=XExpressionOrVarDeclaration ';'?)* 
 ;
 
+@Override
 XLiteral returns XExpression:
   XClosure |
   XBooleanLiteral |
   XNullLiteral |
   XStringLiteral |
   XNumberLiteral |
-  XTypeLiteral
+  XTypeLiteral |
+  QuantityLiteral
 ;
+
+QuantityLiteral returns XExpression :
+    {QuantityLiteral} value=Number unit=UNIT
+;
+
+
+terminal UNIT:
+    '[' ('a' .. 'z'|'A' .. 'Z'|'°'|'/'|'Ω'|'℃'|'%'|'^'|'0' .. '9')+ ']'
+;
+

@@ -32,13 +32,15 @@ Import-Package:
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.core.types.util,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.core.valueconverter,
  org.eclipse.smarthome.model.item,
  org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.osgi.service.component,
- org.slf4j
+ org.slf4j,
+ javax.measure
 Require-Bundle: 
  org.antlr.runtime,
  org.apache.commons.logging;bundle-version="1.0.4";resolution:=optional,

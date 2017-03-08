@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppActivator;
@@ -311,5 +312,13 @@ public abstract class AbstractWidgetRenderer implements WidgetRenderer {
                     this.localeProvider.getLocale());
         }
         return result;
+    }
+
+    protected String getUnitForWidget(Widget widget) {
+        return itemUIRegistry.getUnitForWidget(widget);
+    }
+
+    protected State convertStateToLabelUnit(QuantityType<?> state, String label) {
+        return itemUIRegistry.convertStateToLabelUnit(state, label);
     }
 }

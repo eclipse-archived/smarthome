@@ -13,10 +13,13 @@
 package org.eclipse.smarthome.core.items
 
 import static org.hamcrest.CoreMatchers.*
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize
 import static org.junit.Assert.*
+import static org.mockito.Mockito.mock
 
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.i18n.UnitProvider
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
@@ -124,5 +127,24 @@ class GenericItemTest {
         assertThat item.getStateAs(null), is(nullValue())
     }
 
+    @Test
+    void 'assert that dispose clears all services and listeners'() {
+        def item = new TestItem("test");
+        item.setEventPublisher(mock(EventPublisher.class));
+        item.setItemStateConverter(mock(ItemStateConverter.class));
+        item.setStateDescriptionProviders(Collections.emptyList());
+        item.setUnitProvider(mock(UnitProvider.class));
+
+        item.addStateChangeListener(mock(StateChangeListener.class));
+
+        item.dispose();
+
+        assertThat(item.eventPublisher, is(nullValue()));
+        assertThat(item.itemStateConverter, is(nullValue()));
+        // can not be tested as stateDescriptionProviders is private in GenericItem
+        // assertThat(item.stateDescriptionProviders, is(nullValue())); 
+        assertThat(item.unitProvider, is(nullValue()));
+        assertThat(item.listeners, hasSize(0));
+    }
 
 }

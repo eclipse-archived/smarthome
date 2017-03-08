@@ -12,12 +12,21 @@
  */
 package org.eclipse.smarthome.core.library.items;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import javax.measure.quantity.Temperature;
+
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
 /**
@@ -61,6 +70,33 @@ public class NumberItemTest {
     public void testAcceptedStates() {
         NumberItem item = new NumberItem("test");
         StateUtil.testAcceptedStates(item);
+    }
+
+    @Test
+    public void testSetQuantityTypeAccepted() {
+        NumberItem item = new NumberItem("Number:Temperature", "test");
+        item.setState(new QuantityType<>("20 °C"));
+
+        assertThat(item.getState(), is(new QuantityType<>("20 °C")));
+    }
+
+    @Test
+    public void testSetQuantityTypeConverted() {
+        NumberItem item = new NumberItem("Number:Temperature", "test");
+        item.setState(new QuantityType<>(68, ImperialUnits.FAHRENHEIT));
+
+        assertThat(item.getState(), is(new QuantityType<>("20 °C")));
+    }
+
+    @Test
+    public void testSetQuantityTypeUnconverted() {
+        NumberItem item = new NumberItem("Number:Temperature", "test");
+        UnitProvider unitProvider = mock(UnitProvider.class);
+        when(unitProvider.getUnit(Temperature.class)).thenReturn(SIUnits.CELSIUS);
+        item.setUnitProvider(unitProvider);
+        item.setState(new QuantityType<>("10 A")); // should not be accepted as valid state
+
+        assertThat(item.getState(), is(UnDefType.NULL));
     }
 
 }

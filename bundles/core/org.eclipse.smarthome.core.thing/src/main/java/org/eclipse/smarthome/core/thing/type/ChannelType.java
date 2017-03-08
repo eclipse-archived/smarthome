@@ -16,6 +16,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.types.EventDescription;
@@ -64,10 +66,6 @@ public class ChannelType extends AbstractDescriptionType {
             String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
         this(uid, advanced, itemType, ChannelKind.STATE, label, description, category, tags, state, null,
                 configDescriptionURI);
-
-        if ((itemType == null) || (itemType.isEmpty())) {
-            throw new IllegalArgumentException("The item type must neither be null nor empty!");
-        }
     }
 
     /**
@@ -99,7 +97,7 @@ public class ChannelType extends AbstractDescriptionType {
             throw new IllegalArgumentException("Kind must not be null!");
         }
 
-        if (kind == ChannelKind.STATE && (itemType == null || itemType.isEmpty())) {
+        if (kind == ChannelKind.STATE && StringUtils.isBlank(itemType)) {
             throw new IllegalArgumentException("If the kind is 'state', the item type must be set!");
         }
         if (kind == ChannelKind.TRIGGER && itemType != null) {

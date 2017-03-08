@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -88,6 +89,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
     private SafeCaller safeCaller;
+    private ItemStateConverter itemStateConverter;
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -141,8 +143,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
-        return new ProfileCallbackImpl(eventPublisher, safeCaller, link, thingUID -> getThing(thingUID),
-                itemName -> getItem(itemName));
+        return new ProfileCallbackImpl(eventPublisher, safeCaller, itemStateConverter, link,
+                thingUID -> getThing(thingUID), itemName -> getItem(itemName));
     }
 
     private ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, Thing thing) {
@@ -447,6 +449,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     protected void unsetSafeCaller(SafeCaller safeCaller) {
         this.safeCaller = null;
+    }
+
+    @Reference
+    public void setItemStateConverter(ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = itemStateConverter;
+    }
+
+    public void unsetItemStateConverter(ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = null;
     }
 
     private static class NoOpProfile implements Profile {

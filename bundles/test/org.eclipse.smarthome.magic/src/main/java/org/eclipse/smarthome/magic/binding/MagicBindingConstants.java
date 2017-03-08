@@ -35,6 +35,7 @@ public class MagicBindingConstants {
     public static final ThingTypeUID THING_TYPE_CONFIG_THING = new ThingTypeUID(BINDING_ID, "configurable-thing");
     public static final ThingTypeUID THING_TYPE_DELAYED_THING = new ThingTypeUID(BINDING_ID, "delayed-thing");
     public static final ThingTypeUID THING_TYPE_LOCATION = new ThingTypeUID(BINDING_ID, "location-thing");
+    public static final ThingTypeUID THING_TYPE_THERMOSTAT = new ThingTypeUID(BINDING_ID, "thermostat");
 
     // List all channels
     public static final String CHANNEL_SWITCH = "switch";
@@ -42,5 +43,7 @@ public class MagicBindingConstants {
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_CONTACT = "contact";
     public static final String CHANNEL_LOCATION = "location";
+    public static final String CHANNEL_TEMPERATURE = "temperature";
+    public static final String CHANNEL_SET_TEMPERATURE = "set-temperature";
 
 }

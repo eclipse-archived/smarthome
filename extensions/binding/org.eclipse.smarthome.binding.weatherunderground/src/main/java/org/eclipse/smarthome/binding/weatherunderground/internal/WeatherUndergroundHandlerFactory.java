@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundHandler;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -38,6 +39,8 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;
 
+    private UnitProvider unitProvider;
+
     @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
@@ -45,6 +48,15 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = null;
+    }
+
+    @Reference
+    protected void setUnitProvider(final UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
+    }
+
+    protected void unsetUnitProvider(final UnitProvider unitProvider) {
+        this.unitProvider = null;
     }
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_WEATHER);
@@ -59,9 +71,10 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(THING_TYPE_WEATHER)) {
-            return new WeatherUndergroundHandler(thing, localeProvider);
+            return new WeatherUndergroundHandler(thing, localeProvider, unitProvider);
         }
 
         return null;
     }
+
 }

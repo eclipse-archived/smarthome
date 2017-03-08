@@ -24,4 +24,7 @@
     <suppress files="build.properties" checks="AboutHtmlCheck" />
 
     <suppress files=".+org.eclipse.smarthome.ui.paper.+" checks="OutsideOfLibExternalLibrariesCheck|ManifestExternalLibrariesCheck|BuildPropertiesExternalLibrariesCheck" />
+
+    <!-- Remove this after thing-description-1.0.0.xsd is published from https://github.com/eclipse/smarthome/pull/4818 -->
+    <suppress files=".+xml" checks="EshInfXmlValidationCheck" />
 </suppressions>
