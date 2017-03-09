@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.HOST;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Collections;
 import java.util.HashMap;

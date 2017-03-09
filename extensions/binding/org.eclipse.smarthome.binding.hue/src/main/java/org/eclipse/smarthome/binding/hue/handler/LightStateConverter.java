@@ -7,17 +7,16 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
+import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.State.AlertMode;
+import org.eclipse.smarthome.binding.hue.internal.State.Effect;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
-
-import org.eclipse.smarthome.binding.hue.internal.State;
-import org.eclipse.smarthome.binding.hue.internal.State.AlertMode;
-import org.eclipse.smarthome.binding.hue.internal.State.Effect;
-import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 
 /**
  * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome
@@ -215,8 +214,7 @@ public class LightStateConverter {
         saturationInPercent = restrictToBounds(saturationInPercent);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
-        return new HSBType(new DecimalType(hue / HUE_FACTOR),
-                new PercentType(saturationInPercent),
+        return new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
                 new PercentType(brightnessInPercent));
     }
 

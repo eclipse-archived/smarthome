@@ -18,25 +18,26 @@ import com.google.gson.reflect.TypeToken;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class ErrorResponse {
-	public final static Type gsonType = new TypeToken<List<ErrorResponse>>(){}.getType();
-	
-	public class Error {
-		private Integer type;
-		private String address;
-		private String description;
-	}
-	
-	private Error error;
-	
-	public Integer getType() {
-		return error.type;
-	}
-	
-	public String getAddress() {
-		return error.address;
-	}
-	
-	public String getDescription() {
-		return error.description;
-	}
+    public final static Type gsonType = new TypeToken<List<ErrorResponse>>() {
+    }.getType();
+
+    public class Error {
+        private Integer type;
+        private String address;
+        private String description;
+    }
+
+    private Error error;
+
+    public Integer getType() {
+        return error.type;
+    }
+
+    public String getAddress() {
+        return error.address;
+    }
+
+    public String getDescription() {
+        return error.description;
+    }
 }

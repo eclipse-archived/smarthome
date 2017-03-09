@@ -135,7 +135,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
             var index = getItemIndex(itemName);
             if (index !== -1) {
                 $scope.$apply(function(scope) {
-                    $rootScope.data.items[index].state = parseInt(stateObject.value);
+                    $rootScope.data.items[index].state = parseFloat(stateObject.value);
                 });
             }
         }

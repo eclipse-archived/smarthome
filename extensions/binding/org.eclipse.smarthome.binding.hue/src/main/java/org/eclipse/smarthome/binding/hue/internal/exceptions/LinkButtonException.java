@@ -15,9 +15,10 @@ package org.eclipse.smarthome.binding.hue.internal.exceptions;
  */
 @SuppressWarnings("serial")
 public class LinkButtonException extends ApiException {
-	public LinkButtonException() {}
-	
-	public LinkButtonException(String message) {
-		super(message);
-	}
+    public LinkButtonException() {
+    }
+
+    public LinkButtonException(String message) {
+        super(message);
+    }
 }

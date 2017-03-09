@@ -19,42 +19,43 @@ import java.util.regex.Pattern;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class Util {
-	private Util() {}
-	
-	// This is used to check what byte size strings have, because the bridge doesn't natively support UTF-8
-	public static int stringSize(String str) {
-		try {
-			return str.getBytes("utf-8").length;
-		} catch (UnsupportedEncodingException e) {
-			throw new UnsupportedOperationException("UTF-8 not supported");
-		}
-	}
-	
-	public static List<Light> idsToLights(List<String> ids) {
-		List<Light> lights = new ArrayList<Light>();
-		
-		for (String id : ids) {
-			Light light = new Light();
-			light.setId(id);
-			lights.add(light);
-		}
-		
-		return lights;
-	}
-	
-	public static List<String> lightsToIds(List<Light> lights) {
-		List<String> ids = new ArrayList<String>();
-		
-		for (Light light : lights) {
-			ids.add(light.getId());
-		}
-		
-		return ids;
-	}
-	
-	public static String quickMatch(String needle, String haystack) {
-		Matcher m = Pattern.compile(needle).matcher(haystack);
-		m.find();
-		return m.group(1);
-	}
+    private Util() {
+    }
+
+    // This is used to check what byte size strings have, because the bridge doesn't natively support UTF-8
+    public static int stringSize(String str) {
+        try {
+            return str.getBytes("utf-8").length;
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedOperationException("UTF-8 not supported");
+        }
+    }
+
+    public static List<Light> idsToLights(List<String> ids) {
+        List<Light> lights = new ArrayList<>();
+
+        for (String id : ids) {
+            Light light = new Light();
+            light.setId(id);
+            lights.add(light);
+        }
+
+        return lights;
+    }
+
+    public static List<String> lightsToIds(List<Light> lights) {
+        List<String> ids = new ArrayList<>();
+
+        for (Light light : lights) {
+            ids.add(light.getId());
+        }
+
+        return ids;
+    }
+
+    public static String quickMatch(String needle, String haystack) {
+        Matcher m = Pattern.compile(needle).matcher(haystack);
+        m.find();
+        return m.group(1);
+    }
 }
