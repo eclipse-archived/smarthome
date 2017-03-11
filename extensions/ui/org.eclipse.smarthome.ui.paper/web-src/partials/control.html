@@ -222,7 +222,7 @@
 												</div>
 												<div class="image-widget" layout-align="center center" layout="row">
 													<div layout-align="end center" layout="row" ng-if="item.imageLoaded">
-														<img class="image-scaled" ng-if="item.state !== 'NULL' && item.state !== 'UNDEF'" ng-src="{{'data:image/jpeg;base64,'+ item.state}}">
+														<img class="image-scaled" ng-if="item.state !== 'NULL' && item.state !== 'UNDEF'" ng-src="{{item.state}}">
 														<span class="error-message" ng-show="item.state === 'NULL' || item.state === 'UNDEF'">
 															<center>No image is currently present</center>
 														</span>

@@ -43,7 +43,7 @@ public class EnrichedItemDTOMapper {
 
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
 
-        String state = considerTransformation(item.getState().toString(), item.getStateDescription(locale));
+        String state = considerTransformation(item.getState().toFullString(), item.getStateDescription(locale));
         StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
         String link = null != uri ? uri.toASCIIString() + ItemResource.PATH_ITEMS + "/" + itemDTO.name : null;
 
