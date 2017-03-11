@@ -21,8 +21,8 @@ import org.eclipse.smarthome.core.types.StateDescription;
 public class EnrichedGroupItemDTO extends EnrichedItemDTO {
 
     public EnrichedGroupItemDTO(ItemDTO itemDTO, EnrichedItemDTO[] members, String link, String state,
-            StateDescription stateDescription) {
-        super(itemDTO, link, state, stateDescription);
+            String transformedState, StateDescription stateDescription) {
+        super(itemDTO, link, state, transformedState, stateDescription);
         this.members = members;
         this.groupType = ((GroupItemDTO) itemDTO).groupType;
         this.function = ((GroupItemDTO) itemDTO).function;
