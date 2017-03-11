@@ -546,6 +546,33 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return url;
     }
 
+    private String getContentTypeFromUrl(URL url) {
+        if (url == null) {
+            return null;
+        }
+        String contentType;
+        InputStream input = null;
+        try {
+            URLConnection connection = url.openConnection();
+            contentType = connection.getContentType();
+            logger.debug("Content type from headers: {}", contentType);
+            if (contentType == null) {
+                input = connection.getInputStream();
+                contentType = URLConnection.guessContentTypeFromStream(input);
+                logger.debug("Content type from data: {}", contentType);
+                if (contentType == null) {
+                    contentType = RawType.DEFAULT_MIME_TYPE;
+                }
+            }
+        } catch (IOException e) {
+            logger.debug("Failed to identify content type from URL: {}", e.getMessage());
+            contentType = RawType.DEFAULT_MIME_TYPE;
+        } finally {
+            IOUtils.closeQuietly(input);
+        }
+        return contentType;
+    }
+
     protected void updateChannel(String channeldD) {
         if (!isLinked(channeldD)) {
             return;
@@ -659,21 +686,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CURRENTALBUMART:
                 url = getAlbumArtUrl();
                 if (url != null) {
+                    String contentType = getContentTypeFromUrl(url);
+                    InputStream input = null;
                     try {
-                        URLConnection connection = url.openConnection();
-                        String contentType = connection.getContentType();
-                        InputStream input = connection.getInputStream();
-                        if (contentType == null) {
-                            contentType = URLConnection.guessContentTypeFromStream(input);
-                            if (contentType == null) {
-                                contentType = RawType.DEFAULT_MIME_TYPE;
-                            }
-                        }
+                        input = url.openStream();
                         newState = new RawType(IOUtils.toByteArray(input), contentType);
-                        IOUtils.closeQuietly(input);
                     } catch (IOException e) {
                         logger.debug("Failed to download the album cover art: {}", e.getMessage());
                         newState = UnDefType.UNDEF;
+                    } finally {
+                        IOUtils.closeQuietly(input);
                     }
                 }
                 break;
