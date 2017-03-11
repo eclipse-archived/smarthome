@@ -25,7 +25,7 @@ public class CronExpressionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void dayOfWeekAndMonth() throws ParseException {
-        new CronExpression("* * * 1 * 1");
+        new CronExpression("* * * ? * ?");
     }
 
     @Test
