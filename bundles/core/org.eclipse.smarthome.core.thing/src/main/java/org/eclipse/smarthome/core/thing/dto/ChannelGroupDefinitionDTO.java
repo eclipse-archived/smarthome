@@ -19,15 +19,18 @@ public class ChannelGroupDefinitionDTO {
     public String id;
     public String description;
     public String label;
+    public boolean advanced;
     public List<ChannelDefinitionDTO> channels;
 
     public ChannelGroupDefinitionDTO() {
     }
 
-    public ChannelGroupDefinitionDTO(String id, String label, String description, List<ChannelDefinitionDTO> channels) {
+    public ChannelGroupDefinitionDTO(String id, String label, String description, boolean advanced,
+            List<ChannelDefinitionDTO> channels) {
         this.id = id;
         this.label = label;
         this.description = description;
+        this.advanced = advanced;
         this.channels = channels;
     }
 

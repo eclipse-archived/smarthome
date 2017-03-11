@@ -185,8 +185,8 @@ public class ThingTypeResource implements SatisfiableRESTResource {
             List<ChannelDefinitionDTO> channelDefinitionDTOs = convertToChannelDefinitionDTOs(channelDefinitions,
                     locale);
 
-            channelGroupDefinitionDTOs
-                    .add(new ChannelGroupDefinitionDTO(id, label, description, channelDefinitionDTOs));
+            channelGroupDefinitionDTOs.add(new ChannelGroupDefinitionDTO(id, label, description,
+                    channelGroupType.isAdvanced(), channelDefinitionDTOs));
         }
         return channelGroupDefinitionDTOs;
     }

@@ -480,6 +480,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         return thingConfigService.getChannelTypeByUID($scope.thingType, $scope.channelTypes, channelUID);
     };
 
+    $scope.isAdvancedChannelType = function(channelUID) {
+        return thingConfigService.isAdvancedChannelType($scope.thingType, $scope.channelTypes, channelUID);
+    };
+
     $scope.getChannelFromChannelTypes = function(channelUID) {
         if (!$scope.channelTypes) {
             return;
@@ -503,8 +507,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         if (channels) {
             for (var i = 0, len = channels.length; i < len; i++) {
                 var channel = channels[i];
-                var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
-                if (channelType && channelType.advanced) {
+                if ($scope.isAdvancedChannelType(channel.channelTypeUID)) {
                     return true;
                 }
             }
