@@ -838,17 +838,10 @@
 					y: event.touches[0].pageY - _t.colorpicker.offsetTop
 				};
 			} else {
-				if (featureSupport.eventLayerXY && featureSupport.pointerEvents) {
-					pos = {
-						x: event.layerX,
-						y: event.layerY
-					};
-				} else {
-					pos = {
-						x: event.pageX - _t.colorpicker.offsetLeft,
-						y: event.pageY - _t.colorpicker.offsetTop
-					};
-				}
+				pos = {
+					x: event.pageX - _t.colorpicker.offsetLeft,
+					y: event.pageY - _t.colorpicker.offsetTop
+				};
 			}
 			var
 				maxR = _t.image.clientWidth / 2,
