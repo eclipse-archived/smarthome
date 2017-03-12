@@ -45,7 +45,7 @@ public class ConfigDescriptionParameterBuilder {
 
     private Boolean limitToOptions;
     private Boolean advanced;
-    private Boolean critical;
+    private Boolean verify;
 
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
@@ -221,12 +221,12 @@ public class ConfigDescriptionParameterBuilder {
     }
 
     /**
-     * Set the configuration parameter as a critical parameter
+     * Set the configuration parameter as a verifyable parameter
      *
-     * @param critical flag
+     * @param verify flag
      */
-    public ConfigDescriptionParameterBuilder withCritical(Boolean critical) {
-        this.critical = critical;
+    public ConfigDescriptionParameterBuilder withVerify(Boolean verify) {
+        this.verify = verify;
         return this;
     }
 
@@ -295,7 +295,7 @@ public class ConfigDescriptionParameterBuilder {
     public ConfigDescriptionParameter build() throws IllegalArgumentException {
         return new ConfigDescriptionParameter(name, type, min, max, step, pattern, required, readOnly, multiple,
                 context, defaultValue, label, description, options, filterCriteria, groupName, advanced, limitToOptions,
-                multipleLimit, unit, unitLabel, critical);
+                multipleLimit, unit, unitLabel, verify);
     }
 
 }

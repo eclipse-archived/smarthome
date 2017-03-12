@@ -25,7 +25,7 @@ import java.util.Set;
  * @author Alex Tugarev - Added options, filter criteria, and more parameter
  *         attributes
  * @author Chris Jackson - Added groupId, limitToOptions, advanced,
- *         multipleLimit, critical attributes
+ *         multipleLimit, verify attributes
  * @author Christoph Knauf - Added default constructor, changed Boolean
  *         getter to return primitive types
  * @author Thomas Höfer - Added unit
@@ -90,7 +90,7 @@ public class ConfigDescriptionParameter {
 
     private boolean limitToOptions = false;
     private boolean advanced = false;
-    private boolean critical = false;
+    private boolean verify = false;
 
     private static final Set<String> UNITS = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
@@ -198,7 +198,7 @@ public class ConfigDescriptionParameter {
             String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context, String defaultValue,
             String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
             String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
-            String unitLabel, Boolean critical) throws IllegalArgumentException {
+            String unitLabel, Boolean verify) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
@@ -230,8 +230,10 @@ public class ConfigDescriptionParameter {
         this.multipleLimit = multipleLimit;
         this.unit = unit;
         this.unitLabel = unitLabel;
-        this.critical = critical;
 
+        if (verify != null) {
+            this.verify = verify;
+        }
         if (readOnly != null) {
             this.readOnly = readOnly;
         }
@@ -459,13 +461,13 @@ public class ConfigDescriptionParameter {
     }
 
     /**
-     * Returns the critical flag for this parameter. Critical parameters are considered dangerous and the user should be
+     * Returns the verify flag for this parameter. Verify parameters are considered dangerous and the user should be
      * alerted with an "Are you sure" flag in the UI.
      *
-     * @return true if the parameter is considered critical
+     * @return true if the parameter requires verification in the UI
      */
-    public Boolean isCritical() {
-        return critical;
+    public Boolean isVerifyable() {
+        return verify;
     }
 
     @Override
@@ -509,6 +511,10 @@ public class ConfigDescriptionParameter {
         sb.append(", ");
         sb.append("required=");
         sb.append(required);
+
+        sb.append(", ");
+        sb.append("verify=");
+        sb.append(verify);
 
         sb.append(", ");
         sb.append("multiple=");

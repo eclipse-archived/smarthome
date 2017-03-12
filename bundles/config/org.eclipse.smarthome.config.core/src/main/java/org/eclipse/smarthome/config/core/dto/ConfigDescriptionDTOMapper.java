@@ -62,7 +62,7 @@ public class ConfigDescriptionDTOMapper {
                     configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
                     configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit(),
                     configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel(),
-                    configDescriptionParameter.isCritical());
+                    configDescriptionParameter.isVerifyable());
             configDescriptionParameterBeans.add(configDescriptionParameterBean);
         }
         return configDescriptionParameterBeans;
