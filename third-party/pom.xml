@@ -41,7 +41,7 @@
               <artifacts>
                 <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
-                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
+                  <id>com.jayway.jsonpath:json-path:2.1.0</id>
                   <transitive>false</transitive>
                 </artifact>
                 <artifact>
