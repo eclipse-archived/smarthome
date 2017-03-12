@@ -30,6 +30,7 @@ import org.eclipse.smarthome.config.core.BundleProcessorVetoManager;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
@@ -626,6 +627,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     synchronized (thing) {
                         if (!isInitializing(thing)) {
                             ThingType thingType = getThingType(thing);
+                            normalizeConfiguration(thing, thingType);
                             applyDefaultConfiguration(thing, thingType);
                             if (isInitializable(thing, thingType)) {
                                 setThingStatus(thing,
@@ -645,6 +647,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     }
                 }
             });
+
+    private void normalizeConfiguration(Thing thing, ThingType thingType) {
+        Configuration configuration = thing.getConfiguration();
+        if (configuration != null && thingType != null) {
+            ConfigDescription configDesc = configDescriptionRegistry
+                    .getConfigDescription(thingType.getConfigDescriptionURI());
+            if (configDesc != null) {
+                configuration.setProperties(ConfigUtil.normalizeTypes(configuration.getProperties(), configDesc));
+            }
+        }
+    }
 
     private void applyDefaultConfiguration(Thing thing, ThingType thingType) {
         if (thingType != null) {
