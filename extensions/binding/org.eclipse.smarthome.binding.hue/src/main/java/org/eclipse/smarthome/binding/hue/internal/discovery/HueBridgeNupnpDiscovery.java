@@ -41,11 +41,11 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     private static final String MODEL_NAME_PHILIPS_HUE = "<modelName>Philips hue";
 
-    private static final String BRIDGE_INDICATOR = "fffe";
+    protected static final String BRIDGE_INDICATOR = "fffe";
 
     private static final String DISCOVERY_URL = "https://www.meethue.com/api/nupnp";
 
-    private static final String LABEL_PATTERN = "Philips hue (IP)";
+    protected static final String LABEL_PATTERN = "Philips hue (IP)";
 
     private static final String DESC_URL_PATTERN = "http://HOST/description.xml";
 
@@ -64,6 +64,11 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
     @Override
     protected void startScan() {
         discoverHueBridges();
+    }
+
+    @Override
+    protected void stopBackgroundDiscovery() {
+        super.stopBackgroundDiscovery();
     }
 
     /**

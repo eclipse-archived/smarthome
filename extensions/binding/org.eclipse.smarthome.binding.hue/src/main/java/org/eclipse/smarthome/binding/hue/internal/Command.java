@@ -15,8 +15,8 @@ import com.google.gson.Gson;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class Command {
-    private String key;
-    private Object value;
+    String key;
+    Object value;
 
     public Command(String key, Object value) {
         this.key = key;
