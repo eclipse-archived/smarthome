@@ -23,7 +23,7 @@ public interface AutoUpdateBindingConfigProvider {
      * Indicates whether an Item with the given <code>itemName</code> is
      * configured to automatically update it's State after receiving a Command
      * or not.
-     * 
+     *
      * @param itemName the name of the Item for which to find the configuration
      * @return <code>false</code> to disable the automatic update, <code>true</code> to enable the automatic update and
      *         <code>null</code> if there is no configuration for this item.
