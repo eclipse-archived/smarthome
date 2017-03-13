@@ -1638,9 +1638,13 @@
 					widget.setValue(value, data.item.state);
 					if (data.labelcolor !== undefined) {
 						widget.setLabelColor(data.labelcolor);
+					} else {
+						widget.setLabelColor("");
 					}
 					if (data.valuecolor !== undefined) {
 						widget.setValueColor(data.valuecolor);
+					} else {
+						widget.setValueColor("");
 					}
 				}
 			}
@@ -1686,9 +1690,13 @@
 							}
 							if (labelcolor !== undefined) {
 								w.setLabelColor(labelcolor);
+							} else {
+								w.setLabelColor("");
 							}
 							if (valuecolor !== undefined) {
 								w.setValueColor(valuecolor);
+							} else {
+								w.setValueColor("");
 							}
 						});
 					}
