@@ -127,7 +127,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 it != null
             ]?.toSet?.forEach[
                 // Execute for each unique ThingHandlerFactory
-                vetoManager.applyActionFor(it)
+                vetoManager.applyActionFor(it.getClass(), it)
             ]
         }
     }
@@ -519,7 +519,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
 
     def private thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
-        vetoManager.applyActionFor(thingHandlerFactory)
+        vetoManager.applyActionFor(thingHandlerFactory.getClass(), thingHandlerFactory)
     }
 
     def private createThingsFromModelForThingHandlerFactory(String modelName, ThingHandlerFactory factory) {
