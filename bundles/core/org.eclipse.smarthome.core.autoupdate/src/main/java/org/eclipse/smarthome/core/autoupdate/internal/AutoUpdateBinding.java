@@ -8,9 +8,14 @@
 package org.eclipse.smarthome.core.autoupdate.internal;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
+import org.eclipse.smarthome.core.autoupdate.AutoUpdateConfigurator;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -18,6 +23,8 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -36,15 +43,23 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added sending real events
  * @author Stefan Bußweiler - Migration to new ESH event concept
+ * @author Markus Rathgeb - Add support for auto-update configurator interface
  */
-public class AutoUpdateBinding extends AbstractItemEventSubscriber {
+public class AutoUpdateBinding extends AbstractItemEventSubscriber implements AutoUpdateConfigurator {
+
+    private final Map<ChannelUID, Boolean> BINDING_GLOBAL_TRUE = new HashMap<>();
+    private final Map<ChannelUID, Boolean> BINDING_GLOBAL_FALSE = new HashMap<>();
 
     private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 
-    protected ItemRegistry itemRegistry;
+    protected volatile ItemRegistry itemRegistry;
+    protected volatile ItemChannelLinkRegistry itemChannelLinkRegistry;
 
     /** to keep track of all binding config providers */
     protected Collection<AutoUpdateBindingConfigProvider> providers = new CopyOnWriteArraySet<>();
+
+    // Binding specific settings
+    protected Map<String, Map<ChannelUID, Boolean>> bindingSpecificSettings = new ConcurrentHashMap<>();
 
     protected EventPublisher eventPublisher = null;
 
@@ -72,47 +87,191 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
         this.itemRegistry = null;
     }
 
+    public void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+    }
+
+    public void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
+    }
+
+    @Override
+    public void addAutoUpdateByBindingIdConfig(String bindingId, boolean autoUpdate)
+            throws IllegalArgumentException, IllegalStateException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null) {
+            bindingSpecificSettings.put(bindingId, autoUpdate ? BINDING_GLOBAL_TRUE : BINDING_GLOBAL_FALSE);
+        } else {
+            if (settings == BINDING_GLOBAL_TRUE || settings == BINDING_GLOBAL_FALSE) {
+                throw new IllegalArgumentException(
+                        String.format("There is already an configuration for given binding ID '%s'.", bindingId));
+            } else {
+                throw new IllegalStateException(String.format(
+                        "There is already a channel specific configuration for the given binding ID '%s'.", bindingId));
+            }
+        }
+    }
+
+    @Override
+    public void removeAutoUpdateByBindingIdConfig(String bindingId) throws IllegalArgumentException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null || (settings != BINDING_GLOBAL_TRUE && settings != BINDING_GLOBAL_FALSE)) {
+            throw new IllegalArgumentException(
+                    String.format("There is no configuration for given binding ID '%s'.", bindingId));
+        } else {
+            bindingSpecificSettings.remove(bindingId);
+        }
+    }
+
+    @Override
+    public void addAutoUpdateByChannelUidConfig(ChannelUID channelUid, boolean autoUpdate)
+            throws IllegalArgumentException, IllegalStateException {
+        final String bindingId = channelUid.getBindingId();
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(bindingId);
+        if (settings == null) {
+            final Map<ChannelUID, Boolean> newSettings = new ConcurrentHashMap<>();
+            newSettings.put(channelUid, autoUpdate);
+            bindingSpecificSettings.put(bindingId, newSettings);
+        } else {
+            if (settings == BINDING_GLOBAL_TRUE || settings == BINDING_GLOBAL_FALSE) {
+                throw new IllegalArgumentException(
+                        String.format("There is already an configuration for given binding ID '%s'.", bindingId));
+            } else {
+                if (settings.containsKey(channelUid)) {
+                    throw new IllegalStateException(String.format(
+                            "There is already a channel specific configuration for the given binding ID '%s'.",
+                            bindingId));
+                } else {
+                    settings.put(channelUid, autoUpdate);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void removeAutoUpdateByChannelUidConfig(ChannelUID channelUid) throws IllegalArgumentException {
+        final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(channelUid.getBindingId());
+        if (settings == null || !settings.containsKey(channelUid)) {
+            throw new IllegalArgumentException(
+                    String.format("There is no configuration for given channel UID '%s'.", channelUid));
+        } else {
+            settings.remove(channelUid);
+        }
+    }
+
     /**
-     * <p>
-     * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate
-     * configuration is available for <code>itemName</code>.
-     * </p>
+     * Handle the received command event.
      *
      * <p>
-     * If there are more then one {@link AutoUpdateBindingConfigProvider}s providing a configuration the results are
-     * combined by a logical <em>OR</em>. If no configuration is provided at all the autoupdate defaults to
-     * <code>true</code> and an update is posted for the corresponding {@link State}.
-     * </p>
+     * If the command could be converted to a {@link State} the auto-update configurations are inspected.
+     * If there is at least one configuration that enable the auto-update, auto-update is applied.
+     * If there is no configuration provided at all the autoupdate defaults to {@code true} and an update is posted for
+     * the corresponding {@link State}.
      *
-     * @param itemName the item for which to find an autoupdate configuration
-     * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
-     *            of {@link State} as well.
+     * @param commandEvent the command event
      */
     @Override
     protected void receiveCommand(ItemCommandEvent commandEvent) {
+        final Command command = commandEvent.getItemCommand();
+        if (command instanceof State) {
+            final State state = (State) command;
+
+            final String itemName = commandEvent.getItemName();
+
+            Boolean autoUpdate = autoUpdate(itemName);
+
+            // we didn't find any autoupdate configuration, so apply the default now
+            if (autoUpdate == null) {
+                autoUpdate = Boolean.TRUE;
+            }
+
+            if (autoUpdate) {
+                postUpdate(itemName, state);
+            } else {
+                logger.trace("Won't update item '{}' as it is not configured to update its state automatically.",
+                        itemName);
+            }
+        }
+    }
+
+    /**
+     * Check auto update configuration(s) for given item name.
+     *
+     * @param itemName the name of the item
+     * @return true if auto-update is enabled, false if auto-update is disabled, null if there is no explicit
+     *         configuration
+     */
+    private Boolean autoUpdate(final String itemName) {
         Boolean autoUpdate = null;
-        String itemName = commandEvent.getItemName();
-        Command command = commandEvent.getItemCommand();
-        for (AutoUpdateBindingConfigProvider provider : providers) {
-            Boolean au = provider.autoUpdate(itemName);
-            if (au != null) {
-                autoUpdate = au;
-                if (Boolean.TRUE.equals(autoUpdate)) {
-                    break;
+
+        // Check auto update by configuration for binding ID
+        final ItemChannelLinkRegistry itemChannelLinkRegistry = this.itemChannelLinkRegistry;
+        if (itemChannelLinkRegistry != null) {
+            final Set<ChannelUID> channelUIDs = itemChannelLinkRegistry.getBoundChannels(itemName);
+
+            for (final ChannelUID channelUID : channelUIDs) {
+                final Boolean au;
+
+                final Map<ChannelUID, Boolean> settings = bindingSpecificSettings.get(channelUID.getBindingId());
+                if (settings == null) {
+                    au = null;
+                } else {
+                    if (settings == BINDING_GLOBAL_TRUE) {
+                        au = true;
+                    } else if (settings == BINDING_GLOBAL_FALSE) {
+                        au = false;
+                    } else {
+                        final Boolean channelSettings = settings.get(channelUID);
+                        if (channelSettings == null) {
+                            au = null;
+                        } else if (channelSettings) {
+                            au = true;
+                        } else {
+                            au = false;
+                        }
+                    }
+                }
+
+                // Now 'au' is set and we need to handle the different options: unset, set to true, set to false
+                if (au == null) {
+                    // There is no setting for the binding ID, keep value unchanged.
+                    continue;
+                } else {
+                    // There is an entry for the binding ID.
+                    if (au) {
+                        // setting is true, we could stop.
+                        return true;
+                    } else {
+                        // setting is false, set it if autoupdate is not set
+                        if (autoUpdate == null) {
+                            autoUpdate = false;
+                        }
+                    }
                 }
             }
         }
 
-        // we didn't find any autoupdate configuration, so apply the default now
-        if (autoUpdate == null) {
-            autoUpdate = Boolean.TRUE;
+        // Check auto update by configuration for item name
+        for (AutoUpdateBindingConfigProvider provider : providers) {
+            Boolean au = provider.autoUpdate(itemName);
+            if (au == null) {
+                // There is no setting for the item, keep value unchanged.
+                continue;
+            } else {
+                // There is an entry for the item.
+                if (au) {
+                    // setting is true, we could stop.
+                    return true;
+                } else {
+                    // setting is false, set it if autoupdate is not set
+                    if (autoUpdate == null) {
+                        autoUpdate = false;
+                    }
+                }
+            }
         }
 
-        if (autoUpdate && command instanceof State) {
-            postUpdate(itemName, (State) command);
-        } else {
-            logger.trace("Won't update item '{}' as it is not configured to update its state automatically.", itemName);
-        }
+        return autoUpdate;
     }
 
     private void postUpdate(String itemName, State newState) {
@@ -132,9 +291,9 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                                 break;
                             }
                         } catch (InstantiationException e) {
-                            logger.warn("InstantiationException on ", e.getMessage()); // Should never happen
+                            logger.warn("InstantiationException on {}", e.getMessage(), e); // Should never happen
                         } catch (IllegalAccessException e) {
-                            logger.warn("IllegalAccessException on ", e.getMessage()); // Should never happen
+                            logger.warn("IllegalAccessException on {}", e.getMessage(), e); // Should never happen
                         }
                     }
                 }
@@ -142,8 +301,8 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                     eventPublisher.post(ItemEventFactory.createStateEvent(itemName, newState,
                             "org.eclipse.smarthome.core.autoupdate"));
                 } else {
-                    logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
-                            + ") for item " + itemName);
+                    logger.debug("Received update of a not accepted type ({}) for item {}",
+                            newState.getClass().getSimpleName(), itemName);
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("Received update for non-existing item: {}", e.getMessage());
