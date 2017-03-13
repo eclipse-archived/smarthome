@@ -28,6 +28,9 @@ import org.eclipse.smarthome.automation.dto.ConditionTypeDTOMapper;
 import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
 import org.eclipse.smarthome.automation.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.automation.type.CompositeConditionType;
+import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -46,6 +49,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
+ * @author Ana Dimova - extends Module type DTOs with composites
  */
 @Path("module-types")
 @Api("module-types")
@@ -106,10 +110,19 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
 
     private ModuleTypeDTO getModuleTypeDTO(final ModuleType moduleType) {
         if (moduleType instanceof ActionType) {
+            if (moduleType instanceof CompositeActionType) {
+                return ActionTypeDTOMapper.map((CompositeActionType) moduleType);
+            }
             return ActionTypeDTOMapper.map((ActionType) moduleType);
         } else if (moduleType instanceof ConditionType) {
+            if (moduleType instanceof CompositeConditionType) {
+                return ConditionTypeDTOMapper.map((CompositeConditionType) moduleType);
+            }
             return ConditionTypeDTOMapper.map((ConditionType) moduleType);
         } else if (moduleType instanceof TriggerType) {
+            if (moduleType instanceof CompositeTriggerType) {
+                return TriggerTypeDTOMapper.map((CompositeTriggerType) moduleType);
+            }
             return TriggerTypeDTOMapper.map((TriggerType) moduleType);
         } else {
             throw new IllegalArgumentException(
