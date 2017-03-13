@@ -8,25 +8,25 @@
 package org.eclipse.smarthome.test
 
 class AsyncResultWrapper<T> {
-	private T wrappedObject
-	private boolean isSet = false
+    private T wrappedObject
+    private boolean isSet = false
 
-	def void set(T wrappedObject) {
-		this.wrappedObject = wrappedObject
-		isSet = true
-	}
-	
-	def getWrappedObject() {
-		wrappedObject
-	}
-	
-	def isSet() {
-		isSet
-	}
-	
-	def void reset() {
-		wrappedObject = null
-		isSet = false
-	}
+    def void set(T wrappedObject) {
+        this.wrappedObject = wrappedObject
+        isSet = true
+    }
+
+    def T getWrappedObject() {
+        wrappedObject
+    }
+
+    def boolean isSet() {
+        isSet
+    }
+
+    def void reset() {
+        wrappedObject = null
+        isSet = false
+    }
 }
 

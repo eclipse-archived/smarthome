@@ -11,11 +11,10 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
-import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
-
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
+import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
+import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.ItemRegistry
@@ -127,13 +126,13 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     @Test
     void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
         Bridge hueBridge = createBridge()
-        simulateBridgeInitialization()
+        simulateBridgeInitialization(hueBridge)
         Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
 
         try {
             HueLightHandler hueLightHandler
             waitForAssert {
-                hueLightHandler = getThingHandler(HueLightHandler)
+                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
                 assertThat hueLightHandler, is(notNullValue())
             }
 
@@ -476,14 +475,14 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
     private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply, String expectedModel = "LCT001", String expectedVendor = "Philips") {
         Bridge hueBridge = createBridge()
-        simulateBridgeInitialization()
+        simulateBridgeInitialization(hueBridge)
 
         Thing hueLight = createLight(hueBridge, hueLightUID)
 
         try {
             HueLightHandler hueLightHandler
             waitForAssert {
-                hueLightHandler = getThingHandler(HueLightHandler)
+                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
                 assertThat hueLightHandler, is(notNullValue())
             }
 
@@ -532,11 +531,11 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
         }
     }
 
-    private void simulateBridgeInitialization() {
+    private void simulateBridgeInitialization(Bridge bridge) {
         HueBridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }
         HueBridgeHandler bridgeHandler
         waitForAssert {
-            bridgeHandler = getThingHandler(HueBridgeHandler)
+            bridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
             assertThat bridgeHandler, is(notNullValue())
         }
         bridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }

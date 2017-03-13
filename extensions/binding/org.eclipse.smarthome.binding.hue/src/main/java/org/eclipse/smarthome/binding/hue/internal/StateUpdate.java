@@ -20,7 +20,7 @@ import org.eclipse.smarthome.binding.hue.internal.State.Effect;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
  */
 public class StateUpdate {
-    private ArrayList<Command> commands = new ArrayList<>();
+    ArrayList<Command> commands = new ArrayList<>();
 
     String toJson() {
         StringBuilder json = new StringBuilder("{");

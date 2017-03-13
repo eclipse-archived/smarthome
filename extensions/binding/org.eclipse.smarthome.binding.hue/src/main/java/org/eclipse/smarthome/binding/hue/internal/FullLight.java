@@ -43,12 +43,26 @@ public class FullLight extends Light {
     }
 
     /**
+     * Set the type of the light.
+     */
+    void setType(final String type) {
+        this.type = type;
+    }
+
+    /**
      * Returns the model ID of the light.
      *
      * @return model id
      */
     public String getModelID() {
         return modelid;
+    }
+
+    /**
+     * Set the model ID of the light.
+     */
+    void setModelID(final String modelId) {
+        this.modelid = modelId;
     }
 
     /**
