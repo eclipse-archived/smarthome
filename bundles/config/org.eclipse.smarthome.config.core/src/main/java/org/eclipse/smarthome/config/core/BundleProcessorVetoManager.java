@@ -94,9 +94,9 @@ public class BundleProcessorVetoManager<T> implements BundleProcessorListener {
      *
      * @param object the argument for the action
      */
-    public void applyActionFor(final T object) {
+    public void applyActionFor(final Class<?> classFromWatchedBundle, final T object) {
         boolean veto = false;
-        Bundle bundle = getBundle(object.getClass());
+        Bundle bundle = getBundle(classFromWatchedBundle);
         long bundleId = bundle.getBundleId();
         for (BundleProcessor proc : bundleProcessors) {
             if (!proc.hasFinishedLoading(bundle)) {
@@ -110,7 +110,7 @@ public class BundleProcessorVetoManager<T> implements BundleProcessorListener {
             }
         }
         if (veto) {
-            if (!queue.containsEntry(bundle, object)) {
+            if (!queue.containsEntry(bundleId, object)) {
                 logger.trace("Queueing '{}' in bundle '{}'", object, bundle.getSymbolicName());
                 queue.put(bundleId, object);
             }
