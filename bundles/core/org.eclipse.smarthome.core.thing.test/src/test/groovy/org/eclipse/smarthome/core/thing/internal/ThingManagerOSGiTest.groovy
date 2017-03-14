@@ -1016,6 +1016,129 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
 
     @Test
+    void 'ThingManager posts localized thing status info and thing status info changed events'() {
+        ThingHandlerCallback callback
+        ThingStatusInfoEvent infoEvent
+        ThingStatusInfoChangedEvent infoChangedEvent
+
+        registerThingTypeProvider()
+
+        def thingHandler = [
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {},
+            getThing: {THING}
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {thingTypeUID -> true},
+            registerHandler: {thing -> thingHandler },
+            unregisterHandler: {thing -> },
+            removeThing: {thingUID ->
+            }
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        def thingStatusInfoEventSubscriber = [
+            receive: { event -> infoEvent = event as ThingStatusInfoEvent },
+            getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService(thingStatusInfoEventSubscriber)
+
+        def thingStatusInfoChangedEventSubscriber = [
+            receive: { event -> infoChangedEvent = event as ThingStatusInfoChangedEvent },
+            getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoChangedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService(thingStatusInfoChangedEventSubscriber)
+
+        // add thing (UNINITIALIZED -> INITIALIZING)
+        managedThingProvider.add(THING)
+
+        waitForAssert {
+            assertThat infoEvent, not(null)
+            assertThat infoChangedEvent, not(null)
+        }
+
+        assertThat infoEvent.getType(), is(ThingStatusInfoEvent.TYPE)
+        assertThat infoEvent.getTopic(), is("smarthome/things/binding:type:id/status")
+        assertThat infoEvent.getStatusInfo().getStatus(), is(ThingStatus.INITIALIZING)
+        assertThat infoEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoEvent.getStatusInfo().getDescription(), is(null)
+
+        assertThat infoChangedEvent.getType(), is(ThingStatusInfoChangedEvent.TYPE)
+        assertThat infoChangedEvent.getTopic(), is("smarthome/things/binding:type:id/statuschanged")
+        assertThat infoChangedEvent.getStatusInfo().getStatus(), is(ThingStatus.INITIALIZING)
+        assertThat infoChangedEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getStatusInfo().getDescription(), is(null)
+        assertThat infoChangedEvent.getOldStatusInfo().getStatus(), is(ThingStatus.UNINITIALIZED)
+        assertThat infoChangedEvent.getOldStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getOldStatusInfo().getDescription(), is(null)
+
+        infoEvent = null
+        infoChangedEvent = null
+
+        // set status to ONLINE (INITIALIZING -> ONLINE)
+        setDefaultLocale(Locale.ENGLISH)
+
+        ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).withDescription("@text/online").build()
+        callback.statusUpdated(THING, statusInfo)
+
+        waitForAssert {
+            assertThat infoEvent, not(null)
+            assertThat infoChangedEvent, not(null)
+        }
+
+        assertThat infoEvent.getType(), is(ThingStatusInfoEvent.TYPE)
+        assertThat infoEvent.getTopic(), is("smarthome/things/binding:type:id/status")
+        assertThat infoEvent.getStatusInfo().getStatus(), is(ThingStatus.ONLINE)
+        assertThat infoEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoEvent.getStatusInfo().getDescription(), is("Thing is online.")
+
+        assertThat infoChangedEvent.getType(), is(ThingStatusInfoChangedEvent.TYPE)
+        assertThat infoChangedEvent.getTopic(), is("smarthome/things/binding:type:id/statuschanged")
+        assertThat infoChangedEvent.getStatusInfo().getStatus(), is(ThingStatus.ONLINE)
+        assertThat infoChangedEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getStatusInfo().getDescription(), is("Thing is online.")
+        assertThat infoChangedEvent.getOldStatusInfo().getStatus(), is(ThingStatus.INITIALIZING)
+        assertThat infoChangedEvent.getOldStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getOldStatusInfo().getDescription(), is(null)
+
+        infoEvent = null
+        infoChangedEvent = null
+
+        // set status to OFFLINE (ONLINE -> OFFLINE)
+        setDefaultLocale(Locale.GERMAN)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).withDescription("@text/offline.without-param").build()
+        callback.statusUpdated(THING, statusInfo)
+
+        waitForAssert {
+            assertThat infoEvent, not(null)
+            assertThat infoChangedEvent, not(null)
+        }
+
+        assertThat infoEvent.getType(), is(ThingStatusInfoEvent.TYPE)
+        assertThat infoEvent.getTopic(), is("smarthome/things/binding:type:id/status")
+        assertThat infoEvent.getStatusInfo().getStatus(), is(ThingStatus.OFFLINE)
+        assertThat infoEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoEvent.getStatusInfo().getDescription(), is("Thing ist offline.")
+
+        assertThat infoChangedEvent.getType(), is(ThingStatusInfoChangedEvent.TYPE)
+        assertThat infoChangedEvent.getTopic(), is("smarthome/things/binding:type:id/statuschanged")
+        assertThat infoChangedEvent.getStatusInfo().getStatus(), is(ThingStatus.OFFLINE)
+        assertThat infoChangedEvent.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getStatusInfo().getDescription(), is("Thing ist offline.")
+        assertThat infoChangedEvent.getOldStatusInfo().getStatus(), is(ThingStatus.ONLINE)
+        assertThat infoChangedEvent.getOldStatusInfo().getStatusDetail(), is(ThingStatusDetail.NONE)
+        assertThat infoChangedEvent.getOldStatusInfo().getDescription(), is("Thing ist online.")
+
+        infoEvent = null
+        infoChangedEvent = null
+    }
+
+    @Test
     void 'ThingManager calls initialize for added Thing correctly'() {
         // register ThingTypeProvider & ConfigurationDescriptionProvider with 'required' parameter
         registerThingTypeProvider()

@@ -59,12 +59,14 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -91,7 +93,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector and
  *         refactored create and update methods
- * @author Thomas Höfer - added validation of configuration
+ * @author Thomas Höfer - added validation of configuration and localization of thing status
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
  * @author Chris Jackson - added channel configuration updates
@@ -116,6 +118,7 @@ public class ThingResource implements SatisfiableRESTResource {
     private ConfigStatusService configStatusService;
     private ConfigDescriptionRegistry configDescRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
 
     @Context
     private UriInfo uriInfo;
@@ -130,7 +133,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Thing created."),
             @ApiResponse(code = 400, message = "A uid must be provided, if no binding can create a thing of this type."),
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
@@ -446,7 +449,7 @@ public class ThingResource implements SatisfiableRESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-            throws IOException {
+                    throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -488,6 +491,29 @@ public class ThingResource implements SatisfiableRESTResource {
         }
 
         return getThingResponse(Status.OK, thing, locale, null);
+    }
+
+    @GET
+    @RolesAllowed({ Role.USER, Role.ADMIN })
+    @Path("/{thingUID}/status")
+    @ApiOperation(value = "Gets thing's status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response getStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        // Check if the Thing exists, 404 if not
+        Thing thing = thingRegistry.get(thingUIDObject);
+        if (null == thing) {
+            logger.info("Received HTTP GET request for thing config status at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
+        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                LocaleUtil.getLocale(language));
+        return Response.ok().entity(thingStatusInfo).build();
     }
 
     @GET
@@ -535,8 +561,8 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response
      */
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
-        Object entity = null != thing
-                ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale, getLinkedItemsMap(thing)) : null;
+        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
+                getLinkedItemsMap(thing), thingStatusInfoI18nLocalizationService) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -604,11 +630,21 @@ public class ThingResource implements SatisfiableRESTResource {
         this.configStatusService = null;
     }
 
+    protected void setThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
+    }
+
+    protected void unsetThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = null;
+    }
+
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
             EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
-                    getLinkedItemsMap(thing));
+                    getLinkedItemsMap(thing), thingStatusInfoI18nLocalizationService);
             thingBeans.add(thingBean);
         }
         return thingBeans;
@@ -707,7 +743,7 @@ public class ThingResource implements SatisfiableRESTResource {
         return itemChannelLinkRegistry != null && itemFactory != null && itemRegistry != null
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
-                && thingTypeRegistry != null;
+                && thingTypeRegistry != null && thingStatusInfoI18nLocalizationService != null;
 
     }
 

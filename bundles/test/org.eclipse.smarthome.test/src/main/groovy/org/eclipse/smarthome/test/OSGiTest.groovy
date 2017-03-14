@@ -258,4 +258,33 @@ abstract class OSGiTest {
         ] as AutoUpdateBindingConfigProvider
         registerService(autoupdateConfig)
     }
+
+    protected void setDefaultLocale(Locale locale) {
+        assertThat locale, is(notNullValue())
+
+        def configAdmin = getService(Class.forName("org.osgi.service.cm.ConfigurationAdmin"))
+        assertThat configAdmin, is(notNullValue())
+
+        def localeProvider = getService(Class.forName("org.eclipse.smarthome.core.i18n.LocaleProvider"))
+        assertThat localeProvider, is(notNullValue())
+
+        def config = configAdmin.getConfiguration("org.eclipse.smarthome.core.localeprovider")
+        assertThat config, is(notNullValue())
+
+        def properties = config.getProperties()
+        if (properties == null) {
+            properties = new Hashtable()
+        }
+
+        properties.put("language", locale.getLanguage())
+        properties.put("script", locale.getScript())
+        properties.put("region", locale.getCountry())
+        properties.put("variant", locale.getVariant())
+
+        config.update(properties)
+
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(locale)
+        }
+    }
 }

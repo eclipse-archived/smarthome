@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * {@link ThingConsoleCommandExtension} provides console commands for listing and removing things.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Thomas Höfer - Added localization of thing status
  */
 public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
@@ -33,6 +35,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
+    private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
 
     public ThingConsoleCommandExtension() {
         super("things", "Access your thing registry.");
@@ -98,7 +101,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         for (Thing thing : things) {
             String id = thing.getUID().toString();
             String thingType = thing instanceof Bridge ? "Bridge" : "Thing";
-            ThingStatusInfo status = thing.getStatusInfo();
+            ThingStatusInfo status = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing, null);
             ThingUID bridgeUID = thing.getBridgeUID();
             String label = thing.getLabel();
 
@@ -121,6 +124,16 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    protected void setThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
+    }
+
+    protected void unsetThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = null;
     }
 
 }

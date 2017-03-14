@@ -180,12 +180,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                     lastUpdateTime = System.currentTimeMillis();
                     weatherData = data;
                 }
-                updateStatus(ThingStatus.ONLINE);
+                updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "@text/online");
                 return true;
             }
         } catch (IOException e) {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "@text/offline");
         }
         weatherData = null;
         return false;
