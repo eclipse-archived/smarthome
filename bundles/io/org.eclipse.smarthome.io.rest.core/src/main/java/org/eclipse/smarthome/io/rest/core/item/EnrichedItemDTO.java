@@ -21,9 +21,11 @@ public class EnrichedItemDTO extends ItemDTO {
 
     public String link;
     public String state;
+    public String transformedState;
     public StateDescription stateDescription;
 
-    public EnrichedItemDTO(ItemDTO itemDTO, String link, String state, StateDescription stateDescription) {
+    public EnrichedItemDTO(ItemDTO itemDTO, String link, String state, String transformedState,
+            StateDescription stateDescription) {
         this.type = itemDTO.type;
         this.name = itemDTO.name;
         this.label = itemDTO.label;
@@ -32,6 +34,7 @@ public class EnrichedItemDTO extends ItemDTO {
         this.groupNames = itemDTO.groupNames;
         this.link = link;
         this.state = state;
+        this.transformedState = transformedState;
         this.stateDescription = stateDescription;
     }
 
