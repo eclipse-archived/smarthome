@@ -100,6 +100,7 @@ public class DefaultScriptScopeProvider implements ScriptScopeProvider {
     protected void deactivate() {
         busEvent.dispose();
         busEvent = null;
+        elements = null;
     }
 
     @Override
