@@ -138,7 +138,7 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             File[] files = file.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    if (!file.isHidden()) {
+                    if (!f.isHidden()) {
                         importResources(f);
                     }
                 }
