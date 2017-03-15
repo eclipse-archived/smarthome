@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,8 +22,6 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
  *
  */
 public class MediaScriptScopeProvider implements ScriptScopeProvider {
-
-    private Map<String, Object> elements;
 
     private AudioManager audioManager;
     private VoiceManager voiceManager;
@@ -44,14 +43,11 @@ public class MediaScriptScopeProvider implements ScriptScopeProvider {
     }
 
     @Override
-    public synchronized Map<String, Object> getScopeElements() {
-        if (elements == null) {
-            elements = new HashMap<>();
-            // services
-            elements.put("audio", audioManager);
-            elements.put("voice", voiceManager);
-        }
-        return elements;
+    public Map<String, Object> getScopeElements() {
+        Map<String, Object> elements = new HashMap<>();
+        elements.put("audio", audioManager);
+        elements.put("voice", voiceManager);
+        return Collections.unmodifiableMap(elements);
     }
 
 }
