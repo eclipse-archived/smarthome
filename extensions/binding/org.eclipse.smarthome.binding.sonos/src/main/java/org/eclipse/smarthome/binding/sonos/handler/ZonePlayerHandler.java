@@ -556,13 +556,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             URLConnection connection = url.openConnection();
             contentType = connection.getContentType();
             logger.debug("Content type from headers: {}", contentType);
-            if (contentType == null) {
-                input = connection.getInputStream();
-                contentType = URLConnection.guessContentTypeFromStream(input);
-                logger.debug("Content type from data: {}", contentType);
-                if (contentType == null) {
-                    contentType = RawType.DEFAULT_MIME_TYPE;
-                }
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = RawType.DEFAULT_MIME_TYPE;
             }
         } catch (IOException e) {
             logger.debug("Failed to identify content type from URL: {}", e.getMessage());
@@ -687,15 +682,20 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 url = getAlbumArtUrl();
                 if (url != null) {
                     String contentType = getContentTypeFromUrl(url);
-                    InputStream input = null;
-                    try {
-                        input = url.openStream();
-                        newState = new RawType(IOUtils.toByteArray(input), contentType);
-                    } catch (IOException e) {
-                        logger.debug("Failed to download the album cover art: {}", e.getMessage());
+                    if (contentType != RawType.DEFAULT_MIME_TYPE) {
+                        InputStream input = null;
+                        try {
+                            input = url.openStream();
+                            newState = new RawType(IOUtils.toByteArray(input), contentType);
+                        } catch (IOException e) {
+                            logger.debug("Failed to download the album cover art: {}", e.getMessage());
+                            newState = UnDefType.UNDEF;
+                        } finally {
+                            IOUtils.closeQuietly(input);
+                        }
+                    } else {
+                        logger.debug("Cannot derive mimetype of coverart from {}", url);
                         newState = UnDefType.UNDEF;
-                    } finally {
-                        IOUtils.closeQuietly(input);
                     }
                 }
                 break;
