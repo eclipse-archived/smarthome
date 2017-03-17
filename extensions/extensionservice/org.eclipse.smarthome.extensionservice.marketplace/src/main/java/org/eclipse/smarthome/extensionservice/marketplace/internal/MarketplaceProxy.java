@@ -10,6 +10,7 @@ package org.eclipse.smarthome.extensionservice.marketplace.internal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,7 +18,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.extensionservice.marketplace.internal.model.Marketplace;
 import org.eclipse.smarthome.extensionservice.marketplace.internal.model.Node;
 import org.slf4j.Logger;
@@ -64,33 +64,27 @@ public class MarketplaceProxy {
      *
      * @return list of marketplace nodes
      */
-    public synchronized List<Node> getNodes() {
-        if (cachedNodes == null) {
-            XmlDocumentReader<Marketplace> reader = new MarketplaceXMLReader();
-            try {
-                Marketplace result = reader.readFromXML(url);
-                cachedNodes = result.categories[0].nodes;
-            } catch (Exception e) {
-                if (cachedNodes == null) {
-                    logger.warn("Failed downloading Marketplace entries: {}", e.getMessage());
-                    logger.warn("Retrying again in a minute");
-                    ThreadPoolManager.getScheduledPool("marketplace").schedule(() -> refresh(), retry_delay,
-                            TimeUnit.SECONDS);
-                } else {
-                    logger.debug("Cannot access IoT Marketplace - will continue to use cached results: {}",
-                            e.getMessage());
-                }
-            }
-        }
-        return Arrays.asList(cachedNodes);
+    public List<Node> getNodes() {
+        return cachedNodes != null ? Arrays.asList(cachedNodes) : Collections.emptyList();
     }
 
     /**
      * Refreshes the local content by synchronizing with the remote marketplace.
      */
     public synchronized void refresh() {
-        cachedNodes = null;
-        getNodes();
+        XmlDocumentReader<Marketplace> reader = new MarketplaceXMLReader();
+        try {
+            Marketplace result = reader.readFromXML(url);
+            cachedNodes = result.categories[0].nodes;
+        } catch (Exception e) {
+            if (cachedNodes == null) {
+                logger.warn("Failed downloading Marketplace entries: {}", e.getMessage());
+                logger.warn("Retrying again in a minute");
+                this.executorService.schedule(() -> refresh(), retry_delay, TimeUnit.SECONDS);
+            } else {
+                logger.debug("Cannot access IoT Marketplace - will continue to use cached results: {}", e.getMessage());
+            }
+        }
     }
 
     public void dispose() {
