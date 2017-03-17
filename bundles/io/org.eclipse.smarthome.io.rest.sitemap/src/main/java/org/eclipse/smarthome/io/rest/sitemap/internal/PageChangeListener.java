@@ -141,7 +141,11 @@ public class PageChangeListener implements StateChangeListener {
 
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
-        Set<SitemapEvent> events = constructSitemapEvents(item, oldState, newState, widgets);
+        // For all items except group, send an event only when the event state is changed.
+        if (item instanceof GroupItem) {
+            return;
+        }
+        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
         for (SitemapEvent event : events) {
             for (SitemapSubscriptionCallback callback : distinctCallbacks) {
                 callback.onEvent(event);
@@ -151,13 +155,25 @@ public class PageChangeListener implements StateChangeListener {
 
     @Override
     public void stateUpdated(Item item, State state) {
+        // For group item only, send an event each time the event state is updated.
+        // It allows updating the group label while the group state is unchanged,
+        // for example the count in label for Group:Switch:OR
+        if (!(item instanceof GroupItem)) {
+            return;
+        }
+        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
+        for (SitemapEvent event : events) {
+            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
+                callback.onEvent(event);
+            }
+        }
     }
 
-    private Set<SitemapEvent> constructSitemapEvents(Item item, State oldState, State newState, List<Widget> widgets) {
+    private Set<SitemapEvent> constructSitemapEvents(Item item, List<Widget> widgets) {
         Set<SitemapEvent> events = new HashSet<>();
         for (Widget w : widgets) {
             if (w instanceof Frame) {
-                events.addAll(constructSitemapEvents(item, oldState, newState, ((Frame) w).getChildren()));
+                events.addAll(constructSitemapEvents(item, ((Frame) w).getChildren()));
             }
 
             if ((w.getItem() != null && w.getItem().equals(item.getName())) || definesVisibility(w, item.getName())) {
