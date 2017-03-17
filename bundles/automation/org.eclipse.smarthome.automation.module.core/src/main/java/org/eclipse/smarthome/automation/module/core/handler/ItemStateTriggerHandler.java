@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.module.core.handler;
 
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateChangedEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.types.State;
@@ -61,8 +63,14 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
         this.itemName = (String) module.getConfiguration().get(CFG_ITEMNAME);
         this.state = (String) module.getConfiguration().get(CFG_STATE);
         this.previousState = (String) module.getConfiguration().get(CFG_PREVIOUS_STATE);
-        this.types = Collections.singleton(
-                UPDATE_MODULE_TYPE_ID.equals(module.getTypeUID()) ? ItemStateEvent.TYPE : ItemStateChangedEvent.TYPE);
+        if (UPDATE_MODULE_TYPE_ID.equals(module.getTypeUID())) {
+            this.types = Collections.singleton(ItemStateEvent.TYPE);
+        } else {
+            HashSet<String> set = new HashSet<>();
+            set.add(ItemStateChangedEvent.TYPE);
+            set.add(GroupItemStateChangedEvent.TYPE);
+            this.types = Collections.unmodifiableSet(set);
+        }
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", "smarthome/items/" + itemName + "/*");
