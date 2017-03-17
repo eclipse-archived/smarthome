@@ -1246,6 +1246,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             String entriesFilter) {
         long result = 0;
 
+        if (resultInput.isEmpty()) {
+            return result;
+        }
+
         try {
             result = Long.valueOf(resultInput.get(requestedKey));
         } catch (NumberFormatException ex) {
@@ -2356,14 +2360,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void restoreLastTransportState(ZonePlayerHandler coordinator, String nextAction) {
-        switch (nextAction) {
-            case "PLAYING":
-                coordinator.play();
-                coordinator.waitForTransportState("PLAYING");
-                break;
-            case "PAUSED_PLAYBACK":
-                coordinator.pause();
-                break;
+        if (nextAction != null) {
+            switch (nextAction) {
+                case "PLAYING":
+                    coordinator.play();
+                    coordinator.waitForTransportState("PLAYING");
+                    break;
+                case "PAUSED_PLAYBACK":
+                    coordinator.pause();
+                    break;
+            }
         }
     }
 
