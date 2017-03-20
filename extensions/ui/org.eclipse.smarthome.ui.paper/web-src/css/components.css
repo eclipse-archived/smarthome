@@ -1368,3 +1368,12 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .inboxSearch {
 	margin-bottom: 10px;
 }
+
+md-progress-circular.firmware {
+    margin: 5px 12px 5px 12px;
+    display: inline-block;
+}
+
+.middle-aligned.table-bordered>tbody>tr>td{
+	vertical-align: middle;
+}
