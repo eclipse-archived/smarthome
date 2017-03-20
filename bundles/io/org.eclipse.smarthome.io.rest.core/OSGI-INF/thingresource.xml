@@ -24,5 +24,8 @@
    <reference bind="setConfigStatusService" cardinality="0..1" interface="org.eclipse.smarthome.config.core.status.ConfigStatusService" name="ConfigStatusService" policy="dynamic" unbind="unsetConfigStatusService"/>
    <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
    <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic"/>
+   <reference bind="setFirmwareUpdateService" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService" name="FirmwareUpdateService" policy="static" unbind="unsetFirmwareUpdateService" />
+   <reference bind="addFirmwareUpdateHandler" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler" name="FirmwareUpdateHandler" policy="dynamic" unbind="removeFirmwareUpdateHandler"/>
+   <reference bind="setFirmwareRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry" name="FirmwareRegistry" policy="static" unbind="unsetFirmwareRegistry" />
    
 </scr:component>

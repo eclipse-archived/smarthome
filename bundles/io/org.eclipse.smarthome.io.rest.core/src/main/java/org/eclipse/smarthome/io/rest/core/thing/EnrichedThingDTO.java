@@ -15,6 +15,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusDTO;
 
 /**
  * This is a data transfer object that is used to serialize things with dynamic data like the status.
@@ -26,9 +27,11 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 public class EnrichedThingDTO extends ThingDTO {
 
     public ThingStatusInfo statusInfo;
+    public FirmwareStatusDTO firmwareInfo;
     // public List<EnrichedChannelDTO> channels;
 
-    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, Map<String, Set<String>> linkedItemsMap) {
+    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, FirmwareStatusDTO firmwareInfo,
+            Map<String, Set<String>> linkedItemsMap) {
         this.UID = thingDTO.UID;
         if (thingDTO.label != null) {
             this.label = thingDTO.label;
@@ -46,6 +49,7 @@ public class EnrichedThingDTO extends ThingDTO {
         if (thingDTO.location != null) {
             this.location = thingDTO.location;
         }
+        this.firmwareInfo = firmwareInfo;
     }
 
 }

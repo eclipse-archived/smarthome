@@ -126,15 +126,51 @@
 				</span>
 				<span>{{thing.statusInfo.description}}</span>
 			</p>
-			<div ng-init="details=false" ng-if="hasProperties(thing.properties)">
+			<div ng-init="details=false" ng-if="thing.hasProperties">
 				<md-button class="thing-properties" ng-click="details=!details">{{details?'hide':'show'}} properties</md-button>
 				<table class="table table-bordered">
-					<tr ng-show="details" ng-repeat="(key,value) in thing.properties">
-						<td>{{key}}</td>
+					<tr ng-show="details && key!='firmwareVersion'" ng-repeat="(key,value) in thing.properties">
+						<td >{{key}}</td>
 						<td>{{value}}</td>
 					</tr>
 				</table>
 			</div>
+			<div ng-if="thing.properties['firmwareVersion']" ng-controller="FirmwareController">
+			<hr ng-show="hasProperties" />
+            	<md-button ng-show="thing.properties['firmwareVersion']" class="thing-properties" ng-click="fvdetails=!fvdetails">{{fvdetails?'hide':'show'}} firmwares</md-button>
+				<div ng-show="updatingFirmware">
+					<md-progress-linear md-mode="determinate" value="{{percentComplete}}"></md-progress-linear>
+				</div>
+				<div ng-show="fvdetails">
+					<p class="md-subhead">
+						Firmware version:
+						<span>{{thing.properties['firmwareVersion']}}</span>
+					</p>
+					<p class="md-subhead">
+						Firmware status:
+						<span>{{firmwareStatus.status}}</span>
+					</p>
+					<table class="table table-bordered middle-aligned" ng-if="firmwareStatus.status=='UPDATE_EXECUTABLE'">
+						<tr>
+							<th>Version</th>
+							<th>Description</th>
+							<th>Vendor</th>
+							<th>Changelog</th>
+							<th></th>
+						</tr>
+						<tr ng-repeat="firmware in firmwares" ng-show="firmware.version>thing.properties['firmwareVersion']">
+							<td>{{firmware.version}}</td>
+							<td>{{firmware.description}}</td>
+							<td>{{firmware.vendor}}</td>
+							<td>{{firmware.changelog}}</td>
+							<td style="width: 100px">
+								<md-button aria-label="Install" ng-click="updateFirmware(firmware.version)">Install</md-button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<br />
 			<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
 			<md-button class="showmore no-margin" ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 			<div class="channels">

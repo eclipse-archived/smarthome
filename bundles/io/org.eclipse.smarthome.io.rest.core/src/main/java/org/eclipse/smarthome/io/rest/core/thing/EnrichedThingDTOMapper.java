@@ -15,6 +15,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusDTO;
 
 /**
  * The {@link EnrichedThingDTOMapper} is an utility class to map things into enriched thing data transfer objects
@@ -29,10 +30,11 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param uri the uri
      * @return the enriched thing DTO object
      */
-    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale, Map<String, Set<String>> linkedItemsMap) {
+    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale, FirmwareStatusDTO firmwareStatus,
+            Map<String, Set<String>> linkedItemsMap) {
 
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
-        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), linkedItemsMap);
+        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), firmwareStatus, linkedItemsMap);
     }
 }
