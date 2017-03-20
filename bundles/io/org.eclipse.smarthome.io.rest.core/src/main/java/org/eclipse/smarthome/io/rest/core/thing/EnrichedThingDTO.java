@@ -15,6 +15,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 
 /**
  * This is a data transfer object that is used to serialize things with dynamic data like the status.
@@ -27,18 +28,19 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 public class EnrichedThingDTO extends ThingDTO {
 
     public ThingStatusInfo statusInfo;
+    public final FirmwareStatusDTO firmwareStatus;
     public boolean editable;
-    // public List<EnrichedChannelDTO> channels;
 
     /**
      * Creates an enriched thing data transfer object.
      *
      * @param thingDTO the base {@link ThingDTO}
      * @param statusInfo {@link ThingStatusInfo} for this thing
+     * @param firmwareStatus {@link FirmwareStatusDTO} for this thing
      * @param linkedItemsMap a map of linked items
      * @param editable true if this thing can be edited
      */
-    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, Map<String, Set<String>> linkedItemsMap,
+    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, FirmwareStatusDTO firmwareStatus, Map<String, Set<String>> linkedItemsMap,
             boolean editable) {
         this.UID = thingDTO.UID;
         if (thingDTO.label != null) {
@@ -58,6 +60,7 @@ public class EnrichedThingDTO extends ThingDTO {
             this.location = thingDTO.location;
         }
 
+		this.firmwareStatus = firmwareStatus;
         this.editable = editable;
     }
 
