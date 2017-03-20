@@ -43,7 +43,7 @@
 							<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
 						</div>
 						<div class="item-content">
-							<div class="pull-left">
+							<div class="pull-left" ng-class="{'extension-label':extension.link}">
 								<div class="md-title">{{extension.label}}</div>
 								<p>{{extension.id}} - {{extension.version}}</p>
 							</div>
