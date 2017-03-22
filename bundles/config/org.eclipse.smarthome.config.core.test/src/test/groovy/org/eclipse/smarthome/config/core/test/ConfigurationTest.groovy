@@ -89,4 +89,14 @@ class ConfigurationTest {
 
         assertThat configuration.get("intField"), is(equalTo(null))
     }
+
+    @Test
+    void 'assert toString handles null values gracefully'() {
+        def properties = new HashMap([
+            stringField: null
+        ]);
+        def configuration = new Configuration(properties)
+        def res = configuration.toString()
+        assertThat res.contains("type=?"), is(true)
+    }
 }
