@@ -943,10 +943,12 @@ class ThingManagerOSGiTest extends OSGiTest {
         event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         unregisterService(thingHandlerFactory)
 
-        waitForAssert {assertThat receivedEvent, not(null)}
-        assertThat receivedEvent.getType(), is(event.getType())
-        assertThat receivedEvent.getPayload(), is(event.getPayload())
-        assertThat receivedEvent.getTopic(), is(event.getTopic())
+        waitForAssert {
+            assertThat receivedEvent, not(null)
+            assertThat receivedEvent.getType(), is(event.getType())
+            assertThat receivedEvent.getPayload(), is(event.getPayload())
+            assertThat receivedEvent.getTopic(), is(event.getTopic())
+        }
     }
 
     @Test
