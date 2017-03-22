@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -29,11 +28,7 @@ import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +46,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
-    private StateDescriptionProviderTracker stateDescriptionProviderTracker;
-
     private List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
-
-    private Map<String, Integer> stateDescriptionProviderRanking = new ConcurrentHashMap<>();
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
@@ -342,62 +333,35 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     protected void activate(final ComponentContext componentContext) {
         super.activate(componentContext.getBundleContext());
-        stateDescriptionProviderTracker = new StateDescriptionProviderTracker(componentContext.getBundleContext());
-        stateDescriptionProviderTracker.open();
     }
 
     @Override
     protected void deactivate() {
-        stateDescriptionProviderTracker.close();
-        stateDescriptionProviderTracker = null;
         super.deactivate();
     }
 
-    private final class StateDescriptionProviderTracker
-            extends ServiceTracker<StateDescriptionProvider, StateDescriptionProvider> {
+    protected void addStateDescriptionProvider(StateDescriptionProvider provider) {
+        synchronized (stateDescriptionProviders) {
+            stateDescriptionProviders.add(provider);
 
-        public StateDescriptionProviderTracker(BundleContext context) {
-            super(context, StateDescriptionProvider.class.getName(), null);
-        }
-
-        @Override
-        public StateDescriptionProvider addingService(ServiceReference<StateDescriptionProvider> reference) {
-            StateDescriptionProvider provider = context.getService(reference);
-
-            Object serviceRanking = reference.getProperty(Constants.SERVICE_RANKING);
-            if (serviceRanking instanceof Integer) {
-                stateDescriptionProviderRanking.put(provider.getClass().getName(), (Integer) serviceRanking);
-            } else {
-                stateDescriptionProviderRanking.put(provider.getClass().getName(), 0);
-            }
-
-            synchronized (stateDescriptionProviders) {
-                stateDescriptionProviders.add(provider);
-
-                Collections.sort(stateDescriptionProviders, new Comparator<StateDescriptionProvider>() {
-                    // sort providers by service ranking in a descending order
-                    @Override
-                    public int compare(StateDescriptionProvider provider1, StateDescriptionProvider provider2) {
-                        return stateDescriptionProviderRanking.get(provider2.getClass().getName())
-                                .compareTo(stateDescriptionProviderRanking.get(provider1.getClass().getName()));
-                    }
-                });
-
-                for (Item item : getItems()) {
-                    ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
+            Collections.sort(stateDescriptionProviders, new Comparator<StateDescriptionProvider>() {
+                // sort providers by service ranking in a descending order
+                @Override
+                public int compare(StateDescriptionProvider provider1, StateDescriptionProvider provider2) {
+                    return provider2.getRank().compareTo(provider1.getRank());
                 }
-            }
-            return provider;
-        }
+            });
 
-        @Override
-        public void removedService(ServiceReference<StateDescriptionProvider> reference,
-                StateDescriptionProvider service) {
-            stateDescriptionProviders.remove(service);
-            stateDescriptionProviderRanking.remove(service.getClass().getName());
             for (Item item : getItems()) {
                 ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
             }
+        }
+    }
+
+    protected void removeStateDescriptionProvider(StateDescriptionProvider provider) {
+        stateDescriptionProviders.remove(provider);
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
 

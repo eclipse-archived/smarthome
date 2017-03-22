@@ -39,6 +39,7 @@ import org.eclipse.smarthome.model.items.ModelGroupFunction;
 import org.eclipse.smarthome.model.items.ModelGroupItem;
 import org.eclipse.smarthome.model.items.ModelItem;
 import org.eclipse.smarthome.model.items.ModelNormalItem;
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,23 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
 
+    private Integer rank;
+
     public GenericItemProvider() {
+    }
+
+    protected void activate(Map<String, Object> properties) {
+        Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
+        if (serviceRanking instanceof Integer) {
+            rank = (Integer) serviceRanking;
+        } else {
+            rank = 0;
+        }
+    }
+
+    @Override
+    public Integer getRank() {
+        return rank;
     }
 
     public void setModelRepository(ModelRepository modelRepository) {
