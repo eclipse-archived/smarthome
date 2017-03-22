@@ -221,7 +221,7 @@ public class Configuration {
                 sb.append(", ");
             }
             sb.append(String.format("{key=%s; type=%s; value=%s}", prop.getKey(),
-                    prop.getValue().getClass().getSimpleName(), prop.getValue()));
+                    prop.getValue() != null ? prop.getValue().getClass().getSimpleName() : "?", prop.getValue()));
         }
         sb.append("]");
         return sb.toString();
