@@ -220,8 +220,9 @@ public class Configuration {
             } else {
                 sb.append(", ");
             }
+            Object value = prop.getValue();
             sb.append(String.format("{key=%s; type=%s; value=%s}", prop.getKey(),
-                    prop.getValue() != null ? prop.getValue().getClass().getSimpleName() : "?", prop.getValue()));
+                    value != null ? value.getClass().getSimpleName() : "?", value));
         }
         sb.append("]");
         return sb.toString();
