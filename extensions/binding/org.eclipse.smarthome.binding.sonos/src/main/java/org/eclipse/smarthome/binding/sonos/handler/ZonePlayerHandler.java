@@ -1515,7 +1515,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
         }
-        logger.warn("Could not fetch Sonos group state information");
+        logger.debug("Could not fetch Sonos group state information");
         return null;
     }
 
