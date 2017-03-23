@@ -147,7 +147,7 @@ public class WebAppServlet extends BaseServlet {
                     if (subscriptions.exists(subscriptionId)) {
                         subscriptions.setPageId(subscriptionId, sitemap.getName(), sitemapName);
                     } else {
-                        logger.warn("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
+                        logger.debug("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
                     }
                 }
                 String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
@@ -158,7 +158,7 @@ public class WebAppServlet extends BaseServlet {
                     if (subscriptions.exists(subscriptionId)) {
                         subscriptions.setPageId(subscriptionId, sitemap.getName(), widgetId);
                     } else {
-                        logger.warn("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
+                        logger.debug("Basic UI requested a non-existing event subscription id ({})", subscriptionId);
                     }
                 }
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
