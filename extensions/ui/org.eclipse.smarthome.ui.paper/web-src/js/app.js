@@ -322,6 +322,39 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             }
         }
     };
+}).directive('changeEvent', function(sharedProperties) {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+            $(".md-dialog-container").bind('click', function(e) {
+                var $clicked = $(e.target);
+                if (!$clicked.parents().hasClass("codeBlock")) {
+                    read();
+                }
+            });
+
+            function read(initRead) {
+                if (!initRead) {
+                    scope.configuration[scope.parameter.name] = document.getElementById(attrs.id).innerText;
+                }
+                var text = scope.configuration[scope.parameter.name];
+                var elem = element;
+                document.getElementById(attrs.id).innerHTML = text ? text.replace(/\r\n|\r|\n/g, "<br>") : "";
+                $('pre code').each(function(i, block) {
+                    hljs.highlightBlock(block);
+                });
+                var index = sharedProperties.searchArray(sharedProperties.getModuleArray(scope.type), scope.id);
+                if (index != -1) {
+                    sharedProperties.getModuleArray(scope.type)[index].configuration = scope.configuration;
+                }
+            }
+
+            setTimeout(function() {
+                scope.$evalAsync(read(true));
+            }, 200);
+        }
+    };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
     var original = $location.path;
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {

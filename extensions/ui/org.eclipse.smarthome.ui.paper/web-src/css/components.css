@@ -758,17 +758,13 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	outline: none;
 }
 
-textarea.scriptArea {
+.scriptArea {
     max-width: 550px;
     width:100%;
     max-height: 250px;
     overflow: scroll;
-    border: 1px solid #ccc;
-    padding-left: 5px;
-    font-family: monospace;
-    font-size: 12px;
-    line-height: 1.2;
     outline: none;
+    white-space:nowrap;
 }
 
 .configContainer {
