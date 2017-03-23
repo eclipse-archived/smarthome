@@ -69,7 +69,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                 cancelUpdate(console,args); 
                 break;
             default:
-                console.println(String.format("Unkown firmware sub command '%s'.", subCommand));
+                console.println(String.format("Unknown firmware sub command '%s'.", subCommand));
                 printUsage(console);
                 break;
         }
