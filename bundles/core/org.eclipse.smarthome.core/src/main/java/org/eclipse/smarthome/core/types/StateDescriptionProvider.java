@@ -27,4 +27,14 @@ public interface StateDescriptionProvider {
      */
     StateDescription getStateDescription(String itemName, Locale locale);
 
+    /**
+     * Return the service rank.
+     *
+     * Usually an implementation should piggy-back on the <code>service.ranking</code> OSGi component property.
+     * The default is 0 - the higher, the more like it is going to win.
+     *
+     * @return an integer value
+     */
+    Integer getRank();
+
 }
