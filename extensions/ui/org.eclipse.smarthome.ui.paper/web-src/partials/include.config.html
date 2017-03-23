@@ -126,7 +126,11 @@
 							<div class="parameter col-xs-12 scriptfield" ng-switch-when="textarea" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 								<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
 								<div class="col-xs-12 configContainer">
-									<pre><code class="codeBlock"><div class="scriptArea" ng-attr-id="{{'script'+$index}}" contenteditable ng-model="configuration[parameter.name]" change-event></div></code></pre>
+									<pre>
+										<code class="codeBlock">
+											<div class="scriptArea" ng-attr-id="{{'script'+$index}}" contenteditable ng-model="configuration[parameter.name]" change-event></div>
+										</code>
+									</pre>
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<p ng-message="minlength" class="customMessage">Minimum length is {{parameter.min}}</p>
 										<p ng-message="maxlength" class="customMessage">Maximum length is {{parameter.max}}</p>
