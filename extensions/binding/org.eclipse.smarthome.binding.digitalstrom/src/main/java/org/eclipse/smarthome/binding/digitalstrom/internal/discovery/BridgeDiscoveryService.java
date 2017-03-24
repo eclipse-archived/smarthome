@@ -13,13 +13,16 @@
 package org.eclipse.smarthome.binding.digitalstrom.internal.discovery;
 
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.DsAPIImpl;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -27,8 +30,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link BridgeDiscoveryService} is responsible for discovering digitalSTROM-Server, if the server is in the
@@ -40,10 +41,10 @@ import com.google.common.collect.Sets;
  */
 public class BridgeDiscoveryService extends AbstractDiscoveryService {
 
-    private Logger logger = LoggerFactory.getLogger(BridgeDiscoveryService.class);
-    private final String HOST_ADDRESS = "dss.local.";
+    private final Logger logger = LoggerFactory.getLogger(BridgeDiscoveryService.class);
+    public static final String HOST_ADDRESS = "dss.local.";
 
-    private Runnable resultCreater = new Runnable() {
+    private final Runnable resultCreater = new Runnable() {
 
         @Override
         public void run() {
@@ -56,7 +57,6 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
             if (uid != null) {
                 Map<String, Object> properties = new HashMap<>(2);
                 properties.put(DigitalSTROMBindingConstants.HOST, HOST_ADDRESS);
-                properties.put(DigitalSTROMBindingConstants.DS_ID, uid.getId());
                 DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
                         .withLabel("digitalSTROM-Server").build();
                 thingDiscovered(result);
@@ -66,11 +66,15 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
         private ThingUID getThingUID() {
             DsAPI digitalSTROMClient = new DsAPIImpl(HOST_ADDRESS, Config.DEFAULT_CONNECTION_TIMEOUT,
                     Config.DEFAULT_READ_TIMEOUT, true);
+            String dSID = null;
             switch (digitalSTROMClient.checkConnection("123")) {
                 case HttpURLConnection.HTTP_OK:
                 case HttpURLConnection.HTTP_UNAUTHORIZED:
                 case HttpURLConnection.HTTP_FORBIDDEN:
-                    String dSID = digitalSTROMClient.getDSID("123");
+                    Map<String, String> dsidMap = digitalSTROMClient.getDSID(null);
+                    if (dsidMap != null) {
+                        dSID = dsidMap.get(JSONApiResponseKeysEnum.DSID.getKey());
+                    }
                     if (StringUtils.isNotBlank(dSID)) {
                         return new ThingUID(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE, dSID);
                     } else {
@@ -85,7 +89,7 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
      * Creates a new {@link BridgeDiscoveryService}.
      */
     public BridgeDiscoveryService() {
-        super(Sets.newHashSet(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE), 10, false);
+        super(new HashSet<>(Arrays.asList(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE)), 10, false);
     }
 
     @Override

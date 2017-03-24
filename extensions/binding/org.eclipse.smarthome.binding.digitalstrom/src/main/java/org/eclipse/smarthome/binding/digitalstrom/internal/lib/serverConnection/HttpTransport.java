@@ -21,44 +21,45 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection
 public interface HttpTransport {
 
     /**
-     * Executes a digitalSTROM-request.
+     * Executes a digitalSTROM-request through calling {@link #execute(String, int, int)} with default connection time
+     * out and read timeout.
      *
-     * @param request
+     * @param request to execute
      * @return response
      */
-    public String execute(String request);
+    String execute(String request);
 
     /**
      * Executes a digitalSTROM-request.
      *
-     * @param request
-     * @param connectTimeout
-     * @param readTimeout
+     * @param request to execute
+     * @param connectTimeout of execution
+     * @param readTimeout of execution
      * @return response
      */
-    public String execute(String request, int connectTimeout, int readTimeout);
+    String execute(String request, int connectTimeout, int readTimeout);
 
     /**
      * Executes a digitalSTROM test request and returns the HTTP-Code.
      *
-     * @param testRequest
+     * @param testRequest to execute
      * @return HTTP-Code
      */
-    public int checkConnection(String testRequest);
+    int checkConnection(String testRequest);
 
     /**
      * Returns the connection timeout for sensor data readings.
      *
      * @return sensor data connection timeout
      */
-    public int getSensordataConnectionTimeout();
+    int getSensordataConnectionTimeout();
 
     /**
      * Returns the read timeout for sensor data readings.
      *
      * @return sensor data read timeout
      */
-    public int getSensordataReadTimeout();
+    int getSensordataReadTimeout();
 
     /**
      * Saves the SSL-Certificate in a file at the given path.
@@ -66,5 +67,5 @@ public interface HttpTransport {
      * @param path to save
      * @return absolute path
      */
-    public String writePEMCertFile(String path);
+    String writePEMCertFile(String path);
 }

@@ -15,10 +15,10 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecuto
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdateImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DeviceStateUpdateImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +32,15 @@ import org.slf4j.LoggerFactory;
 public class DeviceOutputValueSensorJob implements SensorJob {
 
     private static final Logger logger = LoggerFactory.getLogger(DeviceOutputValueSensorJob.class);
-    private Device device = null;
+    private final Device device;
     private short index = 0;
-    private DSID meterDSID = null;
+    private final DSID meterDSID;
     private long initalisationTime = 0;
 
     /**
      * Creates a new {@link DeviceOutputValueSensorJob} for the given {@link Device}.
      *
-     * @param device
+     * @param device to update
      */
     public DeviceOutputValueSensorJob(Device device) {
         this.device = device;
@@ -55,26 +55,25 @@ public class DeviceOutputValueSensorJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        int value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, index);
+        int value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, null, index);
         logger.debug("Device output value on Demand : {}, dSID: {}", value, this.device.getDSID().getValue());
 
         if (value != 1) {
             switch (this.index) {
                 case 0:
-                    this.device.updateInternalDeviceState(
-                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, value));
+                    this.device.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.OUTPUT, value));
                     return;
                 case 2:
                     this.device.updateInternalDeviceState(
-                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, value));
+                            new DeviceStateUpdateImpl(DeviceStateUpdate.SLATPOSITION, value));
                     if (device.isBlind()) {
-                        value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null,
+                        value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, null,
                                 DeviceConstants.DEVICE_SENSOR_SLAT_ANGLE_OUTPUT);
                         logger.debug("Device angle output value on Demand : {}, dSID: {}", value,
                                 this.device.getDSID().getValue());
                         if (value != 1) {
                             this.device.updateInternalDeviceState(
-                                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, value));
+                                    new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_ANGLE, value));
                         }
                     }
                     return;
@@ -124,4 +123,20 @@ public class DeviceOutputValueSensorJob implements SensorJob {
         return "DeviceOutputValueSensorJob [deviceDSID : " + device.getDSID().getValue() + ", meterDSID=" + meterDSID
                 + ", initalisationTime=" + initalisationTime + "]";
     }
+
+    @Override
+    public String getID() {
+        return getID(device);
+    }
+
+    /**
+     * Returns the id for a {@link DeviceOutputValueSensorJob} with the given {@link Device}.
+     *
+     * @param device to update
+     * @return id
+     */
+    public static String getID(Device device) {
+        return DeviceOutputValueSensorJob.class.getSimpleName() + "-" + device.getDSID().getValue();
+    }
+
 }

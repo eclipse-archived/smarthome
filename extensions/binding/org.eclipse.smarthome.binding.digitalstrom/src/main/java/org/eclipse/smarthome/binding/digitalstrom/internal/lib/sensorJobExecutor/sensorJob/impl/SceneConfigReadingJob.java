@@ -15,8 +15,8 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecuto
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceSceneSpec;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +31,16 @@ public class SceneConfigReadingJob implements SensorJob {
 
     private static final Logger logger = LoggerFactory.getLogger(SceneConfigReadingJob.class);
 
-    private Device device = null;
+    private final Device device;
     private short sceneID = 0;
-    private DSID meterDSID = null;
+    private final DSID meterDSID;
     private long initalisationTime = 0;
 
     /**
      * Creates a new {@link SceneConfigReadingJob} for the given {@link Device} and the given sceneID.
      *
-     * @param device
-     * @param sceneID
+     * @param device to update
+     * @param sceneID to update
      */
     public SceneConfigReadingJob(Device device, short sceneID) {
         this.device = device;
@@ -51,7 +51,7 @@ public class SceneConfigReadingJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        DeviceSceneSpec sceneConfig = digitalSTROM.getDeviceSceneMode(token, device.getDSID(), null, sceneID);
+        DeviceSceneSpec sceneConfig = digitalSTROM.getDeviceSceneMode(token, device.getDSID(), null, null, sceneID);
 
         if (sceneConfig != null) {
             device.addSceneConfig(sceneID, sceneConfig);
@@ -99,5 +99,21 @@ public class SceneConfigReadingJob implements SensorJob {
     public String toString() {
         return "SceneConfigReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()
                 + ", meterDSID=" + meterDSID + ", initalisationTime=" + initalisationTime + "]";
+    }
+
+    @Override
+    public String getID() {
+        return getID(device, sceneID);
+    }
+
+    /**
+     * Returns the id for a {@link SceneConfigReadingJob} with the given {@link Device} and sceneID.
+     *
+     * @param device to update
+     * @param sceneID to update
+     * @return id
+     */
+    public static String getID(Device device, Short sceneID) {
+        return SceneConfigReadingJob.class.getSimpleName() + "-" + device.getDSID().getValue() + "-" + sceneID;
     }
 }

@@ -15,16 +15,20 @@ package org.eclipse.smarthome.binding.digitalstrom.internal;
 import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.*;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
+import org.eclipse.smarthome.binding.digitalstrom.handler.CircuitHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.DeviceHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.SceneHandler;
+import org.eclipse.smarthome.binding.digitalstrom.handler.ZoneTemperatureControlHandler;
 import org.eclipse.smarthome.binding.digitalstrom.internal.discovery.DiscoveryServiceManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.impl.ConnectionManagerImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -46,12 +50,20 @@ import com.google.common.collect.Sets;
  */
 public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(DigitalSTROMHandlerFactory.class);
-    private HashMap<String, DiscoveryServiceManager> discoveryServiceManagers = new HashMap<String, DiscoveryServiceManager>();
+    private final Logger logger = LoggerFactory.getLogger(DigitalSTROMHandlerFactory.class);
+    private final HashMap<String, DiscoveryServiceManager> discoveryServiceManagers = new HashMap<String, DiscoveryServiceManager>();
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(SceneHandler.SUPPORTED_THING_TYPES,
-            Sets.union(BridgeHandler.SUPPORTED_THING_TYPES, DeviceHandler.SUPPORTED_THING_TYPES));
-    private HashMap<ThingUID, BridgeHandler> bridgeHandlers = null;
+    /**
+     * Contains all supported {@link ThingTypeUID}'s.
+     */
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
+            .union(SceneHandler.SUPPORTED_THING_TYPES,
+                    Sets.union(BridgeHandler.SUPPORTED_THING_TYPES,
+                            Sets.union(DeviceHandler.SUPPORTED_THING_TYPES,
+                                    Sets.union(ZoneTemperatureControlHandler.SUPPORTED_THING_TYPES,
+                                            CircuitHandler.SUPPORTED_THING_TYPES))));
+
+    private HashMap<ThingUID, BridgeHandler> bridgeHandlers;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -64,7 +76,6 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
         if (BridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID dSSUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             if (dSSUID != null) {
-                logger.info("{}", dSSUID);
                 return super.createThing(thingTypeUID, configuration, dSSUID, null);
             } else {
                 logger.error("Can't generate thing UID for thing type {}"
@@ -78,6 +89,16 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
         if (DeviceHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID dsDeviceUID = getDeviceUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, dsDeviceUID, bridgeUID);
+        }
+
+        if (CircuitHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            ThingUID dsDeviceUID = getDeviceUID(thingTypeUID, thingUID, configuration, bridgeUID);
+            return super.createThing(thingTypeUID, configuration, dsDeviceUID, bridgeUID);
+        }
+
+        if (ZoneTemperatureControlHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            ThingUID zoneTempConUID = getZoneTemperatureControlUID(thingTypeUID, thingUID, configuration, bridgeUID);
+            return super.createThing(thingTypeUID, configuration, zoneTempConUID, bridgeUID);
         }
 
         if (SceneHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
@@ -112,6 +133,14 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
             return new DeviceHandler(thing);
         }
 
+        if (CircuitHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new CircuitHandler(thing);
+        }
+
+        if (ZoneTemperatureControlHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new ZoneTemperatureControlHandler(thing);
+        }
+
         if (SceneHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new SceneHandler(thing);
         }
@@ -120,18 +149,41 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
 
     private ThingUID getDeviceUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        if (StringUtils.isNotBlank((String) configuration.get(DEVICE_DSID))) {
+        if (thingUID == null && StringUtils.isNotBlank((String) configuration.get(DEVICE_DSID))) {
             thingUID = new ThingUID(thingTypeUID, bridgeUID, configuration.get(DEVICE_DSID).toString());
+        }
+        return thingUID;
+    }
+
+    private ThingUID getZoneTemperatureControlUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
+            Configuration configuration, ThingUID bridgeUID) {
+        if (thingUID == null) {
+            Integer zoneID = ZoneTemperatureControlHandler.getZoneID(configuration, bridgeHandlers.get(bridgeUID));
+            if (zoneID > ZoneTemperatureControlHandler.ZONE_ID_NOT_EXISTS) {
+                thingUID = new ThingUID(thingTypeUID, bridgeUID, zoneID.toString());
+            } else {
+                switch (zoneID) {
+                    case ZoneTemperatureControlHandler.ZONE_ID_NOT_EXISTS:
+                        logger.error("Configured zone '{}' does not exist, please check your configuration.",
+                                configuration.get(DigitalSTROMBindingConstants.ZONE_ID));
+                        break;
+                    case ZoneTemperatureControlHandler.ZONE_ID_NOT_SET:
+                        logger.error("ZoneID is missing at your configuration.");
+                        break;
+                    case ZoneTemperatureControlHandler.BRIDGE_IS_NULL:
+                        logger.error("Bridge is missing, can not check the zoneID.");
+                        break;
+                }
+            }
         }
         return thingUID;
     }
 
     private ThingUID getSceneUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        if (thingUID.getId().split("-").length == 3) {
+        if (thingUID != null) {
             return thingUID;
         }
-
         String sceneID = SceneHandler.getSceneID(configuration, bridgeHandlers.get(bridgeUID));
         switch (sceneID) {
             case SceneHandler.SCENE_WRONG:
@@ -141,11 +193,11 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
                 break;
             case SceneHandler.ZONE_WRONG:
                 logger.error("Configured zone '{}' does not exist, please check your configuration.",
-                        configuration.get(DigitalSTROMBindingConstants.SCENE_ZONE_ID));
+                        configuration.get(DigitalSTROMBindingConstants.ZONE_ID));
                 break;
             case SceneHandler.GROUP_WRONG:
                 logger.error("Configured group '{}' does not exist, please check your configuration.",
-                        configuration.get(DigitalSTROMBindingConstants.SCENE_GROUP_ID));
+                        configuration.get(DigitalSTROMBindingConstants.GROUP_ID));
                 break;
             case SceneHandler.NO_STRUC_MAN:
                 logger.error("Waiting for building digitalSTROM model.");
@@ -158,10 +210,13 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
             default:
                 return new ThingUID(thingTypeUID, bridgeUID, sceneID);
         }
-        return null;
+        return thingUID;
     }
 
     private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
+        if (thingUID != null) {
+            return thingUID;
+        }
         String dSID;
         if (StringUtils.isBlank((String) configuration.get(DS_ID))) {
             dSID = getDSSid(configuration);
@@ -179,7 +234,7 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private String getDSSid(Configuration configuration) {
-        String dsID = null;
+        String dSID = null;
         if (StringUtils.isNotBlank((String) configuration.get(HOST))) {
             String host = configuration.get(HOST).toString();
             String applicationToken = null;
@@ -195,12 +250,12 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
                 pw = configuration.get(PASSWORD).toString();
             }
             ConnectionManager connMan = new ConnectionManagerImpl(host, user, pw, applicationToken, false, true);
-            // Only to get sessionToken for server versions which returns the dSID of the server only, if a user is
-            // logged in
-            connMan.checkConnection();
-            dsID = connMan.getDigitalSTROMAPI().getDSID(connMan.getSessionToken());
+            Map<String, String> dsidMap = connMan.getDigitalSTROMAPI().getDSID(connMan.getSessionToken());
+            if (dsidMap != null) {
+                dSID = dsidMap.get(JSONApiResponseKeysEnum.DSID.getKey());
+            }
         }
-        return dsID;
+        return dSID;
     }
 
     private boolean checkUserPassword(Configuration configuration) {

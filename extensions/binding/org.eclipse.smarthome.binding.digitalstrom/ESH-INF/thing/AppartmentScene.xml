@@ -7,40 +7,35 @@
         <supported-bridge-type-refs>
             <bridge-type-ref id="dssBridge" />
         </supported-bridge-type-refs>
-        <label>@text/DS_APP_SCENE_LABEL</label>
-        <description>@text/DS_APP_SCENE_DESC</description>
+        <label>@text/app_scene_label</label>
+        <description>@text/app_scene_desc</description>
 
         <channels>
             <channel id="scene" typeId="scene" />
         </channels>
 
         <config-description>
-            <!--sceneName -->
-            <parameter name="sceneName" type="text">
-                <label>@text/DS_SCENE_PARM_SCENE_NAME_LABEL</label>
-                <description>@text/DS_SCENE_PARM_SCENE_NAME_DESC</description>
-            </parameter>
             <!--scene id -->
             <parameter name="sceneID" type="text" readOnly="true">
-                <label>@text/DS_SCENE_PARM_SCENE_ID_LABEL</label>
-                <description>@text/DS_SCENE_PARM_SCENE_ID_DESC</description>
+                <label>@text/param_scene_id_label</label>
+                <description>@text/param_scene_id_desc</description>
                 <required>true</required>
                 <options>
-                    <option value="ABSENT">@text/ABSENT</option>
-                    <option value="PRESENT">@text/PRESENT</option>
-                    <option value="DOOR_BELL">@text/DOOR_BELL</option>
-                    <option value="PANIC">@text/PANIC</option>
-                    <option value="FIRE">@text/FIRE</option>
-                    <option value="ALARM_1">@text/ALARM_1</option>
-                    <option value="ALARM_2">@text/ALARM_2</option>
-                    <option value="ALARM_3">@text/ALARM_3</option>
-                    <option value="ALARM_4">@text/ALARM_4</option>
-                    <option value="WIND">@text/WIND</option>
-                    <option value="NO_WIND">@text/NO_WIND</option>
-                    <option value="RAIN">@text/RAIN</option>
-                    <option value="NO_RAIN">@text/NO_RAIN</option>
-                    <option value="HAIL">@text/HAIL</option>
-                    <option value="NO_HAIL">@text/NO_HAIL</option>
+                    <option value="ABSENT">@text/absent</option>
+                    <option value="PRESENT">@text/present</option>
+                    <option value="DOOR_BELL">@text/door_bell</option>
+                    <option value="PANIC">@text/panic</option>
+                    <option value="FIRE">@text/fire</option>
+                    <option value="ALARM_1">@text/alarm_1</option>
+                    <option value="ALARM_2">@text/alarm_2</option>
+                    <option value="ALARM_3">@text/alarm_3</option>
+                    <option value="ALARM_4">@text/alarm_4</option>
+                    <option value="WIND">@text/wind</option>
+                    <option value="NO_WIND">@text/no_wind</option>
+                    <option value="RAIN">@text/rain</option>
+                    <option value="NO_RAIN">@text/no_rain</option>
+                    <option value="HAIL">@text/hail</option>
+                    <option value="NO_HAIL">@text/no_hail</option>
                 </options>
             </parameter>
         </config-description>

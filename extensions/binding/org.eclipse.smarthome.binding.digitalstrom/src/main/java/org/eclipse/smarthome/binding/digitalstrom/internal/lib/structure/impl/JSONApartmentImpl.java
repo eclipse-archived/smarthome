@@ -33,9 +33,14 @@ public class JSONApartmentImpl implements Apartment {
 
     private Map<Integer, Zone> zoneMap = new HashMap<Integer, Zone>();
 
+    /**
+     * Creates a new {@link JSONApartmentImpl} through the {@link JsonObject}.
+     *
+     * @param jObject of the server response, must not be null
+     */
     public JSONApartmentImpl(JsonObject jObject) {
-        if (jObject.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES.getKey()) instanceof JsonArray) {
-            JsonArray zones = (JsonArray) jObject.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES.getKey());
+        if (jObject.get(JSONApiResponseKeysEnum.ZONES.getKey()) instanceof JsonArray) {
+            JsonArray zones = (JsonArray) jObject.get(JSONApiResponseKeysEnum.ZONES.getKey());
             for (int i = 0; i < zones.size(); i++) {
                 if (zones.get(i) instanceof JsonObject) {
                     Zone zone = new JSONZoneImpl((JsonObject) zones.get(i));

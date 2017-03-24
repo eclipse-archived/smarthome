@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.handler;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
@@ -34,8 +36,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link SceneHandler} is responsible for handling commands, which are sent to the channel of an
  * DigitalSTROM-Scene.<br>
@@ -48,11 +48,13 @@ import com.google.common.collect.Sets;
  */
 public class SceneHandler extends BaseThingHandler implements SceneStatusListener {
 
-    private Logger logger = LoggerFactory.getLogger(SceneHandler.class);
-
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(
+    private final Logger logger = LoggerFactory.getLogger(SceneHandler.class);
+    /**
+     * Contains all supported thing types of this handler.
+     */
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(
             DigitalSTROMBindingConstants.THING_TYPE_APP_SCENE, DigitalSTROMBindingConstants.THING_TYPE_GROUP_SCENE,
-            DigitalSTROMBindingConstants.THING_TYPE_ZONE_SCENE, DigitalSTROMBindingConstants.THING_TYPE_NAMED_SCENE);
+            DigitalSTROMBindingConstants.THING_TYPE_ZONE_SCENE, DigitalSTROMBindingConstants.THING_TYPE_NAMED_SCENE));
 
     /**
      * Configured scene does not exist or cannot be used.
@@ -79,10 +81,15 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
      */
     public final static String NO_BRIDGE = "noBridge";
 
-    private BridgeHandler bridgeHandler = null;
+    private BridgeHandler bridgeHandler;
     private InternalScene scene;
-    private String sceneThingID = null;
+    private String sceneThingID;
 
+    /**
+     * Creates a new {@link SceneHandler}.
+     *
+     * @param thing must not be null
+     */
     public SceneHandler(Thing thing) {
         super(thing);
     }
@@ -120,41 +127,53 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         if (bridgeStatusInfo.getStatus().equals(ThingStatus.ONLINE)) {
             if (getBridgeHandler() != null) {
-                String sceneID = getSceneID(getConfig(), bridgeHandler);
-                switch (sceneID) {
-                    case SCENE_WRONG:
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                                "Configured scene '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ID)
-                                        + "' does not exist or cannot be used, please check the configuration.");
-                        break;
-                    case ZONE_WRONG:
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                                "Configured zone '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ZONE_ID)
-                                        + "' does not exist, please check the configuration.");
-                        break;
-                    case GROUP_WRONG:
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                                "Configured group '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_GROUP_ID)
-                                        + "' does not exist, please check the configuration.");
-                        break;
-                    case NO_STRUC_MAN:
-                        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
-                                "Waiting for building digitalSTROM model.");
-                        break;
-                    case NO_SCENE:
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No Scene-ID is set!");
-                        break;
-                    default:
-                        this.sceneThingID = sceneID;
-                        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
-                                "Waiting for listener registration");
-                        logger.debug("Set status on {}", getThing().getStatus());
-                        this.bridgeHandler.registerSceneStatusListener(this);
+                if (scene == null) {
+                    String sceneID = getSceneID(getConfig(), bridgeHandler);
+                    switch (sceneID) {
+                        case SCENE_WRONG:
+                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                    "Configured scene '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ID)
+                                            + "' does not exist or cannot be used, please check the configuration.");
+                            break;
+                        case ZONE_WRONG:
+                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                    "Configured zone '" + getConfig().get(DigitalSTROMBindingConstants.ZONE_ID)
+                                            + "' does not exist, please check the configuration.");
+                            break;
+                        case GROUP_WRONG:
+                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                    "Configured group '" + getConfig().get(DigitalSTROMBindingConstants.GROUP_ID)
+                                            + "' does not exist, please check the configuration.");
+                            break;
+                        case NO_STRUC_MAN:
+                            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                                    "Waiting for building digitalSTROM model.");
+                            break;
+                        case NO_SCENE:
+                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                    "No Scene-ID is set!");
+                            break;
+                        default:
+                            this.sceneThingID = sceneID;
+                            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                                    "Waiting for listener registration");
+                            logger.debug("Set status on {}", getThing().getStatus());
+                            this.bridgeHandler.registerSceneStatusListener(this);
+                    }
+                } else {
+                    updateStatus(ThingStatus.ONLINE);
                 }
+            } else {
+                updateStatus(ThingStatus.OFFLINE);
             }
-        } else {
+        }
+        if (bridgeStatusInfo.getStatus().equals(ThingStatus.OFFLINE)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
         }
+        if (bridgeStatusInfo.getStatus().equals(ThingStatus.REMOVED)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge has been removed.");
+        }
+        logger.debug("Set status to {}", getThing().getStatusInfo());
     }
 
     /**
@@ -163,12 +182,14 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
      * group. The {@link SceneEnum} will be used to check, if the configured scene exists and is allowed to use.<br>
      * If the check succeed the scene-ID will be returned in format "[zoneID]-[groupID]-[SceneID]", otherwise one of the
      * following errors {@link String}s will returned:
+     * <ul>
      * <li>{@link #SCENE_WRONG}: Configured scene does not exist or cannot be used.</li>
      * <li>{@link #ZONE_WRONG} Configured zone does not exist.</li>
      * <li>{@link #GROUP_WRONG}: Configured group does not exist.</li>
      * <li>{@link #NO_STRUC_MAN}: StructureManager in BridgeHandler is null.</li>
      * <li>{@link #NO_SCENE}: Configured scene is null.</li>
-     * <li>{@link #NO_BRIDGE}: BridgeHandler is null.</li><br>
+     * <li>{@link #NO_BRIDGE}: BridgeHandler is null.</li>
+     * </ul>
      *
      * @param configuration (must not be null)
      * @param bridgeHandler (can be null)
@@ -189,13 +210,13 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
         int zoneID;
         short groupID;
 
-        if (configuration.get(DigitalSTROMBindingConstants.SCENE_ZONE_ID) != null) {
-            configZoneID = configuration.get(DigitalSTROMBindingConstants.SCENE_ZONE_ID).toString();
+        if (configuration.get(DigitalSTROMBindingConstants.ZONE_ID) != null) {
+            configZoneID = configuration.get(DigitalSTROMBindingConstants.ZONE_ID).toString();
         } else {
             configZoneID = "";
         }
-        if (configuration.get(DigitalSTROMBindingConstants.SCENE_GROUP_ID) != null) {
-            configGroupID = configuration.get(DigitalSTROMBindingConstants.SCENE_GROUP_ID).toString();
+        if (configuration.get(DigitalSTROMBindingConstants.GROUP_ID) != null) {
+            configGroupID = configuration.get(DigitalSTROMBindingConstants.GROUP_ID).toString();
         } else {
             configGroupID = "";
         }
@@ -267,7 +288,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     public void handleCommand(ChannelUID channelUID, Command command) {
         BridgeHandler dssBridgeHandler = getBridgeHandler();
         if (dssBridgeHandler == null) {
-            logger.warn("BridgeHandler not found. Cannot handle command without bridge.");
+            logger.debug("BridgeHandler not found. Cannot handle command without bridge.");
             return;
         }
 
@@ -307,11 +328,9 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     @Override
     public void onSceneStateChanged(boolean flag) {
         if (flag) {
-            updateState(new ChannelUID(getThing().getUID(), DigitalSTROMBindingConstants.CHANNEL_ID_SCENE),
-                    OnOffType.ON);
+            updateState(DigitalSTROMBindingConstants.CHANNEL_ID_SCENE, OnOffType.ON);
         } else {
-            updateState(new ChannelUID(getThing().getUID(), DigitalSTROMBindingConstants.CHANNEL_ID_SCENE),
-                    OnOffType.OFF);
+            updateState(DigitalSTROMBindingConstants.CHANNEL_ID_SCENE, OnOffType.OFF);
         }
     }
 
@@ -324,7 +343,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
 
     @Override
     public void onSceneRemoved(InternalScene scene) {
-        scene = null;
+        this.scene = null;
         updateStatus(ThingStatus.OFFLINE);
         logger.debug("Set status on {}", getThing().getStatus());
     }

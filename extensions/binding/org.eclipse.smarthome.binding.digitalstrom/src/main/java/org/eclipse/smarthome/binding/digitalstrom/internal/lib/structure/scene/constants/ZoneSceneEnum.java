@@ -43,7 +43,7 @@ public enum ZoneSceneEnum implements Scene {
     /**
      * Returns the {@link ZoneSceneEnum} of the given scene number.
      *
-     * @param sceneNumber
+     * @param sceneNumber of the {@link ZoneSceneEnum}
      * @return ZoneSceneEnum
      */
     public static ZoneSceneEnum getZoneScene(short sceneNumber) {
@@ -53,7 +53,7 @@ public enum ZoneSceneEnum implements Scene {
     /**
      * Returns true, if the given scene number contains in digitalSTROM zone scenes, otherwise false.
      *
-     * @param sceneNumber
+     * @param sceneNumber to be checked
      * @return true, if contains, otherwise false
      */
     public static boolean containsScene(Short sceneNumber) {
@@ -61,7 +61,7 @@ public enum ZoneSceneEnum implements Scene {
     }
 
     @Override
-    public short getSceneNumber() {
+    public Short getSceneNumber() {
         return this.sceneNumber;
     }
 }
