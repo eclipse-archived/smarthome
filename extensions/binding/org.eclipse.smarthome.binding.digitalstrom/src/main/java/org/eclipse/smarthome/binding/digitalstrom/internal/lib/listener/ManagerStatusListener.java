@@ -24,11 +24,11 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnu
 public interface ManagerStatusListener {
 
     /**
-     * This method is called whenever the state of an digitalkSTROM-Manager has changed.<br>
+     * This method is called whenever the state of an digitalSTROM-Manager has changed.<br>
      * For that it passes the {@link ManagerTypes} and the new {@link ManagerStates}.
      *
-     * @param managerType
-     * @param newState
+     * @param managerType of the digitalSTROM-Manager
+     * @param newState of the digitalSTROM-Manager
      */
-    public void onStatusChanged(ManagerTypes managerType, ManagerStates newState);
+    void onStatusChanged(ManagerTypes managerType, ManagerStates newState);
 }

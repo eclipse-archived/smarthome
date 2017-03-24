@@ -17,7 +17,9 @@ import java.util.Map;
 /**
  * The {@link Apartment} represents a digitalSTROM-Apartment.
  *
- * @author Alexander Betker
+ * @author Alexander Betker - initial contributer
+ * @author Michael Ochel - add java-doc
+ * @author Matthias Siegele - add java-doc
  */
 public interface Apartment {
 
@@ -26,5 +28,5 @@ public interface Apartment {
      *
      * @return map of all zones
      */
-    public Map<Integer, Zone> getZoneMap();
+    Map<Integer, Zone> getZoneMap();
 }

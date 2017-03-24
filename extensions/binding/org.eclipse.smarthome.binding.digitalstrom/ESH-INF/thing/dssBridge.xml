@@ -4,13 +4,14 @@
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd"
 >
 
-    <!--DigitalStrom Bridge -->
+    <!--digitalSTROM Bridge -->
     <bridge-type id="dssBridge">
-        <label>@text/DSS_BRIDGE_LABEL</label>
-        <description>@text/DSS_BRIDGE_DESC</description>
+        <label>@text/dSS_label</label>
+        <description>@text/dSS_desc</description>
         <channels>
-            <channel typeId="totalActivePower" id="totalActivePower" />
-            <channel typeId="totalElectricMeter" id="totalElectricMeter" />
+            <channel typeId="total_consumption_wh" id="total_consumption_wh" />
+            <channel typeId="total_energy_wh" id="total_energy_wh" />
+            <!-- <channel typeId="total_energy_Ws" id="total_energy_ws"></channel>-->
         </channels>
         <properties>
             <property name="serverCert"></property>

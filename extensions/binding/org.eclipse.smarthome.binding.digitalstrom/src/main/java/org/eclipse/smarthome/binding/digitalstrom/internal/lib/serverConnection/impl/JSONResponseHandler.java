@@ -35,18 +35,20 @@ public class JSONResponseHandler {
     /**
      * Checks the digitalSTROM-JSON response and return true if it was successful, otherwise false.
      *
-     * @param jsonResponse
+     * @param jsonResponse to check
      * @return true, if successful
      */
     public static boolean checkResponse(JsonObject jsonResponse) {
         if (jsonResponse == null) {
             return false;
-        } else if (jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_OK.getKey()) != null) {
-            return jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_OK.getKey()).toString()
-                    .equals(JSONApiResponseKeysEnum.RESPONSE_SUCCESSFUL.getKey());
+        } else if (jsonResponse.get(JSONApiResponseKeysEnum.OK.getKey()) != null) {
+            return jsonResponse.get(JSONApiResponseKeysEnum.OK.getKey()).getAsBoolean();
         } else {
-            logger.error("JSONResponseHandler: error in json request. Error message : {}",
-                    jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_MESSAGE.getKey()));
+            String message = "unknown message";
+            if (jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()) != null) {
+                message = jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()).getAsString();
+            }
+            logger.error("JSONResponseHandler: error in json request. Error message : {}", message);
         }
         return false;
     }
@@ -55,7 +57,7 @@ public class JSONResponseHandler {
      * Returns the {@link JsonObject} from the given digitalSTROM-JSON response {@link String} or null if the json
      * response was empty.
      *
-     * @param jsonResponse
+     * @param jsonResponse to convert
      * @return jsonObject
      */
     public static JsonObject toJsonObject(String jsonResponse) {
@@ -72,12 +74,12 @@ public class JSONResponseHandler {
     /**
      * Returns the result {@link JsonObject} from the given digitalSTROM-JSON response {@link JsonObject}.
      *
-     * @param jsonObject
+     * @param jsonObject of response
      * @return json result object
      */
     public static JsonObject getResultJsonObject(JsonObject jsonObject) {
         if (jsonObject != null) {
-            return (JsonObject) jsonObject.get(JSONApiResponseKeysEnum.RESULT.getKey());
+            return jsonObject.get(JSONApiResponseKeysEnum.RESULT.getKey()).getAsJsonObject();
         }
         return null;
     }

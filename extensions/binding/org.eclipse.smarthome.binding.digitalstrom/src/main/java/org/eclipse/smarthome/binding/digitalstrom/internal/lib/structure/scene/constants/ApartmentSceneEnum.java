@@ -19,15 +19,17 @@ import java.util.HashMap;
  * digitalSTROM web interface.
  *
  * @author Alexander Betker - Initial contribution
- * @see digitalSTROM wiki on http://redmine.digitalstrom.org/projects/dss/wiki/Scene_table
  *
  * @author Michael Ochel - add new scenes and deleted scenes which are show as zone scenes in the dss-web-interface
  * @author Mathias Siegele - add new scenes and deleted scenes which are show as zone scenes in the dss-web-interface
- * @see http://developer.digitalstrom.org/Architecture/ds-basics.pdf , Table 35: Group independent activities and scene
- *      command values, page 47 and dss-web-interface
  */
 public enum ApartmentSceneEnum implements Scene {
-
+    /*
+     * see http://developer.digitalstrom.org/Architecture/ds-basics.pdf , Table 35: Group independent activities and
+     * scene
+     * command values, page 47 and dss-web-interface
+     *
+     */
     ENERGY_OVERLOAD((short) 66),
     ZONE_ACTIVE((short) 75),
     ALARM_SIGNAL((short) 74),
@@ -64,7 +66,7 @@ public enum ApartmentSceneEnum implements Scene {
     /**
      * Returns the apartment scene from the given scene number.
      *
-     * @param sceneNumber
+     * @param sceneNumber of the {@link ApartmentSceneEnum}
      * @return apartment scene
      */
     public static ApartmentSceneEnum getApartmentScene(short sceneNumber) {
@@ -74,7 +76,7 @@ public enum ApartmentSceneEnum implements Scene {
     /**
      * Returns true, if the given scene number contains in digitalSTROM apartment scenes, otherwise false.
      *
-     * @param sceneNumber
+     * @param sceneNumber to be checked
      * @return true, if contains, otherwise false
      */
     public static boolean containsScene(Short sceneNumber) {
@@ -82,7 +84,7 @@ public enum ApartmentSceneEnum implements Scene {
     }
 
     @Override
-    public short getSceneNumber() {
+    public Short getSceneNumber() {
         return this.sceneNumber;
     }
 }

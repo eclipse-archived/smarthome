@@ -19,9 +19,11 @@ import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.DsAPIImpl;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -62,7 +64,6 @@ public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant 
                 String hostAddress = service.getName() + "." + service.getDomain() + ".";
                 Map<String, Object> properties = new HashMap<>(2);
                 properties.put(DigitalSTROMBindingConstants.HOST, hostAddress);
-                properties.put(DigitalSTROMBindingConstants.DS_ID, uid.getId());
                 return DiscoveryResultBuilder.create(uid).withProperties(properties)
                         .withRepresentationProperty(uid.getId()).withLabel("digitalSTROM-Server").build();
             }
@@ -76,9 +77,13 @@ public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant 
             String hostAddress = service.getName() + "." + service.getDomain() + ".";
             DsAPI digitalSTROMClient = new DsAPIImpl(hostAddress, Config.DEFAULT_CONNECTION_TIMEOUT,
                     Config.DEFAULT_READ_TIMEOUT, true);
-            String dsid = digitalSTROMClient.getDSID("123");
-            if (dsid != null) {
-                return new ThingUID(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE, dsid);
+            Map<String, String> dsidMap = digitalSTROMClient.getDSID(null);
+            String dSID = null;
+            if (dsidMap != null) {
+                dSID = dsidMap.get(JSONApiResponseKeysEnum.DSID.getKey());
+            }
+            if (StringUtils.isNotBlank(dSID)) {
+                return new ThingUID(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE, dSID);
             } else {
                 logger.error("Can't get server dSID to generate thing UID. Please add the server manually.");
             }

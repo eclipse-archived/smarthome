@@ -14,8 +14,6 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecuto
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneConfigReadingJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneOutputValueReadingJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +23,9 @@ import org.slf4j.LoggerFactory;
  * {@link SceneOutputValueReadingJob}.
  * <p>
  * In addition priorities can be assigned to jobs therefore the {@link SceneReadingJobExecutor} offers the methods
- * {@link #addHighPriorityJob()}, {@link #addLowPriorityJob()} and {@link #addLowPriorityJob()}.
- * 
+ * {@link #addHighPriorityJob(SensorJob)}, {@link #addMediumPriorityJob(SensorJob)} and
+ * {@link #addLowPriorityJob(SensorJob)}.
+ * </p>
  * <p>
  * <b>NOTE:</b><br>
  * In contrast to the {@link SensorJobExecutor} the {@link SceneReadingJobExecutor} will execute {@link SensorJob}'s
@@ -40,6 +39,11 @@ public class SceneReadingJobExecutor extends AbstractSensorJobExecutor {
 
     private Logger logger = LoggerFactory.getLogger(SceneReadingJobExecutor.class);
 
+    /**
+     * Creates a new {@link SceneReadingJobExecutor}.
+     *
+     * @param connectionManager must not be null
+     */
     public SceneReadingJobExecutor(ConnectionManager connectionManager) {
         super(connectionManager);
     }
@@ -77,5 +81,4 @@ public class SceneReadingJobExecutor extends AbstractSensorJobExecutor {
         logger.debug("Add SceneReadingJob from device with dSID {} and low-priority to SceneReadingJobExecutor",
                 sensorJob.getDSID());
     }
-
 }

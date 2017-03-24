@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecuto
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +30,16 @@ public class SceneOutputValueReadingJob implements SensorJob {
 
     private static final Logger logger = LoggerFactory.getLogger(SceneOutputValueReadingJob.class);
 
-    private Device device = null;
+    private final Device device;
     private short sceneID = 0;
-    private DSID meterDSID = null;
+    private final DSID meterDSID;
     private long initalisationTime = 0;
 
     /**
      * Creates a new {@link SceneOutputValueReadingJob} for the given {@link Device} and the given sceneID.
      *
-     * @param device
-     * @param sceneID
+     * @param device to update
+     * @param sceneID to update
      */
     public SceneOutputValueReadingJob(Device device, short sceneID) {
         this.device = device;
@@ -50,7 +50,7 @@ public class SceneOutputValueReadingJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        int[] sceneValue = digitalSTROM.getSceneValue(token, this.device.getDSID(), this.sceneID);
+        int[] sceneValue = digitalSTROM.getSceneValue(token, this.device.getDSID(), null, null, this.sceneID);
 
         if (sceneValue[0] != -1) {
             if (device.isBlind()) {
@@ -102,5 +102,21 @@ public class SceneOutputValueReadingJob implements SensorJob {
     public String toString() {
         return "SceneOutputValueReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()
                 + ", meterDSID=" + meterDSID + ", initalisationTime=" + initalisationTime + "]";
+    }
+
+    @Override
+    public String getID() {
+        return getID(device, sceneID);
+    }
+
+    /**
+     * Returns the id for a {@link SceneOutputValueReadingJob} with the given {@link Device} and sceneID.
+     *
+     * @param device to update
+     * @param sceneID to update
+     * @return id
+     */
+    public static String getID(Device device, Short sceneID) {
+        return DeviceOutputValueSensorJob.class.getSimpleName() + "-" + device.getDSID().getValue() + "-" + sceneID;
     }
 }

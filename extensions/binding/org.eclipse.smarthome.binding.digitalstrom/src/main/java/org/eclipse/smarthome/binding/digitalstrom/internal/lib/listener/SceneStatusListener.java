@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.SceneManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 
 /**
@@ -31,33 +30,36 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  */
 public interface SceneStatusListener {
 
-    public final static String SCENE_DISCOVERY = "SceneDiscovery";
+    /**
+     * The {@link SceneStatusListener} id for the discovery implementation.
+     */
+    final static String SCENE_DISCOVERY = "SceneDiscovery";
 
     /**
      * This method is called whenever the state of the {@link InternalScene} has changed.
      *
      * @param newState (true = call | false = undo)
      */
-    public void onSceneStateChanged(boolean newState);
+    void onSceneStateChanged(boolean newState);
 
     /**
      * This method is called whenever a {@link InternalScene} is removed.
      *
-     * @param scene
+     * @param scene that was removed
      */
-    public void onSceneRemoved(InternalScene scene);
+    void onSceneRemoved(InternalScene scene);
 
     /**
      * This method is called whenever a {@link InternalScene} is added.
      *
-     * @param scene
+     * @param scene that was added
      */
-    public void onSceneAdded(InternalScene scene);
+    void onSceneAdded(InternalScene scene);
 
     /**
      * Return the id of this {@link SceneStatusListener}.
      *
      * @return the scene listener id
      */
-    public String getSceneStatusListenerID();
+    String getSceneStatusListenerID();
 }

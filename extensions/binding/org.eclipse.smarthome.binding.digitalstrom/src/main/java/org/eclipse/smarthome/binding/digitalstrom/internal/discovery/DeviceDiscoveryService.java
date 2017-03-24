@@ -12,29 +12,29 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.discovery;
 
-import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.*;
+import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.BINDING_ID;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
-import org.eclipse.smarthome.binding.digitalstrom.handler.DeviceHandler;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Circuit;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.OutputModeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.GeneralDeviceInformation;
+import org.eclipse.smarthome.binding.digitalstrom.internal.providers.DsDeviceThingTypeProvider;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link DeviceDiscoveryService} discovers all digitalSTROM-Devices, of one supported device-color-type. The
@@ -50,19 +50,23 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
 
     private final BridgeHandler bridgeHandler;
     private final String deviceType;
+    private final ThingUID bridgeUID;
+
+    public static final int TIMEOUT = 10;
 
     /**
      * Creates a new {@link DeviceDiscoveryService} for the given supported {@link ThingTypeUID}.
      *
      * @param bridgeHandler (must not be null)
      * @param supportedThingType (must not be null)
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException see {@link AbstractDiscoveryService#AbstractDiscoveryService(int)}
      */
     public DeviceDiscoveryService(BridgeHandler bridgeHandler, ThingTypeUID supportedThingType)
             throws IllegalArgumentException {
-        super(Sets.newHashSet(supportedThingType), 10, true);
+        super(new HashSet<>(Arrays.asList(supportedThingType)), TIMEOUT, true);
         this.deviceType = supportedThingType.getId();
         this.bridgeHandler = bridgeHandler;
+        bridgeUID = bridgeHandler.getThing().getUID();
     }
 
     /**
@@ -70,7 +74,7 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for device type {} thing types are: {}", deviceType,
+        logger.debug("deactivate discovery service for device type {} thing types are: ", deviceType,
                 super.getSupportedThingTypes().toString());
         removeOlderResults(new Date().getTime());
     }
@@ -78,10 +82,19 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
     @Override
     protected void startScan() {
         if (bridgeHandler != null) {
-            List<Device> devices = bridgeHandler.getDevices();
-            if (devices != null) {
-                for (Device device : devices) {
-                    onDeviceAddedInternal(device);
+            if (!DsDeviceThingTypeProvider.SupportedThingTypes.circuit.toString().equals(deviceType)) {
+                List<Device> devices = bridgeHandler.getDevices();
+                if (devices != null) {
+                    for (Device device : devices) {
+                        onDeviceAddedInternal(device);
+                    }
+                }
+            } else {
+                List<Circuit> circuits = bridgeHandler.getCircuits();
+                if (circuits != null) {
+                    for (Circuit circuit : circuits) {
+                        onDeviceAddedInternal(circuit);
+                    }
                 }
             }
         }
@@ -93,22 +106,25 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
         removeOlderResults(getTimestampOfLastScan());
     }
 
-    private void onDeviceAddedInternal(Device device) {
-        if (deviceType.equals(device.getHWinfo().substring(0, 2)) && device.isDeviceWithOutput()
-                && device.isPresent()) {
+    private void onDeviceAddedInternal(GeneralDeviceInformation device) {
+        boolean isSupported = false;
+        if (device instanceof Device) {
+            Device tempDevice = (Device) device;
+            if ((tempDevice.isSensorDevice() && deviceType.equals(tempDevice.getHWinfo().replaceAll("-", "")))
+                    || (deviceType.equals(tempDevice.getHWinfo().substring(0, 2))
+                            && (tempDevice.isDeviceWithOutput() || tempDevice.isBinaryInputDevice())
+                            && tempDevice.isPresent())) {
+                isSupported = true;
+            }
+        } else if (device instanceof Circuit
+                && DsDeviceThingTypeProvider.SupportedThingTypes.circuit.toString().equals(deviceType)) {
+            isSupported = true;
+        }
+        if (isSupported) {
             ThingUID thingUID = getThingUID(device);
             if (thingUID != null) {
-                ThingUID bridgeUID = bridgeHandler.getThing().getUID();
-                Map<String, Object> properties = new HashMap<>(9);
-                properties.put(DigitalSTROMBindingConstants.DEVICE_UID, device.getDSUID());
+                Map<String, Object> properties = new HashMap<>(1);
                 properties.put(DigitalSTROMBindingConstants.DEVICE_DSID, device.getDSID().getValue());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_HW_INFO, device.getHWinfo());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_GROUPS, device.getGroups().toString());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_OUTPUT_MODE, device.getOutputMode());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_ZONE_ID, device.getZoneId());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_FUNCTIONAL_COLOR_GROUP,
-                        device.getFunctionalColorGroup());
-                properties.put(DigitalSTROMBindingConstants.DEVICE_METER_ID, device.getMeterDSID().getValue());
                 String deviceName = null;
                 if (StringUtils.isNotBlank(device.getName())) {
                     deviceName = device.getName();
@@ -116,27 +132,40 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
                     // if no name is set, the dSID will be used as name
                     deviceName = device.getDSID().getValue();
                 }
-                properties.put(DEVICE_NAME, deviceName);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
                         .withBridge(bridgeUID).withLabel(deviceName).build();
 
                 thingDiscovered(discoveryResult);
             } else {
-                logger.debug("Discovered unsupported device hardware type '{}' with uid {}", device.getHWinfo(),
-                        device.getDSUID());
+                if (device instanceof Device) {
+                    logger.debug("Discovered unsupported device hardware type '{}' with uid {}",
+                            ((Device) device).getHWinfo(), device.getDSUID());
+                }
             }
         } else {
-            logger.debug(
-                    "Discovered device with disabled or no output mode. Device was not added to inbox. "
-                            + "Device information: hardware info: {}, dSUID: {}, device-name: {}, output value: {}",
-                    device.getHWinfo(), device.getDSUID(), device.getName(), device.getOutputMode());
+            if (device instanceof Device) {
+                logger.debug(
+                        "Discovered device with disabled or no output mode. Device was not added to inbox. "
+                                + "Device information: hardware info: {}, dSUID: {}, device-name: {}, output value: {}",
+                        ((Device) device).getHWinfo(), device.getDSUID(), device.getName(),
+                        ((Device) device).getOutputMode());
+            }
         }
     }
 
-    private ThingUID getThingUID(Device device) {
+    private ThingUID getThingUID(GeneralDeviceInformation device) {
         ThingUID bridgeUID = bridgeHandler.getThing().getUID();
-        ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, device.getHWinfo().substring(0, 2));
-
+        ThingTypeUID thingTypeUID = null;
+        if (device instanceof Device) {
+            Device tempDevice = (Device) device;
+            thingTypeUID = new ThingTypeUID(BINDING_ID, tempDevice.getHWinfo().substring(0, 2));
+            if (tempDevice.isSensorDevice() && deviceType.equals(tempDevice.getHWinfo().replaceAll("-", ""))) {
+                thingTypeUID = new ThingTypeUID(BINDING_ID, deviceType);
+            }
+        } else {
+            thingTypeUID = new ThingTypeUID(BINDING_ID,
+                    DsDeviceThingTypeProvider.SupportedThingTypes.circuit.toString());
+        }
         if (getSupportedThingTypes().contains(thingTypeUID)) {
             String thingDeviceId = device.getDSID().toString();
             ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, thingDeviceId);
@@ -151,13 +180,11 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
      *
      * @param device (must not be null)
      */
-    public void onDeviceRemoved(Device device) {
-        if (deviceType.equals(device.getHWinfo().substring(0, 2))) {
-            ThingUID thingUID = getThingUID(device);
+    public void onDeviceRemoved(GeneralDeviceInformation device) {
+        ThingUID thingUID = getThingUID(device);
 
-            if (thingUID != null) {
-                thingRemoved(thingUID);
-            }
+        if (thingUID != null) {
+            thingRemoved(thingUID);
         }
     }
 
@@ -167,7 +194,7 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
      *
      * @param device (must not be null)
      */
-    public void onDeviceAdded(Device device) {
+    public void onDeviceAdded(GeneralDeviceInformation device) {
         if (super.isBackgroundDiscoveryEnabled()) {
             onDeviceAddedInternal(device);
         }
