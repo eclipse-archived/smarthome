@@ -24,5 +24,5 @@ public interface Scene {
      *
      * @return scene number
      */
-    public short getSceneNumber();
+    Short getSceneNumber();
 }

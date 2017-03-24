@@ -25,19 +25,26 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.
  */
 public interface ConnectionManager {
 
+    public static final int GENERAL_EXCEPTION = -1;
+    public static final int MALFORMED_URL_EXCEPTION = -2;
+    public static final int CONNECTION_EXCEPTION = -3;
+    public static final int SOCKET_TIMEOUT_EXCEPTION = -4;
+    public static final int UNKNOWN_HOST_EXCEPTION = -5;
+    public static final int AUTHENTIFICATION_PROBLEM = -6;
+
     /**
      * Returns the {@link HttpTransport} to execute queries or special commands on the digitalSTROM-Server.
      *
      * @return the HttpTransport
      */
-    public HttpTransport getHttpTransport();
+    HttpTransport getHttpTransport();
 
     /**
      * Returns the {@link DsAPI} to execute commands on the digitalSTROM-Server.
      *
      * @return the DsAPI
      */
-    public DsAPI getDigitalSTROMAPI();
+    DsAPI getDigitalSTROMAPI();
 
     /**
      * This method has to be called before each command to check the connection to the digitalSTROM-Server.
@@ -46,40 +53,33 @@ public interface ConnectionManager {
      *
      * @return true if the connection is established and false if not
      */
-    public boolean checkConnection();
+    boolean checkConnection();
 
     /**
      * Returns the current Session-Token.
      *
      * @return Session-Token
      */
-    public String getSessionToken();
+    String getSessionToken();
 
     /**
      * Returns the auto-generated or user defined Application-Token.
      *
      * @return Application-Token
      */
-    public String getApplicationToken();
-
-    /**
-     * Checks the connection with {@link #checkConnection()} and returns the current Session-Token.
-     *
-     * @return Session-Token
-     */
-    public String checkConnectionAndGetSessionToken();
+    String getApplicationToken();
 
     /**
      * Registers a {@link ConnectionListener} to this {@link ConnectionManager}.
      *
-     * @param connectionListener
+     * @param connectionListener to register
      */
-    public void registerConnectionListener(ConnectionListener connectionListener);
+    void registerConnectionListener(ConnectionListener connectionListener);
 
     /**
      * Unregisters the {@link ConnectionListener} from this {@link ConnectionManager}.
      */
-    public void unregisterConnectionListener();
+    void unregisterConnectionListener();
 
     /**
      * Revokes the saved Application-Token from the digitalSTROM-Server and returns true if the Application-Token was
@@ -87,34 +87,68 @@ public interface ConnectionManager {
      *
      * @return successful = true, otherwise false
      */
-    public boolean removeApplicationToken();
+    boolean removeApplicationToken();
 
     /**
      * Updates the login configuration.
      *
-     * @param hostAddress
-     * @param username
-     * @param password
-     * @param applicationToken
+     * @param hostAddress of the digitalSTROM-Server
+     * @param username to login
+     * @param password to login
+     * @param applicationToken to login
      */
-    public void updateConfig(String hostAddress, String username, String password, String applicationToken);
+    void updateConfig(String hostAddress, String username, String password, String applicationToken);
 
     /**
      * Updates the {@link Config} with the given config.
      *
-     * @param config
+     * @param config to update
      */
-    public void updateConfig(Config config);
+    void updateConfig(Config config);
 
     /**
      * Returns the {@link Config}.
      *
      * @return the config
      */
-    public Config getConfig();
+    Config getConfig();
 
     /**
      * Informs this {@link ConnectionManager} that the {@link Config} has been updated.
      */
-    public void configHasBeenUpdated();
+    void configHasBeenUpdated();
+
+    /**
+     * Generates and returns a new session token.
+     *
+     * @return new session token
+     */
+    String getNewSessionToken();
+
+    /**
+     * Checks the connection through the given HTTP-Response-Code or exception code. If a {@link ConnectionListener} is
+     * registered this method also informs the registered {@link ConnectionListener} if the connection state has
+     * changed. <br>
+     * <br>
+     * <b>Exception-Codes:</b><br>
+     * <b>{@link #GENERAL_EXCEPTION}</b> general exception<br>
+     * <b>{@link #MALFORMED_URL_EXCEPTION}</b> MalformedURLException<br>
+     * <b>{@link #CONNECTION_EXCEPTION}</b> java.net.ConnectException<br>
+     * <b>{@link #SOCKET_TIMEOUT_EXCEPTION}</b> SocketTimeoutException<br>
+     * <b>{@link #UNKNOWN_HOST_EXCEPTION}</b> java.net.UnknownHostException<br>
+     * <br>
+     * <b>Code for authentication problems:</b> {@link #AUTHENTIFICATION_PROBLEM}<br>
+     *
+     *
+     * @param code exception or HTTP-Response-Code
+     * @return true, if connection is valid
+     */
+    boolean checkConnection(int code);
+
+    /**
+     * Returns true, if connection is established, otherwise false.
+     *
+     * @return true, if connection is established, otherwise false
+     */
+    boolean connectionEstablished();
 }

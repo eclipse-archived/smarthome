@@ -17,7 +17,7 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.c
 /**
  * The {@link DeviceSceneSpec} saves a digitalSTROM-Device scene mode.
  *
- * @author Alexander Betker
+ * @author Alexander Betker - initial contributer
  * @author Michael Ochel - add missing java-doc
  * @author Matthias Siegele - add missing java-doc
  */
@@ -28,61 +28,61 @@ public interface DeviceSceneSpec {
      *
      * @return sceneID
      */
-    public Scene getScene();
+    Scene getScene();
 
     /**
      * Returns true, if the don't care flag is set, otherwise false.
      *
      * @return true, if dont't care is set, otherwise false
      */
-    public boolean isDontCare();
+    boolean isDontCare();
 
     /**
      * Sets the don't care flag.
      *
-     * @param dontcare
+     * @param dontcare to set
      */
-    public void setDontcare(boolean dontcare);
+    void setDontcare(boolean dontcare);
 
     /**
      * Returns true, if the local priority flag is set, otherwise false.
      *
      * @return true, if local priority is, set otherwise false
      */
-    public boolean isLocalPrio();
+    boolean isLocalPrio();
 
     /**
      * Sets the local priority flag.
      *
-     * @param localPrio
+     * @param localPrio to set
      */
-    public void setLocalPrio(boolean localPrio);
+    void setLocalPrio(boolean localPrio);
 
     /**
      * Returns true, if the special mode flag is set, otherwise false.
      *
      * @return true, if special mode is set, otherwise false
      */
-    public boolean isSpecialMode();
+    boolean isSpecialMode();
 
     /**
      * Sets the special mode flag.
      *
-     * @param specialMode
+     * @param specialMode to set
      */
-    public void setSpecialMode(boolean specialMode);
+    void setSpecialMode(boolean specialMode);
 
     /**
      * Returns true, if the flash mode flag is set, otherwise false.
      *
      * @return true, if flash mode is set, otherwise false
      */
-    public boolean isFlashMode();
+    boolean isFlashMode();
 
     /**
      * Sets the flash mode flag.
      *
-     * @param flashMode
+     * @param flashMode to set
      */
-    public void setFlashMode(boolean flashMode);
+    void setFlashMode(boolean flashMode);
 }
