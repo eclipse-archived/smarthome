@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent
@@ -1079,6 +1080,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         infoEvent = null
         infoChangedEvent = null
 
+        def localeProvider = getService(LocaleProvider)
+        assertThat localeProvider, is(notNullValue())
+        def defaultLocale = localeProvider.getLocale()
+
         // set status to ONLINE (INITIALIZING -> ONLINE)
         setDefaultLocale(Locale.ENGLISH)
 
@@ -1136,6 +1141,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         infoEvent = null
         infoChangedEvent = null
+
+        setDefaultLocale(defaultLocale)
     }
 
     @Test

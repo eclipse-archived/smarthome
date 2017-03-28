@@ -169,7 +169,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                         logger.trace(
                                 "The Yahoo Weather API did not return any data. Omiting the old result because it became too old.");
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
-                                "The Yahoo Weather API did not return any data.");
+                                "@text/offline.no-data");
                         return false;
                     } else {
                         // simply keep the old data
@@ -180,12 +180,13 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                     lastUpdateTime = System.currentTimeMillis();
                     weatherData = data;
                 }
-                updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "@text/online");
+                updateStatus(ThingStatus.ONLINE);
                 return true;
             }
         } catch (IOException e) {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "@text/offline");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
+                    "@text/offline.location [\"" + location.toPlainString() + "\"");
         }
         weatherData = null;
         return false;

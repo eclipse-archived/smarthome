@@ -9,7 +9,9 @@ package org.eclipse.smarthome.core.thing.i18n
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -40,6 +42,7 @@ class ThingStatusInfoI18nLocalizationServiceOSGiTest extends OSGiTest {
     def thing
     def thingStatusInfoI18nLocalizationService
     def managedThingProvider
+    def defaultLocale
 
     @Test
     void 'assert that thing status info is not changed if there is no description'() {
@@ -134,13 +137,19 @@ class ThingStatusInfoI18nLocalizationServiceOSGiTest extends OSGiTest {
         assertThat info, is(ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build())
     }
 
-    @Test(expected=NullPointerException)
+    @Test(expected=IllegalArgumentException)
     void 'assert that given null thing uid is rejected'() {
         thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(null, null)
     }
 
     @Before
     void setup() {
+        def localeProvider = getService(LocaleProvider)
+        assertThat localeProvider, is(notNullValue())
+        defaultLocale = localeProvider.getLocale()
+
+        setDefaultLocale(Locale.ENGLISH)
+
         registerVolatileStorageService()
 
         def simpleThingHandlerFactory = new SimpleThingHandlerFactory()
@@ -160,14 +169,13 @@ class ThingStatusInfoI18nLocalizationServiceOSGiTest extends OSGiTest {
 
         thingStatusInfoI18nLocalizationService = getService(ThingStatusInfoI18nLocalizationService)
         assertThat thingStatusInfoI18nLocalizationService, is(notNullValue())
-
-        setDefaultLocale(Locale.ENGLISH)
     }
 
     @After
     void tearDown() {
         managedThingProvider.remove(thing.getUID())
         unregisterMocks()
+        setDefaultLocale(defaultLocale)
     }
 
     class SimpleThingHandlerFactory extends BaseThingHandlerFactory {

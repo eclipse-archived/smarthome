@@ -561,8 +561,10 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response
      */
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
-        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
-                getLinkedItemsMap(thing), thingStatusInfoI18nLocalizationService) : null;
+        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                locale);
+        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing))
+                : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -643,8 +645,9 @@ public class ThingResource implements SatisfiableRESTResource {
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
-                    getLinkedItemsMap(thing), thingStatusInfoI18nLocalizationService);
+            ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                    locale);
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing));
             thingBeans.add(thingBean);
         }
         return thingBeans;

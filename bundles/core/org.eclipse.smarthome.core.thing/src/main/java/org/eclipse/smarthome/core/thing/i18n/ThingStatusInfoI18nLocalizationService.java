@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.i18n;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 import org.eclipse.smarthome.core.i18n.I18nProvider;
@@ -16,11 +17,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
 /**
  * The {@link ThingStatusInfoI18nLocalizationService} can be used to localize the {@link ThingStatusInfo} of a thing
@@ -58,10 +54,12 @@ public final class ThingStatusInfoI18nLocalizationService {
      *         <li>the thing does not have a handler</li>
      *         </ul>
      *
-     * @throws NullPointerException if given thing is null
+     * @throws IllegalArgumentException if given thing is null
      */
     public ThingStatusInfo getLocalizedThingStatusInfo(Thing thing, Locale locale) {
-        Preconditions.checkNotNull(thing, "Thing must not be null.");
+        if (thing == null) {
+            throw new IllegalArgumentException("Thing must not be null.");
+        }
 
         if (thing.getHandler() == null) {
             return thing.getStatusInfo();
@@ -88,6 +86,9 @@ public final class ThingStatusInfoI18nLocalizationService {
         i18nProvider = null;
     }
 
+    /**
+     * Utility class to parse the thing status description into the text reference and optional arguments.
+     */
     private final class Description {
 
         private static final int LIMIT = 2;
@@ -103,18 +104,16 @@ public final class ThingStatusInfoI18nLocalizationService {
             if (parts.length == 1) {
                 this.args = null;
             } else {
-                Iterable<String> source = Splitter.on(",").trimResults().omitEmptyStrings()
-                        .split(parts[1].replaceAll("\\[|\\]|\"", ""));
-                Iterable<String> target = Iterables.transform(source, new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        if (I18nUtil.isConstant(input)) {
-                            return theI18nProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale);
-                        }
-                        return input;
+                this.args = Arrays.stream(parts[1].replaceAll("\\[|\\]|\"", "").split(",")).filter(s -> {
+                    if (s == null) {
+                        return false;
                     }
-                });
-                this.args = Iterables.toArray(target, Object.class);
+                    return !s.trim().isEmpty();
+                }).map(s -> {
+                    String input = s.trim();
+                    return I18nUtil.isConstant(input)
+                            ? theI18nProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale) : input;
+                }).toArray(size -> new String[size]);
             }
         }
     }

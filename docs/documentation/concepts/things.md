@@ -31,12 +31,14 @@ Each thing has a status object, which helps to identify possible problems with t
 | REMOVED       | This status indicates, that the device/service represented by a thing was removed from the external system. Usually this status is an intermediate status, because the thing is removed from the database after this status is assigned. |
 
 The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE, OFFLINE and REMOVED are assigned from a binding. Furthermore bindings can specify a localized description of the thing status by providing the reference of the localization string, e.g &#64;text/rate_limit. The corresponding handler is able to provide placeholder values as a JSON-serialized array of strings:
+
 ```
 &#64;text/rate_limit ["60", "10", "@text/hour"]
 ```
+
 ```
 rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of {1} configuration changes per {2} has been exceeded. For further info please refer to device vendor.
-``
+```
 
 ### Status Transitions
 
