@@ -54,6 +54,8 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
+    public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
+
     /**
      * Maximum time to search for devices in seconds.
      */
@@ -184,6 +186,8 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                             NodeList model = element.getElementsByTagName("ModelCode");
                             line = (Element) model.item(0);
                             String endDeviceModelID = getCharacterDataFromElement(line);
+                            endDeviceModelID = endDeviceModelID.replaceAll(NORMALIZE_ID_REGEX, "_");
+
                             logger.trace("ModelCode: " + endDeviceModelID);
 
                             if (SUPPORTED_THING_TYPES.contains(new ThingTypeUID(BINDING_ID, endDeviceModelID))) {
