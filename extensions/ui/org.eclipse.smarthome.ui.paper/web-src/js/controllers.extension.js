@@ -84,6 +84,20 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         }
     }
 
+    $scope.filterItems = function(lookupFields, searchText) {
+        return function(item) {
+            if (searchText && searchText.length > 0) {
+                for (var i = 0; i < lookupFields.length; i++) {
+                    if (item[lookupFields[i]] && item[lookupFields[i]].toUpperCase().indexOf(searchText.toUpperCase()) != -1) {
+                        return true;
+                    }
+                }
+                return false
+            }
+            return true;
+        }
+    }
+
     $scope.masonry = function(showCards) {
         if (showCards) {
             $timeout(function() {
