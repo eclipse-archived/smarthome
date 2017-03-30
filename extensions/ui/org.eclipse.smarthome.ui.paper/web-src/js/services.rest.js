@@ -395,6 +395,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             },
             url : restConfig.restPath + '/extensions/:id/install'
         },
+        installFromURL : {
+            method : 'POST',
+            params : {
+                url : '@url'
+            },
+            url : restConfig.restPath + '/extensions/url/:url/install'
+        },
         uninstall : {
             method : 'POST',
             params : {

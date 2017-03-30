@@ -7,13 +7,16 @@
  */
 package org.eclipse.smarthome.extensionservice.marketplace.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,9 +46,13 @@ public class MarketplaceExtensionService implements ExtensionService {
     private static final String MP_PACKAGETYPE_BINDING = "binding";
     private static final String MP_PACKAGETYPE_RULE_TEMPLATE = "rule_template";
 
+    private static final String MARKETPLACE_HOST = "marketplace.eclipse.org";
+    private static final Pattern EXTENSION_ID_PATTERN = Pattern.compile(".*?mpc_install=([^&]+?)(&.*)?");
+
     private final Logger logger = LoggerFactory.getLogger(MarketplaceExtensionService.class);
 
-    private MarketplaceProxy proxy;
+    // increased visibility for unit tests
+    MarketplaceProxy proxy;
     private EventPublisher eventPublisher;
     private Pattern labelPattern = Pattern.compile("<.*>"); // checks for the existence of any xml element
     private Pattern descriptionPattern = Pattern.compile("<(javascript|div|font)"); // checks for the existence of some
@@ -246,6 +253,15 @@ public class MarketplaceExtensionService implements ExtensionService {
         postFailureEvent(extensionId, "Extension not known.");
     }
 
+    @Override
+    public String getExtensionId(URI extensionURI) {
+        if (extensionURI != null && extensionURI.getHost().equals(MARKETPLACE_HOST)) {
+            return extractExensionId(extensionURI);
+        }
+
+        return null;
+    }
+
     private void postInstalledEvent(String extensionId) {
         Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
         eventPublisher.post(event);
@@ -300,4 +316,21 @@ public class MarketplaceExtensionService implements ExtensionService {
     private boolean validDescription(String desc) {
         return !descriptionPattern.matcher(desc).find();
     }
+
+    private String extractExensionId(URI uri) {
+        Matcher idMatcher = EXTENSION_ID_PATTERN.matcher(uri.getQuery());
+        String id = null;
+        if (idMatcher.matches() && idMatcher.groupCount() > 1) {
+            id = idMatcher.group(1);
+        }
+
+        Optional<Node> extensionNode = getExtensionNode(id);
+
+        return extensionNode.isPresent() ? getExtensionId(extensionNode.get()) : null;
+    }
+
+    private Optional<Node> getExtensionNode(String id) {
+        return proxy.getNodes().stream().filter(node -> node != null && node.id.equals(id)).findFirst();
+    }
+
 }
