@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -233,11 +233,12 @@ public class RuleTriggerManager {
         return result;
     }
 
-    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, State state) {
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, ThingStatus state) {
         return internalGetThingRules(triggerType, thingUid, null, state);
     }
 
-    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, State oldState, State newState) {
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, ThingStatus oldState,
+            ThingStatus newState) {
         return internalGetThingRules(triggerType, thingUid, oldState, newState);
     }
 
@@ -355,63 +356,56 @@ public class RuleTriggerManager {
         return result;
     }
 
-    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, String thingUid, Type oldType,
-            Type newType) {
+    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, String thingUid, ThingStatus oldStatus,
+            ThingStatus newStatus) {
         List<Rule> result = Lists.newArrayList();
         Iterable<Rule> rules = getAllRules(triggerType, thingUid);
         if (rules == null) {
             rules = Lists.newArrayList();
         }
-        List<Class<? extends State>> thingStateTypes = new ArrayList<Class<? extends State>>();
-        thingStateTypes.add(OnlineOfflineType.class);
 
         switch (triggerType) {
             case THINGUPDATE:
-                if (newType instanceof State) {
-                    State state = (State) newType;
-                    for (Rule rule : rules) {
-                        for (EventTrigger t : rule.getEventtrigger()) {
-                            if (t instanceof ThingStateUpdateEventTrigger) {
-                                ThingStateUpdateEventTrigger tt = (ThingStateUpdateEventTrigger) t;
-                                if (tt.getThing().equals(thingUid)) {
-                                    if (tt.getState() != null) {
-                                        State triggerState = TypeParser.parseState(thingStateTypes, tt.getState());
-                                        if (!state.equals(triggerState)) {
-                                            continue;
-                                        }
+                for (Rule rule : rules) {
+                    for (EventTrigger t : rule.getEventtrigger()) {
+                        if (t instanceof ThingStateUpdateEventTrigger) {
+                            ThingStateUpdateEventTrigger tt = (ThingStateUpdateEventTrigger) t;
+                            if (tt.getThing().equals(thingUid)) {
+                                String stateString = tt.getState();
+                                if (stateString != null) {
+                                    ThingStatus triggerState = ThingStatus.valueOf(stateString);
+                                    if (!newStatus.equals(triggerState)) {
+                                        continue;
                                     }
-                                    result.add(rule);
                                 }
+                                result.add(rule);
                             }
                         }
                     }
                 }
                 break;
             case THINGCHANGE:
-                if (newType instanceof State && oldType instanceof State) {
-                    State newState = (State) newType;
-                    State oldState = (State) oldType;
-                    for (Rule rule : rules) {
-                        for (EventTrigger t : rule.getEventtrigger()) {
-                            if (t instanceof ThingStateChangedEventTrigger) {
-                                ThingStateChangedEventTrigger ct = (ThingStateChangedEventTrigger) t;
-                                if (ct.getThing().equals(thingUid)) {
-                                    if (ct.getOldState() != null) {
-                                        State triggerOldState = TypeParser.parseState(thingStateTypes,
-                                                ct.getOldState());
-                                        if (!oldState.equals(triggerOldState)) {
-                                            continue;
-                                        }
+                for (Rule rule : rules) {
+                    for (EventTrigger t : rule.getEventtrigger()) {
+                        if (t instanceof ThingStateChangedEventTrigger) {
+                            ThingStateChangedEventTrigger ct = (ThingStateChangedEventTrigger) t;
+                            if (ct.getThing().equals(thingUid)) {
+                                String oldStatusString = ct.getOldState();
+                                if (oldStatusString != null) {
+                                    ThingStatus triggerOldState = ThingStatus.valueOf(oldStatusString);
+                                    if (!oldStatus.equals(triggerOldState)) {
+                                        continue;
                                     }
-                                    if (ct.getNewState() != null) {
-                                        State triggerNewState = TypeParser.parseState(thingStateTypes,
-                                                ct.getNewState());
-                                        if (!newState.equals(triggerNewState)) {
-                                            continue;
-                                        }
-                                    }
-                                    result.add(rule);
                                 }
+
+                                String newStatusString = ct.getNewState();
+                                if (newStatusString != null) {
+                                    ThingStatus triggerNewState = ThingStatus.valueOf(newStatusString);
+                                    if (!newStatus.equals(triggerNewState)) {
+                                        continue;
+                                    }
+                                }
+                                result.add(rule);
                             }
                         }
                     }

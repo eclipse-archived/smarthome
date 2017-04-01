@@ -75,11 +75,11 @@ SystemOnShutdownTrigger:
 ;
 
 ThingStateUpdateEventTrigger:
-    'Thing' thing=STRING 'received update' (state=ValidState)?
+    'Thing' thing=STRING 'received update' (state=ThingValidState)?
 ;
 
 ThingStateChangedEventTrigger:
-    'Thing' thing=STRING 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+    'Thing' thing=STRING 'changed' ('from' oldState=ThingValidState)? ('to' newState=ThingValidState)?
 ;
 	
 ItemName :
@@ -96,4 +96,14 @@ ValidCommand:
 
 ValidTrigger:
 	ID | Number | STRING
+;
+
+ThingValidState:
+    'UNINITIALIZED' |
+    'INITIALIZING' |
+    'UNKNOWN' |
+    'ONLINE' |
+    'OFFLINE' |
+    'REMOVING' |
+    'REMOVED'
 ;

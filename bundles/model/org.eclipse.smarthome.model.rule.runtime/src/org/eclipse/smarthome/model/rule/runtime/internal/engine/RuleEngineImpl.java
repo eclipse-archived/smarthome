@@ -30,10 +30,8 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
-import org.eclipse.smarthome.core.library.types.OnlineOfflineType;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.types.Command;
@@ -238,25 +236,15 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     private void receiveThingStatus(ThingStatusInfoChangedEvent event) {
         String thingUid = event.getThingUID().getAsString();
-        ThingStatusInfo oldStatus = event.getOldStatusInfo();
-        ThingStatusInfo newStatus = event.getStatusInfo();
-        State oldState = OnlineOfflineType.OFFLINE;
-        State newState = OnlineOfflineType.OFFLINE;
+        ThingStatus oldStatus = event.getOldStatusInfo().getStatus();
+        ThingStatus newStatus = event.getStatusInfo().getStatus();
 
-        if (oldStatus.getStatus() == ThingStatus.ONLINE) {
-            oldState = OnlineOfflineType.ONLINE;
-        }
-
-        if (newStatus.getStatus() == ThingStatus.ONLINE) {
-            newState = OnlineOfflineType.ONLINE;
-        }
-
-        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thingUid, newState);
+        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thingUid, newStatus);
         executeRules(rules);
 
-        if (oldState != newState) {
-            rules = triggerManager.getRules(THINGCHANGE, thingUid, oldState, newState);
-            executeRules(rules, oldState);
+        if (oldStatus != newStatus) {
+            rules = triggerManager.getRules(THINGCHANGE, thingUid, oldStatus, newStatus);
+            executeRules(rules, oldStatus);
         }
     }
 
@@ -375,6 +363,14 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         for (Rule rule : rules) {
             RuleEvaluationContext context = new RuleEvaluationContext();
             context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_PREVIOUS_STATE), oldState);
+            executeRule(rule, context);
+        }
+    }
+
+    protected synchronized void executeRules(Iterable<Rule> rules, ThingStatus oldThingStatus) {
+        for (Rule rule : rules) {
+            RuleEvaluationContext context = new RuleEvaluationContext();
+            context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_PREVIOUS_STATE), oldThingStatus.toString());
             executeRule(rule, context);
         }
     }
