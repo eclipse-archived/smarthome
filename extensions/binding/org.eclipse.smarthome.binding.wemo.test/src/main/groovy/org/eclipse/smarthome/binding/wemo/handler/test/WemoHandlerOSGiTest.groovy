@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.wemo.handler.test;
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.XmlUtil
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
@@ -28,6 +27,8 @@ import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import groovy.xml.XmlUtil
 
 /**
  * Tests for {@link WemoHandler}.
@@ -172,9 +173,14 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
-        waitForAssert {
+        waitForAssert({
             assertThat itemRegistry.getAll().size(), is(0)
-        }
+        }, {
+            Collection<Item> items = itemRegistry.getAll()
+            for (Item item : items) {
+                System.out.println(String.format("item in registry: name=%s, type=%s, state=%s", item.getName(), item.getType(), item.getState()))
+            }
+        })
     }
 }
 

@@ -1,8 +1,10 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $location, templateRepository) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
     $scope.extensionTypes = [];
+    var view = window.localStorage.getItem('paperui.extension.view')
+    $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
     $scope.refresh = function() {
         extensionService.getAllTypes(function(extensionTypes) {
             $scope.extensionTypes = [];
@@ -26,6 +28,15 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                 });
             });
         });
+    }
+
+    $scope.changeView = function(showCards) {
+        if (showCards) {
+            window.localStorage.setItem('paperui.extension.view', 'card');
+        } else {
+            window.localStorage.setItem('paperui.extension.view', 'list');
+        }
+        $scope.showCards = showCards;
     }
 
     $scope.getType = function(extensionTypeId) {
@@ -72,8 +83,39 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             $window.open(link, '_blank');
         }
     }
-    eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
-        var extension = $scope.getExtension(extensionId);
+
+    $scope.filterItems = function(lookupFields, searchText) {
+        return function(item) {
+            if (searchText && searchText.length > 0) {
+                for (var i = 0; i < lookupFields.length; i++) {
+                    if (item[lookupFields[i]] && item[lookupFields[i]].toUpperCase().indexOf(searchText.toUpperCase()) != -1) {
+                        return true;
+                    }
+                }
+                return false
+            }
+            return true;
+        }
+    }
+
+    $scope.masonry = function(showCards) {
+        if (showCards) {
+            $timeout(function() {
+                var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
+                new Masonry(itemContainer, {});
+            }, 100, true);
+        }
+    }
+    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+        $scope.masonry(true);
+    });
+
+    eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
+        var id = extensionObject;
+        if (extensionObject && Array.isArray(extensionObject)) {
+            id = extensionObject[0]
+        }
+        var extension = $scope.getExtension(id);
         if (extension) {
             extension.inProgress = false;
             if (topic.indexOf("uninstalled") > -1) {
@@ -82,8 +124,13 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             } else if (topic.indexOf("installed") > -1) {
                 extension.installed = true;
                 toastService.showDefaultToast('Extension ' + extension.label + ' installed.');
+                if (extension.type == "ruletemplate") {
+                    $scope.$broadcast("RuleExtensionInstalled", extension.id);
+                }
             } else {
-                toastService.showDefaultToast('Install or uninstall of extension ' + extension.label + ' failed.');
+                var msg = Array.isArray(extensionObject) ? extensionObject[1] : 'Install or uninstall of extension ' + extension.label + ' failed.';
+                toastService.showDefaultToast(msg);
+                $scope.$broadcast("RuleExtensionFailed");
             }
         }
     });

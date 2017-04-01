@@ -15,7 +15,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
-import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
@@ -100,19 +99,16 @@ class RuleEventTest extends OSGiTest{
 
         //Creation of RULE
         def triggerConfig = new Configuration([eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
-        def condition1Config = new Configuration([operator:"=", itemName:"myPresenceItem2", state:"ON"])
-        def condition2Config = new Configuration([itemName:"myMotionItem2"])
         def actionConfig = new Configuration([itemName:"myLampItem2", command:"ON"])
-        def triggers = [new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)]
-        def conditions = [
-            new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),
-            new Condition("ItemStateCondition4", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger2.event"])
+        def triggers = [
+            new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig)
         ]
-        def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
+        def actions = [
+            new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
+        ]
 
         def rule = new Rule("myRule21")
         rule.triggers = triggers
-        rule.conditions = conditions
         rule.actions = actions
 
         rule.name="RuleEventTestingRule"

@@ -37,29 +37,16 @@
       "triggers":[  
          {  
             "id":"ItemUpdateTrigger_2",
-            "type":"ItemStateChangeTrigger",
+            "type":"core.ItemStateChangeTrigger",
             "configuration":{  
                "itemName":"${onItem}"
             }
          }
       ],
-      "conditions":[  
-         {  
-            "id":"ItemStateConditionID_2",
-            "type":"ItemStateEventCompareCondition",
-            "configuration":{  
-               "itemName":"${onItem}",
-               "state":"${ifState}"
-            },
-			"inputs":{
-				"event":"ItemUpdateTrigger_2.event"
-			}
-         }
-      ],
       "actions":[  
          {  
             "id":"ItemPostCommandActionID_1",
-            "type":"ItemPostCommandAction",
+            "type":"core.ItemCommandAction",
             "configuration":{  
                "itemName":"${updateItem}",
                "command":"${updateCommand}"

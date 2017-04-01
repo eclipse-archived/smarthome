@@ -1,7 +1,7 @@
 <md-dialog aria-label="Add triger" class="rules-dialog"> <md-dialog-content class="md-dialog-content">
 <h1 ng-show="!editMode && step==2">Add {{type}}</h1>
 <h1 ng-show="editMode && step==2">Update {{type}}</h1>
-<h1 ng-show="step==1">Select {{type}} type</h1>
+<h1 ng-show="step==1">{{type=='trigger'?'When...':type=='action'?'then...':'but only if...'}} </h1>
 <br>
 <div>
 

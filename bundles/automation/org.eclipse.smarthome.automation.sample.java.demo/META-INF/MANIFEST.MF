@@ -8,5 +8,5 @@ Import-Package:
  org.eclipse.smarthome.config.core,
  org.osgi.service.component,
  org.eclipse.smarthome.core.common.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*.xml

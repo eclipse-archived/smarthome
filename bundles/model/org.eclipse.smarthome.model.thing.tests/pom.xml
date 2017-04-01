@@ -36,6 +36,11 @@
               </requirement>
               <requirement>
                 <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.event</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
                 <id>org.eclipse.smarthome.core</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
@@ -66,6 +71,11 @@
             <bundle>
               <id>org.eclipse.equinox.ds</id>
               <level>1</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.equinox.event</id>
+              <level>2</level>
               <autoStart>true</autoStart>
             </bundle>
             <bundle>
@@ -110,6 +120,11 @@
             </bundle>
             <bundle>
               <id>org.eclipse.smarthome.model.thing.runtime</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.config.core</id>
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>

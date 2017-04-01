@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,9 +23,11 @@ import org.eclipse.smarthome.core.thing.ThingUID
 class ExtendedDiscoveryServiceMock extends DiscoveryServiceMock implements ExtendedDiscoveryService {
 
     public DiscoveryServiceCallback discoveryServiceCallback
+    public Map<String, Object> discoveryProperties;
 
     public ExtendedDiscoveryServiceMock(thingType, timeout, faulty = false) {
         super(thingType, timeout)
+        this.discoveryProperties = null;
     }
 
     @Override
@@ -35,6 +37,11 @@ class ExtendedDiscoveryServiceMock extends DiscoveryServiceMock implements Exten
 
     @Override
     public void startScan() {
-        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, null, null, null, DEFAULT_TTL))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, "foo"), null, discoveryProperties, null, null, DEFAULT_TTL))
     }
+    
+    public void setDiscoveryProperties(Map<String, Object> discoveryProperties) {
+        this.discoveryProperties = discoveryProperties;
+    }
+    
 }

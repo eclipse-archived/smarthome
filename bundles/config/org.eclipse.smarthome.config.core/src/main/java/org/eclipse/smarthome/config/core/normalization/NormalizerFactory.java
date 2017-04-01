@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,11 +43,11 @@ public final class NormalizerFactory {
      *
      * @param configDescriptionParameter the config description parameter (must not be null)
      * @return the corresponding {@link Normalizer} (not null)
-     * @throws NullPointerException if the given config description parameter is null
+     * @throws IllegalArgumentException if the given config description parameter is null
      */
     public static Normalizer getNormalizer(ConfigDescriptionParameter configDescriptionParameter) {
         if (configDescriptionParameter == null) {
-            throw new NullPointerException("The config description parameter must not be null.");
+            throw new IllegalArgumentException("The config description parameter must not be null.");
         }
 
         Normalizer ret = normalizers.get(configDescriptionParameter.getType());

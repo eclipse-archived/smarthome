@@ -21,14 +21,14 @@ import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditio
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class StateConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class StateConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
     public StateConditionHandler(Condition module) {
         super(module);
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         String leftOperand = (String) context.get(StateConditionType.INPUT_CURRENT_STATE);
         String rightOperand = (String) module.getConfiguration().get(StateConditionType.CONFIG_STATE);
         if (rightOperand != null && !rightOperand.equalsIgnoreCase(leftOperand)) {

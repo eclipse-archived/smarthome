@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # NTP Binding
  
 The NTP binding is used for displaying the local date and time based update from an NTP server.

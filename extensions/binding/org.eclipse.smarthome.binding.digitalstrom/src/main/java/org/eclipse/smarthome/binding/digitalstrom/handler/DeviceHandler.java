@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -690,25 +690,25 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
         if (device.getFunctionalColorGroup().equals(FunctionalColorGroupEnum.YELLOW)) {
             if (device.isDimmable() && (currentChannel == null || currentChannel != CHANNEL_ID_BRIGHTNESS)) {
                 loadOutputChannel(CHANNEL_TYPE_BRIGHTNESS, "Dimmer");
-            } else if (device.isSwitch() && (currentChannel != null || currentChannel != CHANNEL_ID_LIGHT_SWITCH)) {
+            } else if (device.isSwitch() && (currentChannel == null || currentChannel != CHANNEL_ID_LIGHT_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_LIGHT_SWITCH, "Switch");
             } else if (device.getOutputMode().equals(OutputModeEnum.COMBINED_2_STAGE_SWITCH)
-                    && (currentChannel != null || currentChannel != CHANNEL_ID_COMBINED_2_STAGE_SWITCH)) {
+                    && (currentChannel == null || currentChannel != CHANNEL_ID_COMBINED_2_STAGE_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_COMBINED_2_STAGE_SWITCH, "String");
             } else if (device.getOutputMode().equals(OutputModeEnum.COMBINED_3_STAGE_SWITCH)
-                    && (currentChannel != null || currentChannel != CHANNEL_ID_COMBINED_3_STAGE_SWITCH)) {
+                    && (currentChannel == null || currentChannel != CHANNEL_ID_COMBINED_3_STAGE_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_COMBINED_3_STAGE_SWITCH, "String");
             }
         } else {
             if (device.isDimmable() && (currentChannel == null || currentChannel != CHANNEL_ID_GENERAL_DIMM)) {
                 loadOutputChannel(CHANNEL_TYPE_GENERAL_DIMM, "Dimmer");
-            } else if (device.isSwitch() && (currentChannel != null || currentChannel != CHANNEL_ID_GENERAL_SWITCH)) {
+            } else if (device.isSwitch() && (currentChannel == null || currentChannel != CHANNEL_ID_GENERAL_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_GENERAL_SWITCH, "Switch");
             } else if (device.getOutputMode().equals(OutputModeEnum.COMBINED_2_STAGE_SWITCH)
-                    && (currentChannel != null || currentChannel != CHANNEL_ID_GENERAL_COMBINED_2_STAGE_SWITCH)) {
+                    && (currentChannel == null || currentChannel != CHANNEL_ID_GENERAL_COMBINED_2_STAGE_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_GENERAL_COMBINED_2_STAGE_SWITCH, "String");
             } else if (device.getOutputMode().equals(OutputModeEnum.COMBINED_3_STAGE_SWITCH)
-                    && (currentChannel != null || currentChannel != CHANNEL_ID_GENERAL_COMBINED_3_STAGE_SWITCH)) {
+                    && (currentChannel == null || currentChannel != CHANNEL_ID_GENERAL_COMBINED_3_STAGE_SWITCH)) {
                 loadOutputChannel(CHANNEL_TYPE_GENERAL_COMBINED_3_STAGE_SWITCH, "String");
             } else {
                 loadOutputChannel(null, null);

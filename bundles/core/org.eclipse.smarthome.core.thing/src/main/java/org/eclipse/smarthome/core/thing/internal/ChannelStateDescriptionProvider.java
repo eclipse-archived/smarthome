@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
@@ -19,6 +20,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.osgi.framework.Constants;
 
 /**
  * A {@link ChannelStateDescriptionProvider} provides localized {@link StateDescription}s from the type of a
@@ -31,6 +33,21 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ThingRegistry thingRegistry;
+    private Integer rank;
+
+    protected void activate(Map<String, Object> properties) {
+        Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
+        if (serviceRanking instanceof Integer) {
+            rank = (Integer) serviceRanking;
+        } else {
+            rank = 0;
+        }
+    }
+
+    @Override
+    public Integer getRank() {
+        return rank;
+    }
 
     @Override
     public StateDescription getStateDescription(String itemName, Locale locale) {

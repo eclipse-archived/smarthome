@@ -65,11 +65,11 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>To check a Rule's status info, use the {@link #getStatusInfo(String)} method.</li>
  * <li>The status of a newly added Rule, or a Rule enabled with {@link #setEnabled(String, boolean)}, or an updated
- * Rule, is first set to {@link RuleStatus#NOT_INITIALIZED}.</li>
+ * Rule, is first set to {@link RuleStatus#UNINITIALIZED}.</li>
  * <li>After a Rule is added or enabled, or updated, a verification procedure is initiated. If the verification of the
  * modules IDs, connections between modules and configuration values of the modules is successful, and the module
  * handlers are correctly set, the status is set to {@link RuleStatus#IDLE}.</li>
- * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#NOT_INITIALIZED} again.</li>
+ * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#UNINITIALIZED} again.</li>
  * <li>If one of the Rule's Triggers is triggered, the Rule becomes {@link RuleStatus#RUNNING}.
  * When the execution is complete, it will become {@link RuleStatus#IDLE} again.</li>
  * <li>If a Rule is disabled with {@link #setEnabled(String, boolean)}, it's status is set to
@@ -207,19 +207,15 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.addModuleHandlerFactory(moduleHandlerFactory);
     }
 
-    protected void updatedModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
-        ruleEngine.updateModuleHandlerFactory(moduleHandlerFactory);
-    }
-
     protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         ruleEngine.removeModuleHandlerFactory(moduleHandlerFactory);
     }
 
     /**
      * This method is used to register a {@link Rule} into the {@link RuleEngine}. First the {@link Rule} become
-     * {@link RuleStatus#NOT_INITIALIZED}.
+     * {@link RuleStatus#UNINITIALIZED}.
      * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
-     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * If the verification fails, the Rule will stay {@link RuleStatus#UNINITIALIZED}.
      *
      * @param rule a {@link Rule} instance which have to be added into the {@link RuleEngine}.
      * @return a copy of the added {@link Rule}
@@ -264,10 +260,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * This method is used to register a {@link Rule} into the RuleEngine. The {@link Rule} comes from Rule provider.
-     * First the Rule become {@link RuleStatus#NOT_INITIALIZED}.
-     * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
-     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * This method is used to add {@link Rule} into the RuleEngine.
+     * When the rule is resolved it becomes into {@link RuleStatus#IDLE} state.
+     * If the verification fails, the rule goes into {@link RuleStatus#UNINITIALIZED} state.
      *
      * @param provider a provider of the {@link Rule}.
      * @param element a {@link Rule} instance which have to be added into the RuleEngine.
@@ -279,7 +274,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *             when a module id contains dot or when the rule with the same UID already exists.
      */
     @Override
-    protected void onAddElement(Rule rule) throws IllegalArgumentException {
+    protected void notifyListenersAboutAddedElement(Rule rule) {
+        super.notifyListenersAboutAddedElement(rule);
+        postRuleAddedEvent(rule);
         String uid = rule.getUID();
         ruleEngine.addRule(rule, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
         String templateUID = rule.getTemplateUID();
@@ -327,10 +324,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * This method is used to update an existing {@link Rule} in the {@link RuleEngine}. First the {@link Rule} become
-     * {@link RuleStatus#NOT_INITIALIZED}.
-     * Then verification procedure will be done and the {@link Rule} become {@link RuleStatus#IDLE}.
-     * If the verification fails, the {@link Rule} will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * This method is used to update an existing {@link Rule} in the {@link RuleEngine}.
+     * When the {@link Rule} is resolved it becomes into {@link RuleStatus#IDLE} state.
+     * If the verifications are failed, the {@link Rule} goes into {@link RuleStatus#UNINITIALIZED} state.
      *
      * @param oldElement a {@link Rule} instance that have to be replaced with value of the parameter
      *            <code>element</code>.
@@ -344,7 +340,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *             when module id contains dot.
      */
     @Override
-    protected void onUpdateElement(Rule oldElement, Rule element) throws IllegalArgumentException {
+    protected void notifyListenersAboutUpdatedElement(Rule oldElement, Rule element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        postRuleUpdatedEvent(element, oldElement);
         String uid = element.getUID();
         ruleEngine.updateRule(element, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
         String templateUID = element.getTemplateUID();
@@ -356,6 +354,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 }
             }
         }
+    }
+
+    @Override
+    protected void notifyListenersAboutRemovedElement(Rule element) {
+        super.notifyListenersAboutRemovedElement(element);
+        postRuleRemovedEvent(element);
     }
 
     @Override
@@ -482,6 +486,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 resolvedRule.setName(rule.getName());
                 resolvedRule.setTags(rule.getTags());
                 resolvedRule.setDescription(rule.getDescription());
+
+                // TODO this provide config resolution twice - It must be done only in RuleEngine. Remove it.
+                ruleEngine.resolveConfiguration(resolvedRule);
+
                 return resolvedRule;
             }
         }
@@ -505,7 +513,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             ruleWithUID = initRuleId(rUID, element);
         }
         super.added(provider, ruleWithUID);
-        postRuleAddedEvent(ruleWithUID);
         updateRuleByTemplate(provider, ruleWithUID);
     }
 
@@ -514,7 +521,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         if (rule != resolvedRule) {
             if (update(resolvedRule) == null) {
                 super.updated(provider, rule, resolvedRule);
-                postRuleUpdatedEvent(resolvedRule, rule);
             }
         }
     }
@@ -528,13 +534,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         }
         Rule resolvedRule = resolveRuleByTemplate(ruleWithUID);
         super.updated(provider, oldElement, resolvedRule);
-        postRuleUpdatedEvent(resolvedRule, oldElement);
-    }
-
-    @Override
-    public void removed(Provider<Rule> provider, Rule element) {
-        super.removed(provider, element);
-        postRuleRemovedEvent(element);
     }
 
     @Override
@@ -572,6 +571,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public void updated(RuleTemplate oldElement, RuleTemplate element) {
         // Do nothing - resolved rules are independent from templates
+    }
+
+    @Override
+    public void runNow(String ruleUID) {
+        ruleEngine.runNow(ruleUID);
     }
 
 }

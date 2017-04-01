@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemStateConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
+public class ItemStateConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
 
-    public static final String ITEM_STATE_CONDITION = "ItemStateCondition";
+    public static final String ITEM_STATE_CONDITION = "core.ItemStateCondition";
 
     private ItemRegistry itemRegistry;
 
@@ -72,7 +72,7 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition>imple
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
+    public boolean isSatisfied(Map<String, Object> inputs) {
         String itemName = (String) module.getConfiguration().get(ITEM_NAME);
         String state = (String) module.getConfiguration().get(STATE);
         String operator = (String) module.getConfiguration().get(OPERATOR);
@@ -99,12 +99,24 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition>imple
                     return !itemState.equals(compareState);
                 case "<":
                     if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) < 0 ? true : false;
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) < 0;
+                    }
+                    break;
+                case "<=":
+                case "=<":
+                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) <= 0;
                     }
                     break;
                 case ">":
                     if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) > 0 ? true : false;
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) > 0;
+                    }
+                    break;
+                case ">=":
+                case "=>":
+                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
+                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) >= 0;
                     }
                     break;
                 default:

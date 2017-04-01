@@ -126,16 +126,12 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'assert that item state is updated by simple rule'() {
         //Creation of RULE
         def triggerConfig = new Configuration([eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
-        def condition1Config = new Configuration([operator:"=", itemName:"myPresenceItem2", state:"ON"])
-        def condition2Config = new Configuration([itemName:"myMotionItem2"])
         def actionConfig = new Configuration([itemName:"myLampItem2", command:"ON"])
-        def triggers = [new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)]
-        def conditions = [new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition4", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger2.event"])]
-        def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
+        def triggers = [new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig)]
+        def actions = [new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)]
 
         def rule = new Rule("myRule21"+new Random().nextInt())
         rule.triggers = triggers
-        rule.conditions = conditions
         rule.actions = actions
         // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
         rule.name="RuleByJAVA_API"
@@ -191,12 +187,10 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'check if moduleTypes are registered'(){
         def mtr = getService(ModuleTypeRegistry) as ModuleTypeRegistry
         waitForAssert({
-            assertThat mtr.get("GenericEventTrigger"), is(notNullValue())
-            assertThat mtr.get("ItemStateChangeTrigger"), is(notNullValue())
-            assertThat mtr.get("EventCondition"), is(notNullValue())
-            assertThat mtr.get("ItemStateEventCondition"), is(notNullValue())
-            assertThat mtr.get("ItemStateEvent_ON_Condition"), is(notNullValue())
-            assertThat mtr.get("ItemStateEvent_OFF_Condition"), is(notNullValue())
+            assertThat mtr.get("core.GenericEventTrigger"), is(notNullValue())
+            assertThat mtr.get("core.GenericEventCondition"), is(notNullValue())
+            assertThat mtr.get("core.ItemStateChangeTrigger"), is(notNullValue())
+            assertThat mtr.get("core.ItemStateUpdateTrigger"), is(notNullValue())
             assertThat mtr.get(CompareConditionHandler.MODULE_TYPE), is(notNullValue())
         },3000,100)
     }
@@ -205,7 +199,7 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'assert that compareCondition works'(){
         def conditionConfiguration = new Configuration([right:"ON", operator:"="])
         def inputs = [input:"someTrigger.someoutput"]
-        def Condition condition = new Condition("id", "GenericCompareCondition", conditionConfiguration, inputs)
+        def Condition condition = new Condition("id", "core.GenericCompareCondition", conditionConfiguration, inputs)
         def handler = new CompareConditionHandler(condition)
 
         assertThat handler.isSatisfied([input:OnOffType.ON]), is(true)
@@ -228,6 +222,19 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat handler.isSatisfied([input:20.9d]), is(true)
         assertThat handler.isSatisfied([input:21.1d]), is(false)
 
+        condition.configuration=[right:"21", operator:"<="]
+        assertThat handler.isSatisfied([input:20]), is(true)
+        assertThat handler.isSatisfied([input:21]), is(true)
+        assertThat handler.isSatisfied([input:22]), is(false)
+
+        assertThat handler.isSatisfied([input:20l]), is(true)
+        assertThat handler.isSatisfied([input:21l]), is(true)
+        assertThat handler.isSatisfied([input:22l]), is(false)
+
+        assertThat handler.isSatisfied([input:20.9d]), is(true)
+        assertThat handler.isSatisfied([input:21.0d]), is(true)
+        assertThat handler.isSatisfied([input:21.1d]), is(false)
+
         condition.configuration=[right:"21", operator:">"]
         assertThat handler.isSatisfied([input:20]), is(false)
         assertThat handler.isSatisfied([input:22]), is(true)
@@ -238,6 +245,19 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat handler.isSatisfied([input:20.9d]), is(false)
         assertThat handler.isSatisfied([input:21.1d]), is(true)
 
+        condition.configuration=[right:"21", operator:">="]
+        assertThat handler.isSatisfied([input:20]), is(false)
+        assertThat handler.isSatisfied([input:21]), is(true)
+        assertThat handler.isSatisfied([input:22]), is(true)
+
+        assertThat handler.isSatisfied([input:20l]), is(false)
+        assertThat handler.isSatisfied([input:21l]), is(true)
+        assertThat handler.isSatisfied([input:22l]), is(true)
+
+        assertThat handler.isSatisfied([input:20.9d]), is(false)
+        assertThat handler.isSatisfied([input:21.0d]), is(true)
+        assertThat handler.isSatisfied([input:21.1d]), is(true)
+        
         condition.configuration=[right:".*anything.*", operator:"matches"]
         assertThat handler.isSatisfied([input:'something matches?']), is(false)
         assertThat handler.isSatisfied([input:'anything matches?']), is(true)
@@ -270,16 +290,12 @@ class RuntimeRuleTest extends OSGiTest{
 
         //Test the creation of a rule out of
         def triggerConfig = new Configuration([itemName:"myMotionItem3"])
-        def condition1Config = new Configuration([operator:"=", itemName:"myPresenceItem3", state:"ON"])
-        def condition2Config = new Configuration([itemName:"myMotionItem3"])
         def actionConfig = new Configuration([itemName:"myLampItem3", command:"ON"])
-        def triggers = [new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)]
-        def conditions = [new Condition("ItemStateCondition5", "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition6", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger3.event"])]
-        def actions = [new Action("ItemPostCommandAction3", "ItemPostCommandAction", actionConfig, null)]
+        def triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+        def actions = [new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null)]
 
         def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
         rule.triggers = triggers
-        rule.conditions = conditions
         rule.actions = actions
         rule.name="RuleByJAVA_API_WithCompositeTrigger"
 
@@ -318,7 +334,6 @@ class RuntimeRuleTest extends OSGiTest{
 
 
         def EventPublisher eventPublisher = getService(EventPublisher)
-        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON))
 
         def ItemRegistry itemRegistry = getService(ItemRegistry)
 
@@ -359,8 +374,8 @@ class RuntimeRuleTest extends OSGiTest{
         try {
             def triggerConfig = new Configuration([itemName:"myMotionItem3"])
             def actionConfig = new Configuration([enable:false, ruleUIDs:firstConfig])
-            def triggers = [new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)]
-            def actions = [new Action("RuleAction", "RuleEnablementAction", actionConfig, null)]
+            def triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+            def actions = [new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)]
             def rule = new Rule(firstRuleAction)
             rule.triggers = triggers
             rule.actions = actions
@@ -385,8 +400,8 @@ class RuntimeRuleTest extends OSGiTest{
 
             triggerConfig = new Configuration([itemName:"myMotionItem3"])
             actionConfig = new Configuration([enable:true, ruleUIDs:secondConfig])
-            triggers = [new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)]
-            actions = [new Action("RuleAction", "RuleEnablementAction", actionConfig, null)]
+            triggers = [new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig)]
+            actions = [new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)]
             rule = new Rule(secondRuleAction)
             rule.triggers = triggers
             rule.actions = actions

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,13 +9,13 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
@@ -95,19 +95,13 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
 
     }
 
-    private Map<Bundle, List<ChannelGroupType>> bundleChannelGroupTypesMap;
+    private final Map<Bundle, List<ChannelGroupType>> bundleChannelGroupTypesMap = new ConcurrentHashMap<>();
+    private final Map<Bundle, List<ChannelType>> bundleChannelTypesMap = new ConcurrentHashMap<>();
 
-    private Map<Bundle, List<ChannelType>> bundleChannelTypesMap;
-
-    private Map<LocalizedChannelTypeKey, ChannelGroupType> localizedChannelGroupTypeCache = new ConcurrentHashMap<>();
-    private Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
+    private final Map<LocalizedChannelTypeKey, ChannelGroupType> localizedChannelGroupTypeCache = new ConcurrentHashMap<>();
+    private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
-
-    public XmlChannelTypeProvider() {
-        this.bundleChannelTypesMap = new HashMap<>(10);
-        this.bundleChannelGroupTypesMap = new HashMap<>(10);
-    }
 
     public synchronized void addChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType) {
         if (channelGroupType != null) {

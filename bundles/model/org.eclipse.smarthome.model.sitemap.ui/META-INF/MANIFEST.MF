@@ -26,5 +26,5 @@ Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
  org.eclipse.smarthome.model.ui.quickfix,
  org.eclipse.smarthome.model.ui.contentassist.antlr.internal
 Bundle-Activator: org.eclipse.smarthome.model.ui.internal.SitemapActivator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

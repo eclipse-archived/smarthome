@@ -29,6 +29,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioManager;
+import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 
 /**
@@ -40,10 +41,12 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  */
 public class MediaActionTypeProvider implements ModuleTypeProvider {
 
+    private AudioManager audioManager;
+
     @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
-        if ("PlayAction".equals(UID)) {
+        if ("media.PlayAction".equals(UID)) {
             return getPlayActionType(locale);
         } else {
             return null;
@@ -56,24 +59,31 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
     }
 
     private ModuleType getPlayActionType(Locale locale) {
-        return new ActionType("PlayAction", getConfigDesc(), "Play Sound", "Plays a sound file", null,
+        return new ActionType("media.PlayAction", getConfigDesc(locale), "play a sound", "Plays a sound file.", null,
                 Visibility.VISIBLE, new ArrayList<Input>(), new ArrayList<Output>());
     }
 
-    private List<ConfigDescriptionParameter> getConfigDesc() {
-        ConfigDescriptionParameter param = ConfigDescriptionParameterBuilder
+    private List<ConfigDescriptionParameter> getConfigDesc(Locale locale) {
+        ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
                 .create(PlayActionHandler.PARAM_SOUND, Type.TEXT).withRequired(true).withLabel("Sound")
-                .withDescription("The sound to play").withOptions(getOptions()).build();
-        return Collections.singletonList(param);
+                .withDescription("the sound to play").withOptions(getSoundOptions()).withLimitToOptions(true).build();
+        ConfigDescriptionParameter param2 = ConfigDescriptionParameterBuilder
+                .create(PlayActionHandler.PARAM_SINK, Type.TEXT).withRequired(false).withLabel("Sink")
+                .withDescription("the audio sink id").withOptions(getSinkOptions(locale)).withLimitToOptions(true)
+                .build();
+        List<ConfigDescriptionParameter> params = new ArrayList<>(2);
+        params.add(param1);
+        params.add(param2);
+        return params;
     }
 
     /**
      * This method creates one option for every file that is found in the sounds directory.
-     * as a label, the file extension is removed and the string is capitalized.
+     * As a label, the file extension is removed and the string is capitalized.
      *
      * @return a list of parameter options representing the sound files
      */
-    private List<ParameterOption> getOptions() {
+    private List<ParameterOption> getSoundOptions() {
         List<ParameterOption> options = new ArrayList<>();
         File soundsDir = Paths.get(ConfigConstants.getConfigFolder(), AudioManager.SOUND_DIR).toFile();
         if (soundsDir.isDirectory()) {
@@ -83,6 +93,21 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
                     options.add(new ParameterOption(fileName, soundName));
                 }
             }
+        }
+        return options;
+    }
+
+    /**
+     * This method creates one option for every sink that is found in the system.
+     *
+     * @return a list of parameter options representing the audio sinks
+     */
+    private List<ParameterOption> getSinkOptions(Locale locale) {
+        List<ParameterOption> options = new ArrayList<>();
+
+        for (String sinkId : audioManager.getSinkIds()) {
+            AudioSink sink = audioManager.getSink(sinkId);
+            options.add(new ParameterOption(sinkId, sink.getLabel(null)));
         }
         return options;
     }
@@ -102,4 +127,11 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
         // does nothing because this provider does not change
     }
 
+    protected void setAudioManager(AudioManager audioManager) {
+        this.audioManager = audioManager;
+    }
+
+    protected void unsetAudioManager(AudioManager audioManager) {
+        this.audioManager = null;
+    }
 }

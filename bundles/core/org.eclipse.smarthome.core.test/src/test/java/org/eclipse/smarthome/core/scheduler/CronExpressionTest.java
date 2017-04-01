@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class CronExpressionTest {
@@ -25,7 +28,7 @@ public class CronExpressionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void dayOfWeekAndMonth() throws ParseException {
-        new CronExpression("* * * 1 * 1");
+        new CronExpression("* * * ? * ?");
     }
 
     @Test
@@ -71,26 +74,58 @@ public class CronExpressionTest {
     }
 
     @Test
-    public void runForever() throws ParseException, InterruptedException {
+    public void findNext() throws ParseException {
+        boolean trace = false;
 
-        final CronExpression expression;
-        expression = new CronExpression("* * * * * ?");
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        final int TRIES = 150;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        final List<String> expressions = Arrays.asList(new String[] { //
+                "* * * * * ?", //
+                "* * * ? * *", //
+                "0 * * ? * *", //
+                "0 0 * ? * *", //
+                "0 0 0 ? * *", //
+                "0 15 07 * * ?", //
+                "0 15 07 ? * MON,TUE,WED,THU,FRI,SAT,SUN" //
+        });
 
-        Date nextDate = expression.getTimeAfter(Calendar.getInstance().getTime());
-        int counter = 1;
+        for (final String expr : expressions) {
+            System.out.println("Test cron expression: " + expr);
+            final CronExpression cronExpression;
+            try {
+                cronExpression = new CronExpression(expr);
+            } catch (final IllegalArgumentException | ParseException ex) {
+                System.err.println(ex.getMessage());
+                throw ex;
+            }
 
-        while (nextDate != null && counter <= 150) {
-            System.out.println("value " + counter + " is " + sdf.format(nextDate));
             Calendar cal = Calendar.getInstance();
-            cal.setTime(nextDate);
-            cal.add(Calendar.MILLISECOND, 1);
-            nextDate = cal.getTime();
-            nextDate = expression.getTimeAfter(nextDate);
-            counter++;
-        }
+            Date curDate = cal.getTime();
 
+            for (int i = 0; i < TRIES; ++i) {
+                if (trace) {
+                    System.out.println("  Try to get time after: " + sdf.format(curDate));
+                }
+                final Date nextDate = cronExpression.getTimeAfter(curDate);
+                if (nextDate == null) {
+                    final String msg = String.format("  Cannot find a time after '%s' for expression '%s'",
+                            sdf.format(curDate), cronExpression.getExpression());
+                    System.err.println(msg);
+                    Assert.fail(msg);
+                } else {
+                    if (trace) {
+                        System.out.println("    Got: " + sdf.format(nextDate));
+                    }
+                }
+
+                cal.setTime(nextDate);
+                // Add some offset
+                cal.add(Calendar.MINUTE, 1);
+                cal.add(Calendar.SECOND, 1);
+                curDate = cal.getTime();
+            }
+        }
     }
 
 }

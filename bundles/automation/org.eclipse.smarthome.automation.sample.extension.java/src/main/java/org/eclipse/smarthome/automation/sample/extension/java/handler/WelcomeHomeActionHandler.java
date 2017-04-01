@@ -22,14 +22,14 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class WelcomeHomeActionHandler extends BaseModuleHandler<Action>implements ActionHandler {
+public class WelcomeHomeActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
     public WelcomeHomeActionHandler(Action module) {
         super(module);
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         String device = getDevice(module.getConfiguration());
         String result = getResult(module.getConfiguration());
         System.out.println("[Automation Java API Demo : " + module.getTypeUID() + "] " + device + ": " + result);

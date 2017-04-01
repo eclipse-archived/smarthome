@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,18 @@ final class TypeIntrospections {
          *
          * @return true, if the given value is less than the given min attribute, otherwise false
          */
-        abstract boolean isMinViolated(Object value, int min);
+        boolean isMinViolated(Object value, BigDecimal min) {
+            if (min == null) {
+                return false;
+            }
+            final BigDecimal bd;
+            if (isBigDecimalInstance(value)) {
+                bd = (BigDecimal) value;
+            } else {
+                bd = new BigDecimal(value.toString());
+            }
+            return bd.compareTo(min) < 0;
+        }
 
         /**
          * Returns true, if the given value is greater than the given max attribute, otherwise false.
@@ -86,7 +97,18 @@ final class TypeIntrospections {
          *
          * @return true, if the given value is greater than the given max attribute, otherwise false
          */
-        abstract boolean isMaxViolated(Object value, int max);
+        boolean isMaxViolated(Object value, BigDecimal max) {
+            if (max == null) {
+                return false;
+            }
+            final BigDecimal bd;
+            if (isBigDecimalInstance(value)) {
+                bd = (BigDecimal) value;
+            } else {
+                bd = new BigDecimal(value.toString());
+            }
+            return bd.compareTo(max) > 0;
+        }
 
         /**
          * Returns true, if the given value can be assigned to the type of this introspection, otherwise false.
@@ -136,12 +158,12 @@ final class TypeIntrospections {
         }
 
         @Override
-        boolean isMinViolated(Object value, int min) {
+        boolean isMinViolated(Object value, BigDecimal min) {
             throw new UnsupportedOperationException("Min attribute not supported for boolean parameter.");
         }
 
         @Override
-        boolean isMaxViolated(Object value, int max) {
+        boolean isMaxViolated(Object value, BigDecimal max) {
             throw new UnsupportedOperationException("Max attribute not supported for boolean parameter.");
         }
     }
@@ -160,22 +182,6 @@ final class TypeIntrospections {
             return true;
         }
 
-        @Override
-        boolean isMinViolated(Object value, int min) {
-            if (isBigDecimalInstance(value)) {
-                return Float.compare(((BigDecimal) value).floatValue(), min) < 0;
-            }
-            return Float.compare((float) value, min) < 0;
-        }
-
-        @Override
-        boolean isMaxViolated(Object value, int max) {
-            if (isBigDecimalInstance(value)) {
-                return Float.compare(((BigDecimal) value).floatValue(), max) > 0;
-            }
-            return Float.compare((float) value, max) > 0;
-        }
-
     }
 
     private static final class IntegerIntrospection extends TypeIntrospection {
@@ -191,22 +197,6 @@ final class TypeIntrospections {
             }
             return true;
         }
-
-        @Override
-        boolean isMinViolated(Object value, int min) {
-            if (isBigDecimalInstance(value)) {
-                return ((BigDecimal) value).intValueExact() < min;
-            }
-            return (int) value < min;
-        }
-
-        @Override
-        boolean isMaxViolated(Object value, int max) {
-            if (isBigDecimalInstance(value)) {
-                return ((BigDecimal) value).intValueExact() > max;
-            }
-            return (int) value > max;
-        }
     }
 
     private static final class StringIntrospection extends TypeIntrospection {
@@ -216,13 +206,19 @@ final class TypeIntrospections {
         }
 
         @Override
-        boolean isMinViolated(Object value, int min) {
-            return ((String) value).length() < min;
+        boolean isMinViolated(Object value, BigDecimal min) {
+            if (min == null) {
+                return false;
+            }
+            return ((String) value).length() < min.intValueExact();
         }
 
         @Override
-        boolean isMaxViolated(Object value, int max) {
-            return ((String) value).length() > max;
+        boolean isMaxViolated(Object value, BigDecimal max) {
+            if (max == null) {
+                return false;
+            }
+            return ((String) value).length() > max.intValueExact();
         }
     }
 }

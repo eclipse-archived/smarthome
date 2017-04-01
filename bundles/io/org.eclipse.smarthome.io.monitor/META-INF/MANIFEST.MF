@@ -18,5 +18,5 @@ Import-Package: com.google.common.collect,
  org.osgi.service.event,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.io.monitor
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

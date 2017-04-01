@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,8 +167,20 @@ public class ThingTypeResource implements SatisfiableRESTResource {
             String id = channelGroupDefinition.getId();
             ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
 
-            String label = channelGroupType.getLabel();
-            String description = channelGroupType.getDescription();
+            // Default to the channelGroupDefinition label to override the
+            // channelGroupType
+            String label = channelGroupDefinition.getLabel();
+            if (label == null) {
+                label = channelGroupType.getLabel();
+            }
+
+            // Default to the channelGroupDefinition description to override the
+            // channelGroupType
+            String description = channelGroupDefinition.getDescription();
+            if (description == null) {
+                description = channelGroupType.getDescription();
+            }
+
             List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
             List<ChannelDefinitionDTO> channelDefinitionDTOs = convertToChannelDefinitionDTOs(channelDefinitions,
                     locale);

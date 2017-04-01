@@ -13,7 +13,7 @@
     "triggers": [  
       {  
         "id": "ItemStateChangeTriggerID",
-        "type": "GenericEventTrigger",
+        "type": "core.GenericEventTrigger",
 		"configuration":{
 			"eventSource":"myMotionItem",
 			"eventTopic":"smarthome/items/*",
@@ -21,23 +21,10 @@
 		}
       }
     ],
-    "conditions": [
-      {
-        "id": "ItemStateConditionID",
-        "type": "EventCondition",
-        "configuration": {
-          "topic": "smarthome/items/myMotionItem/state",
-		  "payload":".*ON.*"
-        },
-		"inputs":{
-			"event":"ItemStateChangeTriggerID.event"
-		}
-	  }
-    ],
     "actions": [
       {  
         "id": "ItemPostCommandActionID",
-        "type": "ItemPostCommandAction",
+        "type": "core.ItemCommandAction",
         "configuration": {  
           "itemName": "myLampItem",
 		  "command": "ON"

@@ -18,6 +18,7 @@ Import-Package: javax.imageio,
  org.eclipse.jetty.client.api,
  org.eclipse.jetty.client.util,
  org.eclipse.jetty.http,
+ org.eclipse.jetty.proxy;resolution:=optional,
  org.eclipse.jetty.util,
  org.eclipse.jetty.util.component,
  org.eclipse.jetty.util.ssl,
@@ -36,9 +37,9 @@ Import-Package: javax.imageio,
  org.osgi.service.http,
  org.slf4j
 Bundle-ClassPath: .,
- lib/xchart-2.2.1.jar
+ lib/xchart-2.6.1.jar
 Bundle-SymbolicName: org.eclipse.smarthome.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.ui.chart,
  org.eclipse.smarthome.ui.items
 Service-Component: OSGI-INF/genericitemuiprovider.xml, OSGI-INF/itemuiregistry.xml,

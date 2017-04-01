@@ -1,21 +1,23 @@
-<div class="header-toolbar">
-	<md-button ng-click="saveConfigurations()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
-</div>
-<div class="section-header"></div>
-<div style="margin-top: 80px;" ng-if="page === 'system'" ng-controller="SystemController">
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-12" ng-show="service.found" ng-repeat="service in services | orderBy:'label'">
-				<div class="card text-left" data-service-id="{{service.id}}">
-					<div class="clabel" ng-init="serviceId=service.id;configDescriptionURI=service.configDescriptionURI;">
-						<h3 class="md-title">{{service.label}}</h3>
-						<p class="text-left hint small">{{service.id}}</p>
-						<div ng-controller="ConfigureSystemServiceController">
-							<div>
-								<div ng-init="form={};editing=false;">
-									<div onload="getConfigDescription()" ng-include="'partials/include.config.html'"></div>
-									<div class="text-right">
-										<md-button ng-show="editing" ng-disabled="form.configForm.$invalid" aria-label="Save" ng-click="save(service.id, service.configDescriptionURI, $event)"> Save</md-button>
+<div ng-controller="SystemController">
+	<div class="header-toolbar">
+		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+	</div>
+	<div class="section-header"></div>
+	<div style="margin-top: 80px;" ng-if="page === 'system'">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12" ng-show="service.found" ng-repeat="service in services | orderBy:'label'">
+					<div class="card text-left" data-service-id="{{service.id}}">
+						<div class="clabel" ng-init="serviceId=service.id;configDescriptionURI=service.configDescriptionURI;">
+							<h3 class="md-title">{{service.label}}</h3>
+							<p class="text-left hint small">{{service.id}}</p>
+							<div ng-controller="ConfigureSystemServiceController">
+								<div>
+									<div ng-init="form={};editing=false;">
+										<div onload="getConfigDescription()" ng-include="'partials/include.config.html'"></div>
+										<div class="text-right">
+											<md-button ng-show="editing" ng-disabled="form.configForm.$invalid" aria-label="Save" ng-click="save(service.id, service.configDescriptionURI, $event)"> Save</md-button>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -23,9 +25,9 @@
 					</div>
 				</div>
 			</div>
+			<p class="text-center" ng-show="services.length === 0">
+				<span>No configurable service active yet. You can bootstrap a service by adding a configuration.</span>
+			</p>
 		</div>
-		<p class="text-center" ng-show="services.length === 0">
-			<span>No configurable service active yet. You can bootstrap a service by adding a configuration.</span>
-		</p>
 	</div>
 </div>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -141,7 +141,11 @@ public class PageChangeListener implements StateChangeListener {
 
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
-        Set<SitemapEvent> events = constructSitemapEvents(item, oldState, newState, widgets);
+        // For all items except group, send an event only when the event state is changed.
+        if (item instanceof GroupItem) {
+            return;
+        }
+        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
         for (SitemapEvent event : events) {
             for (SitemapSubscriptionCallback callback : distinctCallbacks) {
                 callback.onEvent(event);
@@ -151,27 +155,38 @@ public class PageChangeListener implements StateChangeListener {
 
     @Override
     public void stateUpdated(Item item, State state) {
+        // For group item only, send an event each time the event state is updated.
+        // It allows updating the group label while the group state is unchanged,
+        // for example the count in label for Group:Switch:OR
+        if (!(item instanceof GroupItem)) {
+            return;
+        }
+        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
+        for (SitemapEvent event : events) {
+            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
+                callback.onEvent(event);
+            }
+        }
     }
 
-    private Set<SitemapEvent> constructSitemapEvents(Item item, State oldState, State newState, List<Widget> widgets) {
+    private Set<SitemapEvent> constructSitemapEvents(Item item, List<Widget> widgets) {
         Set<SitemapEvent> events = new HashSet<>();
         for (Widget w : widgets) {
             if (w instanceof Frame) {
-                events.addAll(constructSitemapEvents(item, oldState, newState, ((Frame) w).getChildren()));
-            } else {
-                if ((w.getItem() != null && w.getItem().equals(item.getName()))
-                        || definesVisibility(w, item.getName())) {
-                    SitemapWidgetEvent event = new SitemapWidgetEvent();
-                    event.sitemapName = sitemapName;
-                    event.pageId = pageId;
-                    event.label = itemUIRegistry.getLabel(w);
-                    event.labelcolor = itemUIRegistry.getLabelColor(w);
-                    event.valuecolor = itemUIRegistry.getValueColor(w);
-                    event.widgetId = itemUIRegistry.getWidgetId(w);
-                    event.visibility = itemUIRegistry.getVisiblity(w);
-                    event.item = EnrichedItemDTOMapper.map(item, false, null, null);
-                    events.add(event);
-                }
+                events.addAll(constructSitemapEvents(item, ((Frame) w).getChildren()));
+            }
+
+            if ((w.getItem() != null && w.getItem().equals(item.getName())) || definesVisibility(w, item.getName())) {
+                SitemapWidgetEvent event = new SitemapWidgetEvent();
+                event.sitemapName = sitemapName;
+                event.pageId = pageId;
+                event.label = itemUIRegistry.getLabel(w);
+                event.labelcolor = itemUIRegistry.getLabelColor(w);
+                event.valuecolor = itemUIRegistry.getValueColor(w);
+                event.widgetId = itemUIRegistry.getWidgetId(w);
+                event.visibility = itemUIRegistry.getVisiblity(w);
+                event.item = EnrichedItemDTOMapper.map(item, false, null, null);
+                events.add(event);
             }
         }
         return events;

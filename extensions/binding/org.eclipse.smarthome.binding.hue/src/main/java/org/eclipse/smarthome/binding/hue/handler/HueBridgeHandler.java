@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.hue.internal.Config;
+import org.eclipse.smarthome.binding.hue.internal.FullConfig;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage;
+import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -38,17 +48,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.q42.jue.Config;
-import nl.q42.jue.FullConfig;
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-import nl.q42.jue.exceptions.ApiException;
-import nl.q42.jue.exceptions.DeviceOffException;
-import nl.q42.jue.exceptions.LinkButtonException;
-import nl.q42.jue.exceptions.UnauthorizedException;
-
 /**
  * {@link HueBridgeHandler} is the handler for a hue bridge and connects it to
  * the framework. All {@link HueLightHandler}s use the {@link HueBridgeHandler} to execute the actual commands.
@@ -60,6 +59,7 @@ import nl.q42.jue.exceptions.UnauthorizedException;
  * @author Thomas Höfer - added thing properties
  * @author Stefan Bußweiler - Added new thing status handling
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
@@ -155,7 +155,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
             }
         }
-        
+
         private boolean isReachable(String ipAddress) {
             try {
                 // note that InetAddress.isReachable is unreliable, see
@@ -369,7 +369,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
         if (lightStatusListener == null) {
-            throw new NullPointerException("It's not allowed to pass a null LightStatusListener.");
+            throw new IllegalArgumentException("It's not allowed to pass a null LightStatusListener.");
         }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,7 +148,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
             super.execute(command);
         } else {
             if (command == null) {
-                throw new NullPointerException();
+                throw new IllegalArgumentException("Command can not be null.");
             }
 
             // ignore incoming tasks when the executor is shutdown

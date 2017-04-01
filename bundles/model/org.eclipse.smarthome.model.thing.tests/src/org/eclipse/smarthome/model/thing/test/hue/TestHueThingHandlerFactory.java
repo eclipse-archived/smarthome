@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,16 @@ package org.eclipse.smarthome.model.thing.test.hue;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.types.Command;
 
 import com.google.common.collect.Sets;
 
@@ -30,10 +35,13 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
     public final static ThingTypeUID THING_TYPE_TEST = new ThingTypeUID(BINDING_ID, "TEST");
-    public final static ThingTypeUID THING_TYPE_LONG_NAME = new ThingTypeUID(BINDING_ID, "1-thing-id-with-5-dashes_and_3_underscores");
+    public final static ThingTypeUID THING_TYPE_GROUPED = new ThingTypeUID(BINDING_ID, "grouped");
+    public final static ThingTypeUID THING_TYPE_LONG_NAME = new ThingTypeUID(BINDING_ID,
+            "1-thing-id-with-5-dashes_and_3_underscores");
 
     public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_TYPES = Sets.newHashSet(THING_TYPE_BRIDGE);
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST, THING_TYPE_LONG_NAME);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST,
+            THING_TYPE_LONG_NAME, THING_TYPE_GROUPED);
     public final static Set<ThingTypeUID> SUPPORTED_TYPES = Sets.union(SUPPORTED_BRIDGE_TYPES, SUPPORTED_THING_TYPES);
 
     // List all channels
@@ -88,7 +96,20 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-        return null;
+        if (thing instanceof Bridge) {
+            return new BaseBridgeHandler((Bridge) thing) {
+                @Override
+                public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+            };
+        } else {
+            return new BaseThingHandler(thing) {
+                @Override
+                public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+            };
+        }
+
     }
 
     @Override

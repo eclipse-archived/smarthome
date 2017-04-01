@@ -5,12 +5,6 @@ README="$(cd "$(dirname "$0")"; pwd)/README.md"
 
 
 cat <<EOF > "${README}"
----
-layout: documentation
----
-
-{% include base.html %}
-
 # Classic Icon Set
 
 This is a modernized version of the original icon set of openHAB 1.<br/><br/>

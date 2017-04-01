@@ -6,7 +6,7 @@
     "triggers": [  
       {  
         "id": "trigger",
-        "type": "GenericEventTrigger",
+        "type": "core.GenericEventTrigger",
                     "configuration":{
                         "eventSource":"MyTrigger",
                         "eventTopic":"smarthome/items/MyTrigger/state",
@@ -17,20 +17,20 @@
     "conditions": [
       {  
         "id": "condition",
-        "type": "ScriptCondition",
+        "type": "script.ScriptCondition",
         "configuration": {  
           "type": "application/javascript",
-          "script": "trigger.event.itemState==ON"
+          "script": "event.itemState==ON"
         }
       }
     ],
     "actions": [
       {  
         "id": "action",
-        "type": "ScriptAction",
+        "type": "script.ScriptAction",
         "configuration": {  
           "type": "application/javascript",
-          "script": "print(items.MyTrigger), print(things.getAll()), print(trigger.event), events.sendCommand('ScriptItem', 'ON')"
+          "script": "print(items.MyTrigger), print(things.getAll()), print(ctx.get('trigger.event')), events.sendCommand('ScriptItem', 'ON')"
         }
       }
     ]

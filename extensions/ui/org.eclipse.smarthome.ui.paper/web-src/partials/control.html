@@ -15,7 +15,7 @@
 		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
 	</p>
 	<div ng-controller="ControlController" class="items row" md-swipe-left="next()" md-swipe-right="prev()" ng-if="tabs[selectedIndex] === tab" ng-attr-id="{{'items-' + tabs.indexOf(tab)}}">
-		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things | filter: {'location':tab.name}:true">
+		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things | filter: {'location':tab.name}:true | orderBy:'label'" on-finish-render>
 			<div class="card item" ng-show="isLoadComplete">
 				<div class="row">
 					<h3 class="clabel col-xs-9">{{thing.label}}</h3>
@@ -213,7 +213,7 @@
 												<div layout-align="start center" layout="row">
 													<div flex="60">
 														<p class="ng-binding">
-															<i class="material-icons">camera_alt</i>Camera image
+															<i class="material-icons">camera_alt</i>{{getLabel(item.category,item.label,'Camera image')}}
 														</p>
 													</div>
 													<div layout="row" layout-align="end center" flex="40">
@@ -221,8 +221,8 @@
 													</div>
 												</div>
 												<div class="image-widget" layout-align="center center" layout="row">
-													<div layout-align="end center" layout="row">
-														<img class="image-scaled" ng-hide="item.state === 'NULL' || item.state === 'UNDEF'" ng-src="{{'data:image/jpeg;base64,'+ item.state}}">
+													<div layout-align="end center" layout="row" ng-if="item.imageLoaded">
+														<img class="image-scaled" ng-if="item.state !== 'NULL' && item.state !== 'UNDEF'" ng-src="{{item.state}}">
 														<span class="error-message" ng-show="item.state === 'NULL' || item.state === 'UNDEF'">
 															<center>No image is currently present</center>
 														</span>
@@ -234,25 +234,25 @@
 													<p flex="40">
 														<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Value')}}
 													</p>
-													<div ng-if="getStateText(item).length<8" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+													<div ng-if="(getStateText(item).length<8 || shortEditMode) && !longEditMode" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
 														<div ng-show="isReadOnly(item)">
 															<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
 														</div>
 														<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
-															<span class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</span>
-															<md-input-container ng-show="editMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
-															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+															<span class="state editable text-right" ng-class="{'minDimension':!item.state}" ng-if="!shortEditMode" ng-click="editState(true)" flex>{{getStateText(item)}}</span>
+															<md-input-container ng-show="shortEditMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+															<i class="md-button control-button material-icons" ng-show="shortEditMode" ng-click="updateState(true)">check</i>
 														</div>
 													</div>
 												</div>
-												<div ng-if="getStateText(item).length>7" flex="100" layout="row" layout-align="start center" style="height: 100%" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+												<div ng-if="(getStateText(item).length>7 || longEditMode) && !shortEditMode" flex="100" layout="row" layout-align="end center" style="height: 100%" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
 													<div ng-show="isReadOnly(item)">
 														<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
 													</div>
-													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
-														<span class="state editable text-center" ng-if="!editMode" ng-click="editState()" flex>{{getStateText(item)}}</span>
-														<md-input-container ng-show="editMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
-														<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center" flex="100">
+														<span class="state editable text-right" ng-if="!longEditMode" ng-click="editState(false)" flex>{{getStateText(item)}}</span>
+														<md-input-container ng-show="longEditMode" flex="80"> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+														<i class="md-button control-button material-icons" ng-show="longEditMode" ng-click="updateState(false)">check</i>
 													</div>
 												</div>
 

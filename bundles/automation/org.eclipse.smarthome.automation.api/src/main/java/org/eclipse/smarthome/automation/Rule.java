@@ -142,7 +142,7 @@ public class Rule {
      * @return a list of tags
      */
     public Set<String> getTags() {
-        return tags;
+        return tags = tags != null ? tags : Collections.<String> emptySet();
     }
 
     /**
@@ -156,7 +156,7 @@ public class Rule {
      *             active state.
      */
     public void setTags(Set<String> ruleTags) throws IllegalStateException {
-        tags = ruleTags;
+        tags = ruleTags != null ? ruleTags : Collections.<String> emptySet();
     }
 
     /**
@@ -248,8 +248,8 @@ public class Rule {
         return conditions;
     }
 
-    public void setConditions(List<Condition> conditoins) {
-        this.conditions = (conditoins == null) ? new ArrayList<Condition>(3) : conditoins;
+    public void setConditions(List<Condition> conditions) {
+        this.conditions = (conditions == null) ? new ArrayList<Condition>(3) : conditions;
     }
 
     public List<Action> getActions() {
@@ -339,7 +339,6 @@ public class Rule {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((templateUID == null) ? 0 : templateUID.hashCode());
         result = prime * result + ((uid == null) ? 0 : uid.hashCode());
         return result;
     }
@@ -352,17 +351,10 @@ public class Rule {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof Rule)) {
             return false;
         }
         Rule other = (Rule) obj;
-        if (templateUID == null) {
-            if (other.templateUID != null) {
-                return false;
-            }
-        } else if (!templateUID.equals(other.templateUID)) {
-            return false;
-        }
         if (uid == null) {
             if (other.uid != null) {
                 return false;

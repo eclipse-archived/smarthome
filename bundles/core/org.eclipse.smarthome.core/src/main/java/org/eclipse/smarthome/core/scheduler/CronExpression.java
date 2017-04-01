@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,7 +169,7 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
      * @throws ParseException if the string expression cannot be parsed into a valid <code>CronExpression</code>.
      */
     public CronExpression(final String expression, final Date startTime, final TimeZone zone) throws ParseException {
-        super(expression, " \t", startTime, zone, 0, 1);
+        super(expression, " \t", startTime, zone, 0, 2);
     }
 
     @Override
@@ -228,7 +228,7 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
         DayOfWeekExpressionPart dowPart = (DayOfWeekExpressionPart) this
                 .getExpressionPart(DayOfWeekExpressionPart.class);
 
-        if (!domPart.isNotSpecific() && !dowPart.isNotSpecific()) {
+        if (domPart.isNotSpecific() && dowPart.isNotSpecific()) {
             throw new IllegalArgumentException(
                     "The DayOfMonth and DayOfWeek rule parts CAN NOT be not specific at the same time.");
         }
@@ -1092,15 +1092,19 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                         cal.set(Calendar.DAY_OF_WEEK_IN_MONTH, instanceOfMonth);
                         newCandidates.add(cal.getTime());
                     } else {
-                        for (Integer element : getValueSet()) {
+                        Calendar current = Calendar.getInstance();
+                        current.setTime(date);
+                        for (int i = 1; i <= 5; i++) {
                             cal.setTime(date);
-
-                            cal.set(Calendar.DAY_OF_WEEK, element);
-                            for (int i = 1; i <= 5; i++) {
-                                cal.set(Calendar.WEEK_OF_MONTH, i);
-                                newCandidates.add(cal.getTime());
+                            cal.set(Calendar.WEEK_OF_MONTH, i);
+                            Date weekInMonth = cal.getTime();
+                            for (Integer element : getValueSet()) {
+                                cal.setTime(weekInMonth);
+                                cal.set(Calendar.DAY_OF_WEEK, element);
+                                if (cal.get(Calendar.MONTH) == current.get(Calendar.MONTH)) {
+                                    newCandidates.add(cal.getTime());
+                                }
                             }
-
                         }
                     }
                 }

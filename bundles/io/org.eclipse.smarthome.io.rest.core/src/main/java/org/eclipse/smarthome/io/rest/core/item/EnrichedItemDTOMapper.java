@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,11 @@ public class EnrichedItemDTOMapper {
 
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
 
-        String state = considerTransformation(item.getState().toString(), item.getStateDescription(locale));
+        String state = item.getState().toFullString();
+        String transformedState = considerTransformation(state, item.getStateDescription(locale));
+        if (transformedState.equals(state)) {
+            transformedState = null;
+        }
         StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
         String link = null != uri ? uri.toASCIIString() + ItemResource.PATH_ITEMS + "/" + itemDTO.name : null;
 
@@ -61,9 +65,10 @@ public class EnrichedItemDTOMapper {
             } else {
                 memberDTOs = new EnrichedItemDTO[0];
             }
-            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, memberDTOs, link, state, stateDescription);
+            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, memberDTOs, link, state, transformedState,
+                    stateDescription);
         } else {
-            enrichedItemDTO = new EnrichedItemDTO(itemDTO, link, state, stateDescription);
+            enrichedItemDTO = new EnrichedItemDTO(itemDTO, link, state, transformedState, stateDescription);
         }
 
         return enrichedItemDTO;

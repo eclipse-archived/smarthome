@@ -8,6 +8,6 @@ Import-Package: org.osgi.service.component,
  org.osgi.service.http,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.ui.paper;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*
 Bundle-ClassPath: patch/,.

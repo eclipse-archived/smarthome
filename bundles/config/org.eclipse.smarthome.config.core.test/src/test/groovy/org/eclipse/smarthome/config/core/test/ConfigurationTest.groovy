@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,10 +83,20 @@ class ConfigurationTest {
 
         def configuration = new Configuration(orgProperties)
 
-        assertThat configuration.get("intField"), is(equalTo(1))
+        assertThat configuration.get("intField"), is(equalTo(BigDecimal.ONE))
 
         configuration.setProperties(newProperties)
 
         assertThat configuration.get("intField"), is(equalTo(null))
+    }
+
+    @Test
+    void 'assert toString handles null values gracefully'() {
+        def properties = new HashMap([
+            stringField: null
+        ]);
+        def configuration = new Configuration(properties)
+        def res = configuration.toString()
+        assertThat res.contains("type=?"), is(true)
     }
 }

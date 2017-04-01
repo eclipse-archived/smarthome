@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UPnP Transport Bundle
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.upnp
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.smarthome.io.transport.upnp,
  org.jupnp,
  org.jupnp.controlpoint,

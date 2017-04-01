@@ -22,7 +22,8 @@ var paths = {
         './web-src/js/main.js',
         './web-src/js/shared.properties.js',
         './web-src/js/controllers.module.js',
-        './web-src/js/widget.multiselect.js'
+        './web-src/js/widget.multiselect.js',
+        './web-src/js/search.filters.js'
     ],
     static: [
         './web-src/css/*.css',
@@ -61,10 +62,11 @@ var paths = {
     ],
     JQUI: [{
         'src' : [
-             './node_modules/jquery-ui/ui/core.js',
+             './node_modules/jquery-ui/ui/data.js',
+             './node_modules/jquery-ui/ui/scroll-parent.js',
              './node_modules/jquery-ui/ui/widget.js',
-             './node_modules/jquery-ui/ui/mouse.js',
-             './node_modules/jquery-ui/ui/sortable.js',
+             './node_modules/jquery-ui/ui/widgets/mouse.js',
+             './node_modules/jquery-ui/ui/widgets/sortable.js',
         ],
         'name': 'jquery-ui.js'
     }],

@@ -35,7 +35,7 @@ Import-Package: com.google.common.base,
  org.joda.time.base,
  org.osgi.service.cm,
  org.slf4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
  org.eclipse.smarthome.model.script.ui.contentassist.antlr,
  org.eclipse.smarthome.model.script.ui.internal,

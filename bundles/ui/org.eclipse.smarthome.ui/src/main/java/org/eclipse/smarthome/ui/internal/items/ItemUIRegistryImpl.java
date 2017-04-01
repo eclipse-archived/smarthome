@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.ImageItem;
 import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
@@ -240,6 +241,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemType.equals(PlayerItem.class)) {
             return createPlayerButtons();
         }
+        if (itemType.equals(ImageItem.class)) {
+            return SitemapFactory.eINSTANCE.createImage();
+        }
 
         return null;
     }
@@ -330,7 +334,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     }
                 }
 
-                label = label.trim().substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                label = label.trim();
+                label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
             }
         }
 

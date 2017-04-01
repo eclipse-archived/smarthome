@@ -319,12 +319,15 @@ header a.open-menu {
 	header a.open-menu:hover {
 		text-decoration: none;
 	}
+	.backdrop {
+	   top:64px;
+	}
 }
 
 /* Section / Toolbar */
 section.configMain, section#main {
 	padding: 0px;
-	margin-top: 40px;
+	padding-top: 40px;
 }
 
 .header-toolbar {
@@ -454,4 +457,13 @@ md-toast {
 	font-size: 120%;
 	width: 100%;
 	text-align: center;
+}
+
+@media all and (min-width: 2240px){
+    md-tab-content.md-right:not(.md-active){
+        display:none;
+    }
+    md-tab-content.md-left:not(.md-active){
+        display:none;
+    }
 }

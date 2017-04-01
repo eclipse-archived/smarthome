@@ -176,7 +176,7 @@ public class RuleResource implements SatisfiableRESTResource {
 
     @GET
     @Path("/{ruleUID}/config")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the rule configuration values.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
@@ -230,7 +230,26 @@ public class RuleResource implements SatisfiableRESTResource {
             return Response.status(Status.NOT_FOUND).build();
         } else {
             ruleRegistry.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
-            ruleRegistry.update(rule);
+            // ruleRegistry.update(rule);
+            return Response.ok().build();
+        }
+    }
+
+    @POST
+    @Path("/{ruleUID}/runnow")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Executes actions of the rule.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+    public Response runNow(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID)
+            throws IOException {
+        Rule rule = ruleRegistry.get(ruleUID);
+        if (rule == null) {
+            logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
+                    uriInfo.getPath(), ruleUID);
+            return Response.status(Status.NOT_FOUND).build();
+        } else {
+            ruleRegistry.runNow(ruleUID);
             return Response.ok().build();
         }
     }

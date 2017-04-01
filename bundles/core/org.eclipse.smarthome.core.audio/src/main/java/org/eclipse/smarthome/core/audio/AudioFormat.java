@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -395,6 +395,19 @@ public class AudioFormat {
             return true;
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((bigEndian == null) ? 0 : bigEndian.hashCode());
+        result = prime * result + ((bitDepth == null) ? 0 : bitDepth.hashCode());
+        result = prime * result + ((bitRate == null) ? 0 : bitRate.hashCode());
+        result = prime * result + ((codec == null) ? 0 : codec.hashCode());
+        result = prime * result + ((container == null) ? 0 : container.hashCode());
+        result = prime * result + ((frequency == null) ? 0 : frequency.hashCode());
+        return result;
     }
 
     @Override

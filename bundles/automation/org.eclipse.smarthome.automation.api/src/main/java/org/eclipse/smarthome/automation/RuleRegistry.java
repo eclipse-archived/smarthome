@@ -32,11 +32,11 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * <ul>
  * <li>To check a Rule's status info, use the {@link #getStatusInfo(String)} method.</li>
  * <li>The status of a Rule enabled with {@link #setEnabled(String, boolean)}, is first set to
- * {@link RuleStatus#NOT_INITIALIZED}.</li>
+ * {@link RuleStatus#UNINITIALIZED}.</li>
  * <li>After a Rule is enabled, a verification procedure is initiated. If the verification of the modules IDs,
  * connections between modules and configuration values of the modules is successful, and the module handlers are
  * correctly set, the status is set to {@link RuleStatus#IDLE}.</li>
- * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#NOT_INITIALIZED} again.</li>
+ * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#UNINITIALIZED} again.</li>
  * <li>If one of the Rule's Triggers is triggered, the Rule becomes {@link RuleStatus#RUNNING}.
  * When the execution is complete, it will become {@link RuleStatus#IDLE} again.</li>
  * <li>If a Rule is disabled with {@link #setEnabled(String, boolean)}, it's status is set to
@@ -65,7 +65,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
 
     /**
      * This method is used for changing <b>enabled</b> state of the {@link Rule}.
-     * The <b>enabled</b> rule statuses are {@link RuleStatus#NOT_INITIALIZED}, {@link RuleStatus#IDLE} and
+     * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
@@ -94,15 +94,25 @@ public interface RuleRegistry extends Registry<Rule, String> {
 
     /**
      * This method gets <b>enabled</b> {@link RuleStatus} for a {@link Rule}.
-     * The <b>enabled</b> rule statuses are {@link RuleStatus#NOT_INITIALIZED}, {@link RuleStatus#IDLE} and
+     * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
      * @param ruleUID UID of the {@link Rule}
-     * @return <code>true</code> when the {@link RuleStatus} is one of the {@link RuleStatus#NOT_INITIALIZED},
+     * @return <code>true</code> when the {@link RuleStatus} is one of the {@link RuleStatus#UNINITIALIZED},
      *         {@link RuleStatus#IDLE} and {@link RuleStatus#RUNNING}, <code>false</code> when it is
      *         {@link RuleStatus#DISABLED} and <code>null</code> when it is not available.
      */
     public Boolean isEnabled(String ruleUID);
+
+    /**
+     * The method "runNow(ruleUID)" skips triggers&conditions and directly executes the actions of the rule.
+     * This should always be possible unless an action has a mandatory input that is linked to a trigger.
+     * In that case the action is skipped and the RuleEngine continues execution of rest actions.
+     *
+     * @param ruleUID id of rule whose actions have to be executed.
+     *
+     */
+    public void runNow(String ruleUID);
 
 }

@@ -14,7 +14,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
-import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.ManagedRuleProvider
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
@@ -35,6 +34,7 @@ import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
+import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.storage.StorageService
@@ -210,18 +210,18 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertTrue rule.tags.any{it == "rule"}
         def trigger = rule.triggers.find{it.id.equals("ItemStateChangeTriggerID")} as Trigger
         assertThat trigger, is(notNullValue())
-        assertThat trigger.typeUID, is("GenericEventTrigger")
+        assertThat trigger.typeUID, is("core.GenericEventTrigger")
         assertThat trigger.configuration.get("eventSource"), is ("myMotionItem")
         assertThat trigger.configuration.get("eventTopic"), is("smarthome/items/*")
         assertThat trigger.configuration.get("eventTypes"), is("ItemStateEvent")
-        def condition1 = rule.conditions.find{it.id.equals("ItemStateConditionID")} as Condition
-        assertThat condition1, is(notNullValue())
-        assertThat condition1.typeUID, is("EventCondition")
-        assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
-        assertThat condition1.configuration.get("payload"), is(".*ON.*")
+        //        def condition1 = rule.conditions.find{it.id.equals("ItemStateConditionID")} as Condition
+        //        assertThat condition1, is(notNullValue())
+        //        assertThat condition1.typeUID, is("core.GenericEventCondition")
+        //        assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
+        //        assertThat condition1.configuration.get("payload"), is(".*ON.*")
         def action = rule.actions.find{it.id.equals("ItemPostCommandActionID")} as Action
         assertThat action, is(notNullValue())
-        assertThat action.typeUID, is("ItemPostCommandAction")
+        assertThat action.typeUID, is("core.ItemCommandAction")
         assertThat action.configuration.get("itemName"), is("myLampItem")
         assertThat action.configuration.get("command"), is("ON")
         def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
@@ -229,8 +229,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     }
 
     @Test
-    public void 'assert that a rule from json file is added automatically with resolved module references' () {
-        logger.info("assert that a rule from json file is added automatically with resolved module references");
+    public void 'assert that a rule from json file is added automatically and the runtime rule has resolved module references' () {
+        logger.info("assert that a rule from json file is added automatically and the runtime rule has resolved module references");
 
         //WAIT until Rule modules types are parsed and the rule becomes IDLE
         waitForAssert({
@@ -249,22 +249,53 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertTrue rule.tags.any{it == "references"}
         def trigger = rule.triggers.find{it.id.equals("ItemStateChangeTriggerID")} as Trigger
         assertThat trigger, is(notNullValue())
-        assertThat trigger.typeUID, is("GenericEventTrigger")
-        assertThat trigger.configuration.get("eventSource"), is ("myMotionItem")
+        assertThat trigger.typeUID, is("core.GenericEventTrigger")
         assertThat trigger.configuration.get("eventTopic"), is("smarthome/items/*")
         assertThat trigger.configuration.get("eventTypes"), is("ItemStateEvent")
-        def condition1 = rule.conditions.find{it.id.equals("ItemStateConditionID")} as Condition
-        assertThat condition1, is(notNullValue())
-        assertThat condition1.typeUID, is("EventCondition")
-        assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
-        assertThat condition1.configuration.get("payload"), is(".*ON.*")
+        //        def condition1 = rule.conditions.find{it.id.equals("ItemStateConditionID")} as Condition
+        //        assertThat condition1, is(notNullValue())
+        //        assertThat condition1.typeUID, is("core.GenericEventCondition")
+        //        assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
+        //        assertThat condition1.configuration.get("payload"), is(".*ON.*")
         def action = rule.actions.find{it.id.equals("ItemPostCommandActionID")} as Action
         assertThat action, is(notNullValue())
-        assertThat action.typeUID, is("ItemPostCommandAction")
-        assertThat action.configuration.get("itemName"), is("myLampItem")
+        assertThat action.typeUID, is("core.ItemCommandAction")
         assertThat action.configuration.get("command"), is("ON")
         def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
+
+        // run the rule to check if the runtime rule has resolved module references and is executed successfully
+        def EventPublisher eventPublisher = getService(EventPublisher)
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem")
+        SwitchItem myLampItem = itemRegistry.getItem("myLampItem")
+
+        Event itemEvent = null
+
+        def itemEventHandler = [
+            receive: {  Event e ->
+                logger.info("Event: " + e.topic)
+                if (e.topic.contains("myLampItem")){
+                    itemEvent=e
+                }
+            },
+
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+
+        ] as EventSubscriber
+
+        registerService(itemEventHandler)
+        myMotionItem.send(OnOffType.ON)
+        waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem/state"))
+        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
+        assertThat myLampItem, is(notNullValue())
+        logger.info("myLampItem State: " + myLampItem.state)
+        assertThat myLampItem.state, is(OnOffType.ON)
     }
 
     @Test

@@ -75,9 +75,11 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * This method is used for getting the {@link TriggerType}s. The returned {@link TriggerType}s are
      * localized by default locale.
      *
+     * @param tags specifies the filter for getting the {@link TriggerType}s, if
+     *            it is <code>null</code> then returns all {@link TriggerType}s.
      * @return collection of all available {@link TriggerType}s, localized by default locale.
      */
-    public Collection<TriggerType> getTriggers();
+    public Collection<TriggerType> getTriggers(String... tags);
 
     /**
      * This method is used for getting the {@link TriggerType}s, localized depending on passed locale parameter.
@@ -85,18 +87,22 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * returned {@link TriggerType}s are localized by default locale
      *
      * @param locale defines the localization of returned {@link TriggerType}s.
+     * @param tags specifies the filter for getting the {@link TriggerType}s, if
+     *            it is <code>null</code> then returns all {@link TriggerType}s.
      * @return a collection of all available {@link TriggerType}s, localized by default locale or the passed locale
      *         parameter.
      */
-    public Collection<TriggerType> getTriggers(Locale locale);
+    public Collection<TriggerType> getTriggers(Locale locale, String... tags);
 
     /**
      * This method is used for getting the {@link ConditionType}s. The returned {@link ConditionType}s are
      * localized by default locale.
      *
+     * @param tags specifies the filter for getting the {@link ConditionType}s, if
+     *            it is <code>null</code> then returns all {@link ConditionType}s.
      * @return collection of all available {@link ConditionType}s, localized by default locale.
      */
-    public Collection<ConditionType> getConditions();
+    public Collection<ConditionType> getConditions(String... tags);
 
     /**
      * This method is used for getting the {@link ConditionType}s, localized depending on passed locale parameter.
@@ -104,18 +110,22 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * returned {@link ConditionType}s are localized by default locale
      *
      * @param locale defines the localization of returned {@link ConditionType}s.
+     * @param tags specifies the filter for getting the {@link ConditionType}s, if
+     *            it is <code>null</code> then returns all {@link ConditionType}s.
      * @return a collection of all available {@link ConditionType}s, localized by default locale or the passed locale
      *         parameter.
      */
-    public Collection<ConditionType> getConditions(Locale locale);
+    public Collection<ConditionType> getConditions(Locale locale, String... tags);
 
     /**
      * This method is used for getting the {@link ActionType}s. The returned {@link ActionType}s are
      * localized by default locale.
      *
+     * @param tags specifies the filter for getting the {@link ActionType}s, if
+     *            it is <code>null</code> then returns all {@link ActionType}s.
      * @return collection of all available {@link ActionType}s, localized by default locale.
      */
-    public Collection<ActionType> getActions();
+    public Collection<ActionType> getActions(String... tags);
 
     /**
      * This method is used for getting the {@link ActionType}s, localized depending on passed locale parameter.
@@ -123,9 +133,11 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * returned {@link ActionType}s are localized by default locale
      *
      * @param locale defines the localization of returned {@link ActionType}s.
+     * @param tags specifies the filter for getting the {@link ActionType}s, if
+     *            it is <code>null</code> then returns all {@link ActionType}s.
      * @return a collection of all available {@link ActionType}s, localized by default locale or the passed locale
      *         parameter.
      */
-    public Collection<ActionType> getActions(Locale locale);
+    public Collection<ActionType> getActions(Locale locale, String... tags);
 
 }

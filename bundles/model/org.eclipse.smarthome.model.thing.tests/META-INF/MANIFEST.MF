@@ -11,7 +11,10 @@ Import-Package: groovy.lang,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.thing.events,
  org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.hamcrest.core,
@@ -22,7 +25,7 @@ Import-Package: groovy.lang,
  org.junit.runners;version="4.0.0",
  org.junit.runners.model;version="4.0.0",
  org.osgi.service.component;version="1.2.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.model.thing
 Export-Package: org.eclipse.smarthome.model.thing
 Service-Component: OSGI-INF/HueThingHandlerFactory.xml,

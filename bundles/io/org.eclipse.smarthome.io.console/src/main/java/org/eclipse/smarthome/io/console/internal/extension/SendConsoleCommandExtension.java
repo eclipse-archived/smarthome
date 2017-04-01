@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
  * @author Stefan Bußweiler - Migration to new ESH event concept
- * 
+ *
  */
 public class SendConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
@@ -57,12 +57,19 @@ public class SendConsoleCommandExtension extends AbstractConsoleCommandExtension
                         eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
                         console.println("Command has been sent successfully.");
                     } else {
-                        console.println("Error: Command '" + commandName + "' is not valid for item '" + itemName + "'");
-                        console.print("Valid command types are: ( ");
+                        console.println(
+                                "Error: Command '" + commandName + "' is not valid for item '" + itemName + "'");
+                        console.println("Valid command types are:");
                         for (Class<? extends Command> acceptedType : item.getAcceptedCommandTypes()) {
-                            console.print(acceptedType.getSimpleName() + " ");
+                            console.print("  " + acceptedType.getSimpleName());
+                            if (acceptedType.isEnum()) {
+                                console.print(": ");
+                                for (Object e : acceptedType.getEnumConstants()) {
+                                    console.print(e + " ");
+                                }
+                            }
+                            console.println("");
                         }
-                        console.println(")");
                     }
                 } else {
                     printUsage(console);

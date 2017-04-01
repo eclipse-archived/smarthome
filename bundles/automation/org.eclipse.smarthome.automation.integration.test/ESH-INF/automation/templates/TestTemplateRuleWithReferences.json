@@ -27,7 +27,7 @@
     "triggers": [  
       {  
         "id": "ItemStateChangeTriggerID",
-        "type": "GenericEventTrigger",
+        "type": "core.GenericEventTrigger",
 		"configuration":{
 			"eventSource":"${triggerItem}",
 			"eventTopic":"smarthome/items/*",
@@ -38,7 +38,7 @@
     "conditions": [
       {
         "id": "ItemStateConditionID",
-        "type": "EventCondition",
+        "type": "core.GenericEventCondition",
         "configuration": {
           "topic": "smarthome/items/${triggerItem}/state",
 		  "payload":".*ON.*"
@@ -51,7 +51,7 @@
     "actions": [
       {  
         "id": "ItemPostCommandActionID",
-        "type": "ItemPostCommandAction",
+        "type": "core.ItemCommandAction",
         "configuration": {  
           "itemName": "${actionItem}",
 		  "command": "ON"

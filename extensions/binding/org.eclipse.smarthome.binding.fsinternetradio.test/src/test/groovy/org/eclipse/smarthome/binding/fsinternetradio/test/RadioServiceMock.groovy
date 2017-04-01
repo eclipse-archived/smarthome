@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,13 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
-import java.io.IOException
-import java.lang.reflect.WeakCache.Value;
-
 import javax.servlet.ServletException
-import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio
-import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;;
 
 public class RadioServiceMock extends HttpServlet {
 

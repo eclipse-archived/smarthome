@@ -2,6 +2,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [], $scope.groups = [], $scope.types = [];
+
     $scope.refresh = function() {
         itemService.getAll(function(items) {
             $scope.items = items;
@@ -36,66 +37,9 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     $scope.getSrcURL = function(category, type) {
         return category ? '../icon/' + category.toLowerCase() : type ? '../icon/' + type.toLowerCase().replace('item', '') : '';
     }
-    $scope.filterItems = function() {
-        return function(item) {
-            var filtered = isFiltered(item);
-            if ($scope.searchText && $scope.searchText.length > 0) {
-                if ((item.name && item.name.toUpperCase().indexOf($scope.searchText.toUpperCase()) != -1) || (item.label && item.label.toUpperCase().indexOf($scope.searchText.toUpperCase()) != -1)) {
-                    return filtered
-                }
-                return false;
-            } else {
-                return filtered;
-            }
-        }
-    }
-    function isFiltered(item) {
-        if (!$scope.selectedGroup && !$scope.selectedType) {
-            return true;
-        } else if ($scope.selectedGroup && !$scope.selectedType && item.groupNames.indexOf($scope.selectedGroup.name) != -1) {
-            return true
-        } else if (!$scope.selectedGroup && $scope.selectedType && item.type && $scope.selectedType == item.type) {
-            return item.type ? $scope.selectedType == item.type : false;
-        } else if ($scope.selectedGroup && $scope.selectedType) {
-            return item.groupNames.indexOf($scope.selectedGroup.name) != -1 && $scope.selectedType == item.type;
-        }
-    }
-    $scope.setGroupFilter = function(item) {
-        if (item.type == "Group") {
-            $scope.selectedGroup = item;
-            $scope.showMore = true;
-        }
-    }
-    $scope.setTypeFilter = function(item) {
-        if (item.type) {
-            $scope.selectedType = item.type;
-            $scope.showMore = true;
-        }
-    }
-
-    $scope.searchInOptions = function(arr, properties, value) {
-        if (!value) {
-            return arr;
-        }
-        return $.grep(arr, function(option) {
-            if (!properties) {
-                return option && option.toUpperCase().indexOf(value.toUpperCase()) != -1;
-            } else {
-                for (var i = 0; i < properties.length; i++) {
-                    var property = properties[i];
-                    if (option.hasOwnProperty(property) && option[property] != "" && option[property].toUpperCase().indexOf(value.toUpperCase()) != -1) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-    }
     $scope.clearAll = function() {
         $scope.searchText = "";
-        $scope.searchType = "";
-        $scope.searchGroup = "";
+        $scope.$broadcast("ClearFilters");
     }
     $scope.createItem = function(selectedType, selectedGroup) {
         sharedProperties.updateParams({
@@ -197,6 +141,9 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             setItemToFunction();
         }
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
+            if ($scope.item.category == "") {
+                $scope.item.category = null;
+            }
             itemService.create({
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {

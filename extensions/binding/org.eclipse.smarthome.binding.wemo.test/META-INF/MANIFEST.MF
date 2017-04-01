@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Wemo Binding Tests
 Bundle-SymbolicName: org.eclipse.smarthome.binding.wemo.test
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.binding.wemo
 Import-Package: groovy.json,
  groovy.lang,
@@ -23,6 +23,7 @@ Import-Package: groovy.json,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
+ org.osgi.service.cm,
  org.osgi.service.http,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",

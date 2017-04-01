@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.model.core;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.model.core.internal.ModelCoreActivator
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.inject,
@@ -17,6 +17,7 @@ Import-Package: com.google.common.base,
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.resource,
+ org.eclipse.emf.ecore.util,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.service,
  org.eclipse.xtext.common.types.impl,

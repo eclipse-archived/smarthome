@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -126,8 +126,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            console.println(String.format("REMOVED [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]", flag.name(),
-                    thingTypeUID, label, thingUID, bridgeId, properties));
+            console.println(String.format("REMOVED [%s]: %s [label=%s, thingId=%s, bridgeId=%s, properties=%s]",
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
             inbox.remove(thingUID);
         }
     }

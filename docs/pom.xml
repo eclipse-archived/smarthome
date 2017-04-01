@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="MACROMAN"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -140,6 +140,7 @@
                 if(readme.exists()) {
                 println readme
                 readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
+                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
                 }
                 }
                 }
@@ -170,6 +171,7 @@
                 if(readme.exists()) {
                 println readme
                 readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
+                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
                 }
                 }
                 }
@@ -200,6 +202,7 @@
                 if(readme.exists()) {
                 println readme
                 readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
+                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
                 }
                 }
                 }

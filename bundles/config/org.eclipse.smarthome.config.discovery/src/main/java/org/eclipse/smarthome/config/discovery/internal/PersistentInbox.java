@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -591,7 +591,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
-        thingTypeRegistry = null;
+        this.thingTypeRegistry = null;
     }
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
@@ -599,7 +599,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-        configDescRegistry = null;
+        this.configDescRegistry = null;
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {

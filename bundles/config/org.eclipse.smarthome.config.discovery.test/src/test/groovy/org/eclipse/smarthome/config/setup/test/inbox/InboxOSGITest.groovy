@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -808,6 +808,9 @@ class InboxOSGITest extends OSGiTest {
         keysInConfigDescription.each {
             Object thingConfItem = addedThing.getConfiguration().get(it)
             Object descResultParam = discoveryResultProperties.get(it)
+            if(descResultParam instanceof Number){
+                descResultParam = new BigDecimal(descResultParam.toString())
+            }
             assertFalse thingConfItem == null
             assertFalse descResultParam == null
             assertTrue thingConfItem.equals(descResultParam)
