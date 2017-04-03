@@ -10,7 +10,7 @@ package ${package};
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
- * The {@link ${bindingIdCamelCase}Binding} class defines common constants, which are 
+ * The {@link ${bindingIdCamelCase}BindingConstants} class defines common constants, which are
  * used across the whole binding.
  * 
  * @author ${author} - Initial contribution
@@ -20,9 +20,9 @@ public class ${bindingIdCamelCase}BindingConstants {
     public static final String BINDING_ID = "${bindingId}";
     
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
+    public static final ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
 
     // List of all Channel ids
-    public final static String CHANNEL_1 = "channel1";
+    public static final String CHANNEL_1 = "channel1";
 
 }
