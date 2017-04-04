@@ -183,7 +183,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                 return postCommandActionHandler;
             } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
                 return new RuleEnablementActionHandler((Action) module, ruleRegistry);
-            } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)){
+            } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)) {
             	return new RunRuleActionHandler((Action)module, ruleRegistry);
             }
         }
