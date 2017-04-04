@@ -164,6 +164,7 @@ public class RuleResource implements SatisfiableRESTResource {
             @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
     public Response update(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
+        rule.uid = ruleUID;
         final Rule oldRule = ruleRegistry.update(RuleDTOMapper.map(rule));
         if (oldRule == null) {
             logger.info("Received HTTP PUT request for update at '{}' for the unknown rule '{}'.", uriInfo.getPath(),
