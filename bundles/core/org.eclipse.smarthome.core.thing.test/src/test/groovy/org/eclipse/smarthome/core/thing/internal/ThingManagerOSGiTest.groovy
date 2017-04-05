@@ -736,6 +736,10 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
         expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
+
+        THING.statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVED, ThingStatusDetail.NONE).build()
+        expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
     }
 
     private void expectException(Closure<Void> closure, Class<? extends Exception> exceptionType) {
@@ -1126,7 +1130,10 @@ class ThingManagerOSGiTest extends OSGiTest {
             dispose: {},
             childHandlerInitialized: {handler, thing ->},
             childHandlerDisposed: {handler, thing ->},
-            getThing: {-> return bridge}
+            getThing: {-> return bridge},
+            handleRemoval: {
+                bridgeCallback.statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.REMOVED, ThingStatusDetail.NONE).build())
+            }
         ] as BridgeHandler
 
         def bridgeStatusChangedCalled = false
@@ -1176,9 +1183,12 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert({assertThat bridgeStatusChangedCalled, is(true)})
         bridgeStatusChangedCalled = false;
 
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVED, ThingStatusDetail.NONE).build()
-        bridgeCallback.statusUpdated(bridge, statusInfo)
-        waitForAssert({assertThat bridgeStatusChangedCalled, is(false)})
+        def thingRegistry = getService(ThingRegistry)
+        thingRegistry.remove(bridge.getUID())
+        waitForAssert({
+            assertThat bridge.getStatus(), is(equalTo(ThingStatus.UNINITIALIZED))
+            assertThat bridgeStatusChangedCalled, is(false)
+        })
     }
 
     @Test
