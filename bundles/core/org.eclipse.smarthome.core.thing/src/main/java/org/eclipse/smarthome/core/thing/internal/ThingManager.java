@@ -138,9 +138,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo statusInfo) {
             // note: all provoked operations based on a status update should be executed asynchronously!
-            ensureValidStatus(statusInfo.getStatus());
-
             ThingStatusInfo oldStatusInfo = thing.getStatusInfo();
+            ensureValidStatus(oldStatusInfo.getStatus(), statusInfo.getStatus());
+
             if (ThingStatus.REMOVING.equals(oldStatusInfo.getStatus())
                     && !ThingStatus.REMOVED.equals(statusInfo.getStatus())) {
                 // only allow REMOVING -> REMOVED transition and ignore all other state changes
@@ -170,12 +170,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             }
         }
 
-        private void ensureValidStatus(ThingStatus status) {
-            if (!(ThingStatus.UNKNOWN.equals(status) || ThingStatus.ONLINE.equals(status)
-                    || ThingStatus.OFFLINE.equals(status) || ThingStatus.REMOVED.equals(status))) {
+        private void ensureValidStatus(ThingStatus oldStatus, ThingStatus newStatus) {
+            if (!(ThingStatus.UNKNOWN.equals(newStatus) || ThingStatus.ONLINE.equals(newStatus)
+                    || ThingStatus.OFFLINE.equals(newStatus) || ThingStatus.REMOVED.equals(newStatus))) {
                 throw new IllegalArgumentException(
-                        MessageFormat.format("Illegal status {0}. Bindings only may set {1}, {2}, {3} or {4}.", status,
+                        MessageFormat.format("Illegal status {}. Bindings only may set {}, {}, {} or {}.", newStatus,
                                 ThingStatus.UNKNOWN, ThingStatus.ONLINE, ThingStatus.OFFLINE, ThingStatus.REMOVED));
+            }
+            if (ThingStatus.REMOVED.equals(newStatus) && !ThingStatus.REMOVING.equals(oldStatus)) {
+                throw new IllegalArgumentException(
+                        MessageFormat.format("Illegal status {}. The thing was in state {} and not in {}", newStatus,
+                                oldStatus, ThingStatus.REMOVING));
             }
         }
 
