@@ -10,7 +10,8 @@ package org.eclipse.smarthome.core.thing.firmware
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
+
 
 /**
  * This interface defines some constants for firmware tests.
@@ -70,12 +71,12 @@ interface Constants {
     static final Firmware FW112_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID1, V112)).withVendor(VENDOR1).withModel(MODEL1).withDescription("German description v1.1.2").withChangelog("German changelog v1.1.2").withOnlineChangelog(new URL("http://url/changelog-v1.1.2?lang=de")).build()
 
     static final Firmware FWALPHA_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VALPHA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description valpha").withChangelog("English changelog valpha").withOnlineChangelog(new URL("http://url/changelog-valpha?lang=en")).build()
-    static final Firmware FWBETA_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VBETA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description vbeta").withChangelog("English changelog vbeta").withOnlineChangelog(new URL("http://url/changelog-vbeta?lang=en")).build()
-    static final Firmware FWGAMMA_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VGAMMA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description vgamma").withChangelog("English changelog vgamma").withOnlineChangelog(new URL("http://url/changelog-vgamma?lang=en")).build()
+    static final Firmware FWBETA_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VBETA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description vbeta").withChangelog("English changelog vbeta").withOnlineChangelog(new URL("http://url/changelog-vbeta?lang=en")).withProperties([(Firmware.PROPERTY_REQUIRES_FACTORY_RESET):"true"]).build()
+    static final Firmware FWGAMMA_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VGAMMA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description vgamma").withChangelog("English changelog vgamma").withOnlineChangelog(new URL("http://url/changelog-vgamma?lang=en")).withProperties(["prop1" :"a", "prop2":"b"]).build()
 
     static final Firmware FWALPHA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VALPHA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description valpha").withChangelog("German changelog valpha").withOnlineChangelog(new URL("http://url/changelog-valpha?lang=de")).build()
-    static final Firmware FWBETA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VBETA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description vbeta").withChangelog("German changelog vbeta").withOnlineChangelog(new URL("http://url/changelog-vbeta?lang=de")).build()
-    static final Firmware FWGAMMA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VGAMMA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description vgamma").withChangelog("German changelog vgamma").withOnlineChangelog(new URL("http://url/changelog-vgamma?lang=de")).build()
+    static final Firmware FWBETA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VBETA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description vbeta").withChangelog("German changelog vbeta").withOnlineChangelog(new URL("http://url/changelog-vbeta?lang=de")).withProperties([(Firmware.PROPERTY_REQUIRES_FACTORY_RESET):"true"]).build()
+    static final Firmware FWGAMMA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VGAMMA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description vgamma").withChangelog("German changelog vgamma").withOnlineChangelog(new URL("http://url/changelog-vgamma?lang=de")).withProperties(["prop1" :"a", "prop2":"b"]).build()
 
     static final Firmware FW120_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID3, V120)).withVendor(VENDOR1).withModel(MODEL1).withDescription("English description v1.2.0").withChangelog("English changelog v1.2.0").withOnlineChangelog(new URL("http://url/changelog-v1.2.0?lang=en")).build()
 }
