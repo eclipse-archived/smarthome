@@ -765,6 +765,13 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
     overflow: scroll;
     outline: none;
     white-space:nowrap;
+    border: 1px solid #e5e5e5;
+	padding: 10px;
+}
+
+.codeBlock.hljs {
+	padding-right: 0px;
+    padding-left: 0px;
 }
 
 .configContainer {

@@ -341,9 +341,8 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                 var text = scope.configuration[scope.parameter.name];
                 var elem = element;
                 document.getElementById(attrs.id).innerHTML = text ? text.replace(/\r\n|\r|\n/g, "<br>") : "";
-                $('pre code').each(function(i, block) {
-                    hljs.highlightBlock(block);
-                });
+                hljs.highlightBlock(document.getElementById(attrs.id));
+
                 var index = sharedProperties.searchArray(sharedProperties.getModuleArray(scope.type), scope.id);
                 if (index != -1) {
                     sharedProperties.getModuleArray(scope.type)[index].configuration = scope.configuration;
