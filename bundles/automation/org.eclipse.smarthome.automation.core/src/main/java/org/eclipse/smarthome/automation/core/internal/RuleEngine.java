@@ -14,11 +14,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -133,6 +133,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * {@link Map} system module type to corresponding module handler factories.
      */
     private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
+    private Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<>();
 
     /**
      * Locker which does not permit rule initialization when the rule engine is stopping.
@@ -193,13 +194,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     @Override
     public void added(ModuleType moduleType) {
         String moduleTypeName = moduleType.getUID();
-        Collection<ModuleHandlerFactory> moduleHandlerFactories = new LinkedList<ModuleHandlerFactory>();
-        synchronized (this) {
-            if (this.moduleHandlerFactories.get(moduleTypeName) == null) {
-                moduleHandlerFactories.addAll(this.moduleHandlerFactories.values());
-            }
-        }
-        for (ModuleHandlerFactory moduleHandlerFactory : moduleHandlerFactories) {
+        for (ModuleHandlerFactory moduleHandlerFactory : allModuleHandlerFactories) {
             Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
             if (moduleTypes.contains(moduleTypeName)) {
                 synchronized (this) {
@@ -233,7 +228,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     @Override
     public void updated(ModuleType oldElement, ModuleType moduleType) {
-        if (oldElement.equals(moduleType)) {
+        if (moduleType.equals(oldElement)) {
             return;
         }
         String moduleTypeName = moduleType.getUID();
@@ -260,6 +255,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     protected void addModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         logger.debug("ModuleHandlerFactory added.");
+        allModuleHandlerFactories.add(moduleHandlerFactory);
         Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
         addNewModuleTypes(moduleHandlerFactory, moduleTypes);
     }
@@ -269,6 +265,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             compositeFactory.deactivate();
             compositeFactory = null;
         }
+        allModuleHandlerFactories.remove(moduleHandlerFactory);
         Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
         removeMissingModuleTypes(moduleTypes);
         updateModuleHandlerFactoryMap(moduleTypes);
