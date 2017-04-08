@@ -857,7 +857,7 @@ md-input-container .md-errors-spacer {
 }
 
 .thing-properties {
-	margin-left: -5px;
+	margin-left: 20px;
 	padding-left: 5px;
 }
 
@@ -865,8 +865,13 @@ md-input-container .md-errors-spacer {
     border-bottom: solid 1px #ddd;
 }
 
+.thing-properties-table td:nth-child(1) {
+    white-space: nowrap;
+	width: 25%;
+}
+
 .thing-properties-table td:nth-child(2) {
-    width: 100%;
+    width: 75%;
 }
 
 md-chips .md-chip-remove-container {
