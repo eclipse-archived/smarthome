@@ -32,7 +32,9 @@ EventTrigger:
 	ChangedEventTrigger |
 	EventEmittedTrigger |
 	TimerTrigger |
-	SystemTrigger
+	SystemTrigger |
+	ThingStateUpdateEventTrigger |
+	ThingStateChangedEventTrigger
 ;
 
 CommandEventTrigger:
@@ -72,6 +74,13 @@ SystemOnShutdownTrigger:
 	'System' 'shuts down'
 ;
 
+ThingStateUpdateEventTrigger:
+    'Thing' thing=STRING 'received update' (state=ThingValidState)?
+;
+
+ThingStateChangedEventTrigger:
+    'Thing' thing=STRING 'changed' ('from' oldState=ThingValidState)? ('to' newState=ThingValidState)?
+;
 	
 ItemName :
 	ID
@@ -87,4 +96,14 @@ ValidCommand:
 
 ValidTrigger:
 	ID | Number | STRING
+;
+
+ThingValidState:
+    'UNINITIALIZED' |
+    'INITIALIZING' |
+    'UNKNOWN' |
+    'ONLINE' |
+    'OFFLINE' |
+    'REMOVING' |
+    'REMOVED'
 ;
