@@ -1,20 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome DBus Transport Bundle
-Bundle-SymbolicName: org.eclipse.smarthome.io.transport.dbus
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.dbus;singleton:=true
 Bundle-Version: 0.9.0.qualifier
+Bundle-ClassPath: .
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.freedesktop,
- org.freedesktop.dbus,
- org.freedesktop.dbus.exceptions,
- cx.ath.matthew.debug,
- cx.ath.matthew.utils,
- cx.ath.matthew.unix
-Import-Package: 
- org.apache.commons.lang,
+Import-Package: org.freedesktop.dbus,
  org.slf4j
-Bundle-ClassPath: .,
- lib/unix-0.5.jar,
- lib/libdbus-java-2.7.jar
-

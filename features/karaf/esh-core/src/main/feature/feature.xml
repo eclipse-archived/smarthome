@@ -189,6 +189,9 @@
   <feature name="esh-io-transport-dbus" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.dbus/${project.version}</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.libmatthew/hexdump/1.0.0.a1</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.libmatthew/unix/1.0.0.a1</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.dbus/dbus/3.0.0.a1</bundle>
   </feature>
 
   <feature name="esh-io-transport-mdns" version="${project.version}">
