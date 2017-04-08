@@ -30,7 +30,10 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -72,6 +75,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
     private ScriptEngine scriptEngine;
+    private ThingRegistry thingRegistry;
 
     private RuleTriggerManager triggerManager;
 
@@ -161,6 +165,14 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.scriptEngine = null;
     }
 
+    public void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    public void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
+    }
+
     @Override
     public void allItemsChanged(Collection<String> oldItemNames) {
         // add the current items again
@@ -220,6 +232,20 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
         Iterable<Rule> rules = triggerManager.getRules(TRIGGER, channel, triggerEvent);
         executeRules(rules, event);
+    }
+
+    private void receiveThingStatus(ThingStatusInfoChangedEvent event) {
+        String thingUid = event.getThingUID().getAsString();
+        ThingStatus oldStatus = event.getOldStatusInfo().getStatus();
+        ThingStatus newStatus = event.getStatusInfo().getStatus();
+
+        Iterable<Rule> rules = triggerManager.getRules(THINGUPDATE, thingUid, newStatus);
+        executeRules(rules);
+
+        if (oldStatus != newStatus) {
+            rules = triggerManager.getRules(THINGCHANGE, thingUid, oldStatus, newStatus);
+            executeRules(rules, oldStatus);
+        }
     }
 
     private void internalItemAdded(Item item) {
@@ -341,6 +367,14 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         }
     }
 
+    protected synchronized void executeRules(Iterable<Rule> rules, ThingStatus oldThingStatus) {
+        for (Rule rule : rules) {
+            RuleEvaluationContext context = new RuleEvaluationContext();
+            context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_PREVIOUS_STATE), oldThingStatus.toString());
+            executeRule(rule, context);
+        }
+    }
+
     /**
      * we need to be able to deactivate the rule execution, otherwise the Eclipse SmartHome designer would also execute
      * the rules.
@@ -358,7 +392,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     }
 
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
-            ChannelTriggeredEvent.TYPE);
+            ChannelTriggeredEvent.TYPE, ThingStatusInfoChangedEvent.TYPE);
 
     @Override
     public Set<String> getSubscribedEventTypes() {
@@ -376,6 +410,8 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             receiveCommand((ItemCommandEvent) event);
         } else if (event instanceof ChannelTriggeredEvent) {
             receiveThingTrigger((ChannelTriggeredEvent) event);
+        } else if (event instanceof ThingStatusInfoChangedEvent) {
+            receiveThingStatus((ThingStatusInfoChangedEvent) event);
         }
     }
 }

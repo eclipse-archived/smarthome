@@ -22,6 +22,7 @@ import org.eclipse.smarthome.model.script.actions.HTTP;
 import org.eclipse.smarthome.model.script.actions.LogAction;
 import org.eclipse.smarthome.model.script.actions.Ping;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
+import org.eclipse.smarthome.model.script.actions.ThingAction;
 import org.eclipse.smarthome.model.script.actions.Voice;
 import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
@@ -70,6 +71,7 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Ping.class);
         result.add(Audio.class);
         result.add(Voice.class);
+        result.add(ThingAction.class);
         return result;
     }
 
@@ -84,6 +86,7 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(LogAction.class);
         result.add(Audio.class);
         result.add(Voice.class);
+        result.add(ThingAction.class);
 
         // jodatime static functions
         result.add(DateTime.class);

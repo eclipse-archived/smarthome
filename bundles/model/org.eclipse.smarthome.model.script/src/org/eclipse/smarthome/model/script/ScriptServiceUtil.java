@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
@@ -31,6 +32,8 @@ public class ScriptServiceUtil {
     private static ScriptServiceUtil instance;
 
     private ItemRegistry itemRegistry;
+
+    private ThingRegistry thingRegistry;
 
     private EventPublisher eventPublisher;
 
@@ -91,6 +94,10 @@ public class ScriptServiceUtil {
         return getInstance().itemRegistry;
     }
 
+    public static ThingRegistry getThingRegistry() {
+        return getInstance().thingRegistry;
+    }
+
     public static EventPublisher getEventPublisher() {
         return getInstance().eventPublisher;
     }
@@ -121,6 +128,14 @@ public class ScriptServiceUtil {
 
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    public void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    public void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 
     public void setEventPublisher(EventPublisher eventPublisher) {
