@@ -28,6 +28,14 @@ public class ThingActionService implements ActionService {
         return ThingAction.class;
     }
 
+    public void activate() {
+    }
+
+    public void deactivate() {
+        // deallocate Resources here that are no longer needed and
+        // should be reset when activating this binding again
+    }
+
     public void setThingRegistry(ThingRegistry thingRegistry) {
         ThingActionService.thingRegistry = thingRegistry;
     }
