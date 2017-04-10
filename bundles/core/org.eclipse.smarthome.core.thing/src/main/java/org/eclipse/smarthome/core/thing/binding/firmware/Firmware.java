@@ -14,7 +14,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -53,7 +52,7 @@ import com.google.common.base.Preconditions;
  * firmware version <i>2-0-1</i>.
  * </p>
  * A {@link Firmware} consists of various meta information like a version, a vendor or a description. Additionally
- * {@link FirmwareProvider}s can specify further meta information inform of properties (e.g. a factory reset of the
+ * {@link FirmwareProvider}s can specify further meta information in form of properties (e.g. a factory reset of the
  * device is required afterwards) so that {@link FirmwareUpdateHandler}s can handle this information accordingly.
  *
  * @author Thomas Höfer - Initial contribution
@@ -94,7 +93,7 @@ public final class Firmware implements Comparable<Firmware> {
         this.inputStream = builder.inputStream;
         this.md5Hash = builder.md5Hash;
         this.properties = Collections
-                .unmodifiableMap(builder.properties != null ? builder.properties : new HashMap<>());
+                .unmodifiableMap(builder.properties != null ? builder.properties : Collections.emptyMap());
 
         this.internalVersion = new Version(this.version);
         this.internalPrerequisiteVersion = this.prerequisiteVersion != null ? new Version(this.prerequisiteVersion)
