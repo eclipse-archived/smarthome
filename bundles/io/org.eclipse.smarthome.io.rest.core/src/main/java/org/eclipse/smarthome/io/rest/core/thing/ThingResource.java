@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
@@ -61,10 +62,15 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusDTO;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -116,6 +122,8 @@ public class ThingResource implements SatisfiableRESTResource {
     private ConfigStatusService configStatusService;
     private ConfigDescriptionRegistry configDescRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private FirmwareUpdateService firmwareUpdateService;
+    private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
 
     @Context
     private UriInfo uriInfo;
@@ -515,6 +523,68 @@ public class ThingResource implements SatisfiableRESTResource {
         return Response.ok().entity(Collections.EMPTY_SET).build();
     }
 
+    @PUT
+    @Path("/{thingUID}/firmware/{firmwareVersion}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Update thing firmware.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing or firmware not found") })
+    public Response updateFirmware(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
+            @PathParam("firmwareVersion") @ApiParam(value = "version") String firmwareVersion) throws IOException {
+        ThingUID athingUID = new ThingUID(thingUID);
+        FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(athingUID);
+
+        if (firmwareUpdateHandler == null) {
+            return JSONResponse.createResponse(Status.NOT_FOUND, null, "Firmware handler not found");
+        }
+
+        FirmwareUID afirmwareUID = new FirmwareUID(firmwareUpdateHandler.getThing().getThingTypeUID(), firmwareVersion);
+        try {
+            firmwareUpdateService.updateFirmware(athingUID, afirmwareUID, LocaleUtil.getLocale(language));
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null, "Unknown thing/firmware id");
+        }
+        return Response.status(Status.OK).build();
+    }
+
+    @GET
+    @Path("/{thingUID}/firmware/status")
+    @ApiOperation(value = "Gets thing's firmware status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response getFirmwareStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUIDObject);
+        if (info == null) {
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Firmware status info not found");
+        }
+        return Response.ok().entity(new FirmwareStatusDTO("" + info.getFirmwareStatus(),
+                info.getUpdatableFirmwareUID().getFirmwareVersion())).build();
+    }
+
+    private FirmwareUpdateHandler getFirmwareUpdateHandler(ThingUID thingUID) {
+        for (FirmwareUpdateHandler firmwareUpdateHandler : firmwareUpdateHandlers) {
+            if (thingUID.equals(firmwareUpdateHandler.getThing().getUID())) {
+                return firmwareUpdateHandler;
+            }
+        }
+        return null;
+    }
+
+    private FirmwareStatusDTO getThingFirmwareStatus(ThingUID thingUID) {
+        // TODO Auto-generated method stub
+        FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUID);
+        if (info != null) {
+            return new FirmwareStatusDTO("" + info.getFirmwareStatus(),
+                    info.getUpdatableFirmwareUID().getFirmwareVersion());
+        }
+        return null;
+    }
+
     /**
      * helper: Response to be sent to client if a Thing cannot be found
      *
@@ -535,8 +605,8 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response
      */
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
-        Object entity = null != thing
-                ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale, getLinkedItemsMap(thing)) : null;
+        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
+                this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing)) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -608,7 +678,7 @@ public class ThingResource implements SatisfiableRESTResource {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
             EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
-                    getLinkedItemsMap(thing));
+                    this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing));
             thingBeans.add(thingBean);
         }
         return thingBeans;
@@ -664,6 +734,22 @@ public class ThingResource implements SatisfiableRESTResource {
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
+    }
+
+    protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
+        this.firmwareUpdateService = firmwareUpdateService;
+    }
+
+    protected void unsetFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
+        this.firmwareUpdateService = null;
+    }
+
+    protected void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        firmwareUpdateHandlers.add(firmwareUpdateHandler);
+    }
+
+    protected void removeFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        firmwareUpdateHandlers.remove(firmwareUpdateHandler);
     }
 
     private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ThingTypeUID thingTypeUID,
