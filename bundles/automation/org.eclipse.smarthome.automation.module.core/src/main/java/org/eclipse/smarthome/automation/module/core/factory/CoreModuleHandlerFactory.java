@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ConditionalTimeboxedItemStateChangeTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHandler;
@@ -49,7 +50,8 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                     ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID, ItemStateConditionHandler.ITEM_STATE_CONDITION,
                     ItemCommandActionHandler.ITEM_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
                     GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
-                    CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID });
+                    CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID,
+                    ConditionalTimeboxedItemStateChangeTriggerHandler.MODULE_TYPE_ID });
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -155,6 +157,8 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
                 return new ItemStateTriggerHandler((Trigger) module, this.bundleContext);
+            } else if (ConditionalTimeboxedItemStateChangeTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)){
+                return new ConditionalTimeboxedItemStateChangeTriggerHandler((Trigger)module, this.bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions
@@ -178,7 +182,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
                 return new RuleEnablementActionHandler((Action) module, ruleRegistry);
             } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)) {
-            	return new RunRuleActionHandler((Action)module, ruleRegistry);
+                return new RunRuleActionHandler((Action) module, ruleRegistry);
             }
         }
 

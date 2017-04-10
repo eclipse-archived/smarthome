@@ -1,0 +1,388 @@
+{
+   "triggers":[
+      {
+         "uid":"core.ConditionalTimeboxedItemStateChangeTrigger",
+         "label":"an items state changes and the condition matches for at least a given timebox",
+         "description":"Triggers rules on events if the value of an item state changes for at least a optional given timebox, the logic is invertable, too",
+         "configDescriptions":[
+            {
+               "name":"itemName",
+               "type":"TEXT",
+               "label":"Item",
+               "context":"item",
+               "description":"this is the name of the item which should be observed",
+               "required":true
+            },
+            {
+               "name":"operator",
+               "type":"TEXT",
+               "label":"compare operator",
+               "description":"this operator is used for the comparsion of the item state",
+               "defaultValue":"EQUALS",
+               "options":[
+                  {
+                     "label":"EQUALS (=)",
+                     "value":"EQUALS"
+                  },
+                  {
+                     "label":"LT (<)",
+                     "value":"LT"
+                  },
+                  {
+                     "label":"GT (>)",
+                     "value":"GT"
+                  },
+                  {
+                     "label":"NOTEQUAL (!=)",
+                     "value":"NOTEQUAL"
+                  },
+                  {
+                     "label":"LT or EQUAL (<=)",
+                     "value":"LT_EQ"
+                  },
+                  {
+                     "label":"GT or EQUAL (>=)",
+                     "value":"GT_EQ"
+                  },
+                  {
+                     "label":"BETWEEN",
+                     "value":"BETWEEN"
+                  }
+               ]
+            },
+            {
+               "name":"value",
+               "type":"TEXT",
+               "label":"value",
+               "description":"this is value which should be compared; if BETWEEN is selected as operator, then two values, comma separated are expected here!",
+               "required":true,
+               "limitToOptions":false,
+               "options":[
+                  {
+                     "label":"ON",
+                     "value":"ON"
+                  },
+                  {
+                     "label":"OFF",
+                     "value":"OFF"
+                  },
+                  {
+                     "label":"OPEN",
+                     "value":"OPEN"
+                  },
+                  {
+                     "label":"CLOSED",
+                     "value":"CLOSED"
+                  },
+                  {
+                     "label":"UP",
+                     "value":"UP"
+                  },
+                  {
+                     "label":"DOWN",
+                     "value":"DOWN"
+                  }
+               ]
+            },
+            {
+               "name":"invert",
+               "type":"BOOLEAN",
+               "label":"invert",
+               "description":"invert the logic of the condition",
+               "defaultValue":false
+            },
+            {
+               "name":"timeboxValue",
+               "type":"INTEGER",
+               "label":"timebox",
+               "description":"don't execute the rule directly, only if the item's value matches for a given timespan"
+            },
+            {
+               "name":"timeboxUnit",
+               "type":"TEXT",
+               "label":"Timebox UNIT",
+               "description":"the Unit of the selected Timebox interval (defaults to Minutes)",
+               "defaultValue":"MINUTES",
+               "options":[
+                  {
+                     "label":"MILLISECONDS",
+                     "value":"MILLISECONDS"
+                  },
+                  {
+                     "label":"SECONDS",
+                     "value":"SECONDS"
+                  },
+                  {
+                     "label":"MINUTES",
+                     "value":"MINUTES"
+                  },
+                  {
+                     "label":"HOURS",
+                     "value":"HOURS"
+                  },
+                  {
+                     "label":"DAYS",
+                     "value":"DAYS"
+                  }
+               ]
+            }
+         ],
+         "outputs":[
+            {
+               "name":"itemState",
+               "type":"org.eclipse.smarthome.core.types.State",
+               "label":"itemState",
+               "description":"The latest state of the item."
+            },
+            {
+               "name":"itemName",
+               "type":"java.lang.String",
+               "label":"itemName",
+               "description":"The name of the item."
+            },
+            {
+               "name":"timeboxValue",
+               "type":"java.lang.Long",
+               "label":"timebox",
+               "description":"this is set if the rule was triggered because of an exceeded timebox"
+            },
+            {
+               "name":"timeboxUnit",
+               "type":"java.lang.String",
+               "label":"timeboxUnit",
+               "description":"this is set if the rule was triggered because of an exceeded timebox"
+            },
+            {
+               "name":"invert",
+               "type":"java.lang.Boolean",
+               "label":"invert",
+               "description":"this is true if the logic was inverted"
+            }
+         ]
+      },
+      {
+         "uid":"core.AutoInvertConditionalTimeboxedItemStateChangeTrigger",
+         "label":"an items state changes and the condition matches for at least a given timebox and when the logic is inverted",
+         "description":"This triggers a rule if an items state changed",
+         "configDescriptions":[
+            {
+               "name":"itemName",
+               "type":"TEXT",
+               "context":"item",
+               "label":"item name",
+               "description":"the name of the item which's state change should be observed",
+               "required":true
+            },
+            {
+               "name":"value",
+               "type":"TEXT",
+               "label":"value",
+               "description":"the value which should match for triggering the rule",
+               "required":true,
+               "limitToOptions":false,
+               "options":[
+                  {
+                     "label":"ON",
+                     "value":"ON"
+                  },
+                  {
+                     "label":"OFF",
+                     "value":"OFF"
+                  },
+                  {
+                     "label":"OPEN",
+                     "value":"OPEN"
+                  },
+                  {
+                     "label":"CLOSED",
+                     "value":"CLOSED"
+                  },
+                  {
+                     "label":"UP",
+                     "value":"UP"
+                  },
+                  {
+                     "label":"DOWN",
+                     "value":"DOWN"
+                  }
+               ]
+            },
+            {
+               "name":"operator",
+               "type":"TEXT",
+               "label":"operator",
+               "description":"the operator for value comparsion",
+               "required":true,
+               "limitToOptions":true,
+               "defaultValue":"EQUALS",
+               "options":[
+                  {
+                     "label":"EQUALS (=)",
+                     "value":"EQUALS"
+                  },
+                  {
+                     "label":"LT (<)",
+                     "value":"LT"
+                  },
+                  {
+                     "label":"GT (>)",
+                     "value":"GT"
+                  },
+                  {
+                     "label":"NOTEQUAL (!=)",
+                     "value":"NOTEQUAL"
+                  },
+                  {
+                     "label":"LT or EQUAL (<=)",
+                     "value":"LT_EQ"
+                  },
+                  {
+                     "label":"GT or EQUAL (>=)",
+                     "value":"GT_EQ"
+                  },
+                  {
+                     "label":"BETWEEN",
+                     "value":"BETWEEN"
+                  }
+               ]
+               
+            },
+            {
+               "name":"timeboxValue",
+               "type":"INTEGER",
+               "label":"timebox value",
+               "description":"this is set if the rule was triggered because of an exceeded timebox",
+               "reference":"long"
+            },
+            {
+               "name":"timeboxUnit",
+               "type":"TEXT",
+               "label":"timebox Unit",
+               "description":"the Unit of the selected Timebox interval (defaults to Minutes)",
+               "defaultValue":"MINUTES",
+               "options":[
+                  {
+                     "label":"MILLISECONDS",
+                     "value":"MILLISECONDS"
+                  },
+                  {
+                     "label":"SECONDS",
+                     "value":"SECONDS"
+                  },
+                  {
+                     "label":"MINUTES",
+                     "value":"MINUTES"
+                  },
+                  {
+                     "label":"HOURS",
+                     "value":"HOURS"
+                  },
+                  {
+                     "label":"DAYS",
+                     "value":"DAYS"
+                  }
+               ]
+            },
+            {
+               "name":"timeboxValue_inverted",
+               "type":"INTEGER",
+               "label":"timebox for inversion",
+               "description":"this is set if the rule was triggered because of an exceeded timebox",
+               "reference":"long"
+            },
+            {
+               "name":"timeboxUnit_inverted",
+               "type":"TEXT",
+               "label":"Timebox for inversion Unit",
+               "description":"the Unit of the selected Timebox interval (defaults to Minutes)",
+               "defaultValue":"MINUTES",
+               "options":[
+                  {
+                     "label":"MILLISECONDS",
+                     "value":"MILLISECONDS"
+                  },
+                  {
+                     "label":"SECONDS",
+                     "value":"SECONDS"
+                  },
+                  {
+                     "label":"MINUTES",
+                     "value":"MINUTES"
+                  },
+                  {
+                     "label":"HOURS",
+                     "value":"HOURS"
+                  },
+                  {
+                     "label":"DAYS",
+                     "value":"DAYS"
+                  }
+               ]
+            }
+         ],
+         "children":[
+            {
+               "id":"positiveTrigger",
+               "type":"core.ConditionalTimeboxedItemStateChangeTrigger",
+               "configuration":{
+                  "itemName":"${itemName}",
+                  "value":"${value}",
+                  "operator":"${operator}",
+                  "timeboxValue":"${timeboxValue}",
+                  "timeboxUnit":"${timeboxUnit}",
+                  "invert":false
+               }
+            },
+            {
+               "id":"negativeTrigger",
+               "type":"core.ConditionalTimeboxedItemStateChangeTrigger",
+               "configuration":{
+                  "itemName":"${itemName}",
+                  "value":"${value}",
+                  "operator":"${operator}",
+                  "timeboxValue":"${timeboxValue_inverted}",
+                  "timeboxUnit":"${timeboxUnit_inverted}",
+                  "invert":true
+               }
+            }
+         ],
+         "outputs":[
+         	 {
+               "name":"itemState",
+               "type":"org.eclipse.smarthome.core.types.State",
+               "label":"itemState",
+               "description":"The latest state of the item.",
+               "reference":"negativeTrigger.itemState, positiveTrigger.itemState"
+            },
+            {
+               "name":"itemName",
+               "type":"java.lang.String",
+               "label":"itemName",
+               "description":"The name of the item.",
+               "reference":"negativeTrigger.itemName, positiveTrigger.itemName"
+            },
+            {
+               "name":"timeboxValue",
+               "type":"java.lang.Long",
+               "label":"timebox",
+               "description":"this is set if the rule was triggered because of an exceeded timebox",
+               "reference":"negativeTrigger.timeboxValue, positiveTrigger.timeboxValue"
+            },
+            {
+               "name":"timeboxUnit",
+               "type":"java.lang.String",
+               "label":"timeboxUnit",
+               "description":"this is set if the rule was triggered because of an exceeded timebox",
+               "reference":"negativeTrigger.timeboxUnit, positiveTrigger.timeboxUnit"
+            },
+            {
+               "name":"invert",
+               "type":"java.lang.Boolean",
+               "description":"is the triggers condition inverted",
+               "label":"invert",
+               "reference":"negativeTrigger.invert, positiveTrigger.invert"
+            }
+         ]
+      }
+   ]
+}
