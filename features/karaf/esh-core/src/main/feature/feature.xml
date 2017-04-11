@@ -118,6 +118,7 @@
   <feature name="esh-automation-module-media" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-module-script</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.media/${project.version}</bundle>
   </feature>
 
