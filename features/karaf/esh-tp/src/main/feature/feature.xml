@@ -117,7 +117,7 @@
     <capability>esh.tp;feature=jax-rs-provider-security;version=2.2</capability>
     <feature dependency="true">esh-tp-jax-rs-min</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/provider-security/2.2</bundle>
-  </feature>  
+  </feature>
 
   <feature name="esh-tp-jax-rs-provider-gson" description="JAX-RS provider for de/serialization using Gson" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-gson;version=2.3</capability>
@@ -188,9 +188,9 @@
     <bundle dependency="true">mvn:de.maggu2810.p2redist/com.google.guava/10.0.1.v201203051515</bundle>
     <bundle dependency="true">mvn:de.maggu2810.p2redist/org.antlr.runtime/3.2.0.v201101311130</bundle>
 
-    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.common/3.7.0.v20150402-1709</bundle>
-    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.registry/3.6.0.v20150318-1503</bundle>
-    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.supplement/1.6.0.v20141009-1504</bundle>
+    <bundle dependency="true">mvn:org.eclipse.platform/org.eclipse.equinox.common/3.8.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.platform/org.eclipse.equinox.registry/3.6.100</bundle>
+    <bundle dependency="true">mvn:org.eclipse.platform/org.eclipse.equinox.supplement/1.6.100</bundle>
 
     <!-- Add ASM package -->
     <!-- org.eclipse.xtext.common.types is using Require-Bundle -->
