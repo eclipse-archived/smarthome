@@ -13,6 +13,8 @@ import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -48,10 +50,17 @@ import com.google.common.base.Preconditions;
  * <i>1-9_9.9_abc</i>. Consequently <i>2.0-0</i>, <i>2-0_0</i> and <i>2_0.0</i> represent the same firmware version.
  * Furthermore firmware version <i>xyz_1</i> is newer than firmware version <i>abc.2</i> which again is newer than
  * firmware version <i>2-0-1</i>.
+ * </p>
+ * A {@link Firmware} consists of various meta information like a version, a vendor or a description. Additionally
+ * {@link FirmwareProvider}s can specify further meta information in form of properties (e.g. a factory reset of the
+ * device is required afterwards) so that {@link FirmwareUpdateHandler}s can handle this information accordingly.
  *
  * @author Thomas Höfer - Initial contribution
  */
 public final class Firmware implements Comparable<Firmware> {
+
+    /** The key for the requires a factory reset property. */
+    public static final String PROPERTY_REQUIRES_FACTORY_RESET = "requiresFactoryReset";
 
     private static final Logger logger = LoggerFactory.getLogger(Firmware.class);
 
@@ -65,6 +74,7 @@ public final class Firmware implements Comparable<Firmware> {
     private final URL onlineChangelog;
     private final transient InputStream inputStream;
     private final String md5Hash;
+    private final Map<String, String> properties;
 
     private transient byte[] bytes;
 
@@ -82,6 +92,8 @@ public final class Firmware implements Comparable<Firmware> {
         this.onlineChangelog = builder.onlineChangelog;
         this.inputStream = builder.inputStream;
         this.md5Hash = builder.md5Hash;
+        this.properties = Collections
+                .unmodifiableMap(builder.properties != null ? builder.properties : Collections.emptyMap());
 
         this.internalVersion = new Version(this.version);
         this.internalPrerequisiteVersion = this.prerequisiteVersion != null ? new Version(this.prerequisiteVersion)
@@ -172,7 +184,7 @@ public final class Firmware implements Comparable<Firmware> {
     /**
      * Returns the MD5 hash value of the firmware.
      *
-     * @return MD5 hash value of the firmware (can be null)
+     * @return the MD5 hash value of the firmware (can be null)
      */
     public String getMd5Hash() {
         return md5Hash;
@@ -224,6 +236,15 @@ public final class Firmware implements Comparable<Firmware> {
         }
 
         return bytes;
+    }
+
+    /**
+     * Returns the immutable properties of the firmware.
+     *
+     * @return the immutable properties of the firmware (not null)
+     */
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     /**
@@ -329,6 +350,7 @@ public final class Firmware implements Comparable<Firmware> {
         private URL onlineChangelog;
         private transient InputStream inputStream;
         private String md5Hash;
+        private Map<String, String> properties;
 
         /**
          * Creates a new builder.
@@ -427,6 +449,18 @@ public final class Firmware implements Comparable<Firmware> {
         }
 
         /**
+         * Adds the properties to the builder.
+         *
+         * @param properties the properties to be added to the builder
+         *
+         * @return the updated builder
+         */
+        public Builder withProperties(Map<String, String> properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        /**
          * Adds the given md5 hash value to the builder.
          *
          * @param md5Hash the md5 hash value to be added to the builder
@@ -462,6 +496,7 @@ public final class Firmware implements Comparable<Firmware> {
         result = prime * result + ((uid == null) ? 0 : uid.hashCode());
         result = prime * result + ((vendor == null) ? 0 : vendor.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         return result;
     }
 
@@ -540,6 +575,13 @@ public final class Firmware implements Comparable<Firmware> {
         } else if (!version.equals(other.version)) {
             return false;
         }
+        if (properties == null) {
+            if (other.properties != null) {
+                return false;
+            }
+        } else if (!properties.equals(other.properties)) {
+            return false;
+        }
         return true;
     }
 
@@ -547,7 +589,7 @@ public final class Firmware implements Comparable<Firmware> {
     public String toString() {
         return "Firmware [uid=" + uid + ", vendor=" + vendor + ", model=" + model + ", description=" + description
                 + ", version=" + version + ", prerequisiteVersion=" + prerequisiteVersion + ", changelog=" + changelog
-                + ", onlineChangelog=" + onlineChangelog + ", md5Hash=" + md5Hash + "]";
+                + ", onlineChangelog=" + onlineChangelog + ", md5Hash=" + md5Hash + ", properties=" + properties + "]";
     }
 
 }
