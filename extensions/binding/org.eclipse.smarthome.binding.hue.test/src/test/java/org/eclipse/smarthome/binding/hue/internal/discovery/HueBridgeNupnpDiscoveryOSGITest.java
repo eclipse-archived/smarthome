@@ -144,8 +144,6 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
         inbox = getService(Inbox.class);
         assertThat(inbox, is(notNullValue()));
 
-        sut.stopBackgroundDiscovery();
-
         unregisterCurrentDiscoveryListener();
     }
 
