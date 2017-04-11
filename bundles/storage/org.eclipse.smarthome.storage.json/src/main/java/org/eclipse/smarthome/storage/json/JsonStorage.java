@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -29,7 +30,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.LinkedTreeMap;
 
 /**
  * The JsonStorage is concrete implementation of the {@link Storage} interface.
@@ -40,6 +40,7 @@ import com.google.gson.internal.LinkedTreeMap;
  * at any time
  *
  * @author Chris Jackson - Initial Contribution
+ * @author Stefan Triller - Removed dependency to internal GSon packages
  */
 public class JsonStorage<T> implements Storage<T> {
 
@@ -61,7 +62,7 @@ public class JsonStorage<T> implements Storage<T> {
 
     private File file;
     private ClassLoader classLoader;
-    private final Map<String, LinkedTreeMap<String, Object>> map = new ConcurrentHashMap<String, LinkedTreeMap<String, Object>>();
+    private final Map<String, Map<String, Object>> map = new ConcurrentHashMap<String, Map<String, Object>>();
 
     private transient Gson mapper;
 
@@ -72,12 +73,13 @@ public class JsonStorage<T> implements Storage<T> {
         this.writeDelay = writeDelay;
         this.maxDeferredPeriod = maxDeferredPeriod;
 
-        this.mapper = new GsonBuilder().registerTypeAdapterFactory(new PropertiesTypeAdapterFactory())
-                .setPrettyPrinting().create();
+        this.mapper = new GsonBuilder().registerTypeAdapter(Map.class, new StringObjectMapDeserializer()).setPrettyPrinting()
+                .create();
+
         commitTimer = new Timer();
 
         if (file.exists()) {
-            Map<String, LinkedTreeMap<String, Object>> inputMap;
+            Map<String, Map<String, Object>> inputMap;
 
             // Read the file
             inputMap = readDatabase(file);
@@ -113,11 +115,11 @@ public class JsonStorage<T> implements Storage<T> {
      */
     @Override
     public T put(String key, T value) {
-        LinkedTreeMap<String, Object> val = new LinkedTreeMap<String, Object>();
+        Map<String, Object> val = new LinkedHashMap<String, Object>();
         val.put(CLASS, value.getClass().getName());
         val.put(VALUE, value);
 
-        LinkedTreeMap<String, Object> previousValue = map.get(key);
+        Map<String, Object> previousValue = map.get(key);
 
         map.put(key, val);
         deferredCommit();
@@ -134,7 +136,7 @@ public class JsonStorage<T> implements Storage<T> {
      */
     @Override
     public T remove(String key) {
-        LinkedTreeMap<String, Object> removedElement = map.remove(key);
+        Map<String, Object> removedElement = map.remove(key);
         deferredCommit();
         return deserialize(removedElement);
     }
@@ -144,7 +146,7 @@ public class JsonStorage<T> implements Storage<T> {
      */
     @Override
     public T get(String key) {
-        LinkedTreeMap<String, Object> value = map.get(key);
+        Map<String, Object> value = map.get(key);
         if (value == null) {
             return null;
         }
@@ -178,7 +180,7 @@ public class JsonStorage<T> implements Storage<T> {
      * the calling bundle.
      */
     @SuppressWarnings("unchecked")
-    private T deserialize(LinkedTreeMap<String, Object> jsonValue) {
+    private T deserialize(Map<String, Object> jsonValue) {
         if (jsonValue == null) {
             // nothing to deserialize
             return null;
@@ -204,13 +206,14 @@ public class JsonStorage<T> implements Storage<T> {
         return value;
     }
 
-    private Map<String, LinkedTreeMap<String, Object>> readDatabase(File inputFile) {
+    @SuppressWarnings("unchecked")
+    private Map<String, Map<String, Object>> readDatabase(File inputFile) {
         try {
-            final Map<String, LinkedTreeMap<String, Object>> inputMap = new ConcurrentHashMap<String, LinkedTreeMap<String, Object>>();
+            final Map<String, Map<String, Object>> inputMap = new ConcurrentHashMap<String, Map<String, Object>>();
 
             FileReader reader = new FileReader(inputFile);
-            HashMap<String, LinkedTreeMap<String, Object>> type = new HashMap<String, LinkedTreeMap<String, Object>>();
-            HashMap<String, LinkedTreeMap<String, Object>> loadedMap = mapper.fromJson(reader, type.getClass());
+            Map<String, Map<String, Object>> type = new HashMap<String, Map<String, Object>>();
+            Map<String, Map<String, Object>> loadedMap = mapper.fromJson(reader, type.getClass());
 
             if (loadedMap != null && loadedMap.size() != 0) {
                 map.putAll(loadedMap);
@@ -284,6 +287,11 @@ public class JsonStorage<T> implements Storage<T> {
             // Delete old backups
             List<Long> fileTimes = new ArrayList<Long>();
             File folder = new File(file.getParent() + File.separator + BACKUP_EXTENSION);
+
+            if (!folder.isDirectory()) {
+                return;
+            }
+
             File[] files = folder.listFiles();
 
             // Get an array of file times from the filename
