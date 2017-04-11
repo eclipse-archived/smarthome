@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -290,6 +291,36 @@ final class FirmwareRegistryOSGiTest extends OSGiTest {
 
         firmware = firmwareRegistry.getLatestFirmware(THING_TYPE_UID2, Locale.GERMAN)
         assertThat firmware, is(FWALPHA_DE)
+    }
+
+    @Test
+    void 'assert that firmware properties are provided'() {
+        registerService(mock2)
+
+        def firmware = firmwareRegistry.getFirmware(FWALPHA_DE.getUID())
+        assertThat firmware, is(notNullValue())
+        assertThat firmware.getProperties(), is(notNullValue())
+        assertThat firmware.getProperties().isEmpty(), is(true)
+
+        firmware = firmwareRegistry.getFirmware(FWBETA_DE.getUID())
+        assertThat firmware, is(notNullValue())
+        assertThat firmware.getProperties(), is(notNullValue())
+        assertThat firmware.getProperties().size(), is(1)
+        assertThat firmware.getProperties().get(Firmware.PROPERTY_REQUIRES_FACTORY_RESET), is("true")
+
+        firmware = firmwareRegistry.getFirmware(FWGAMMA_DE.getUID())
+        assertThat firmware, is(notNullValue())
+        assertThat firmware.getProperties(), is(notNullValue())
+        assertThat firmware.getProperties().size(), is(2)
+        assertThat firmware.getProperties().get("prop1"), is("a")
+        assertThat firmware.getProperties().get("prop2"), is("b")
+    }
+
+    @Test(expected=UnsupportedOperationException)
+    void 'assert that firmware properties are immutable'() {
+        def fw = firmwareRegistry.getFirmware(FW112_EN.getUID())
+        assertThat fw, is(notNullValue())
+        fw.getProperties().put("test", null)
     }
 
     @Test
