@@ -82,7 +82,7 @@ public class RawType implements PrimitiveType, State {
 
     @Override
     public String toFullString() {
-        return String.format("data:%s;base64,%s", mimeType, Base64.getEncoder().encodeToString(bytes));
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     @Override
