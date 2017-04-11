@@ -8,10 +8,8 @@
 package org.eclipse.smarthome.io.rest.core.channel;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -82,7 +80,7 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Set<ChannelTypeDTO> channelTypeDTOs = convertToChannelTypeDTOs(channelTypeRegistry.getChannelTypes(locale),
+        List<ChannelTypeDTO> channelTypeDTOs = convertToChannelTypeDTOs(channelTypeRegistry.getChannelTypes(locale),
                 locale);
         return Response.ok(channelTypeDTOs).build();
     }
@@ -103,12 +101,6 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
         } else {
             return Response.noContent().build();
         }
-    }
-
-    public Set<ChannelTypeDTO> getChannelTypeDTOs(Locale locale) {
-        List<ChannelType> channelTypes = channelTypeRegistry.getChannelTypes();
-        Set<ChannelTypeDTO> channelTypeDTOs = convertToChannelTypeDTOs(channelTypes, locale);
-        return channelTypeDTOs;
     }
 
     private ChannelTypeDTO convertToChannelTypeDTO(ChannelType channelType, Locale locale) {
@@ -137,8 +129,8 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
                 parameterGroups, channelType.getState(), channelType.getTags(), channelType.isAdvanced());
     }
 
-    private Set<ChannelTypeDTO> convertToChannelTypeDTOs(List<ChannelType> channelTypes, Locale locale) {
-        Set<ChannelTypeDTO> channelTypeDTOs = new HashSet<>();
+    private List<ChannelTypeDTO> convertToChannelTypeDTOs(List<ChannelType> channelTypes, Locale locale) {
+        List<ChannelTypeDTO> channelTypeDTOs = new ArrayList<>(channelTypes.size());
 
         for (ChannelType channelType : channelTypes) {
             channelTypeDTOs.add(convertToChannelTypeDTO(channelType, locale));
