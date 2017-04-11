@@ -70,13 +70,8 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         thingTypeRepository.setDirty(true);
     };
     $scope.installExtensionFromURL = function(url) {
-        extension.inProgress = true;
-        extensionService.installFromURL({
+        return extensionService.installFromURL({
             url : url
-        }, function() {
-            toastService.showDefaultToast('Extension installed from url' + url);
-        }, function() {
-            toastService.showDefaultToast('Extension installation from url' + url + ' failed');
         });
     };
     $scope.uninstall = function(extensionId) {
@@ -120,15 +115,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         $scope.masonry(true);
     });
 
-    $scope.linkDropped = function(ev) {
-        ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        alert(data);
-    }
-    $scope.acceptDrop = function(ev) {
-        ev.preventDefault();
-    }
-
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
         var id = extensionObject;
         if (extensionObject && Array.isArray(extensionObject)) {
@@ -153,7 +139,7 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             }
         }
     });
-}).directive('droppable', function() {
+}).directive('droppable', function(toastService) {
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
@@ -185,7 +171,15 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             element[0].addEventListener('drop', function(event) {
                 event.preventDefault();
                 var data = event.dataTransfer.getData("Text");
-                scope.installExtensionFromURL();
+                var response = scope.installExtensionFromURL(data);
+                response.$promise.then(function() {
+                    toastService.showDefaultToast('Extension installed from URL');
+                    scope.ondrag = false;
+                }, function() {
+                    toastService.showDefaultToast('Extension installation from URL failed');
+                    scope.ondrag = false;
+                });
+
             });
 
         }
