@@ -19,12 +19,11 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link XmlConfigDescriptionProvider} is a concrete implementation of the {@link ConfigDescriptionProvider}
+ * The {@link AbstractXmlConfigDescriptionProvider} is a concrete implementation of the
+ * {@link ConfigDescriptionProvider}
  * service interface.
  * <p>
  * This implementation manages any {@link ConfigDescription} objects associated to specific modules. If a specific
@@ -37,15 +36,9 @@ import org.osgi.framework.Bundle;
  * @author Thomas Höfer - Extended for unit
  * @author Markus Rathgeb - Use ConfigI18nLocalizerService
  */
-public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
+public abstract class AbstractXmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
-    private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
-
-    private ConfigI18nLocalizationService configI18nLocalizerService;
-
-    public XmlConfigDescriptionProvider() {
-        this.bundleConfigDescriptionsMap = new HashMap<>(10);
-    }
+    private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap = new HashMap<>(10);
 
     private List<ConfigDescription> acquireConfigDescriptions(Bundle bundle) {
         if (bundle != null) {
@@ -173,23 +166,16 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         return null;
     }
 
-    @Bind
-    public void setConfigI18nLocalizerService(ConfigI18nLocalizationService configI18nLocalizerService) {
-        this.configI18nLocalizerService = configI18nLocalizerService;
-    }
-
-    @Unbind
-    public void unsetConfigI18nLocalizerService(ConfigI18nLocalizationService configI18nLocalizerService) {
-        this.configI18nLocalizerService = null;
-    }
-
     private ConfigDescription tryLocalization(final Bundle bundle, final ConfigDescription configDescription,
             final Locale locale) {
+        ConfigI18nLocalizationService configI18nLocalizerService = getConfigI18nLocalizerService();
         if (configI18nLocalizerService == null) {
             return configDescription;
         } else {
             return configI18nLocalizerService.getLocalizedConfigDescription(bundle, configDescription, locale);
         }
     }
+
+    protected abstract ConfigI18nLocalizationService getConfigI18nLocalizerService();
 
 }

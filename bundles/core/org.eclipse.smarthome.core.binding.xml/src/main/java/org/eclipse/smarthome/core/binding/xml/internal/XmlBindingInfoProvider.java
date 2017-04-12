@@ -17,13 +17,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
+import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link XmlBindingInfoProvider} is a concrete implementation of the {@link BindingInfoProvider} service interface.
@@ -34,13 +42,37 @@ import org.osgi.framework.Bundle;
  * @author Michael Grammling - Initial Contribution
  * @author Michael Grammling - Refactoring: Provider/Registry pattern is used, added locale support
  */
+@Component
 public class XmlBindingInfoProvider implements BindingInfoProvider {
 
+    private static final String XML_DIRECTORY = "/ESH-INF/binding/";
     private Map<Bundle, List<BindingInfo>> bundleBindingInfoMap;
     private BindingI18nUtil bindingI18nUtil;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
+    private XmlDocumentBundleTracker<BindingInfoXmlResult> bindingInfoTracker;
 
     public XmlBindingInfoProvider() {
         this.bundleBindingInfoMap = new HashMap<>(10);
+    }
+
+    @Activate
+    public void activate(ComponentContext componentContext) {
+        XmlDocumentReader<BindingInfoXmlResult> bindingInfoReader = new BindingInfoReader();
+
+        XmlDocumentProviderFactory<BindingInfoXmlResult> bindingInfoProviderFactory = new BindingInfoXmlProviderFactory(
+                this, configDescriptionProvider);
+
+        bindingInfoTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
+                bindingInfoReader, bindingInfoProviderFactory);
+
+        bindingInfoTracker.open();
+
+    }
+
+    @Deactivate
+    public void deactivate(ComponentContext componentContext) {
+        bindingInfoTracker.close();
+        bindingInfoTracker = null;
     }
 
     private List<BindingInfo> acquireBindingInfos(Bundle bundle) {
@@ -132,14 +164,22 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
         return allBindingInfos;
     }
 
-    @Bind
+    @Reference
     public void setI18nProvider(I18nProvider i18nProvider) {
         this.bindingI18nUtil = new BindingI18nUtil(i18nProvider);
     }
 
-    @Unbind
     public void unsetI18nProvider(I18nProvider i18nProvider) {
         this.bindingI18nUtil = null;
+    }
+
+    @Reference(target = "(esh.scope=core.xml.binding)")
+    public void setConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
+        this.configDescriptionProvider = (AbstractXmlConfigDescriptionProvider) configDescriptionProvider;
+    }
+
+    public void unsetConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
+        this.configDescriptionProvider = null;
     }
 
     private BindingInfo createLocalizedBindingInfo(Bundle bundle, BindingInfo bindingInfo, Locale locale) {

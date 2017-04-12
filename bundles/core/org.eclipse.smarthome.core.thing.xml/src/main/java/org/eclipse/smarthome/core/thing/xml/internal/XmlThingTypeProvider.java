@@ -17,13 +17,22 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
+import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
+import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link XmlThingTypeProvider} is a concrete implementation of the {@link ThingTypeProvider} service interface.
@@ -36,6 +45,7 @@ import org.osgi.framework.Bundle;
  * @author Ivan Iliev - Added support for system wide channel types
  * @author Kai Kreuzer - fixed concurrency issues
  */
+@Component(immediate = true, property = { "esh.scope=core.xml" })
 public class XmlThingTypeProvider implements ThingTypeProvider {
 
     private class LocalizedThingTypeKey {
@@ -95,14 +105,37 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
     }
 
+    private static final String XML_DIRECTORY = "/ESH-INF/thing/";
+
     private Map<LocalizedThingTypeKey, ThingType> localizedThingTypeCache = new ConcurrentHashMap<>();
 
-    private Map<Bundle, List<ThingType>> bundleThingTypesMap;
+    private Map<Bundle, List<ThingType>> bundleThingTypesMap = new ConcurrentHashMap<>(10);
 
     private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
 
-    public XmlThingTypeProvider() {
-        this.bundleThingTypesMap = new ConcurrentHashMap<>(10);
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
+
+    private XmlChannelTypeProvider channelTypeProvider;
+
+    private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
+
+    @Activate
+    protected void activate(ComponentContext context) {
+        XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
+
+        XmlDocumentProviderFactory<List<?>> thingTypeProviderFactory = new ThingTypeXmlProviderFactory(
+                configDescriptionProvider, this, channelTypeProvider);
+
+        thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(context.getBundleContext(), XML_DIRECTORY,
+                thingTypeReader, thingTypeProviderFactory);
+        thingTypeTracker.open();
+
+    }
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
+        thingTypeTracker.close();
+        thingTypeTracker = null;
     }
 
     private List<ThingType> acquireThingTypes(Bundle bundle) {
@@ -246,15 +279,33 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-    @Bind
+    @Reference
     public void setThingTypeI18nLocalizationService(
             final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
         this.thingTypeI18nLocalizationService = thingTypeI18nLocalizationService;
     }
 
-    @Unbind
     public void unsetThingTypeI18nLocalizationService(
             final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
         this.thingTypeI18nLocalizationService = null;
     }
+
+    @Reference(target = "(esh.scope=core.xml.thing)")
+    public void setConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
+        this.configDescriptionProvider = (AbstractXmlConfigDescriptionProvider) configDescriptionProvider;
+    }
+
+    public void unsetConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
+        this.configDescriptionProvider = null;
+    }
+
+    @Reference(target = "(esh.scope=core.xml)")
+    public void setChannelTypeProvider(ChannelTypeProvider channelTypeProvider) {
+        this.channelTypeProvider = (XmlChannelTypeProvider) channelTypeProvider;
+    }
+
+    public void unsetChannelTypeProvider(ChannelTypeProvider configDescriptionProvider) {
+        this.channelTypeProvider = null;
+    }
+
 }
