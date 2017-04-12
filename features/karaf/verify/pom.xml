@@ -88,4 +88,28 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>bintray-maggu2810-maven</id>
+      <url>https://dl.bintray.com/maggu2810/maven/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
+      <id>jupnp-bintray</id>
+      <url>https://dl.bintray.com/jupnp/mvn/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
 </project>
