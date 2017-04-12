@@ -10,7 +10,7 @@ package org.eclipse.smarthome.config.xml.internal;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.osgi.framework.Bundle;
@@ -24,9 +24,9 @@ import org.osgi.framework.Bundle;
  */
 public class ConfigDescriptionXmlProviderFactory implements XmlDocumentProviderFactory<List<ConfigDescription>> {
 
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
 
-    public ConfigDescriptionXmlProviderFactory(XmlConfigDescriptionProvider configDescriptionProvider) {
+    public ConfigDescriptionXmlProviderFactory(AbstractXmlConfigDescriptionProvider configDescriptionProvider) {
 
         if (configDescriptionProvider == null) {
             throw new IllegalArgumentException("The XmlConfigDescriptionProvider must not be null!");
