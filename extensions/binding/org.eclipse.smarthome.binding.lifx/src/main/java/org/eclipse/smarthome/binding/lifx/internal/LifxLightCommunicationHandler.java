@@ -164,7 +164,7 @@ public class LifxLightCommunicationHandler {
             broadcastPacket(packet);
 
         } catch (Exception ex) {
-            logger.error("Error occured while initializing LIFX handler: " + ex.getMessage(), ex);
+            logger.error("Error occurred while initializing LIFX handler: " + ex.getMessage(), ex);
         } finally {
             lock.unlock();
         }

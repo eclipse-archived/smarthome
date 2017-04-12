@@ -137,7 +137,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 return sink.getVolume();
             } catch (IOException e) {
-                logger.error("An exception occured while getting the volume of sink {} : '{}'", sink.getId(),
+                logger.error("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
                         e.getMessage());
             }
         }
@@ -153,7 +153,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.setVolume(volume);
             } catch (IOException e) {
-                logger.error("An exception occured while setting the volume of sink {} : '{}'", sink.getId(),
+                logger.error("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
                         e.getMessage());
             }
         }

@@ -56,7 +56,7 @@ public class MACAddress {
             try {
                 formatHex(string, 2, ":");
             } catch (IOException e) {
-                logger.error("An exception occured while formatting an HEX string : '{}'", e.getMessage());
+                logger.error("An exception occurred while formatting an HEX string : '{}'", e.getMessage());
             }
         }
     }

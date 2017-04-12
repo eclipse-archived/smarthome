@@ -52,8 +52,8 @@ public class ConsoleInterpreter {
             extension.execute(args, console);
         } catch (final Exception ex) {
             final Logger logger = LoggerFactory.getLogger(ConsoleInterpreter.class);
-            logger.error("An error occured while executing the console command.", ex);
-            console.println("An unexpected error occured during execution.");
+            logger.error("An error occurred while executing the console command.", ex);
+            console.println("An unexpected error occurred during execution.");
         }
     }
 

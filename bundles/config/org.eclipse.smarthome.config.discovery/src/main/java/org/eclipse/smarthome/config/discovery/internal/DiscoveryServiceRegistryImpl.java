@@ -63,7 +63,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         private final ScanListener listener;
         private int finishedDiscoveryServices = 0;
-        private boolean errorOccured = false;
+        private boolean errorOccurred = false;
         private int numberOfDiscoveryServices;
 
         private AggregatingScanListener(int numberOfDiscoveryServices, ScanListener listener) {
@@ -77,7 +77,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 finishedDiscoveryServices++;
                 logger.debug("Finished {} of {} discovery services.", finishedDiscoveryServices,
                         numberOfDiscoveryServices);
-                if (!errorOccured && finishedDiscoveryServices == numberOfDiscoveryServices) {
+                if (!errorOccurred && finishedDiscoveryServices == numberOfDiscoveryServices) {
                     if (listener != null) {
                         listener.onFinished();
                     }
@@ -88,13 +88,13 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         @Override
         public void onErrorOccurred(Exception exception) {
             synchronized (this) {
-                if (!errorOccured) {
+                if (!errorOccurred) {
                     if (listener != null) {
                         listener.onErrorOccurred(exception);
                     }
-                    errorOccured = true;
+                    errorOccurred = true;
                 } else {
-                    logger.warn("Error occured while executing discovery service: " + exception.getMessage(),
+                    logger.warn("Error occurred while executing discovery service: " + exception.getMessage(),
                             exception);
                 }
             }
@@ -103,7 +103,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         public void reduceNumberOfDiscoveryServices() {
             synchronized (this) {
                 numberOfDiscoveryServices--;
-                if (!errorOccured && finishedDiscoveryServices == numberOfDiscoveryServices) {
+                if (!errorOccurred && finishedDiscoveryServices == numberOfDiscoveryServices) {
                     if (listener != null) {
                         listener.onFinished();
                     }

@@ -90,7 +90,7 @@ public class ScriptImpl implements Script {
                     throw (ScriptExecutionException) e;
                 } else {
                     throw new ScriptExecutionException(
-                            "An error occured during the script execution: " + e.getMessage(), e);
+                            "An error occurred during the script execution: " + e.getMessage(), e);
                 }
             }
         } else {

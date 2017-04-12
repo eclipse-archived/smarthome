@@ -84,7 +84,7 @@ public class DiscoveryResource implements SatisfiableRESTResource {
         discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
             @Override
             public void onErrorOccurred(Exception exception) {
-                logger.error("Error occured while scanning for binding '{}': {}", bindingId, exception.getMessage(),
+                logger.error("Error occurred while scanning for binding '{}': {}", bindingId, exception.getMessage(),
                         exception);
             }
 

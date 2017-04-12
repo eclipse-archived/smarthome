@@ -111,7 +111,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                 }
 
             } catch (Exception e) {
-                logger.error("Error occured while sending packet", e);
+                logger.error("Error occurred while sending packet", e);
             } finally {
                 lock.unlock();
             }
@@ -135,7 +135,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                 sendJob = scheduler.scheduleWithFixedDelay(sendRunnable, 0, PACKET_INTERVAL, TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
-            logger.error("Error occured while starting send packets job", e);
+            logger.error("Error occurred while starting send packets job", e);
         } finally {
             lock.unlock();
         }
@@ -152,7 +152,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
             }
             pendingPacketMap.clear();
         } catch (Exception e) {
-            logger.error("Error occured while stopping send packets job", e);
+            logger.error("Error occurred while stopping send packets job", e);
         } finally {
             lock.unlock();
         }

@@ -116,7 +116,7 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
             }
             return data;
         } catch (final IOException ex) {
-            throw new TransformationException("An error occured while opening file.", ex);
+            throw new TransformationException("An error occurred while opening file.", ex);
         }
     }
 
