@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.binding.xml.internal;
 
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.osgi.framework.Bundle;
@@ -22,10 +22,10 @@ import org.osgi.framework.Bundle;
 public class BindingInfoXmlProviderFactory implements XmlDocumentProviderFactory<BindingInfoXmlResult> {
 
     private XmlBindingInfoProvider bindingInfoProvider;
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
 
     public BindingInfoXmlProviderFactory(XmlBindingInfoProvider bindingInfoProvider,
-            XmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
+            AbstractXmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
 
         if (bindingInfoProvider == null) {
             throw new IllegalArgumentException("The XmlBindingInfoProvider must not be null!");

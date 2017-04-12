@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
@@ -55,7 +55,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private Logger logger = LoggerFactory.getLogger(ThingTypeXmlProvider.class);
 
     private Bundle bundle;
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
     private XmlThingTypeProvider thingTypeProvider;
 
     // temporary cache
@@ -65,7 +65,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
 
     private XmlChannelTypeProvider channelTypeProvider;
 
-    public ThingTypeXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider,
+    public ThingTypeXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider)
             throws IllegalArgumentException {
 
