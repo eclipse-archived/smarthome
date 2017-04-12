@@ -12,6 +12,7 @@
 							<h3 class="md-title">
 								{{binding.name}} <small>{{binding.id}}</small>
 							</h3>
+
 							<p class="text-left">{{binding.author}}</p>
 							<div class="text-right">
 								<md-button ng-show="binding.configDescriptionURI" aria-label="Configure" ng-click="configure(binding.id, binding.configDescriptionURI, $event)">Configure</md-button>
@@ -83,14 +84,14 @@
 					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="navigateTo('things/view/' + thing.UID)">
 						<div class="circle">{{thing.thingTypeUID?thing.thingTypeUID.split(':')[1].substring(0,1).toUpperCase():''}}</div>
 						<div class="cbody item-content">
-							<div flex="70">
+							<div class="description">
 								<h3>
 									{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
 								</h3>
 								<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
 								<p>{{thing.UID}}</p>
 							</div>
-							<div class="actions" flex="30" ng-class="{'new':newThingUID==thing.UID}">
+							<div class="actions" ng-class="{'new':newThingUID==thing.UID}">
 								<i class="material-icons" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit">edit</i> <i class="material-icons" ng-click="remove(thing, $event)" aria-label="Delete">delete</i>
 							</div>
 						</div>
@@ -127,9 +128,9 @@
 			</p>
 			<div ng-init="details=false" ng-if="thing.hasProperties">
 				<md-button ng-click="details=!details">{{details?'hide':'show'}} properties</md-button>
-		        <div ng-show="details">
-    		        <div ng-include="'partials/configuration.thingproperties.html'" class="thing-properties"></div>
-		        </div>
+				<div ng-show="details">
+					<div ng-include="'partials/configuration.thingproperties.html'" class="thing-properties"></div>
+				</div>
 			</div>
 			<div ng-include="'partials/configuration.firmware.html'"></div>
 			<br />
@@ -152,12 +153,14 @@
 								</div>
 								<div ng-if="channel.kind=='TRIGGER'" class="circle" aria-label="Trigger">{{channel.channelType.label?channel.channelType.label.substring(0,1).toUpperCase():'T'}}</div>
 								<div class="item-content">
-									<h3 long-press on-long-press="showDescription(channel)" ng-if="channel.label || channel.channelType.label">{{channel.label?channel.label:channel.channelType.label}}</h3>
-									<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
-									<p>
-										{{thing.UID + ':' + channel.id}}<i ng-show="advancedMode" class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i>
-									</p>
-									<p>{{channel.itemType}}</p>
+									<div class="description">
+										<h3 long-press on-long-press="showDescription(channel)" ng-if="channel.label || channel.channelType.label">{{channel.label?channel.label:channel.channelType.label}}</h3>
+										<h3 ng-if="!channel.label && !channel.channelType.label">{{channel.id}}</h3>
+										<p>
+											{{thing.UID + ':' + channel.id}}<i ng-show="advancedMode" class="material-icons copy-clipboard" copyclipboard="{{thing.UID + ':' + channel.id}}">content_copy</i>
+										</p>
+										<p>{{channel.itemType}}</p>
+									</div>
 									<div class="actions">
 										<i ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit" class="material-icons">edit</i> <i class="material-icons" style="transition: none" ng-show="advancedMode" ng-click="getLinkedItems(channel)">{{channel.showItems ? 'unfold_less':'unfold_more'}}</i>
 									</div>
@@ -237,7 +240,7 @@
 			<md-autocomplete md-no-cache config='{"index":0,"targetField":"type"}' class="col-xs-12 col-sm-6 typeSearch md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-search-text="searchType" md-items="type in searchInOptions(types,null,searchType)" placeholder="Filter by type"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{type}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 			<md-autocomplete md-no-cache config='{"index":1,"targetField":"groupNames","sourceField":"name"}' class="col-xs-12 col-sm-6 groupSearch md-filter" md-min-length="0" md-selected-item="selectedOptions[1].value" md-search-text="searchGroup" md-items="group in searchInOptions(groups,['label'],searchGroup)" md-item-text="group.label?group.label:group.name" placeholder="Filter by group"> <md-item-template> <span md-highlight-text="searchGroup" md-highlight-flags="^i">{{group.label?group.label:group.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 		</div>
-		<div class="container">
+		<div class="container item-container">
 			<p class="text-center" ng-show="items.length == 0">
 				No items defined.
 				<button class="md-button" ng-click="navigateTo('item/create')">Add Items</button>
@@ -251,14 +254,14 @@
 							<span class="itemIcon-text">{{item.label?item.label.substring(0,1).toUpperCase():item.name.substring(0,1).toUpperCase()}}</span>
 						</div>
 						<div class="cbody item-content">
-							<div flex="85">
+							<div class="description">
 								<h3 ng-class="{'clickable':item.type=='Group'}" ng-click="setSelectedOption(1,item)">{{item.label}}&nbsp;</h3>
 								<p>
 									{{item.name}}<i class="material-icons copy-clipboard" copyclipboard="{{item.name}}">content_copy</i>
 								</p>
 								<p class="clickable" ng-click="setSelectedOption(0,item.type)">{{item.type}}</p>
 							</div>
-							<div class="actions" flex="15">
+							<div class="actions">
 								<i class="material-icons" ng-click="navigateTo('item/edit/' + item.name)" aria-label="Delete">edit</i> <i class="material-icons" ng-click="remove(item, $event)" aria-label="Delete">delete</i>
 							</div>
 						</div>

@@ -12,6 +12,7 @@
     "angular-animate": "1.4.8",
     "angular-aria": "1.4.8",
     "angular-material": "1.0.1",
+    "angular-material-expansion-panel": "^0.7.2",
     "angular-messages": "1.4.8",
     "angular-resource": "1.4.8",
     "angular-route": "1.4.8",
