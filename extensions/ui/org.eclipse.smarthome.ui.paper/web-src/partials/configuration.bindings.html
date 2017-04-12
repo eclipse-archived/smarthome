@@ -1,0 +1,27 @@
+<div class="header-toolbar">
+	<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+</div>
+
+<div class="section-header"></div>
+<div style="margin-top: 80px;">
+	<div class="container">
+		<div class="bindings row">
+			<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="binding in data.bindings | orderBy:'name'">
+				<div class="card binding text-left" data-binding-id="{{binding.id}}">
+					<div class="clabel">
+						<h3 class="md-title">
+							{{binding.name}} <small>{{binding.id}}</small>
+						</h3>
+
+						<p class="text-left">{{binding.author}}</p>
+						<div class="text-right">
+							<md-button ng-show="binding.configDescriptionURI" aria-label="Configure" ng-click="configure(binding.id, binding.configDescriptionURI, $event)">Configure</md-button>
+							<md-button ng-click="navigateTo('configuration/bindings/' + binding.id)">More</md-button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
