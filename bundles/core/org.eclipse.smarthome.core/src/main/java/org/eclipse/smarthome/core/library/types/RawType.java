@@ -67,12 +67,16 @@ public class RawType implements PrimitiveType, State {
             throw new IllegalArgumentException("Argument must not be null");
         } else if (value.isEmpty()) {
             throw new IllegalArgumentException("Argument must not be blank");
-        } else if (!value.startsWith("data:") || ((idx = value.indexOf(",")) < 0)) {
-            throw new IllegalArgumentException("Invalid data URI syntax for argument " + value);
-        } else if ((idx2 = value.indexOf(";")) <= 5) {
-            throw new IllegalArgumentException("Missing MIME type in argument " + value);
+        } else if (value.startsWith("data:")){
+            if ((idx = value.indexOf(",")) < 0) {
+                throw new IllegalArgumentException("Invalid data URI syntax for argument " + value);
+            } else if ((idx2 = value.indexOf(";")) <= 5) {
+                throw new IllegalArgumentException("Missing MIME type in argument " + value);
+            }
+            return new RawType(Base64.getDecoder().decode(value.substring(idx + 1)), value.substring(5, idx2)); 
+        } else {
+            return new RawType(Base64.getDecoder().decode(value));
         }
-        return new RawType(Base64.getDecoder().decode(value.substring(idx + 1)), value.substring(5, idx2));
     }
 
     @Override
