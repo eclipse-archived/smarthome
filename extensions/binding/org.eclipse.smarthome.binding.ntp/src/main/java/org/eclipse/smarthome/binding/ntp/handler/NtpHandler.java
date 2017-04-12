@@ -152,7 +152,7 @@ public class NtpHandler extends BaseThingHandler {
             startAutomaticRefresh();
 
         } catch (Exception ex) {
-            String msg = "Error occured while initializing NTP handler: " + ex.getMessage();
+            String msg = "Error occurred while initializing NTP handler: " + ex.getMessage();
             logger.error(msg, ex);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
         }

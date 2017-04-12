@@ -158,18 +158,18 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
     @Test
     void 'assert that a discovery can be aborted for a known DiscoveryService' () {
-        def onErrorOccuredCalled = false
+        def onErrorOccurredCalled = false
 
         boolean state
         state = discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1,ANY_THING_TYPE_1), [
-            onErrorOccurred: {onErrorOccuredCalled = true}
+            onErrorOccurred: {onErrorOccurredCalled = true}
         ] as ScanListener)
         assertTrue(state)
 
         state = discoveryServiceRegistry.abortScan(new ThingTypeUID(ANY_BINDING_ID_1,ANY_THING_TYPE_1))
         assertTrue(state)
 
-        waitForAssert { assertTrue onErrorOccuredCalled }
+        waitForAssert { assertTrue onErrorOccurredCalled }
     }
 
     @Test

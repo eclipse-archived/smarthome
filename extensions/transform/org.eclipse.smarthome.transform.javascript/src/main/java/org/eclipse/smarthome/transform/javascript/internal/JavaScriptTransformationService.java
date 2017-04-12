@@ -61,7 +61,7 @@ public class JavaScriptTransformationService implements TransformationService {
                     + TransformationService.TRANSFORM_FOLDER_NAME + File.separator + filename;
             reader = new InputStreamReader(new FileInputStream(path));
         } catch (FileNotFoundException e) {
-            throw new TransformationException("An error occured while loading script.", e);
+            throw new TransformationException("An error occurred while loading script.", e);
         }
 
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -76,7 +76,7 @@ public class JavaScriptTransformationService implements TransformationService {
         try {
             result = engine.eval(reader);
         } catch (ScriptException e) {
-            throw new TransformationException("An error occured while executing script.", e);
+            throw new TransformationException("An error occurred while executing script.", e);
         } finally {
             IOUtils.closeQuietly(reader);
         }

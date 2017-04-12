@@ -102,7 +102,7 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
             console.println("Background discovery for discovery service '" + discoveryServicePID + "' was set to "
                     + enabled + ".");
         } catch (IOException ex) {
-            String errorText = "Error occured while trying to configure background discovery with PID '"
+            String errorText = "Error occurred while trying to configure background discovery with PID '"
                     + discoveryServicePID + "': " + ex.getMessage();
             logger.error(errorText, ex);
             console.println(errorText);

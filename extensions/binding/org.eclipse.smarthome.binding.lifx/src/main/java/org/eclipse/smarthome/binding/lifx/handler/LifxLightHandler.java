@@ -179,7 +179,7 @@ public class LifxLightHandler extends BaseThingHandler {
             onlineStateUpdater.start();
             lightStateChanger.start();
         } catch (Exception e) {
-            logger.debug("Error occured while initializing LIFX handler: " + e.getMessage(), e);
+            logger.debug("Error occurred while initializing LIFX handler: " + e.getMessage(), e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         } finally {
             lock.unlock();

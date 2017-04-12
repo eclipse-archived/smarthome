@@ -371,7 +371,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
                                         handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                             } catch (Exception ex) {
-                                logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
                             logger.info(
@@ -421,7 +421,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.warn("Handler for thing {} takes more than {}ms for handling an update",
                                         handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                             } catch (Exception ex) {
-                                logger.error("Exception occured while calling handler: {}", ex.getMessage(), ex);
+                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
                             logger.info(
@@ -518,7 +518,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         });
                     }
                 } catch (Exception ex) {
-                    logger.error("Exception occured while calling thing updated at ThingHandler '{}': {}", thingHandler,
+                    logger.error("Exception occurred while calling thing updated at ThingHandler '{}': {}", thingHandler,
                             ex.getMessage(), ex);
                 }
             } else {
@@ -593,7 +593,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     ThingStatusDetail.HANDLER_REGISTERING_ERROR,
                     ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
             setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while calling thing handler factory '{}': {}", thingHandlerFactory,
+            logger.error("Exception occurred while calling thing handler factory '{}': {}", thingHandlerFactory,
                     ex.getMessage(), ex);
         }
     }
@@ -722,7 +722,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
                             ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
                     setThingStatus(thingHandler.getThing(), statusInfo);
-                    logger.error("Exception occured while initializing handler of thing '{}': {}",
+                    logger.error("Exception occurred while initializing handler of thing '{}': {}",
                             thingHandler.getThing().getUID(), ex.getMessage(), ex);
                 }
             }
@@ -777,7 +777,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             });
         } catch (Exception ex) {
-            logger.error("Exception occured while calling thing handler factory '{}' ", thingHandlerFactory,
+            logger.error("Exception occurred while calling thing handler factory '{}' ", thingHandlerFactory,
                     ex.getMessage(), ex);
         }
     }
@@ -807,7 +807,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeMethodCaller.DEFAULT_TIMEOUT);
         } catch (Exception e) {
-            logger.error("Exception occured while disposing handler of thing '{}': {}",
+            logger.error("Exception occurred while disposing handler of thing '{}': {}",
                     thingHandler.getThing().getUID(), e.getMessage(), e);
         }
     }
@@ -857,7 +857,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             }
                         } catch (Exception e) {
                             logger.error(
-                                    "Exception occured during notification about bridge status change on thing '{}': {}",
+                                    "Exception occurred during notification about bridge status change on thing '{}': {}",
                                     child.getUID(), e.getMessage(), e);
                         }
                     }
@@ -879,7 +879,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         }
                     } catch (Exception e) {
                         logger.error(
-                                "Exception occured during bridge handler ('{}') notification about handler initialization of child '{}': {}",
+                                "Exception occurred during bridge handler ('{}') notification about handler initialization of child '{}': {}",
                                 bridge.getUID(), thing.getUID(), e.getMessage(), e);
                     }
                 }
@@ -900,7 +900,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         }
                     } catch (Exception ex) {
                         logger.error(
-                                "Exception occured during bridge handler ('{}') notification about handler disposal of child '{}': {}",
+                                "Exception occurred during bridge handler ('{}') notification about handler disposal of child '{}': {}",
                                 bridge.getUID(), thing.getUID(), ex.getMessage(), ex);
                     }
                 }
@@ -950,7 +950,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             ex);
                 } catch (Exception ex) {
                     logger.error(
-                            "Could not remove thing {}, because an unknwon Exception occured. Most likely because it is not managed.",
+                            "Could not remove thing {}, because an unknwon Exception occurred. Most likely because it is not managed.",
                             thing.getUID(), ex);
                 }
             }

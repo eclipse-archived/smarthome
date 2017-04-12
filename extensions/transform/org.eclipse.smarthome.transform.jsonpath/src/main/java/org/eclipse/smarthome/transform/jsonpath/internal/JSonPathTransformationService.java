@@ -53,7 +53,7 @@ public class JSonPathTransformationService implements TransformationService {
         } catch (PathNotFoundException e) {
             return null;
         } catch (InvalidPathException e) {
-            throw new TransformationException("An error occured while transforming JSON expression.", e);
+            throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
 
     }

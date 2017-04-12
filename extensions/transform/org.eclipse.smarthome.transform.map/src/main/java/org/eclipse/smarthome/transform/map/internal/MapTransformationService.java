@@ -63,7 +63,7 @@ public class MapTransformationService extends AbstractFileTransformationService<
             result.load(reader);
             return result;
         } catch (IOException e) {
-            throw new TransformationException("An error occured while opening file.", e);
+            throw new TransformationException("An error occurred while opening file.", e);
         }
     }
 

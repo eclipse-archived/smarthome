@@ -130,7 +130,7 @@ public class ExecUtil {
                 logger.debug("exit code '{}', result '{}'", exitCode, retval);
             }
         } catch (InterruptedException e) {
-            logger.warn("Timeout occured when executing commandLine '" + commandLine + "'", e);
+            logger.warn("Timeout occurred when executing commandLine '" + commandLine + "'", e);
         }
 
         return retval;

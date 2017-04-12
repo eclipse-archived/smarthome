@@ -263,7 +263,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
             try {
                 handler.channelLinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Exception occured while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occurred while informing handler:" + ex.getMessage(), ex);
             }
         } else {
             logger.trace("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
@@ -282,7 +282,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
             try {
                 handler.channelUnlinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Exception occured while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occurred while informing handler:" + ex.getMessage(), ex);
             }
         } else {
             logger.trace(

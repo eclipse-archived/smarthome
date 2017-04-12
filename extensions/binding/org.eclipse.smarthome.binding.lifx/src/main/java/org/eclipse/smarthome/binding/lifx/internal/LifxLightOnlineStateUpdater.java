@@ -85,7 +85,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                     communicationHandler.broadcastPacket(packet);
                 }
             } catch (Exception e) {
-                logger.error("Error occured while polling online state", e);
+                logger.error("Error occurred while polling online state", e);
             } finally {
                 lock.unlock();
             }
@@ -100,7 +100,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                 echoJob = scheduler.scheduleWithFixedDelay(echoRunnable, 0, ECHO_POLLING_INTERVAL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            logger.error("Error occured while starting online state poller", e);
+            logger.error("Error occurred while starting online state poller", e);
         } finally {
             lock.unlock();
         }
@@ -115,7 +115,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                 echoJob = null;
             }
         } catch (Exception e) {
-            logger.error("Error occured while stopping online state poller", e);
+            logger.error("Error occurred while stopping online state poller", e);
         } finally {
             lock.unlock();
         }
