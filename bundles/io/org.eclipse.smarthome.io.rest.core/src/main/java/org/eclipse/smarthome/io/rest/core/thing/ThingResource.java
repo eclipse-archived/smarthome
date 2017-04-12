@@ -478,7 +478,7 @@ public class ThingResource implements SatisfiableRESTResource {
                             normalizeConfiguration(configurationParameters, thing.getThingTypeUID(), thing.getUID()))
                                     .getProperties());
         } catch (ConfigValidationException ex) {
-            logger.debug("Config description validation exception occured for thingUID {} - Messages: {}", thingUID,
+            logger.debug("Config description validation exception occurred for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
         } catch (IllegalArgumentException ex) {

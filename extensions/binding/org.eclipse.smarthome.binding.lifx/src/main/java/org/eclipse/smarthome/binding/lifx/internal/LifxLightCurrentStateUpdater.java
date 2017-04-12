@@ -74,7 +74,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
                 }
                 wasOnline = currentLightState.isOnline();
             } catch (Exception e) {
-                logger.error("Error occured while polling light state", e);
+                logger.error("Error occurred while polling light state", e);
             } finally {
                 lock.unlock();
             }
@@ -98,7 +98,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
                         TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            logger.error("Error occured while starting light state updater", e);
+            logger.error("Error occurred while starting light state updater", e);
         } finally {
             lock.unlock();
         }
@@ -113,7 +113,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
                 statePollingJob = null;
             }
         } catch (Exception e) {
-            logger.error("Error occured while stopping light state updater", e);
+            logger.error("Error occurred while stopping light state updater", e);
         } finally {
             lock.unlock();
         }
