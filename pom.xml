@@ -49,6 +49,7 @@
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.9.2</xtext-version>
     <karaf.version>4.0.3</karaf.version>
+    <ds-annotations.version>1.2.8</ds-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -148,6 +149,15 @@
           <groupId>${tycho-groupid}</groupId>
           <artifactId>tycho-compiler-plugin</artifactId>
           <version>${tycho-version}</version>
+          <configuration>
+            <extraClasspathElements>
+              <extraClasspathElement>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${ds-annotations.version}</version>
+              </extraClasspathElement>
+            </extraClasspathElements>
+          </configuration>          
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
@@ -175,6 +185,16 @@
           <version>${tycho-version}</version>
           <configuration>
             <failIfNoTests>false</failIfNoTests>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-scr-plugin</artifactId>
+          <version>1.24.0</version>
+          <configuration>
+            <supportedProjectTypes>
+              <supportedProjectType>eclipse-plugin</supportedProjectType>
+            </supportedProjectTypes>
           </configuration>
         </plugin>
         <plugin>
