@@ -174,7 +174,6 @@ class ThingStatusInfoI18nLocalizationServiceOSGiTest extends OSGiTest {
     @After
     void tearDown() {
         managedThingProvider.remove(thing.getUID())
-        unregisterMocks()
         setDefaultLocale(defaultLocale)
     }
 

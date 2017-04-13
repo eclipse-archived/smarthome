@@ -61,7 +61,9 @@ public final class ThingStatusInfoI18nLocalizationService {
             throw new IllegalArgumentException("Thing must not be null.");
         }
 
-        if (thing.getHandler() == null) {
+        ThingHandler thingHandler = thing.getHandler();
+
+        if (thingHandler == null) {
             return thing.getStatusInfo();
         }
 
@@ -70,7 +72,7 @@ public final class ThingStatusInfoI18nLocalizationService {
             return thing.getStatusInfo();
         }
 
-        Bundle bundle = FrameworkUtil.getBundle(thing.getHandler().getClass());
+        Bundle bundle = FrameworkUtil.getBundle(thingHandler.getClass());
 
         Description desc = new Description(bundle, locale, description, i18nProvider);
         String translatedDescription = i18nProvider.getText(bundle, desc.key, description, locale, desc.args);

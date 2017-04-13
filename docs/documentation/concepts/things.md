@@ -28,17 +28,21 @@ Each thing has a status object, which helps to identify possible problems with t
 | ONLINE        | The device/service represented by a thing is assumed to be working correctly and can process commands. |
 | OFFLINE       | The device/service represented by a thing is assumed to be not working correctly and may not process commands. But the framework is allowed to send commands, because some radio-based devices may go back to ONLINE, if a command is sent to them. |
 | REMOVING      | The device/service represented by a thing should be removed, but the binding did not confirm the deletion yet. Some bindings need to communicate with the device to unpair it from the system. Thing is probably not working and commands can not be processed. |
-| REMOVED       | This status indicates, that the device/service represented by a thing was removed from the external system. Usually this status is an intermediate status, because the thing is removed from the database after this status is assigned. |
+| REMOVED       | This status indicates that the device/service represented by a thing was removed from the external system after the REMOVING was initiated by the framework. Usually this status is an intermediate status because the thing gets removed from the database after this status was assigned. |
 
-The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE, OFFLINE and REMOVED are assigned from a binding. Furthermore bindings can specify a localized description of the thing status by providing the reference of the localization string, e.g &#64;text/rate_limit. The corresponding handler is able to provide placeholder values as a JSON-serialized array of strings:
+The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE and OFFLINE are assigned from a binding. 
 
-```
-&#64;text/rate_limit ["60", "10", "@text/hour"]
-```
+Additionally, the REMOVED state is set by the binding to indicate that the removal process has been completed, i.e. the thing must have been in REMOVING state before.
 
-```
-rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of {1} configuration changes per {2} has been exceeded. For further info please refer to device vendor.
-```
+Furthermore bindings can specify a localized description of the thing status by providing the reference of the localization string, e.g &#64;text/rate_limit. The corresponding handler is able to provide placeholder values as a JSON-serialized array of strings:
++
++```
++&#64;text/rate_limit ["60", "10", "@text/hour"]
++```
++
++```
++rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of {1} configuration changes per {2} has been exceeded. For further info please refer to device vendor.
++```
 
 ### Status Transitions
 

@@ -133,7 +133,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Thing created."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "A uid must be provided, if no binding can create a thing of this type."),
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
