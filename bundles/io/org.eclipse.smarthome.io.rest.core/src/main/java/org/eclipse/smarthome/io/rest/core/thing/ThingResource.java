@@ -130,7 +130,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "A uid must be provided, if no binding can create a thing of this type."),
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
@@ -213,7 +213,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing by UID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing with provided thingUID does not exist.") })
+            @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getByUID(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID) {
         final Locale locale = LocaleUtil.getLocale(language);
@@ -242,7 +242,8 @@ public class ThingResource implements SatisfiableRESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found or channel not found") })
+            @ApiResponse(code = 403, message = "Channel is not linkable for the thing, as it is not of kind 'state'!"),
+            @ApiResponse(code = 404, message = "Thing not found or channel not found.") })
     public Response link(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
             @ApiParam(value = "item name") String itemName) {
@@ -296,10 +297,11 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}")
     @ApiOperation(value = "Removes a thing from the registry. Set \'force\' to __true__ if you want the thing te be removed immediately.")
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "ACCEPTED for asynchronous deletion."),
-            @ApiResponse(code = 200, message = "OK, was deleted."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK, was deleted."),
+            @ApiResponse(code = 202, message = "ACCEPTED for asynchronous deletion."),
+            @ApiResponse(code = 404, message = "Thing not found."),
             @ApiResponse(code = 409, message = "CONFLICT, Thing could not be deleted because it's not managed."),
-            @ApiResponse(code = 404, message = "Thing not found.") })
+            @ApiResponse(code = 500, message = "Thing could not be deleted for unknown reasons.") })
     public Response remove(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
@@ -352,7 +354,8 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Path("/{thingUID}/channels/{channelId}/link")
     @ApiOperation(value = "Unlinks item from a channel.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found.") })
     public Response unlink(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
             @ApiParam(value = "channelId") String itemName) {
@@ -386,7 +389,8 @@ public class ThingResource implements SatisfiableRESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates a thing.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found") })
+            @ApiResponse(code = 404, message = "Thing not found."),
+            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
     public Response update(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @ApiParam(value = "thing", required = true) ThingDTO thingBean) throws IOException {
@@ -442,11 +446,13 @@ public class ThingResource implements SatisfiableRESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates thing's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found") })
+            @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
+            @ApiResponse(code = 404, message = "Thing not found"),
+            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-            throws IOException {
+                    throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
