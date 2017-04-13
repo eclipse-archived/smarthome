@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.automation;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.smarthome.core.common.registry.Registry;
 
@@ -117,11 +118,12 @@ public interface RuleRegistry extends Registry<Rule, String> {
     
     /**
 	 * Same as {@link RuleRegistry#runNow(String)} with additional option to enable/disable evaluation of
-	 * conditions defined in the target rule
+	 * conditions defined in the target rule. The context can be set here, too but also might be null.
 	 * 
 	 * @param ruleUID
 	 * @param considerConditions
+	 * @param context
 	 */
-	public void runNow(String ruleUID, boolean considerConditions);
+	public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context);
 
 }
