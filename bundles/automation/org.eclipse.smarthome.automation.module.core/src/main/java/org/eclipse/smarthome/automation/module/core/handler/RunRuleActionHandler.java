@@ -94,7 +94,7 @@ public class RunRuleActionHandler extends BaseModuleHandler<Action> implements A
         // execute each rule after the other; at the moment synchronously
         for (String uid : ruleUIDs) {
             if (ruleRegistry != null) {
-                ruleRegistry.runNow(uid, considerConditions);
+                ruleRegistry.runNow(uid, considerConditions, context);
             } else {
                 logger.warn("Action is not applied to {} because RuleRegistry is not available.", uid);
             }

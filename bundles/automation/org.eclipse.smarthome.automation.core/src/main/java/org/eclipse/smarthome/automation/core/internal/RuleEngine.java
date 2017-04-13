@@ -841,7 +841,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
     }
 
-    protected void runNow(String ruleUID, boolean considerConditions) {
+    protected void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
         RuntimeRule rule = getRuntimeRule(ruleUID);
         if (rule == null) {
             logger.warn("Failed to execute rule '{}': Invalid Rule UID", ruleUID);
@@ -860,6 +860,9 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
         try {
             clearContext(rule);
+            if (context!=null && !context.isEmpty()){
+                getContext(ruleUID).putAll(context);
+            }
             if (considerConditions) {
                 if (calculateConditions(rule)) {
                     executeActions(rule, false);
@@ -880,7 +883,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     }
 
     protected void runNow(String ruleUID) {
-        runNow(ruleUID, false);
+        runNow(ruleUID, false, null);
     }
 
     protected void clearContext(RuntimeRule rule) {
