@@ -447,12 +447,11 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiOperation(value = "Updates thing's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
-            @ApiResponse(code = 404, message = "Thing not found"),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
+            @ApiResponse(code = 404, message = "Thing not found") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -465,17 +464,6 @@ public class ThingResource implements SatisfiableRESTResource {
             return getThingNotFoundResponse(thingUID);
         }
 
-        // ask whether the Thing exists as a managed thing, so it can get
-        // updated, 409 otherwise
-        Thing managed = managedThingProvider.get(thingUIDObject);
-        if (null == managed) {
-            logger.info("Received HTTP PUT request for update configuration at '{}' for an unmanaged thing '{}'.",
-                    uriInfo.getPath(), thingUID);
-            return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
-        }
-
-        // only move on if Thing is known to be managed, so it can get updated
         try {
             // note that we create a Configuration instance here in order to
             // have normalized types
@@ -537,6 +525,7 @@ public class ThingResource implements SatisfiableRESTResource {
      *
      * @param status
      * @param thing
+     * @param locale
      * @param errormessage an optional error message (may be null), ignored if the status family is successful
      * @return Response
      */
