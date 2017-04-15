@@ -306,6 +306,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     }
     $scope.refresh();
 }).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
+    $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -316,6 +317,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     $scope.showAdvanced = false;
     $scope.channelTypes;
     $scope.items;
+    
     channelTypeService.getAll().$promise.then(function(channels) {
         $scope.channelTypes = channels;
         $scope.refreshChannels(false);
@@ -323,6 +325,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     itemRepository.getAll(function(items) {
         $scope.items = items;
     });
+    
     $scope.remove = function(thing, event) {
         event.stopImmediatePropagation();
         $mdDialog.show({
@@ -522,11 +525,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.thing = thing;
             $scope.thingTypeUID = thing.thingTypeUID;
             getThingType();
-            if (thing.item) {
-                $scope.setTitle(thing.label);
-            } else {
-                $scope.setTitle(thing.UID);
-            }
+            $scope.setSubtitle(['Things', thing.label]);
         }, refresh);
     }
     $scope.getThing(true);
@@ -696,6 +695,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         $mdDialog.hide();
     }
 }).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, configService, configDescriptionService, thingService) {
+    $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
     var thingUID = $scope.path[4];
@@ -764,11 +764,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             
             // Get the thing type
             $scope.getThingType();
-            if (thing.item) {
-                $scope.setTitle('Edit ' + thing.label);
-            } else {
-                $scope.setTitle('Edit ' + thing.UID);
-            }
+            $scope.setSubtitle([ 'Things', 'Edit', thing.label]);
 
             // Now get the configuration information for this thing
             configDescriptionService.getByUri({
