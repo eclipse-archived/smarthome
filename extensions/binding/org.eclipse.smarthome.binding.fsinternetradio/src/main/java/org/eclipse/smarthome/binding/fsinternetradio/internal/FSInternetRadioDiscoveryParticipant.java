@@ -87,6 +87,11 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         final Set<String> revoRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("REVO TECHNOLOGIES LTD", revoRadios);
         revoRadios.add("SUPERCONNECT");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/11
+        final Set<String> AUNARadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("AUNA", AUNARadios);
+        AUNARadios.add(" CONNECT 150");
     }
 
     @Override
@@ -191,6 +196,7 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
             // maybe we can add further indicators, whether the device is a supported one
         }
         // device not supported
+
         return null;
     }
 }
