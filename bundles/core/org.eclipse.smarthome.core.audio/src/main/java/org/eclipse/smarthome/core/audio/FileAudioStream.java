@@ -23,23 +23,36 @@ import org.apache.commons.io.IOUtils;
  */
 public class FileAudioStream extends FixedLengthAudioStream {
 
+    public static String WAV_EXTENSION = ".wav";
+    public static String MP3_EXTENSION = ".mp3";
+    public static String OGG_EXTENSION = ".ogg";
+    public static String AAC_EXTENSION = ".aac";
+
     private File file;
     private AudioFormat audioFormat;
     private InputStream inputStream;
     private long length;
 
     public FileAudioStream(File file) throws AudioException {
+        this(file, getAudioFormat(file));
+    }
+
+    public FileAudioStream(File file, AudioFormat format) throws AudioException {
         this.file = file;
         this.inputStream = getInputStream(file);
-        this.audioFormat = getAudioFormat(file);
+        this.audioFormat = format;
         this.length = file.length();
     }
 
     private static AudioFormat getAudioFormat(File file) throws AudioException {
-        if (file.getName().toLowerCase().endsWith(".wav")) {
+        if (file.getName().toLowerCase().endsWith(WAV_EXTENSION)) {
             return new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, false, 16, 705600, 44100L);
-        } else if (file.getName().toLowerCase().endsWith(".mp3")) {
-            return new AudioFormat(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3, null, null, null, null);
+        } else if (file.getName().toLowerCase().endsWith(MP3_EXTENSION)) {
+            return AudioFormat.MP3;
+        } else if (file.getName().toLowerCase().endsWith(OGG_EXTENSION)) {
+            return AudioFormat.OGG;
+        } else if (file.getName().toLowerCase().endsWith(AAC_EXTENSION)) {
+            return AudioFormat.AAC;
         } else {
             throw new AudioException("Unsupported file extension!");
         }

@@ -26,6 +26,14 @@ public class AudioFormat {
     public static AudioFormat WAV = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null,
             null, null, null);
 
+    // generic OGG format without any further constraints
+    public static AudioFormat OGG = new AudioFormat(AudioFormat.CONTAINER_OGG, AudioFormat.CODEC_VORBIS, null, null,
+            null, null);
+
+    // generic AAC format without any further constraints
+    public static AudioFormat AAC = new AudioFormat(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_AAC, null, null, null,
+            null);
+
     /**
      * {@link AudioCodec} encoded data without any container header or footer,
      * e.g. MP3 is a non-container format
@@ -89,6 +97,11 @@ public class AudioFormat {
      * @see <a href="http://xiph.org/vorbis/doc/">Vorbis</a>
      */
     public static final String CODEC_VORBIS = "VORBIS";
+
+    /**
+     * AAC Codec
+     */
+    public static final String CODEC_AAC = "AAC";
 
     /**
      * Codec
