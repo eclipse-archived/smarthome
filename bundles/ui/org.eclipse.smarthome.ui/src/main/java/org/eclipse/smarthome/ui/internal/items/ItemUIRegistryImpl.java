@@ -291,6 +291,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         if (pattern != null) {
                             label = label + " [" + pattern + "]";
                         }
+                    } else if (item instanceof StringItem) {
+                        // We consider a default pattern for string items
+                        label = label + " [%s]";
                     }
                 }
 
