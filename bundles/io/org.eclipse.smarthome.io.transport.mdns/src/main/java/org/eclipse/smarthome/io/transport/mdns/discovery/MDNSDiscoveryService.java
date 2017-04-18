@@ -65,6 +65,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         for (MDNSDiscoveryParticipant participant : participants) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
+        startScan();
     }
 
     @Override
