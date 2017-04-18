@@ -10,8 +10,8 @@ This means that what you build is primarily an artifact repository of OSGi bundl
 within smart home products. Besides this repository, a tool called "Designer" is available. The
 Designer can be used for editing configuration files with full IDE support.
 
-1. Prerequisites
-================
+1\. Prerequisites
+=================
 
 The build infrastructure is based on Maven in order to make it
 as easy as possible to get up to speed. If you know Maven already then
@@ -23,15 +23,15 @@ What you need before you start:
 
 Make sure that the "mvn" command is available on your path
 
-2. Checkout
-===========
+2\. Checkout
+============
 
 Checkout the source code from GitHub, e.g. by running
 
 git clone https://github.com/eclipse/smarthome.git
 
-3. Building with Maven
-======================
+3\. Building with Maven
+=======================
 
 To build Eclipse SmartHome from the sources, Maven takes care of everything:
 - set MAVEN_OPTS to "-Xms512m -Xmx1024m"
