@@ -26,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a {@link DiscoveryService} implementation, which can find mDNS services in the network.
- * Support for further devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
+ * This is a {@link DiscoveryService} implementation, which can find mDNS services in the network. Support for further
+ * devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
  *
  * @author Tobias Bräutigam - Initial contribution
  * @author Kai Kreuzer - Improved startup behavior and background discovery
- *
+ * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
@@ -62,15 +62,10 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     @Override
     protected void startBackgroundDiscovery() {
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                startScan();
-            }
-        }, 0, TimeUnit.SECONDS);
         for (MDNSDiscoveryParticipant participant : participants) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
+        startScan();
     }
 
     @Override
@@ -82,7 +77,15 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     @Override
     protected void startScan() {
-        logger.debug("mDNS discovery service started");
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                scan();
+            }
+        }, 0, TimeUnit.SECONDS);
+    }
+
+    private void scan() {
         for (MDNSDiscoveryParticipant participant : participants) {
             ServiceInfo[] services = mdnsClient.list(participant.getServiceType());
             logger.debug("{} services found for {}", services.length, participant.getServiceType());
