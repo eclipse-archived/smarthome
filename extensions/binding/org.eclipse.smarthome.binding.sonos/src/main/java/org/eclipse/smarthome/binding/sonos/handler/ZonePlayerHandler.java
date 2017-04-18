@@ -554,14 +554,19 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         InputStream input = null;
         try {
             URLConnection connection = url.openConnection();
-            contentType = connection.getContentType();
-            logger.debug("Content type from headers: {}", contentType);
-            if (contentType == null) {
-                input = connection.getInputStream();
-                contentType = URLConnection.guessContentTypeFromStream(input);
-                logger.debug("Content type from data: {}", contentType);
-                if (contentType == null) {
-                    contentType = RawType.DEFAULT_MIME_TYPE;
+            long length = connection.getContentLengthLong();
+            if (length < 0 || length > 500000) {
+                // We ignore the URL in case the data size is unknown or bigger than 500000 bytes
+                logger.debug("Content too big ({}): URL ignored", length);
+                contentType = RawType.DEFAULT_MIME_TYPE;
+            } else {
+                contentType = connection.getContentType();
+                logger.debug("Content type from headers: {}", contentType);
+                if (contentType == null || contentType.isEmpty()) {
+                    // We try to get the type from the data
+                    input = connection.getInputStream();
+                    contentType = URLConnection.guessContentTypeFromStream(input);
+                    logger.debug("Content type from data: {}", contentType);
                 }
             }
         } catch (IOException e) {
@@ -570,7 +575,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         } finally {
             IOUtils.closeQuietly(input);
         }
-        return contentType;
+        return (contentType == null || contentType.isEmpty()) ? RawType.DEFAULT_MIME_TYPE : contentType;
     }
 
     protected void updateChannel(String channeldD) {
@@ -687,15 +692,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 url = getAlbumArtUrl();
                 if (url != null) {
                     String contentType = getContentTypeFromUrl(url);
-                    InputStream input = null;
-                    try {
-                        input = url.openStream();
-                        newState = new RawType(IOUtils.toByteArray(input), contentType);
-                    } catch (IOException e) {
-                        logger.debug("Failed to download the album cover art: {}", e.getMessage());
-                        newState = UnDefType.UNDEF;
-                    } finally {
-                        IOUtils.closeQuietly(input);
+                    if (contentType != RawType.DEFAULT_MIME_TYPE) {
+                        InputStream input = null;
+                        try {
+                            input = url.openStream();
+                            newState = new RawType(IOUtils.toByteArray(input), contentType);
+                        } catch (IOException e) {
+                            logger.debug("Failed to download the album cover art: {}", e.getMessage());
+                            newState = UnDefType.UNDEF;
+                        } finally {
+                            IOUtils.closeQuietly(input);
+                        }
                     }
                 }
                 break;
