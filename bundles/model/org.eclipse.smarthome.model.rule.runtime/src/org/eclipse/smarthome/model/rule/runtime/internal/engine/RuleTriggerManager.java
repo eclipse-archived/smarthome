@@ -145,6 +145,7 @@ public class RuleTriggerManager {
                 break;
             case THINGCHANGE:
                 result = Iterables.concat(thingChangedEventTriggeredRules.values());
+                break;
             default:
                 result = Sets.newHashSet();
         }
@@ -584,6 +585,7 @@ public class RuleTriggerManager {
                 for (Set<Rule> rules : thingUpdateEventTriggeredRules.values()) {
                     rules.remove(rule);
                 }
+                break;
             case THINGCHANGE:
                 for (Set<Rule> rules : thingChangedEventTriggeredRules.values()) {
                     rules.remove(rule);
