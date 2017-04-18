@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
 import org.eclipse.smarthome.test.OSGiTest
@@ -123,8 +124,11 @@ final class FirmwareRegistryOSGiTest extends OSGiTest {
 
     @Before
     void setup() {
-        defaultLocale = Locale.getDefault()
-        Locale.setDefault(Locale.ENGLISH)
+        def localeProvider = getService(LocaleProvider)
+        assertThat localeProvider, is(notNullValue())
+        defaultLocale = localeProvider.getLocale()
+
+        setDefaultLocale(Locale.ENGLISH)
 
         firmwareRegistry = getService(FirmwareRegistry)
         assertThat firmwareRegistry, is(notNullValue())
@@ -135,8 +139,7 @@ final class FirmwareRegistryOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        Locale.setDefault(defaultLocale)
-        unregisterMocks()
+        setDefaultLocale(defaultLocale)
     }
 
     @Test

@@ -7,12 +7,11 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing;
 
-import java.net.URI;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 
@@ -26,13 +25,14 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * Maps thing into enriched thing data transfer object.
      *
      * @param thing the thing
-     * @param uri the uri
+     * @param thingStatusInfo the thing status information to be used for the enriched object
+     * @param linkedItemsMap the map of linked items to be injected into the enriched object
+     *
      * @return the enriched thing DTO object
      */
-    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale, Map<String, Set<String>> linkedItemsMap) {
-
+    public static EnrichedThingDTO map(Thing thing, ThingStatusInfo thingStatusInfo,
+            Map<String, Set<String>> linkedItemsMap) {
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
-
-        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), linkedItemsMap);
+        return new EnrichedThingDTO(thingDTO, thingStatusInfo, linkedItemsMap);
     }
 }

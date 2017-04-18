@@ -23,6 +23,7 @@
    <reference bind="setThingRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="dynamic" unbind="unsetThingRegistry"/>
    <reference bind="setConfigStatusService" cardinality="0..1" interface="org.eclipse.smarthome.config.core.status.ConfigStatusService" name="ConfigStatusService" policy="dynamic" unbind="unsetConfigStatusService"/>
    <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
-   <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic"/>
-   
+   <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic" unbind="unsetThingTypeRegistry"/>
+   <reference bind="setThingStatusInfoI18nLocalizationService" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService" name="ThingStatusInfoI18nLocalizationService" policy="dynamic" unbind="unsetThingStatusInfoI18nLocalizationService"/>
+  
 </scr:component>

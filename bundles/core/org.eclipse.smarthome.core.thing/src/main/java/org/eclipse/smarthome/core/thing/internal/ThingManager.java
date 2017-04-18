@@ -59,6 +59,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -91,6 +92,7 @@ import com.google.common.collect.SetMultimap;
  * @author Simon Kaufmann - Added remove handling, type conversion
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
+ * @author Thomas Höfer - Added localization of thing status info
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
@@ -114,6 +116,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             .synchronizedSetMultimap(HashMultimap.<ThingHandlerFactory, ThingHandler> create());
 
     private ThingTypeRegistry thingTypeRegistry;
+
+    private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
 
     private ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -1058,13 +1062,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
-        ThingStatusInfo oldStatusInfo = thing.getStatusInfo();
+        ThingStatusInfo oldStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing, null);
         thing.setStatusInfo(thingStatusInfo);
+        ThingStatusInfo newStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing, null);
         try {
-            eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
-            if (!oldStatusInfo.equals(thingStatusInfo)) {
+            eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), newStatusInfo));
+            if (!oldStatusInfo.equals(newStatusInfo)) {
                 eventPublisher.post(
-                        ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), thingStatusInfo, oldStatusInfo));
+                        ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), newStatusInfo, oldStatusInfo));
             }
         } catch (Exception ex) {
             logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
@@ -1085,6 +1090,16 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetBundleProcessor(BundleProcessor bundleProcessor) {
         initializationVetoManager.removeBundleProcessor(bundleProcessor);
+    }
+
+    protected void setThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
+    }
+
+    protected void unsetThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = null;
     }
 
 }
