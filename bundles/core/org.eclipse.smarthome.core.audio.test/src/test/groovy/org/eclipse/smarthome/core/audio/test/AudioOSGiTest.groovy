@@ -11,9 +11,6 @@ package org.eclipse.smarthome.core.audio.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.Locale;
-
-import org.apache.commons.lang.SystemUtils
 import org.eclipse.smarthome.config.core.ConfigConstants
 import org.eclipse.smarthome.core.audio.*
 import org.eclipse.smarthome.core.audio.internal.AudioManagerImpl
@@ -38,12 +35,12 @@ class AudioOSGiTest extends OSGiTest {
     protected AudioSink audioSinkFake
     protected AudioStream audioStream
     protected AudioServlet audioServlet
-    
+
     protected def audioSourceMock
 
     protected final String AUDIO_SERVLET_PROTOCOL = "http"
     protected final String AUDIO_SERVLET_HOSTNAME = "localhost"
-    protected final int AUDIO_SERVLET_PORT = 8080
+    protected final int AUDIO_SERVLET_PORT = 9090
 
     protected byte[] testByteArray = [0, 1, 2]
 
