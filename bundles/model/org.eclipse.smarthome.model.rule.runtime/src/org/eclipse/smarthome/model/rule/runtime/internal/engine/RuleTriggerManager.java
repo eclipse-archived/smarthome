@@ -211,24 +211,23 @@ public class RuleTriggerManager {
             case TRIGGER:
                 Set<Rule> rules = triggerEventTriggeredRules.get(channel);
                 if (rules == null) {
-                    return Sets.newHashSet();
+                    return Collections.emptyList();
                 }
                 for (Rule rule : rules) {
                     for (EventTrigger t : rule.getEventtrigger()) {
                         if (t instanceof EventEmittedTrigger) {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
                             if (et.getTrigger() != null) {
-                                if (!et.getTrigger().equals(event)) {
-                                    continue;
+                                if (et.getChannel().equals(channel) && et.getTrigger().equals(event)) {
+                                    result.add(rule);
                                 }
                             }
-                            result.add(rule);
                         }
                     }
                 }
                 break;
             default:
-                return Sets.newHashSet();
+                return Collections.emptyList();
         }
 
         return result;
