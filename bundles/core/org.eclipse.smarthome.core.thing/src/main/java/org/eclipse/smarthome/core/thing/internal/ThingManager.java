@@ -147,14 +147,18 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
             if (ThingStatus.REMOVING.equals(oldStatusInfo.getStatus())
                     && !ThingStatus.REMOVED.equals(statusInfo.getStatus())) {
-                // only allow REMOVING -> REMOVED transition and ignore all other state changes
-                return;
+                // only allow REMOVING -> REMOVED transition, all others are illegal
+                throw new IllegalArgumentException(MessageFormat.format(
+                        "Illegal status transition from REMOVING to {0}, only REMOVED would have been allowed.",
+                        statusInfo.getStatus()));
             }
 
             if (ThingStatus.UNKNOWN.equals(statusInfo.getStatus())
                     && !ThingStatus.INITIALIZING.equals(oldStatusInfo.getStatus())) {
-                // only allow UNKNOWN in the beginning, not after ONLINE or OFFLINE
-                return;
+                // only allow UNKNOWN in the beginning, especially not after ONLINE or OFFLINE
+                throw new IllegalArgumentException(MessageFormat.format(
+                        "Illegal status transition to from {0} to UNKNOWN. This is only allowed as the first state after INITIALIZING.",
+                        oldStatusInfo.getStatus()));
             }
 
             // update thing status and send event about new status
@@ -522,8 +526,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         });
                     }
                 } catch (Exception ex) {
-                    logger.error("Exception occurred while calling thing updated at ThingHandler '{}': {}", thingHandler,
-                            ex.getMessage(), ex);
+                    logger.error("Exception occurred while calling thing updated at ThingHandler '{}': {}",
+                            thingHandler, ex.getMessage(), ex);
                 }
             } else {
                 logger.debug(
