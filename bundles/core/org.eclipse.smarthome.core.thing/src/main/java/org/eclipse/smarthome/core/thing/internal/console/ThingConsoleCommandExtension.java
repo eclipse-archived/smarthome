@@ -36,7 +36,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
-    private static final String SUBCMD_TRIGGER_CHANNEL = "trigger-channel";
+    private static final String SUBCMD_TRIGGER_CHANNEL = "trigger";
 
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
