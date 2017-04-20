@@ -22,13 +22,13 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Stefan Triller - Initial contribution
  *
  */
-public class ChannelConsoleCommandExtension extends AbstractConsoleCommandExtension {
+public class TriggerChannelConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_TRIGGER = "trigger";
 
     private EventPublisher eventPublisher;
 
-    public ChannelConsoleCommandExtension() {
+    public TriggerChannelConsoleCommandExtension() {
         super("channels", "Access channels.");
     }
 

@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.internal.console.ChannelConsoleCommandExtension">
-   <implementation class="org.eclipse.smarthome.core.thing.internal.console.ChannelConsoleCommandExtension"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.internal.console.TriggerChannelConsoleCommandExtension">
+   <implementation class="org.eclipse.smarthome.core.thing.internal.console.TriggerChannelConsoleCommandExtension"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension"/>
    </service>
