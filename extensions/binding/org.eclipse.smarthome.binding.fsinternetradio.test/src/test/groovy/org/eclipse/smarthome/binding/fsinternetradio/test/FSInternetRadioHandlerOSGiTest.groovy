@@ -59,7 +59,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	def DEFAULT_THING_UID = new ThingUID(DEFAULT_THING_TYPE_UID, DEFAULT_TEST_THING_NAME)
 
 	/**
-	 * In order to test a specific channel, it is neccessary to create a Thing with two channels - CHANNEL_POWER
+	 * In order to test a specific channel, it is necessary to create a Thing with two channels - CHANNEL_POWER
 	 * and the tested channel. So before each test, the power channel is created and added
 	 * to an ArrayList of channels. Then in the tests an additional channel is created and added to the ArrayList
 	 * when it's needed.
@@ -96,7 +96,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	def DEFAULT_CONFIG_PROPERTY_REFRESH = "1"
 	def DEFAULT_COMPLETE_CONFIGURATION = createDefaultConfiguration()
 
-	/** 
+	/**
 	 * Enabling channel item provider is done asynchronously.
 	 * In order to be sure that we get the actual item state, we need to put the current
 	 * Thread to sleep for a while after a new {@link ItemChannelLink} is added
@@ -203,6 +203,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"))
 
 		waitForAssert {
+
 			assertThat ("The ThingStatus was not updated correctly when the HTTP response cannot be parsed",radioThing.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
 			assertThat ("The ThingStatusInfo was not updated correctly when the HTTP response cannot be parsed", radioThing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)))
 		}
@@ -228,7 +229,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 
 	@Test
 	void 'verify the HTTP status is handled correctly when it is not OK_200'() {
-		
+
 		// create a thing with two channels - the power channel and any of the others
 		String modeChannelID = FSInternetRadioBindingConstants.CHANNEL_MODE
 		String acceptedItemType = acceptedItemTypes.get(modeChannelID)
@@ -241,7 +242,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		turnTheRadioOn(radioThing)
 
 		/*
-		 * Setting the needed boolean variable to false, so we can be sure 
+		 * Setting the needed boolean variable to false, so we can be sure
 		 *  that the XML response won't have a OK_200 status
 		 */
 		servlet.isOKAnswerExpected = false
@@ -287,7 +288,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		}
 
 		/*
-		 *  Setting the needed boolean variable to true, so we can be sure 
+		 *  Setting the needed boolean variable to true, so we can be sure
 		 *  that an invalid value will be returned in the XML response
 		 */
 		servlet.isInvalidValueExpected = true
@@ -324,7 +325,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		}
 
 		/*
-		 *  Setting the needed boolean variable to true, so we can be sure 
+		 *  Setting the needed boolean variable to true, so we can be sure
 		 *  that an invalid value will be returned in the XML response
 		 */
 		servlet.isInvalidValueExpected = true
@@ -356,9 +357,9 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		}
 
 		/*
-		 *  Setting the needed boolean variable to true, so we can be sure 
+		 *  Setting the needed boolean variable to true, so we can be sure
 		 *  that an invalid value will be returned in the XML response
-		 */	
+		 */
 		servlet.isInvalidValueExpected = true
 
 		radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("3"))
@@ -368,7 +369,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	}
 
 	@Test
-	void 'verify the volume is updated through the CHANNEL_VOLUME_ABSOLUTE' () {
+	void 'verify the volume is updated through the CHANNEL_VOLUME_ABSOLUTE using INCREASE and DECREASE commands' () {
 
 		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
 		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
@@ -383,8 +384,40 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, "${DEFAULT_TEST_ITEM_NAME}", absoluteAcceptedItemType)
 
 		testChannelWithINCREASEAndDECREASECommands(absoluteVolumeChannelUID, volumeTestItem)
+	}
+
+	@Test
+	void 'verify the volume is updated through the CHANNEL_VOLUME_ABSOLUTE using UP and DOWN commands' () {
+
+		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
+		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
+		createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
+
+		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
+		testRadioThingWithConfiguration(radioThing)
+
+		turnTheRadioOn(radioThing)
+
+		ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID()
+		Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, "${DEFAULT_TEST_ITEM_NAME}", absoluteAcceptedItemType)
 
 		testChannelWithUPAndDOWNCommands(absoluteVolumeChannelUID, volumeTestItem)
+	}
+
+	@Test
+	void 'verify the invalid values when updating CHANNEL_VOLUME_ABSOLUTE are handled correctly' () {
+
+		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
+		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
+		createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
+
+		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
+		testRadioThingWithConfiguration(radioThing)
+
+		turnTheRadioOn(radioThing)
+
+		ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID()
+		Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, "${DEFAULT_TEST_ITEM_NAME}", absoluteAcceptedItemType)
 
 		// Trying to set a value that is greater than the maximum volume
 		radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("36"))
@@ -414,14 +447,8 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 			assertThat("The item's state was not updated correctly when a value lower than the minimum volume is passed", volumeTestItem.getState(), is (DecimalType.valueOf("0")))
 		}
 
-		// Trying to decrease the volume below the minimum value using the DOWN command
-		radioHandler.handleCommand(absoluteVolumeChannelUID, UpDownType.DOWN)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in an attemt to decrease the volume below the minimum", volumeTestItem.getState(), is (DecimalType.valueOf("0")))
-		}
-
 		/*
-		 *  Setting the needed boolean variable to true, so we can be sure 
+		 *  Setting the needed boolean variable to true, so we can be sure
 		 *  that an invalid value will be returned in the XML response
 		 */
 		servlet.isInvalidValueExpected = true
@@ -434,12 +461,12 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	}
 
 	@Test
-	void 'verify the volume is updated through the CHANNEL_VOLUME_PERCENT' () {
+	void 'verify the volume is updated through the CHANNEL_VOLUME_PERCENT using INCREASE and DECREASE commands' () {
+
 		/*
 		 * The volume is set through the CHANNEL_VOLUME_PERCENT in order to check if
 		 * the absolute volume will be updated properly.
 		 */
-
 		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
 		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
 		Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
@@ -459,10 +486,57 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID()
 
 		testChannelWithINCREASEAndDECREASECommands(percentVolumeChannelUID, volumeTestItem)
+	}
+
+	@Test
+	void 'verify the volume is updated through the CHANNEL_VOLUME_PERCENT using UP and DOWN commands' () {
+
+		/*
+		 * The volume is set through the CHANNEL_VOLUME_PERCENT in order to check if
+		 * the absolute volume will be updated properly.
+		 */
+		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
+		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
+		Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
+
+		String percentVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT
+		String percentAcceptedItemType = acceptedItemTypes.get(percentVolumeChannelID)
+		createChannel(DEFAULT_THING_UID, percentVolumeChannelID, percentAcceptedItemType)
+
+		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
+		testRadioThingWithConfiguration(radioThing)
+
+		turnTheRadioOn(radioThing)
+
+		ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID()
+		Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, "${DEFAULT_TEST_ITEM_NAME}", absoluteAcceptedItemType)
+
+		ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID()
 
 		testChannelWithUPAndDOWNCommands(percentVolumeChannelUID, volumeTestItem)
+	}
+	@Test
+	void 'verify the valid and invalid values when updating CHANNEL_VOLUME_PERCENT are handled correctly' () {
 
-		/* 
+		String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE
+		String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID)
+		Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
+
+		String percentVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT
+		String percentAcceptedItemType = acceptedItemTypes.get(percentVolumeChannelID)
+		createChannel(DEFAULT_THING_UID, percentVolumeChannelID, percentAcceptedItemType)
+
+		Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
+		testRadioThingWithConfiguration(radioThing)
+
+		turnTheRadioOn(radioThing)
+
+		ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID()
+		Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, "${DEFAULT_TEST_ITEM_NAME}", absoluteAcceptedItemType)
+
+		ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID()
+
+		/*
 		 * Giving the handler a valid percent value. According to the FrontierSiliconRadio's
 		 * documentation 100 percents correspond to 32 absolute value
 		 */
@@ -472,7 +546,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 		}
 
 		/*
-		 *  Setting the needed boolean variable to true, so we can be sure 
+		 *  Setting the needed boolean variable to true, so we can be sure
 		 *  that an invalid value will be returned in the XML response
 		 */
 		servlet.isInvalidValueExpected = true
@@ -485,53 +559,55 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
 	}
 
 	private void testChannelWithINCREASEAndDECREASECommands(ChannelUID channelUID, Item item) {
+		synchronized (channelUID) {
+			// First we have to make sure that the item state is 0
+			radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"))
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to set a value using the DecimalType command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 
-		// First we have to make sure that the item state is 0
-		radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"))
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to set a value using the DecimalType command", item.getState(), is (DecimalType.valueOf("0")))
-		}
+			radioHandler.handleCommand(channelUID, IncreaseDecreaseType.INCREASE)
 
-		radioHandler.handleCommand(channelUID, IncreaseDecreaseType.INCREASE)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to use the INCREASE command", item.getState(), is (DecimalType.valueOf("1")))
+			}
 
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to use the INCREASE command", item.getState(), is (DecimalType.valueOf("1")))
-		}
+			radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to use the DECREASE command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 
-		radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to use the DECREASE command", item.getState(), is (DecimalType.valueOf("0")))
-		}
-
-		// Trying to decrease one more time
-		radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in an attemt to decrease the value below zero using the DECREASE command", item.getState(), is (DecimalType.valueOf("0")))
+			// Trying to decrease one more time
+			radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in an attemt to decrease the value below zero using the DECREASE command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 		}
 	}
 
 	private void testChannelWithUPAndDOWNCommands(ChannelUID channelUID, Item item){
+		synchronized (channelUID) {
+			// First we have to make sure that the item state is 0
+			radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"))
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to set a value using the DecimalType command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 
-		// First we have to make sure that the item state is 0
-		radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"))
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to set a value using the DecimalType command", item.getState(), is (DecimalType.valueOf("0")))
-		}
+			radioHandler.handleCommand(channelUID, UpDownType.UP)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to use the UP command", item.getState(), is (DecimalType.valueOf("1")))
+			}
 
-		radioHandler.handleCommand(channelUID, UpDownType.UP)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to use the UP command", item.getState(), is (DecimalType.valueOf("1")))
-		}
+			radioHandler.handleCommand(channelUID, UpDownType.DOWN)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in attempt to use the DOWN command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 
-		radioHandler.handleCommand(channelUID, UpDownType.DOWN)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in attempt to use the DOWN command", item.getState(), is (DecimalType.valueOf("0")))
-		}
-
-		// Trying to decrease one more time
-		radioHandler.handleCommand(channelUID, UpDownType.DOWN)
-		waitForAssert {
-			assertThat("The item's state was not updated correctly in an attemt to decrease the value below zero using the DOWN command", item.getState(), is (DecimalType.valueOf("0")))
+			// Trying to decrease one more time
+			radioHandler.handleCommand(channelUID, UpDownType.DOWN)
+			waitForAssert {
+				assertThat("The item's state was not updated correctly in an attemt to decrease the value below zero using the DOWN command", item.getState(), is (DecimalType.valueOf("0")))
+			}
 		}
 	}
 
