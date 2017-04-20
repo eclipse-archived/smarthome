@@ -313,7 +313,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             },
             url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
         },
-        getStatus : {
+        getFirmwareStatus : {
             method : 'GET',
             params : {
                 thingUID : '@thingUID'
