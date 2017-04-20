@@ -29,7 +29,7 @@ public class TriggerChannelConsoleCommandExtension extends AbstractConsoleComman
     private EventPublisher eventPublisher;
 
     public TriggerChannelConsoleCommandExtension() {
-        super("channels", "Access channels.");
+        super("channel", "Access a channel for triggering events.");
     }
 
     public void setEventPublisher(EventPublisher eventPublisher) {
@@ -47,7 +47,7 @@ public class TriggerChannelConsoleCommandExtension extends AbstractConsoleComman
             switch (subCommand) {
                 case SUBCMD_TRIGGER:
                     if (args.length < 3) {
-                        console.println("Command '" + subCommand + "' needs arguments <channeluid> <command>");
+                        console.println("Command '" + subCommand + "' needs arguments <channeluid> <event>");
                         printUsage(console);
                     } else {
                         sendCommand(console, args[1], args[2]);
@@ -69,7 +69,7 @@ public class TriggerChannelConsoleCommandExtension extends AbstractConsoleComman
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_TRIGGER + " <channeluid> <command>",
+        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_TRIGGER + " <channeluid> <event>",
                 "triggers the specified channel with the given command") });
     }
 
