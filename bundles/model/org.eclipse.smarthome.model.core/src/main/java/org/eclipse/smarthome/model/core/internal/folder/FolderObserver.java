@@ -238,6 +238,9 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                         if (parsers.contains(getExtension(file.getName()))) {
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
+                            } catch (Exception e) {
+                                LoggerFactory.getLogger(FolderObserver.class)
+                                        .warn("Error while opening file during update: {}", file.getAbsolutePath());
                             }
                         } else {
                             ignoredFiles.add(file);
