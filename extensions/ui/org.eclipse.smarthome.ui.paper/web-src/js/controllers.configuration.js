@@ -1,4 +1,5 @@
-angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
+angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware' ]) //
+.controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
     $scope.navigateTo = function(path) {
         $location.path('configuration/' + path);
     }
@@ -384,9 +385,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
-            category : channelType.category ? channelType.category : "",
+            category : channelType.category ? channelType.category : '',
             suggestedName : getItemNameSuggestion(channelID, channelType.label),
-            suggestedLabel : channel.channelType.label,
+            suggestedLabel : channelType.label,
             suggestedCategory : channelType.category ? channelType.category : '',
             preSelectCreate : preSelect
         }
@@ -769,7 +770,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.thing = thing;
             angular.copy(thing, originalThing);
             $scope.thingTypeUID = thing.thingTypeUID;
-            
+
             // Get the thing type
             $scope.getThingType();
             $scope.setSubtitle([ 'Things', 'Edit', thing.label]);
@@ -818,62 +819,4 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             toastService.showDefaultToast('Channel updated');
         });
     }
-}).controller('FirmwareController', function($scope, toastService, eventService, thingService, thingTypeService) {
-    $scope.updatingFirmware = false;
-    $scope.percentComplete = 0;
-    $scope.firmwareStatus;
-    $scope.firmwares = [];
-    $scope.fvdetails = false;
-    var thingUID = $scope.path[4];
-    if (thingUID) {
-        thingService.getStatus({
-            thingUID : thingUID
-        }, function(firmwareStatus) {
-            $scope.firmwareStatus = firmwareStatus;
-        });
-    }
-    if ($scope.$parent.thing && $scope.$parent.thing.thingTypeUID) {
-        thingTypeService.getFirmwares({
-            thingTypeUID : $scope.$parent.thing.thingTypeUID
-        }, function(firmwares) {
-            $scope.firmwares = firmwares;
-        });
-    }
-
-    $scope.updateFirmware = function(version) {
-        if (!$scope.updatingFirmware) {
-            thingService.update({
-                thingUID : thingUID,
-                firmwareVersion : version
-            }, function() {
-                $scope.updatingFirmware = true;
-                $scope.percentComplete = 0;
-                $scope.fvdetails = false;
-            }, function(resp) {
-                toastService.showDefaultToast('Error: ' + resp.data.error.message);
-            });
-        }
-    }
-    eventService.onEvent('smarthome/things/*/firmware/update/progress', function(topic, updateStatus) {
-        if (updateStatus && updateStatus.progress) {
-            if (updateStatus.progress == 100) {
-                $scope.updatingFirmware = false;
-            }
-            $scope.$apply(function() {
-                $scope.percentComplete = updateStatus.progress;
-            });
-        }
-    });
-    eventService.onEvent('smarthome/things/*/firmware/update/result', function(topic, status) {
-        if (status && status.result == "SUCCESS") {
-            toastService.showDefaultToast('Firmware updated successfully.');
-        } else {
-            toastService.showDefaultToast('Firmware update failed.');
-        }
-    });
-    eventService.onEvent('smarthome/things/*/firmware/status', function(topic, object) {
-        if (object) {
-            $scope.firmwareStatus = object.status;
-        }
-    });
 });
