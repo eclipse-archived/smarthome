@@ -263,6 +263,14 @@ public class WatchQueueReader implements Runnable {
                 // As we have found a directory event and do not want to track directory changes - we will skip it
                 return null;
             }
+
+            // the resolved 'path' is the pure directory name while resolvedContextPath may be
+            // baseWatchedDir/registeredPath
+            // on systems like macOS
+            if (baseWatchedDir.resolve(path).toFile().isDirectory()) {
+                return path;
+            }
+
             return resolvedContextPath;
         }
 
