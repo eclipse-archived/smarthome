@@ -7,8 +7,11 @@
 </head>
 <body lang="EN-US">
 <h2>About This Content</h2>
-
-<p>June 5, 2006</p>
+#set( $stringClass = $package.getClass().forName("java.lang.String") )
+#set( $dt = $package.getClass().forName("java.util.Date").newInstance() )
+#set( $df = $package.getClass().forName("java.text.SimpleDateFormat").getConstructor($stringClass).newInstance("MMMM d, YYYY") )
+#set( $today = $df.format($dt) )
+<p>${today}</p>
 <h3>License</h3>
 
 <p>The Eclipse Foundation makes available all content in this plug-in (&quot;Content&quot;). Unless otherwise
