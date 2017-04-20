@@ -87,6 +87,11 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         final Set<String> revoRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("REVO TECHNOLOGIES LTD", revoRadios);
         revoRadios.add("SUPERCONNECT");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/10
+        final Set<String> robertsRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("ROBERTS RADIO LIMITED", robertsRadios);
+        robertsRadios.add("ROBERTS STREAM 93I");
     }
 
     @Override
