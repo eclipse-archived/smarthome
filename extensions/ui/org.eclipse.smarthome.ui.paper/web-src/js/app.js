@@ -1,4 +1,4 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
+angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.configuration.things', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -55,10 +55,6 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/item.config.html',
         controller : 'ItemSetupController',
         title : 'Create item'
-    }).when('/configuration/things/view/:thingUID', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
     }).when('/configuration/things/edit/:thingUID', {
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',

@@ -78,6 +78,7 @@ public class ThingTypeXmlResult {
             channelTypeDefinitions = new ArrayList<>(channelTypeReferences.size());
 
             for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
+                System.out.println(thingTypeUID.toString() + "::");
                 channelTypeDefinitions.add(channelTypeReference.toChannelDefinition(this.thingTypeUID.getBindingId()));
             }
         }

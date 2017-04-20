@@ -21,6 +21,7 @@ var paths = {
         './web-src/js/extensions.js',
         './web-src/js/main.js',
         './web-src/js/shared.properties.js',
+        './web-src/js/controllers.thing.js',
         './web-src/js/controllers.module.js',
         './web-src/js/widget.multiselect.js',
         './web-src/js/search.filters.js'
@@ -206,6 +207,7 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/controllers.configuration.js',
                      './web-src/js/controllers.system.js',
                      './web-src/js/controllers.items.js',
+                     './web-src/js/controllers.thing.js',
                      './web-src/js/controllers.control.js',
                      './web-src/js/controllers.extension.js',
                      './web-src/js/controllers.js',

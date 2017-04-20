@@ -1,0 +1,12 @@
+<h3>{{thing.label}}</h3>
+<p>{{thingType.label}}</p>
+<p>
+	Status:
+	<span class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}} {{thing.statusInfo.statusDetail !== 'NONE' ? ' - ' + thing.statusInfo.statusDetail : ''}}</span>
+	<span>
+		<small></small>
+	</span>
+	<span>{{thing.statusInfo.description}}</span>
+</p>
+<hr />
+<p ng-bind-html="thingType.description"></p>
