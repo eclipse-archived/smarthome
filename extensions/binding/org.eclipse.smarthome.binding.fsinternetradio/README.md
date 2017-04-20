@@ -4,7 +4,11 @@ This binding integrates internet radios based on the [Frontier Silicon chipset](
 
 ## Supported Things
 
-Successfully tested are internet radios [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110), [Medion MD87180](http://internetradio.medion.com/), and [MEDION MD86988](http://internetradio.medion.com/).
+Successfully tested are internet radios 
+ * [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110)
+ * [Medion MD87180](http://internetradio.medion.com/)
+ * [MEDION MD86988](http://internetradio.medion.com/)
+ * [Roberts Stream 93i](https://www.robertsradio.com/uk/products/radio/smart-radio/stream-93i)
 
 But in principle, all internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/) should be supported because they share the same API.
 
