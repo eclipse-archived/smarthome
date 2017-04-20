@@ -181,13 +181,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         private void ensureValidStatus(ThingStatus oldStatus, ThingStatus newStatus) {
             if (!(ThingStatus.UNKNOWN.equals(newStatus) || ThingStatus.ONLINE.equals(newStatus)
                     || ThingStatus.OFFLINE.equals(newStatus) || ThingStatus.REMOVED.equals(newStatus))) {
-                throw new IllegalArgumentException(
-                        MessageFormat.format("Illegal status {}. Bindings only may set {}, {}, {} or {}.", newStatus,
-                                ThingStatus.UNKNOWN, ThingStatus.ONLINE, ThingStatus.OFFLINE, ThingStatus.REMOVED));
+                throw new IllegalArgumentException(MessageFormat.format(
+                        "Illegal status {0}. Bindings only may set {1}, {2}, {3} or {4}.", newStatus,
+                        ThingStatus.UNKNOWN, ThingStatus.ONLINE, ThingStatus.OFFLINE, ThingStatus.REMOVED));
             }
             if (ThingStatus.REMOVED.equals(newStatus) && !ThingStatus.REMOVING.equals(oldStatus)) {
                 throw new IllegalArgumentException(
-                        MessageFormat.format("Illegal status {}. The thing was in state {} and not in {}", newStatus,
+                        MessageFormat.format("Illegal status {0}. The thing was in state {1} and not in {2}", newStatus,
                                 oldStatus, ThingStatus.REMOVING));
             }
         }
