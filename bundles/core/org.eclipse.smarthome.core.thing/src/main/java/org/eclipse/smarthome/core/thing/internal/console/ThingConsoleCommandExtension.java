@@ -11,12 +11,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -26,16 +29,19 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  *
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added localization of thing status
+ * @author Stefan Triller - Added trigger channel command
  */
 public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
+    private static final String SUBCMD_TRIGGER = "trigger";
 
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
+    private EventPublisher eventPublisher;
 
     public ThingConsoleCommandExtension() {
         super("things", "Access your thing registry.");
@@ -61,12 +67,23 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         console.println("Specify thing id to remove: things remove <thingUID> (e.g. \"hue:light:1\")");
                     }
                     return;
+                case SUBCMD_TRIGGER_CHANNEL:
+                    if (args.length > 1) {
+                        triggerChannel(console, args[1], args[2]);
+                    } else {
+                        console.println("Command '" + subCommand + "' needs arguments <channelUID> [<event>]");
+                    }
+                    break;
                 default:
                     break;
             }
         } else {
-            printThings(console, things);
+            printUsage(console);
         }
+    }
+
+    private void triggerChannel(Console console, String channelUid, String event) {
+        eventPublisher.post(ThingEventFactory.createTriggerEvent(event, new ChannelUID(channelUid)));
     }
 
     private void removeThing(Console console, Collection<Thing> things, ThingUID thingUID) {
@@ -90,7 +107,9 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all things"),
                 buildCommandUsage(SUBCMD_CLEAR, "removes all managed things"),
-                buildCommandUsage(SUBCMD_REMOVE + " <thingUID>", "removes a thing") });
+                buildCommandUsage(SUBCMD_REMOVE + " <thingUID>", "removes a thing"),
+                buildCommandUsage(SUBCMD_TRIGGER_CHANNEL + " <channelUID> [<event>]",
+                        "triggers the <channelUID> with <event> (if given)") });
     }
 
     private void printThings(Console console, Collection<Thing> things) {
@@ -134,6 +153,14 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     protected void unsetThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = null;
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
     }
 
 }
