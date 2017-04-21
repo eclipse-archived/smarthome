@@ -236,7 +236,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
             try {
                 synchronized (FolderObserver.class) {
                     if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
-                        if (parsers.contains(getExtension(file.getName()))) {
+                        // we omit parsing of hidden files possibly created by editors or operating systems
+                        if (parsers.contains(getExtension(file.getName())) && !file.getName().startsWith(".")) {
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
                             } catch (IOException e) {
