@@ -159,7 +159,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         this.eventPublisher = eventPublisher;
     }
 
-    protected void unsetsetEventPublisher(EventPublisher eventPublisher) {
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
     }
 
