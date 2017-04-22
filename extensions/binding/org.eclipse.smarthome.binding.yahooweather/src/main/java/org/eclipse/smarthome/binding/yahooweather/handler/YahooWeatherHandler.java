@@ -70,7 +70,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     @Override
     public void initialize() {
-        logger.debug("Initializing YahooWeather handler.");
+        logger.debug("LEYLO");
         super.initialize();
 
         Configuration config = getThing().getConfiguration();
