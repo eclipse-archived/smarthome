@@ -12,6 +12,7 @@
     "angular-route": "1.4.8",
     "angular-sanitize": "1.4.8",
     "angular-ui-sortable": "0.13.4",
+    "angular-input-modified": "2.4.0",
     "bootstrap": "3.3.2",
     "browser-sync": "~2.7.12",
     "del": "^2.0.0",

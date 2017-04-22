@@ -1,12 +1,40 @@
-<h3>{{thing.label}}</h3>
-<p>{{thingType.label}}</p>
-<p>
-	Status:
-	<span class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}} {{thing.statusInfo.statusDetail !== 'NONE' ? ' - ' + thing.statusInfo.statusDetail : ''}}</span>
-	<span>
-		<small></small>
-	</span>
-	<span>{{thing.statusInfo.description}}</span>
-</p>
-<hr />
-<p ng-bind-html="thingType.description"></p>
+<div class="row">
+	<div class="col-md-12">
+		<h3>{{thing.label}}</h3>
+	</div>
+	<div class="col-md-12">
+		<div class="small">{{thing.UID}}</div>
+	</div>
+</div>
+<div class="status-info">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}} {{thing.statusInfo.statusDetail !== 'NONE' ? ' - ' + thing.statusInfo.statusDetail : ''}}</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="small">{{thing.statusInfo.description}}</div>
+		</div>
+	</div>
+</div>
+<div class="card">
+	<h4>Thing Type</h4>
+	<table class="table">
+		<tr>
+			<td>Label</td>
+			<td>{{thingType.label}}</td>
+		</tr>
+		<tr>
+			<td>UID</td>
+			<td>{{thingType.UID}}</td>
+		</tr>
+	</table>
+
+	<div ng-if="thingType.description">
+		<hr />
+		<h4>Thing Type Description</h4>
+
+		<p ng-bind-html="thingType.description"></p>
+	</div>
+</div>

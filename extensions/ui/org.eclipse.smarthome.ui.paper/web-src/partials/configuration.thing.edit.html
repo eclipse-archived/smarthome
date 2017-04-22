@@ -1,5 +1,6 @@
-<div class="" ng-controller="EditThingController">
-	<div ng-init="counter=0;form={}">
+<div class="">
+	<div ng-init="counter=0">
+
 		<div ng-include="'partials/include.thingconfig.html'" onload="counter=counter+1;"></div>
 		<div class="container" ng-show="parameters.length > 0">
 			<h3>Configuration Parameters</h3>

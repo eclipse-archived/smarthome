@@ -1,14 +1,22 @@
-angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config([ '$routeProvider', function($routeProvider) {
+angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute', 'ngInputModified' ]).config([ '$routeProvider', function($routeProvider) {
     // Configure the routes for this controller
-    $routeProvider.when('/configuration/things/view/:thingUID', {
+    $routeProvider.when('/configuration/things/:thingUID', {
         templateUrl : 'partials/configuration.thing.html',
-        controller : 'ViewThingController',
+        controller : 'ThingConfigurationController',
         title : 'Configuration'
     })
-} ]).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
+} ])
+
+.controller('ThingConfigurationController', function($scope, $location, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, configDescriptionService, util, itemRepository, thingTypeRepository) {
+    $scope.navigateTo = function(path) {
+        $location.path('configuration/' + path);
+    }
+
+    $scope.thingConfigForm = {modified:false};
+
     $scope.setSubtitle([ 'Things' ]);
 
-    var thingUID = $scope.path[4];
+    var thingUID = $scope.path[3];
     $scope.thingTypeUID = null;
     $scope.advancedMode;
     $scope.thing;
@@ -17,7 +25,8 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
     $scope.showAdvanced = false;
     $scope.channelTypes;
     $scope.items;
-    
+    $scope.isEditing = true;
+
     channelTypeService.getAll().$promise.then(function(channels) {
         $scope.channelTypes = channels;
         $scope.refreshChannels(false);
@@ -191,7 +200,6 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
     };
 
     var getChannels = function(advanced) {
-
         if (!$scope.thingType || !$scope.thing || !$scope.channelTypes) {
             return;
         }
@@ -226,8 +234,19 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
             $scope.thingTypeUID = thing.thingTypeUID;
             getThingType();
             $scope.setSubtitle(['Things', thing.label]);
+            
+            // Now get the configuration information for this thing
+            configDescriptionService.getByUri({
+                uri : "thing:" + thing.UID
+            }, function(configDescription) {
+                if (configDescription) {
+                    $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
+                    $scope.configuration = configService.setConfigDefaults($scope.thing.configuration, $scope.parameters)
+                }
+            });
         }, refresh);
     }
+       
     $scope.getThing(true);
 
     function getThingType() {
@@ -235,6 +254,10 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
             thingTypeUID : $scope.thingTypeUID
         }, function(thingType) {
             $scope.thingType = thingType;
+            $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
+            if ($scope.needsBridge) {
+                $scope.getBridges();
+            }
             if (thingType) {
                 $scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels : thingType.channelGroups;
                 $scope.setHeaderText(thingType.description);
@@ -243,8 +266,24 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
         });
     }
 
+    $scope.needsBridge = false;
+    $scope.bridges = [];
+    $scope.getBridges = function() {
+        $scope.bridges = [];
+        thingRepository.getAll(function(things) {
+            for (var i = 0; i < things.length; i++) {
+                var thing = things[i];
+                for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
+                    var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
+                    if (thing.thingTypeUID === supportedBridgeTypeUID) {
+                        $scope.bridges.push(thing);
+                    }
+                }
+            }
+        });
+    };
+    
     $scope.configChannel = function(channel, thing, event) {
-
         var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
 
         $mdDialog.show({
@@ -289,7 +328,32 @@ angular.module('PaperUI.controllers.configuration.things', [ 'ngRoute' ]).config
         }
     }
 
+    $scope.update = function(thing) {
+        thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
+        if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
+            thing.configuration = configService.replaceEmptyValues(thing.configuration);
+            thingService.updateConfig({
+                thingUID : thing.UID
+            }, thing.configuration);
+        }
+        originalThing.configuration = thing.configuration;
+        originalThing.channels = thing.channels;
+        if (JSON.stringify(originalThing) !== JSON.stringify(thing)) {
+            thingService.update({
+                thingUID : thing.UID
+            }, thing);
+        }
+        toastService.showDefaultToast('Thing updated');
+        $scope.navigateTo('things/view/' + thing.UID);
+    };
+    
+    $scope.$watch('configuration', function() {
+        if ($scope.configuration) {
+            $scope.thing.configuration = $scope.configuration;
+        }
+    });
+    
     $scope.$watch('thing.channels', function() {
         $scope.refreshChannels($scope.showAdvanced);
     });
-});
+})

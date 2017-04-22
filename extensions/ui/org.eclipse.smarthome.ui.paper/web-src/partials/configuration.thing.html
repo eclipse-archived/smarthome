@@ -1,33 +1,27 @@
-<section id="main" class="white-bg extensions header-tabs">
+<section id="main" class="white-bg extensions header-tabs" ng-controller="ThingConfigurationController">
 	<div class="header-toolbar">
-        <md-button ng-click="remove(thing, $event)" aria-label="Advanced"> <i class="material-icons">visibility_off</i></md-button>
-        <md-button ng-click="remove(thing, $event)" aria-label="Save" ng-disabled="true"> <i class="material-icons">save</i></md-button>
-        <md-button ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+		<md-button ng-click="update(thing)" aria-label="Save" ng-disabled="!thingConfigForm.modified"> <i class="material-icons">save</i></md-button>
+		<md-button ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
 		<md-button ng-click="navigateTo('things')" aria-label="Close"> <i class="material-icons">close</i></md-button>
 	</div>
 
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-disabled="" label="Overview" layout-fill> <md-tab-content layout-fill="">
 	<div class="container">
-        <div ng-include="'partials/configuration.thing.detail.html'" class="thing-properties"></div>
+		<div ng-include="'partials/configuration.thing.detail.html'" class="thing-detail"></div>
 	</div>
-	</md-tab-content> </md-tab>
- 
-    <md-tab ng-disabled="" label="Properties" layout-fill> <md-tab-content layout-fill="">
-    <div class="container">
-        <div ng-include="'partials/configuration.thing.properties.html'" class="thing-properties"></div>
-    </div>
-    </md-tab-content> </md-tab>
-
-    <md-tab ng-disabled="" label="Channels" layout-fill> <md-tab-content layout-fill="">
-    <div class="container">
-        <div ng-include="'partials/configuration.thing.channels.html'" class="thing-properties"></div>
-    </div>
-    </md-tab-content> </md-tab>
-
-    <md-tab ng-disabled="" label="Configuration" layout-fill> <md-tab-content layout-fill="">
-    <div class="container">
-        <div ng-include="'partials/configuration.thing.edit.html'" class="thing-properties"></div>
-    </div>
-    </md-tab-content> </md-tab>
-	</md-tabs>
+	</md-tab-content> </md-tab> <md-tab ng-disabled="" label="Properties" layout-fill> <md-tab-content layout-fill="">
+	<div class="container">
+		<div ng-include="'partials/configuration.thing.properties.html'" class="thing-properties"></div>
+	</div>
+	</md-tab-content> </md-tab> <md-tab ng-disabled="" label="Channels" layout-fill> <md-tab-content layout-fill="">
+	<div class="container">
+		<div ng-include="'partials/configuration.thing.channels.html'" class="thing-properties"></div>
+	</div>
+	</md-tab-content> </md-tab> <md-tab ng-disabled="" label="Configuration" layout-fill> <md-tab-content layout-fill="">
+	<div class="container">
+		<form name="thingConfigForm">
+			<div ng-include="'partials/configuration.thing.edit.html'" class="thing-properties"></div>
+		</form>
+	</div>
+	</md-tab-content> </md-tab> </md-tabs>
 </section>

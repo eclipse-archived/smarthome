@@ -59,7 +59,8 @@ var paths = {
         './node_modules/masonry-layout/dist/masonry.pkgd.min.js',
         './node_modules/sprintf-js/dist/sprintf.min.js',
         './node_modules/bootstrap/dist/js/bootstrap.min.js',
-        './node_modules/tinycolor2/tinycolor.js'
+        './node_modules/tinycolor2/tinycolor.js',
+        './node_modules/angular-input-modified/dist/angular-input-modified.min.js'
     ],
     JQUI: [{
         'src' : [

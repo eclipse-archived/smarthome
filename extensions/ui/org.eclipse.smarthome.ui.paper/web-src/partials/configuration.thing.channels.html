@@ -1,4 +1,3 @@
-<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
 <md-button class="showmore no-margin" ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 <div class="channels">
 	<div ng-repeat="group in thingChannels track by $index">
