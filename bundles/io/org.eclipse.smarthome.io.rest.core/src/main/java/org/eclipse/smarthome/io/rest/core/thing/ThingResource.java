@@ -451,8 +451,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
             @ApiResponse(code = 404, message = "Thing not found"),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed."),
-            @ApiResponse(code = 500, message = "Error processing request.") })
+            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
@@ -491,9 +490,9 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.debug("Config description validation exception occurred for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
-        } catch (IllegalArgumentException ex) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
-                    uriInfo.getPath(), thingUID);
+        } catch (Exception ex) {
+            logger.info("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
+                    uriInfo.getPath(), thingUID, ex.getMessage());
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
 
