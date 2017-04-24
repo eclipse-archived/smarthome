@@ -15,7 +15,6 @@
 		<bundle.namespace>org.eclipse.smarthome.binding.astro</bundle.namespace>
 	</properties>
 
-	<groupId>org.eclipse.smarthome.binding</groupId>
 	<artifactId>org.eclipse.smarthome.binding.astro</artifactId>
 
 	<name>Eclipse SmartHome Astro Binding</name>
