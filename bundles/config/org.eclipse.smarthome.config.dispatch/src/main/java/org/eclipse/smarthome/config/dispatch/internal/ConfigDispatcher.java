@@ -159,7 +159,10 @@ public class ConfigDispatcher extends AbstractWatchService {
     protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
         if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
             try {
-                processConfigFile(path.toFile());
+                File f = path.toFile();
+                if (!f.isHidden()) {
+                    processConfigFile(f);
+                }
             } catch (IOException e) {
                 logger.warn("Could not process config file '{}': {}", path, e);
             }
