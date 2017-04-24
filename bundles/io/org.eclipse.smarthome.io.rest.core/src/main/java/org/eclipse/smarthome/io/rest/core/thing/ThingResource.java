@@ -491,9 +491,9 @@ public class ThingResource implements SatisfiableRESTResource {
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
         } catch (Exception ex) {
-            logger.info("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
+            logger.error("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
                     uriInfo.getPath(), thingUID, ex.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            return JSONResponse.createResponse(Status.INTERNAL_SERVER_ERROR, null, ex.getMessage());
         }
 
         return getThingResponse(Status.OK, thing, locale, null);
