@@ -165,7 +165,10 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                     File[] files = folder.listFiles(new FileExtensionsFilter(validExtension));
                     if (files != null && files.length > 0) {
                         for (File file : files) {
-                            checkFile(modelRepo, file, ENTRY_CREATE);
+                            // we omit parsing of hidden files possibly created by editors or operating systems
+                            if (!file.isHidden()) {
+                                checkFile(modelRepo, file, ENTRY_CREATE);
+                            }
                         }
                     }
                 }
@@ -236,8 +239,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
             try {
                 synchronized (FolderObserver.class) {
                     if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
-                        // we omit parsing of hidden files possibly created by editors or operating systems
-                        if (parsers.contains(getExtension(file.getName())) && !file.getName().startsWith(".")) {
+                        if (parsers.contains(getExtension(file.getName()))) {
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
                             } catch (IOException e) {
