@@ -27,12 +27,13 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param thing the thing
      * @param thingStatusInfo the thing status information to be used for the enriched object
      * @param linkedItemsMap the map of linked items to be injected into the enriched object
+     * @param editable true if this thing can be edited
      *
      * @return the enriched thing DTO object
      */
     public static EnrichedThingDTO map(Thing thing, ThingStatusInfo thingStatusInfo,
-            Map<String, Set<String>> linkedItemsMap) {
+            Map<String, Set<String>> linkedItemsMap, boolean editable) {
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
-        return new EnrichedThingDTO(thingDTO, thingStatusInfo, linkedItemsMap);
+        return new EnrichedThingDTO(thingDTO, thingStatusInfo, linkedItemsMap, editable);
     }
 }
