@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -371,9 +372,10 @@ public class JavaOSGiTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    protected <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, int timeout, int sleepTime) {
-        long startingTime = System.nanoTime();
-        while (System.nanoTime() - startingTime < timeout * 1000) {
+    protected <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, int sleepTime) {
+        final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
+        final long startingTime = System.nanoTime();
+        while (System.nanoTime() - startingTime < timeoutNs) {
             try {
                 return assertion.get();
             } catch (final Error | NullPointerException error) {
