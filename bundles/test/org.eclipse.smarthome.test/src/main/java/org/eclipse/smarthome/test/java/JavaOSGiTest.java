@@ -372,12 +372,11 @@ public class JavaOSGiTest {
      * @return the return value of the supplied assertion object's function on success
      */
     protected <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, int timeout, int sleepTime) {
-        int waitingTime = 0;
-        while (waitingTime < timeout) {
+        long startingTime = System.nanoTime();
+        while (System.nanoTime() - startingTime < timeout * 1000) {
             try {
                 return assertion.get();
             } catch (final Error | NullPointerException error) {
-                waitingTime += sleepTime;
                 internalSleep(sleepTime);
             }
         }
