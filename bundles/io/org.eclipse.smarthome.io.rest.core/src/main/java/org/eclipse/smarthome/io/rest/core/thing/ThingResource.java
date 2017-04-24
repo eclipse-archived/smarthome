@@ -96,8 +96,9 @@ import io.swagger.annotations.ApiResponses;
  * @author Thomas Höfer - added validation of configuration and localization of thing status
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
- * @author Chris Jackson - added channel configuration updates
- *         return empty set for config/status if no status available
+ * @author Chris Jackson - added channel configuration updates,
+ *         return empty set for config/status if no status available,
+ *         add editable flag to thing responses
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -303,8 +304,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK, was deleted."),
             @ApiResponse(code = 202, message = "ACCEPTED for asynchronous deletion."),
             @ApiResponse(code = 404, message = "Thing not found."),
-            @ApiResponse(code = 409, message = "CONFLICT, Thing could not be deleted because it's not managed."),
-            @ApiResponse(code = 500, message = "Thing could not be deleted for unknown reasons.") })
+            @ApiResponse(code = 409, message = "Thing could not be deleted because it's not editable.") })
     public Response remove(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
@@ -327,7 +327,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP DELETE request for update at '{}' for an unmanaged thing '{}'.",
                     uriInfo.getPath(), thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot delete Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot delete Thing " + thingUID + " as it is not editable.");
         }
 
         // only move on if Thing is known to be managed, so it can get updated
@@ -393,7 +393,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiOperation(value = "Updates a thing.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Thing not found."),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
+            @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
     public Response update(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @ApiParam(value = "thing", required = true) ThingDTO thingBean) throws IOException {
@@ -416,7 +416,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP PUT request for update at '{}' for an unmanaged thing '{}'.", uriInfo.getPath(),
                     thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot update Thing " + thingUID + " as it is not editable.");
         }
 
         // check configuration
@@ -451,7 +451,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
             @ApiResponse(code = 404, message = "Thing not found"),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
+            @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
@@ -475,7 +475,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP PUT request for update configuration at '{}' for an unmanaged thing '{}'.",
                     uriInfo.getPath(), thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot update Thing " + thingUID + " as it is not editable.");
         }
 
         // only move on if Thing is known to be managed, so it can get updated
@@ -569,8 +569,9 @@ public class ThingResource implements SatisfiableRESTResource {
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 locale);
-        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing))
-                : null;
+        boolean managed = managedThingProvider.get(thing.getUID()) != null;
+        Object entity = null != thing
+                ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing), managed) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -651,9 +652,11 @@ public class ThingResource implements SatisfiableRESTResource {
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
+            boolean managed = managedThingProvider.get(thing.getUID()) != null;
             ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                     locale);
-            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing));
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo, getLinkedItemsMap(thing),
+                    managed);
             thingBeans.add(thingBean);
         }
         return thingBeans;

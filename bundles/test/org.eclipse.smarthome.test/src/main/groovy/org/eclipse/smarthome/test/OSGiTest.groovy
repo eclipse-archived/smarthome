@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.concurrent.TimeUnit
+
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.After
@@ -201,14 +203,14 @@ abstract class OSGiTest {
      * @param timeout timeout, default is 10000ms
      * @param sleepTime interval for checking the condition, default is 50ms
      */
-    protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall, int timeout = 10000, int sleepTime = 50) {
-        def waitingTime = 0
-        while(waitingTime < timeout) {
+    protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall, long timeout = 10000, int sleepTime = 50) {
+        final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
+        final long startingTime = System.nanoTime();
+        while((System.nanoTime() - startingTime) < timeoutNs) {
             try {
                 assertion()
                 return
             } catch(Error | NullPointerException error) {
-                waitingTime += sleepTime
                 sleep sleepTime
             }
         }

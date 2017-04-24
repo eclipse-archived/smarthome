@@ -46,12 +46,12 @@ class ConfigDispatchTest extends OSGiTest {
     private Configuration configuration
 
     protected void activate(ComponentContext componentContext){
-        /* 
-         * The files in the root configuration directory are read only on the 
-         * activate() method of the ConfigDispatcher. So before every test method 
-         * the component is disabled using the component context, the watched 
-         * directories are set and then the component is enabled again using the 
-         * component context. In that way we can be sure that the files in the 
+        /*
+         * The files in the root configuration directory are read only on the
+         * activate() method of the ConfigDispatcher. So before every test method
+         * the component is disabled using the component context, the watched
+         * directories are set and then the component is enabled again using the
+         * component context. In that way we can be sure that the files in the
          * root directory will be read.
          */
         context = componentContext
@@ -68,16 +68,16 @@ class ConfigDispatchTest extends OSGiTest {
     @Before
     public void setUp(){
 
-        /* 
-         * Disable the component of the ConfigDispatcher,so we can 
+        /*
+         * Disable the component of the ConfigDispatcher,so we can
          * set the properties for the directories to be watched,
          * before the ConfigDispatcher is started.
          */
         context.disableComponent(CONFIG_DISPATCHER_COMPONENT_ID)
 
-        /* 
+        /*
          * After we disable the component we have to wait for the
-         * AbstractWatchService to stop watching the previously set 
+         * AbstractWatchService to stop watching the previously set
          * directories, because we will be setting a new ones.
          */
         sleep(300)
@@ -148,7 +148,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath)
 
-        /* 
+        /*
          * Assert that the configuration is updated with the default
          * namespace the no-dot name of the file in the root directory as pid.
          */
@@ -156,7 +156,7 @@ class ConfigDispatchTest extends OSGiTest {
                 "no.dot.default.property",
                 "no.dot.default.value")
 
-        /* 
+        /*
          * Assert that the configuration is updated with the default namespace
          * the no-dot name of the file in the services directory as pid.
          */
@@ -174,7 +174,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath)
 
-        /* 
+        /*
          * Assert that the configuration is updated with the default namespace
          * the no-dot pid from the file in the the root directory.
          */
@@ -219,7 +219,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath)
 
-        /* 
+        /*
          * Assert that the configuration is updated with
          * an empty value for a file in the root directory.
          */
@@ -247,7 +247,7 @@ class ConfigDispatchTest extends OSGiTest {
          * */
         verifyNoPropertiesForConfiguration("no.property.default.pid")
 
-        /* 
+        /*
          * Assert that the configuration is not updated with an
          * empty-string property from the file in the services directory.
          */
@@ -263,7 +263,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath)
 
-        /* 
+        /*
          * Assert that the second processed property from the
          * file in the root directory overrides the first one.
          */
@@ -410,7 +410,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath)
 
-        /* 
+        /*
          * Assert that pid with no property=value pair
          * is not processed in a file in the root directory.
          */
@@ -466,7 +466,7 @@ class ConfigDispatchTest extends OSGiTest {
         def defaultConfigFilePath = "$configDirectory/local.pid.default.file.cfg"
         def lastModifiedFileName = "last.modified.service.file.cfg"
 
-        /* 
+        /*
          * Every file from servicesDirectory contains this property, but with different value.
          * The value for this property in the last processed file must override the previous
          * values for the same property in the configuration.
@@ -516,7 +516,7 @@ class ConfigDispatchTest extends OSGiTest {
         def defaultConfigFilePath = "$configDirectory/global.pid.default.file.cfg"
         def lastModifiedFileName = "global.pid.last.modified.service.file.cfg"
 
-        /* 
+        /*
          * Every file from servicesDirectory contains this property, but with different value.
          * The value for this property in the last processed file will override the previous
          * values for the same property in the configuration.
@@ -533,7 +533,7 @@ class ConfigDispatchTest extends OSGiTest {
         String value = getLastModifiedValueForPoperty("$configDirectory/$servicesDirectory", conflictProperty)
 
         /*
-         * Assert that the property for the same global pid in the last modified file 
+         * Assert that the property for the same global pid in the last modified file
          * has overridden the other properties for that pid from previously modified files.
          */
         verifyValueOfConfigurationProperty("different.files.global.pid", conflictProperty, value)
@@ -563,7 +563,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         /*
          * Both files(with local and global pid) contain this property, but with different value.
-         * The value for this property in the last processed file must override the previous 
+         * The value for this property in the last processed file must override the previous
          * values for the same property in the configuration.
          */
         def conflictProperty = "global.and.local.property"
@@ -594,7 +594,7 @@ class ConfigDispatchTest extends OSGiTest {
 
         /*
          * Both files(with local and global pid) contain this property, but with different value.
-         * The value for this property in the last processed file must override the previous 
+         * The value for this property in the last processed file must override the previous
          * values for the same property in the configuration.
          */
         def conflictProperty = "global.and.local.property"
@@ -649,23 +649,11 @@ class ConfigDispatchTest extends OSGiTest {
     }
 
     private void verifyValueOfConfigurationProperty(String pid, String property, String value){
-
-        /* We have to wait for all the files to be processed and the configuration to be updated.
-         * Sending events, related to modification of file, is a OS specific action.
-         * So when we check if a configuration is updated, we use separate waitForAssert-s
-         * in order to be sure that the events are processed before the assertion.
-         */
         waitForAssert {
             configuration = configAdmin.getConfiguration(pid)
             assertThat "The configuration for the given pid cannot be found", configuration, is(notNullValue())
-        }
-        waitForAssert {
             assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
-        }
-        waitForAssert {
             assertThat "There is no such '$property' in the configuration properties", configuration.getProperties().get(property), is(notNullValue())
-        }
-        waitForAssert {
             assertThat "The value of the property '$property' for pid '$pid' is not as expected",
                     configuration.getProperties().get(property), is(equalTo(value))
         }
@@ -673,10 +661,10 @@ class ConfigDispatchTest extends OSGiTest {
 
     private void verifyNotExistingConfigurationProperty(String pid, String property) {
 
-        /* 
+        /*
          * If a property is not present in the configuration's properties,
          * configuration.getProperties().get(property) should return null.
-         * 
+         *
          * Sending events, related to modification of file, is a OS specific action.
          * So when we check if a configuration is updated, we use separate waitForAssert-s
          * in order to be sure that the events are processed before the assertion.
@@ -685,12 +673,8 @@ class ConfigDispatchTest extends OSGiTest {
             configuration = configAdmin.getConfiguration(pid)
             assertThat "The configuration for the given pid cannot be found", configuration, is(notNullValue())
         }
-        waitForAssert {
-            assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
-        }
-        waitForAssert {
-            assertThat "There should not be such '$property' in the configuration properties", configuration.getProperties().get(property), is(nullValue())
-        }
+        assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
+        assertThat "There should not be such '$property' in the configuration properties", configuration.getProperties().get(property), is(nullValue())
     }
 
     private void verifyNoPropertiesForConfiguration(String pid){

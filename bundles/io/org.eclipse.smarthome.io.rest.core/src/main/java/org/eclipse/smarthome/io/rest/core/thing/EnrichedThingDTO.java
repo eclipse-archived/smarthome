@@ -21,14 +21,25 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - Removed links and items
+ * @author Chris Jackson - Added 'editable' flag
  *
  */
 public class EnrichedThingDTO extends ThingDTO {
 
     public ThingStatusInfo statusInfo;
+    public boolean editable;
     // public List<EnrichedChannelDTO> channels;
 
-    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, Map<String, Set<String>> linkedItemsMap) {
+    /**
+     * Creates an enriched thing data transfer object.
+     *
+     * @param thingDTO the base {@link ThingDTO}
+     * @param statusInfo {@link ThingStatusInfo} for this thing
+     * @param linkedItemsMap a map of linked items
+     * @param editable true if this thing can be edited
+     */
+    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, Map<String, Set<String>> linkedItemsMap,
+            boolean editable) {
         this.UID = thingDTO.UID;
         if (thingDTO.label != null) {
             this.label = thingDTO.label;
@@ -46,6 +57,8 @@ public class EnrichedThingDTO extends ThingDTO {
         if (thingDTO.location != null) {
             this.location = thingDTO.location;
         }
+
+        this.editable = editable;
     }
 
 }
