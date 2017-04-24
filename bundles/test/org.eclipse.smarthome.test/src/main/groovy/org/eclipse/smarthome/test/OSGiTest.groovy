@@ -202,13 +202,12 @@ abstract class OSGiTest {
      * @param sleepTime interval for checking the condition, default is 50ms
      */
     protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall, int timeout = 10000, int sleepTime = 50) {
-        def waitingTime = 0
-        while(waitingTime < timeout) {
+        def startingTime = System.nanoTime();
+        while((System.nanoTime() - startingTime) < timeout * 1000) {
             try {
                 assertion()
                 return
             } catch(Error | NullPointerException error) {
-                waitingTime += sleepTime
                 sleep sleepTime
             }
         }
