@@ -649,23 +649,11 @@ class ConfigDispatchTest extends OSGiTest {
     }
 
     private void verifyValueOfConfigurationProperty(String pid, String property, String value){
-
-        /* We have to wait for all the files to be processed and the configuration to be updated.
-         * Sending events, related to modification of file, is a OS specific action.
-         * So when we check if a configuration is updated, we use separate waitForAssert-s
-         * in order to be sure that the events are processed before the assertion.
-         */
         waitForAssert {
             configuration = configAdmin.getConfiguration(pid)
             assertThat "The configuration for the given pid cannot be found", configuration, is(notNullValue())
-        }
-        waitForAssert {
             assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
-        }
-        waitForAssert {
             assertThat "There is no such '$property' in the configuration properties", configuration.getProperties().get(property), is(notNullValue())
-        }
-        waitForAssert {
             assertThat "The value of the property '$property' for pid '$pid' is not as expected",
                     configuration.getProperties().get(property), is(equalTo(value))
         }
@@ -685,12 +673,8 @@ class ConfigDispatchTest extends OSGiTest {
             configuration = configAdmin.getConfiguration(pid)
             assertThat "The configuration for the given pid cannot be found", configuration, is(notNullValue())
         }
-        waitForAssert {
-            assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
-        }
-        waitForAssert {
-            assertThat "There should not be such '$property' in the configuration properties", configuration.getProperties().get(property), is(nullValue())
-        }
+        assertThat "There are no properties for the configuration", configuration.getProperties(), is(notNullValue())
+        assertThat "There should not be such '$property' in the configuration properties", configuration.getProperties().get(property), is(nullValue())
     }
 
     private void verifyNoPropertiesForConfiguration(String pid){
