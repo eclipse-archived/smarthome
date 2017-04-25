@@ -11,9 +11,9 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.lifx.internal.LifxLightDiscovery">
 
    <implementation class="org.eclipse.smarthome.binding.lifx.internal.LifxLightDiscovery"/>
+
    <service>
       <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
    </service>
-
 
 </scr:component>

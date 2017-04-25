@@ -10,7 +10,9 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
 import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,21 +21,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
+import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.AcknowledgementResponse;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.ApplicationRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetColorZonesRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorZonesRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetPowerRequest;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
-import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +69,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     private final LifxLightState pendingLightState;
     private final LifxLightCommunicationHandler communicationHandler;
     private final long fadeTime;
+    private final Products product;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -71,7 +78,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
     private ScheduledFuture<?> sendJob;
 
-    private Map<Integer, PendingPacket> pendingPacketMap = new ConcurrentHashMap<Integer, PendingPacket>();
+    private Map<Integer, List<PendingPacket>> pendingPacketsMap = new ConcurrentHashMap<>();
 
     private class PendingPacket {
 
@@ -81,6 +88,11 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
         private PendingPacket(Packet packet) {
             this.packet = packet;
+        }
+
+        private boolean hasAcknowledgeIntervalElapsed() {
+            long millisSinceLastSend = System.currentTimeMillis() - lastSend;
+            return millisSinceLastSend > PACKET_ACKNOWLEDGE_INTERVAL;
         }
     }
 
@@ -119,10 +131,11 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     };
 
     public LifxLightStateChanger(MACAddress macAddress, LifxLightState pendingLightState,
-            LifxLightCommunicationHandler communicationHandler, long fadeTime) {
+            LifxLightCommunicationHandler communicationHandler, Products product, long fadeTime) {
         this.macAsHex = macAddress.getHex();
         this.pendingLightState = pendingLightState;
         this.communicationHandler = communicationHandler;
+        this.product = product;
         this.fadeTime = fadeTime;
     }
 
@@ -150,7 +163,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                 sendJob.cancel(true);
                 sendJob = null;
             }
-            pendingPacketMap.clear();
+            pendingPacketsMap.clear();
         } catch (Exception e) {
             logger.error("Error occurred while stopping send packets job", e);
         } finally {
@@ -158,16 +171,51 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         }
     }
 
-    private void addPacketToMap(Packet packet) {
-        // the acknowledgement is used to resend the packet in case of packet loss
-        packet.setAckRequired(true);
-        // the LIFX LAN protocol spec indicates that the response returned for a request would be the
-        // previous value
-        packet.setResponseRequired(false);
+    private List<PendingPacket> createPendingPackets(Packet... packets) {
+        Integer packetType = null;
+        List<PendingPacket> pendingPackets = new ArrayList<>();
+
+        for (Packet packet : packets) {
+            // the acknowledgement is used to resend the packet in case of packet loss
+            packet.setAckRequired(true);
+            // the LIFX LAN protocol spec indicates that the response returned for a request would be the
+            // previous value
+            packet.setResponseRequired(false);
+            pendingPackets.add(new PendingPacket(packet));
+
+            if (packetType == null) {
+                packetType = packet.getPacketType();
+            } else if (packetType != packet.getPacketType()) {
+                throw new RuntimeException("Packets should have same packet type");
+            }
+        }
+
+        return pendingPackets;
+    }
+
+    private void addPacketsToMap(Packet... packets) {
+        List<PendingPacket> pendingPackets = createPendingPackets(packets);
+        int packetType = packets[0].getPacketType();
 
         try {
             lock.lock();
-            pendingPacketMap.put(packet.packetType(), new PendingPacket(packet));
+            if (pendingPacketsMap.get(packetType) == null) {
+                pendingPacketsMap.put(packetType, pendingPackets);
+            } else {
+                pendingPacketsMap.get(packetType).addAll(pendingPackets);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void replacePacketsInMap(Packet... packets) {
+        List<PendingPacket> pendingPackets = createPendingPackets(packets);
+        int packetType = packets[0].getPacketType();
+
+        try {
+            lock.lock();
+            pendingPacketsMap.put(packetType, pendingPackets);
         } finally {
             lock.unlock();
         }
@@ -175,84 +223,91 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
     private PendingPacket findPacketToSend() {
         PendingPacket result = null;
-        for (PendingPacket pendingPacket : pendingPacketMap.values()) {
-            long millisSinceLastSend = System.currentTimeMillis() - pendingPacket.lastSend;
-            if (millisSinceLastSend > PACKET_ACKNOWLEDGE_INTERVAL
-                    && (result == null || pendingPacket.lastSend < result.lastSend)) {
-                result = pendingPacket;
+        for (List<PendingPacket> pendingPackets : pendingPacketsMap.values()) {
+            for (PendingPacket pendingPacket : pendingPackets) {
+                if (pendingPacket.hasAcknowledgeIntervalElapsed()
+                        && (result == null || pendingPacket.lastSend < result.lastSend)) {
+                    result = pendingPacket;
+                }
             }
         }
 
         return result;
     }
 
+    private void removePacketsByType(int packetType) {
+        try {
+            lock.lock();
+            pendingPacketsMap.remove(packetType);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private void removeFailedPackets() {
-        Iterator<Integer> it = pendingPacketMap.keySet().iterator();
-        while (it.hasNext()) {
-            PendingPacket pendingPacket = pendingPacketMap.get(it.next());
-            if (pendingPacket.sendCount > MAX_RETRIES) {
-                logger.warn("{} failed (unacknowledged {} times)", pendingPacket.packet.getClass().getSimpleName(),
-                        pendingPacket.sendCount);
-                it.remove();
+        for (Integer key : pendingPacketsMap.keySet()) {
+            List<PendingPacket> pendingPackets = pendingPacketsMap.get(key);
+            Iterator<PendingPacket> it = pendingPackets.iterator();
+            while (it.hasNext()) {
+                PendingPacket pendingPacket = it.next();
+                if (pendingPacket.sendCount > MAX_RETRIES && pendingPacket.hasAcknowledgeIntervalElapsed()) {
+                    logger.warn("{} failed (unacknowledged {} times)", pendingPacket.packet.getClass().getSimpleName(),
+                            pendingPacket.sendCount);
+                    it.remove();
+                }
             }
         }
     }
 
     private PendingPacket removeAcknowledgedPacket(int sequenceNumber) {
-        Iterator<Integer> it = pendingPacketMap.keySet().iterator();
-        while (it.hasNext()) {
-            PendingPacket pendingPacket = pendingPacketMap.get(it.next());
-            if (pendingPacket.packet.getSequence() == sequenceNumber) {
-                it.remove();
-                return pendingPacket;
+        for (Integer key : pendingPacketsMap.keySet()) {
+            List<PendingPacket> pendingPackets = pendingPacketsMap.get(key);
+            Iterator<PendingPacket> it = pendingPackets.iterator();
+            while (it.hasNext()) {
+                PendingPacket pendingPacket = it.next();
+                if (pendingPacket.packet.getSequence() == sequenceNumber) {
+                    it.remove();
+                    return pendingPacket;
+                }
             }
         }
+
         return null;
     }
 
     @Override
-    public void handleHSBChange(HSBType oldHSB, HSBType newHSB) {
-        addSetColorRequestToMap();
+    public void handleColorsChange(HSBK[] oldColors, HSBK[] newColors) {
+        if (sameColors(newColors)) {
+            SetColorRequest packet = new SetColorRequest(pendingLightState.getColors()[0], fadeTime);
+            removePacketsByType(SetColorZonesRequest.TYPE);
+            replacePacketsInMap(packet);
+        } else {
+            List<SetColorZonesRequest> packets = new ArrayList<>();
+            for (int i = 0; i < newColors.length; i++) {
+                if (newColors[i] != null && !newColors[i].equals(oldColors[i])) {
+                    packets.add(new SetColorZonesRequest(i, newColors[i], fadeTime, ApplicationRequest.APPLY));
+                }
+            }
+            if (!packets.isEmpty()) {
+                removePacketsByType(SetColorRequest.TYPE);
+                addPacketsToMap(packets.toArray(new SetColorZonesRequest[packets.size()]));
+            }
+        }
     }
 
     @Override
     public void handlePowerStateChange(PowerState oldPowerState, PowerState newPowerState) {
-        SetLightPowerRequest packet = new SetLightPowerRequest(pendingLightState.getPowerState());
-        addPacketToMap(packet);
-    }
-
-    @Override
-    public void handleTemperatureChange(PercentType oldTemperature, PercentType newTemperature) {
-        addSetColorRequestToMap();
+        if (newPowerState != null && !newPowerState.equals(oldPowerState)) {
+            SetLightPowerRequest packet = new SetLightPowerRequest(pendingLightState.getPowerState());
+            replacePacketsInMap(packet);
+        }
     }
 
     @Override
     public void handleInfraredChange(PercentType oldInfrared, PercentType newInfrared) {
         int infrared = percentTypeToInfrared(pendingLightState.getInfrared());
         SetLightInfraredRequest packet = new SetLightInfraredRequest(infrared);
-        addPacketToMap(packet);
-    }
-
-    private void addSetColorRequestToMap() {
-        HSBType hsb = pendingLightState.getHSB();
-        if (hsb == null) {
-            // use default color when temperature is changed while color is unknown
-            hsb = LifxBindingConstants.DEFAULT_COLOR;
-        }
-
-        PercentType temperature = pendingLightState.getTemperature();
-        if (temperature == null) {
-            // use default temperature when color is changed while temperature is unknown
-            temperature = LifxBindingConstants.DEFAULT_TEMPERATURE;
-        }
-
-        int hue = decimalTypeToHue(hsb.getHue());
-        int saturation = percentTypeToSaturation(hsb.getSaturation());
-        int brightness = percentTypeToBrightness(hsb.getBrightness());
-        int kelvin = percentTypeToKelvin(temperature);
-
-        SetColorRequest packet = new SetColorRequest(hue, saturation, brightness, kelvin, fadeTime);
-        addPacketToMap(packet);
+        replacePacketsInMap(packet);
     }
 
     @Override
@@ -270,24 +325,38 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
             }
 
             if (pendingPacket != null) {
-                logger.debug("{} : {} packet was acknowledged in {}ms", macAsHex,
-                        pendingPacket.packet.getClass().getSimpleName(), ackTimestamp - pendingPacket.lastSend);
+                Packet sentPacket = pendingPacket.packet;
+                logger.debug("{} : {} packet was acknowledged in {}ms", macAsHex, sentPacket.getClass().getSimpleName(),
+                        ackTimestamp - pendingPacket.lastSend);
 
                 // when these packets get lost the current state will still be updated by the
                 // LifxLightCurrentStateUpdater
-                if (pendingPacket.packet instanceof SetPowerRequest) {
+                if (sentPacket instanceof SetPowerRequest) {
                     GetLightPowerRequest powerPacket = new GetLightPowerRequest();
                     communicationHandler.sendPacket(powerPacket);
-                } else if (pendingPacket.packet instanceof SetColorRequest) {
+                } else if (sentPacket instanceof SetColorRequest) {
                     GetRequest colorPacket = new GetRequest();
                     communicationHandler.sendPacket(colorPacket);
-                } else if (pendingPacket.packet instanceof SetLightInfraredRequest) {
+                    getZonesIfZonesAreSet();
+                } else if (sentPacket instanceof SetColorZonesRequest) {
+                    getZonesIfZonesAreSet();
+                } else if (sentPacket instanceof SetLightInfraredRequest) {
                     GetLightInfraredRequest infraredPacket = new GetLightInfraredRequest();
                     communicationHandler.sendPacket(infraredPacket);
                 }
             } else {
                 logger.debug("{} : No pending packet found for ack with sequence number: {}", macAsHex,
                         packet.getSequence());
+            }
+        }
+    }
+
+    private void getZonesIfZonesAreSet() {
+        if (product.isMultiZone()) {
+            List<PendingPacket> pending = pendingPacketsMap.get(SetColorZonesRequest.TYPE);
+            if (pending == null || pending.isEmpty()) {
+                GetColorZonesRequest zoneColorPacket = new GetColorZonesRequest();
+                communicationHandler.sendPacket(zoneColorPacket);
             }
         }
     }

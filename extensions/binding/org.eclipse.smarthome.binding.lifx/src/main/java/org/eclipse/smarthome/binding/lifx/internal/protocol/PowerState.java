@@ -37,13 +37,9 @@ public enum PowerState {
     }
 
     public static PowerState fromValue(int value) {
-        for (PowerState p : values()) {
-            if (p.getValue() == value) {
-                return p;
-            }
-        }
-
-        return null;
+        // a response can have a power level between 0 and 65535 when the light
+        // has just been switched ON or OFF
+        return value == OFF.value ? OFF : ON;
     }
 
     public static PowerState fromOnOffType(OnOffType onOff) {
