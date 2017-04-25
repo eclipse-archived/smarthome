@@ -17,13 +17,14 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.service.component.ComponentContext;
 
 /**
- * The {@link LifxHandlerFactory} is responsible for creating things and thing
- * handlers.
+ * The {@link LifxHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Karel Goderis - Remove dependency on external libraries
  */
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
+
+    private LifxChannelFactory channelFactory;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -38,7 +39,7 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected ThingHandler createHandler(Thing thing) {
         if (supportsThingType(thing.getThingTypeUID())) {
-            return new LifxLightHandler(thing);
+            return new LifxLightHandler(thing, channelFactory);
         }
 
         return null;
@@ -48,4 +49,13 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
     protected void deactivate(ComponentContext componentContext) {
         super.deactivate(componentContext);
     }
+
+    protected void setChannelFactory(LifxChannelFactory channelFactory) {
+        this.channelFactory = channelFactory;
+    }
+
+    protected void unsetChannelFactory(LifxChannelFactory channelFactory) {
+        this.channelFactory = null;
+    }
+
 }
