@@ -490,10 +490,10 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.debug("Config description validation exception occurred for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
-        } catch (IllegalArgumentException ex) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
-                    uriInfo.getPath(), thingUID);
-            return getThingNotFoundResponse(thingUID);
+        } catch (Exception ex) {
+            logger.error("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
+                    uriInfo.getPath(), thingUID, ex.getMessage());
+            return JSONResponse.createResponse(Status.INTERNAL_SERVER_ERROR, null, ex.getMessage());
         }
 
         return getThingResponse(Status.OK, thing, locale, null);
