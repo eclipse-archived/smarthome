@@ -38,8 +38,10 @@ public interface Template {
 
     /**
      * Templates can have
+     * <ul>
      * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for getting the assign tags to this Template.
+     * used to filter the templates. This method is used for getting the assign tags to this Template.</li>
+     * </ul>
      *
      * @return tags of the template
      */

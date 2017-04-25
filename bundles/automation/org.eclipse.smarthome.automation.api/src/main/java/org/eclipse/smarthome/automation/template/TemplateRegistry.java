@@ -37,7 +37,11 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
     /**
      * This method is used for getting the templates filtered by tag.
      *
-     * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all templates.
+     * * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all
+     * templates.
+     *
+     * @param locale specifies the localization of the returned element. If a localization resource for this
+     *            locale is not available the element is returned with the default localization.
      * @return the templates, which correspond to the specified filter.
      */
     public Collection<E> getByTag(String tag);
@@ -55,6 +59,9 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      *
      * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
      *            returns all templates.
+     * @param locale - specifies the localization of the returned element.
+     *            If a localization resource for this locale is not available the element is returned with the default
+     *            localiation
      * @return collection of templates, which correspond to the filter.
      */
     public Collection<E> getByTags(String... tags);
@@ -71,7 +78,9 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
     /**
      * This method is used for getting all templates, localized by specified locale,
      *
-     * @param moduleType the class of module which is looking for.
+     * @param locale - specifies the localization for the returned elements.
+     *            If a localization resources for this locale are not available the elements are returned with the
+     *            default localization.
      * @return collection of templates, corresponding to specified type
      */
     public Collection<E> getAll(Locale locale);

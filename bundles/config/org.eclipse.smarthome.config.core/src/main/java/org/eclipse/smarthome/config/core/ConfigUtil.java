@@ -31,7 +31,7 @@ public class ConfigUtil {
     /**
      * Normalizes the types to the ones allowed for configurations.
      *
-     * @param configuration
+     * @param configuration the configuration that needs to be normalzed
      * @return normalized configuration
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration) {
@@ -58,6 +58,7 @@ public class ConfigUtil {
      * Normalizes the type of the parameter to the one allowed for configurations.
      *
      * @param value the value to return as normalized type
+     * @param configDescriptionParameter the parameter that needs to be normalized
      * @return corresponding value as a valid type
      * @throws IllegalArgumentException if a invalid type has been given
      */

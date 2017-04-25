@@ -29,6 +29,7 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      *
      * @param moduleTypeUID the an unique id in scope of registered ModuleTypes
      * @param locale used for localization of the ModuleType
+     * @param <T> the type of the required object
      * @return ModuleType instance or null.
      */
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale);
@@ -38,6 +39,7 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      *
      * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
+     * @param <T> the type of the required object
      * @return the ModuleTypes, which correspond to the specified filter.
      */
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag);
@@ -48,6 +50,7 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
      * @param locale used for localization of the ModuleType
+     * @param <T> the type of the required object
      * @return the ModuleTypes, which correspond to the specified filter.
      */
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag, Locale locale);
@@ -57,6 +60,7 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      *
      * @param tags specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
+     * @param <T> the type of the required object
      * @return the ModuleTypes, which correspond to the filter.
      */
     public <T extends ModuleType> Collection<T> getByTags(String... tags);
@@ -67,6 +71,7 @@ public interface ModuleTypeRegistry extends Registry<ModuleType, String> {
      * @param locale used for localization of the ModuleType
      * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
      *            it is <code>null</code> then returns all ModuleTypes.
+     * @param <T> the type of the required object
      * @return the ModuleTypes, which correspond to the filter.
      */
     public <T extends ModuleType> Collection<T> getByTags(Locale locale, String... tags);

@@ -110,7 +110,7 @@ public class Output {
      * @param description is an user friendly description of the {@code Output}.
      * @param tags are associated with the {@code Output}. The tags add additional restrictions to connections between
      *            {@link Input}s and {@link Output}s. The {@link Input}'s tags must be subset of the {@code Output}'s
-     *            tags to succeed the connection.</br>
+     *            tags to succeed the connection.<br>
      *            For example: When we want to connect {@link Input} to
      *            {@code Output} and both have same java.lang.double data type. The the output has assign "temperature"
      *            and "celsius" tags then the input must have at least one of these output's tags (i.e. "temperature")
@@ -191,7 +191,7 @@ public class Output {
     /**
      * This method is used for getting the tags of the {@code Output}. The tags add additional restrictions to
      * connections between {@link Input}s and {@code Output}s. The input tags must be subset of the output tags to
-     * succeed the connection.</br>
+     * succeed the connection.<br>
      * For example: When we want to connect {@link Input} to {@code Output} and they both
      * have same data type - java.lang.double and the {@link Output} has assign "temperature" and "celsius" tags, then
      * the {@link Input} must have at least one of these {@code Output}'s tags (i.e. "temperature") to connect this

@@ -102,12 +102,12 @@ public class RuleEventFactory extends AbstractEventFactory {
     }
 
     /**
-     * creates a rule updated event
+     * Creates a rule updated event
      *
-     * @param rule the updated rule
-     * @param oldRule the old rule
-     * @param source
-     * @return
+     * @param rule the new rule
+     * @param oldRule the rule that has been updated
+     * @param source the source of the event
+     * @return {@link RuleUpdatedEvent} instance
      */
     public static RuleUpdatedEvent createRuleUpdatedEvent(Rule rule, Rule oldRule, String source) {
         String topic = buildTopic(RULE_UPDATED_EVENT_TOPIC, rule);
@@ -121,12 +121,12 @@ public class RuleEventFactory extends AbstractEventFactory {
     }
 
     /**
-     * creates a rule status info event
+     * Creates a rule status info event
      *
-     * @param statusInfo
-     * @param rule
-     * @param source
-     * @return
+     * @param statusInfo the status info of the event
+     * @param ruleUID the UID of the rule for which the event is created
+     * @param source the source of the event
+     * @return {@link RuleStatusInfoEvent} instance
      */
     public static RuleStatusInfoEvent createRuleStatusInfoEvent(RuleStatusInfo statusInfo, String ruleUID,
             String source) {
@@ -136,11 +136,11 @@ public class RuleEventFactory extends AbstractEventFactory {
     }
 
     /**
-     * creates a rule removed event
+     * Creates a rule removed event
      *
-     * @param rule
-     * @param source
-     * @return
+     * @param rule the rule for which this event is created
+     * @param source the source of the event
+     * @return {@link RuleRemovedEvent} instance
      */
     public static RuleRemovedEvent createRuleRemovedEvent(Rule rule, String source) {
         String topic = buildTopic(RULE_REMOVED_EVENT_TOPIC, rule);
@@ -150,11 +150,11 @@ public class RuleEventFactory extends AbstractEventFactory {
     }
 
     /**
-     * creates a rule added event
+     * Creates a rule added event
      *
-     * @param rule
-     * @param source
-     * @return
+     * @param rule the rule for which this event is created
+     * @param source the source of the event
+     * @return {@link RuleAddedEvent} instance
      */
     public static RuleAddedEvent createRuleAddedEvent(Rule rule, String source) {
         String topic = buildTopic(RULE_ADDED_EVENT_TOPIC, rule);

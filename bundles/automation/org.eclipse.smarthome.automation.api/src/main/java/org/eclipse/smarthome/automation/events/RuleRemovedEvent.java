@@ -21,12 +21,12 @@ public class RuleRemovedEvent extends AbstractRuleRegistryEvent {
     public static final String TYPE = RuleRemovedEvent.class.getSimpleName();
 
     /**
-     * constructs a new rule removed event
+     * Constructs a new rule removed event
      *
-     * @param topic
-     * @param payload
-     * @param source
-     * @param ruleDTO
+     * @param topic the topic of the event
+     * @param payload the payload of the event
+     * @param source the source of the event
+     * @param rule the rule for which this event is
      */
     public RuleRemovedEvent(String topic, String payload, String source, RuleDTO rule) {
         super(topic, payload, source, rule);
