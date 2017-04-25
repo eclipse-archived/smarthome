@@ -20,62 +20,10 @@
 	</requiredProperties>
 
 	<fileSets>
-		<!-- General files -->
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
 			<directory></directory>
 			<includes>
-				<include>build.properties</include>
-				<include>pom.xml</include>
-				<include>.project</include>
-				<include>.classpath</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- META-INF files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>META-INF</directory>
-			<includes>
-				<include>MANIFEST.MF</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- ESH-INF/binding files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/binding</directory>
-			<includes>
-				<include>binding.xml</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- ESH-INF/thing files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/thing</directory>
-			<includes>
-				<include>thing-types.xml</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- ESH-INF/i18n files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/i18n</directory>
-			<includes>
-				<include>*</include>
-			</includes>
-			<excludes />
-		</fileSet>		
-		<!-- OSGI-INF files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>OSGI-INF</directory>
-			<includes>
-				<include>*.xml</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- Java files -->
-		<fileSet filtered="true" packaged="true" encoding="UTF-8">
-			<directory>src/main/java</directory>
-			<includes>
-				<include>**/*.java</include>
+				<include>**/*.*</include>
 			</includes>
 			<excludes />
 		</fileSet>
