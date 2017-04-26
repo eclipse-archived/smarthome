@@ -136,10 +136,12 @@ public class Rule {
 
     /**
      * Rules can have
+     * <ul>
      * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
-     * used for getting the tags assign to this Rule. The tags are used to filter the rules.
+     * used for getting the tags assign to this Rule. The tags are used to filter the rules.</li>
+     * </ul>
      *
-     * @return a list of tags
+     * @return a {@link Set} of tags
      */
     public Set<String> getTags() {
         return tags = tags != null ? tags : Collections.<String> emptySet();
@@ -147,13 +149,14 @@ public class Rule {
 
     /**
      * Rules can have
+     * <ul>
      * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
      * used for setting the tags to this rule. This property can be changed only when the Rule is not in active state.
-     * The tags are used to filter the rules.
+     * The tags are used to filter the rules.</li>
+     * </ul>
      *
      * @param ruleTags list of tags assign to this Rule.
-     * @throws IllegalStateException IllegalStateException when the rule is in
-     *             active state.
+     * @throws IllegalStateException when the rule is in active state.
      */
     public void setTags(Set<String> ruleTags) throws IllegalStateException {
         tags = ruleTags != null ? ruleTags : Collections.<String> emptySet();
@@ -223,9 +226,8 @@ public class Rule {
     }
 
     /**
-     * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
-     * configuration
-     * properties of the Rule.<br/>
+     * This method is used for getting the {@link List} with {@link ConfigDescriptionParameter}s
+     * defining meta info for configuration properties of the Rule.
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
@@ -310,7 +312,7 @@ public class Rule {
     }
 
     /**
-     * This method is used to return a group of module of this rule
+     * This method is used to return the module of this rule.
      *
      * @param moduleClazz optional parameter defining type looking modules. The
      *            types are {@link Trigger}, {@link Condition} or {@link Action}

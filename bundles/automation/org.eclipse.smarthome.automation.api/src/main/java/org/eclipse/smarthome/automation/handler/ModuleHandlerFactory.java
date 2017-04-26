@@ -27,7 +27,7 @@ public interface ModuleHandlerFactory {
     /**
      * This method is used to return UIDs of module types supported by this {@link ModuleHandlerFactory}
      *
-     * @return collection of module type unequal ids supported by this factory.
+     * @return collection of module type unequal UID supported by this factory.
      */
     public Collection<String> getTypes();
 
@@ -35,17 +35,16 @@ public interface ModuleHandlerFactory {
      * This method is used to get a ModuleHandler instance for the passed module
      * instance
      *
-     * @param module module instance for which the {@link ModuleHandler} instance is
-     *            created for.
-     *
-     * @return ModuleHandler instance.
+     * @param module module instance for which the {@link ModuleHandler} instance is created.
+     * @param ruleUID the UID of the rule for which the handler instance is created.
+     * @return {@link ModuleHandler} instance.
      */
     public ModuleHandler getHandler(Module module, String ruleUID);
 
     /**
-     * This method signalizes the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
+     * This method signalises the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
      * must take care of invalidating caches and disposing the Handlers.
-     * 
+     *
      * @param module
      */
     public void ungetHandler(Module module, String ruleUID, ModuleHandler handler);

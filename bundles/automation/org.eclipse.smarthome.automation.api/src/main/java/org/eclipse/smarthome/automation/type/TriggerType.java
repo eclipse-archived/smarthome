@@ -76,7 +76,7 @@ public class TriggerType extends ModuleType {
     }
 
     /**
-     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.<br/>
+     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.<br>
      *
      * @return a {@link List} of {@link Output} definitions.
      */
