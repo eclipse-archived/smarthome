@@ -13,10 +13,13 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService;
 import org.eclipse.smarthome.config.xml.internal.ConfigDescriptionReader;
-import org.eclipse.smarthome.config.xml.internal.ConfigDescriptionXmlProviderFactory;
+import org.eclipse.smarthome.config.xml.internal.ConfigDescriptionXmlProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.service.ReadyMarker;
+import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,7 +33,8 @@ import org.osgi.service.component.annotations.Reference;
  *
  */
 @Component(service = ConfigDescriptionProvider.class, immediate = true, property = { "esh.scope=core.xml.config" })
-public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescriptionProvider {
+public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescriptionProvider
+        implements XmlDocumentProviderFactory<List<ConfigDescription>> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/config/";
 
@@ -42,11 +46,8 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
     public void activate(ComponentContext componentContext) {
         XmlDocumentReader<List<ConfigDescription>> configDescriptionReader = new ConfigDescriptionReader();
 
-        XmlDocumentProviderFactory<List<ConfigDescription>> configDescriptionProviderFactory = new ConfigDescriptionXmlProviderFactory(
-                this);
-
         configDescriptionTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                configDescriptionReader, configDescriptionProviderFactory);
+                configDescriptionReader, this, ReadyMarker.XML_CONFIG);
         configDescriptionTracker.open();
     }
 
@@ -68,4 +69,10 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
     protected ConfigI18nLocalizationService getConfigI18nLocalizerService() {
         return configI18nLocalizerService;
     }
+
+    @Override
+    public XmlDocumentProvider<List<ConfigDescription>> createDocumentProvider(Bundle bundle) {
+        return new ConfigDescriptionXmlProvider(bundle, this);
+    }
+
 }

@@ -7,25 +7,22 @@
  */
 package org.eclipse.smarthome.core.binding.xml.internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -41,32 +38,24 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Michael Grammling - Refactoring: Provider/Registry pattern is used, added locale support
+ * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
 @Component
-public class XmlBindingInfoProvider implements BindingInfoProvider {
+public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, BindingInfo>
+        implements BindingInfoProvider, XmlDocumentProviderFactory<BindingInfoXmlResult> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/binding/";
-    private Map<Bundle, List<BindingInfo>> bundleBindingInfoMap;
     private BindingI18nUtil bindingI18nUtil;
     private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
     private XmlDocumentBundleTracker<BindingInfoXmlResult> bindingInfoTracker;
-
-    public XmlBindingInfoProvider() {
-        this.bundleBindingInfoMap = new HashMap<>(10);
-    }
 
     @Activate
     public void activate(ComponentContext componentContext) {
         XmlDocumentReader<BindingInfoXmlResult> bindingInfoReader = new BindingInfoReader();
 
-        XmlDocumentProviderFactory<BindingInfoXmlResult> bindingInfoProviderFactory = new BindingInfoXmlProviderFactory(
-                this, configDescriptionProvider);
-
         bindingInfoTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                bindingInfoReader, bindingInfoProviderFactory);
-
+                bindingInfoReader, this, ReadyMarker.XML_BINDING_INFO);
         bindingInfoTracker.open();
-
     }
 
     @Deactivate
@@ -75,93 +64,14 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
         bindingInfoTracker = null;
     }
 
-    private List<BindingInfo> acquireBindingInfos(Bundle bundle) {
-        if (bundle != null) {
-            List<BindingInfo> bindingInfos = this.bundleBindingInfoMap.get(bundle);
-
-            if (bindingInfos == null) {
-                bindingInfos = new ArrayList<BindingInfo>(10);
-
-                this.bundleBindingInfoMap.put(bundle, bindingInfos);
-            }
-
-            return bindingInfos;
-        }
-
-        return null;
-    }
-
-    /**
-     * Adds a {@link BindingInfo} object to the internal list associated with the specified module.
-     * <p>
-     * This method returns silently, if any of the parameters is {@code null}.
-     *
-     * @param bundle the module to which the binding information to be added
-     * @param bindingInfo the binding information to be added
-     */
-    public synchronized void addBindingInfo(Bundle bundle, BindingInfo bindingInfo) {
-        if (bindingInfo != null) {
-            List<BindingInfo> bindingInfos = acquireBindingInfos(bundle);
-
-            if (bindingInfos != null) {
-                bindingInfos.add(bindingInfo);
-            }
-        }
-    }
-
-    /**
-     * Removes all {@link BindingInfo} objects from the internal list
-     * associated with the specified module.
-     * <p>
-     * This method returns silently if the module is {@code null}.
-     *
-     * @param bundle the module for which all associated binding informations to be removed
-     */
-    public synchronized void removeAllBindingInfos(Bundle bundle) {
-        if (bundle != null) {
-            List<BindingInfo> bindingInfos = this.bundleBindingInfoMap.get(bundle);
-
-            if (bindingInfos != null) {
-                this.bundleBindingInfoMap.remove(bundle);
-            }
-        }
-    }
-
     @Override
     public synchronized BindingInfo getBindingInfo(String id, Locale locale) {
-        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoList = this.bundleBindingInfoMap.entrySet();
-
-        if (bindingInfoList != null) {
-            for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoList) {
-                for (BindingInfo bindingInfo : bindingInfos.getValue()) {
-                    if (bindingInfo.getId().equals(id)) {
-                        return createLocalizedBindingInfo(bindingInfos.getKey(), bindingInfo, locale);
-                    }
-                }
-            }
-        }
-
-        return null;
+        return get(id, locale);
     }
 
     @Override
     public synchronized Set<BindingInfo> getBindingInfos(Locale locale) {
-        Set<BindingInfo> allBindingInfos = new LinkedHashSet<>(10);
-
-        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoSet = this.bundleBindingInfoMap.entrySet();
-
-        if (bindingInfoSet != null) {
-            for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoSet) {
-                for (BindingInfo bindingInfo : bindingInfos.getValue()) {
-                    BindingInfo localizedBindingInfo = createLocalizedBindingInfo(bindingInfos.getKey(), bindingInfo,
-                            locale);
-
-                    allBindingInfos.add(localizedBindingInfo);
-                }
-            }
-        }
-
-        return allBindingInfos;
+        return new HashSet<>(getAll(locale));
     }
 
     @Reference
@@ -182,18 +92,28 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
         this.configDescriptionProvider = null;
     }
 
-    private BindingInfo createLocalizedBindingInfo(Bundle bundle, BindingInfo bindingInfo, Locale locale) {
-
-        if (this.bindingI18nUtil != null) {
-            String name = this.bindingI18nUtil.getName(bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
-            String description = this.bindingI18nUtil.getDescription(bundle, bindingInfo.getId(),
-                    bindingInfo.getDescription(), locale);
-
-            return new BindingInfo(bindingInfo.getId(), name, description, bindingInfo.getAuthor(),
-                    bindingInfo.getServiceId(), bindingInfo.getConfigDescriptionURI());
-        } else {
-            return bindingInfo;
+    @Override
+    protected BindingInfo localize(Bundle bundle, BindingInfo bindingInfo, Locale locale) {
+        if (this.bindingI18nUtil == null) {
+            return null;
         }
+
+        String name = this.bindingI18nUtil.getName(bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
+        String description = this.bindingI18nUtil.getDescription(bundle, bindingInfo.getId(),
+                bindingInfo.getDescription(), locale);
+
+        return new BindingInfo(bindingInfo.getId(), name, description, bindingInfo.getAuthor(),
+                bindingInfo.getServiceId(), bindingInfo.getConfigDescriptionURI());
+    }
+
+    @Override
+    protected String getIndentifier(BindingInfo bindingInfo) {
+        return bindingInfo.getId();
+    }
+
+    @Override
+    public XmlDocumentProvider<BindingInfoXmlResult> createDocumentProvider(Bundle bundle) {
+        return new BindingInfoXmlProvider(bundle, this, configDescriptionProvider);
     }
 
 }
