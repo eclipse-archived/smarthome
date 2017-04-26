@@ -40,8 +40,6 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      * * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all
      * templates.
      *
-     * @param locale specifies the localization of the returned element. If a localization resource for this
-     *            locale is not available the element is returned with the default localization.
      * @return the templates, which correspond to the specified filter.
      */
     public Collection<E> getByTag(String tag);
@@ -59,9 +57,6 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      *
      * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
      *            returns all templates.
-     * @param locale - specifies the localization of the returned element.
-     *            If a localization resource for this locale is not available the element is returned with the default
-     *            localiation
      * @return collection of templates, which correspond to the filter.
      */
     public Collection<E> getByTags(String... tags);
