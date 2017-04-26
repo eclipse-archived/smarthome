@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
+import org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCommunicationHandler;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCurrentStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightOnlineStateUpdater;
@@ -42,7 +43,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -66,6 +66,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private static final long FADE_TIME_DEFAULT = 300;
     private static final int MAX_STATE_CHANGE_DURATION = 4000;
 
+    private LifxChannelFactory channelFactory;
     private Products product;
 
     private long fadeTime = FADE_TIME_DEFAULT;
@@ -180,8 +181,9 @@ public class LifxLightHandler extends BaseThingHandler {
 
     }
 
-    public LifxLightHandler(Thing thing) {
+    public LifxLightHandler(Thing thing, LifxChannelFactory channelFactory) {
         super(thing);
+        this.channelFactory = channelFactory;
     }
 
     @Override
@@ -300,12 +302,8 @@ public class LifxLightHandler extends BaseThingHandler {
 
         // add zone channels
         for (int i = 0; i < zones; i++) {
-            newChannels
-                    .add(ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_COLOR_ZONE + i), "ColorItem")
-                            .withType(CHANNEL_TYPE_COLOR_ZONE).withLabel("Color zone " + i).build());
-            newChannels.add(ChannelBuilder
-                    .create(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE_ZONE + i), "DimmerItem")
-                    .withType(CHANNEL_TYPE_TEMPERATURE_ZONE).withLabel("Temperature zone " + i).build());
+            newChannels.add(channelFactory.createColorZoneChannel(getThing().getUID(), i));
+            newChannels.add(channelFactory.createTemperatureZoneChannel(getThing().getUID(), i));
         }
 
         updateThing(editThing().withChannels(newChannels).build());
@@ -506,4 +504,5 @@ public class LifxLightHandler extends BaseThingHandler {
             channelStates.put(channel, newState);
         }
     }
+
 }
