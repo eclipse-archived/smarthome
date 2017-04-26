@@ -200,11 +200,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             GenericItem baseItem = createItemOfType(baseItemType, modelGroupItem.getName());
             if (baseItem != null) {
                 ModelGroupFunction function = modelGroupItem.getFunction();
-                if ("NONE".equals(function.getName())) {
-                    item = new GroupItem(modelGroupItem.getName(), baseItem);
-                } else {
-                    item = applyGroupFunction(baseItem, modelGroupItem, function);
-                }
+                item = applyGroupFunction(baseItem, modelGroupItem, function);
             } else {
                 item = new GroupItem(modelGroupItem.getName());
             }

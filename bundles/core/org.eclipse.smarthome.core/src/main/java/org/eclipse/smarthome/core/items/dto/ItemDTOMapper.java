@@ -151,6 +151,9 @@ public class ItemDTOMapper {
             case "MAX":
                 groupFunction = new ArithmeticGroupFunction.Max();
                 break;
+            case "EQUAL":
+                groupFunction = new GroupFunction.Equality();
+                break;
             default:
                 LoggerFactory.getLogger(ItemDTOMapper.class)
                         .error("Unknown group function '" + function.name + "'. Using Equality instead.");

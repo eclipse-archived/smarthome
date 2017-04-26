@@ -36,11 +36,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     protected GroupFunction function;
 
     public GroupItem(String name) {
-        this(name, null);
+        this(name, null, null);
     }
 
     public GroupItem(String name, GenericItem baseItem) {
-        this(name, baseItem, new GroupFunction.Equality());
+        // this(name, baseItem, new GroupFunction.Equality());
+        this(name, baseItem, null);
     }
 
     public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
@@ -286,7 +287,9 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
-        setState(function.calculate(members));
+        if (null != function) {
+            setState(function.calculate(members));
+        }
         if (!oldState.equals(this.state)) {
             sendGroupStateChangedEvent(item.getName(), this.state, oldState);
         }
