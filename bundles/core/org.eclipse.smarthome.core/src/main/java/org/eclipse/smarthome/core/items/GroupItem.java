@@ -35,17 +35,29 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
     protected GroupFunction function;
 
+    /**
+     * Creates a plain GroupItem
+     * 
+     * @param name name of the group
+     */
     public GroupItem(String name) {
         this(name, null, null);
     }
 
-    public GroupItem(String name, GenericItem baseItem) {
-        // this(name, baseItem, new GroupFunction.Equality());
-        this(name, baseItem, null);
-    }
-
+    /**
+     * Creates a GroupItem with function
+     * 
+     * @param name name of the group
+     * @param baseItem type of items in the group
+     * @param function function to calculate group status out of member status
+     */
     public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
         super(TYPE, name);
+
+        if ((baseItem != null && function == null) || (baseItem == null && function != null)) {
+            throw new IllegalArgumentException("baseItem AND function have to be passed as arguments");
+        }
+
         members = new CopyOnWriteArraySet<Item>();
         this.function = function;
         this.baseItem = baseItem;
@@ -287,7 +299,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
-        if (null != function) {
+        if (function != null) {
             setState(function.calculate(members));
         }
         if (!oldState.equals(this.state)) {
