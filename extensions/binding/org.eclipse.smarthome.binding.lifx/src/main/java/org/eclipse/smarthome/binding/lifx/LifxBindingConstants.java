@@ -59,12 +59,23 @@ public class LifxBindingConstants {
     public static final ChannelTypeUID CHANNEL_TYPE_TEMPERATURE_ZONE = new ChannelTypeUID(BINDING_ID,
             CHANNEL_TEMPERATURE_ZONE);
 
-    // config property for the LIFX device id
+    // Config property for the LIFX device id
     public static final String CONFIG_PROPERTY_DEVICE_ID = "deviceId";
     public static final String CONFIG_PROPERTY_FADETIME = "fadetime";
 
-    // config property for channel configuration
+    // Config property for channel configuration
     public static final String CONFIG_PROPERTY_POWER_ON_BRIGHTNESS = "powerOnBrightness";
+
+    // Property keys
+    public static final String PROPERTY_HOST_VERSION = "hostVersion";
+    public static final String PROPERTY_MAC_ADDRESS = "macAddress";
+    public static final String PROPERTY_PRODUCT_ID = "productId";
+    public static final String PROPERTY_PRODUCT_NAME = "productName";
+    public static final String PROPERTY_PRODUCT_VERSION = "productVersion";
+    public static final String PROPERTY_VENDOR_ID = "vendorId";
+    public static final String PROPERTY_VENDOR_NAME = "vendorName";
+    public static final String PROPERTY_WIFI_VERSION = "wifiVersion";
+    public static final String PROPERTY_ZONES = "zones";
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_COLORLIGHT = new ThingTypeUID(BINDING_ID, "colorlight");

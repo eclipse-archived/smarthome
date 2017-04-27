@@ -57,6 +57,10 @@ public enum Products {
         return vendorID;
     }
 
+    public String getVendorName() {
+        return vendorID == 1 ? "LIFX" : "Unknown";
+    }
+
     public long getProduct() {
         return productID;
     }
