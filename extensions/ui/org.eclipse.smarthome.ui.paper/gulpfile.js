@@ -151,6 +151,7 @@ gulp.task('concat', function () {
                 path.basename += '.min';
                 return path;
             }))
+            .pipe(uglify())
             .pipe(gulp.dest('./web/js'));
     });
 });
