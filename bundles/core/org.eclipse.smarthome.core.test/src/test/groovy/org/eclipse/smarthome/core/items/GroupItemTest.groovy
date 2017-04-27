@@ -135,7 +135,6 @@ class GroupItemTest extends OSGiTest {
         groupItem.addMember(sw2)
 
         groupItem.setEventPublisher(publisher)
-        def oldGroupState = groupItem.getState()
 
         //State changes -> one change event is fired
         sw1.setState(OnOffType.ON)
@@ -152,6 +151,53 @@ class GroupItemTest extends OSGiTest {
 
         assertTrue change.getOldItemState().equals(UnDefType.NULL)
         assertTrue change.getItemState().equals(OnOffType.ON)
+
+        assertTrue groupItem.getState().equals(OnOffType.ON)
+    }
+
+    @Test
+    void 'assert that group item changes respect group function OR with UNDEF' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF))
+        def sw1 = new SwitchItem("switch1");
+        def sw2 = new SwitchItem("switch2");
+        groupItem.addMember(sw1)
+        groupItem.addMember(sw2)
+
+        groupItem.setEventPublisher(publisher)
+
+        //State changes -> one change event is fired
+        sw1.setState(OnOffType.ON)
+
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
+
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
+
+        def change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+
+        assertTrue change.getOldItemState().equals(UnDefType.NULL)
+        assertTrue change.getItemState().equals(OnOffType.ON)
+
+        events.clear();
+
+        sw2.setState(OnOffType.ON);
+
+        events.clear();
+
+        sw2.setState(UnDefType.UNDEF);
+
+        //wait to see that the event doesn't fire
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+
+        waitForAssert {
+            assertThat events.size(), is(0)
+        }
+
+        assertTrue groupItem.getState().equals(OnOffType.ON)
     }
 
     @Test
@@ -164,7 +210,6 @@ class GroupItemTest extends OSGiTest {
         groupItem.addMember(sw2)
 
         groupItem.setEventPublisher(publisher)
-        def oldGroupState = groupItem.getState()
 
         //State changes -> one change event is fired
         sw1.setState(OnOffType.ON)
@@ -202,6 +247,7 @@ class GroupItemTest extends OSGiTest {
         assertTrue change.getOldItemState().equals(OnOffType.OFF)
         assertTrue change.getItemState().equals(OnOffType.ON)
 
+        assertTrue groupItem.getState().equals(OnOffType.ON)
     }
 
     @Test
@@ -222,5 +268,7 @@ class GroupItemTest extends OSGiTest {
         waitForAssert {
             assertThat events.size(), is(0)
         }
+
+        assertTrue groupItem.getState().equals(oldGroupState)
     }
 }
