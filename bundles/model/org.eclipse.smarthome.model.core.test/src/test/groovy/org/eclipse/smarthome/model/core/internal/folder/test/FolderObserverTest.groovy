@@ -10,6 +10,8 @@ package org.eclipse.smarthome.model.core.internal.folder.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import java.nio.file.Files
+
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.SystemUtils
 import org.eclipse.emf.ecore.EObject
@@ -42,7 +44,8 @@ import org.osgi.service.cm.ManagedService
  *  Since the assertions in the tests depend on handling the events,
  *  putting the current Thread to sleep after the file operations is also necessary.
  *
- *  @author Mihaela Memova
+ *  @author Mihaela Memova - Initial Contribution
+ *  @author Stefan Triller - added hidden file test
  *
  */
 
@@ -484,6 +487,43 @@ class FolderObserverTest extends OSGiTest {
 
         waitForAssert {
             assertThat modelRepo.isAddOrRefreshModelMethodCalled, is(true)
+        }
+    }
+
+    @Test
+    void 'test ignore hidden files with extension that is registered'() {
+        /*
+         * The following method creates a hidden file in an existing directory. The file's extension is
+         * in the configuration properties and there is a registered ModelParser for it.
+         * addOrRefreshModel() method invocation is NOT expected, the model should be ignored since the file is hidden
+         */
+        String validExtension = "java"
+
+        Dictionary<String, String> configProps = new Hashtable<String, String>()
+        configProps.put(EXISTING_SUBDIR_NAME, "txt,jpg," + validExtension)
+        config.update(configProps)
+        sleep(WAIT_ABSTRACTWATCHQUEUEREADER_TO_START)
+
+        String mockFileWithValidExtName = ".HiddenNewlyCreatedMockFile" + "." + validExtension
+        String mockFileWithValidExtPath = EXISTING_SUBDIR_PATH + File.separatorChar + mockFileWithValidExtName
+        File mockFileWithValidExt = new File(mockFileWithValidExtPath)
+        mockFileWithValidExt.createNewFile()
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+        /*
+         * In some OS, like MacOS, creating an empty file is not related to sending an ENTRY_CREATE event.
+         * So, it's necessary to put some initial content in that file.
+         */
+        if(!SystemUtils.IS_OS_WINDOWS) {
+            mockFileWithValidExt << INITIAL_FILE_CONTENT
+        }
+        else {
+            //windows needs a filesystem property set for a file to be hidden (untested)
+            Files.set.setAttribute (mockFileWithValidExt.toPath(), "dos:hidden", true);
+        }
+
+        waitForAssert{
+            assertThat("A model should NOT be added/refreshed on new hidden file creation in the watched directory",
+                    modelRepo.isAddOrRefreshModelMethodCalled,is(false))
         }
     }
 
