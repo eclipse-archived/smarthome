@@ -179,14 +179,14 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         // turn-on the radio
         turnTheRadioOn(radioThing)
 
-        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
-        Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType)
-
         /*
          *  Setting the isInvalidResponseExpected variable to true
          *  in order to get the incorrect XML response from the servlet
          */
         servlet.isInvalidResponseExpected = true
+
+        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
+        Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType)
 
         // try to handle a command
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"))
