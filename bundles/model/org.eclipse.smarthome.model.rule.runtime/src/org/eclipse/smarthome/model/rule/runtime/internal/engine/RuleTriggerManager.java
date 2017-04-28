@@ -509,12 +509,11 @@ public class RuleTriggerManager {
                 }
                 rules.add(rule);
             } else if (t instanceof TimerTrigger) {
-                if (timerEventTriggeredRules.add(rule)) {
-                    try {
-                        createTimer(rule, (TimerTrigger) t);
-                    } catch (SchedulerException e) {
-                        logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
-                    }
+                try {
+                    createTimer(rule, (TimerTrigger) t);
+                    timerEventTriggeredRules.add(rule);
+                } catch (SchedulerException e) {
+                    logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
                 }
             } else if (t instanceof EventEmittedTrigger) {
                 EventEmittedTrigger eeTrigger = (EventEmittedTrigger) t;
