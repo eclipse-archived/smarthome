@@ -260,14 +260,19 @@ public class ModelRepositoryImpl implements ModelRepository {
                 }
 
                 // Check for validation errors, but log them only
-                org.eclipse.emf.common.util.Diagnostic diagnostic = Diagnostician.INSTANCE
-                        .validate(resource.getContents().get(0));
-                for (org.eclipse.emf.common.util.Diagnostic d : diagnostic.getChildren()) {
-                    warnings.add(d.getMessage());
-                }
-                if (warnings.size() > 0) {
-                    logger.info("Validation issues found in configuration model '{}', using it anyway:\n{}", name,
-                            StringUtils.join(warnings, "\n"));
+                try {
+                    org.eclipse.emf.common.util.Diagnostic diagnostic = Diagnostician.INSTANCE
+                            .validate(resource.getContents().get(0));
+                    for (org.eclipse.emf.common.util.Diagnostic d : diagnostic.getChildren()) {
+                        warnings.add(d.getMessage());
+                    }
+                    if (warnings.size() > 0) {
+                        logger.info("Validation issues found in configuration model '{}', using it anyway:\n{}", name,
+                                StringUtils.join(warnings, "\n"));
+                    }
+                } catch (NullPointerException e) {
+                    // see https://github.com/eclipse/smarthome/issues/3335
+                    logger.debug("Validation of '{}' skipped due to internal errors.", name);
                 }
             }
         } finally {
