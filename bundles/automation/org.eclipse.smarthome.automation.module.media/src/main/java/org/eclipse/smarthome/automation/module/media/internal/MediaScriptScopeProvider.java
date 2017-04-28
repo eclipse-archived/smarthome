@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.module.script.ScriptScopeProvider;
+import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 
@@ -21,33 +22,52 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
  * @author Kai Kreuzer - Initial contribution
  *
  */
-public class MediaScriptScopeProvider implements ScriptScopeProvider {
-
-    private AudioManager audioManager;
-    private VoiceManager voiceManager;
+public class MediaScriptScopeProvider implements ScriptExtensionProvider {
+    Map<String, Object> elements = new HashMap<>();
 
     protected void setAudioManager(AudioManager audioManager) {
-        this.audioManager = audioManager;
+        elements.put("audio", audioManager);
     }
 
     protected void unsetAudioManager(AudioManager audioManager) {
-        this.audioManager = null;
+        elements.remove("audio");
     }
 
     protected void setVoiceManager(VoiceManager voiceManager) {
-        this.voiceManager = voiceManager;
+        elements.put("voice", voiceManager);
     }
 
     protected void unsetVoiceManager(VoiceManager voiceManager) {
-        this.voiceManager = null;
+        elements.remove("voice");
     }
 
     @Override
-    public Map<String, Object> getScopeElements() {
-        Map<String, Object> elements = new HashMap<>();
-        elements.put("audio", audioManager);
-        elements.put("voice", voiceManager);
-        return Collections.unmodifiableMap(elements);
+    public Collection<String> getDefaultPresets() {
+        return Collections.singleton("media");
+    }
+
+    @Override
+    public Collection<String> getPresets() {
+        return Collections.singleton("media");
+    }
+
+    @Override
+    public Collection<String> getTypes() {
+        return elements.keySet();
+    }
+
+    @Override
+    public Object get(String scriptIdentifier, String type) {
+        return elements.get("type");
+    }
+
+    @Override
+    public Map<String, Object> importPreset(String scriptIdentifier, String preset) {
+        return elements;
+    }
+
+    @Override
+    public void unLoad(String scriptIdentifier) {
     }
 
 }
