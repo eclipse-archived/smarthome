@@ -46,6 +46,7 @@ import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.Type;
@@ -61,8 +62,6 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
-import org.eclipse.smarthome.model.sitemap.impl.SliderImpl;
-import org.eclipse.smarthome.model.sitemap.impl.SwitchImpl;
 import org.eclipse.smarthome.ui.internal.UIActivator;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -76,7 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
- * @author Stefan Triller - convertState(Widget, State)
+ * @author Stefan Triller - Method to convert a state into something a sitemap entity can understand
  *
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
@@ -490,12 +489,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     private State convertState(Widget w, State s) {
         State returnState = null;
 
-        if (w instanceof SwitchImpl) {
-            if (s instanceof PercentType) {
+        if (w instanceof Switch) {
+            if (s instanceof Convertible) {
                 returnState = ((PercentType) s).as(OnOffType.class);
             }
-        } else if (w instanceof SliderImpl) {
-            if (s instanceof PercentType) { // catches also HSBType etc
+        } else if (w instanceof Slider) {
+            if (s instanceof Convertible) {
                 returnState = ((PercentType) s).as(PercentType.class);
             }
         }

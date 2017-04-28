@@ -7,11 +7,9 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.text.DecimalFormatSymbols;
 
@@ -309,6 +307,40 @@ public class ItemUIRegistryImplTest {
         assertEquals("Zeit [-.-.- -]", uiRegistry.formatUndefined("Zeit [%1$td.%1$tm.%1$tY %1$tT]"));
         assertEquals("Temperatur [- °C]", uiRegistry.formatUndefined("Temperatur [%.1f °C]"));
         assertEquals("Luftfeuchte [- %]", uiRegistry.formatUndefined("Luftfeuchte [%.1f %%]"));
+    }
+
+    @Test
+    public void testStateConversionForSwitchWidgetThroughGetState() throws ItemNotFoundException {
+
+        // TODO: WIP
+
+        // System.out.println("start");
+        //
+        // State colorState = new HSBType("23,42,50");
+        //
+        // ColorItem colorItem = mock(ColorItem.class);
+        // // colorItem.setLabel("myItem");
+        // when(colorItem.getLabel()).thenReturn("myItem");
+        // // colorItem.setState(colorState);
+        // when(colorItem.getState()).thenReturn(colorState);
+        //
+        // // uiRegistry.add(colorItem);
+        // when(registry.getItem("Item")).thenReturn(colorItem);
+        //
+        // Switch switchWidget = mock(Switch.class);
+        // // switchWidget.setItem("myItem");
+        // when(switchWidget.getItem()).thenReturn("myItem");
+        //
+        // State stateForSwitch = uiRegistry.getState(switchWidget);
+        //
+        // assertTrue(stateForSwitch == OnOffType.ON);
+        //
+        // System.out.println("stop");
+    }
+
+    @Test
+    public void testStateConversionForSliderWidgetThroughGetState() throws ItemNotFoundException {
+        // TODO: WIP
     }
 
 }
