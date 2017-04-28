@@ -27,6 +27,7 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
 
     public AbstractFileProvider(String root) {
         this.rootSubdirectory = root;
-        configurationRoots = new String[] { "automation" };
+        configurationRoots = new String[] { ConfigConstants.getConfigFolder() + File.separator + "automation" };
     }
 
     public void activate(Map<String, Object> config) {
