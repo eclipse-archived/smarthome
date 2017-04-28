@@ -1,4 +1,4 @@
-<section id="main" class="white-bg extensions header-tabs">
+<section id="main" class="white-bg extensions header-tabs" droppable>
 	<div class="header-toolbar">
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 		<md-button ng-click="changeView(false)" aria-label="Refresh"> <i class="material-icons">view_list</i></md-button>
@@ -27,7 +27,7 @@
 			<hr class="border-line" ng-show="!$last" aria-hidden="false">
 		</div>
 	</div>
-	<div class="container" ng-if="showCards" ng-class="{'showCards':showCards}">
+	<div class="container" ng-show="showCards" ng-class="{'showCards':showCards}">
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
 			<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions | filter:filterItems(['id','label'],searchText)" on-finish-render>
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
@@ -53,6 +53,6 @@
 			</div>
 		</div>
 	</div>
-
+	<div class="backdrop" ng-show="ondrag"></div>
 	</md-tab-content></md-tab>
 </section>
