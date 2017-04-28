@@ -132,7 +132,6 @@ public class WatchQueueReader implements Runnable {
         try {
             registrationKey = directory.register(this.watchService, kinds);
         } catch (IOException e) {
-            e.printStackTrace();
             logger.debug("The directory '{}' was not registered in the watch service", directory, e);
         }
         if (registrationKey != null) {
