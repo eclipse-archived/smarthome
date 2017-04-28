@@ -40,6 +40,8 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -59,6 +61,8 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.model.sitemap.impl.SliderImpl;
+import org.eclipse.smarthome.model.sitemap.impl.SwitchImpl;
 import org.eclipse.smarthome.ui.internal.UIActivator;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -72,6 +76,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Stefan Triller - convertState(Widget, State)
  *
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
@@ -466,13 +471,41 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             try {
                 Item item = getItem(itemName);
-                return item.getState();
+                return convertState(w, item.getState());
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
             }
         }
         return UnDefType.UNDEF;
+    }
+
+    /**
+     * Converts an item state to the type the widget supports (if possible)
+     *
+     * @param w - Widget in sitemap that shows the state
+     * @param s - State of the item
+     * @return the converted state or the original if conversion was not possible
+     */
+    private State convertState(Widget w, State s) {
+        State returnState = null;
+
+        if (w instanceof SwitchImpl) {
+            if (s instanceof PercentType) {
+                returnState = ((PercentType) s).as(OnOffType.class);
+            }
+        } else if (w instanceof SliderImpl) {
+            if (s instanceof PercentType) { // catches also HSBType etc
+                returnState = ((PercentType) s).as(PercentType.class);
+            }
+        }
+        // if returnState is null, a conversion was not possible
+        if (returnState == null) {
+            // we return the original state to not break anything
+            returnState = s;
+        }
+
+        return returnState;
     }
 
     /**
