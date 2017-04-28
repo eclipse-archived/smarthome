@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -137,8 +138,8 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     }
 
     @Override
-    public void runNow(String ruleUID, boolean considerConditions) {
-        ruleRegistry.runNow(ruleUID, considerConditions);
+    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
+        ruleRegistry.runNow(ruleUID, considerConditions, context);
     }
 
 }
