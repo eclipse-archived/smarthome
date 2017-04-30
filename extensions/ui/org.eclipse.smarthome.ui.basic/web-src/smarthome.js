@@ -1195,13 +1195,13 @@
 			_t.suppressUpdate();
 		});
 
-		_t.setValuePrivate = function(v) {
+		_t.setValuePrivate = function(value, itemState) {
 			var
-				value = v === "ON";
+				val = itemState === "ON";
 
-			_t.input.checked = value;
+			_t.input.checked = val;
 
-			if (value) {
+			if (val) {
 				_t.parentNode.MaterialSwitch.on();
 			} else {
 				_t.parentNode.MaterialSwitch.off();
