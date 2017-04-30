@@ -5,7 +5,7 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute' ]).conf
         controller : 'BindingController',
         title : 'Configuration'
     }).when('/configuration/bindings/:bindingId', {
-        templateUrl : 'partials/configuration.bindings.detail.html',
+        templateUrl : 'partials/configuration.binding.html',
         controller : 'BindingDetailController',
         title : 'Configuration'
     });
@@ -36,7 +36,8 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute' ]).conf
         });
     }
     bindingRepository.getAll();
-}).controller('BindingDetailController', function($scope, $location, thingTypeRepository, bindingRepository) {
+
+}).controller('BindingDetailController', function($scope, $location, $mdExpansionPanel, thingTypeRepository, bindingRepository) {
     /**
      * This is the binding controller to display the binding detail
      */
@@ -78,5 +79,9 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute' ]).conf
                 }
             });
         });
+    });
+
+    $mdExpansionPanel().waitFor('bindingOverview').then(function(panel) {
+        panel.expand();
     });
 });

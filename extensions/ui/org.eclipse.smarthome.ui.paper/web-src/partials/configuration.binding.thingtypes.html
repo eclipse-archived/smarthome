@@ -1,0 +1,27 @@
+<div class="search" layout="row" layout-align="center">
+	<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
+	<md-input-container flex="auto" md-no-float class="md-block">
+	    <input ng-model="searchText" type="text" placeholder="Search">
+	</md-input-container>
+	<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
+</div>
+
+<div class="container">
+	<div class="thing-type list-item" ng-repeat="thingType in binding.thingTypes | filter:filterItems(['uid','label'], searchText)">
+		<div ng-init="thingType.collapsed=true" class="thing container">
+			<div>
+				<h3>{{thingType.label}}</h3>
+				<div ng-if="thingType.description != null && thingType.description.length > 0">
+					<i ng-show="!thingType.collapsed" ng-click="thingType.collapsed=true" style="font-size: 22px; float: right;" class="md-raised material-icons">unfold_less</i> <i ng-show="thingType.collapsed" ng-click="thingType.collapsed=false" style="font-size: 22px; float: right; color: grey;" class="md-raised material-icons">unfold_more</i>
+				</div>
+			</div>
+
+			<p>{{thingType.UID}}</p>
+
+			<div ng-if="!thingType.collapsed">
+				<small ng-bind-html="thingType.description"></small>
+				<hr>
+			</div>
+		</div>
+	</div>
+</div>

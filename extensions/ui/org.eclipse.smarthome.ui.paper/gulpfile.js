@@ -54,7 +54,8 @@ var paths = {
             './node_modules/angular-material/angular-material.min.js',
             './node_modules/angular-messages/angular-messages.min.js',
             './node_modules/angular-sanitize/angular-sanitize.min.js',
-            './node_modules/angular-ui-sortable/dist/sortable.min.js'
+            './node_modules/angular-ui-sortable/dist/sortable.min.js',
+            './node_modules/angular-material-expansion-panel/dist/md-expansion-panel.min.js',
         ],
         'name': 'angular-bundle.js'
     }],
@@ -65,6 +66,7 @@ var paths = {
         './node_modules/masonry-layout/dist/masonry.pkgd.min.js',
         './node_modules/sprintf-js/dist/sprintf.min.js',
         './node_modules/bootstrap/dist/js/bootstrap.min.js',
+        './node_modules/angular-material-expansion-panel/dist/md-expansion-panel.min.js',
         './node_modules/tinycolor2/tinycolor.js'
     ],
     JQUI: [{
@@ -83,6 +85,7 @@ var paths = {
     CSSLibs: [
         './node_modules/bootstrap/dist/css/bootstrap.min.css',
         './node_modules/angular-material/angular-material.min.css',
+        './node_modules/angular-material-expansion-panel/dist/md-expansion-panel.min.css'
     ],
     FontLibs: [
         './node_modules/roboto-fontface/fonts/*.woff',
@@ -212,6 +215,7 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/app.js',
                      './web-src/js/constants.js',
                      './web-src/js/controllers.configuration.js',
+                     './web-src/js/controllers.configuration.bindings.js',
                      './web-src/js/controllers.system.js',
                      './web-src/js/controllers.items.js',
                      './web-src/js/controllers.control.js',
