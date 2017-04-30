@@ -1192,20 +1192,31 @@
 				item: _t.item,
 				value: _t.input.checked ? "ON" : "OFF"
 			}));
-			_t.suppressUpdate();
 		});
+
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 
 		_t.setValuePrivate = function(value, itemState) {
 			var
 				val = itemState === "ON";
 
-			_t.input.checked = val;
-
-			if (val) {
-				_t.parentNode.MaterialSwitch.on();
-			} else {
-				_t.parentNode.MaterialSwitch.off();
+			if (_t.input.checked !== val) {
+				_t.input.checked = val;
+				if (val) {
+					_t.parentNode.MaterialSwitch.on();
+				} else {
+					_t.parentNode.MaterialSwitch.off();
+				}
 			}
+
+			if (_t.hasValue) {
+				_t.valueNode.innerHTML = value;
+			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 	}
 
