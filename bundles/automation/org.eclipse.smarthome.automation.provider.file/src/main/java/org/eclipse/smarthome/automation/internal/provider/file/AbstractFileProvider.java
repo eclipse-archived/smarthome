@@ -256,9 +256,21 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
 
     protected void updateProvidedObjectsHolder(URL url, Set<E> providedObjects) {
         if (providedObjects != null && !providedObjects.isEmpty()) {
+            List<String> previousPortfolio = providerPortfolio.get(url);
             List<String> uids = new ArrayList<String>();
             for (E providedObject : providedObjects) {
                 String uid = getUID(providedObject);
+                if (providedObjectsHolder.get(uid) == null) {
+                    if (checkExistence(uid)) {
+                        logger.warn("{} with UID \"{}\" already exists! Failed to create a second with the same UID!",
+                                providedObject.getClass().getName(), uid, new IllegalArgumentException());
+                        continue;
+                    }
+                } else if (previousPortfolio == null || !previousPortfolio.contains(uid)) {
+                    logger.warn("{} with UID \"{}\" already exists! Failed to create a second with the same UID!",
+                            providedObject.getClass().getName(), uid, new IllegalArgumentException());
+                    continue;
+                }
                 uids.add(uid);
                 E oldProvidedObject = providedObjectsHolder.put(uid, providedObject);
                 notifyListeners(oldProvidedObject, providedObject);
@@ -296,6 +308,8 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             }
         }
     }
+
+    protected abstract boolean checkExistence(String uid);
 
     protected abstract String getUID(E providedObject);
 

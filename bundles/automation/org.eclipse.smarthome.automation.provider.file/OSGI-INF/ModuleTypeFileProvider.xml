@@ -12,6 +12,7 @@
     name="org.eclipse.smarthome.automation.internal.provider.file.ModuleTypeFileProvider">
     <implementation class="org.eclipse.smarthome.automation.internal.provider.file.ModuleTypeFileProviderWatcher" />
     <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.module.type)"/>
+    <reference bind="setModuleTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.type.ModuleTypeRegistry" name="ModuleTypeRegistry" policy="static" unbind="removeModuleTypeRegistry"/>
     <service>
         <provide interface="org.eclipse.smarthome.automation.type.ModuleTypeProvider" />
     </service>

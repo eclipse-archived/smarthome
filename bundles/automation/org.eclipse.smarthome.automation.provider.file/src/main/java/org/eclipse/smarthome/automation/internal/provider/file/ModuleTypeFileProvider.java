@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractFileProvider}
@@ -24,8 +25,18 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
  */
 public abstract class ModuleTypeFileProvider extends AbstractFileProvider<ModuleType> implements ModuleTypeProvider {
 
+    protected ModuleTypeRegistry moduleTypeRegistry;
+
     public ModuleTypeFileProvider() {
         super("moduletypes");
+    }
+
+    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
+        this.moduleTypeRegistry = moduleTypeRegistry;
+    }
+
+    protected void removeModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
+        this.moduleTypeRegistry = null;
     }
 
     @Override
@@ -49,8 +60,16 @@ public abstract class ModuleTypeFileProvider extends AbstractFileProvider<Module
     public <T extends ModuleType> Collection<T> getModuleTypes(Locale locale) {
         Collection<ModuleType> values = providedObjectsHolder.values();
         if (values.isEmpty()) {
-            return Collections.<T>emptyList();
+            return Collections.<T> emptyList();
         }
         return (Collection<T>) new LinkedList<ModuleType>(values);
+    }
+
+    @Override
+    protected boolean checkExistence(String uid) {
+        if (moduleTypeRegistry.get(uid) != null) {
+            return true;
+        }
+        return false;
     }
 }

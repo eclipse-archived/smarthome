@@ -12,6 +12,7 @@
     name="org.eclipse.smarthome.automation.internal.provider.file.TemplateFileProvider">
     <implementation class="org.eclipse.smarthome.automation.internal.provider.file.TemplateFileProviderWatcher" />
     <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.template)"/>
+    <reference bind="setTemplateRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.template.TemplateRegistry" name="TemplateRegistry" policy="static" unbind="removeTemplateRegistry"/>
     <service>
         <provide interface="org.eclipse.smarthome.automation.template.RuleTemplateProvider" />
     </service>
