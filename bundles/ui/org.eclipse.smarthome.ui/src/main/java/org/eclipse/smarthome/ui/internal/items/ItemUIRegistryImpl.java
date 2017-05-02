@@ -46,7 +46,6 @@ import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.Type;
@@ -470,7 +469,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             try {
                 Item item = getItem(itemName);
-                return convertState(w, item.getState());
+                return convertState(w, item);
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
@@ -482,28 +481,24 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     /**
      * Converts an item state to the type the widget supports (if possible)
      *
-     * @param w - Widget in sitemap that shows the state
-     * @param s - State of the item
+     * @param w Widget in sitemap that shows the state
+     * @param i item
      * @return the converted state or the original if conversion was not possible
      */
-    private State convertState(Widget w, State s) {
+    private State convertState(Widget w, Item i) {
         State returnState = null;
 
         if (w instanceof Switch) {
-            if (s instanceof Convertible) {
-                returnState = ((PercentType) s).as(OnOffType.class);
-            }
+            returnState = i.getStateAs(OnOffType.class);
         } else if (w instanceof Slider) {
-            if (s instanceof Convertible) {
-                returnState = ((PercentType) s).as(PercentType.class);
-            }
+            returnState = i.getStateAs(PercentType.class);
         }
+
         // if returnState is null, a conversion was not possible
         if (returnState == null) {
             // we return the original state to not break anything
-            returnState = s;
+            returnState = i.getState();
         }
-
         return returnState;
     }
 
