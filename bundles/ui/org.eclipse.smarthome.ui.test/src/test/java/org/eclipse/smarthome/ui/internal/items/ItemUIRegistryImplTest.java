@@ -7,11 +7,9 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.text.DecimalFormatSymbols;
 
@@ -127,7 +125,7 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new DecimalType(10f / 3f));
         when(item.getStateAs(DecimalType.class)).thenReturn(new DecimalType(10f / 3f));
         String label = uiRegistry.getLabel(w);
-        assertEquals("Label [3" + sep + ".333]", label);
+        assertEquals("Label [3" + sep + "333]", label);
     }
 
     @Test

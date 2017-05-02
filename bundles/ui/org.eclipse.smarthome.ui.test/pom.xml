@@ -33,7 +33,6 @@
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
-          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>
