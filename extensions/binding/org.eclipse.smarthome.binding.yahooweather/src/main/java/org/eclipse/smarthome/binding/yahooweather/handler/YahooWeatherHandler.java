@@ -71,7 +71,6 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     @Override
     public void initialize() {
         logger.debug("Initializing YahooWeather handler.");
-        super.initialize();
 
         Configuration config = getThing().getConfiguration();
 
@@ -97,23 +96,19 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     }
 
     private void startAutomaticRefresh() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    boolean success = updateWeatherData();
-                    if (success) {
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
-                    }
-                } catch (Exception e) {
-                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+        refreshJob = scheduler.scheduleAtFixedRate(() -> {
+            try {
+                boolean success = updateWeatherData();
+                if (success) {
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
                 }
+            } catch (Exception e) {
+                logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
             }
-        };
-
-        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh.intValue(), TimeUnit.SECONDS);
+        }, 0, refresh.intValue(), TimeUnit.SECONDS);
     }
 
     @Override
