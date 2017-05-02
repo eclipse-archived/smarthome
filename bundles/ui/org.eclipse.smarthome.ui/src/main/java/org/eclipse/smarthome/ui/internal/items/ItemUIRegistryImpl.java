@@ -280,11 +280,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         String itemName = w.getItem();
         if (itemName != null) {
             State state = null;
-            String formatPattern = null;
+            String formatPattern = getFormatPattern(label);
 
             try {
                 final Item item = getItem(itemName);
-                if (getFormatPattern(label) == null) {
+                if (formatPattern == null) {
                     final StateDescription stateDescription = item.getStateDescription();
                     if (stateDescription != null) {
                         final String pattern = stateDescription.getPattern();
