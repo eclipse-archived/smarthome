@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -688,6 +689,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     @Override
     public Collection<Item> getAll() {
         return itemRegistry.getAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Stream<Item> stream() {
+        return itemRegistry.stream();
     }
 
     /**
