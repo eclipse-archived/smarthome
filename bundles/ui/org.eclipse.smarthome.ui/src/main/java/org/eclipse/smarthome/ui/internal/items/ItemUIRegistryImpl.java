@@ -40,6 +40,8 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -72,6 +74,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Stefan Triller - Method to convert a state into something a sitemap entity can understand
  *
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
@@ -466,13 +469,37 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             try {
                 Item item = getItem(itemName);
-                return item.getState();
+                return convertState(w, item);
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
             }
         }
         return UnDefType.UNDEF;
+    }
+
+    /**
+     * Converts an item state to the type the widget supports (if possible)
+     *
+     * @param w Widget in sitemap that shows the state
+     * @param i item
+     * @return the converted state or the original if conversion was not possible
+     */
+    private State convertState(Widget w, Item i) {
+        State returnState = null;
+
+        if (w instanceof Switch) {
+            returnState = i.getStateAs(OnOffType.class);
+        } else if (w instanceof Slider) {
+            returnState = i.getStateAs(PercentType.class);
+        }
+
+        // if returnState is null, a conversion was not possible
+        if (returnState == null) {
+            // we return the original state to not break anything
+            returnState = i.getState();
+        }
+        return returnState;
     }
 
     /**
