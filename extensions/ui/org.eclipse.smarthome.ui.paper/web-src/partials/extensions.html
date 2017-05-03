@@ -4,16 +4,16 @@
 		<md-button ng-click="changeView(false)" aria-label="Refresh"> <i class="material-icons">view_list</i></md-button>
 		<md-button ng-click="changeView(true)" aria-label="Refresh"> <i class="material-icons">view_module</i></md-button>
 	</div>
-	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="masonry(showCards)" layout-fill> <md-tab-content layout-fill="">
+	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes track by $index" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="masonry(showCards)" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
 		<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
-		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
+		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]" type="text" placeholder="Search"> </md-input-container>
 		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 	</div>
 	<div style="text-align: right; max-width: 98%"></div>
 
 	<div class="container" ng-show="!showCards">
-		<div class="extension fab-item text-left" ng-repeat="extension in extensionType.extensions | filter:filterItems(['id','label'],searchText)">
+		<div class="extension fab-item text-left" ng-repeat="extension in extensionType.extensions | filter:filterItems(['id','label'])">
 			<div class="circle" ng-class="{'green': extension.installed}">{{extension.label.substring(0,1).toUpperCase()}}</div>
 			<div class="cbody item-content">
 				<h3 ng-class="{'clickable':extension.link}" ng-click="openExternalLink(extension.link)">{{extension.label}}</h3>

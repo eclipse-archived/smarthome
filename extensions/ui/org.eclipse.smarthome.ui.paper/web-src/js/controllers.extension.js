@@ -5,9 +5,12 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
     $scope.extensionTypes = [];
     var view = window.localStorage.getItem('paperui.extension.view')
     $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
+    $scope.searchText = [];
     $scope.refresh = function() {
         extensionService.getAllTypes(function(extensionTypes) {
             $scope.extensionTypes = [];
+            $scope.searchText = new Array(extensionTypes.length);
+            registerWatchers();
             angular.forEach(extensionTypes, function(extensionType) {
                 $scope.extensionTypes.push({
                     typeId : extensionType.id,
@@ -89,8 +92,9 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         }
     }
 
-    $scope.filterItems = function(lookupFields, searchText) {
+    $scope.filterItems = function(lookupFields) {
         return function(item) {
+            var searchText = $scope.searchText[$scope.selectedIndex];
             if (searchText && searchText.length > 0) {
                 for (var i = 0; i < lookupFields.length; i++) {
                     if (item[lookupFields[i]] && item[lookupFields[i]].toUpperCase().indexOf(searchText.toUpperCase()) != -1) {
@@ -102,7 +106,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             return true;
         }
     }
-
     $scope.masonry = function(showCards) {
         if (showCards) {
             $timeout(function() {
@@ -114,6 +117,21 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
     $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
         $scope.masonry(true);
     });
+    function registerWatchers() {
+        for (var i = 0; i < $scope.searchText.length; i++) {
+            function intern(local) {
+                var index = local;
+                $scope.$watch(function() {
+                    return $scope.searchText[index];
+                }, function(o, n) {
+                    if ($scope.searchText[index]) {
+                        $scope.masonry(true);
+                    }
+                });
+            }
+            intern(i);
+        }
+    }
 
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
         var id = extensionObject;
