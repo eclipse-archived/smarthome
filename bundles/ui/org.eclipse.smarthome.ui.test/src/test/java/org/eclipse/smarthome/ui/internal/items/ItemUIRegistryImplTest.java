@@ -16,13 +16,19 @@ import java.text.DecimalFormatSymbols;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
+import org.eclipse.smarthome.model.sitemap.Slider;
+import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.junit.Before;
@@ -307,6 +313,46 @@ public class ItemUIRegistryImplTest {
         assertEquals("Zeit [-.-.- -]", uiRegistry.formatUndefined("Zeit [%1$td.%1$tm.%1$tY %1$tT]"));
         assertEquals("Temperatur [- °C]", uiRegistry.formatUndefined("Temperatur [%.1f °C]"));
         assertEquals("Luftfeuchte [- %]", uiRegistry.formatUndefined("Luftfeuchte [%.1f %%]"));
+    }
+
+    @Test
+    public void testStateConversionForSwitchWidgetThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,50");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Switch switchWidget = mock(Switch.class);
+        when(switchWidget.getItem()).thenReturn("myItem");
+
+        State stateForSwitch = uiRegistry.getState(switchWidget);
+
+        assertEquals(OnOffType.ON, stateForSwitch);
+    }
+
+    @Test
+    public void testStateConversionForSliderWidgetThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,75");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Slider sliderWidget = mock(Slider.class);
+        when(sliderWidget.getItem()).thenReturn("myItem");
+
+        State stateForSlider = uiRegistry.getState(sliderWidget);
+
+        assertTrue(stateForSlider instanceof PercentType);
+
+        PercentType pt = (PercentType) stateForSlider;
+
+        assertEquals(75, pt.longValue());
     }
 
 }

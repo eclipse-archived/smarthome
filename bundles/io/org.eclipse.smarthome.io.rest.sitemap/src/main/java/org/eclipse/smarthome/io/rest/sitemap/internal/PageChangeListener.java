@@ -186,6 +186,10 @@ public class PageChangeListener implements StateChangeListener {
                 event.widgetId = itemUIRegistry.getWidgetId(w);
                 event.visibility = itemUIRegistry.getVisiblity(w);
                 event.item = EnrichedItemDTOMapper.map(item, false, null, null);
+
+                // adjust the state according to the widget type
+                event.item.state = itemUIRegistry.getState(w).toFullString();
+
                 events.add(event);
             }
         }
