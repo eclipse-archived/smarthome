@@ -38,6 +38,7 @@ class GenericItemProviderTest extends OSGiTest {
 
 
     private final static String TESTMODEL_NAME = "testModel.items"
+    private final static String TESTMODEL_NAME2 = "testModel2.items"
 
     ModelRepository modelRepository
     ItemRegistry itemRegistry
@@ -49,11 +50,13 @@ class GenericItemProviderTest extends OSGiTest {
         modelRepository = getService ModelRepository
         assertThat modelRepository, is(notNullValue())
         modelRepository.removeModel(TESTMODEL_NAME)
+        modelRepository.removeModel(TESTMODEL_NAME2)
     }
 
     @After
     void tearDown() {
         modelRepository.removeModel(TESTMODEL_NAME)
+        modelRepository.removeModel(TESTMODEL_NAME2)
     }
 
     @Test
@@ -226,12 +229,12 @@ class GenericItemProviderTest extends OSGiTest {
 
         receivedEvents.clear()
 
-        String model2 =
+        model =
                 '''
             String test3 "Test Item [%s]" { channel="test:test:test:test" }
             String test4 "Test Item [%s]" { channel="test:test:test:test" }
             '''
-        modelRepository.addOrRefreshModel("model2.items", new ByteArrayInputStream(model2.bytes))
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME2, new ByteArrayInputStream(model.bytes))
 
         //only ItemAddedEvents for items test3 and test4 should be fired, NOT for test1 and test2 again
         waitForAssert {
