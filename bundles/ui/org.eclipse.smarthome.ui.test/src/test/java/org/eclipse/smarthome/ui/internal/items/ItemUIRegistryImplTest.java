@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
@@ -353,6 +354,68 @@ public class ItemUIRegistryImplTest {
         PercentType pt = (PercentType) stateForSlider;
 
         assertEquals(75, pt.longValue());
+    }
+
+    @Test
+    public void getLabel_labelWithoutStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(null);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithoutPatternInStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn(null);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithPatternInStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [State]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithEmptyPattern() throws ItemNotFoundException {
+        String testLabel = "Label []";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
     }
 
 }
