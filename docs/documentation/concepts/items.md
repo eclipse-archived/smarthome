@@ -69,3 +69,10 @@ HSB string values consist of three comma-separated values for hue (0-360°), sat
 | StopMoveType | `STOP`, `MOVE` |
 | UpDownType | `UP`, `DOWN` |
 
+## Additional notes
+
+### Using `UpDownType` states and commands in Rollershutter items
+
+Rollershutter items accept `UpDownType` command type and have an `UpDownType` state. It is important to note that the `UpDownType` state is not a directional indicator,
+that is, it does not indicate that the shutters are currently moving up or down. It is used only as a shorthand to indicate that the shutters are currently in their top(`UP`) or bottom(`DOWN`)
+positions. Respectively, the `UpDownType` command type is used to send a command to the shutters to move to their top or bottom positions.
