@@ -49,9 +49,9 @@ public class DialogProcessor implements KSListener, STTListener {
     private final Logger logger = LoggerFactory.getLogger(DialogProcessor.class);
 
     /**
-     * If the processor should spot new keywords
+     * If the processor is currently processing a keyword event and thus should not spot further ones.
      */
-    private boolean processing = true;
+    private boolean processing = false;
 
     /**
      * If the STT server is in the process of aborting
