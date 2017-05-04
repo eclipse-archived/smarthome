@@ -186,16 +186,12 @@ class GroupItemTest extends OSGiTest {
 
         sw2.setState(OnOffType.ON);
 
-        events.clear();
-
         sw2.setState(UnDefType.UNDEF);
 
         //wait to see that the event doesn't fire
         sleep(WAIT_EVENT_TO_BE_HANDLED)
 
-        waitForAssert {
-            assertThat events.size(), is(0)
-        }
+        assertThat events.size(), is(0)
 
         assertTrue groupItem.getState().equals(OnOffType.ON)
     }
@@ -265,9 +261,7 @@ class GroupItemTest extends OSGiTest {
         //wait to see that the event doesn't fire
         sleep(WAIT_EVENT_TO_BE_HANDLED)
 
-        waitForAssert {
-            assertThat events.size(), is(0)
-        }
+        assertThat events.size(), is(0)
 
         assertTrue groupItem.getState().equals(oldGroupState)
     }
