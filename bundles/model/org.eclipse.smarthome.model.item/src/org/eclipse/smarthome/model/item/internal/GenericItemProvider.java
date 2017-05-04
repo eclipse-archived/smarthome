@@ -199,12 +199,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String baseItemType = modelGroupItem.getType();
             GenericItem baseItem = createItemOfType(baseItemType, modelGroupItem.getName());
             if (baseItem != null) {
+                // if the user did not specify a function the first value of the enum in xtext (EQUAL) will be used
                 ModelGroupFunction function = modelGroupItem.getFunction();
-                if ("NONE".equals(function.getName())) {
-                    item = new GroupItem(modelGroupItem.getName(), baseItem);
-                } else {
-                    item = applyGroupFunction(baseItem, modelGroupItem, function);
-                }
+                item = applyGroupFunction(baseItem, modelGroupItem, function);
             } else {
                 item = new GroupItem(modelGroupItem.getName());
             }
