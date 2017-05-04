@@ -353,7 +353,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             switch (type) {
                 case ADDED:
                     processBindingConfigsFromModel(modelName);
-                    Collection<Item> allNewItems = getAll();
+                    Collection<Item> allNewItems = getItemsFromModel(modelName);
                     itemsMap.put(modelName, allNewItems);
                     for (Item item : allNewItems) {
                         notifyListenersAboutAddedElement(item);
