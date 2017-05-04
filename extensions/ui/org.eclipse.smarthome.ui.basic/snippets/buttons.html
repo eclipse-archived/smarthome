@@ -2,16 +2,17 @@
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
-	<span class="mdl-form__label">
+	<span %labelstyle% class="mdl-form__label">
 		%label%
 	</span>
-	<span class="mdl-form__value mdl-form__value--group">
+	<span %valuestyle% class="mdl-form__value mdl-form__value--group">
 		%value%
 	</span>
 	<div
 		class="mdl-form__control mdl-form__buttons"
 		data-control-type="buttons"
 		data-item="%item%"
+		data-has-value="%has_value%"
 		data-count="%count%"
 		data-widget-id="%widget_id%"
 	>
