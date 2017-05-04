@@ -25,7 +25,15 @@ import org.junit.Test
 
 import com.google.common.collect.Sets
 
-
+/**
+ *
+ * @author Alex Tugarev - Initial Contribution
+ * @author Andre Fuechsel
+ * @author Michael Grammling
+ * @author Simon Kaufmann
+ * @author Stefan Triller - Added test for ItemAddedEvents with multiple model files
+ *
+ */
 class GenericItemProviderTest extends OSGiTest {
 
 
@@ -186,6 +194,51 @@ class GenericItemProviderTest extends OSGiTest {
             assertThat itemRegistry.getAll().size(), is(0)
             assertThat receivedEvents.size(), is(1)
             assertThat receivedEvents.find {it.getItem().name.equals("test1")}, isA(ItemRemovedEvent)
+        }
+    }
+
+    @Test
+    void 'assert that item events are sent only once per item even with multiple item files'() {
+        List<Event> receivedEvents = new ArrayList<>()
+        def itemEventSubscriber = [
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: { Sets.newHashSet(ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE) },
+            getEventFilter: {},
+        ] as EventSubscriber
+        registerService(itemEventSubscriber)
+
+        assertThat itemRegistry.getAll().size(), is(0)
+
+        receivedEvents.clear()
+        String model =
+                '''
+            String test1 "Test Item [%s]" { channel="test:test:test:test" }
+            String test2 "Test Item [%s]" { channel="test:test:test:test" }
+            '''
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+
+        waitForAssert {
+            assertThat itemRegistry.getAll().size(), is(2)
+            assertThat receivedEvents.size(), is(2)
+            assertThat receivedEvents.find {it.getItem().name.equals("test1")}, isA(ItemAddedEvent)
+            assertThat receivedEvents.find {it.getItem().name.equals("test2")}, isA(ItemAddedEvent)
+        }
+
+        receivedEvents.clear()
+
+        String model2 =
+                '''
+            String test3 "Test Item [%s]" { channel="test:test:test:test" }
+            String test4 "Test Item [%s]" { channel="test:test:test:test" }
+            '''
+        modelRepository.addOrRefreshModel("model2.items", new ByteArrayInputStream(model2.bytes))
+
+        //only ItemAddedEvents for items test3 and test4 should be fired, NOT for test1 and test2 again
+        waitForAssert {
+            assertThat itemRegistry.getAll().size(), is(4)
+            assertThat receivedEvents.size(), is(2)
+            assertThat receivedEvents.find {it.getItem().name.equals("test3")}, isA(ItemAddedEvent)
+            assertThat receivedEvents.find {it.getItem().name.equals("test4")}, isA(ItemAddedEvent)
         }
     }
 
