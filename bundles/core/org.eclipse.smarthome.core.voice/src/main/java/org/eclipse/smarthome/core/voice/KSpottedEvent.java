@@ -7,38 +7,11 @@
  */
 package org.eclipse.smarthome.core.voice;
 
-import org.eclipse.smarthome.core.audio.AudioSource;
-
 /**
  * A {@link KSEvent} fired when the {@link KSService} spots a keyword.
  *
  * @author Kelly Davis - Initial contribution and API
+ * @author Yannick Schaus - Removed AudioSource information
  */
 public class KSpottedEvent implements KSEvent {
-   /**
-    * AudioSource from which the keyword was spotted 
-    */
-    private final AudioSource audioSource;
-
-   /**
-    * Constructs an instance with the passed {@code audioSource}
-    *
-    * @param audioSource The AudioSource of the spotted keyword 
-    */
-    public KSpottedEvent(AudioSource audioSource) {
-        if (null == audioSource) {
-            throw new IllegalArgumentException("The passed audioSource is null");
-        }
-
-        this.audioSource = audioSource;
-    }
-
-   /**
-    * Returns the audioSource of the spotted keyword
-    *
-    * @return The audioSource of the spotted keyword
-    */
-    public AudioSource getAudioSource() {
-        return this.audioSource;
-    }
 }
