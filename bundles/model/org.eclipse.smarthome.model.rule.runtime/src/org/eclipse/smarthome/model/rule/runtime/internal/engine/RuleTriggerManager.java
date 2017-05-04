@@ -217,10 +217,11 @@ public class RuleTriggerManager {
                     for (EventTrigger t : rule.getEventtrigger()) {
                         if (t instanceof EventEmittedTrigger) {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
-                            if (et.getTrigger() != null) {
-                                if (et.getChannel().equals(channel) && et.getTrigger().equals(event)) {
-                                    result.add(rule);
-                                }
+
+                            if (et.getChannel().equals(channel)
+                                    && (et.getTrigger() == null || et.getTrigger().equals(event))) {
+                                // if the rule does not have a specific event , execute it on any event
+                                result.add(rule);
                             }
                         }
                     }
