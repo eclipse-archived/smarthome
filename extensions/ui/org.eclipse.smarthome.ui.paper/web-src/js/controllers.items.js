@@ -1,10 +1,10 @@
-angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemService, toastService, sharedProperties) {
+angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemRepository, toastService, sharedProperties) {
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [], $scope.groups = [], $scope.types = [];
 
     $scope.refresh = function() {
-        itemService.getAll(function(items) {
+        itemRepository.getAll(function(items) {
             $scope.items = items;
             var groups = [], types = [];
             for (var i = 0; i < items.length; i++) {
@@ -17,7 +17,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }
             $scope.groups = groups;
             $scope.types = types;
-        });
+        }, true);
 
     };
     $scope.remove = function(item, event) {
