@@ -11,5 +11,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.module.script.rulesupport.internal.loader.ScriptFileWatcher">
    <implementation class="org.eclipse.smarthome.automation.module.script.rulesupport.internal.loader.ScriptFileWatcher"/>
    <reference bind="setScriptEngineManager" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.ScriptEngineManager" name="ScriptEngineManager"
-   policy="dynamic" />
+   policy="static"/>
 </scr:component>
