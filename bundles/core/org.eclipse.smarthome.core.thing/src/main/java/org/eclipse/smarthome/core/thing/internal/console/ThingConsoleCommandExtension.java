@@ -68,8 +68,10 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     return;
                 case SUBCMD_TRIGGER:
-                    if (args.length > 1) {
+                    if (args.length == 3) {
                         triggerChannel(console, args[1], args[2]);
+                    } else if (args.length == 2) {
+                        triggerChannel(console, args[1], null);
                     } else {
                         console.println("Command '" + subCommand + "' needs arguments <channelUID> [<event>]");
                     }
