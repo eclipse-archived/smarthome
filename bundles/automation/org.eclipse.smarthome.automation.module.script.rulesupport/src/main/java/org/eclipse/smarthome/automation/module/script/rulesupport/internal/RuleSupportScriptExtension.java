@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.internal;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -116,7 +117,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
 
     @Override
     public Collection<String> getDefaultPresets() {
-        return presets.keySet();
+        return Collections.emptyList();
     }
 
     @Override
