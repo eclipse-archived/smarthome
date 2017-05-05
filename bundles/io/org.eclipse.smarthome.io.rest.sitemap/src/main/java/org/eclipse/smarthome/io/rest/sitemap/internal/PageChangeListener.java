@@ -61,8 +61,21 @@ public class PageChangeListener implements StateChangeListener {
     }
 
     private void updateItemsAndWidgets(EList<Widget> widgets) {
+        if (this.widgets != null) {
+            // cleanup statechange listeners in case widgets were removed
+            items = getAllItems(this.widgets);
+            for (Item item : items) {
+                if (item instanceof GenericItem) {
+                    ((GenericItem) item).removeStateChangeListener(this);
+                    ;
+                } else if (item instanceof GroupItem) {
+                    ((GroupItem) item).removeStateChangeListener(this);
+                }
+            }
+        }
+
         this.widgets = widgets;
-        this.items = getAllItems(widgets);
+        items = getAllItems(widgets);
         for (Item item : items) {
             if (item instanceof GenericItem) {
                 ((GenericItem) item).addStateChangeListener(this);

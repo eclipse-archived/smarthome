@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
-    private static final String SITEMAP_SUFFIX = "sitemap";
+    private static final String SITEMAP_SUFFIX = ".sitemap";
 
     private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
@@ -152,7 +153,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * @return the id of the currently active page
      */
     public String getPageId(String subscriptionId) {
-        return pageOfSubscription.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[1];
+        return extractPageId(pageOfSubscription.get(subscriptionId));
     }
 
     /**
@@ -162,7 +163,15 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * @return the name of the current sitemap
      */
     public String getSitemapName(String subscriptionId) {
-        return pageOfSubscription.get(subscriptionId).split(SITEMAP_PAGE_SEPARATOR)[0];
+        return extractSitemapName(pageOfSubscription.get(subscriptionId));
+    }
+
+    private String extractSitemapName(String sitemapWithPageId) {
+        return sitemapWithPageId.split(SITEMAP_PAGE_SEPARATOR)[0];
+    }
+
+    private String extractPageId(String sitemapWithPageId) {
+        return sitemapWithPageId.split(SITEMAP_PAGE_SEPARATOR)[1];
     }
 
     /**
@@ -251,24 +260,21 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
 
     @Override
     public void modelChanged(String modelName, EventType type) {
-
-        if (type != EventType.MODIFIED || !modelName.endsWith("." + SITEMAP_SUFFIX)) {
+        if (type != EventType.MODIFIED || !modelName.endsWith(SITEMAP_SUFFIX)) {
             return; // we process only sitemap modifications here
         }
 
-        String changedSitemapName = modelName.substring(0, modelName.indexOf("."));
+        String changedSitemapName = StringUtils.removeEnd(modelName, SITEMAP_SUFFIX);
 
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             String sitemapWithPage = listenerEntry.getKey();
-            String sitemapName = sitemapWithPage.substring(0, sitemapWithPage.indexOf(SITEMAP_PAGE_SEPARATOR));
-            String pageId = sitemapWithPage.substring(sitemapWithPage.indexOf(SITEMAP_PAGE_SEPARATOR) + 1,
-                    sitemapWithPage.length());
+            String sitemapName = extractSitemapName(sitemapWithPage);
+            String pageId = extractPageId(sitemapWithPage);
 
             if (sitemapName.equals(changedSitemapName)) {
                 EList<Widget> widgets = collectWidgets(sitemapName, pageId);
                 listenerEntry.getValue().sitemapContentChanged(widgets);
             }
-
         }
 
     }
