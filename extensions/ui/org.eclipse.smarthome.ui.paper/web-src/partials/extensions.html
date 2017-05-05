@@ -7,7 +7,7 @@
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes track by $index" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="masonry(showCards)" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
 		<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
-		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]" type="text" placeholder="Search"> </md-input-container>
+		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]"  ng-model-options="{ debounce: 200 }" type="text" placeholder="Search"> </md-input-container>
 		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 	</div>
 	<div style="text-align: right; max-width: 98%"></div>
@@ -29,7 +29,7 @@
 	</div>
 	<div class="container" ng-show="showCards" ng-class="{'showCards':showCards}">
 		<div ng-attr-id="{{'extensions-' + extensionTypes.indexOf(extensionType)}}">
-			<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions | filter:filterItems(['id','label'],searchText)" on-finish-render>
+			<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions | filter:filterItems(['id','label'])">
 				<div class="card item" style="background-color: {{extension.backgroundColor}}">
 					<div class="imageAlign">
 						<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
