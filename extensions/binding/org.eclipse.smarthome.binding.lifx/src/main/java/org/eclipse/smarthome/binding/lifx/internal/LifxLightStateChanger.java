@@ -39,6 +39,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorZonesRequest
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetPowerRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
@@ -308,6 +309,11 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         int infrared = percentTypeToInfrared(pendingLightState.getInfrared());
         SetLightInfraredRequest packet = new SetLightInfraredRequest(infrared);
         replacePacketsInMap(packet);
+    }
+
+    @Override
+    public void handleSignalStrengthChange(SignalStrength oldSignalStrength, SignalStrength newSignalStrength) {
+        // Nothing to handle
     }
 
     @Override

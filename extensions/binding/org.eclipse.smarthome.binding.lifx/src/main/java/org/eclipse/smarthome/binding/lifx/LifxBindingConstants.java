@@ -47,6 +47,7 @@ public class LifxBindingConstants {
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_COLOR_ZONE = "colorzone";
     public static final String CHANNEL_INFRARED = "infrared";
+    public static final String CHANNEL_SIGNAL_STRENGTH = "signalstrength";
     public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_TEMPERATURE_ZONE = "temperaturezone";
 

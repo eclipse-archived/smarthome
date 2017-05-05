@@ -32,8 +32,8 @@ public class StateWifiInfoResponse extends Packet {
     private long tx;
     private int mcuTemperature;
 
-    public float getSignal() {
-        return signal;
+    public SignalStrength getSignalStrength() {
+        return new SignalStrength(signal);
     }
 
     public long getRx() {
