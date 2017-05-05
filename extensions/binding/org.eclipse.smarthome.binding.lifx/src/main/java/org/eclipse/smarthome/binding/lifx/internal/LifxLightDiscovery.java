@@ -37,16 +37,21 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
+import org.eclipse.smarthome.binding.lifx.internal.fields.Version;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetHostFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLabelRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetVersionRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.StateHostFirmwareResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLabelResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiFirmwareResponse;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -69,6 +74,8 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     private static final int SERVICE_REQUEST_SEQ_NO = 0;
     private static final int VERSION_REQUEST_SEQ_NO = 1;
     private static final int LABEL_REQUEST_SEQ_NO = 2;
+    private static final int HOST_VERSION_REQUEST_SEQ_NO = 3;
+    private static final int WIFI_VERSION_REQUEST_SEQ_NO = 4;
 
     private List<InetSocketAddress> broadcastAddresses;
     private List<InetAddress> interfaceAddresses;
@@ -93,7 +100,11 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         private MACAddress macAddress;
         private InetSocketAddress socketAddress;
         private String label;
+        private Version hostVersion;
         private Products products;
+        private long productVersion;
+        private boolean supportedProduct = true;
+        private Version wifiVersion;
 
         private long lastRequestTimeMillis;
 
@@ -103,7 +114,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         }
 
         public boolean isDataComplete() {
-            return label != null && products != null;
+            return hostVersion != null && label != null && products != null && wifiVersion != null;
         }
 
     }
@@ -254,6 +265,17 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 LifxNetworkThrottler.unlock();
             }
         }
+    }
+
+    private void sendLightDataRequestPacket(DiscoveredLight light, Packet packet, int sequenceNumber,
+            SelectionKey unicastKey) {
+        packet.setTarget(light.macAddress);
+        packet.setSequence(sequenceNumber);
+        packet.setSource(source);
+
+        LifxNetworkThrottler.lock(light.macAddress);
+        sendPacket(packet, light.socketAddress, unicastKey);
+        LifxNetworkThrottler.unlock(light.macAddress);
     }
 
     private boolean sendPacket(Packet packet, InetSocketAddress address, SelectionKey selectedKey) {
@@ -421,7 +443,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
                 boolean waitingForLightResponse = System.currentTimeMillis() - light.lastRequestTimeMillis < 200;
 
-                if (!light.isDataComplete() && !waitingForLightResponse) {
+                if (light.supportedProduct && !light.isDataComplete() && !waitingForLightResponse) {
                     DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                             .setOption(StandardSocketOptions.SO_REUSEADDR, true);
                     unicastChannel.configureBlocking(false);
@@ -431,25 +453,21 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                     logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
 
                     if (light.products == null) {
-                        GetVersionRequest versionPacket = new GetVersionRequest();
-                        versionPacket.setTarget(light.macAddress);
-                        versionPacket.setSequence(VERSION_REQUEST_SEQ_NO);
-                        versionPacket.setSource(source);
-
-                        LifxNetworkThrottler.lock(light.macAddress);
-                        sendPacket(versionPacket, light.socketAddress, unicastKey);
-                        LifxNetworkThrottler.unlock(light.macAddress);
+                        sendLightDataRequestPacket(light, new GetVersionRequest(), VERSION_REQUEST_SEQ_NO, unicastKey);
                     }
 
                     if (light.label == null) {
-                        GetLabelRequest labelPacket = new GetLabelRequest();
-                        labelPacket.setTarget(light.macAddress);
-                        labelPacket.setSequence(LABEL_REQUEST_SEQ_NO);
-                        labelPacket.setSource(source);
+                        sendLightDataRequestPacket(light, new GetLabelRequest(), LABEL_REQUEST_SEQ_NO, unicastKey);
+                    }
 
-                        LifxNetworkThrottler.lock(light.macAddress);
-                        sendPacket(labelPacket, light.socketAddress, unicastKey);
-                        LifxNetworkThrottler.unlock(light.macAddress);
+                    if (light.hostVersion == null) {
+                        sendLightDataRequestPacket(light, new GetHostFirmwareRequest(), HOST_VERSION_REQUEST_SEQ_NO,
+                                unicastKey);
+                    }
+
+                    if (light.wifiVersion == null) {
+                        sendLightDataRequestPacket(light, new GetWifiFirmwareRequest(), WIFI_VERSION_REQUEST_SEQ_NO,
+                                unicastKey);
                     }
 
                     light.lastRequestTimeMillis = System.currentTimeMillis();
@@ -484,7 +502,18 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             } else if (packet instanceof StateLabelResponse) {
                 light.label = ((StateLabelResponse) packet).getLabel().trim();
             } else if (packet instanceof StateVersionResponse) {
-                light.products = Products.getProductFromProductID(((StateVersionResponse) packet).getProduct());
+                try {
+                    light.products = Products.getProductFromProductID(((StateVersionResponse) packet).getProduct());
+                    light.productVersion = ((StateVersionResponse) packet).getVersion();
+                } catch (IllegalArgumentException e) {
+                    logger.debug("Discovered an unsupported light ({}): {}", light.macAddress.getAsLabel(),
+                            e.getMessage());
+                    light.supportedProduct = false;
+                }
+            } else if (packet instanceof StateHostFirmwareResponse) {
+                light.hostVersion = ((StateHostFirmwareResponse) packet).getVersion();
+            } else if (packet instanceof StateWifiFirmwareResponse) {
+                light.wifiVersion = ((StateWifiFirmwareResponse) packet).getVersion();
             }
 
             if (light != null && light.isDataComplete()) {
@@ -509,9 +538,21 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
             logger.trace("Discovered a LIFX light : {}", label);
 
-            return DiscoveryResultBuilder.create(thingUID).withLabel(label)
-                    .withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel)
-                    .withRepresentationProperty(macAsLabel).build();
+            DiscoveryResultBuilder builder = DiscoveryResultBuilder.create(thingUID);
+            builder.withRepresentationProperty(macAsLabel);
+            builder.withLabel(label);
+
+            builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
+            builder.withProperty(LifxBindingConstants.PROPERTY_HOST_VERSION, light.hostVersion.toString());
+            builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
+            builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, light.products.getProduct());
+            builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, light.products.getName());
+            builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, light.productVersion);
+            builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, light.products.getVendor());
+            builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_NAME, light.products.getVendorName());
+            builder.withProperty(LifxBindingConstants.PROPERTY_WIFI_VERSION, light.wifiVersion.toString());
+
+            return builder.build();
         } catch (IllegalArgumentException e) {
             logger.trace("Ignoring packet: {}", e);
             return null;

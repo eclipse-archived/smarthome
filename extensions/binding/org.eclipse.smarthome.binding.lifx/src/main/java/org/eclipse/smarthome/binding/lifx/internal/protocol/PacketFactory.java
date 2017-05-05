@@ -49,12 +49,10 @@ public class PacketFactory {
         register(GetLightInfraredRequest.class);
         register(GetLightPowerRequest.class);
         register(GetLocationRequest.class);
-        register(GetMeshFirmwareRequest.class);
         register(GetPowerRequest.class);
         register(GetRequest.class);
         register(GetServiceRequest.class);
         register(GetTagLabelsRequest.class);
-        register(GetTagsRequest.class);
         register(GetTagsRequest.class);
         register(GetVersionRequest.class);
         register(GetWifiFirmwareRequest.class);
@@ -75,7 +73,6 @@ public class PacketFactory {
         register(StateLightInfraredResponse.class);
         register(StateLightPowerResponse.class);
         register(StateLocationResponse.class);
-        register(StateMeshFirmwareResponse.class);
         register(StateMultiZoneResponse.class);
         register(StatePowerResponse.class);
         register(StateResponse.class);
