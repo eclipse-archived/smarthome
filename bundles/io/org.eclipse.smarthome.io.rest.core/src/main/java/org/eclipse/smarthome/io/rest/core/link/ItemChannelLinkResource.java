@@ -46,6 +46,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Kai Kreuzer - Removed Thing links and added auto link url
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ItemChannelLinkResource.PATH_LINKS)
 @RolesAllowed({ Role.ADMIN })
@@ -64,7 +65,8 @@ public class ItemChannelLinkResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available links.", response = ItemChannelLinkDTO.class, responseContainer = "Collection")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ItemChannelLinkDTO.class, responseContainer = "Collection") })
     public Response getAll() {
         Collection<ItemChannelLink> channelLinks = itemChannelLinkRegistry.getAll();
         return Response.ok(toBeans(channelLinks)).build();
@@ -74,7 +76,7 @@ public class ItemChannelLinkResource implements SatisfiableRESTResource {
     @Path("/auto")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Tells whether automatic link mode is active or not", response = Boolean.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Boolean.class) })
     public Response isAutomatic() {
         return Response.ok(thingLinkManager.isAutoLinksEnabled()).build();
     }

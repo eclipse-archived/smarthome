@@ -99,6 +99,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - added channel configuration updates,
  *         return empty set for config/status if no status available,
  *         add editable flag to thing responses
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -134,7 +135,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created"),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = String.class),
             @ApiResponse(code = 400, message = "A uid must be provided, if no binding can create a thing of this type."),
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
@@ -202,7 +203,8 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available things.", response = EnrichedThingDTO.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = EnrichedThingDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
 
@@ -216,7 +218,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing by UID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ThingDTO.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getByUID(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID) {
@@ -245,7 +247,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}/channels/{channelId}/link")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 403, message = "Channel is not linkable for the thing, as it is not of kind 'state'!"),
             @ApiResponse(code = 404, message = "Thing not found or channel not found.") })
     public Response link(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
@@ -391,7 +393,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates a thing.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ThingDTO.class),
             @ApiResponse(code = 404, message = "Thing not found."),
             @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
     public Response update(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
@@ -448,7 +450,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates thing's configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Thing.class),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
             @ApiResponse(code = 404, message = "Thing not found"),
             @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
@@ -503,7 +505,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/status")
     @ApiOperation(value = "Gets thing's status.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
@@ -526,7 +528,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/config/status")
     @ApiOperation(value = "Gets thing's config status.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {

@@ -64,6 +64,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Chris Jackson - Initial Contribution and add support for ModifiablePersistenceService
  * @author Kai Kreuzer - Refactored to use PersistenceServiceRegistryImpl
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  *
  */
 @Path(PersistenceResource.PATH)
@@ -103,7 +104,7 @@ public class PersistenceResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Gets a list of persistence services.", response = String.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServices(@Context HttpHeaders headers,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
 
@@ -118,7 +119,7 @@ public class PersistenceResource implements SatisfiableRESTResource {
     @Path("/items")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Gets a list of items available via a specific persistence service.", response = String.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
             @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId) {
 
@@ -130,7 +131,7 @@ public class PersistenceResource implements SatisfiableRESTResource {
     @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Gets item persistence data from the persistence service.", response = ItemHistoryDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ItemHistoryDTO.class),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpGetPersistenceItemData(@Context HttpHeaders headers,
             @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId,
@@ -153,7 +154,8 @@ public class PersistenceResource implements SatisfiableRESTResource {
     @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Delete item data from a specific persistence service.", response = String.class, responseContainer = "List")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid filter parameters"),
             @ApiResponse(code = 404, message = "Unknown persistence service") })
     public Response httpDeletePersistenceServiceItem(@Context HttpHeaders headers,
@@ -172,7 +174,7 @@ public class PersistenceResource implements SatisfiableRESTResource {
     @Path("/items/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Stores item persistence data into the persistence service.", response = ItemHistoryDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ItemHistoryDTO.class),
             @ApiResponse(code = 404, message = "Unknown Item or persistence service") })
     public Response httpPutPersistenceItemData(@Context HttpHeaders headers,
             @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId,

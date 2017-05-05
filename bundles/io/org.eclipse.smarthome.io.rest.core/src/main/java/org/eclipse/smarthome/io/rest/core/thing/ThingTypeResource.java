@@ -65,6 +65,7 @@ import io.swagger.annotations.ApiResponses;
  *         limitToOptions
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Miki Jankov - Introducing StrippedThingTypeDTO
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
@@ -98,7 +99,7 @@ public class ThingTypeResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.USER })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available thing types without config description, channels and properties.", response = StrippedThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = StrippedThingTypeDTO.class, responseContainer = "Set"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
@@ -112,7 +113,8 @@ public class ThingTypeResource implements SatisfiableRESTResource {
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist.", response = ThingTypeDTO.class),
             @ApiResponse(code = 404, message = "No content") })
     public Response getByUID(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
