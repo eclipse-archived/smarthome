@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -30,6 +31,7 @@ public class LifxLightState {
     private PowerState powerState;
     private HSBK[] colors;
     private PercentType infrared;
+    private SignalStrength signalStrength;
 
     private long lastChange;
 
@@ -39,6 +41,7 @@ public class LifxLightState {
         this.powerState = other.getPowerState();
         this.colors = other.getColors();
         this.infrared = other.getInfrared();
+        this.signalStrength = other.getSignalStrength();
     }
 
     public PowerState getPowerState() {
@@ -82,6 +85,10 @@ public class LifxLightState {
 
     public PercentType getInfrared() {
         return infrared;
+    }
+
+    public SignalStrength getSignalStrength() {
+        return signalStrength;
     }
 
     public void setColor(HSBType newHSB) {
@@ -164,6 +171,15 @@ public class LifxLightState {
         updateLastChange();
         for (LifxLightStateListener listener : listeners) {
             listener.handleInfraredChange(oldInfrared, newInfrared);
+        }
+    }
+
+    public void setSignalStrength(SignalStrength newSignalStrength) {
+        SignalStrength oldSignalStrength = this.signalStrength;
+        this.signalStrength = newSignalStrength;
+        updateLastChange();
+        for (LifxLightStateListener listener : listeners) {
+            listener.handleSignalStrengthChange(oldSignalStrength, newSignalStrength);
         }
     }
 

@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
  */
 public class GetHostInfoRequest extends Packet {
 
-    public static final int TYPE = 0x0D;
+    public static final int TYPE = 0x0C;
 
     public GetHostInfoRequest() {
         setTagged(false);

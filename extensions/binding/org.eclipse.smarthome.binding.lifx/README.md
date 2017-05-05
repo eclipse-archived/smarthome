@@ -64,6 +64,7 @@ All devices support some of the following channels:
 | color           | Color     | This channel supports full color control with hue, saturation and brightness values. | colorlight, colorirlight, colormzlight |
 | colorzone       | Color     | This channel supports full zone color control with hue, saturation and brightness values. | colormzlight |
 | infrared        | Dimmer    | This channel supports adjusting the infrared value. *Note:* IR capable lights only activate their infrared LEDs when the brightness drops below a certain level. | colorirlight |
+| signalstrength  | Number    | This channel represents signal strength with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength. | colorlight, colorirlight, colormzlight, whitelight |
 | temperature     | Dimmer    | This channel supports adjusting the color temperature from cold (0%) to warm (100%). | colorlight, colorirlight, colormzlight, whitelight |
 | temperaturezone | Dimmer    | This channel supports adjusting the zone color temperature from cold (0%) to warm (100%). |  colormzlight |
 
@@ -126,6 +127,7 @@ Dimmer Living2_Temperature { channel="lifx:colorlight:living2:temperature" }
 Color Porch_Color { channel="lifx:colorirlight:porch:color" }
 Dimmer Porch_Infrared { channel="lifx:colorirlight:porch:infrared" }
 Dimmer Porch_Temperature { channel="lifx:colorirlight:porch:temperature" }
+Number Porch_Signal_Strength { channel="lifx:colorirlight:porch:signalstrength" }
 
 // Ceiling
 Color Ceiling_Color { channel="lifx:colormzlight:ceiling:color" }
@@ -166,6 +168,7 @@ sitemap demo label="Main Menu"
         Colorpicker item=Porch_Color
         Slider item=Porch_Temperature
         Slider item=Porch_Infrared
+        Text item=Porch_Signal_Strength
     }
 
     Frame label="Ceiling" {

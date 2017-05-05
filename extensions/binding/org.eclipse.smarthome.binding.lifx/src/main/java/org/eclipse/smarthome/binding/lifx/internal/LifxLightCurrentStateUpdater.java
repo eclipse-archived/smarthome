@@ -23,6 +23,7 @@ import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketLi
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetColorZonesRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiInfoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightInfraredResponse;
@@ -30,6 +31,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightPowerRespo
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateMultiZoneResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StatePowerResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateResponse;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiInfoResponse;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
@@ -58,6 +60,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
             .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
 
     private boolean wasOnline;
+    private boolean updateSignalStrength;
 
     private ScheduledFuture<?> statePollingJob;
 
@@ -88,6 +91,10 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
         this.currentLightState = currentLightState;
         this.communicationHandler = communicationHandler;
         this.product = product;
+    }
+
+    public void setUpdateSignalStrength(boolean updateSignalStrength) {
+        this.updateSignalStrength = updateSignalStrength;
     }
 
     public void start() {
@@ -132,6 +139,10 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
             GetColorZonesRequest colorZonesPacket = new GetColorZonesRequest();
             communicationHandler.sendPacket(colorZonesPacket);
         }
+        if (updateSignalStrength) {
+            GetWifiInfoRequest wifiInfoPacket = new GetWifiInfoRequest();
+            communicationHandler.sendPacket(wifiInfoPacket);
+        }
     }
 
     @Override
@@ -149,7 +160,11 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
                 handleInfraredStatus((StateLightInfraredResponse) packet);
             } else if (packet instanceof StateMultiZoneResponse) {
                 handleMultiZoneStatus((StateMultiZoneResponse) packet);
+            } else if (packet instanceof StateWifiInfoResponse) {
+                handleWifiInfoStatus((StateWifiInfoResponse) packet);
             }
+
+            currentLightState.setOnline();
 
             if (currentLightState.isOnline() && !wasOnline) {
                 wasOnline = true;
@@ -164,23 +179,19 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     private void handleLightStatus(StateResponse packet) {
         currentLightState.setColor(packet.getColor(), MIN_ZONE_INDEX);
         currentLightState.setPowerState(packet.getPower());
-        currentLightState.setOnline();
     }
 
     private void handlePowerStatus(StatePowerResponse packet) {
         currentLightState.setPowerState(packet.getState());
-        currentLightState.setOnline();
     }
 
     private void handleLightPowerStatus(StateLightPowerResponse packet) {
         currentLightState.setPowerState(packet.getState());
-        currentLightState.setOnline();
     }
 
     private void handleInfraredStatus(StateLightInfraredResponse packet) {
         PercentType infrared = infraredToPercentType(packet.getInfrared());
         currentLightState.setInfrared(infrared);
-        currentLightState.setOnline();
     }
 
     private void handleMultiZoneStatus(StateMultiZoneResponse packet) {
@@ -193,7 +204,10 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
         }
 
         currentLightState.setColors(colors);
-        currentLightState.setOnline();
+    }
+
+    private void handleWifiInfoStatus(StateWifiInfoResponse packet) {
+        currentLightState.setSignalStrength(packet.getSignalStrength());
     }
 
 }
