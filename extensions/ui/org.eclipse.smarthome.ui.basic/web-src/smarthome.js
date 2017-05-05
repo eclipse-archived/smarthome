@@ -455,8 +455,10 @@
 		var
 			_t = this;
 
-		_t.value = _t.parentNode.querySelector(o.formValue);
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.value = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.count = _t.parentNode.getAttribute("data-count") * 1;
+		_t.suppressUpdateButtons = false;
 		_t.reset = function() {
 			_t.buttons.forEach(function(button) {
 				button.classList.remove(o.buttonActiveClass);
@@ -478,12 +480,12 @@
 					item: _t.item,
 					value: value
 			}));
-			_t.suppressUpdate();
+			_t.suppressUpdateButtons = true;
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value) {
-			if (_t.value !== null) {
+		_t.setValuePrivate = function(value, itemState) {
+			if (_t.value !== null && _t.hasValue) {
 				_t.value.innerHTML = value;
 			}
 
@@ -491,13 +493,22 @@
 				return;
 			}
 
+			if (_t.suppressUpdateButtons) {
+				_t.suppressUpdateButtons = false;
+				return;
+			}
+
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[value] !== undefined)
+				(_t.valueMap[itemState] !== undefined)
 			) {
-				_t.valueMap[value].classList.add(o.buttonActiveClass);
+				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
 			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.value.style.color = color;
 		};
 
 		_t.buttons.forEach.call(_t.buttons, function(button) {
@@ -575,13 +586,17 @@
 			});
 		};
 
-		_t.setValuePrivate = function(value) {
-			_t.value = "" + value;
-			if (_t.valueMap[value] !== undefined) {
-				_t.valueNode.innerHTML = _t.valueMap[value];
+		_t.setValuePrivate = function(value, itemState) {
+			_t.value = "" + itemState;
+			if (_t.valueMap[itemState] !== undefined) {
+				_t.valueNode.innerHTML = _t.valueMap[itemState];
 			} else {
 				_t.valueNode.innerHTML = "";
 			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
