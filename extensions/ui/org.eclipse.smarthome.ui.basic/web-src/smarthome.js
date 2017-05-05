@@ -443,8 +443,12 @@
 		var
 			_t = this;
 
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+
 		_t.setValuePrivate = function(value) {
-			parentNode.innerHTML = value;
+			if (_t.hasValue) {
+				parentNode.innerHTML = value;
+			}
 		};
 	}
 
@@ -485,7 +489,7 @@
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
 		_t.setValuePrivate = function(value, itemState) {
-			if (_t.value !== null && _t.hasValue) {
+			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
 
@@ -1323,10 +1327,11 @@
 			_t = this;
 
 		_t.target = parentNode.getAttribute("data-target");
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
 		_t.container = parentNode.parentNode.querySelector(o.formValue);
 
 		_t.setValuePrivate = function(value) {
-			if (_t.container !== null) {
+			if (_t.hasValue) {
 				_t.container.innerHTML = value;
 			}
 		};
