@@ -191,7 +191,7 @@ public class LifxLightHandler extends BaseThingHandler {
         try {
             lock.lock();
 
-            product = Products.getLikelyProduct(getThing().getThingTypeUID());
+            product = getProduct();
             macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
             macAsHex = this.macAddress.getHex();
 
@@ -289,6 +289,16 @@ public class LifxLightHandler extends BaseThingHandler {
         return powerOnBrightness == null ? null : new PercentType(powerOnBrightness.toString());
     }
 
+    private Products getProduct() {
+        String propertyValue = getThing().getProperties().get(LifxBindingConstants.PROPERTY_PRODUCT_ID);
+        try {
+            long productID = Long.parseLong(propertyValue);
+            return Products.getProductFromProductID(productID);
+        } catch (IllegalArgumentException e) {
+            return Products.getLikelyProduct(getThing().getThingTypeUID());
+        }
+    }
+
     private void addRemoveZoneChannels(int zones) {
         List<Channel> newChannels = new ArrayList<Channel>();
 
@@ -307,6 +317,10 @@ public class LifxLightHandler extends BaseThingHandler {
         }
 
         updateThing(editThing().withChannels(newChannels).build());
+
+        Map<String, String> properties = editProperties();
+        properties.put(LifxBindingConstants.PROPERTY_ZONES, Integer.toString(zones));
+        updateProperties(properties);
     }
 
     private void sendPacket(Packet packet) {
