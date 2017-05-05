@@ -10,12 +10,16 @@ package org.eclipse.smarthome.io.rest.sitemap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
+import org.eclipse.smarthome.model.core.EventType;
+import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
@@ -34,9 +38,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class SitemapSubscriptionService {
+public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
+    private static final String SITEMAP_SUFFIX = "sitemap";
 
     private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
@@ -46,6 +51,7 @@ public class SitemapSubscriptionService {
     }
 
     private ItemUIRegistry itemUIRegistry;
+    private ModelRepository modelRepo;
     private List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
     /* subscription id -> sitemap+page */
@@ -86,6 +92,16 @@ public class SitemapSubscriptionService {
 
     protected void removeSitemapProvider(SitemapProvider provider) {
         sitemapProviders.remove(provider);
+    }
+
+    protected void addModelRepository(ModelRepository modelRepo) {
+        this.modelRepo = modelRepo;
+        this.modelRepo.addModelRepositoryChangeListener(this);
+    }
+
+    protected void removeModelRepository(ModelRepository modelRepo) {
+        this.modelRepo.removeModelRepositoryChangeListener(this);
+        this.modelRepo = null;
     }
 
     /**
@@ -178,17 +194,8 @@ public class SitemapSubscriptionService {
         if (listener == null) {
             // there is no listener for this page yet, so let's try to create one
             EList<Widget> widgets = null;
-            Sitemap sitemap = getSitemap(sitemapName);
-            if (sitemap != null) {
-                if (pageId.equals(sitemap.getName())) {
-                    widgets = sitemap.getChildren();
-                } else {
-                    Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
-                    if (pageWidget instanceof LinkableWidget) {
-                        widgets = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
-                    }
-                }
-            }
+            widgets = collectWidgets(sitemapName, pageId);
+
             if (widgets != null) {
                 listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, widgets);
                 pageChangeListeners.put(getValue(sitemapName, pageId), listener);
@@ -197,6 +204,23 @@ public class SitemapSubscriptionService {
         if (listener != null) {
             listener.addCallback(callback);
         }
+    }
+
+    private EList<Widget> collectWidgets(String sitemapName, String pageId) {
+        EList<Widget> widgets = null;
+
+        Sitemap sitemap = getSitemap(sitemapName);
+        if (sitemap != null) {
+            if (pageId.equals(sitemap.getName())) {
+                widgets = sitemap.getChildren();
+            } else {
+                Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
+                if (pageWidget instanceof LinkableWidget) {
+                    widgets = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
+                }
+            }
+        }
+        return widgets;
     }
 
     private void removeCallbackFromListener(String sitemapPage, SitemapSubscriptionCallback callback) {
@@ -223,6 +247,30 @@ public class SitemapSubscriptionService {
             }
         }
         return null;
+    }
+
+    @Override
+    public void modelChanged(String modelName, EventType type) {
+
+        if (type != EventType.MODIFIED || !modelName.endsWith("." + SITEMAP_SUFFIX)) {
+            return; // we process only sitemap modifications here
+        }
+
+        String changedSitemapName = modelName.substring(0, modelName.indexOf("."));
+
+        for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
+            String sitemapWithPage = listenerEntry.getKey();
+            String sitemapName = sitemapWithPage.substring(0, sitemapWithPage.indexOf(SITEMAP_PAGE_SEPARATOR));
+            String pageId = sitemapWithPage.substring(sitemapWithPage.indexOf(SITEMAP_PAGE_SEPARATOR) + 1,
+                    sitemapWithPage.length());
+
+            if (sitemapName.equals(changedSitemapName)) {
+                EList<Widget> widgets = collectWidgets(sitemapName, pageId);
+                listenerEntry.getValue().sitemapContentChanged(widgets);
+            }
+
+        }
+
     }
 
 }
