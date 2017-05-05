@@ -69,8 +69,8 @@ public class LifxLightCommunicationHandler {
     private int service;
     private int port;
 
-    private MACAddress macAddress = null;
-    private String macAsHex = null;
+    private MACAddress macAddress;
+    private String macAsHex;
 
     private MACAddress broadcastAddress = new MACAddress("000000000000", true);
     private AtomicInteger sequenceNumber = new AtomicInteger(1);
@@ -79,10 +79,10 @@ public class LifxLightCommunicationHandler {
     private ScheduledFuture<?> networkJob;
     private ReentrantLock lock = new ReentrantLock();
 
-    private InetSocketAddress ipAddress = null;
-    private DatagramChannel unicastChannel = null;
-    private SelectionKey unicastKey = null;
-    private SelectionKey broadcastKey = null;
+    private InetSocketAddress ipAddress;
+    private DatagramChannel unicastChannel;
+    private SelectionKey unicastKey;
+    private SelectionKey broadcastKey;
     private List<InetSocketAddress> broadcastAddresses;
     private List<InetAddress> interfaceAddresses;
     private int bufferSize = 0;
@@ -439,16 +439,7 @@ public class LifxLightCommunicationHandler {
         packet.setSequence(getAndIncreaseSequenceNumber());
 
         for (InetSocketAddress address : broadcastAddresses) {
-            boolean result = false;
-            while (!result) {
-                result = sendPacket(packet, address, broadcastKey);
-                if (!result) {
-                    try {
-                        Thread.sleep(PACKET_INTERVAL);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
+            sendPacket(packet, address, broadcastKey);
         }
     }
 
@@ -465,47 +456,36 @@ public class LifxLightCommunicationHandler {
                 LifxNetworkThrottler.lock();
             }
 
-            boolean sent = false;
-
-            while (!sent && selector.isOpen()) {
-                try {
-                    selector.selectNow();
-                } catch (IOException e) {
-                    logger.error("An exception occurred while selecting: {}", e.getMessage());
-                }
-
+            while (!result) {
+                selector.selectNow();
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                while (keyIterator.hasNext()) {
+                while (!result && keyIterator.hasNext()) {
                     SelectionKey key = keyIterator.next();
 
                     if (key.isValid() && key.isWritable() && key.equals(selectedKey)) {
                         SelectableChannel channel = key.channel();
-                        try {
-                            if (channel instanceof DatagramChannel) {
-                                logger.trace(
-                                        "{} : Sending packet type '{}' from '{}' to '{}' for '{}' with sequence '{}' and source '{}'",
-                                        new Object[] { macAsHex, packet.getClass().getSimpleName(),
-                                                ((InetSocketAddress) ((DatagramChannel) channel).getLocalAddress())
-                                                        .toString(),
-                                                address.toString(), packet.getTarget().getHex(), packet.getSequence(),
-                                                Long.toString(packet.getSource(), 16) });
-                                ((DatagramChannel) channel).send(packet.bytes(), address);
-                                sent = true;
-                                result = true;
-                            } else if (channel instanceof SocketChannel) {
-                                ((SocketChannel) channel).write(packet.bytes());
-                            }
-                        } catch (Exception e) {
-                            logger.error("An exception occurred while writing data : '{}'", e.getMessage());
-                            break;
+                        if (channel instanceof DatagramChannel) {
+                            logger.trace(
+                                    "{} : Sending packet type '{}' from '{}' to '{}' for '{}' with sequence '{}' and source '{}'",
+                                    new Object[] { macAsHex, packet.getClass().getSimpleName(),
+                                            ((InetSocketAddress) ((DatagramChannel) channel).getLocalAddress())
+                                                    .toString(),
+                                            address.toString(), packet.getTarget().getHex(), packet.getSequence(),
+                                            Long.toString(packet.getSource(), 16) });
+                            ((DatagramChannel) channel).send(packet.bytes(), address);
+                            result = true;
+                        } else if (channel instanceof SocketChannel) {
+                            ((SocketChannel) channel).write(packet.bytes());
+                            result = true;
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("An exception occurred while sending a packet to the light : '{}'", e.getMessage());
+            logger.debug("An exception occurred while sending a packet to the light : '{}'", e.getMessage());
+            currentLightState.setOfflineByCommunicationError();
         } finally {
 
             if (selectedKey == unicastKey) {
