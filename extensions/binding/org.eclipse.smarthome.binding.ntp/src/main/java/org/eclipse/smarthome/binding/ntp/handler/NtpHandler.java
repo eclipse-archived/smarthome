@@ -56,7 +56,7 @@ public class NtpHandler extends BaseThingHandler {
     private Logger logger = LoggerFactory.getLogger(NtpHandler.class);
 
     /** timeout for requests to the NTP server */
-    private static final int NTP_TIMEOUT = 10000;
+    private static final int NTP_TIMEOUT = 30000;
 
     public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd HH:mm:ss z";
 
@@ -227,12 +227,12 @@ public class NtpHandler extends BaseThingHandler {
         } catch (UnknownHostException uhe) {
             String msg = getThing().getUID().toString() + " the given hostname '" + hostname
                     + "' of the timeserver is unknown -> returning current sytem time instead.";
-            logger.warn(msg);
+            logger.info(msg);
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         } catch (IOException ioe) {
             String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
                     + "'] -> returning current sytem time instead.";
-            logger.warn(msg);
+            logger.info(msg);
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         }
 
