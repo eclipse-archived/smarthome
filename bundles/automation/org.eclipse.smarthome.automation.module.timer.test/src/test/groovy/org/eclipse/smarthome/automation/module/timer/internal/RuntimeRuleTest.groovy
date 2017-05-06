@@ -73,6 +73,23 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Test
     public void 'check disable and enable of timer triggered rule'() {
+        def testItemName = "myLampItem"
+
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        def SwitchItem lampItem = itemRegistry.getItem(testItemName)
+
+        /*
+         * Check if auto update is working and
+         * ensure that the lamp item state if OFF after this check
+         */
+        logger.info("Check auto update");
+        for (state in [OnOffType.OFF, OnOffType.ON, OnOffType.OFF]) {
+            lampItem.send(state);
+            waitForAssert({
+                assertThat lampItem.state,is(state);
+            })
+        }
+        logger.info("Auto update works");
         /*
          * Create Rule
          */
@@ -80,12 +97,14 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [
-            new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)
-        ]
+        def triggers = [new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
+
+        def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
+        def actions = [new Action("MyItemPostCommandAction", "core.ItemCommandAction", actionConfig, null)]
+        rule.actions = actions
 
         rule.name = "MyTimerTriggerTestEnableDisableRule"
         logger.info("Rule created: " + rule.getUID())
@@ -134,11 +153,7 @@ class RuntimeRuleTest extends OSGiTest{
          * ensure that the lamp item state if OFF after this check
          */
         logger.info("Check auto update");
-        for (state in [
-            OnOffType.OFF,
-            OnOffType.ON,
-            OnOffType.OFF
-        ]) {
+        for (state in [OnOffType.OFF, OnOffType.ON, OnOffType.OFF]) {
             lampItem.send(state);
             waitForAssert({
                 assertThat lampItem.state,is(state);
@@ -153,14 +168,10 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
 
         def triggerConfig = new Configuration([cronExpression:testExpression])
-        def triggers = [
-            new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)
-        ]
+        def triggers = [new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig)]
 
         def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
-        def actions = [
-            new Action("MyItemPostCommandAction", "core.ItemCommandAction", actionConfig, null)
-        ]
+        def actions = [new Action("MyItemPostCommandAction", "core.ItemCommandAction", actionConfig, null)]
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers

@@ -12,16 +12,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.internal.template.RuleTemplateRegistry;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
@@ -230,6 +233,16 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     public Rule add(Rule rule) {
         if (rule == null) {
             throw new IllegalArgumentException("The added rule must not be null!");
+        }
+        if (rule.getTemplateUID() == null) {
+            List<Action> actions = rule.getActions();
+            if (actions == null || actions.isEmpty()) {
+                throw new IllegalArgumentException("The added rule should has one action at least!");
+            }
+            List<Trigger> triggers = rule.getTriggers();
+            if (triggers == null || triggers.isEmpty()) {
+                throw new IllegalArgumentException("The added rule should has one trigger at least!");
+            }
         }
         String rUID = rule.getUID();
         if (rUID == null) {
