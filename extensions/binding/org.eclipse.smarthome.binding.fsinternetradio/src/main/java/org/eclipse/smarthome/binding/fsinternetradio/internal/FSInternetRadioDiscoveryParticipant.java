@@ -196,6 +196,7 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
             // maybe we can add further indicators, whether the device is a supported one
         }
         // device not supported
+
         return null;
     }
 }
