@@ -67,9 +67,6 @@ public class PageChangeListener implements StateChangeListener {
             for (Item item : items) {
                 if (item instanceof GenericItem) {
                     ((GenericItem) item).removeStateChangeListener(this);
-                    ;
-                } else if (item instanceof GroupItem) {
-                    ((GroupItem) item).removeStateChangeListener(this);
                 }
             }
         }
@@ -79,8 +76,6 @@ public class PageChangeListener implements StateChangeListener {
         for (Item item : items) {
             if (item instanceof GenericItem) {
                 ((GenericItem) item).addStateChangeListener(this);
-            } else if (item instanceof GroupItem) {
-                ((GroupItem) item).addStateChangeListener(this);
             }
         }
     }

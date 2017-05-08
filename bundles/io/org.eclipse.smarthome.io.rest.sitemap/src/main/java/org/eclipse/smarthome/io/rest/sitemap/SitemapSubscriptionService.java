@@ -204,7 +204,6 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             // there is no listener for this page yet, so let's try to create one
             EList<Widget> widgets = null;
             widgets = collectWidgets(sitemapName, pageId);
-
             if (widgets != null) {
                 listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, widgets);
                 pageChangeListeners.put(getValue(sitemapName, pageId), listener);
