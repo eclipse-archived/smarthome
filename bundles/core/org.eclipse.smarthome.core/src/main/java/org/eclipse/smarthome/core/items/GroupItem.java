@@ -59,13 +59,16 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
         super(TYPE, name);
 
-        if ((baseItem != null && function == null) || (baseItem == null && function != null)) {
-            throw new IllegalArgumentException("baseItem AND function have to be passed as arguments");
+        // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set
+        if (baseItem == null || function == null) {
+            this.baseItem = null;
+            this.function = null;
+        } else {
+            this.function = function;
+            this.baseItem = baseItem;
         }
 
         members = new CopyOnWriteArraySet<Item>();
-        this.function = function;
-        this.baseItem = baseItem;
     }
 
     /**
