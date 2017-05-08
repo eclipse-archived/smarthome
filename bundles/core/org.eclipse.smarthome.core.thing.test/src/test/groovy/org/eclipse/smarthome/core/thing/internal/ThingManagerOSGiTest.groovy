@@ -725,12 +725,17 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
 
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNKNOWN, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
+
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNKNOWN, ThingStatusDetail.NONE).build()
-        expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVING, ThingStatusDetail.NONE).build()
         expectException({callback.statusUpdated(THING, statusInfo)}, IllegalArgumentException)

@@ -153,14 +153,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         statusInfo.getStatus()));
             }
 
-            if (ThingStatus.UNKNOWN.equals(statusInfo.getStatus())
-                    && !ThingStatus.INITIALIZING.equals(oldStatusInfo.getStatus())) {
-                // only allow UNKNOWN in the beginning, especially not after ONLINE or OFFLINE
-                throw new IllegalArgumentException(MessageFormat.format(
-                        "Illegal status transition to from {0} to UNKNOWN. This is only allowed as the first state after INITIALIZING.",
-                        oldStatusInfo.getStatus()));
-            }
-
             // update thing status and send event about new status
             setThingStatus(thing, statusInfo);
 
