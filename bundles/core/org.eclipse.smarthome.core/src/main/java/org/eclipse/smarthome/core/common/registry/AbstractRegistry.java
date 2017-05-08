@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -29,6 +31,7 @@ import com.google.common.collect.Iterables;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Migration to new event mechanism
+ * @author Victor Toni - provide elements as {@link Stream}
  *
  * @param <E>
  *            type of the element
@@ -134,7 +137,14 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
 
     @Override
     public Collection<E> getAll() {
-        return ImmutableList.copyOf(Iterables.concat(elementMap.values()));
+        return stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<E> stream() {
+        return elementMap.values()                              // gets a Collection<Collection<E>>
+                .stream()                                       // creates a Stream<Collection<E>>
+                .flatMap(collection -> collection.stream());    // flattens the stream to Stream<E>
     }
 
     @Override

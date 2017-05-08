@@ -10,6 +10,7 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -45,6 +46,11 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     @Override
     public Collection<Rule> getAll() {
         return ruleRegistry.getAll();
+    }
+
+    @Override
+    public Stream<Rule> stream() {
+        return ruleRegistry.stream();
     }
 
     @Override
