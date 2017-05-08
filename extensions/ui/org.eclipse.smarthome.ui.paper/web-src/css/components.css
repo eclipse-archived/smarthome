@@ -611,7 +611,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 }
 
 .parameter>div {
-	min-height: 80px;
+	min-height: 110px;
 }
 
 .parameter>div md-select-value>span:first-child, .parameter>div md-select-value .md-text>span:first-child{
@@ -624,6 +624,28 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .parameter>div p.hint {
 	margin-top: 0px;
+	margin-top: 0px;
+    height: 20px;
+}
+
+.parameter>div .nowrap{
+	white-space: nowrap;
+}
+
+.parameter>div p.hint .desc{
+	overflow: hidden;
+    text-overflow: ellipsis;
+    float: left;
+}
+
+.parameter>div p.hint .moreLess {
+	cursor: pointer;
+	color: blue;
+	float: right;
+}
+
+.parameter>div p.hint .reducedWidth{
+	width: 85%;
 }
 
 .includeConfig legend {
