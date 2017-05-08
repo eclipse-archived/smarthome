@@ -61,13 +61,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
         // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set
         if (baseItem == null || function == null) {
-            baseItem = null;
-            function = null;
+            this.baseItem = null;
+            this.function = null;
+        } else {
+            this.function = function;
+            this.baseItem = baseItem;
         }
 
         members = new CopyOnWriteArraySet<Item>();
-        this.function = function;
-        this.baseItem = baseItem;
     }
 
     /**
