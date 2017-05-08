@@ -1,5 +1,4 @@
-angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware' ]) //
-.controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
+angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
     $scope.navigateTo = function(path) {
         $location.path('configuration/' + path);
     }
@@ -385,9 +384,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemType : channel.itemType,
-            category : channelType.category ? channelType.category : '',
+            category : channelType.category ? channelType.category : "",
             suggestedName : getItemNameSuggestion(channelID, channelType.label),
-            suggestedLabel : channelType.label,
+            suggestedLabel : channel.channelType.label,
             suggestedCategory : channelType.category ? channelType.category : '',
             preSelectCreate : preSelect
         }
@@ -524,24 +523,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
                 value.items = $scope.thing ? $scope.thing.channels[i].items : null;
             });
             $scope.thing = thing;
-            checkThingProperties(thing);
             $scope.thingTypeUID = thing.thingTypeUID;
             getThingType();
             $scope.setSubtitle(['Things', thing.label]);
         }, refresh);
-    }
-
-    function checkThingProperties(thing) {
-        if (thing.properties) {
-            var hasFirmwareVersion = thing.properties['firmwareVersion'];
-            if ((Object.keys(thing.properties).length > 0 && !hasFirmwareVersion) || (Object.keys(thing.properties).length > 1 && hasFirmwareVersion)) {
-                $scope.thing.hasProperties = true;
-            } else {
-                $scope.thing.hasProperties = false;
-            }
-        } else {
-            $scope.thing.hasProperties = false;
-        }
     }
     $scope.getThing(true);
 
@@ -586,6 +571,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         }
     }
 
+    $scope.hasProperties = function(properties) {
+        return util.hasProperties(properties);
+    }
+
     $scope.showDescription = function(channel, channelType) {
         var description = channel.description ? channel.description : channel.channelType ? channel.channelType.description : null;
         if (description) {
@@ -594,7 +583,9 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
                 textContent : description,
                 ok : 'Close'
             });
-            $mdDialog.show(popup);
+            $mdDialog.show(popup).finally(function() {
+             popup = undefined;
+            });
         }
     }
 
@@ -770,7 +761,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             $scope.thing = thing;
             angular.copy(thing, originalThing);
             $scope.thingTypeUID = thing.thingTypeUID;
-
+            
             // Get the thing type
             $scope.getThingType();
             $scope.setSubtitle([ 'Things', 'Edit', thing.label]);

@@ -16,5 +16,4 @@
    </service>
    <reference bind="setConfigDescriptionRegistry" cardinality="0..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="dynamic" unbind="unsetConfigDescriptionRegistry"/>
    <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic" unbind="unsetThingTypeRegistry"/>
-   <reference bind="setFirmwareRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry" name="FirmwareRegistry" policy="dynamic" unbind="unsetFirmwareRegistry" />
 </scr:component>

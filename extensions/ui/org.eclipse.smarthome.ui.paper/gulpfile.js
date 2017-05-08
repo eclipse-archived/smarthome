@@ -34,11 +34,7 @@ var paths = {
         'src': './web-src/js/services*.js',
         'name': 'services.js'
     }, {
-        'src': [
-            './web-src/js/controllers*.js',
-            './web.src/js/controllers/*',
-            './web-src/js/widget.multiselect.js',
-            './web-src/js/filters/*'],
+        'src': ['./web-src/js/controllers*.js','./web-src/js/widget.multiselect.js'],
         'name': 'controllers.js'
     }, {
         'src': [
@@ -217,14 +213,12 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/controllers.rules.js',
                      './web-src/js/controllers.module.js',
                      './web-src/js/controllers.setup.js',
-                     './web-src/js/controllers/controller.firmware.js',
                      './web-src/js/extensions.js',
                      './web-src/js/main.js',
                      './web-src/js/services.js',
                      './web-src/js/services.repositories.js',
                      './web-src/js/services.rest.js',
-                     './web-src/js/shared.properties.js',
-                     './web-src/js/filters/filter.firmware.js'
+                     './web-src/js/shared.properties.js'
                      ]
     }    
     var sources = gulp.src(files, {read: false});

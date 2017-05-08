@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -23,7 +22,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -33,14 +31,11 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingTypeDTO;
-import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
-import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareDTO;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -82,7 +77,6 @@ public class ThingTypeResource implements SatisfiableRESTResource {
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
-    private FirmwareRegistry firmwareRegistry;
 
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
@@ -98,14 +92,6 @@ public class ThingTypeResource implements SatisfiableRESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
-    }
-
-    protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
-        this.firmwareRegistry = firmwareRegistry;
-    }
-
-    protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
-        this.firmwareRegistry = null;
     }
 
     @GET
@@ -137,26 +123,6 @@ public class ThingTypeResource implements SatisfiableRESTResource {
         } else {
             return Response.noContent().build();
         }
-    }
-
-    @GET
-    @Path("/{thingTypeUID}/firmwares")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get all available firmwares for provided thingType", response = StrippedThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "No firmwares found.") })
-    public Response getFirmwares(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
-            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-        ThingTypeUID athingTypeUID = new ThingTypeUID(thingTypeUID);
-        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(athingTypeUID, LocaleUtil.getLocale(language));
-
-        List<FirmwareDTO> firmwareList = convertToFirmwareDTO(firmwares);
-
-        if (firmwareList.isEmpty()) {
-            return Response.status(Status.NO_CONTENT).build();
-        }
-
-        return Response.ok().entity(firmwareList).build();
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
@@ -273,18 +239,8 @@ public class ThingTypeResource implements SatisfiableRESTResource {
         return strippedThingTypeDTOs;
     }
 
-    private List<FirmwareDTO> convertToFirmwareDTO(Collection<Firmware> firmwares) {
-        List<FirmwareDTO> firmwareList = new ArrayList<>();
-        for (Firmware firmware : firmwares) {
-            firmwareList.add(new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
-                    firmware.getDescription(), firmware.getVersion(), firmware.getPrerequisiteVersion(),
-                    firmware.getChangelog()));
-        }
-        return firmwareList;
-    }
-
     @Override
     public boolean isSatisfied() {
-        return thingTypeRegistry != null && configDescriptionRegistry != null && firmwareRegistry != null;
+        return thingTypeRegistry != null && configDescriptionRegistry != null;
     }
 }
