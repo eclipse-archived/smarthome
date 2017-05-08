@@ -7,12 +7,14 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
-import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 
 /**
  * This is a data transfer object that is used to serialize things with dynamic data like the status.
@@ -25,24 +27,37 @@ import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 public class EnrichedThingDTO extends ThingDTO {
 
     public ThingStatusInfo statusInfo;
-    public final FirmwareStatusDTO firmwareStatus;
     public boolean editable;
+    // public List<EnrichedChannelDTO> channels;
 
     /**
      * Creates an enriched thing data transfer object.
      *
      * @param thingDTO the base {@link ThingDTO}
-     * @param channels the list of {@link EnrichedChannelDTO} for this thing
      * @param statusInfo {@link ThingStatusInfo} for this thing
-     * @param firmwareStatus {@link FirmwareStatusDTO} for this thing
+     * @param linkedItemsMap a map of linked items
      * @param editable true if this thing can be edited
      */
-    EnrichedThingDTO(ThingDTO thingDTO, List<ChannelDTO> channels, ThingStatusInfo statusInfo,
-            FirmwareStatusDTO firmwareStatus, boolean editable) {
-        super(thingDTO.thingTypeUID, thingDTO.UID, thingDTO.label, thingDTO.bridgeUID, channels, thingDTO.configuration,
-                thingDTO.properties, thingDTO.location);
+    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, Map<String, Set<String>> linkedItemsMap,
+            boolean editable) {
+        this.UID = thingDTO.UID;
+        if (thingDTO.label != null) {
+            this.label = thingDTO.label;
+        }
+        this.thingTypeUID = thingDTO.thingTypeUID;
+        this.bridgeUID = thingDTO.bridgeUID;
+        this.channels = new ArrayList<>();
+        for (ChannelDTO channel : thingDTO.channels) {
+            Set<String> linkedItems = linkedItemsMap != null ? linkedItemsMap.get(channel.id) : new HashSet<String>();
+            this.channels.add(new EnrichedChannelDTO(channel, linkedItems));
+        }
+        this.configuration = thingDTO.configuration;
+        this.properties = thingDTO.properties;
         this.statusInfo = statusInfo;
-        this.firmwareStatus = firmwareStatus;
+        if (thingDTO.location != null) {
+            this.location = thingDTO.location;
+        }
+
         this.editable = editable;
     }
 

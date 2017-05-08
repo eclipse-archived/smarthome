@@ -33,6 +33,4 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
- org.mockito,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest
