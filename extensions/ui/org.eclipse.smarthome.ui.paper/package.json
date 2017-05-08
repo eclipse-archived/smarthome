@@ -37,6 +37,8 @@
     "node": ">=0.12.3"
   },
   "devDependencies": {
+    "angular-mocks": "1.4.8",
+    "jasmine-core": "^2.5.2",
     "karma": "^1.1.0",
     "karma-angular": "0.0.6",
     "karma-jasmine": "^1.0.2",

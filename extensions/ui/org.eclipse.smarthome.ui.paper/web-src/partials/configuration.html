@@ -12,7 +12,6 @@
 							<h3 class="md-title">
 								{{binding.name}} <small>{{binding.id}}</small>
 							</h3>
-
 							<p class="text-left">{{binding.author}}</p>
 							<div class="text-right">
 								<md-button ng-show="binding.configDescriptionURI" aria-label="Configure" ng-click="configure(binding.id, binding.configDescriptionURI, $event)">Configure</md-button>
@@ -126,12 +125,14 @@
 				</span>
 				<span>{{thing.statusInfo.description}}</span>
 			</p>
-			<div ng-init="details=false" ng-if="hasProperties(thing.properties)">
+			<div ng-init="details=false" ng-if="thing.hasProperties">
 				<md-button ng-click="details=!details">{{details?'hide':'show'}} properties</md-button>
 		        <div ng-show="details">
     		        <div ng-include="'partials/configuration.thingproperties.html'" class="thing-properties"></div>
 		        </div>
 			</div>
+			<div ng-include="'partials/configuration.firmware.html'"></div>
+			<br />
 			<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
 			<md-button class="showmore no-margin" ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 			<div class="channels">
