@@ -44,7 +44,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         this(name, null, null);
     }
 
-    // Apparently OH1 Compatibility Layer needs this constructor
     public GroupItem(String name, GenericItem baseItem) {
         // only baseItem but no function set -> use Equality
         this(name, baseItem, new GroupFunction.Equality());
