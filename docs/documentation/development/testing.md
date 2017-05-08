@@ -13,15 +13,15 @@ Test fragment
 
 In OSGi tests are implemented in a separate fragment bundle, which host is the bundle, that should be tested. The name of the test fragment bundle should be the same as the bundle to test with a ".test" suffix. The MANIFEST.MF file must contain a `Fragment-Host` entry. Fragment bundles inherit all imported packages from the host bundle. In addition the fragment bundle must import the `org.junit` package with a minimum version of 4.0.0 specified. The following code snippet shows a manifest file of the test fragment for the `org.eclipse.smarthome.core` bundle.
 
-	Manifest-Version: 1.0
-	Bundle-ManifestVersion: 2
-	Bundle-Name: Tests for the Eclipse SmartHome Core
-	Bundle-SymbolicName: org.eclipse.smarthome.core.test
-	Bundle-Version: 0.9.0.qualifier
-	Bundle-Vendor: Eclipse.org/SmartHome
-	Fragment-Host: org.eclipse.smarthome.core
-	Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-	Import-Package: org.junit;version="4.0.0"
+    Manifest-Version: 1.0
+    Bundle-ManifestVersion: 2
+    Bundle-Name: Tests for the Eclipse SmartHome Core
+    Bundle-SymbolicName: org.eclipse.smarthome.core.test
+    Bundle-Version: 0.9.0.qualifier
+    Bundle-Vendor: Eclipse.org/SmartHome
+    Fragment-Host: org.eclipse.smarthome.core
+    Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+    Import-Package: org.junit;version="4.0.0"
 
 Tests are typically placed inside the folder `src/test/java`. 
 
@@ -30,78 +30,137 @@ Unit tests
 
 Each class inside the test folder, which has a public method with a `@Test` annotation will automatically be executed as a test. Inside the class one can refer to all classes from the host bundle and all imported classes. The following code snippet shows a simple JUnit test which tests the `toString` conversation of a PercentType.
 
-	public class PercentTypeTest {
-    	@Test
-    	public void DoubleValue() {
+    public class PercentTypeTest {
+        @Test
+        public void DoubleValue() {
             PercentType pt = new PercentType("0.0001");
             assertEquals("0.0001", pt.toString());
-    	}
-	}
+        }
+    }
 
 Using the the [https://code.google.com/p/hamcrest/ hamcrest] matcher library is a good way to write expressive assertions. In contrast to the original assertion statements from JUnit the hamcrest matcher library allows to define the assertion in a more natural order:
 
-	PercentType pt = new PercentType("0.0001");
-	assertThat pt.toString(), is(equalTo("0.0001"))
+    PercentType pt = new PercentType("0.0001");
+    assertThat(pt.toString(), is(equalTo("0.0001")));
 
 To use the hamcrest library in your test project, you just have to add the following entry to the list of imported packages:
 
-	org.hamcrest;core=split
+    org.hamcrest;core=split
 
 Tests can be executed from Eclipse by right-clicking the test file and clicking on `Run As => JUnit Test`. From maven one can execute the test with `mvn test` command in the folder of the test fragment bundle.    
 
-Groovy
+Mockito
 ---
+In order to keep unit tests as focused as possible we use the mocking framework [https://github.com/mockito/mockito Mockito]. Mockito lets us verify interactions between supporting classes and the unit under test and additionally supports stubbing of method calls for these classes. Please read the very short but expressive introduction on the [http://site.mockito.org/ Mockito homepage] in addition to this small example:
 
-Using the JVM language Groovy tests are very easy and efficient to write. Groovy supports mocking without any frameworks. Language features like closures, type-inference and native syntax for maps and lists allow to implement short and easy to understand tests. Thus Eclipse SmartHome comes with an out-of-the-box-support for Groovy-testing in Eclipse and maven. Each test file which is placed under `src/test/groovy` will be automatically compiled and executed in Eclipse and maven. Moreover the Eclipse SmartHome Yoxos profile contains the Groovy-Eclipse-Plugin.
+    public class MyBindingHandlerTest {
+    
+        private ThingHandler handler;
+    
+        @Mock
+        private ThingHandlerCallback callback;
+    
+        @Mock
+        private Thing thing;
+    
+        @Before
+        public void setUp() {
+            initMocks(this);
+            handler = new MyBindingHandler(thing);
+            handler.setCallback(callback);
+        }
+    
+        @Test
+        public void initializeShouldCallTheCallback() {
+            // we expect the handler#initialize method to call the callback during execution and
+            // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
+            handler.initialize();
+    
+            // the argument captor will capture the argument of type ThingStatusInfo given to the
+            // callback#statusUpdated method.
+            ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
+    
+            // verify the interaction with the callback and capture the ThingStatusInfo argument:
+            verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+            // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
+            ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
+            Assert.assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
+        }
+    
+    }
 
-Although the following examples are presented in Groovy, unit and OSGi tests can also be implemented in Java. If the default mocking capabilities of Groovy do not fulfill the requirements, Groovy can also be combined with Java mocking frameworks like [https://code.google.com/p/mockito/ mockito]. 
+The code shown above will be created for you once you run the extensions/binding/create_binding_skeleton.[sh|cmd] script. See the OSGi-Tests section for another example.
 
-== OSGi-Tests ==
+_Groovy - DEPRECATED_
+---
+_The use of groovy is deprecated and should not be further extended. The existing groovy tests should be migrated over time. This way we want to reduce complexity in project setup and tooling. The mocking capabilities of groovy will be replaced by the java framework mockito._
 
+OSGi-Tests
+---
 Some components of Eclipse SmartHome are heavily bound to the OSGi runtime, because they use OSGi core services like the EventAdmin or the ConfigurationAdmin. That makes it hard to test those components outside of the OSGi container. Equinox provides a possibility to execute a JUnit test inside the OSGi environment, where the test has access to OSGi services.
 
-Eclipse SmartHome comes with an abstract base class `OSGiTest` for OSGi tests. The base class sets up a bundle context and has convenience methods for registering mocks as OSGi services and the retrieval of registered OSGi services. The following Groovy test class shows how to test the `ItemRegistry` by providing a mocked `ItemProvider`.
+Eclipse SmartHome comes with an abstract base class `JavaOSGiTest` for OSGi tests. The base class sets up a bundle context and has convenience methods for registering mocks as OSGi services and the retrieval of registered OSGi services. The following JUnit/Mockito test class shows how to test the `ItemRegistry` by providing a mocked `ItemProvider`.
+
+    import static org.hamcrest.CoreMatchers.*;
+    import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+    import static org.junit.Assert.assertThat;
+    import static org.mockito.Mockito.when;
+    import static org.mockito.MockitoAnnotations.initMocks;
     
-	class ItemRegistryOSGiTest extends OSGiTest {
- 
-     ItemRegistry itemRegistry
-     ItemProvider itemProvider
-     def ITEM_NAME = "switchItem"
- 
-     @Before
-     void setUp() {
-         itemRegistry = getService(ItemRegistry)
-         itemProvider = [
-             getItems: {[new SwitchItem(ITEM_NAME)]}, 
-             addItemChangeListener: {def itemCHangeListener -> },
-             removeItemChangeListener: {def itemCHangeListener -> }] as ItemProvider
-     }
- 
-     @Test
-     void 'assert getItems returns item from registered ItemProvider'() {
- 
-         assertThat itemRegistry.getItems().size, is(0)
- 
-         registerService itemProvider
- 
-         def items = itemRegistry.getItems()
-         assertThat items.size, is(1)
-         assertThat items.first().name, is(equalTo(ITEM_NAME))
- 
-         unregisterService itemProvider
- 
-         assertThat itemRegistry.getItems().size, is(0)
-     }
-	}
+    import java.util.ArrayList;
+    import java.util.List;
     
-In the `setUp` method the `ItemRegistry` OSGi service is retrieved through the method `getService` from the base class `OSGiTest` and assigned to a private variable. After it a new `ItemProvider` mock is created, which returns one item. The test method first checks that no item is inside the registry. Afterwards it registers the mocked `ItemProvider` as OSGi service with the method `registerService` and checks if the `ItemRegistry` returns one item now. At the end the mock is unregistered again.
+    import org.eclipse.smarthome.core.items.Item;
+    import org.eclipse.smarthome.core.items.ItemProvider;
+    import org.eclipse.smarthome.core.items.ItemRegistry;
+    import org.eclipse.smarthome.core.library.items.SwitchItem;
+    import org.eclipse.smarthome.test.java.JavaOSGiTest;
+    import org.junit.Before;
+    import org.junit.Test;
+    import org.mockito.Mock;
+    
+    import com.google.common.collect.Lists;
+    
+    public class JavaItemRegistryOSGiTest extends JavaOSGiTest {
+    
+        private static String ITEM_NAME = "switchItem";
+        private ItemRegistry itemRegistry;
+    
+        @Mock
+        private ItemProvider itemProvider;
+    
+        @Before
+        public void setUp() {
+            initMocks(this);
+            itemRegistry = getService(ItemRegistry.class);
+            when(itemProvider.getAll()).thenReturn(Lists.newArrayList(new SwitchItem(ITEM_NAME)));
+        }
+    
+        @Test
+        public void getItemsShouldReturnItemsFromRegisteredItemProvider() {
+            assertThat(itemRegistry.getItems(), hasSize(0));
+    
+            registerService(itemProvider);
+    
+            List<Item> items = new ArrayList<>(itemRegistry.getItems());
+            assertThat(items, hasSize(1));
+            assertThat(items.get(0).getName(), is(equalTo(ITEM_NAME)));
+    
+            unregisterService(itemProvider);
+    
+            assertThat(itemRegistry.getItems(), hasSize(0));
+        }
+    }
+
+
+In the `setUp` method all mocks (annotated with @Mock) are created. This is `itemProvider` for this test. Then the `ItemRegistry` OSGi service is retrieved through the method `getService` from the base class `OSGiTest` and assigned to a private variable. Then the `ItemProvider` mock is configured to return a list with one SwitchItem when `itemProvider#getAll` gets called. The test method first checks that the registry delivers no items by default. Afterwards it registers the mocked `ItemProvider` as OSGi service with the method `registerService` and checks if the `ItemRegistry` returns one item now. At the end the mock is unregistered again.
 
 In Eclipse the tests can be executed by right-clicking the test file and clicking on `Run As => JUnit Plug-In Test`. The launch config must be adapted, by selecting the bundle to test under the `Plug-Ins` tab and by clicking on `Add Required Plug-Ins`. Moreover you have to set the Auto-Start option to `true`. If the bundle that should be tested makes use of declarative services (has xml files in OSGI-INF folder), the bundle `org.eclipse.equinox.ds` must also be selected and also the required Plug-Ins of it. The `Validate Plug-Ins` button can be used to check if the launch config is valid. To avoid the manual selection of bundles, one can also choose `all workspace and enabled target plug-ins` with default `Default Auto-Start` set to `true`. The disadvantage is that this will start all bundles, which makes the test execution really slow and will produce a lot of errors on the OSGi console. It is a good practice to store a launch configuration file that launches all test cases for a test fragment.
 
 From maven the test can be executed by calling `mvn integration-test`. For executing the test in maven, tycho calculates the list of depended bundles automatically from package imports. Only if there is no dependency to a bundle, the bundle must be added manually to the test execution environment. For example Eclipse SmartHome makes use of OSGi declarative services. That allows to define service components through XML files. In order to support declarative services in the test environment the according bundle `org.eclipse.equinox.ds` must be added in the pom file within the `tycho-surefire-plugin` configuration section as dependency and furthermore the startlevel has to be defined as shown below. The snippet also shows how to enable `logging` during the test-execution with maven. Therefor you have to add the bundles `ch.qos.logback.classic, ch.qos.logback.core ch.qos.logback.slf4j` as dependency to your tycho-surefire configuration.
 
-	...
-	<build>
+    ...
+    <build>
      <plugins>
          <plugin>
              <groupId>org.eclipse.tycho</groupId>
@@ -141,7 +200,7 @@ From maven the test can be executed by calling `mvn integration-test`. For execu
              </configuration>
          </plugin>
      </plugins>
-	</build>
-	...
+    </build>
+    ...
     
 In the dependency definition the `artifactId` is the name of the required bundle, where the version can always be `0.0.0`. Within the `bundleStartLevel` definition the start level and auto start of the depended bundles can be configured. The `org.eclipse.equinox.ds` bundle must have level 1 and must be started automatically.
