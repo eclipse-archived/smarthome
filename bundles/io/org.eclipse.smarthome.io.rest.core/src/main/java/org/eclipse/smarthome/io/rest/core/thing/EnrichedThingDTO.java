@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,8 +40,8 @@ public class EnrichedThingDTO extends ThingDTO {
      * @param linkedItemsMap a map of linked items
      * @param editable true if this thing can be edited
      */
-    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, FirmwareStatusDTO firmwareStatus, Map<String, Set<String>> linkedItemsMap,
-            boolean editable) {
+    public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, FirmwareStatusDTO firmwareStatus,
+            Map<String, Set<String>> linkedItemsMap, boolean editable) {
         this.UID = thingDTO.UID;
         if (thingDTO.label != null) {
             this.label = thingDTO.label;
@@ -50,7 +50,7 @@ public class EnrichedThingDTO extends ThingDTO {
         this.bridgeUID = thingDTO.bridgeUID;
         this.channels = new ArrayList<>();
         for (ChannelDTO channel : thingDTO.channels) {
-            Set<String> linkedItems = linkedItemsMap != null ? linkedItemsMap.get(channel.id) : new HashSet<String>();
+            Set<String> linkedItems = linkedItemsMap != null ? linkedItemsMap.get(channel.id) : Collections.emptySet();
             this.channels.add(new EnrichedChannelDTO(channel, linkedItems));
         }
         this.configuration = thingDTO.configuration;
@@ -60,7 +60,7 @@ public class EnrichedThingDTO extends ThingDTO {
             this.location = thingDTO.location;
         }
 
-		this.firmwareStatus = firmwareStatus;
+        this.firmwareStatus = firmwareStatus;
         this.editable = editable;
     }
 
