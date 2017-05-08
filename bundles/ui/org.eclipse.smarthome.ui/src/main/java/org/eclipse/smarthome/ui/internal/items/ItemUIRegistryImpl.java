@@ -301,19 +301,21 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (updatedPattern != null) {
                     formatPattern = updatedPattern;
 
-                    // TODO: TEE: we should find a more generic solution here! When
-                    // using indexes in formatString this 'contains' will fail again
-                    // and will cause an 'java.util.IllegalFormatConversionException:
-                    // d != java.lang.String' later on when trying to format a String
-                    // as %d (number).
-                    if (label.contains("%d")) {
-                        // a number is requested
-                        state = item.getState();
-                        if (!(state instanceof DecimalType)) {
-                            state = item.getStateAs(DecimalType.class);
+                    if (!formatPattern.isEmpty()) {
+                        // TODO: TEE: we should find a more generic solution here! When
+                        // using indexes in formatString this 'contains' will fail again
+                        // and will cause an 'java.util.IllegalFormatConversionException:
+                        // d != java.lang.String' later on when trying to format a String
+                        // as %d (number).
+                        if (label.contains("%d")) {
+                            // a number is requested
+                            state = item.getState();
+                            if (!(state instanceof DecimalType)) {
+                                state = item.getStateAs(DecimalType.class);
+                            }
+                        } else {
+                            state = item.getState();
                         }
-                    } else {
-                        state = item.getState();
                     }
                 }
             } catch (ItemNotFoundException e) {
@@ -321,24 +323,28 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             }
 
             if (formatPattern != null) {
-                if (state == null || state instanceof UnDefType) {
-                    formatPattern = formatUndefined(formatPattern);
-                } else if (state instanceof Type) {
-                    // The following exception handling has been added to work around a Java bug with formatting
-                    // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
-                    // Without this catch, the whole sitemap, or page can not be displayed!
-                    // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
-                    try {
-                        formatPattern = ((Type) state).format(formatPattern);
-                    } catch (IllegalArgumentException e) {
-                        logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
-                                itemName, formatPattern, e);
-                        formatPattern = new String("Err");
+                if (formatPattern.isEmpty()) {
+                    label = label.substring(0, label.indexOf("[")).trim();
+                } else {
+                    if (state == null || state instanceof UnDefType) {
+                        formatPattern = formatUndefined(formatPattern);
+                    } else if (state instanceof Type) {
+                        // The following exception handling has been added to work around a Java bug with formatting
+                        // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
+                        // Without this catch, the whole sitemap, or page can not be displayed!
+                        // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
+                        try {
+                            formatPattern = ((Type) state).format(formatPattern);
+                        } catch (IllegalArgumentException e) {
+                            logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
+                                    itemName, formatPattern, e);
+                            formatPattern = new String("Err");
+                        }
                     }
-                }
 
-                label = label.trim();
-                label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                    label = label.trim();
+                    label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                }
             }
         }
 
