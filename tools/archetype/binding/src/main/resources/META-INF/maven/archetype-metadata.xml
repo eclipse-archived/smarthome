@@ -1,5 +1,4 @@
-<archetype-descriptor
-	xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+<archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
 	name="Eclipse SmartHome Binding Archetype" partial="false">
@@ -11,21 +10,41 @@
 		<requiredProperty key="namespace">
 			<defaultValue>org.eclipse.smarthome</defaultValue>
 		</requiredProperty>
-        <requiredProperty key="author">
+		<requiredProperty key="author">
 		</requiredProperty>
-        <requiredProperty key="bindingId">
+		<requiredProperty key="bindingId">
 		</requiredProperty>
-        <requiredProperty key="bindingIdCamelCase">
-		</requiredProperty>        
+		<requiredProperty key="bindingIdCamelCase">
+		</requiredProperty>
 	</requiredProperties>
 
 	<fileSets>
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
 			<directory></directory>
 			<includes>
+				<include>cfg/*.*</include>
+				<include>META-INF/*.*</include>
+				<include>OSGI-INF/*.*</include>
+				<include>about.html</include>
+				<include>build.properties</include>
+				<include>pom.xml</include>
+				<include>README.md</include>
+				<include>.project</include>
+				<include>.classpath</include>
+			</includes>
+		</fileSet>
+		<fileSet filtered="true" packaged="false" encoding="UTF-8">
+			<directory>ESH-INF</directory>
+			<includes>
 				<include>**/*.*</include>
 			</includes>
-			<excludes />
+		</fileSet>
+		<!-- Java files -->
+		<fileSet filtered="true" packaged="true" encoding="UTF-8">
+			<directory>src/main/java</directory>
+			<includes>
+				<include>**/*.java</include>
+			</includes>
 		</fileSet>
 	</fileSets>
 </archetype-descriptor>
