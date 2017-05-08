@@ -37,16 +37,21 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
     /**
      * Creates a plain GroupItem
-     * 
+     *
      * @param name name of the group
      */
     public GroupItem(String name) {
         this(name, null, null);
     }
 
+    public GroupItem(String name, GenericItem baseItem) {
+        // only baseItem but no function set -> use Equality
+        this(name, baseItem, new GroupFunction.Equality());
+    }
+
     /**
      * Creates a GroupItem with function
-     * 
+     *
      * @param name name of the group
      * @param baseItem type of items in the group
      * @param function function to calculate group status out of member status
