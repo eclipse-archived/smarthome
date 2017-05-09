@@ -52,7 +52,8 @@
 				minOccurs="0" />
 			<xs:element name="filter" type="config-description:filterType"
 				minOccurs="0" />
-			<xs:element name="advanced" type="xs:boolean" minOccurs="0" />
+            <xs:element name="advanced" type="xs:boolean" minOccurs="0" />
+            <xs:element name="verify" type="xs:boolean" minOccurs="0" />
 			<xs:element name="multipleLimit" type="xs:integer" minOccurs="0" />
             <xs:element name="unitLabel" type="xs:string" minOccurs="0" />
 		</xs:all>

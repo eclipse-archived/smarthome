@@ -87,7 +87,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>parameter.unit</td><td>Specifies the unit of measurements. The unit declaration in the parameter definition shown above contains the set of valid units. The unit must only be set if the type of the parameter is either integer or decimal (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
-  <tr><td>context</td><td>The context of the configuration parameter (optional). <a href='#supported-contexts'>Supported contexts</a></td></tr>
+  <tr><td>verify</td><td>Specifies that this is parameter requires a verification stage with the user before sending. Parameters flagged with *verify=true* could be considered dangerous and should be protected from accidental use by a UI - eg by adding an "Are you sure" prompt (optional).</td></tr>
+  <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human-readable label for the configuration parameter (optional).</td></tr>
