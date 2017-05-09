@@ -113,6 +113,7 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         String description = valueMap.getString("description");
 
         Boolean advanced = valueMap.getBoolean("advanced", false);
+        Boolean verify = valueMap.getBoolean("verify", false);
         Boolean limitToOptions = valueMap.getBoolean("limitToOptions", true);
         Integer multipleLimit = valueMap.getInteger("multipleLimit");
         String unitLabel = null;
@@ -130,7 +131,7 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
                 .withStepSize(step).withPattern(patternString).withRequired(required).withReadOnly(readOnly)
                 .withMultiple(multiple).withContext(parameterContext).withDefault(defaultValue).withLabel(label)
                 .withDescription(description).withOptions(options).withFilterCriteria(filterCriteria)
-                .withGroupName(groupName).withAdvanced(advanced).withLimitToOptions(limitToOptions)
+                .withGroupName(groupName).withAdvanced(advanced).withVerify(verify).withLimitToOptions(limitToOptions)
                 .withMultipleLimit(multipleLimit).withUnit(unit).withUnitLabel(unitLabel).build();
 
         return configDescriptionParam;
