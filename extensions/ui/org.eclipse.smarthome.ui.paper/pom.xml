@@ -59,10 +59,10 @@
           <execution>
             <id>gulp build</id>
             <goals>
-              <goal>gulp</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>default</arguments>
+              <arguments>run build</arguments>
             </configuration>
           </execution>
 
