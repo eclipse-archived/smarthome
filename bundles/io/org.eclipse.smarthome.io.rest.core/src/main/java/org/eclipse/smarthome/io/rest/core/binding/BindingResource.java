@@ -58,6 +58,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Yordan Zhelev - Added Swagger annotations
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
@@ -88,7 +89,8 @@ public class BindingResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all bindings.", response = BindingInfoDTO.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = BindingInfoDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
 
@@ -102,7 +104,7 @@ public class BindingResource implements SatisfiableRESTResource {
     @Path("/{bindingId}/config")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get binding configuration for given binding ID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Binding does not exist"),
             @ApiResponse(code = 500, message = "Configuration can not be read due to internal error") })
     public Response getConfiguration(
@@ -128,7 +130,7 @@ public class BindingResource implements SatisfiableRESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Updates a binding configuration for given binding ID and returns the old configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 204, message = "No old configuration"),
             @ApiResponse(code = 404, message = "Binding does not exist"),
             @ApiResponse(code = 500, message = "Configuration can not be updated due to internal error") })

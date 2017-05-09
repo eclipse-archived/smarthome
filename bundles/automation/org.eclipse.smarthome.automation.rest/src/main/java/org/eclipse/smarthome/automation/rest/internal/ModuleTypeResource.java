@@ -71,7 +71,8 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available module types.", response = ModuleTypeDTO.class, responseContainer = "List")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class, responseContainer = "List") })
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @QueryParam("tags") @ApiParam(value = "tags for filtering", required = false) String tagList,
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
@@ -95,7 +96,7 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
     @Path("/{moduleTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleTypeDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class),
             @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
