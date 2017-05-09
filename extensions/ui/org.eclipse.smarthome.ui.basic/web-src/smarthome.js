@@ -1306,6 +1306,7 @@
 			unlockTimeout = setTimeout(function() {
 				_t.locked = false;
 			}, 300);
+			_t.debounceProxy.finish();
 		}
 
 		_t.input.addEventListener("touchstart", onChangeStart);
