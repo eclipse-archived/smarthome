@@ -8,8 +8,11 @@
 package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -42,20 +45,34 @@ public class ThingDTOMapper {
         String thingUID = thing.getUID().toString();
         String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
 
-        return new ThingDTO(thingTypeUID, thingUID, thing.getLabel(), bridgeUID, channelDTOs, thing.getConfiguration(),
-                thing.getProperties(), thing.getLocation());
+        return new ThingDTO(thingTypeUID, thingUID, thing.getLabel(), bridgeUID, channelDTOs,
+                toMap(thing.getConfiguration()), thing.getProperties(), thing.getLocation());
     }
 
     /**
      * Maps thing DTO into thing
      *
      * @param thingDTO the thingDTO
-     * @return the corresponding thing 
+     * @return the corresponding thing
      */
     public static Thing map(ThingDTO thingDTO) {
-    	ThingUID thingUID = new ThingUID(thingDTO.UID);
-    	ThingTypeUID thingTypeUID = thingDTO.thingTypeUID==null ? new ThingTypeUID("") : new ThingTypeUID(thingDTO.thingTypeUID);
-    	Thing thing = ThingBuilder.create(thingTypeUID, thingUID).build();    	
-    	return ThingHelper.merge(thing, thingDTO);
+        ThingUID thingUID = new ThingUID(thingDTO.UID);
+        ThingTypeUID thingTypeUID = thingDTO.thingTypeUID == null ? new ThingTypeUID("")
+                : new ThingTypeUID(thingDTO.thingTypeUID);
+        Thing thing = ThingBuilder.create(thingTypeUID, thingUID).build();
+        return ThingHelper.merge(thing, thingDTO);
     }
+
+    private static Map<String, Object> toMap(Configuration configuration) {
+        if (configuration == null) {
+            return null;
+        }
+
+        Map<String, Object> configurationMap = new HashMap<>(configuration.keySet().size());
+        for (String key : configuration.keySet()) {
+            configurationMap.put(key, configuration.get(key));
+        }
+        return configurationMap;
+    }
+
 }

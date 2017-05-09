@@ -878,6 +878,40 @@ md-input-container .md-errors-spacer {
     width: 75%;
 }
 
+.current-firmware {
+	margin-left: 5px;
+}
+
+.firmware-status {
+    margin-left: 10px;
+}
+
+.firmware-progressbar {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.firmware-table {
+    border-bottom: solid 1px #ddd;
+}
+
+.firmware-table td:nth-child(1) {
+    white-space: nowrap;
+    width: 12%;
+}
+
+.firmware-table td:nth-child(2) {
+    width: 15%;
+}
+
+.firmware-table .firmware-detail-data {
+	vertical-align: middle;
+}
+
+.firmware-table .firmware-detail-button {
+    width: 100px;
+}
+
 md-chips .md-chip-remove-container {
 	display: none;
 }
@@ -1367,4 +1401,13 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 }
 .inboxSearch {
 	margin-bottom: 10px;
+}
+
+md-progress-circular.firmware {
+    margin: 5px 12px 5px 12px;
+    display: inline-block;
+}
+
+.middle-aligned.table-bordered>tbody>tr>td{
+	vertical-align: middle;
 }

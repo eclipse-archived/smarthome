@@ -34,7 +34,12 @@ var paths = {
         'src': './web-src/js/services*.js',
         'name': 'services.js'
     }, {
-        'src': ['./web-src/js/controllers*.js','./web-src/js/widget.multiselect.js'],
+        'src': [
+            './web-src/js/controllers*.js',
+            './web-src/js/controllers/*.js',
+            './web-src/js/widget.multiselect.js',
+            './web-src/js/filters/*.js',
+            '!./web-src/js/**/*.spec.js'],
         'name': 'controllers.js'
     }, {
         'src': [
@@ -179,13 +184,13 @@ function browserSyncInit(baseDir) {
 }
 
 gulp.task('serve', ['inject'], function () {
-    browserSyncInit(['./web-src', './web']);
+    browserSyncInit(isDevelopment ? ['./web-src', './web'] : './web');
 });
 
 
 gulp.task('inject', ['build'], function () {
-    var target = gulp.src('./web/index.html');
-    // It's not necessary to read the files (will speed up things), we're only after their paths: 
+   var target = gulp.src('./web/index.html');
+   // It's not necessary to read the files (will speed up things), we're only after their paths:
    var files;
    console.log("MODE:"+isDevelopment);
     if(!isDevelopment){
@@ -213,12 +218,14 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/controllers.rules.js',
                      './web-src/js/controllers.module.js',
                      './web-src/js/controllers.setup.js',
+                     './web-src/js/controllers/controller.firmware.js',
                      './web-src/js/extensions.js',
                      './web-src/js/main.js',
                      './web-src/js/services.js',
                      './web-src/js/services.repositories.js',
                      './web-src/js/services.rest.js',
-                     './web-src/js/shared.properties.js'
+                     './web-src/js/shared.properties.js',
+                     './web-src/js/filters/filter.firmware.js'
                      ]
     }    
     var sources = gulp.src(files, {read: false});
