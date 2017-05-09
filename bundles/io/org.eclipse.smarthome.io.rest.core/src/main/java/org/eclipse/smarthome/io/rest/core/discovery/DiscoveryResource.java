@@ -42,6 +42,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Ivaylo Ivanov - Added payload to the response of <code>scan</code>
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @RolesAllowed({ Role.ADMIN })
@@ -69,7 +70,8 @@ public class DiscoveryResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all bindings that support discovery.", response = String.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "Set") })
     public Response getDiscoveryServices() {
         Collection<String> supportedBindings = discoveryServiceRegistry.getSupportedBindings();
         return Response.ok(new LinkedHashSet<>(supportedBindings)).build();
@@ -79,7 +81,7 @@ public class DiscoveryResource implements SatisfiableRESTResource {
     @Path("/bindings/{bindingId}/scan")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Starts asynchronous discovery process for a binding and returns the timeout in seconds of the discovery operation.", response = Integer.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Integer.class) })
     public Response scan(@PathParam("bindingId") @ApiParam(value = "bindingId") final String bindingId) {
         discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
             @Override

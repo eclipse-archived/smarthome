@@ -45,6 +45,7 @@ import io.swagger.annotations.ApiResponses;
  * Provides access to ChannelType via REST.
  *
  * @author Chris Jackson - Initial contribution
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @RolesAllowed({ Role.ADMIN })
@@ -76,7 +77,7 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available channel types.", response = ChannelTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ChannelTypeDTO.class, responseContainer = "Set"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
@@ -90,7 +91,7 @@ public class ChannelTypeResource implements SatisfiableRESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets channel type by UID.", response = ChannelTypeDTO.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Channel type with provided channelTypeUID does not exist."),
+            @ApiResponse(code = 200, message = "Channel type with provided channelTypeUID does not exist.", response = ChannelTypeDTO.class),
             @ApiResponse(code = 404, message = "No content") })
     public Response getByUID(@PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {

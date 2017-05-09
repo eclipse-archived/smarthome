@@ -52,6 +52,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector and removed ThingSetupManager
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve.
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(InboxResource.PATH_INBOX)
 @RolesAllowed({ Role.ADMIN })
@@ -117,7 +118,7 @@ public class InboxResource implements SatisfiableRESTResource {
     @GET
     @Produces({ MediaType.WILDCARD })
     @ApiOperation(value = "Get all discovered things.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = DiscoveryResultDTO.class) })
     public Response getAll() {
         List<DiscoveryResult> discoveryResults = inbox.getAll();
         Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
