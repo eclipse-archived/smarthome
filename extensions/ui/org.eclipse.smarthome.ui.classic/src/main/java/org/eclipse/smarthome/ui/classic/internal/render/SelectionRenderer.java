@@ -43,10 +43,10 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(w)));
         snippet = StringUtils.replace(snippet, "%state%", getState(w));
         snippet = StringUtils.replace(snippet, "%format%", getFormat());
-        snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w));
 
         String state = itemUIRegistry.getState(w).toString();
         Selection selection = (Selection) w;
+        String mappedValue = "";
 
         StringBuilder rowSB = new StringBuilder();
         for (Mapping mapping : selection.getMappings()) {
@@ -58,11 +58,13 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
                     mapping.getLabel() != null ? mapping.getLabel() : "");
             if (state.equals(mapping.getCmd())) {
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
+                mappedValue = (mapping.getLabel() != null) ? mapping.getLabel() : mapping.getCmd();
             } else {
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "");
             }
             rowSB.append(rowSnippet);
         }
+        snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w, mappedValue));
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
 
         // Process the color tags
