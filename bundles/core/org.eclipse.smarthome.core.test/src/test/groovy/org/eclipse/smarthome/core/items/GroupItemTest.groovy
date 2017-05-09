@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction
 import org.eclipse.smarthome.core.library.types.OnOffType
+import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.RawType
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.UnDefType
@@ -264,5 +265,17 @@ class GroupItemTest extends OSGiTest {
         assertThat events.size(), is(0)
 
         assertTrue groupItem.getState().equals(oldGroupState)
+    }
+
+    @Test
+    void 'assert that group item without function can have a convertible state' (){
+        GroupItem groupItem = new GroupItem("root")
+        PercentType pt = new PercentType(50);
+        groupItem.setState(pt);
+
+        def groupStateAsOnOff = groupItem.getStateAs(OnOffType);
+
+        //any value >0 means on, so 50% means the group state should be ON
+        assertTrue OnOffType.ON.equals(groupStateAsOnOff)
     }
 }
