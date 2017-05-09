@@ -7,8 +7,8 @@
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes track by $index" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="masonry(showCards)" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
 		<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
-		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]"  ng-model-options="{ debounce: 200 }" type="text" placeholder="Search"> </md-input-container>
-		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
+		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]" ng-model-options="{ debounce: 200 }" type="text" placeholder="Search"> </md-input-container>
+		<i ng-click="searchText[$index] = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons clickable">close</i>
 	</div>
 	<div style="text-align: right; max-width: 98%"></div>
 
@@ -39,7 +39,7 @@
 							<div class="md-title">{{extension.label}}</div>
 							<p>{{extension.id}} - {{extension.version}}</p>
 						</div>
-						<div style="position:absolute; right:8px;" ng-if="extension.link">
+						<div style="position: absolute; right: 8px;" ng-if="extension.link">
 							<i ng-click="openExternalLink(extension.link)" class="material-icons cursor-pointer col-xs-3 launch-icon">launch</i>
 						</div>
 					</div>

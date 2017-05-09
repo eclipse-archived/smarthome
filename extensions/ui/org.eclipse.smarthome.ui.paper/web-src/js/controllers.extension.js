@@ -6,7 +6,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
     var view = window.localStorage.getItem('paperui.extension.view')
     $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
     $scope.searchText = [];
-    $scope.isArranging = false;
     $scope.refresh = function() {
         extensionService.getAllTypes(function(extensionTypes) {
             $scope.extensionTypes = [];
@@ -95,9 +94,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
 
     $scope.filterItems = function(lookupFields) {
         return function(item) {
-            if ($scope.isArranging) {
-                return false;
-            }
             var searchText = $scope.searchText[$scope.selectedIndex];
             if (searchText && searchText.length > 0) {
                 for (var i = 0; i < lookupFields.length; i++) {
@@ -114,7 +110,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         if (showCards) {
             $timeout(function() {
                 var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
-                $scope.isArranging = false;
                 new Masonry(itemContainer, {});
             }, 1, true);
         }
@@ -128,7 +123,6 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                     return $scope.searchText[index];
                 }, function(newValue, oldValue) {
                     if ($scope.showCards && (newValue === undefined || newValue !== oldValue)) {
-                        $scope.isArranging = true;
                         $scope.masonry(true);
                     }
                 });
