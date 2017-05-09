@@ -239,6 +239,11 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
+        // if a group does not have a function it cannot have a state
+        if (function == null) {
+            return null;
+        }
+
         State newState = function.getStateAs(getAllMembers(), typeClass);
         if (newState == null && baseItem != null) {
             // we use the transformation method from the base item
