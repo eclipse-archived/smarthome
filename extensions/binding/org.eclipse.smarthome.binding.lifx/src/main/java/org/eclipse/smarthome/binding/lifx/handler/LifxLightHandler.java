@@ -472,11 +472,17 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
-        getLightStateForCommand().setTemperature(temperature);
+        HSBK newColor = getLightStateForCommand().getNullSafeColor();
+        newColor.setSaturation(PercentType.ZERO);
+        newColor.setTemperature(temperature);
+        getLightStateForCommand().setColor(newColor);
     }
 
     private void handleTemperatureCommand(PercentType temperature, int zoneIndex) {
-        getLightStateForCommand().setTemperature(temperature, zoneIndex);
+        HSBK newColor = getLightStateForCommand().getNullSafeColor(zoneIndex);
+        newColor.setSaturation(PercentType.ZERO);
+        newColor.setTemperature(temperature);
+        getLightStateForCommand().setColor(newColor, zoneIndex);
     }
 
     private void handleHSBCommand(HSBType hsb) {
