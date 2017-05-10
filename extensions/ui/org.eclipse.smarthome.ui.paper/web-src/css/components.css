@@ -611,7 +611,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 }
 
 .parameter>div {
-	min-height: 110px;
+	max-height: 110px;
+}
+.parameter {
+    min-height: 110px;
 }
 
 .parameter>div md-select-value>span:first-child, .parameter>div md-select-value .md-text>span:first-child{
@@ -1432,4 +1435,8 @@ md-progress-circular.firmware {
 
 .middle-aligned.table-bordered>tbody>tr>td{
 	vertical-align: middle;
+}
+.no-animation * {
+   -webkit-transition: none !important;
+   transition: none !important;
 }
