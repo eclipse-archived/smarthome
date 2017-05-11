@@ -145,7 +145,6 @@ public class PersistenceExtensionsTest {
         item.setState(new DecimalType(2012));
         prevStateItem = PersistenceExtensions.previousState(item, false, "test");
         assertNotNull(prevStateItem);
-        System.out.println("prevState: " + prevStateItem.toString());
         assertEquals("2012", prevStateItem.getState().toString());
     }
 

@@ -866,7 +866,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
             } else if (priority.contains(Config.REFRESH_PRIORITY_LOW)) {
                 sensorJobExecutor.addLowPriorityJob(sensorJob);
             } else {
-                System.err.println("Sensor data update priority do not exist! Please check the input!");
+                logger.debug("Sensor data update priority do {}  not exist! Please check the input!", priority);
                 return;
             }
             logger.debug("Add new sensorJob {} with priority: {} to sensorJobExecuter", sensorJob.toString(), priority);
@@ -909,7 +909,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                             new SceneConfigReadingJob(device, (short) (deviceStateUpdate.getValue() - 2000)));
                 }
             } else {
-                System.err.println("Sensor data update priority do not exist! Please check the input!");
+                logger.debug("Device state update value {} is out of range. Please check the input!",
+                        deviceStateUpdate.getValue());
                 return;
             }
             logger.debug("Add new sceneReadingJob with priority: {} to SceneReadingJobExecuter",
