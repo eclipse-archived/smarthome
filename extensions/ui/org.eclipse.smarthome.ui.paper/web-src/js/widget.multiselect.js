@@ -223,7 +223,7 @@ angular.module('PaperUI').directive('multiSelect', function($filter) {
         require : 'ngModel',
         link : function(scope, element, attrs, ctrl) {
             scope.$watch(attrs.ngModel, function(value) {
-                if ((value === undefined || (Array.isArray(value) && value.length == 0)) && attrs.selectValidation == "true") {
+                if ((value === undefined || value === "" || (Array.isArray(value) && value.length == 0)) && attrs.selectValidation == "true") {
                     element.addClass('border-invalid');
                     ctrl.$setValidity('required', false);
                 } else {
