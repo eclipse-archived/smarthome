@@ -37,7 +37,16 @@ Thing types are listed by default, unless specified otherwise. Hiding thing type
 
 ## Channels
 
-A channel describes a specific functionality of a thing and can be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.
+A channel describes a specific functionality of a thing and can be linked to an item.
+So the basic information is, which command types the channel can handle and which state it sends to the linked item.
+This can be specified by the accepted item type.
+Inside the thing type description XML file a list of channels can be referenced.
+The channel type definition is specified on the same level as the thing type definition.
+That way channels can be reused in different things.
+
+The granularity of channel types should be on its semantic level, i.e. very fine-grained:
+If a Thing measures two temperature values, one for indoor and one for outdoor, this should be modelled as two different channel types.
+Overriding labels of a channel type must only be done if the very same functionality is offered multiple times, e.g. having an actuator with 5 relais, which each is a simple "switch", but you want to individually name the channels (1-5).
 
 The following XML snippet shows a thing type definition with 2 channels and one referenced channel type:
 
@@ -46,23 +55,20 @@ The following XML snippet shows a thing type definition with 2 channels and one 
     <label>Sample Thing</label>
     <description>Some sample description</description>
     <channels>
-      <channel id="switch" typeId="switch" />
-      <channel id="targetTemperature" typeId="temperatureActuator" />
+      <channel id="switch" typeId="powerSwitch" />
+      <channel id="temperature" typeId="setpointTemperature" />
     </channels>
 </thing-type>
-<channel-type id="temperatureActuator" advanced="true">
+<channel-type id="setpointTemperature" advanced="true">
     <item-type>Number</item-type>
-    <label>Temperature</label>
+    <label>Setpoint Temperature</label>
     <category>Temperature</category>
-    <tags>
-      <tag>weather</tag>
-    </tags>
     <state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false">
     </state>
 </channel-type>
 ```
 
-In order to reuse identical channels in different bindings a channeltype can be systemwide. A channel-type can be declared as systemwide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding.  
+In order to reuse identical channels in different bindings a channeltype can be systemwide. A channel-type can be declared as systemwide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding - note that this should only be done in the core framework, but not by individual bindings!  
 
 The following XML snippet shows a system channel-type definition and thing-type definition that references it:
 
@@ -240,6 +246,7 @@ The channel group type is defined on the same level as the thing types and chann
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
 
 ## Properties
+
 Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include:
 
 - general device information, e.g. the device vendor, the device series or the model ID, ...
@@ -265,6 +272,7 @@ Depending on the solution the provided meta data can be used for different purpo
 In general each `property` must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the 'ThingType' definitions the thing handler [documentation](thing-handler.html) explains how properties can be set during runtime.
 
 ## Formatting Labels and Descriptions
+
 The label and descriptions for things, channels and config descriptions should follow the following format. The label should be short so that for most UIs it does not spread across multiple lines. The description can contain longer text to describe the thing in more detail. Limited use of HTML tags is permitted to enhance the description - if a long description is provided, the first line should be kept short, and a line break (```<br />```) placed at the end of the line to allow UIs to display a short description in limited space.
 
 Configuration options should be kept short so that they are displayable in a single line in most UIs. If you want to provide a longer description of the options provided by a particular parameter, then this should be placed into the ```<description>``` of the parameter to keep the option label short. The description can include limited HTML to enhance the display of this information.
