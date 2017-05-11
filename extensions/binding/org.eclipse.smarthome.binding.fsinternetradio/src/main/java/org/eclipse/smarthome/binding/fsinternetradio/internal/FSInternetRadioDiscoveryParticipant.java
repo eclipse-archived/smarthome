@@ -92,6 +92,11 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         final Set<String> robertsRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("ROBERTS RADIO LIMITED", robertsRadios);
         robertsRadios.add("ROBERTS STREAM 93I");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/11
+        final Set<String> AUNARadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("AUNA", AUNARadios);
+        AUNARadios.add("CONNECT 150");
     }
 
     @Override
@@ -178,7 +183,7 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                 final String modelNumber = modelDetails.getModelNumber();
                 if (modelNumber != null) {
                     if (manufacturer != null) {
-                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(manufacturer.toUpperCase());
+                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(manufacturer.trim().toUpperCase());
                         if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
                         }
@@ -186,7 +191,7 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                     // check model name and number
                     final String modelName = modelDetails.getModelName();
                     if (modelName != null) {
-                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(modelName.toUpperCase());
+                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(modelName.trim().toUpperCase());
                         if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
                         }
