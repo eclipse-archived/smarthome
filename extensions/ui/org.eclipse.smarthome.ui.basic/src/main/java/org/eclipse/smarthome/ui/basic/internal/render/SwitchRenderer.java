@@ -72,11 +72,8 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         String snippet = getSnippet(snippetName);
         State state = itemUIRegistry.getState(w);
-        String value = getValue(w);
 
         snippet = preprocessSnippet(snippet, w);
-        snippet = StringUtils.replace(snippet, "%value%", value);
-        snippet = StringUtils.replace(snippet, "%has_value%", new Boolean(value != "").toString());
         snippet = StringUtils.replace(snippet, "%count%", Integer.toString(s.getMappings().size()));
 
         if (s.getMappings().size() == 0) {
