@@ -23,7 +23,8 @@ var paths = {
         './web-src/js/shared.properties.js',
         './web-src/js/controllers.module.js',
         './web-src/js/widget.multiselect.js',
-        './web-src/js/search.filters.js'
+        './web-src/js/search.filters.js',
+        './web-src/js/highlight.pack.js'
     ],
     static: [
         './web-src/css/*.css',
@@ -100,6 +101,7 @@ gulp.task('uglify', function () {
 
 gulp.task('copyStatic', function () {
     return gulp.src(paths.static, {base: 'web-src'})
+     //   .pipe(uglify())
         .pipe(gulp.dest('./web'));
 });
 
