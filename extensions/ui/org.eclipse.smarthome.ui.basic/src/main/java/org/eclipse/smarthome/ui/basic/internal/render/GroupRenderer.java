@@ -41,7 +41,6 @@ public class GroupRenderer extends AbstractWidgetRenderer {
 
         snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
 
         // Process the color tags
         snippet = processColor(w, snippet);
