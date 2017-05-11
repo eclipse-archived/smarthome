@@ -10,12 +10,11 @@ package org.eclipse.smarthome.binding.fsinternetradio.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import org.apache.commons.lang.StringUtils
-import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants
-import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler
-import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioHandlerFactory;
-import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConnection
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.config.discovery.DiscoveryResult
+import org.eclipse.smarthome.config.discovery.DiscoveryService
+
+import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.items.*
@@ -24,14 +23,26 @@ import org.eclipse.smarthome.core.thing.*
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
+import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.*
+
 import org.osgi.service.http.HttpService
+
+import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants
+import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioDiscoveryParticipant
+import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioHandlerFactory;
+import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio
+import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConnection
+import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler
+
+import org.apache.commons.lang.StringUtils
 
 /**
  * OSGi tests for the {@link FSInternetRadioHandler}
@@ -117,34 +128,34 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
     }
 
     @Test
-    void 'verify OFFLINE Thing-status and NULL Item-state when the IP is NULL'() {
+    void 'verify OFFLINE Thing status when the IP is NULL'() {
 
         Configuration config = createConfiguration(null, DEFAULT_CONFIG_PROPERTY_PIN, DEFAULT_CONFIG_PROPERTY_PORT, DEFAULT_CONFIG_PROPERTY_REFRESH)
 
         Thing radioThingWithNullIP = initializeRadioThing(config)
-        testRadioThingWithConfiguration(radioThingWithNullIP)
+        testRadioThingConsideringConfiguration(radioThingWithNullIP)
     }
 
     @Test
-    void 'verify OFFLINE Thing-status and NULL Item-state when the PIN is empty String'() {
+    void 'verify OFFLINE Thing status when the PIN is empty String'() {
 
         Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, "", DEFAULT_CONFIG_PROPERTY_PORT, DEFAULT_CONFIG_PROPERTY_REFRESH)
 
         Thing radioThingWithEmptyPIN = initializeRadioThing(config)
-        testRadioThingWithConfiguration(radioThingWithEmptyPIN)
+        testRadioThingConsideringConfiguration(radioThingWithEmptyPIN)
     }
 
     @Test
-    void 'verify OFFLINE Thing-status and NULL Item-state when the PORT is zero'() {
+    void 'verify OFFLINE Thing status when the PORT is zero'() {
 
         Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PIN, "0", DEFAULT_CONFIG_PROPERTY_REFRESH)
 
         Thing radioThingWithZeroPort = initializeRadioThing(config)
-        testRadioThingWithConfiguration(radioThingWithZeroPort)
+        testRadioThingConsideringConfiguration(radioThingWithZeroPort)
     }
 
     @Test
-    void 'verify OFFLINE Thing-status and NULL Item-state when the PIN is wrong'() {
+    void 'verify OFFLINE Thing status when the PIN is wrong'() {
 
         def wrongPin = "5678"
         Configuration config = createConfiguration(wrongPin, DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PORT, DEFAULT_CONFIG_PROPERTY_REFRESH)
@@ -155,18 +166,10 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
             assertThat ("The ThingStatus was not updated correctly when a wrong PIN is used", radioThingWithWrongPin.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
             assertThat ("The ThingStatusInfo was not updated correctly when a wrong PIN is used", radioThingWithWrongPin.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)))
         }
-
-        ChannelUID powerChannelUID = powerChannel.getUID()
-        Item testItem = initializeItem(powerChannelUID, "${DEFAULT_TEST_ITEM_NAME}",
-                acceptedItemTypes.get(FSInternetRadioBindingConstants.CHANNEL_POWER))
-
-        waitForAssert {
-            assertThat ("The item's state was not updated correctly when a wrong PIN is used", testItem.getState(), is (UnDefType.NULL))
-        }
     }
 
     @Test
-    void 'verify OFFLINE Thing-status and NULL Item-state when the HTTP response cannot be parsed correctly'() {
+    void 'verify OFFLINE Thing status when the HTTP response cannot be parsed correctly'() {
 
         // create a thing with two channels - the power channel and any of the others
         String modeChannelID = FSInternetRadioBindingConstants.CHANNEL_MODE
@@ -174,10 +177,12 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, modeChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         // turn-on the radio
         turnTheRadioOn(radioThing)
+
+        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
 
         /*
          *  Setting the isInvalidResponseExpected variable to true
@@ -185,19 +190,12 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
          */
         servlet.isInvalidResponseExpected = true
 
-        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID()
-        Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType)
-
         // try to handle a command
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"))
 
         waitForAssert {
-
             assertThat ("The ThingStatus was not updated correctly when the HTTP response cannot be parsed",radioThing.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
             assertThat ("The ThingStatusInfo was not updated correctly when the HTTP response cannot be parsed", radioThing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)))
-        }
-        waitForAssert {
-            assertThat ("The item's state was not updated correctly when the HTTP response cannot be parsed", modeTestItem.getState(), is (UnDefType.NULL))
         }
     }
 
@@ -225,7 +223,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, modeChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         // turn-on the radio
         turnTheRadioOn(radioThing)
@@ -253,14 +251,14 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
     void 'verify ONLINE status of a Thing with complete configuration' () {
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
     }
 
     @Test
     void 'verify the power channel is updated' () {
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         ChannelUID powerChannelUID = powerChannel.getUID()
         Item powerTestItem = initializeItem(powerChannelUID, "${DEFAULT_TEST_ITEM_NAME}",
@@ -296,7 +294,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, muteChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -333,7 +331,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, modeChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -365,7 +363,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -383,7 +381,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -401,7 +399,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -465,7 +463,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, percentVolumeChannelID, percentAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -493,7 +491,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, percentVolumeChannelID, percentAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -516,7 +514,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, percentVolumeChannelID, percentAcceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -608,7 +606,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, presetChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
         turnTheRadioOn(radioThing)
 
         ChannelUID presetChannelUID = radioThing.getChannel(FSInternetRadioBindingConstants.CHANNEL_PRESET).getUID()
@@ -628,7 +626,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, playInfoNameChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -648,7 +646,7 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         createChannel(DEFAULT_THING_UID, playInfoTextChannelID, acceptedItemType)
 
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION)
-        testRadioThingWithConfiguration(radioThing)
+        testRadioThingConsideringConfiguration(radioThing)
 
         turnTheRadioOn(radioThing)
 
@@ -780,35 +778,17 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         return radioChannel
     }
 
-    private void testRadioThingWithCompleteConfiguration(Thing radioThingWithCompleteConfiguration) {
-
-        waitForAssert {
-            assertThat ("The radioThing with complete configuration was not created successfully", radioThingWithCompleteConfiguration.getStatus(), is(equalTo(ThingStatus.ONLINE)))
-        }
-    }
-
-    private void testRadioThingWithIncompleteConfiguration(Thing radioThingWithIncompleteConfig) {
-
-        waitForAssert {
-            assertThat ("The ThingStatus was not updated correctly when a Thing with incomplete configuration was created", radioThingWithIncompleteConfig.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
-            assertThat ("The ThingStatusInfo was not updated correctly when a Thing with incomplete configuration was created", radioThingWithIncompleteConfig.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.CONFIGURATION_ERROR)))
-        }
-
-        ChannelUID powerChannelUID = powerChannel.getUID()
-        Item testItem = initializeItem(powerChannelUID, "${DEFAULT_TEST_ITEM_NAME}",
-                acceptedItemTypes.get(FSInternetRadioBindingConstants.CHANNEL_POWER))
-
-        waitForAssert {
-            assertThat ("The item's state was not updated correctly when a Thing with incomplete configuration was created", testItem.getState(), is (UnDefType.NULL))
-        }
-    }
-
-    private void testRadioThingWithConfiguration(Thing thing) {
+    private void testRadioThingConsideringConfiguration(Thing thing) {
         Configuration config = thing.getConfiguration()
         if(isConfigurationComplete(config)) {
-            testRadioThingWithCompleteConfiguration(thing)
+            waitForAssert {
+                assertThat ("The radioThing with complete configuration was not created successfully", thing.getStatus(), is(equalTo(ThingStatus.ONLINE)))
+            }
         } else {
-            testRadioThingWithIncompleteConfiguration(thing)
+            waitForAssert {
+                assertThat ("The ThingStatus was not updated correctly when a Thing with incomplete configuration was created", thing.getStatus(), is(equalTo(ThingStatus.OFFLINE)))
+                assertThat ("The ThingStatusInfo was not updated correctly when a Thing with incomplete configuration was created", thing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.CONFIGURATION_ERROR)))
+            }
         }
     }
 
