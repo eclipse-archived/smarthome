@@ -18,8 +18,12 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CronExpressionTest {
+
+    private final Logger logger = LoggerFactory.getLogger(CronExpressionTest.class);
 
     @Test(expected = ParseException.class)
     public void garbageString() throws ParseException {
@@ -91,12 +95,12 @@ public class CronExpressionTest {
         });
 
         for (final String expr : expressions) {
-            System.out.println("Test cron expression: " + expr);
+            logger.info("Test cron expression: {}", expr);
             final CronExpression cronExpression;
             try {
                 cronExpression = new CronExpression(expr);
             } catch (final IllegalArgumentException | ParseException ex) {
-                System.err.println(ex.getMessage());
+                logger.error("Error creating a new ConExpression", ex);
                 throw ex;
             }
 
@@ -105,17 +109,17 @@ public class CronExpressionTest {
 
             for (int i = 0; i < TRIES; ++i) {
                 if (trace) {
-                    System.out.println("  Try to get time after: " + sdf.format(curDate));
+                    logger.info("Try to get time after: {}", sdf.format(curDate));
                 }
                 final Date nextDate = cronExpression.getTimeAfter(curDate);
                 if (nextDate == null) {
-                    final String msg = String.format("  Cannot find a time after '%s' for expression '%s'",
+                    final String msg = String.format("Cannot find a time after '%s' for expression '%s'",
                             sdf.format(curDate), cronExpression.getExpression());
-                    System.err.println(msg);
+                    logger.error(msg);
                     Assert.fail(msg);
                 } else {
                     if (trace) {
-                        System.out.println("    Got: " + sdf.format(nextDate));
+                        logger.info("Got: " + sdf.format(nextDate));
                     }
                 }
 
