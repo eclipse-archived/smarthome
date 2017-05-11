@@ -9,7 +9,6 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.UUID;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -106,14 +105,19 @@ public class ScriptedAutomationManager {
 
         String name = element.getName();
         if (name == null || name.isEmpty()) {
-            name = element.getClass().toString();
+            name = element.getClass().getSimpleName();
+            if (name.contains("$")) {
+                name = name.substring(0, name.indexOf('$'));
+            }
         }
 
         rule.setName(name);
         rule.setDescription(element.getDescription());
         rule.setTags(element.getTags());
 
-        try {
+        try
+
+        {
             ArrayList<Condition> conditions = new ArrayList<>();
             for (Condition cond : element.getConditions()) {
                 Condition toAdd = cond;
@@ -166,7 +170,7 @@ public class ScriptedAutomationManager {
     }
 
     private String getUniqueId(Object element) {
-        return element.getClass().getSimpleName().replace("$", "_").replaceAll(" ", "") + "_" + UUID.randomUUID();
+        return "scripted_" + String.format("%016X", element.hashCode());
     }
 
     public void addConditionType(ConditionType condititonType) {

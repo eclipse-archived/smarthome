@@ -18,13 +18,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.automation.module.script.ScriptEngineContainer;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 
 /**
@@ -32,11 +32,11 @@ import org.eclipse.smarthome.core.service.AbstractWatchService;
  * is read and passed to the {@link ScriptEngineManager}.
  *
  * @author Simon Merschjohann - initial contribution
+ * @author Kai Kreuzer - improved logging and removed thread pool
  *
  */
 public class ScriptFileWatcher extends AbstractWatchService {
     private static final String FILE_DIRECTORY = "automation" + File.separator + "jsr223";
-    private static final String SCRIPT_FILE_WATCH_POOL = "SCRIPT_FILE_WATCH_POOL";
     private static final long INITIAL_DELAY = 25;
     private static final long RECHECK_INTERVAL = 20;
 
@@ -124,6 +124,7 @@ public class ScriptFileWatcher extends AbstractWatchService {
     }
 
     private synchronized void importFile(URL url) {
+        String fileName = getFileName(url);
         if (loaded.contains(url)) {
             this.removeFile(url); // if already loaded, remove first
         }
@@ -135,19 +136,19 @@ public class ScriptFileWatcher extends AbstractWatchService {
             } else {
                 if (manager.isSupported(scriptType)) {
                     try (InputStreamReader reader = new InputStreamReader(new BufferedInputStream(url.openStream()))) {
-                        logger.info("loading script '{}'", url);
+                        logger.info("Loading script '{}'", fileName);
 
-                        ScriptEngineContainer container = manager.createScriptEngine(scriptType, url.toString());
+                        ScriptEngineContainer container = manager.createScriptEngine(scriptType, fileName);
 
                         if (container != null) {
                             manager.loadScript(container.getIdentifier(), reader);
                             loaded.add(url);
-                            logger.debug("script successfully loaded: {}", url);
+                            logger.debug("Script loaded: {}", fileName);
                         } else {
-                            logger.error("script ERROR, ignore file: {}", url);
+                            logger.error("Script loading error, ignoring file: {}", fileName);
                         }
                     } catch (IOException e) {
-                        logger.error("url={}", url, e);
+                        logger.error("Failed to load file '{}': {}", url.getFile(), e.getMessage());
                     }
                 } else {
                     enqueueUrl(url, scriptType);
@@ -156,6 +157,15 @@ public class ScriptFileWatcher extends AbstractWatchService {
                 }
             }
         }
+    }
+
+    private String getFileName(URL url) {
+        String fileName = url.getFile();
+        String parentPath = FILE_DIRECTORY.replace('\\', '/');
+        if (fileName.contains(parentPath)) {
+            fileName = fileName.substring(fileName.lastIndexOf(parentPath) + parentPath.length() + 1);
+        }
+        return fileName;
     }
 
     private void enqueueUrl(URL url, String scriptType) {
@@ -207,7 +217,7 @@ public class ScriptFileWatcher extends AbstractWatchService {
     }
 
     private void startScheduler() {
-        ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(SCRIPT_FILE_WATCH_POOL);
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleWithFixedDelay(this::checkFiles, INITIAL_DELAY, RECHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
