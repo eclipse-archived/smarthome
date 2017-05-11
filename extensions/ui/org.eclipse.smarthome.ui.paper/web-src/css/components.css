@@ -627,7 +627,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .parameter>div p.hint {
 	margin-top: 0px;
-	margin-top: 0px;
     height: 20px;
 }
 
@@ -635,10 +634,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	white-space: nowrap;
 }
 
-.parameter>div p.hint .desc{
+.parameter>div p.hint .desc {
 	overflow: hidden;
-    text-overflow: ellipsis;
-    float: left;
+	text-overflow: ellipsis;
+	float: left;
 }
 
 .parameter>div p.hint .moreLess {

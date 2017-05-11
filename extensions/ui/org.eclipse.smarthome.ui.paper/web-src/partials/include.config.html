@@ -67,8 +67,7 @@
 									<dl class="dropdown" multi-select ng-init="filterText=''">
 										<dt class="col-xs-12">
 											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" select-validation="{{parameter.required}}">
-												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{getPlaceHolderText(configuration,parameter)}}" value="" ng-model="parameter.filterText" ng-keypress="onEnterPress($event)"  />
-
+												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{getPlaceHolderText(configuration,parameter)}}" value="" ng-model="parameter.filterText" ng-keypress="onEnterPress($event)" />
 												<i ng-if="parameter.multiple && !parameter.limitToOptions" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
 											</a>
 										</dt>
@@ -94,7 +93,7 @@
 								<div ng-switch-when="date" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
 									<div class="col-xs-12 configContainer">
-                                        <md-datepicker ng-init="focus=false;initial=true;" ng-class="{noerror: initial}" custom-focus md-no-float class="config-select datePicker" name="{{parameter.name}}" ng-model="configuration[parameter.name]" md-placeholder="date" ng-required="true"> </md-datepicker>
+										<md-datepicker ng-init="focus=false;initial=true;" ng-class="{noerror: initial}" custom-focus md-no-float class="config-select datePicker" name="{{parameter.name}}" ng-model="configuration[parameter.name]" md-placeholder="date" ng-required="true"> </md-datepicker>
 										<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 											<div ng-message="required" class="customMessage">Field is required</div>
 										</div>
