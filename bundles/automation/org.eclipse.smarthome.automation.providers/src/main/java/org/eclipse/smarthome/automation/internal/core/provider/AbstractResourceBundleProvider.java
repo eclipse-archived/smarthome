@@ -67,7 +67,7 @@ public abstract class AbstractResourceBundleProvider<E> {
         logger = LoggerFactory.getLogger(this.getClass());
         providedObjectsHolder = new ConcurrentHashMap<String, E>();
         providerPortfolio = new ConcurrentHashMap<Vendor, List<String>>();
-        queue = new AutomationResourceBundlesEventQueue(this);
+        queue = new AutomationResourceBundlesEventQueue<E>(this);
         parsers = new ConcurrentHashMap<String, Parser<E>>();
         waitingProviders = new ConcurrentHashMap<Bundle, List<URL>>();
     }
@@ -139,7 +139,6 @@ public abstract class AbstractResourceBundleProvider<E> {
 
     protected List<ProviderChangeListener<E>> listeners;
 
-    @SuppressWarnings("unchecked")
     protected void activate(BundleContext bc) {
         this.bc = bc;
     }
