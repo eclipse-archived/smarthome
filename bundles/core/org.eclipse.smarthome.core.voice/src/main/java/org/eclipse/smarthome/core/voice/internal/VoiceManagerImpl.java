@@ -368,10 +368,11 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         source = (source == null) ? audioManager.getSource() : source;
         sink = (sink == null) ? audioManager.getSink() : sink;
         locale = (locale == null) ? localeProvider.getLocale() : locale;
+        keyword = (keyword == null) ? this.keyword : keyword;
 
-        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null) {
-            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, localeProvider.getLocale(),
-                    keyword);
+        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null
+                && locale != null && keyword != null) {
+            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, locale, keyword);
             processor.start();
         } else {
             String msg = "Cannot start dialog as services are missing.";

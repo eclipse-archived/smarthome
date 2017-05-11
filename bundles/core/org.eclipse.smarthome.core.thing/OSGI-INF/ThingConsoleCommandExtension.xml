@@ -15,4 +15,6 @@
    </service>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
    <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
+   <reference bind="setThingStatusInfoI18nLocalizationService" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService" name="ThingStatusInfoI18nLocalizationService" policy="static" unbind="unsetThingStatusInfoI18nLocalizationService"/>
+   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
 </scr:component>

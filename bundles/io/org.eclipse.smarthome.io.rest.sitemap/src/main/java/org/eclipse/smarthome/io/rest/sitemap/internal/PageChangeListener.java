@@ -38,8 +38,8 @@ public class PageChangeListener implements StateChangeListener {
     private final String sitemapName;
     private final String pageId;
     private final ItemUIRegistry itemUIRegistry;
-    private final EList<Widget> widgets;
-    private final Set<Item> items;
+    private EList<Widget> widgets;
+    private Set<Item> items;
     private final List<SitemapSubscriptionCallback> callbacks = Collections
             .synchronizedList(new ArrayList<SitemapSubscriptionCallback>());
     private Set<SitemapSubscriptionCallback> distinctCallbacks = Collections.emptySet();
@@ -56,13 +56,26 @@ public class PageChangeListener implements StateChangeListener {
         this.sitemapName = sitemapName;
         this.pageId = pageId;
         this.itemUIRegistry = itemUIRegistry;
+
+        updateItemsAndWidgets(widgets);
+    }
+
+    private void updateItemsAndWidgets(EList<Widget> widgets) {
+        if (this.widgets != null) {
+            // cleanup statechange listeners in case widgets were removed
+            items = getAllItems(this.widgets);
+            for (Item item : items) {
+                if (item instanceof GenericItem) {
+                    ((GenericItem) item).removeStateChangeListener(this);
+                }
+            }
+        }
+
         this.widgets = widgets;
         items = getAllItems(widgets);
         for (Item item : items) {
             if (item instanceof GenericItem) {
                 ((GenericItem) item).addStateChangeListener(this);
-            } else if (item instanceof GroupItem) {
-                ((GroupItem) item).addStateChangeListener(this);
             }
         }
     }
@@ -186,6 +199,10 @@ public class PageChangeListener implements StateChangeListener {
                 event.widgetId = itemUIRegistry.getWidgetId(w);
                 event.visibility = itemUIRegistry.getVisiblity(w);
                 event.item = EnrichedItemDTOMapper.map(item, false, null, null);
+
+                // adjust the state according to the widget type
+                event.item.state = itemUIRegistry.getState(w).toFullString();
+
                 events.add(event);
             }
         }
@@ -199,6 +216,10 @@ public class PageChangeListener implements StateChangeListener {
             }
         }
         return false;
+    }
+
+    public void sitemapContentChanged(EList<Widget> widgets) {
+        updateItemsAndWidgets(widgets);
     }
 
 }

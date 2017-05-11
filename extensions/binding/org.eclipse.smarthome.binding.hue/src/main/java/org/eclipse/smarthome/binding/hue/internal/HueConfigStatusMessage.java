@@ -14,18 +14,11 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
  * the keys to be used for {@link ConfigStatusMessage}s.
  *
  * @author Alexander Kostadinov - Initial contribution
+ * @author Kai Kreuzer - Changed from enum to interface
  *
  */
-public enum HueConfigStatusMessage {
-    IP_ADDRESS_MISSING("missing-ip-address-configuration");
+public interface HueConfigStatusMessage {
 
-    private String messageKey;
+    final static String IP_ADDRESS_MISSING = "missing-ip-address-configuration";
 
-    private HueConfigStatusMessage(String messageKey) {
-        this.messageKey = messageKey;
-    }
-
-    public String getMessageKey() {
-        return messageKey;
-    }
 }

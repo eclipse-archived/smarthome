@@ -12,6 +12,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
@@ -164,7 +165,10 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                     File[] files = folder.listFiles(new FileExtensionsFilter(validExtension));
                     if (files != null && files.length > 0) {
                         for (File file : files) {
-                            checkFile(modelRepo, file, ENTRY_CREATE);
+                            // we omit parsing of hidden files possibly created by editors or operating systems
+                            if (!file.isHidden()) {
+                                checkFile(modelRepo, file, ENTRY_CREATE);
+                            }
                         }
                     }
                 }
@@ -238,6 +242,9 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                         if (parsers.contains(getExtension(file.getName()))) {
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
+                            } catch (IOException e) {
+                                LoggerFactory.getLogger(FolderObserver.class)
+                                        .warn("Error while opening file during update: {}", file.getAbsolutePath());
                             }
                         } else {
                             ignoredFiles.add(file);
@@ -304,7 +311,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     @Override
     protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
         File toCheck = getFileByFileExtMap(folderFileExtMap, path.getFileName().toString());
-        if (toCheck != null) {
+        if (toCheck != null && !toCheck.isHidden()) {
             checkFile(modelRepo, toCheck, kind);
         }
     }

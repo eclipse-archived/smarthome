@@ -78,36 +78,35 @@ public class JsonStorage<T> implements Storage<T> {
 
         commitTimer = new Timer();
 
+        Map<String, Map<String, Object>> inputMap = null;
         if (file.exists()) {
-            Map<String, Map<String, Object>> inputMap;
 
             // Read the file
             inputMap = readDatabase(file);
+        }
 
-            // If there was an error reading the file, then try one of the backup files
-            if (inputMap == null) {
-                logger.info("Json storage file at '{}' was not read.", file.getAbsolutePath());
-                for (int cnt = 1; cnt <= maxBackupFiles; cnt++) {
-                    File backupFile = getBackupFile(cnt);
-                    if (backupFile == null) {
-                        break;
-                    }
-                    inputMap = readDatabase(backupFile);
-                    if (inputMap != null) {
-                        logger.info("Json storage file at '{}' is used (backup {}).", backupFile.getAbsolutePath(),
-                                cnt);
-                        break;
-                    }
+        // If there was an error reading the file, then try one of the backup files
+        if (inputMap == null) {
+            logger.info("Json storage file at '{}' was not read.", file.getAbsolutePath());
+            for (int cnt = 1; cnt <= maxBackupFiles; cnt++) {
+                File backupFile = getBackupFile(cnt);
+                if (backupFile == null) {
+                    break;
                 }
-            }
-
-            // If we've read data from a file, then add it to the map
-            if (inputMap != null) {
-                map.putAll(inputMap);
+                inputMap = readDatabase(backupFile);
+                if (inputMap != null) {
+                    logger.info("Json storage file at '{}' is used (backup {}).", backupFile.getAbsolutePath(), cnt);
+                    break;
+                }
             }
         }
 
-        logger.debug("Opened Json storage file at '{}'.", file.getAbsolutePath());
+        // If we've read data from a file, then add it to the map
+        if (inputMap != null) {
+            map.putAll(inputMap);
+            logger.debug("Opened Json storage file at '{}'.", file.getAbsolutePath());
+        }
+
     }
 
     /**

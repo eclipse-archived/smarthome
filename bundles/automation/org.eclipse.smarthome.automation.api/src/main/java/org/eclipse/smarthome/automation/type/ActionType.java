@@ -102,7 +102,7 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This method is used for getting the meta-information descriptions of {@link Input}s defined by this type.<br/>
+     * This method is used for getting the meta-information descriptions of {@link Input}s defined by this type.
      *
      * @return a {@link List} of {@link Input} definitions.
      */
@@ -111,7 +111,7 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.<br/>
+     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.
      *
      * @return a {@link List} of {@link Output} definitions.
      */

@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -31,11 +33,14 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingTypeDTO;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
+import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareDTO;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -65,6 +70,7 @@ import io.swagger.annotations.ApiResponses;
  *         limitToOptions
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Miki Jankov - Introducing StrippedThingTypeDTO
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
@@ -77,6 +83,7 @@ public class ThingTypeResource implements SatisfiableRESTResource {
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
+    private FirmwareRegistry firmwareRegistry;
 
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
@@ -94,11 +101,19 @@ public class ThingTypeResource implements SatisfiableRESTResource {
         this.configDescriptionRegistry = null;
     }
 
+    protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
+        this.firmwareRegistry = firmwareRegistry;
+    }
+
+    protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
+        this.firmwareRegistry = null;
+    }
+
     @GET
     @RolesAllowed({ Role.USER })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available thing types without config description, channels and properties.", response = StrippedThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = StrippedThingTypeDTO.class, responseContainer = "Set"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
@@ -112,7 +127,8 @@ public class ThingTypeResource implements SatisfiableRESTResource {
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist.", response = ThingTypeDTO.class),
             @ApiResponse(code = 404, message = "No content") })
     public Response getByUID(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
@@ -123,6 +139,26 @@ public class ThingTypeResource implements SatisfiableRESTResource {
         } else {
             return Response.noContent().build();
         }
+    }
+
+    @GET
+    @Path("/{thingTypeUID}/firmwares")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get all available firmwares for provided thingType", response = StrippedThingTypeDTO.class, responseContainer = "Set")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "No firmwares found.") })
+    public Response getFirmwares(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
+        ThingTypeUID athingTypeUID = new ThingTypeUID(thingTypeUID);
+        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(athingTypeUID, LocaleUtil.getLocale(language));
+
+        List<FirmwareDTO> firmwareList = convertToFirmwareDTO(firmwares);
+
+        if (firmwareList.isEmpty()) {
+            return Response.status(Status.NO_CONTENT).build();
+        }
+
+        return Response.ok().entity(firmwareList).build();
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
@@ -239,8 +275,18 @@ public class ThingTypeResource implements SatisfiableRESTResource {
         return strippedThingTypeDTOs;
     }
 
+    private List<FirmwareDTO> convertToFirmwareDTO(Collection<Firmware> firmwares) {
+        List<FirmwareDTO> firmwareList = new ArrayList<>();
+        for (Firmware firmware : firmwares) {
+            firmwareList.add(new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
+                    firmware.getDescription(), firmware.getVersion(), firmware.getPrerequisiteVersion(),
+                    firmware.getChangelog()));
+        }
+        return firmwareList;
+    }
+
     @Override
     public boolean isSatisfied() {
-        return thingTypeRegistry != null && configDescriptionRegistry != null;
+        return thingTypeRegistry != null && configDescriptionRegistry != null && firmwareRegistry != null;
     }
 }

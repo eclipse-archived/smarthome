@@ -78,8 +78,6 @@ class ScriptRuleTest extends OSGiTest {
             getEventFilter: { null },
         ] as EventSubscriber
         registerService(eventSubscriber)
-        def scriptScopeProvider = getService(ScriptScopeProvider)
-        assertThat ScriptScopeProvider, is(notNullValue())
     }
 
 

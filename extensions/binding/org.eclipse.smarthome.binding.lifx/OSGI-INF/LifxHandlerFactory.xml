@@ -16,4 +16,6 @@
       <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>
    </service>
 
+   <reference bind="setChannelFactory" cardinality="1..1" interface="org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory" name="ChannelFactory" policy="dynamic" unbind="unsetChannelFactory"/>
+
 </scr:component>

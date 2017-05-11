@@ -214,6 +214,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 thingTypeUID : '@thingTypeUID'
             },
             url : restConfig.restPath + '/thing-types/:thingTypeUID'
+        },
+        getFirmwares : {
+            method : 'GET',
+            isArray : true,
+            params : {
+                thingTypeUID : '@thingTypeUID'
+            },
+            url : restConfig.restPath + '/thing-types/:thingTypeUID/firmwares'
         }
     });
 }).factory('linkService', function($resource, restConfig) {
@@ -304,6 +312,28 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 channelId : '@channelId'
             },
             url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
+        },
+        getFirmwareStatus : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/things/:thingUID/firmware/status',
+        },
+        update : {
+            method : 'PUT',
+            params : {
+                thingUID : '@thingUID',
+                firmwareVersion : '@firmwareVersion'
+            },
+            url : restConfig.restPath + '/things/:thingUID/firmware/:firmwareVersion'
+        },
+        cancel : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/update/:thingUID/cancel'
         }
     });
 }).factory('serviceConfigService', function($resource, restConfig) {
@@ -394,6 +424,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 id : '@id'
             },
             url : restConfig.restPath + '/extensions/:id/install'
+        },
+        installFromURL : {
+            method : 'POST',
+            params : {
+                url : '@url'
+            },
+            url : restConfig.restPath + '/extensions/url/:url/install'
         },
         uninstall : {
             method : 'POST',
@@ -587,4 +624,33 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             return promise;
         }
     }
+}).factory('firmwareService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/firmware', {}, {
+        getStatus : {
+            method : 'GET',
+            isArray : true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/:thingUID'
+        },
+        update : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/update/:thingUID'
+        },
+        cancel : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/update/:thingUID/cancel'
+        }
+    });
 });
+;

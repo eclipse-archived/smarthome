@@ -39,7 +39,7 @@
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
-															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Switch')}}
+															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.name, 'Switch')}}
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="!isOptionList(item)">
@@ -52,7 +52,7 @@
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
-															<i class="material-icons">{{getIcon(item.category, 'brightness_medium')}}</i>{{getLabel(item.category, item.label, 'Dimmer')}}
+															<i class="material-icons">{{getIcon(item.category, 'brightness_medium')}}</i>{{getLabel(item.category, item.name, 'Dimmer')}}
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
@@ -74,7 +74,7 @@
 												<div layout="row" layout-align="start center" class="dimmer-widget">
 													<div flex="40">
 														<p>
-															<i class="material-icons">wb_incandescent</i>{{getLabel(item.category, null, 'Color')}}
+															<i class="material-icons">wb_incandescent</i>{{getLabel(item.category, item.name, 'Color')}}
 														</p>
 													</div>
 													<div ng-if="!isOptionList(item) && !isReadOnly(item)" flex="60" layout="row" layout-align="end center" class="dimmer-widget">
@@ -107,7 +107,7 @@
 												<div layout="row" layout-align="start center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
-															<i class="material-icons">{{getIcon(item.category, 'trending_up')}}</i>{{getLabel(item.category, item.label, 'Value')}}
+															<i class="material-icons">{{getIcon(item.category, 'trending_up')}}</i>{{getLabel(item.category, item.name, 'Value')}}
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
@@ -132,15 +132,15 @@
 												<div layout="row" layout-align="start center" flex="100">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
-															<i class="material-icons">{{getIcon(item.category, 'format_align_justify')}}</i>{{getLabel(item.category, item.label, 'Position')}}
+															<i class="material-icons">{{getIcon(item.category, 'format_align_justify')}}</i>{{getLabel(item.category, item.name, 'Position')}}
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
 														<div ng-show="isReadOnly(item)">
-															<h2 class="state" ng-if="isReadOnly(item)">{{item.state}}</h2>
+															<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
-															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.state}}%</h2>
+															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
 															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number" min="0" max="100"></input> </md-input-container>
 															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
 														</div>
@@ -160,7 +160,7 @@
 												<div layout="row" layout-align="end center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
-															<i class="material-icons">{{getIcon(item.category, 'play_arrow')}}</i>{{getLabel(null, item.label, 'Control')}}
+															<i class="material-icons">{{getIcon(item.category, 'play_arrow')}}</i>{{getLabel(null, item.name, 'Control')}}
 														</p>
 													</div>
 													<div ng-if="!isReadOnly(item)" flex="60" layout="row" layout-align="end center">
@@ -177,7 +177,7 @@
 												<div layout="row" layout-align="start center">
 													<div flex="40" layout="row" layout-align="start center">
 														<p>
-															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Contact')}}
+															<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.name, 'Contact')}}
 														</p>
 													</div>
 													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
@@ -189,7 +189,7 @@
 											<div ng-switch-when="Location" ng-controller="LocationItemController">
 												<div layout="row" layout-align="start center">
 													<p>
-														<i class="material-icons">place</i>{{getLabel(item.category, item.label, 'Location')}}
+														<i class="material-icons">place</i>{{getLabel(item.category, item.name, 'Location')}}
 													</p>
 												</div>
 												<div layout="row" layout-align="start center" class="map-container">
@@ -213,7 +213,7 @@
 												<div layout-align="start center" layout="row">
 													<div flex="60">
 														<p class="ng-binding">
-															<i class="material-icons">camera_alt</i>{{getLabel(item.category,item.label,'Camera image')}}
+															<i class="material-icons">camera_alt</i>{{getLabel(item.category,item.name,'Camera image')}}
 														</p>
 													</div>
 													<div layout="row" layout-align="end center" flex="40">
@@ -232,7 +232,7 @@
 											<div class="textControl" ng-switch-default ng-controller="DefaultItemController">
 												<div layout="row" layout-align="start center" style="height: 100%">
 													<p flex="40">
-														<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.label, 'Value')}}
+														<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.name, 'Value')}}
 													</p>
 													<div ng-if="(getStateText(item).length<8 || shortEditMode) && !longEditMode" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
 														<div ng-show="isReadOnly(item)">

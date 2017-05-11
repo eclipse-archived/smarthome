@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ScheduledFuture;
@@ -69,7 +71,6 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     @Override
     public void initialize() {
         logger.debug("Initializing YahooWeather handler.");
-        super.initialize();
 
         Configuration config = getThing().getConfiguration();
 
@@ -95,23 +96,19 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     }
 
     private void startAutomaticRefresh() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    boolean success = updateWeatherData();
-                    if (success) {
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
-                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
-                    }
-                } catch (Exception e) {
-                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+        refreshJob = scheduler.scheduleAtFixedRate(() -> {
+            try {
+                boolean success = updateWeatherData();
+                if (success) {
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
                 }
+            } catch (Exception e) {
+                logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
             }
-        };
-
-        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh.intValue(), TimeUnit.SECONDS);
+        }, 0, refresh.intValue(), TimeUnit.SECONDS);
     }
 
     @Override
@@ -169,7 +166,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                         logger.trace(
                                 "The Yahoo Weather API did not return any data. Omiting the old result because it became too old.");
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
-                                "The Yahoo Weather API did not return any data.");
+                                "@text/offline.no-data");
                         return false;
                     } else {
                         // simply keep the old data
@@ -185,7 +182,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             }
         } catch (IOException e) {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
+                    "@text/offline.location [\"" + location.toPlainString() + "\"");
         }
         weatherData = null;
         return false;
@@ -201,7 +199,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                 public String load(String query) throws IOException {
                     try {
                         URL url = new URL("https://query.yahooapis.com/v1/public/yql?format=json&q="
-                                + query.replaceAll(" ", "%20").replaceAll("'", "%27"));
+                                + URLEncoder.encode(query, StandardCharsets.UTF_8.toString()));
                         URLConnection connection = url.openConnection();
                         return IOUtils.toString(connection.getInputStream());
                     } catch (MalformedURLException e) {

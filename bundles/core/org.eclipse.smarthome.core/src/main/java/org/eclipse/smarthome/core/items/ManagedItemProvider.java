@@ -190,7 +190,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                     GroupFunction function = getGroupFunction(persistedItem, baseItem);
                     item = new GroupItem(itemName, baseItem, function);
                 } else {
-                    item = new GroupItem(itemName, baseItem);
+                    item = new GroupItem(itemName, baseItem, new GroupFunction.Equality());
                 }
             } else {
                 item = new GroupItem(itemName);

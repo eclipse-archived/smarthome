@@ -5,9 +5,12 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
     $scope.extensionTypes = [];
     var view = window.localStorage.getItem('paperui.extension.view')
     $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
+    $scope.searchText = [];
     $scope.refresh = function() {
         extensionService.getAllTypes(function(extensionTypes) {
             $scope.extensionTypes = [];
+            $scope.searchText = new Array(extensionTypes.length);
+            registerWatchers();
             angular.forEach(extensionTypes, function(extensionType) {
                 $scope.extensionTypes.push({
                     typeId : extensionType.id,
@@ -69,6 +72,11 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         bindingRepository.setDirty(true);
         thingTypeRepository.setDirty(true);
     };
+    $scope.installExtensionFromURL = function(url) {
+        return extensionService.installFromURL({
+            url : url
+        });
+    };
     $scope.uninstall = function(extensionId) {
         var extension = $scope.getExtension(extensionId);
         extension.inProgress = true;
@@ -84,8 +92,9 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
         }
     }
 
-    $scope.filterItems = function(lookupFields, searchText) {
+    $scope.filterItems = function(lookupFields) {
         return function(item) {
+            var searchText = $scope.searchText[$scope.selectedIndex];
             if (searchText && searchText.length > 0) {
                 for (var i = 0; i < lookupFields.length; i++) {
                     if (item[lookupFields[i]] && item[lookupFields[i]].toUpperCase().indexOf(searchText.toUpperCase()) != -1) {
@@ -97,18 +106,30 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             return true;
         }
     }
-
     $scope.masonry = function(showCards) {
         if (showCards) {
             $timeout(function() {
                 var itemContainer = '#extensions-' + ($scope.selectedIndex ? $scope.selectedIndex : 0);
                 new Masonry(itemContainer, {});
-            }, 100, true);
+            }, 1, true);
         }
     }
-    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-        $scope.masonry(true);
-    });
+
+    function registerWatchers() {
+        for (var i = 0; i < $scope.searchText.length; i++) {
+            function intern(local) {
+                var index = local;
+                $scope.$watch(function() {
+                    return $scope.searchText[index];
+                }, function(newValue, oldValue) {
+                    if ($scope.showCards && (newValue === undefined || newValue !== oldValue)) {
+                        $scope.masonry(true);
+                    }
+                });
+            }
+            intern(i);
+        }
+    }
 
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionObject) {
         var id = extensionObject;
@@ -134,4 +155,49 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
             }
         }
     });
+}).directive('droppable', function(toastService) {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+
+            scope.ondrag = false;
+            var counter = 0;
+            element[0].addEventListener('dragover', function(event) {
+                event.preventDefault();
+            });
+            element[0].addEventListener('dragenter', function(event) {
+                event.preventDefault();
+                if (counter == 0) {
+                    scope.$apply(function() {
+                        scope.ondrag = true;
+                    });
+                }
+                counter++;
+            });
+            element[0].addEventListener('dragleave', function(event) {
+                event.preventDefault();
+                counter--;
+                if (counter == 0) {
+                    scope.$apply(function() {
+                        scope.ondrag = false;
+                    });
+                }
+
+            });
+            element[0].addEventListener('drop', function(event) {
+                event.preventDefault();
+                var data = event.dataTransfer.getData("Text");
+                var response = scope.installExtensionFromURL(data);
+                response.$promise.then(function() {
+                    toastService.showDefaultToast('Extension installed from URL');
+                    scope.ondrag = false;
+                }, function() {
+                    toastService.showDefaultToast('Extension installation from URL failed');
+                    scope.ondrag = false;
+                });
+
+            });
+
+        }
+    };
 });

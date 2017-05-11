@@ -19,7 +19,7 @@ import java.nio.file.WatchEvent.Kind
 import org.apache.commons.lang.SystemUtils
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
-import org.junit.AfterClass
+import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
@@ -41,8 +41,6 @@ class AbstractWatchServiceTest extends OSGiTest {
 
     @BeforeClass
     static void setUpBeforeClass(){
-        File watchDir = new File(WATCHED_DIRECTORY);
-        watchDir.mkdirs()
         // set the NO_EVENT_TIMEOUT_IN_SECONDS according to the operating system used
         if(SystemUtils.IS_OS_MAC_OSX) {
             NO_EVENT_TIMEOUT_IN_SECONDS = 10
@@ -51,10 +49,10 @@ class AbstractWatchServiceTest extends OSGiTest {
         }
     }
 
-    @AfterClass
-    static void tearDownClass(){
-        File watchedDirectory = new File(WATCHED_DIRECTORY);
-        watchedDirectory.deleteDir()
+    @Before
+    public void setup() {
+        File watchDir = new File(WATCHED_DIRECTORY);
+        watchDir.mkdirs()
     }
 
     @After
@@ -63,6 +61,9 @@ class AbstractWatchServiceTest extends OSGiTest {
         waitForAssert{assertThat watchService.watchQueueReader,is(nullValue())}
         clearWatchedDir()
         watchService.allFullEvents.clear()
+
+        File watchedDirectory = new File(WATCHED_DIRECTORY);
+        watchedDirectory.deleteDir()
     }
 
     void clearWatchedDir(){
@@ -254,7 +255,7 @@ class AbstractWatchServiceTest extends OSGiTest {
         if(SystemUtils.IS_OS_MAC_OSX) {
             FullEvent dirEvent = watchService.allFullEvents[0]
             assertThat "Directory $subDirName modification was not detected. All events detected: " + watchService.allFullEvents, dirEvent.eventKind, is(ENTRY_MODIFY)
-            assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(subDirName)
+            assertThat "Subdirectory was not found in the modified event", dirEvent.eventPath.toString(), is(WATCHED_DIRECTORY + File.separatorChar + subDirName)
 
             FullEvent fileEvent = watchService.allFullEvents[1]
             assertThat "File '$innerFile.absolutePath' creation was not detected. All events detected: " + watchService.allFullEvents, fileEvent.eventKind, is(ENTRY_CREATE)
@@ -397,7 +398,11 @@ class AbstractWatchServiceTest extends OSGiTest {
         @SuppressWarnings("unchecked")
         @Override
         protected Kind<?>[] getWatchEventKinds(Path subDir) {
-            return [ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY]
+            return [
+                ENTRY_CREATE,
+                ENTRY_DELETE,
+                ENTRY_MODIFY
+            ]
         }
 
         @Override

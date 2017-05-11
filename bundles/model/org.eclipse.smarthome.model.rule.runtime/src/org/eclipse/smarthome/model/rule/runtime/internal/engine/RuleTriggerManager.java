@@ -145,6 +145,7 @@ public class RuleTriggerManager {
                 break;
             case THINGCHANGE:
                 result = Iterables.concat(thingChangedEventTriggeredRules.values());
+                break;
             default:
                 result = Sets.newHashSet();
         }
@@ -210,24 +211,24 @@ public class RuleTriggerManager {
             case TRIGGER:
                 Set<Rule> rules = triggerEventTriggeredRules.get(channel);
                 if (rules == null) {
-                    return Sets.newHashSet();
+                    return Collections.emptyList();
                 }
                 for (Rule rule : rules) {
                     for (EventTrigger t : rule.getEventtrigger()) {
                         if (t instanceof EventEmittedTrigger) {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
-                            if (et.getTrigger() != null) {
-                                if (!et.getTrigger().equals(event)) {
-                                    continue;
-                                }
+
+                            if (et.getChannel().equals(channel)
+                                    && (et.getTrigger() == null || et.getTrigger().equals(event))) {
+                                // if the rule does not have a specific event , execute it on any event
+                                result.add(rule);
                             }
-                            result.add(rule);
                         }
                     }
                 }
                 break;
             default:
-                return Sets.newHashSet();
+                return Collections.emptyList();
         }
 
         return result;
@@ -509,12 +510,11 @@ public class RuleTriggerManager {
                 }
                 rules.add(rule);
             } else if (t instanceof TimerTrigger) {
-                if (timerEventTriggeredRules.add(rule)) {
-                    try {
-                        createTimer(rule, (TimerTrigger) t);
-                    } catch (SchedulerException e) {
-                        logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
-                    }
+                try {
+                    createTimer(rule, (TimerTrigger) t);
+                    timerEventTriggeredRules.add(rule);
+                } catch (SchedulerException e) {
+                    logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
                 }
             } else if (t instanceof EventEmittedTrigger) {
                 EventEmittedTrigger eeTrigger = (EventEmittedTrigger) t;
@@ -584,6 +584,7 @@ public class RuleTriggerManager {
                 for (Set<Rule> rules : thingUpdateEventTriggeredRules.values()) {
                     rules.remove(rule);
                 }
+                break;
             case THINGCHANGE:
                 for (Set<Rule> rules : thingChangedEventTriggeredRules.values()) {
                     rules.remove(rule);

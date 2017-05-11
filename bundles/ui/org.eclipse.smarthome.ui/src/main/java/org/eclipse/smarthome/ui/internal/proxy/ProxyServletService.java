@@ -139,7 +139,8 @@ public class ProxyServletService extends HttpServlet {
 
         // must specify for Jetty proxy servlet, per http://stackoverflow.com/a/27625380
         if (props.get(CONFIG_MAX_THREADS) == null) {
-            props.put(CONFIG_MAX_THREADS, String.valueOf(DEFAULT_MAX_THREADS));
+            props.put(CONFIG_MAX_THREADS,
+                    String.valueOf(Math.max(DEFAULT_MAX_THREADS, Runtime.getRuntime().availableProcessors())));
         }
 
         return props;

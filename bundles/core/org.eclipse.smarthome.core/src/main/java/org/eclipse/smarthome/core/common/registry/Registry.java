@@ -8,23 +8,23 @@
 package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * The {@link Registry} interface represents a registry for elements of the type
- * E. The concrete subinterfaces are registered as OSGi services.
+ * E. The concrete sub interfaces are registered as OSGi services.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Victor Toni - provide elements as {@link Stream}
  *
- * @param <E>
- *            type of the elements in the registry
+ * @param <E> type of the elements in the registry
  */
 public interface Registry<E, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
      *
-     * @param listener
-     *            registry change listener
+     * @param listener registry change listener
      */
     void addRegistryChangeListener(RegistryChangeListener<E> listener);
 
@@ -34,6 +34,13 @@ public interface Registry<E, K> {
      * @return collection of all elements in the registry
      */
     Collection<E> getAll();
+
+    /**
+     * Returns a stream of all elements in the registry.
+     *
+     * @return stream of all elements in the registry
+     */
+    Stream<E> stream();
 
     /**
      * This method retrieves a single element from the registry.

@@ -10,13 +10,12 @@ package org.eclipse.smarthome.config.core;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.normalization.Normalizer;
 import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
@@ -30,9 +29,9 @@ import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 public class ConfigUtil {
 
     /**
-     * normalizes the types to the ones allowed for configurations
+     * Normalizes the types to the ones allowed for configurations.
      *
-     * @param configuration
+     * @param configuration the configuration that needs to be normalzed
      * @return normalized configuration
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration) {
@@ -46,10 +45,9 @@ public class ConfigUtil {
     }
 
     /**
-     * normalizes the type of the parameter to the one allowed for configurations
+     * Normalizes the type of the parameter to the one allowed for configurations.
      *
      * @param value the value to return as normalized type
-     *
      * @return corresponding value as a valid type
      */
     public static Object normalizeType(Object value) {
@@ -57,11 +55,12 @@ public class ConfigUtil {
     }
 
     /**
-     * normalizes the type of the parameter to the one allowed for configurations
+     * Normalizes the type of the parameter to the one allowed for configurations.
      *
      * @param value the value to return as normalized type
-     *
+     * @param configDescriptionParameter the parameter that needs to be normalized
      * @return corresponding value as a valid type
+     * @throws IllegalArgumentException if a invalid type has been given
      */
     public static Object normalizeType(Object value, ConfigDescriptionParameter configDescriptionParameter) {
         if (configDescriptionParameter != null) {
@@ -73,43 +72,34 @@ public class ConfigUtil {
         } else if (value instanceof Number) {
             return new BigDecimal(value.toString());
         } else if (value instanceof Collection) {
-            return normalizeCollection((Collection) value);
+            return normalizeCollection((Collection<?>) value);
         }
         throw new IllegalArgumentException(
                 "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
     }
 
-    private static Collection normalizeCollection(Collection collection) {
-        if (collection.size() != 0) {
-            List list = new ArrayList(collection);
-            Type type = getType(list.get(0));
-            for (ListIterator it = list.listIterator(); it.hasNext();) {
-                Object value = it.next();
-                Type valueType = getType(value);
-                if (type != valueType) {
+    /**
+     * Normalizes a collection.
+     *
+     * @param collection the collection that entries should be normalized
+     * @return a collection that contains the normalized entries
+     * @throws IllegalArgumentException if the type of the normalized values differ or an invalid type has been given
+     */
+    private static Collection<Object> normalizeCollection(Collection<?> collection) throws IllegalArgumentException {
+        if (collection.size() == 0) {
+            return Collections.emptyList();
+        } else {
+            final List<Object> lst = new ArrayList<>(collection.size());
+            for (final Object it : collection) {
+                final Object normalized = normalizeType(it);
+                lst.add(normalized);
+                if (normalized.getClass() != lst.get(0).getClass()) {
                     throw new IllegalArgumentException(
                             "Invalid configuration property. Heterogeneous collection value!");
-                } else {
-                    if (valueType == Type.DECIMAL && !(value instanceof BigDecimal)) {
-                        it.set((new BigDecimal(value.toString())));
-                    }
                 }
             }
-            return list;
+            return lst;
         }
-        return collection;
-    }
-
-    private static Type getType(Object value) {
-        if (value instanceof String) {
-            return Type.TEXT;
-        } else if (value instanceof Boolean) {
-            return Type.BOOLEAN;
-        } else if (value instanceof Number) {
-            return Type.DECIMAL;
-        }
-        throw new IllegalArgumentException(
-                "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
     }
 
     /**

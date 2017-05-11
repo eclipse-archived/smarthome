@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -97,6 +98,19 @@ public final class LifxUtils {
 
     public static int percentTypeToInfrared(PercentType infrared) {
         return percentTypeToInt(infrared);
+    }
+
+    public static boolean sameColors(HSBK... colors) {
+        if (colors.length <= 1) {
+            return true;
+        }
+
+        for (int i = 1; i < colors.length; i++) {
+            if (!colors[0].equals(colors[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

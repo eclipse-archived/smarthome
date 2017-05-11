@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -40,6 +41,8 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -72,6 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Stefan Triller - Method to convert a state into something a sitemap entity can understand
  *
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
@@ -280,11 +284,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         String itemName = w.getItem();
         if (itemName != null) {
             State state = null;
-            String formatPattern = null;
+            String formatPattern = getFormatPattern(label);
 
             try {
                 final Item item = getItem(itemName);
-                if (getFormatPattern(label) == null) {
+                if (formatPattern == null) {
                     final StateDescription stateDescription = item.getStateDescription();
                     if (stateDescription != null) {
                         final String pattern = stateDescription.getPattern();
@@ -298,19 +302,21 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (updatedPattern != null) {
                     formatPattern = updatedPattern;
 
-                    // TODO: TEE: we should find a more generic solution here! When
-                    // using indexes in formatString this 'contains' will fail again
-                    // and will cause an 'java.util.IllegalFormatConversionException:
-                    // d != java.lang.String' later on when trying to format a String
-                    // as %d (number).
-                    if (label.contains("%d")) {
-                        // a number is requested
-                        state = item.getState();
-                        if (!(state instanceof DecimalType)) {
-                            state = item.getStateAs(DecimalType.class);
+                    if (!formatPattern.isEmpty()) {
+                        // TODO: TEE: we should find a more generic solution here! When
+                        // using indexes in formatString this 'contains' will fail again
+                        // and will cause an 'java.util.IllegalFormatConversionException:
+                        // d != java.lang.String' later on when trying to format a String
+                        // as %d (number).
+                        if (label.contains("%d")) {
+                            // a number is requested
+                            state = item.getState();
+                            if (!(state instanceof DecimalType)) {
+                                state = item.getStateAs(DecimalType.class);
+                            }
+                        } else {
+                            state = item.getState();
                         }
-                    } else {
-                        state = item.getState();
                     }
                 }
             } catch (ItemNotFoundException e) {
@@ -318,24 +324,28 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             }
 
             if (formatPattern != null) {
-                if (state == null || state instanceof UnDefType) {
-                    formatPattern = formatUndefined(formatPattern);
-                } else if (state instanceof Type) {
-                    // The following exception handling has been added to work around a Java bug with formatting
-                    // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
-                    // Without this catch, the whole sitemap, or page can not be displayed!
-                    // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
-                    try {
-                        formatPattern = ((Type) state).format(formatPattern);
-                    } catch (IllegalArgumentException e) {
-                        logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
-                                itemName, formatPattern, e);
-                        formatPattern = new String("Err");
+                if (formatPattern.isEmpty()) {
+                    label = label.substring(0, label.indexOf("[")).trim();
+                } else {
+                    if (state == null || state instanceof UnDefType) {
+                        formatPattern = formatUndefined(formatPattern);
+                    } else if (state instanceof Type) {
+                        // The following exception handling has been added to work around a Java bug with formatting
+                        // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
+                        // Without this catch, the whole sitemap, or page can not be displayed!
+                        // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
+                        try {
+                            formatPattern = ((Type) state).format(formatPattern);
+                        } catch (IllegalArgumentException e) {
+                            logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
+                                    itemName, formatPattern, e);
+                            formatPattern = new String("Err");
+                        }
                     }
-                }
 
-                label = label.trim();
-                label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                    label = label.trim();
+                    label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                }
             }
         }
 
@@ -466,13 +476,37 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             try {
                 Item item = getItem(itemName);
-                return item.getState();
+                return convertState(w, item);
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
             }
         }
         return UnDefType.UNDEF;
+    }
+
+    /**
+     * Converts an item state to the type the widget supports (if possible)
+     *
+     * @param w Widget in sitemap that shows the state
+     * @param i item
+     * @return the converted state or the original if conversion was not possible
+     */
+    private State convertState(Widget w, Item i) {
+        State returnState = null;
+
+        if (w instanceof Switch) {
+            returnState = i.getStateAs(OnOffType.class);
+        } else if (w instanceof Slider) {
+            returnState = i.getStateAs(PercentType.class);
+        }
+
+        // if returnState is null, a conversion was not possible
+        if (returnState == null) {
+            // we return the original state to not break anything
+            returnState = i.getState();
+        }
+        return returnState;
     }
 
     /**
@@ -688,6 +722,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     @Override
     public Collection<Item> getAll() {
         return itemRegistry.getAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Stream<Item> stream() {
+        return itemRegistry.stream();
     }
 
     /**

@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.extension.sample.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +132,11 @@ public class SampleExtensionService implements ExtensionService {
         return types;
     }
 
+    @Override
+    public String getExtensionId(URI extensionURI) {
+        return null;
+    }
+
     private void postInstalledEvent(String extensionId) {
         if (eventPublisher != null) {
             Event event = ExtensionEventFactory.createExtensionInstalledEvent(extensionId);
@@ -144,4 +150,5 @@ public class SampleExtensionService implements ExtensionService {
             eventPublisher.post(event);
         }
     }
+
 }

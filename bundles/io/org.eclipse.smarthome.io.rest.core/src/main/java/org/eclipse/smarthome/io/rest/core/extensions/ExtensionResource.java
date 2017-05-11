@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.extensions;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,8 +28,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.Event;
@@ -36,6 +40,7 @@ import org.eclipse.smarthome.core.extension.Extension;
 import org.eclipse.smarthome.core.extension.ExtensionEventFactory;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
@@ -51,6 +56,7 @@ import io.swagger.annotations.ApiResponses;
  * This class acts as a REST resource for extensions and provides methods to install and uninstall them.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
@@ -89,7 +95,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extensions.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public List<Extension> getExtensions(
             @HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
@@ -101,7 +107,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @Path("/types")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extension types.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Set<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
@@ -112,7 +118,8 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @Path("/{extensionId: [a-zA-Z_0-9-]*}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get extension with given ID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 404, message = "Not found") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 404, message = "Not found") })
     public Response getById(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
@@ -145,6 +152,25 @@ public class ExtensionResource implements SatisfiableRESTResource {
             }
 
         });
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/url/{url}/install")
+    @ApiOperation(value = "Installs the extension from the given URL.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "The given URL is malformed or not valid.") })
+    public Response installExtensionByURL(
+            final @PathParam("url") @ApiParam(value = "extension install URL", required = true) String url) {
+        try {
+            URI extensionURI = new URI(url);
+            String extensionId = getExtensionId(extensionURI);
+            installExtension(extensionId);
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            logger.error("Exception while parsing the extension URL '{}': {}", url, e.getMessage());
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "The given URL is malformed or not valid.");
+        }
+
         return Response.ok().build();
     }
 
@@ -212,6 +238,17 @@ public class ExtensionResource implements SatisfiableRESTResource {
             }
         }
         throw new IllegalArgumentException("No extension service registered for " + extensionId);
+    }
+
+    private String getExtensionId(URI extensionURI) {
+        for (ExtensionService extensionService : extensionServices) {
+            String extensionId = extensionService.getExtensionId(extensionURI);
+            if (StringUtils.isNotBlank(extensionId)) {
+                return extensionId;
+            }
+        }
+
+        throw new IllegalArgumentException("No extension service registered for URI " + extensionURI);
     }
 
 }

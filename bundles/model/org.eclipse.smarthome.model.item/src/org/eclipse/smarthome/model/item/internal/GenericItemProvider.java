@@ -199,12 +199,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String baseItemType = modelGroupItem.getType();
             GenericItem baseItem = createItemOfType(baseItemType, modelGroupItem.getName());
             if (baseItem != null) {
+                // if the user did not specify a function the first value of the enum in xtext (EQUAL) will be used
                 ModelGroupFunction function = modelGroupItem.getFunction();
-                if (function == null) {
-                    item = new GroupItem(modelGroupItem.getName(), baseItem);
-                } else {
-                    item = applyGroupFunction(baseItem, modelGroupItem, function);
-                }
+                item = applyGroupFunction(baseItem, modelGroupItem, function);
             } else {
                 item = new GroupItem(modelGroupItem.getName());
             }
@@ -353,7 +350,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             switch (type) {
                 case ADDED:
                     processBindingConfigsFromModel(modelName);
-                    Collection<Item> allNewItems = getAll();
+                    Collection<Item> allNewItems = getItemsFromModel(modelName);
                     itemsMap.put(modelName, allNewItems);
                     for (Item item : allNewItems) {
                         notifyListenersAboutAddedElement(item);

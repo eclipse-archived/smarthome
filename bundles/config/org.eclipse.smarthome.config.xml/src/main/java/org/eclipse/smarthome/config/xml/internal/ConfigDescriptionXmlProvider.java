@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.osgi.framework.Bundle;
 
@@ -19,7 +19,7 @@ import org.osgi.framework.Bundle;
  * The {@link ConfigDescriptionXmlProvider} is responsible managing any created
  * objects by a {@link ConfigDescriptionReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link ConfigDescription} object at the {@link XmlConfigDescriptionProvider} which
+ * This implementation registers each {@link ConfigDescription} object at the {@link AbstractXmlConfigDescriptionProvider} which
  * is itself registered as {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.
  *
  * @author Michael Grammling - Initial Contribution
@@ -29,9 +29,9 @@ import org.osgi.framework.Bundle;
 public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<ConfigDescription>> {
 
     private Bundle bundle;
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
 
-    public ConfigDescriptionXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider)
+    public ConfigDescriptionXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider)
             throws IllegalArgumentException {
 
         if (bundle == null) {

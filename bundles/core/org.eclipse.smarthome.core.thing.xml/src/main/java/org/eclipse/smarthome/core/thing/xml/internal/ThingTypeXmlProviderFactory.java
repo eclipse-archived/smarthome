@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.List;
 
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.osgi.framework.Bundle;
@@ -23,13 +23,13 @@ import org.osgi.framework.Bundle;
  */
 public class ThingTypeXmlProviderFactory implements XmlDocumentProviderFactory<List<?>> {
 
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
     private XmlThingTypeProvider thingTypeProvider;
     private XmlChannelTypeProvider channelTypeProvider;
 
-    public ThingTypeXmlProviderFactory(XmlConfigDescriptionProvider configDescriptionProvider,
+    public ThingTypeXmlProviderFactory(AbstractXmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         if (configDescriptionProvider == null) {
             throw new IllegalArgumentException("The XmlConfigDescriptionProvider must not be null!");

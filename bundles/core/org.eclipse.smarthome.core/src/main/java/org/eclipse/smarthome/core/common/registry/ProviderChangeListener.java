@@ -22,30 +22,24 @@ public interface ProviderChangeListener<E> {
     /**
      * Notifies the listener that a single element has been added.
      *
-     * @param provider
-     *            element provider
-     * @param element
-     *            the element that has been added
+     * @param provider the provider that provides the element
+     * @param element the element that has been added
      */
     void added(Provider<E> provider, E element);
 
     /**
      * Notifies the listener that a single element has been removed.
      *
-     * @param provider
-     *            element provider
-     * @param element
-     *            the element that has been removed
+     * @param provider the provider that provides the element
+     * @param element the element that has been removed
      */
     void removed(Provider<E> provider, E element);
 
     /**
      * Notifies the listener that a single element has been updated.
      *
-     * @param provider
-     *            element provider
-     * @param element
-     *            the element that has been update
+     * @param provider the provider that provides the element
+     * @param element the element that has been updated
      */
     void updated(Provider<E> provider, E oldelement, E element);
 

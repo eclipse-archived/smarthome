@@ -15,6 +15,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
@@ -97,6 +98,8 @@ public class WatchQueueReader implements Runnable {
             } else {
                 registerDirectoryInternal(watchService, watchService.getWatchEventKinds(toWatch), toWatch);
             }
+        } catch (NoSuchFileException e) {
+            logger.debug("Not watching folder '{}' as it does not exist.", toWatch);
         } catch (IOException e) {
             logger.warn("Cannot customize folder watcher for folder '{}'", toWatch, e);
         }
@@ -132,8 +135,7 @@ public class WatchQueueReader implements Runnable {
         try {
             registrationKey = directory.register(this.watchService, kinds);
         } catch (IOException e) {
-            e.printStackTrace();
-            logger.debug("The directory '{}' was not registered in the watch service", directory, e);
+            logger.debug("The directory '{}' was not registered in the watch service: {}", directory, e.getMessage());
         }
         if (registrationKey != null) {
             registeredKeys.put(registrationKey, directory);
@@ -263,6 +265,7 @@ public class WatchQueueReader implements Runnable {
                 // As we have found a directory event and do not want to track directory changes - we will skip it
                 return null;
             }
+
             return resolvedContextPath;
         }
 

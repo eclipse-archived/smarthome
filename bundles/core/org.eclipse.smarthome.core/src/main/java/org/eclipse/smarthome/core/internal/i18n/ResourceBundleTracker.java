@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.internal.i18n;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,8 +135,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
      * @return <code>true</code> if the bundle is a fragment and <code>false</code> if it is a host.
      */
     private boolean isFragmentBundle(Bundle bundle) {
-        Dictionary<String, String> h = bundle.getHeaders();
-        return h.get("Fragment-Host") != null;
+        return pkgAdmin.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT;
     }
 
     /**

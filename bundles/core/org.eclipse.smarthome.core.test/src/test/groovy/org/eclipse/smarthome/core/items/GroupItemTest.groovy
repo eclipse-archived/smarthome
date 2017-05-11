@@ -16,8 +16,12 @@ import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction
+import org.eclipse.smarthome.core.library.types.OnOffType
+import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.RawType
 import org.eclipse.smarthome.core.types.RefreshType
+import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Assert
 import org.junit.Before
@@ -29,8 +33,12 @@ import org.junit.Test
  *
  * @author Dennis Nobel - Initial contribution
  * @author Christoph Knauf - event tests
+ * @author Stefan Triller - tests for group status with and without functions
  */
 class GroupItemTest extends OSGiTest {
+
+    /** Time to sleep when a file is created/modified/deleted, so the event can be handled */
+    private final static int WAIT_EVENT_TO_BE_HANDLED = 1000
 
     List<Event> events = []
     EventPublisher publisher
@@ -86,7 +94,7 @@ class GroupItemTest extends OSGiTest {
     @Test
     void 'assert that group item posts events for changes correctly' (){
         events.clear()
-        GroupItem groupItem = new GroupItem("root")
+        GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new GroupFunction.Equality())
         def member = new TestItem("member1")
         groupItem.addMember(member)
         groupItem.setEventPublisher(publisher)
@@ -116,5 +124,158 @@ class GroupItemTest extends OSGiTest {
         //State doesn't change -> no events are fired
         member.setState(member.getState())
         assertThat events.size(), is(0)
+    }
+
+    @Test
+    void 'assert that group item changes respect group function OR' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF))
+        def sw1 = new SwitchItem("switch1");
+        def sw2 = new SwitchItem("switch2");
+        groupItem.addMember(sw1)
+        groupItem.addMember(sw2)
+
+        groupItem.setEventPublisher(publisher)
+
+        //State changes -> one change event is fired
+        sw1.setState(OnOffType.ON)
+
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
+
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
+
+        def change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+
+        assertTrue change.getOldItemState().equals(UnDefType.NULL)
+        assertTrue change.getItemState().equals(OnOffType.ON)
+
+        assertTrue groupItem.getState().equals(OnOffType.ON)
+    }
+
+    @Test
+    void 'assert that group item changes respect group function OR with UNDEF' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF))
+        def sw1 = new SwitchItem("switch1");
+        def sw2 = new SwitchItem("switch2");
+        groupItem.addMember(sw1)
+        groupItem.addMember(sw2)
+
+        groupItem.setEventPublisher(publisher)
+
+        //State changes -> one change event is fired
+        sw1.setState(OnOffType.ON)
+
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
+
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
+
+        def change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+
+        assertTrue change.getOldItemState().equals(UnDefType.NULL)
+        assertTrue change.getItemState().equals(OnOffType.ON)
+
+        events.clear();
+
+        sw2.setState(OnOffType.ON);
+
+        sw2.setState(UnDefType.UNDEF);
+
+        //wait to see that the event doesn't fire
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+
+        assertThat events.size(), is(0)
+
+        assertTrue groupItem.getState().equals(OnOffType.ON)
+    }
+
+    @Test
+    void 'assert that group item changes respect group function AND' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new ArithmeticGroupFunction.And(OnOffType.ON, OnOffType.OFF))
+        def sw1 = new SwitchItem("switch1");
+        def sw2 = new SwitchItem("switch2");
+        groupItem.addMember(sw1)
+        groupItem.addMember(sw2)
+
+        groupItem.setEventPublisher(publisher)
+
+        //State changes -> one change event is fired
+        sw1.setState(OnOffType.ON)
+
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
+
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
+
+        def change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+
+        //we expect that the group should now have status "OFF"
+        assertTrue change.getOldItemState().equals(UnDefType.NULL)
+        assertTrue change.getItemState().equals(OnOffType.OFF)
+
+        events.clear();
+
+        //State changes -> one change event is fired
+        sw2.setState(OnOffType.ON)
+
+        waitForAssert {
+            assertThat events.size(), is(1)
+        }
+
+        changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
+
+        change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+
+        //we expect that the group should now have status "ON"
+        assertTrue change.getOldItemState().equals(OnOffType.OFF)
+        assertTrue change.getItemState().equals(OnOffType.ON)
+
+        assertTrue groupItem.getState().equals(OnOffType.ON)
+    }
+
+    @Test
+    void 'assert that group item changes do not affect the group status if no function or baseItem are defined' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root")
+        def member = new TestItem("member1")
+        groupItem.addMember(member)
+        groupItem.setEventPublisher(publisher)
+        def oldGroupState = groupItem.getState()
+
+        //State changes -> NO change event should be fired
+        member.setState(new RawType())
+
+        //wait to see that the event doesn't fire
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
+
+        assertThat events.size(), is(0)
+
+        assertTrue groupItem.getState().equals(oldGroupState)
+    }
+
+    @Test
+    void 'assert that group item without function can have a convertible state' (){
+        GroupItem groupItem = new GroupItem("root")
+        PercentType pt = new PercentType(50);
+        groupItem.setState(pt);
+
+        def groupStateAsOnOff = groupItem.getStateAs(OnOffType);
+
+        //any value >0 means on, so 50% means the group state should be ON
+        assertTrue OnOffType.ON.equals(groupStateAsOnOff)
     }
 }

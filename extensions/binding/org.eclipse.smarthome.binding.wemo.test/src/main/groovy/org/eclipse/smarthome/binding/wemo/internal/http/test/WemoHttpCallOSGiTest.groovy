@@ -28,9 +28,9 @@ import org.osgi.service.http.HttpService
  *
  * @author Svilen Valkanov - Initial contribution
  */
-class WemoHttpCallOSGiTest extends OSGiTest{
-    
-    def ORG_OSGI_SERVICE_HTTP_PORT = 8080
+class WemoHttpCallOSGiTest extends OSGiTest {
+
+    def ORG_OSGI_SERVICE_HTTP_PORT = 9090
     def DESTINATION_URL = "http://127.0.0.1:${ORG_OSGI_SERVICE_HTTP_PORT}"
     def SERVLET_URL = "/test"
     def servlet = null
@@ -91,7 +91,7 @@ class WemoHttpCallOSGiTest extends OSGiTest{
             contentType = req.getContentType()
             soapHeader = req.getHeader("SOAPACTION")
             content = req.getInputStream().getText()
-            
+
             resp.setContentType(contentType)
         }
     }

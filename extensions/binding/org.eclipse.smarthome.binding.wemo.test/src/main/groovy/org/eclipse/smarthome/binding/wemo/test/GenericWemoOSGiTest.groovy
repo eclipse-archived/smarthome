@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.wemo.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
+import groovy.xml.Namespace
 
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -57,19 +58,17 @@ import org.osgi.service.http.HttpService
 
 import com.google.common.collect.ImmutableSet
 
-import groovy.xml.Namespace
-
 /**
  * Generic test class for all Wemo related tests that contains methods and constants used across the different test classes
  *
  * @author Svilen Valkanov - Initial contribution
  */
-public abstract class GenericWemoOSGiTest extends OSGiTest{
+public abstract class GenericWemoOSGiTest extends OSGiTest {
 
     static final def DEVICE_MANUFACTURER = "Belkin"
 
     //This port is included in the run configuration
-    def ORG_OSGI_SERVICE_HTTP_PORT = 8080
+    def ORG_OSGI_SERVICE_HTTP_PORT = 9090
 
     //Thing information
     def TEST_THING_ID = "TestThing"

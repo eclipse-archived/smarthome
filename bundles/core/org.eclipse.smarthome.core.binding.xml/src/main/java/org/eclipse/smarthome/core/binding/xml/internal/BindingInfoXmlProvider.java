@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.core.binding.xml.internal;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * registered as {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
  * <p>
  * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult} object, it is added to the
- * {@link XmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service registry.
+ * {@link AbstractXmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service registry.
  *
  * @author Michael Grammling - Initial Contribution
  *
@@ -37,10 +37,10 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
     private Bundle bundle;
 
     private XmlBindingInfoProvider bindingInfoProvider;
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
 
     public BindingInfoXmlProvider(Bundle bundle, XmlBindingInfoProvider bindingInfoProvider,
-            XmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
+            AbstractXmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
 
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");

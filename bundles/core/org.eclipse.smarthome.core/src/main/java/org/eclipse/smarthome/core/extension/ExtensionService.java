@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.extension;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 
@@ -67,5 +68,15 @@ public interface ExtensionService {
      * @param id the id of the extension to uninstall
      */
     void uninstall(String id);
+
+    /**
+     * Parses the given URI and extracts an extension Id.
+     *
+     * This must not be a long running process but return immediately.
+     *
+     * @param extensionURI the URI from which to parse the extension Id.
+     * @return the extension Id if the URI can be parsed, otherwise <code>null</code>.
+     */
+    String getExtensionId(URI extensionURI);
 
 }

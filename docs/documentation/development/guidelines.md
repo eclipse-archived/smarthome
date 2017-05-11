@@ -37,7 +37,9 @@ Note that this list also serves as a checklist for code reviews on pull requests
 
 ## C. Language Levels and Libraries
 
-1. Eclipse SmartHome requires at least JavaSE 7. Hence no features of Java 8 must be used within the code. To allow optimized JavaSE 8 runtimes, the set of Java packages to be used is furthermore restricted to [Compact Profile 2](http://www.oracle.com/technetwork/java/embedded/resources/tech/compact-profiles-overview-2157132.html).
+1. Eclipse SmartHome generally targets JavaSE 8 with the following restrictions:
+ * To allow optimized JavaSE 8 runtimes, the set of Java packages to be used is furthermore restricted to [Compact Profile 2](http://www.oracle.com/technetwork/java/embedded/resources/tech/compact-profiles-overview-2157132.html)
+ * Java 5 for org.eclipse.smarthome.protocols.enocean.*
 1. The minimum OSGi framework version supported is [OSGi R4.2](http://www.osgi.org/Download/Release4V42), no newer features must be used.
 1. For logging, slf4j (v1.7.2) is used.
 1. A few common utility libraries are available that every Eclipse SmartHome based solution has to provide and which can be used throughout the code (and which are made available in the target platform):

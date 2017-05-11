@@ -14,7 +14,6 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Switch;
@@ -73,17 +72,11 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         String snippet = getSnippet(snippetName);
         State state = itemUIRegistry.getState(w);
-        String value = getValue(w);
 
         snippet = preprocessSnippet(snippet, w);
-        snippet = StringUtils.replace(snippet, "%value%", value);
-        snippet = StringUtils.replace(snippet, "%has_value%", new Boolean(value != "").toString());
         snippet = StringUtils.replace(snippet, "%count%", Integer.toString(s.getMappings().size()));
 
         if (s.getMappings().size() == 0) {
-            if (state instanceof PercentType) {
-                state = ((PercentType) state).intValue() > 0 ? OnOffType.ON : OnOffType.OFF;
-            }
             if (state.equals(OnOffType.ON)) {
                 snippet = snippet.replaceAll("%checked%", "checked=true");
             } else {

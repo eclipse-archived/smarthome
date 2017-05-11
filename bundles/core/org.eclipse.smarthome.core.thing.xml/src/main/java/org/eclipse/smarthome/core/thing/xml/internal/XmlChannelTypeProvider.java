@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
@@ -29,6 +27,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * {@link XmlChannelTypeProvider} provides channel types from XML files.
@@ -36,6 +36,7 @@ import org.osgi.framework.Bundle;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - fixed concurrency issues
  */
+@Component(immediate = true, property = { "esh.scope=core.xml" })
 public class XmlChannelTypeProvider implements ChannelTypeProvider {
 
     private class LocalizedChannelTypeKey {
@@ -222,12 +223,11 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
         }
     }
 
-    @Bind
+    @Reference
     public void setI18nProvider(I18nProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
     }
 
-    @Unbind
     public void unsetI18nProvider(I18nProvider i18nProvider) {
         this.thingTypeI18nUtil = null;
     }

@@ -59,12 +59,18 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
+import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
+import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -91,11 +97,13 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector and
  *         refactored create and update methods
- * @author Thomas Höfer - added validation of configuration
+ * @author Thomas Höfer - added validation of configuration and localization of thing status
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
- * @author Chris Jackson - added channel configuration updates
- *         return empty set for config/status if no status available
+ * @author Chris Jackson - added channel configuration updates,
+ *         return empty set for config/status if no status available,
+ *         add editable flag to thing responses
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -116,6 +124,8 @@ public class ThingResource implements SatisfiableRESTResource {
     private ConfigStatusService configStatusService;
     private ConfigDescriptionRegistry configDescRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
+    private FirmwareUpdateService firmwareUpdateService;
 
     @Context
     private UriInfo uriInfo;
@@ -130,7 +140,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new thing and adds it to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created"),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = String.class),
             @ApiResponse(code = 400, message = "A uid must be provided, if no binding can create a thing of this type."),
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
@@ -198,7 +208,8 @@ public class ThingResource implements SatisfiableRESTResource {
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available things.", response = EnrichedThingDTO.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = EnrichedThingDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
 
@@ -212,7 +223,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing by UID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ThingDTO.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getByUID(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID) {
@@ -241,7 +252,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}/channels/{channelId}/link")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 403, message = "Channel is not linkable for the thing, as it is not of kind 'state'!"),
             @ApiResponse(code = 404, message = "Thing not found or channel not found.") })
     public Response link(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
@@ -300,8 +311,7 @@ public class ThingResource implements SatisfiableRESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK, was deleted."),
             @ApiResponse(code = 202, message = "ACCEPTED for asynchronous deletion."),
             @ApiResponse(code = 404, message = "Thing not found."),
-            @ApiResponse(code = 409, message = "CONFLICT, Thing could not be deleted because it's not managed."),
-            @ApiResponse(code = 500, message = "Thing could not be deleted for unknown reasons.") })
+            @ApiResponse(code = 409, message = "Thing could not be deleted because it's not editable.") })
     public Response remove(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
@@ -324,7 +334,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP DELETE request for update at '{}' for an unmanaged thing '{}'.",
                     uriInfo.getPath(), thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot delete Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot delete Thing " + thingUID + " as it is not editable.");
         }
 
         // only move on if Thing is known to be managed, so it can get updated
@@ -388,9 +398,9 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates a thing.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ThingDTO.class),
             @ApiResponse(code = 404, message = "Thing not found."),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
+            @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
     public Response update(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @ApiParam(value = "thing", required = true) ThingDTO thingBean) throws IOException {
@@ -413,7 +423,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP PUT request for update at '{}' for an unmanaged thing '{}'.", uriInfo.getPath(),
                     thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot update Thing " + thingUID + " as it is not editable.");
         }
 
         // check configuration
@@ -445,14 +455,14 @@ public class ThingResource implements SatisfiableRESTResource {
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates thing's configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Thing.class),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
             @ApiResponse(code = 404, message = "Thing not found"),
-            @ApiResponse(code = 409, message = "Thing could not be updated. Maybe it is not managed.") })
+            @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -472,7 +482,7 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.info("Received HTTP PUT request for update configuration at '{}' for an unmanaged thing '{}'.",
                     uriInfo.getPath(), thingUID);
             return getThingResponse(Status.CONFLICT, thing, locale,
-                    "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
+                    "Cannot update Thing " + thingUID + " as it is not editable.");
         }
 
         // only move on if Thing is known to be managed, so it can get updated
@@ -487,10 +497,10 @@ public class ThingResource implements SatisfiableRESTResource {
             logger.debug("Config description validation exception occurred for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
-        } catch (IllegalArgumentException ex) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
-                    uriInfo.getPath(), thingUID);
-            return getThingNotFoundResponse(thingUID);
+        } catch (Exception ex) {
+            logger.error("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
+                    uriInfo.getPath(), thingUID, ex.getMessage());
+            return JSONResponse.createResponse(Status.INTERNAL_SERVER_ERROR, null, ex.getMessage());
         }
 
         return getThingResponse(Status.OK, thing, locale, null);
@@ -498,9 +508,32 @@ public class ThingResource implements SatisfiableRESTResource {
 
     @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
+    @Path("/{thingUID}/status")
+    @ApiOperation(value = "Gets thing's status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response getStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        // Check if the Thing exists, 404 if not
+        Thing thing = thingRegistry.get(thingUIDObject);
+        if (null == thing) {
+            logger.info("Received HTTP GET request for thing config status at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
+        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                LocaleUtil.getLocale(language));
+        return Response.ok().entity(thingStatusInfo).build();
+    }
+
+    @GET
+    @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/config/status")
     @ApiOperation(value = "Gets thing's config status.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
@@ -519,6 +552,67 @@ public class ThingResource implements SatisfiableRESTResource {
             return Response.ok().entity(info.getConfigStatusMessages()).build();
         }
         return Response.ok().entity(Collections.EMPTY_SET).build();
+    }
+
+    @PUT
+    @Path("/{thingUID}/firmware/{firmwareVersion}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Update thing firmware.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Firmware update preconditions not satisfied."),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response updateFirmware(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
+            @PathParam("firmwareVersion") @ApiParam(value = "version") String firmwareVersion) throws IOException {
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
+        if (thing == null) {
+            return getThingNotFoundResponse(thingUID);
+        }
+
+        FirmwareUID firmwareUID = new FirmwareUID(thing.getThingTypeUID(), firmwareVersion);
+
+        try {
+            firmwareUpdateService.updateFirmware(thing.getUID(), firmwareUID, LocaleUtil.getLocale(language));
+        } catch (IllegalArgumentException | NullPointerException | IllegalStateException ex) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
+                    "Firmware update preconditions not satisfied.");
+        }
+
+        return Response.status(Status.OK).build();
+    }
+
+    @GET
+    @Path("/{thingUID}/firmware/status")
+    @ApiOperation(value = "Gets thing's firmware status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Firmware status info not found.") })
+    public Response getFirmwareStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUIDObject);
+        if (info == null) {
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Firmware status info not found.");
+        }
+
+        return Response.ok().entity(buildFirmwareStatusDTO(info)).build();
+    }
+
+    private FirmwareStatusDTO getThingFirmwareStatus(ThingUID thingUID) {
+        FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUID);
+        if (info != null) {
+            return buildFirmwareStatusDTO(info);
+        }
+
+        return null;
+    }
+
+    private FirmwareStatusDTO buildFirmwareStatusDTO(FirmwareStatusInfo info) {
+        String updatableFirmwareVersion = info.getUpdatableFirmwareUID() == null ? null
+                : info.getUpdatableFirmwareUID().getFirmwareVersion();
+
+        return new FirmwareStatusDTO(info.getFirmwareStatus().name(), updatableFirmwareVersion);
     }
 
     /**
@@ -541,9 +635,13 @@ public class ThingResource implements SatisfiableRESTResource {
      * @return Response
      */
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
-        Object entity = null != thing
-                ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale, getLinkedItemsMap(thing)) : null;
-        return JSONResponse.createResponse(status, entity, errormessage);
+        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                locale);
+        boolean managed = managedThingProvider.get(thing.getUID()) != null;
+        EnrichedThingDTO enrichedThingDTO = thing != null ? EnrichedThingDTOMapper.map(thing, thingStatusInfo,
+                this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing), managed) : null;
+
+        return JSONResponse.createResponse(status, enrichedThingDTO, errormessage);
     }
 
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
@@ -610,13 +708,27 @@ public class ThingResource implements SatisfiableRESTResource {
         this.configStatusService = null;
     }
 
+    protected void setThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
+    }
+
+    protected void unsetThingStatusInfoI18nLocalizationService(
+            ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
+        this.thingStatusInfoI18nLocalizationService = null;
+    }
+
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
-                    getLinkedItemsMap(thing));
+            boolean managed = managedThingProvider.get(thing.getUID()) != null;
+            ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                    locale);
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo,
+                    this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing), managed);
             thingBeans.add(thingBean);
         }
+
         return thingBeans;
     }
 
@@ -672,6 +784,14 @@ public class ThingResource implements SatisfiableRESTResource {
         this.thingTypeRegistry = null;
     }
 
+    protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
+        this.firmwareUpdateService = firmwareUpdateService;
+    }
+
+    protected void unsetFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
+        this.firmwareUpdateService = null;
+    }
+
     private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ThingTypeUID thingTypeUID,
             ThingUID thingUID) {
         if (properties == null || properties.isEmpty()) {
@@ -713,8 +833,8 @@ public class ThingResource implements SatisfiableRESTResource {
         return itemChannelLinkRegistry != null && itemFactory != null && itemRegistry != null
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
-                && thingTypeRegistry != null;
-
+                && thingTypeRegistry != null && firmwareUpdateService != null
+                && thingStatusInfoI18nLocalizationService != null;
     }
 
 }

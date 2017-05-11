@@ -23,9 +23,10 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
+ org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.eclipse.smarthome.config.xml.internal.Activator
 Export-Package: com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,
  com.thoughtworks.xstream.converters,
@@ -42,3 +43,4 @@ Export-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.config.xml.util
 Bundle-ClassPath: lib/xstream-1.4.7.jar,
  .
+Service-Component: OSGI-INF/*.xml
