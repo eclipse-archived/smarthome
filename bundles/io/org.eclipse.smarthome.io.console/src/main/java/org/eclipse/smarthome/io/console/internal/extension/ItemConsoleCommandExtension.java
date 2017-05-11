@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.console.Console;
@@ -31,6 +32,8 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
+    private static final String SUBCMD_ADDTAG = "addTag";
+    private static final String SUBCMD_REMTAG = "remTag";
 
     private ItemRegistry itemRegistry;
 
@@ -44,7 +47,9 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                 buildCommandUsage(SUBCMD_LIST + " [<pattern>]",
                         "lists names and types of all items (matching the pattern, if given)"),
                 buildCommandUsage(SUBCMD_CLEAR, "removes all items"),
-                buildCommandUsage(SUBCMD_REMOVE + " <itemName>", "removes the given item") });
+                buildCommandUsage(SUBCMD_REMOVE + " <itemName>", "removes the given item"),
+                buildCommandUsage(SUBCMD_ADDTAG + " <itemName> <tag>", "adds a tag to the given item"),
+                buildCommandUsage(SUBCMD_REMTAG + " <itemName> <tag>", "removes a tag from the given item") });
     }
 
     @Override
@@ -68,6 +73,22 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                                 + SUBCMD_REMOVE + " <itemName>");
                     }
                     break;
+                case SUBCMD_ADDTAG:
+                    if (args.length > 2) {
+                        addTag(args[1], args[2], console);
+                    } else {
+                        console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
+                                + SUBCMD_ADDTAG + " <itemName> <tag>");
+                    }
+                    break;
+                case SUBCMD_REMTAG:
+                    if (args.length > 2) {
+                        removeTag(args[1], args[2], console);
+                    } else {
+                        console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
+                                + SUBCMD_REMTAG + " <itemName> <tag>");
+                    }
+                    break;
                 default:
                     console.println("Unknown command '" + subCommand + "'");
                     printUsage(console);
@@ -75,6 +96,42 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
             }
         } else {
             listItems(console, "*");
+        }
+    }
+
+    private void removeTag(String itemName, String tag, Console console) {
+        Item item = itemRegistry.get(itemName);
+        if (item instanceof GenericItem) {
+            GenericItem gItem = (GenericItem) item;
+            gItem.removeTag(tag);
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem == null) {
+                console.println("Error: Cannot remove tag " + tag + " from item " + itemName
+                        + " because this item does not belong to a ManagedProvider");
+            } else {
+                console.println("Successfully removed tag " + tag + " from item " + itemName);
+            }
+        } else {
+            console.println(
+                    "Error: Cannot remove tag " + tag + " from item " + itemName + " because it is not a GenericItem");
+        }
+    }
+
+    private void addTag(String itemName, String tag, Console console) {
+        Item item = itemRegistry.get(itemName);
+        if (item instanceof GenericItem) {
+            GenericItem gItem = (GenericItem) item;
+            gItem.addTag(tag);
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem == null) {
+                console.println("Error: Cannot add tag " + tag + " to item " + itemName
+                        + " because this item does not belong to a ManagedProvider");
+            } else {
+                console.println("Successfully added tag " + tag + " to item " + itemName);
+            }
+        } else {
+            console.println(
+                    "Error: Cannot add tag " + tag + " to item " + itemName + " because it is not a GenericItem");
         }
     }
 
