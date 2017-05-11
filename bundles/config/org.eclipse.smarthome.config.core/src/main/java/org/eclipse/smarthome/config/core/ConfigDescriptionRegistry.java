@@ -227,7 +227,8 @@ public class ConfigDescriptionRegistry {
                     parameter.isReadOnly(), parameter.isMultiple(), parameter.getContext(), parameter.getDefault(),
                     parameter.getLabel(), parameter.getDescription(), options, parameter.getFilterCriteria(),
                     parameter.getGroupName(), parameter.isAdvanced(), parameter.getLimitToOptions(),
-                    parameter.getMultipleLimit(), parameter.getUnit(), parameter.getUnitLabel());
+                    parameter.getMultipleLimit(), parameter.getUnit(), parameter.getUnitLabel(),
+                    parameter.isVerifyable());
         } else {
             // Otherwise return the original parameter
             return parameter;

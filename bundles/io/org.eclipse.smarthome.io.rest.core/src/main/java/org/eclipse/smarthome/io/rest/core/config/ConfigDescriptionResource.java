@@ -45,6 +45,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Chris Jackson - Modify response to use JSONResponse
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
@@ -66,7 +67,7 @@ public class ConfigDescriptionResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available config descriptions.", response = ConfigDescriptionDTO.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class, responseContainer = "List"))
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
         Iterable<ConfigDescriptionDTO> transform = Iterables
@@ -78,7 +79,7 @@ public class ConfigDescriptionResource implements SatisfiableRESTResource {
     @Path("/{uri}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets a config description by URI.", response = ConfigDescriptionDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class),
             @ApiResponse(code = 400, message = "Invalid URI syntax"), @ApiResponse(code = 404, message = "Not found") })
     public Response getByURI(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language,
             @PathParam("uri") @ApiParam(value = "uri") String uri) {

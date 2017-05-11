@@ -199,6 +199,17 @@ section#main.header-tabs {
 	background-color: green;
 }
 
+.badge.grey {
+}
+
+.badge.orange {
+	background-color: orange;
+}
+
+.badge.blue {
+	background-color: blue;
+}
+
 .badge {
 	vertical-align: bottom;
 }

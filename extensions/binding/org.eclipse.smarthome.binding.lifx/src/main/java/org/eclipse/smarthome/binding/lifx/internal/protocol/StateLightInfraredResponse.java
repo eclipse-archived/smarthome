@@ -19,7 +19,7 @@ public class StateLightInfraredResponse extends Packet {
 
     public static final int TYPE = 0x79;
 
-    public static final Field<Integer> FIELD_STATE = new UInt16Field();
+    public static final Field<Integer> FIELD_STATE = new UInt16Field().little();
 
     private int infrared;
 

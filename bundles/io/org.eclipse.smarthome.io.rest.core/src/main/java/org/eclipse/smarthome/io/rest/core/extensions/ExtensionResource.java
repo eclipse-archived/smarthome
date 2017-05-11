@@ -56,6 +56,7 @@ import io.swagger.annotations.ApiResponses;
  * This class acts as a REST resource for extensions and provides methods to install and uninstall them.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
@@ -94,7 +95,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extensions.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public List<Extension> getExtensions(
             @HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
@@ -106,7 +107,7 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @Path("/types")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extension types.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Set<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
@@ -117,7 +118,8 @@ public class ExtensionResource implements SatisfiableRESTResource {
     @Path("/{extensionId: [a-zA-Z_0-9-]*}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get extension with given ID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 404, message = "Not found") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 404, message = "Not found") })
     public Response getById(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());

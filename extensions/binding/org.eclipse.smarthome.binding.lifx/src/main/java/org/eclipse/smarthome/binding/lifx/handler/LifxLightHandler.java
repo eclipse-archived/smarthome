@@ -29,10 +29,13 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiInfoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -160,6 +163,12 @@ public class LifxLightHandler extends BaseThingHandler {
             super.setInfrared(infrared);
         }
 
+        @Override
+        public void setSignalStrength(SignalStrength signalStrength) {
+            updateStateIfChanged(CHANNEL_SIGNAL_STRENGTH, new DecimalType(signalStrength.toQualityRating()));
+            super.setSignalStrength(signalStrength);
+        }
+
         private void updateZoneChannels(PowerState powerState, HSBK[] colors) {
             if (!product.isMultiZone() || colors == null || colors.length == 0) {
                 return;
@@ -191,7 +200,7 @@ public class LifxLightHandler extends BaseThingHandler {
         try {
             lock.lock();
 
-            product = Products.getLikelyProduct(getThing().getThingTypeUID());
+            product = getProduct();
             macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
             macAsHex = this.macAddress.getHex();
 
@@ -215,6 +224,7 @@ public class LifxLightHandler extends BaseThingHandler {
             currentStateUpdater.start();
             onlineStateUpdater.start();
             lightStateChanger.start();
+            startOrStopSignalStrengthUpdates();
         } catch (Exception e) {
             logger.debug("Error occurred while initializing LIFX handler: {}", e.getMessage(), e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
@@ -289,6 +299,16 @@ public class LifxLightHandler extends BaseThingHandler {
         return powerOnBrightness == null ? null : new PercentType(powerOnBrightness.toString());
     }
 
+    private Products getProduct() {
+        String propertyValue = getThing().getProperties().get(LifxBindingConstants.PROPERTY_PRODUCT_ID);
+        try {
+            long productID = Long.parseLong(propertyValue);
+            return Products.getProductFromProductID(productID);
+        } catch (IllegalArgumentException e) {
+            return Products.getLikelyProduct(getThing().getThingTypeUID());
+        }
+    }
+
     private void addRemoveZoneChannels(int zones) {
         List<Channel> newChannels = new ArrayList<Channel>();
 
@@ -307,6 +327,25 @@ public class LifxLightHandler extends BaseThingHandler {
         }
 
         updateThing(editThing().withChannels(newChannels).build());
+
+        Map<String, String> properties = editProperties();
+        properties.put(LifxBindingConstants.PROPERTY_ZONES, Integer.toString(zones));
+        updateProperties(properties);
+    }
+
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        super.channelLinked(channelUID);
+        startOrStopSignalStrengthUpdates();
+    }
+
+    @Override
+    public void channelUnlinked(ChannelUID channelUID) {
+        startOrStopSignalStrengthUpdates();
+    }
+
+    private void startOrStopSignalStrengthUpdates() {
+        currentStateUpdater.setUpdateSignalStrength(isLinked(CHANNEL_SIGNAL_STRENGTH));
     }
 
     private void sendPacket(Packet packet) {
@@ -329,6 +368,9 @@ public class LifxLightHandler extends BaseThingHandler {
                         break;
                     case CHANNEL_INFRARED:
                         sendPacket(new GetLightInfraredRequest());
+                        break;
+                    case CHANNEL_SIGNAL_STRENGTH:
+                        sendPacket(new GetWifiInfoRequest());
                         break;
                     default:
                         break;
@@ -430,11 +472,17 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
-        getLightStateForCommand().setTemperature(temperature);
+        HSBK newColor = getLightStateForCommand().getNullSafeColor();
+        newColor.setSaturation(PercentType.ZERO);
+        newColor.setTemperature(temperature);
+        getLightStateForCommand().setColor(newColor);
     }
 
     private void handleTemperatureCommand(PercentType temperature, int zoneIndex) {
-        getLightStateForCommand().setTemperature(temperature, zoneIndex);
+        HSBK newColor = getLightStateForCommand().getNullSafeColor(zoneIndex);
+        newColor.setSaturation(PercentType.ZERO);
+        newColor.setTemperature(temperature);
+        getLightStateForCommand().setColor(newColor, zoneIndex);
     }
 
     private void handleHSBCommand(HSBType hsb) {

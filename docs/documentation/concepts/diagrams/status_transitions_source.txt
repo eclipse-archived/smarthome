@@ -13,10 +13,12 @@ INITIALIZING -left-> UNINITIALIZED
 INITIALIZING -right-> initialized
 
 state initialized {
+ ONLINE -right-> OFFLINE
+ ONLINE --> UNKNOWN
+ OFFLINE -left-> ONLINE
+ OFFLINE --> UNKNOWN
  UNKNOWN --> ONLINE
  UNKNOWN --> OFFLINE
- ONLINE --> OFFLINE
- OFFLINE --> ONLINE
 }
 
 initialized -left-> UNINITIALIZED

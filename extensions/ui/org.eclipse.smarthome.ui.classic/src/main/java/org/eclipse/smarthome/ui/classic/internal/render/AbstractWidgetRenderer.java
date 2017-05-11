@@ -110,20 +110,44 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return the label to use for the widget
      */
     public String getLabel(Widget w) {
+        return getLabel(w, null);
+    }
+
+    /**
+     * Retrieves the label for a widget and formats it for the WebApp.Net framework
+     *
+     * @param w the widget to retrieve the label for
+     * @param preferredValue the value to consider in place of the value between [ and ] if not null
+     * @return the label to use for the widget
+     */
+    public String getLabel(Widget w, String preferredValue) {
 
         String label = itemUIRegistry.getLabel(w);
         int index = label.indexOf('[');
+        int index2 = label.lastIndexOf(']');
 
-        if (index != -1) {
-            label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label.substring(0, index) + "</span>"
-                    + label.substring(index);
-            // insert the span between the left and right side of the label, if state section exists
-            label = label.replaceAll("\\[", "<span class=\"iValue\" style=\"%valuestyle%\">").replaceAll("\\]",
-                    "</span>");
+        if (index != -1 && index2 != -1) {
+            label = formatLabel(label.substring(0, index).trim(),
+                    (preferredValue == null) ? label.substring(index + 1, index2) : preferredValue);
         } else {
-            label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label + "</span>";
+            label = formatLabel(label, null);
         }
 
+        return label;
+    }
+
+    /**
+     * Formats the widget label for the WebApp.Net framework
+     *
+     * @param left the left part of the label
+     * @param right the right part of the label; null if no right part to consider
+     * @return the label to use for the widget
+     */
+    private String formatLabel(String left, String right) {
+        String label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + left + "</span>";
+        if (right != null) {
+            label += "<span class=\"iValue\" style=\"%valuestyle%\">" + right + "</span>";
+        }
         return label;
     }
 

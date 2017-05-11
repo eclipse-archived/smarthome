@@ -2,6 +2,11 @@
   "name": "org.eclipse.smarthome.ui.paperui",
   "version": "0.9.0",
   "private": true,
+  "scripts": {
+    "start": "gulp serve --development",
+    "build": "gulp default",
+    "test": "gulp test"
+  },
   "dependencies": {
     "angular": "1.4.8",
     "angular-animate": "1.4.8",
@@ -37,6 +42,8 @@
     "node": ">=0.12.3"
   },
   "devDependencies": {
+    "angular-mocks": "1.4.8",
+    "jasmine-core": "^2.5.2",
     "karma": "^1.1.0",
     "karma-angular": "0.0.6",
     "karma-jasmine": "^1.0.2",

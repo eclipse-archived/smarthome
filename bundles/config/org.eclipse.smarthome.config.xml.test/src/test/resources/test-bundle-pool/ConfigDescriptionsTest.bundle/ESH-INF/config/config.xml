@@ -41,6 +41,7 @@
 			<context>password</context>
 			<label>Password</label>
 			<required>true</required><!-- deprecated -->
+			<verify>true</verify>
 		</parameter>
 		
 		<!-- a static selection list allowing multiple selections with min 2 max 3 items -->
