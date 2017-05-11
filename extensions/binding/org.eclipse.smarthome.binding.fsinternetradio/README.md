@@ -9,6 +9,7 @@ Successfully tested are internet radios
  * [Medion MD87180](http://internetradio.medion.com/)
  * [MEDION MD86988](http://internetradio.medion.com/)
  * [Roberts Stream 93i](https://www.robertsradio.com/uk/products/radio/smart-radio/stream-93i)
+ * [auna Connect 150](http://www.auna.de/HiFi-Geraete/Radios/Internetradios/auna-Connect-150-BK-2-1-Internetradio-Mediaplayer-schwarz.html)
 
 But in principle, all internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/) should be supported because they share the same API.
 
