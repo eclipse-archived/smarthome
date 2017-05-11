@@ -322,6 +322,23 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             }
         }
     };
+}).directive('overflown', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            setTimeout(function() {
+                if (element.innerWidth() < element[0].children[0].scrollWidth) {
+                    $(element[0].children[0]).addClass('reducedWidth');
+                } else {
+                    $(element[0].children[1]).addClass('hidden');
+                }
+            });
+            element[0].children[1].addEventListener('click', function(event) {
+                element.toggleClass('nowrap');
+                element[0].children[1].innerText = event.target.innerText == "more" ? "less" : "more";
+            });
+        }
+    };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
     var original = $location.path;
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {

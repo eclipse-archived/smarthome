@@ -11,8 +11,7 @@
 								<div ng-switch-when="input">
 									<div ng-if="(parameter.type=='INTEGER' || parameter.type=='DECIMAL')">
 										<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-										<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer">
-										    <input ng-init="focus=false" ng-pattern="parameter.pattern" name="{{parameter.name}}" ng-readonly="parameter.readOnly" type="number" min="{{parameter.min}}" max="{{parameter.max}}" step="{{parameter.stepsize}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+										<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer no-animation"> <input ng-init="focus=false" ng-pattern="parameter.pattern" name="{{parameter.name}}" ng-readonly="parameter.readOnly" type="number" min="{{parameter.min}}" max="{{parameter.max}}" step="{{parameter.stepsize}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 										<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 											<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
 											<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
@@ -20,15 +19,14 @@
 											<div ng-message="required">Field is required</div>
 										</div>
 										<span>
-											<p class="hint" ng-class="{'invisible':focus}">
-												<small ng-bind-html="parameter.description"></small>
+											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 											</p>
 										</span> </md-input-container>
 									</div>
 									<div ng-if="parameter.type=='TEXT'">
 										<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-										<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer">
-										    <input ng-init="focus=false" ng-pattern="parameter.pattern" name="{{parameter.name}}" ng-readonly="parameter.readOnly" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+										<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer no-animation"> <input ng-init="focus=false" ng-pattern="parameter.pattern" name="{{parameter.name}}" ng-readonly="parameter.readOnly" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 										<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 											<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
 											<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
@@ -36,22 +34,22 @@
 											<div ng-message="required">Field is required</div>
 										</div>
 										<span>
-											<p class="hint" ng-class="{'invisible':focus}">
-												<small ng-bind-html="parameter.description"></small>
+											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 											</p>
 										</span> </md-input-container>
 									</div>
 								</div>
 								<div ng-switch-when="switch" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<md-switch class="md-default-theme" ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
-									<p class="hint">
-										<small ng-bind-html="parameter.description"></small>
+									<p class="hint nowrap" overflown>
+										<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 									</p>
 								</div>
 								<div ng-switch-when="select" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
 
-									<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options" ng-finish-render> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'|| parameter.context=='rule'">
+									<md-input-container class="col-xs-12 configContainer no-animation"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options" ng-finish-render> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing' || parameter.context=='channel'|| parameter.context=='rule'">
 										{{ option.label?option.label:option.name }}
 										<span class="md-caption" style="color: grey;">({{ option.name?option.name: parameter.context=='thing'?option.UID:parameter.context=='channel'?option.id:'' }}) </span>
 									</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
@@ -59,8 +57,8 @@
 										<div ng-message="required">Field is required</div>
 									</div>
 									<span>
-										<p class="hint" ng-class="{'invisible':focus}">
-											<small ng-bind-html="parameter.description"></small>
+										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 										</p>
 									</span></md-input-container>
 								</div>
@@ -70,7 +68,6 @@
 										<dt class="col-xs-12">
 											<a ng-click="openDropdown($event)" ng-model="configuration[parameter.name]" select-validation="{{parameter.required}}">
 												<input class="multiSel" type="{{parameter.inputType}}" placeholder="{{getPlaceHolderText(configuration,parameter)}}" value="" ng-model="parameter.filterText" ng-keypress="onEnterPress($event)" />
-
 												<i ng-if="parameter.multiple && !parameter.limitToOptions" class="material-icons pull-right" ng-click="addItemToList($event)" ng-class="{'enableColor':filterText.length>0}">add</i>
 											</a>
 										</dt>
@@ -88,8 +85,8 @@
 
 									</dl>
 									<span>
-										<p class="hint" ng-class="{'invisible':focus}">
-											<small ng-bind-html="parameter.description"></small>
+										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 										</p>
 									</span>
 								</div>
@@ -101,8 +98,8 @@
 											<div ng-message="required" class="customMessage">Field is required</div>
 										</div>
 										<span>
-											<p class="hint" ng-class="{'invisible':focus}">
-												<small ng-bind-html="parameter.description"></small>
+											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 											</p>
 										</span>
 									</div>
@@ -110,15 +107,14 @@
 								<div ng-switch-when="color" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-11 configContainer" style="padding-right:0px">
-									    <input color-select ng-init="focus=false" name="{{parameter.name}}" ng-readonly="parameter.readOnly" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-11 configContainer" style="padding-right:0px"> <input color-select ng-init="focus=false" name="{{parameter.name}}" ng-readonly="parameter.readOnly" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>
 									<span>
-										<p class="hint" ng-class="{'invisible':focus}">
-											<small ng-bind-html="parameter.description"></small>
+										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 										</p>
 									</span> </md-input-container>
 									<div style="float: left;">
@@ -136,8 +132,8 @@
 										<p ng-message="required" class="customMessage">Field is required</p>
 									</div>
 									<span>
-										<p class="hint noMargin" ng-class="{'invisible':focus}">
-											<small ng-bind-html="parameter.description"></small>
+										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 										</p>
 									</span>
 								</div>
@@ -163,8 +159,8 @@
 									<button value="SUN" class="md-button dow-button">S</button>
 								</div>
 								<span>
-									<p class="hint noMargin">
-										<small ng-bind-html="parameter.description"></small>
+									<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
+										<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
 									</p>
 								</span>
 							</div>
