@@ -610,9 +610,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-top: 0px;
 }
 
-.parameter>div {
-	max-height: 110px;
-}
 .parameter {
     min-height: 110px;
 }
