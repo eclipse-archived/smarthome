@@ -180,8 +180,16 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
                     HostFragmentMappingUtil.fillHostFragmentMapping(hosts);
                 }
             } else {
-                addEvent(bundle, event);
                 HostFragmentMappingUtil.fillHostFragmentMapping(bundle);
+                addEvent(bundle, event);
+            }
+        } else if (!HostFragmentMappingUtil.isFragmentBundle(bundle)) {
+            List<Bundle> fragments = HostFragmentMappingUtil.fillHostFragmentMapping(bundle);
+            for (Bundle fragment : fragments) {
+                if (isAnAutomationProvider(fragment)) {
+                    addEvent(bundle, event);
+                    break;
+                }
             }
         }
         return bundle;
@@ -276,7 +284,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      *         resources, <tt>false</tt> otherwise.
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
-        return bundle.findEntries(AbstractResourceBundleProvider.PATH, null, false) != null;
+        return bundle.getEntryPaths(AbstractResourceBundleProvider.PATH) != null;
     }
 
 }
