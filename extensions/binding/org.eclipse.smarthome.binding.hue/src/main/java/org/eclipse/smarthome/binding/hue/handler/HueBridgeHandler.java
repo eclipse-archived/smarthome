@@ -504,8 +504,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         // Check whether an IP address is provided
         if (bridgeIpAddress == null || bridgeIpAddress.isEmpty()) {
             configStatusMessages = Collections.singletonList(ConfigStatusMessage.Builder.error(HOST)
-                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
-                    .build());
+                    .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING).withArguments(HOST).build());
         } else {
             configStatusMessages = Collections.emptyList();
         }

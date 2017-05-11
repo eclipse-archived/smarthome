@@ -209,7 +209,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING).withArguments(HOST)
                 .build()
 
         waitForAssert {
@@ -230,7 +230,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING).withArguments(HOST)
                 .build()
 
         waitForAssert {
