@@ -31,9 +31,9 @@ firmwareControllers.controller('FirmwareController', function($scope, $mdDialog,
 
     refreshFirmwareStatus(thingUID);
 
-    $scope.updateFirmware = function(version) {
+    $scope.installFirmware = function(version) {
         if (!$scope.updatingFirmware) {
-            thingService.update({
+            thingService.installFirmware({
                 thingUID : thingUID,
                 firmwareVersion : version
             }, function() {

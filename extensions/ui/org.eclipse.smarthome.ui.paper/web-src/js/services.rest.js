@@ -320,7 +320,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             },
             url : restConfig.restPath + '/things/:thingUID/firmware/status',
         },
-        update : {
+        installFirmware : {
             method : 'PUT',
             params : {
                 thingUID : '@thingUID',
