@@ -47,7 +47,7 @@ import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTOMapper;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ import io.swagger.annotations.ResponseHeader;
  */
 @Path("rules")
 @Api("rules")
-public class RuleResource implements SatisfiableRESTResource {
+public class RuleResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(RuleResource.class);
 
