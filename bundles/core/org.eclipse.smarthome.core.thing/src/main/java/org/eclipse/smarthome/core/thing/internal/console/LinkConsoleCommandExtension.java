@@ -68,20 +68,20 @@ public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension
                     clear(console);
                     return;
                 default:
+                    console.println("Unknown command '" + subCommand + "'");
+                    printUsage(console);
                     break;
             }
         } else {
-            list(console, itemChannelLinkRegistry.getAll());
+            printUsage(console);
         }
     }
 
     @Override
     public List<String> getUsages() {
-        return Arrays
-                .asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all links"),
-                        buildCommandUsage(SUBCMD_CL_ADD + " <itemName> <channelUID>", "links an item with a channel"),
-                        buildCommandUsage(SUBCMD_CL_REMOVE + " <itemName> <thingUID>",
-                                "unlinks an item with a channel"),
+        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all links"),
+                buildCommandUsage(SUBCMD_CL_ADD + " <itemName> <channelUID>", "links an item with a channel"),
+                buildCommandUsage(SUBCMD_CL_REMOVE + " <itemName> <thingUID>", "unlinks an item with a channel"),
                 buildCommandUsage(SUBCMD_CLEAR, "removes all managed links") });
     }
 
