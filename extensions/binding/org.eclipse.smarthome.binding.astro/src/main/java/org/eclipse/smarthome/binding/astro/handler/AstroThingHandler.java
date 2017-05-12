@@ -58,7 +58,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     private int linkedPositionalChannels = 0;
     protected AstroThingConfig thingConfig;
     private Object schedulerLock = new Object();
-    private static long refreshJobsDelay = 2000;
 
     public AstroThingHandler(Thing thing) {
         super(thing);
@@ -235,7 +234,7 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                     logger.error("{}", ex.getMessage(), ex);
                 }
             }
-        }, refreshJobsDelay , TimeUnit.MILLISECONDS);
+        }, 2000, TimeUnit.MILLISECONDS);
     }
 
     /**

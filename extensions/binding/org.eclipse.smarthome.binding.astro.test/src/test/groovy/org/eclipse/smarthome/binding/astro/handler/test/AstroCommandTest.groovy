@@ -11,6 +11,9 @@ package org.eclipse.smarthome.binding.astro.handler.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import org.eclipse.smarthome.binding.astro.AstroBindingConstants
+import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest
+import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest.AcceptedItemType
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -18,11 +21,8 @@ import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.types.RefreshType
-import org.eclipse.smarthome.core.types.State
+import org.junit.After
 import org.junit.Test
-import org.eclipse.smarthome.binding.astro.AstroBindingConstants
-import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest
-import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest.AcceptedItemType
 
 /**
  * OSGi test for the {@link AstroThingHandler}
@@ -30,12 +30,23 @@ import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest.AcceptedItemType
  * This class tests the commands for the astro thing.
  *
  * @author Petar Valchev - Initial Implementation
- * @author Svilen Valkanov - Added missing configuration parameters and replaced headers
+ * @author Svilen Valkanov - Added missing configuration parameters, replaced headers, use groovy for mocking
  *
  */
 class AstroCommandTest extends AstroOSGiTest {
+    
+    private final String expectedEventSource = "$AstroBindingConstants.BINDING_ID:$AstroBindingConstants.SUN:$TEST_SUN_THING_ID:$DEFAULT_TEST_CHANNEL_ID"
+    private boolean isEventReceived = false
+    
     // a listener for item state update events
-    private EventSubscriberMock eventSubscriberMock
+    private EventSubscriber eventSubscriberMock = [
+        receive: { Event event ->
+            if(event.getSource().equals(expectedEventSource)){
+                isEventReceived = true
+            }
+        }
+        
+    ] as AbstractItemEventSubscriber
 
     @Test
     public void 'refresh command updates the state of the channels'(){
@@ -45,33 +56,21 @@ class AstroCommandTest extends AstroOSGiTest {
         initialize(TEST_SUN_THING_ID, DEFAULT_TEST_CHANNEL_ID, AcceptedItemType.DATE_TIME, thingConfiguration)
 
         waitForAssert({
-            assertThat "The status of the thing $astroThing was not as expected",
-                    astroThing.getStatus(),
-                    is(equalTo(ThingStatus.ONLINE))
+            assertThat astroThing.getStatus(), is(equalTo(ThingStatus.ONLINE))
         })
 
-        eventSubscriberMock = new EventSubscriberMock()
         registerService(eventSubscriberMock, EventSubscriber.class.getName())
 
         ChannelUID testItemChannelUID = getChannelUID(DEFAULT_TEST_CHANNEL_ID)
 
         astroHandler.handleCommand(testItemChannelUID, RefreshType.REFRESH)
         waitForAssert({
-            assertThat "An event for update of channel was not received",
-                    eventSubscriberMock.isEventReceived,
-                    is(true)
+            assertThat isEventReceived, is(true)
         })
     }
 
-    private class EventSubscriberMock extends AbstractItemEventSubscriber{
-        public boolean isEventReceived = false
-
-        @Override
-        public void receive(Event event) {
-            String expectedEventSource = "$AstroBindingConstants.BINDING_ID:$AstroBindingConstants.SUN:$TEST_SUN_THING_ID:$DEFAULT_TEST_CHANNEL_ID".toString()
-            if(event.getSource().equals(expectedEventSource)){
-                isEventReceived = true
-            }
-        }
+    @After
+    public void tearDown(){
+        isEventReceived = false
     }
 }

@@ -68,8 +68,6 @@ class AstroOSGiTest extends OSGiTest {
     protected Thing astroThing
     protected GenericItem testItem
 
-    private static int refreshJobsDelay
-
     public enum AcceptedItemType{
         DATE_TIME("DateTime"), STRING("String"), NUMBER("Number");
 
@@ -82,12 +80,6 @@ class AstroOSGiTest extends OSGiTest {
         public String getAcceptedItemType(){
             return acceptedItemType
         }
-    }
-
-    @BeforeClass
-    public static void setUpClass(){
-        refreshJobsDelay = AstroThingHandler.refreshJobsDelay
-        AstroThingHandler.refreshJobsDelay = 0
     }
 
     @Before
@@ -115,23 +107,14 @@ class AstroOSGiTest extends OSGiTest {
     @After
     public void tearDown(){
         if(astroThing != null){
-            Thing removedThing = thingRegistry.forceRemove(astroThing.getUID())
-            assertThat("The sun thing was not deleted",
-                    removedThing,
-                    is(notNullValue()))
+            Thing removedThing = managedThingProvider.remove(astroThing.getUID())
+            assertThat removedThing, is(notNullValue())
         }
 
         if(testItem != null) {
             Item removedItem = itemRegistry.remove(TEST_ITEM_NAME)
-            assertThat("The thing cannot be deleted",
-                    removedItem,
-                    is(notNullValue()))
+            assertThat removedItem, is(notNullValue())
         }
-    }
-
-    @AfterClass
-    public static void tearDownClass(){
-        AstroThingHandler.refreshJobsDelay = refreshJobsDelay
     }
 
     protected ChannelUID getChannelUID(String channelId){
@@ -172,9 +155,7 @@ class AstroOSGiTest extends OSGiTest {
         initialize(thingID, channelID, acceptedItemType, thingConfiguration)
 
         waitForAssert({
-            assertThat "The status of the thing $astroThing was not as expected",
-                    astroThing.getStatus(),
-                    is(equalTo(expectedThingStatus))
+            assertThat astroThing.getStatus(), is(equalTo(expectedThingStatus))
         })
     }
 
@@ -218,9 +199,7 @@ class AstroOSGiTest extends OSGiTest {
             } else if(thingID.equals(TEST_MOON_THING_ID)){
                 astroHandler = astroThing.getHandler()
             }
-            assertThat "Could not get AstroHandler",
-                    astroHandler,
-                    is(notNullValue())
+            assertThat astroHandler, is(notNullValue())
         })
 
         if(acceptedItemType.equals(AcceptedItemType.DATE_TIME)){
@@ -236,9 +215,7 @@ class AstroOSGiTest extends OSGiTest {
 
         waitForAssert({
             itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
-            assertThat "Could not get ManagedItemChannelLinkProvider",
-                    itemChannelLinkProvider,
-                    is(notNullValue())
+            assertThat itemChannelLinkProvider, is(notNullValue())
         })
 
         itemChannelLinkProvider.add(new ItemChannelLink(TEST_ITEM_NAME, channelUID))

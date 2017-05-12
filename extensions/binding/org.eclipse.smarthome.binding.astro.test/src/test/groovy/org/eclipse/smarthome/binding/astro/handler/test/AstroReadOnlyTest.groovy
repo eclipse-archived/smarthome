@@ -52,8 +52,6 @@ class AstroReadOnlyTest extends AstroOSGiTest {
 
         State stateAfterUpdate = getItemState()
 
-        assertThat "The state of the item was not as expected",
-                stateAfterUpdate,
-                is(equalTo(stateBeforeUpdate))
+        assertThat stateAfterUpdate, is(equalTo(stateBeforeUpdate))
     }
 }
