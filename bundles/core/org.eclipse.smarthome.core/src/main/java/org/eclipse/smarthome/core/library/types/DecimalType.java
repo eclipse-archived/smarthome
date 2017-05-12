@@ -12,7 +12,6 @@ import java.util.IllegalFormatConversionException;
 
 import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -24,7 +23,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType>, Convertible {
+public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType> {
 
     private static final long serialVersionUID = 4226845847123464690L;
 

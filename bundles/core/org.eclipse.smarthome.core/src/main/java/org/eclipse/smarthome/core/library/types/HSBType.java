@@ -15,7 +15,6 @@ import java.util.TreeMap;
 import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
@@ -27,7 +26,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Added fromRGB
  *
  */
-public class HSBType extends PercentType implements ComplexType, State, Command, Convertible {
+public class HSBType extends PercentType implements ComplexType, State, Command {
 
     private static final long serialVersionUID = 322902950356613226L;
 
