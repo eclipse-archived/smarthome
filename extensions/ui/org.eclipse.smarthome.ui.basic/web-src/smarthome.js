@@ -314,6 +314,7 @@
 		_t.icon = _t.parentNode.parentNode.querySelector(o.formIcon);
 		_t.visible = !_t.formRow.classList.contains(o.formRowHidden);
 		_t.label = _t.parentNode.parentNode.querySelector(o.formLabel);
+		_t.labelValue = _t.parentNode.parentNode.querySelector(o.formLabelValue);
 
 		if (_t.icon !== null) {
 			_t.iconName = _t.icon.getAttribute(o.iconAttribute);
@@ -343,13 +344,26 @@
 			_t.visible = state;
 		};
 
-		_t.setValue = function(value, itemState) {
+		_t.setValue = function(value, itemState, label) {
 			_t.reloadIcon(itemState);
+			_t.setLabelValue(label);
 			if (suppress) {
 				suppress = false;
 			} else {
 				_t.setValuePrivate(value, itemState);
 			}
+		};
+
+		//extracts formated value in [] from a label
+		//set it only if a format with [] is defined
+		_t.setLabelValue = function(label) {
+			var value = "";
+			var pos1 = label.indexOf("[");
+			if(pos1 !== -1) {
+				var pos2 = label.indexOf("]");
+				value = label.substring(pos1+1,pos2);
+			}
+			_t.labelValue.innerText = value;
 		};
 
 		_t.setValuePrivate = function() {};
@@ -1667,7 +1681,7 @@
 						visibility: data.visibility
 					});
 				} else {
-					widget.setValue(value, data.item.state);
+					widget.setValue(value, data.item.state, data.label);
 					if (data.labelcolor !== undefined) {
 						widget.setLabelColor(data.labelcolor);
 					} else {
@@ -1923,6 +1937,7 @@
 	formRadioControl: ".mdl-radio__button",
 	formIcon: ".mdl-form__icon img",
 	formLabel: ".mdl-form__label",
+	formLabelValue: ".mdl-form__labelValue",
 	uiLoadingBar: ".ui__loading",
 	layoutTitle: ".mdl-layout-title",
 	layoutHeader: ".mdl-layout__header",
