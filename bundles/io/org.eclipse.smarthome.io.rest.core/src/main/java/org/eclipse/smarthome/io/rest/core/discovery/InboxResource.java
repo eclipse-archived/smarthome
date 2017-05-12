@@ -134,6 +134,13 @@ public class InboxResource implements SatisfiableRESTResource {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.IGNORED);
         return Response.ok().build();
     }
+    
+    @POST
+    @Path("/unignore/{thingUID}")
+    public Response unignore(@PathParam("thingUID") String thingUID) {
+        inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
+        return Response.ok().build();
+    }
 
     @POST
     @Path("/{thingUID}/unignore")
