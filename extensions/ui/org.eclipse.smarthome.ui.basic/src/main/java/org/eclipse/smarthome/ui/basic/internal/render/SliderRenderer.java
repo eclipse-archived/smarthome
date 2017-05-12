@@ -54,6 +54,7 @@ public class SliderRenderer extends AbstractWidgetRenderer {
         snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%frequency%", frequency);
         snippet = StringUtils.replace(snippet, "%switch%", s.isSwitchEnabled() ? "1" : "0");
+        snippet = StringUtils.replace(snippet, "%labelValue%", getValue(w));
 
         // Process the color tags
         snippet = processColor(w, snippet);
