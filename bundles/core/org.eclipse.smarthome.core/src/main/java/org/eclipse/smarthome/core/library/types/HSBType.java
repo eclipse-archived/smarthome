@@ -12,7 +12,6 @@ import java.math.RoundingMode;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -268,7 +267,12 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         } else if (target == PercentType.class) {
             return new PercentType(getBrightness().toBigDecimal());
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            // if the target is the same type return, otherwise give up
+            if (target != null && target.isInstance(this)) {
+                return this;
+            } else {
+                return null;
+            }
         }
     }
 }

@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -38,7 +37,7 @@ public enum OpenClosedType implements PrimitiveType, State, Command {
         } else if (target == PercentType.class) {
             return this == OPEN ? PercentType.HUNDRED : PercentType.ZERO;
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return State.super.as(target);
         }
     }
 

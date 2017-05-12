@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.util.IllegalFormatConversionException;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -168,7 +167,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             return new HSBType(DecimalType.ZERO, PercentType.ZERO,
                     new PercentType(this.toBigDecimal().multiply(BigDecimal.valueOf(100))));
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return State.super.as(target);
         }
     }
 
