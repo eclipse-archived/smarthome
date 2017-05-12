@@ -4,7 +4,7 @@
 
   <groupId>org.eclipse.smarthome.thirdpartyrepo</groupId>
   <artifactId>p2-site</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Eclipse SmartHome :: 3rd party reposiory :: p2 site</name>
@@ -93,6 +93,18 @@
                   <id>org.osgi:org.osgi.service.jdbc:jar:1.0.0</id>
                   <transitive>false</transitive>
                 </artifact>
+                <artifact>
+                  <id>de.maggu2810.libmatthew:hexdump:jar:1.0.0.a1</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <id>de.maggu2810.libmatthew:unix:jar:1.0.0.a1</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <id>de.maggu2810.dbus:dbus:jar:3.0.0.a1</id>
+                  <transitive>false</transitive>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
@@ -133,7 +145,16 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-
+    <repository>
+      <id>bintray-maggu2810-maven</id>
+      <url>https://dl.bintray.com/maggu2810/maven/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
 </project>
