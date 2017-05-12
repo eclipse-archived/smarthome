@@ -87,7 +87,13 @@ public class JsonStorage<T> implements Storage<T> {
 
         // If there was an error reading the file, then try one of the backup files
         if (inputMap == null) {
-            logger.info("Json storage file at '{}' was not read.", file.getAbsolutePath());
+            if (file.exists()) {
+                logger.info("Json storage file at '{}' seems to be corrupt - checking for a backup.",
+                        file.getAbsolutePath());
+            } else {
+                logger.debug("Json storage file at '{}' does not exist - checking for a backup.",
+                        file.getAbsolutePath());
+            }
             for (int cnt = 1; cnt <= maxBackupFiles; cnt++) {
                 File backupFile = getBackupFile(cnt);
                 if (backupFile == null) {
@@ -268,7 +274,6 @@ public class JsonStorage<T> implements Storage<T> {
 
             try (FileOutputStream outputStream = new FileOutputStream(file, false);) {
                 outputStream.write(s.getBytes());
-                outputStream.close();
             } catch (Exception e) {
                 logger.error("Error writing JsonDB to {}. Cause {}.", file.getPath(), e.getMessage());
             }
