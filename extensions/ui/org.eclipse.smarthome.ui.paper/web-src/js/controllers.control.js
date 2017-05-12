@@ -244,7 +244,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!item.stateDescription || isNaN(item.stateDescription.minimum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return item.stateDescription.minimum;
+            return ''+item.stateDescription.minimum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.minimum);
         }
@@ -254,7 +254,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!item.stateDescription || isNaN(item.stateDescription.maximum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return item.stateDescription.maximum;
+            return ''+item.stateDescription.maximum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.maximum);
         }
@@ -558,22 +558,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     var hexColor = $scope.getHexColor();
     $($element).find('.hue .md-thumb').css('background-color', hexColor);
-}).controller('NumberItemController', function($scope) {
-    $scope.shouldRenderSlider = function(item) {
-        if (item.stateDescription) {
-            var stateDescription = item.stateDescription;
-            if (stateDescription.readOnly) {
-                return false;
-            } else {
-                if (isNaN(stateDescription.minimum) || isNaN(stateDescription.maximum)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }).controller('RollershutterItemController', function($scope) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
