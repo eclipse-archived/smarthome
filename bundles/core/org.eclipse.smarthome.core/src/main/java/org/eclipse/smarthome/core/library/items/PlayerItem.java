@@ -34,11 +34,13 @@ public class PlayerItem extends GenericItem {
     static {
         acceptedDataTypes.add(PlayPauseType.class);
         acceptedDataTypes.add(RewindFastforwardType.class);
+        acceptedDataTypes.add(OnOffType.class);
         acceptedDataTypes.add(UnDefType.class);
 
         acceptedCommandTypes.add(PlayPauseType.class);
         acceptedCommandTypes.add(RewindFastforwardType.class);
         acceptedCommandTypes.add(NextPreviousType.class);
+        acceptedCommandTypes.add(OnOffType.class);
         acceptedCommandTypes.add(RefreshType.class);
     }
 
@@ -61,6 +63,10 @@ public class PlayerItem extends GenericItem {
     }
 
     public void send(PlayPauseType command) {
+        internalSend(command);
+    }
+    
+    public void send(OnOffType command) {
         internalSend(command);
     }
 
