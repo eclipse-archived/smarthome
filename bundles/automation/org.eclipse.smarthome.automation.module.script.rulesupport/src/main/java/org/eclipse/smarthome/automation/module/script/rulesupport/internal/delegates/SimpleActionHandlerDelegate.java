@@ -16,8 +16,6 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleActionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The SimpleActionHandlerDelegate allows the registration of {@link SimpleActionHandler}s to the RuleEngine.
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
  * @author Simon Merschjohann
  */
 public class SimpleActionHandlerDelegate extends BaseModuleHandler<Action> implements ActionHandler {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleActionHandler actionHandler;
 
@@ -41,28 +38,23 @@ public class SimpleActionHandlerDelegate extends BaseModuleHandler<Action> imple
 
     @Override
     public Map<String, Object> execute(Map<String, Object> inputs) {
-        try {
-            Set<String> keys = new HashSet<String>(inputs.keySet());
+        Set<String> keys = new HashSet<String>(inputs.keySet());
 
-            Map<String, Object> extendedInputs = new HashMap<>(inputs);
-            for (String key : keys) {
-                Object value = extendedInputs.get(key);
-                int dotIndex = key.indexOf('.');
-                if (dotIndex != -1) {
-                    String moduleName = key.substring(0, dotIndex);
-                    extendedInputs.put("module", moduleName);
-                    String newKey = key.substring(dotIndex + 1);
-                    extendedInputs.put(newKey, value);
-                }
+        Map<String, Object> extendedInputs = new HashMap<>(inputs);
+        for (String key : keys) {
+            Object value = extendedInputs.get(key);
+            int dotIndex = key.indexOf('.');
+            if (dotIndex != -1) {
+                String moduleName = key.substring(0, dotIndex);
+                extendedInputs.put("module", moduleName);
+                String newKey = key.substring(dotIndex + 1);
+                extendedInputs.put(newKey, value);
             }
-
-            Object result = actionHandler.execute(module, extendedInputs);
-            HashMap<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("result", result);
-            return resultMap;
-        } catch (Exception ex) {
-            logger.error("error while execution", ex);
-            throw ex;
         }
+
+        Object result = actionHandler.execute(module, extendedInputs);
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("result", result);
+        return resultMap;
     }
 }

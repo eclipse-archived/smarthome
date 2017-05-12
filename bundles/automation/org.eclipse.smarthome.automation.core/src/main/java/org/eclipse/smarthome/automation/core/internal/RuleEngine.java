@@ -831,7 +831,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rUID);
             }
         } catch (Throwable t) {
-            logger.error("Failed to execute rule '{}': {}", rUID, t.getMessage(), t);
+            logger.error("Failed to execute rule '{}': {}", rUID, t.getMessage());
+            logger.debug("", t);
         }
         // change state to IDLE only if the rule has not been DISABLED.
         synchronized (this) {
@@ -860,7 +861,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
         try {
             clearContext(rule);
-            if (context!=null && !context.isEmpty()){
+            if (context != null && !context.isEmpty()) {
                 getContext(ruleUID).putAll(context);
             }
             if (considerConditions) {
