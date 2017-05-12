@@ -10,7 +10,7 @@
     </div>
     <div>
         <span>
-	        <md-button ng-if="isFirmwareUpdateable(firmwareStatus)" aria-label="Install" ng-click="updateFirmware(firmwareStatus.updatableVersion)">
+	        <md-button ng-if="isFirmwareUpdateable(firmwareStatus)" aria-label="Install" ng-click="installFirmware(firmwareStatus.updatableVersion)">
 	           <span>Install</span>
 	        </md-button>
 	        <md-button ng-if="isFirmwareUpdateable(firmwareStatus) && hasChangelog(firmwareStatus)" aria-label="Changelog" ng-click="showChangelog(firmwareStatus.updatableVersion, $event)">Changelog</md-button>
@@ -40,7 +40,7 @@
                     <md-button ng-if="firmware.changelog" aria-label="Changelog" ng-click="showChangelog(firmware.version, $event)">Changelog</md-button>
                 </td>
                 <td class="firmware-detail-data firmware-detail-button">
-                    <md-button aria-label="Install" ng-click="updateFirmware(firmware.version)">Install</md-button>
+                    <md-button aria-label="Install" ng-click="installFirmware(firmware.version)">Install</md-button>
                 </td>
             </tr>
         </table>
