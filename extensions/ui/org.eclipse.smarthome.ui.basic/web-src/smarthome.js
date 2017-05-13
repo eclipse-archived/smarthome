@@ -425,6 +425,10 @@
 		if (_t.updateInterval === 0) {
 			return;
 		}
+		// Limit the refresh interval to 100 ms
+		if (_t.updateInterval < 100) {
+			_t.updateInterval = 100;
+		}
 
 		var
 			interval = setInterval(function() {
@@ -433,7 +437,7 @@
 					return;
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
-			}, _t.updateInterval * 1000);
+			}, _t.updateInterval);
 	}
 
 	/* class ControlText extends Control */
