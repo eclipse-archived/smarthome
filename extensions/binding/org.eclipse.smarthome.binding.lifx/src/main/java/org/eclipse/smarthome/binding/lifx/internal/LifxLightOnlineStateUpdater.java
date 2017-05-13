@@ -15,14 +15,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetEchoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,21 +37,20 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
     private final Logger logger = LoggerFactory.getLogger(LifxLightOnlineStateUpdater.class);
 
     private final String macAsHex;
+    private final ScheduledExecutorService scheduler;
     private final CurrentLightState currentLightState;
     private final LifxLightCommunicationHandler communicationHandler;
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
-
     private ScheduledFuture<?> echoJob;
     private LocalDateTime lastSeen = LocalDateTime.MIN;
     private int unansweredEchoPackets;
 
-    public LifxLightOnlineStateUpdater(MACAddress macAddress, CurrentLightState currentLightState,
-            LifxLightCommunicationHandler communicationHandler) {
+    public LifxLightOnlineStateUpdater(MACAddress macAddress, ScheduledExecutorService scheduler,
+            CurrentLightState currentLightState, LifxLightCommunicationHandler communicationHandler) {
         this.macAsHex = macAddress.getHex();
+        this.scheduler = scheduler;
         this.currentLightState = currentLightState;
         this.communicationHandler = communicationHandler;
     }

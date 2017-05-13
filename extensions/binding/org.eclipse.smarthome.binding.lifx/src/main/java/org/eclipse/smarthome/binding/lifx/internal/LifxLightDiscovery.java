@@ -37,21 +37,16 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
-import org.eclipse.smarthome.binding.lifx.internal.fields.Version;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.GetHostFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLabelRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetVersionRequest;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.StateHostFirmwareResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLabelResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiFirmwareResponse;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -69,13 +64,11 @@ import org.slf4j.LoggerFactory;
  */
 public class LifxLightDiscovery extends AbstractDiscoveryService {
 
-    private Logger logger = LoggerFactory.getLogger(LifxLightDiscovery.class);
+    private final Logger logger = LoggerFactory.getLogger(LifxLightDiscovery.class);
 
     private static final int SERVICE_REQUEST_SEQ_NO = 0;
     private static final int VERSION_REQUEST_SEQ_NO = 1;
     private static final int LABEL_REQUEST_SEQ_NO = 2;
-    private static final int HOST_VERSION_REQUEST_SEQ_NO = 3;
-    private static final int WIFI_VERSION_REQUEST_SEQ_NO = 4;
 
     private List<InetSocketAddress> broadcastAddresses;
     private List<InetAddress> interfaceAddresses;
@@ -100,11 +93,9 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         private MACAddress macAddress;
         private InetSocketAddress socketAddress;
         private String label;
-        private Version hostVersion;
         private Products products;
         private long productVersion;
         private boolean supportedProduct = true;
-        private Version wifiVersion;
 
         private long lastRequestTimeMillis;
 
@@ -114,7 +105,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         }
 
         public boolean isDataComplete() {
-            return hostVersion != null && label != null && products != null && wifiVersion != null;
+            return label != null && products != null;
         }
 
     }
@@ -443,16 +434,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                         sendLightDataRequestPacket(light, new GetLabelRequest(), LABEL_REQUEST_SEQ_NO, unicastKey);
                     }
 
-                    if (light.hostVersion == null) {
-                        sendLightDataRequestPacket(light, new GetHostFirmwareRequest(), HOST_VERSION_REQUEST_SEQ_NO,
-                                unicastKey);
-                    }
-
-                    if (light.wifiVersion == null) {
-                        sendLightDataRequestPacket(light, new GetWifiFirmwareRequest(), WIFI_VERSION_REQUEST_SEQ_NO,
-                                unicastKey);
-                    }
-
                     light.lastRequestTimeMillis = System.currentTimeMillis();
                 }
             }
@@ -493,10 +474,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                             e.getMessage());
                     light.supportedProduct = false;
                 }
-            } else if (packet instanceof StateHostFirmwareResponse) {
-                light.hostVersion = ((StateHostFirmwareResponse) packet).getVersion();
-            } else if (packet instanceof StateWifiFirmwareResponse) {
-                light.wifiVersion = ((StateWifiFirmwareResponse) packet).getVersion();
             }
 
             if (light != null && light.isDataComplete()) {
@@ -526,14 +503,12 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             builder.withLabel(label);
 
             builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
-            builder.withProperty(LifxBindingConstants.PROPERTY_HOST_VERSION, light.hostVersion.toString());
             builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, light.products.getProduct());
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, light.products.getName());
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, light.productVersion);
             builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, light.products.getVendor());
             builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_NAME, light.products.getVendorName());
-            builder.withProperty(LifxBindingConstants.PROPERTY_WIFI_VERSION, light.wifiVersion.toString());
 
             return builder.build();
         } catch (IllegalArgumentException e) {

@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
@@ -46,7 +45,6 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,27 +55,26 @@ import org.slf4j.LoggerFactory;
  */
 public class LifxLightCommunicationHandler {
 
-    private Logger logger = LoggerFactory.getLogger(LifxLightCommunicationHandler.class);
+    private static final MACAddress BROADCAST_ADDRESS = new MACAddress("000000000000", true);
+    private static final int BROADCAST_PORT = 56700;
+    private static final AtomicInteger LIGHT_COUNTER = new AtomicInteger(1);
 
-    private final int BROADCAST_PORT = 56700;
+    private final Logger logger = LoggerFactory.getLogger(LifxLightCommunicationHandler.class);
 
-    private CurrentLightState currentLightState;
+    private final MACAddress macAddress;
+    private final String macAsHex;
+    private final ScheduledExecutorService scheduler;
+    private final CurrentLightState currentLightState;
 
-    private static AtomicInteger lightCounter = new AtomicInteger(1);
+    private final ReentrantLock lock = new ReentrantLock();
+    private final AtomicInteger sequenceNumber = new AtomicInteger(1);
 
     private long source;
     private int service;
     private int port;
 
-    private MACAddress macAddress;
-    private String macAsHex;
-
-    private MACAddress broadcastAddress = new MACAddress("000000000000", true);
-    private AtomicInteger sequenceNumber = new AtomicInteger(1);
-
-    private Selector selector;
     private ScheduledFuture<?> networkJob;
-    private ReentrantLock lock = new ReentrantLock();
+    private Selector selector;
 
     private InetSocketAddress ipAddress;
     private DatagramChannel unicastChannel;
@@ -87,12 +84,11 @@ public class LifxLightCommunicationHandler {
     private List<InetAddress> interfaceAddresses;
     private int bufferSize = 0;
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
-
-    public LifxLightCommunicationHandler(MACAddress macAddress, CurrentLightState currentLightState) {
+    public LifxLightCommunicationHandler(MACAddress macAddress, ScheduledExecutorService scheduler,
+            CurrentLightState currentLightState) {
         this.macAddress = macAddress;
         this.macAsHex = macAddress.getHex();
+        this.scheduler = scheduler;
         this.currentLightState = currentLightState;
     }
 
@@ -151,7 +147,7 @@ public class LifxLightCommunicationHandler {
                     .setOption(StandardSocketOptions.SO_BROADCAST, true);
             broadcastChannel.configureBlocking(false);
 
-            int offset = lightCounter.getAndIncrement();
+            int offset = LIGHT_COUNTER.getAndIncrement();
             logger.debug("Binding the broadcast channel on port {}", BROADCAST_PORT + offset);
             broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + offset));
 
@@ -333,7 +329,7 @@ public class LifxLightCommunicationHandler {
 
     private void handlePacket(final Packet packet, InetSocketAddress address) {
 
-        if ((packet.getTarget().equals(macAddress) || packet.getTarget().equals(broadcastAddress))
+        if ((packet.getTarget().equals(macAddress) || packet.getTarget().equals(BROADCAST_ADDRESS))
                 && (packet.getSource() == source || packet.getSource() == 0)) {
 
             logger.trace("{} : Packet type '{}' received from '{}' for '{}' with sequence '{}' and source '{}'",

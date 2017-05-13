@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MACAddress {
 
-    private Logger logger = LoggerFactory.getLogger(MACAddress.class);
+    private final Logger logger = LoggerFactory.getLogger(MACAddress.class);
 
     private ByteBuffer bytes;
     private String hex;

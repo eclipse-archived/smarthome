@@ -15,7 +15,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
@@ -32,7 +31,6 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.StateMultiZoneRespon
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StatePowerResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiInfoResponse;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +48,12 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     private final Logger logger = LoggerFactory.getLogger(LifxLightCurrentStateUpdater.class);
 
     private final String macAsHex;
+    private final ScheduledExecutorService scheduler;
     private final CurrentLightState currentLightState;
     private final LifxLightCommunicationHandler communicationHandler;
     private final Products product;
 
     private final ReentrantLock lock = new ReentrantLock();
-
-    private ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
 
     private boolean wasOnline;
     private boolean updateSignalStrength;
@@ -85,10 +81,11 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
         }
     };
 
-    public LifxLightCurrentStateUpdater(MACAddress macAddress, CurrentLightState currentLightState,
-            LifxLightCommunicationHandler communicationHandler, Products product) {
+    public LifxLightCurrentStateUpdater(MACAddress macAddress, ScheduledExecutorService scheduler,
+            CurrentLightState currentLightState, LifxLightCommunicationHandler communicationHandler, Products product) {
         this.macAsHex = macAddress.getHex();
         this.currentLightState = currentLightState;
+        this.scheduler = scheduler;
         this.communicationHandler = communicationHandler;
         this.product = product;
     }

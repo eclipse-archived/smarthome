@@ -22,10 +22,12 @@ import org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCommunicationHandler;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCurrentStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightOnlineStateUpdater;
+import org.eclipse.smarthome.binding.lifx.internal.LifxLightPropertiesUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightState;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightStateChanger;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
+import org.eclipse.smarthome.binding.lifx.internal.listener.LifxPropertiesUpdateListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
@@ -62,23 +64,23 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Added configurable transition time and small fixes
  * @author Wouter Born - Decomposed class into separate objects
  */
-public class LifxLightHandler extends BaseThingHandler {
+public class LifxLightHandler extends BaseThingHandler implements LifxPropertiesUpdateListener {
 
-    private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
     private static final long FADE_TIME_DEFAULT = 300;
     private static final int MAX_STATE_CHANGE_DURATION = 4000;
 
-    private LifxChannelFactory channelFactory;
+    private final LifxChannelFactory channelFactory;
     private Products product;
 
     private long fadeTime = FADE_TIME_DEFAULT;
     private PercentType powerOnBrightness;
 
-    private MACAddress macAddress = null;
+    private MACAddress macAddress;
     private String macAsHex;
 
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
 
     private Map<String, State> channelStates;
     private CurrentLightState currentLightState;
@@ -88,6 +90,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private LifxLightCurrentStateUpdater currentStateUpdater;
     private LifxLightStateChanger lightStateChanger;
     private LifxLightOnlineStateUpdater onlineStateUpdater;
+    private LifxLightPropertiesUpdater propertiesUpdater;
 
     public class CurrentLightState extends LifxLightState {
 
@@ -213,16 +216,21 @@ public class LifxLightHandler extends BaseThingHandler {
             currentLightState = new CurrentLightState();
             pendingLightState = new LifxLightState();
 
-            communicationHandler = new LifxLightCommunicationHandler(macAddress, currentLightState);
-            currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, currentLightState, communicationHandler,
-                    product);
-            onlineStateUpdater = new LifxLightOnlineStateUpdater(macAddress, currentLightState, communicationHandler);
-            lightStateChanger = new LifxLightStateChanger(macAddress, pendingLightState, communicationHandler, product,
-                    fadeTime);
+            communicationHandler = new LifxLightCommunicationHandler(macAddress, scheduler, currentLightState);
+            currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, scheduler, currentLightState,
+                    communicationHandler, product);
+            onlineStateUpdater = new LifxLightOnlineStateUpdater(macAddress, scheduler, currentLightState,
+                    communicationHandler);
+            propertiesUpdater = new LifxLightPropertiesUpdater(macAddress, scheduler, currentLightState,
+                    communicationHandler);
+            propertiesUpdater.addPropertiesUpdateListener(this);
+            lightStateChanger = new LifxLightStateChanger(macAddress, scheduler, pendingLightState,
+                    communicationHandler, product, fadeTime);
 
             communicationHandler.start();
             currentStateUpdater.start();
             onlineStateUpdater.start();
+            propertiesUpdater.start();
             lightStateChanger.start();
             startOrStopSignalStrengthUpdates();
         } catch (Exception e) {
@@ -251,6 +259,12 @@ public class LifxLightHandler extends BaseThingHandler {
             if (onlineStateUpdater != null) {
                 onlineStateUpdater.stop();
                 onlineStateUpdater = null;
+            }
+
+            if (propertiesUpdater != null) {
+                propertiesUpdater.stop();
+                propertiesUpdater.removePropertiesUpdateListener(this);
+                propertiesUpdater = null;
             }
 
             if (lightStateChanger != null) {
@@ -451,7 +465,8 @@ public class LifxLightHandler extends BaseThingHandler {
                         break;
                 }
 
-                if (supportedCommand && !(command instanceof OnOffType)) {
+                if (supportedCommand && !(command instanceof OnOffType)
+                        && !CHANNEL_INFRARED.equals(channelUID.getId())) {
                     getLightStateForCommand().setPowerState(PowerState.ON);
                 }
             } catch (Exception ex) {
@@ -543,6 +558,11 @@ public class LifxLightHandler extends BaseThingHandler {
             PercentType newInfrared = increaseDecreasePercentType(increaseDecrease, baseInfrared);
             handleInfraredCommand(newInfrared);
         }
+    }
+
+    @Override
+    public void handlePropertiesUpdate(Map<String, String> properties) {
+        updateProperties(properties);
     }
 
     private void updateStateIfChanged(String channel, State newState) {
