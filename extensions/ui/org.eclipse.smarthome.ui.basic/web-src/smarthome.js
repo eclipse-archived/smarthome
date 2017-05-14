@@ -1251,6 +1251,8 @@
 			_t = this;
 
 		_t.input = _t.parentNode.querySelector("input[type=range]");
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.locked = false;
 
 		(function() {
@@ -1273,7 +1275,6 @@
 				item: _t.item,
 				value: _t.input.value
 			}));
-			_t.suppressUpdate();
 		}
 
 		_t.debounceProxy = new DebounceProxy(function() {
@@ -1285,12 +1286,19 @@
 		});
 
 		_t.setValuePrivate = function(value, itemState) {
+			if (_t.hasValue) {
+				_t.valueNode.innerHTML = value;
+			}
 			if (_t.locked) {
 				_t.reloadIcon(itemState);
 				return;
 			}
 			_t.input.value = itemState;
 			_t.input.MaterialSlider.change();
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 
 		var

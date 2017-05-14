@@ -2,13 +2,17 @@
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
-	<span class="mdl-form__label">
+	<span %labelstyle% class="mdl-form__label">
 		%label%
+	</span>
+	<span %valuestyle% class="mdl-form__value mdl-form__value--slider">
+		%value%
 	</span>
 	<span
 		class="mdl-form__control mdl-form__slider"
 		data-control-type="slider"
 		data-item="%item%"
+		data-has-value="%has_value%"
 		data-widget-id="%widget_id%"
 	>
 		<input 
