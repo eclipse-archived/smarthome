@@ -45,8 +45,6 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         if (videoWidget.getEncoding() != null && videoWidget.getEncoding().contains("mjpeg")) {
             // we handle mjpeg streams as an html image as browser can usually handle this
             snippet = getSnippet("image");
-            snippet = StringUtils.replace(snippet, "%setrefresh%", "");
-            snippet = StringUtils.replace(snippet, "%refresh%", "");
         } else {
             snippet = getSnippet("video");
         }

@@ -73,7 +73,6 @@ public class ChartRenderer extends AbstractWidgetRenderer {
 
             snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
             snippet = StringUtils.replace(snippet, "%url%", url);
-            snippet = StringUtils.replace(snippet, "%refresh%", Integer.toString(chart.getRefresh()));
 
             sb.append(snippet);
         } catch (ItemNotFoundException e) {
