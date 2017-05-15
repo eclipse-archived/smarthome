@@ -171,10 +171,10 @@
 										</button>
 									</h3>
 									<div ng-repeat="item in channel.items | orderBy" class="row cursor-pointer " ng-class="{'borderhidden':$last}" ng-click="navigateTo('item/edit/' + item.name)">
-										<div class="col-xs-1">
+										<div class="col-lg-1 col-sm-2 col-xs-3">
 											<span class="circle">{{item.label.substring(0,1).toUpperCase()}}</span>
 										</div>
-										<div class="col-xs-9 name">
+										<div class="col-lg-9 col-sm-8 col-xs-7 name">
 											{{item.label}} <small><span>({{item.name}})</span></small>
 										</div>
 										<div class="col-xs-2 action">
