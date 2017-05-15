@@ -22,7 +22,7 @@ public interface State extends Type {
      * @return the {@link State}'s value in the given type's representation, or <code>null</code> if the conversion was
      *         not possible
      */
-    default public State as(Class<? extends State> target) {
+    default State as(Class<? extends State> target) {
         if (target != null && target.isInstance(this)) {
             return this;
         } else {
