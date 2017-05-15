@@ -48,7 +48,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
-public class PersistenceResource implements RESTResource {
+public class PersistenceResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
     private final int MILLISECONDS_PER_DAY = 86400000;

@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
-import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 /**
  * A filter that only affects resources implementing the {@link SatisfiableRESTResource} interface.
@@ -50,7 +50,8 @@ public class SatisfiableResourceFilter implements ContainerRequestFilter {
                 // current resource is always first as per documentation
                 Object matchedResource = matchedResources.get(0);
 
-                if (matchedResource instanceof RESTResource && !((RESTResource) matchedResource).isSatisfied()) {
+                if (matchedResource instanceof SatisfiableRESTResource
+                        && !((SatisfiableRESTResource) matchedResource).isSatisfied()) {
                     ctx.abortWith(Response.status(Status.SERVICE_UNAVAILABLE).build());
                 }
             }

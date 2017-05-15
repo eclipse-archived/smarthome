@@ -9,7 +9,6 @@ package org.eclipse.smarthome.io.rest.core.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.Locale;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,8 +28,11 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,10 +50,17 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-public class ConfigDescriptionResource implements RESTResource {
+public class ConfigDescriptionResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_CONFIG_DESCRIPTIONS = "config-descriptions";
+
+    private final class ConfigDescriptionConverter implements Function<ConfigDescription, ConfigDescriptionDTO> {
+        @Override
+        public ConfigDescriptionDTO apply(ConfigDescription configDescription) {
+            return ConfigDescriptionDTOMapper.map(configDescription);
+        }
+    }
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -61,10 +70,9 @@ public class ConfigDescriptionResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class, responseContainer = "List"))
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Collection<ConfigDescription> configDescriptions = configDescriptionRegistry.getConfigDescriptions(locale);
-
-        return Response.ok(new Stream2JSONInputStream(configDescriptions.stream().map(ConfigDescriptionDTOMapper::map)))
-                .build();
+        Iterable<ConfigDescriptionDTO> transform = Iterables
+                .transform(configDescriptionRegistry.getConfigDescriptions(locale), new ConfigDescriptionConverter());
+        return Response.ok(Lists.newArrayList(transform)).build();
     }
 
     @GET

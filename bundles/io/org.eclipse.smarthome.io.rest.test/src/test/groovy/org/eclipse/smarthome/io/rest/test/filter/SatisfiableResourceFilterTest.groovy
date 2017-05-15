@@ -12,17 +12,22 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import javax.ws.rs.container.ContainerRequestContext
+import javax.ws.rs.core.MultivaluedHashMap
+import javax.ws.rs.core.MultivaluedMap
 import javax.ws.rs.core.Response
-import javax.ws.rs.core.UriInfo
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo
 
 import org.eclipse.smarthome.io.rest.RESTResource
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.internal.filter.SatisfiableResourceFilter
+import org.eclipse.smarthome.io.rest.test.filter.SatisfiableResourceFilterTest.ResponseHolder;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder
 import org.junit.Test
 
 /**
  * Test for {@link SatisfiableResourceFilter}
- *
+ * 
  * @author Ivan Iliev - Initial contribution
  *
  */
@@ -39,37 +44,37 @@ class SatisfiableResourceFilterTest {
 
     @Test
     public void testWithBasicRESTResource() {
-
-        RESTResource resource = new RESTResource() {};
-
+        
+        RESTResource resource = [] as RESTResource;
+        
         ResponseHolder responseHolder = new ResponseHolder();
-
+        
         ContainerRequestContext context = getContextMock(resource, responseHolder);
-
+        
         filter.filter(context);
-
+        
         assertNull responseHolder.response
         assertTrue responseHolder.matchesObtained
         assertFalse responseHolder.satisfiedCalled
     }
-
+    
     @Test
     public void testWithSatisfiableRESTResourceSatisfied() {
-
+        
         ResponseHolder responseHolder = new ResponseHolder();
-
-        RESTResource resource = new RESTResource() {
-                    @Override
-                    boolean isSatisfied() {
-                        responseHolder.satisfiedCalled = true;
-                        return true;
-                    }
-                };
-
+        
+        RESTResource resource = [
+                isSatisfied: {
+                    responseHolder.satisfiedCalled = true
+                    true
+                }
+            ] as SatisfiableRESTResource;
+        
+        
         ContainerRequestContext context = getContextMock(resource, responseHolder);
-
+        
         filter.filter(context);
-
+        
         assertNull responseHolder.response
         assertTrue responseHolder.matchesObtained
         assertTrue responseHolder.satisfiedCalled
@@ -78,19 +83,20 @@ class SatisfiableResourceFilterTest {
     @Test
     public void testWithSatisfiableRESTResourceNOTSatisfied() {
         ResponseHolder responseHolder = new ResponseHolder();
+        
+        RESTResource resource = [
+                isSatisfied: {
+                    responseHolder.satisfiedCalled=true
+                    false
+                }
+            ] as SatisfiableRESTResource;
+        
 
-        RESTResource resource = new RESTResource() {
-                    @Override
-                    boolean isSatisfied() {
-                        responseHolder.satisfiedCalled = true;
-                        return false;
-                    }
-                };
-
+        
         ContainerRequestContext context = getContextMock(resource, responseHolder);
-
+        
         filter.filter(context);
-
+        
         assertNotNull responseHolder.response
         assertEquals responseHolder.response.status, Status.SERVICE_UNAVAILABLE.statusCode
         assertTrue responseHolder.matchesObtained
@@ -107,12 +113,13 @@ class SatisfiableResourceFilterTest {
             }
         ] ;
 
+
         return [
             getUriInfo: { return uriInfo as UriInfo },
             abortWith: { Response resp ->
                 responseHolder.response = resp;
             }
-
+            
         ] as ContainerRequestContext
     }
 }

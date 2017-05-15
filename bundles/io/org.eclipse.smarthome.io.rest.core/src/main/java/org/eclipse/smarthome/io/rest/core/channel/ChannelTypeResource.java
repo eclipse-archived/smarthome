@@ -10,7 +10,6 @@ package org.eclipse.smarthome.io.rest.core.channel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -34,8 +33,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,7 +50,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ChannelTypeResource.PATH_CHANNEL_TYPES)
-public class ChannelTypeResource implements RESTResource {
+public class ChannelTypeResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_CHANNEL_TYPES = "channel-types";
@@ -83,10 +81,9 @@ public class ChannelTypeResource implements RESTResource {
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
-
-        Stream<ChannelTypeDTO> channelStream = channelTypeRegistry.getChannelTypes(locale).stream()
-                .map(c -> convertToChannelTypeDTO(c, locale));
-        return Response.ok(new Stream2JSONInputStream(channelStream)).build();
+        List<ChannelTypeDTO> channelTypeDTOs = convertToChannelTypeDTOs(channelTypeRegistry.getChannelTypes(locale),
+                locale);
+        return Response.ok(channelTypeDTOs).build();
     }
 
     @GET
@@ -131,6 +128,16 @@ public class ChannelTypeResource implements RESTResource {
         return new ChannelTypeDTO(channelType.getUID().toString(), channelType.getLabel(), channelType.getDescription(),
                 channelType.getCategory(), channelType.getItemType(), channelType.getKind(), parameters,
                 parameterGroups, channelType.getState(), channelType.getTags(), channelType.isAdvanced());
+    }
+
+    private List<ChannelTypeDTO> convertToChannelTypeDTOs(List<ChannelType> channelTypes, Locale locale) {
+        List<ChannelTypeDTO> channelTypeDTOs = new ArrayList<>(channelTypes.size());
+
+        for (ChannelType channelType : channelTypes) {
+            channelTypeDTOs.add(convertToChannelTypeDTO(channelType, locale));
+        }
+
+        return channelTypeDTOs;
     }
 
     @Override

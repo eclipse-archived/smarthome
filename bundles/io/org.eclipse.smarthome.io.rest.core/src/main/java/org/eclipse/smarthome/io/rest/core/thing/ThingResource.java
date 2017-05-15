@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
@@ -80,8 +80,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +107,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
-public class ThingResource implements RESTResource {
+public class ThingResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
@@ -214,9 +213,9 @@ public class ThingResource implements RESTResource {
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
 
-        Stream<EnrichedThingDTO> thingStream = thingRegistry.stream().map(t -> convertToEnrichedThingDTO(t, locale))
-                .distinct();
-        return Response.ok(new Stream2JSONInputStream(thingStream)).build();
+        Collection<Thing> things = thingRegistry.getAll();
+        Set<EnrichedThingDTO> thingBeans = convertToListBean(things, locale);
+        return Response.ok(thingBeans).build();
     }
 
     @GET
@@ -380,7 +379,7 @@ public class ThingResource implements RESTResource {
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
-            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getUID());
+            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());
         }
 
         return Response.ok().build();
@@ -719,12 +718,18 @@ public class ThingResource implements RESTResource {
         this.thingStatusInfoI18nLocalizationService = null;
     }
 
-    private EnrichedThingDTO convertToEnrichedThingDTO(Thing thing, Locale locale) {
-        boolean managed = managedThingProvider.get(thing.getUID()) != null;
-        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
-                locale);
-        return EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
-                getLinkedItemsMap(thing), managed);
+    private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
+        Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
+        for (Thing thing : things) {
+            boolean managed = managedThingProvider.get(thing.getUID()) != null;
+            ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                    locale);
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo,
+                    this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing), managed);
+            thingBeans.add(thingBean);
+        }
+
+        return thingBeans;
     }
 
     private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {
@@ -748,11 +753,11 @@ public class ThingResource implements RESTResource {
     private void unlinkChannelIfAlreadyLinked(ChannelUID channelUID) {
         Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
         for (ItemChannelLink link : links) {
-            if (link.getLinkedUID().equals(channelUID)) {
+            if (link.getUID().equals(channelUID)) {
                 logger.debug(
                         "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
                         channelUID, link.getItemName());
-                managedItemChannelLinkProvider.remove(link.getUID());
+                managedItemChannelLinkProvider.remove(link.getID());
             }
         }
     }

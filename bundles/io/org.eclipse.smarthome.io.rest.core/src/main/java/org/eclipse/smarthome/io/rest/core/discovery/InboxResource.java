@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import java.util.stream.Stream;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -25,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
@@ -33,8 +36,7 @@ import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,7 +57,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(InboxResource.PATH_INBOX)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = InboxResource.PATH_INBOX)
-public class InboxResource implements RESTResource {
+public class InboxResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_INBOX = "inbox";
@@ -118,8 +120,10 @@ public class InboxResource implements RESTResource {
     @ApiOperation(value = "Get all discovered things.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = DiscoveryResultDTO.class) })
     public Response getAll() {
-        Stream<DiscoveryResultDTO> discoveryStream = inbox.getAll().stream().map(DiscoveryResultDTOMapper::map);
-        return Response.ok(new Stream2JSONInputStream(discoveryStream)).build();
+        List<DiscoveryResult> discoveryResults = inbox.getAll();
+        Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
+
+        return Response.ok(discoveryResultBeans).build();
     }
 
     @POST
@@ -138,6 +142,14 @@ public class InboxResource implements RESTResource {
     public Response unignore(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID) {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
         return Response.ok().build();
+    }
+
+    private Set<DiscoveryResultDTO> convertToListBean(List<DiscoveryResult> discoveryResults) {
+        Set<DiscoveryResultDTO> discoveryResultBeans = new LinkedHashSet<>();
+        for (DiscoveryResult discoveryResult : discoveryResults) {
+            discoveryResultBeans.add(DiscoveryResultDTOMapper.map(discoveryResult));
+        }
+        return discoveryResultBeans;
     }
 
     @Override

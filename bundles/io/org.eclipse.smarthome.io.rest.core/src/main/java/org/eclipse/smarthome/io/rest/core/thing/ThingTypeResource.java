@@ -9,9 +9,10 @@ package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -49,8 +50,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
-public class ThingTypeResource implements RESTResource {
+public class ThingTypeResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_THINGS_TYPES = "thing-types";
@@ -117,9 +117,9 @@ public class ThingTypeResource implements RESTResource {
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Stream<StrippedThingTypeDTO> typeStream = thingTypeRegistry.getThingTypes(locale).stream()
-                .map(t -> convertToStrippedThingTypeDTO(t, locale));
-        return Response.ok(new Stream2JSONInputStream(typeStream)).build();
+        Set<StrippedThingTypeDTO> strippedThingTypeDTOs = convertToStrippedThingTypeDTOs(
+                thingTypeRegistry.getThingTypes(locale), locale);
+        return Response.ok(strippedThingTypeDTOs).build();
     }
 
     @GET
@@ -152,15 +152,17 @@ public class ThingTypeResource implements RESTResource {
         ThingTypeUID athingTypeUID = new ThingTypeUID(thingTypeUID);
         Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(athingTypeUID, LocaleUtil.getLocale(language));
 
-        if (firmwares.isEmpty()) {
+        List<FirmwareDTO> firmwareList = convertToFirmwareDTO(firmwares);
+
+        if (firmwareList.isEmpty()) {
             return Response.status(Status.NO_CONTENT).build();
         }
 
-        Stream<FirmwareDTO> firmwareStream = firmwares.stream().map(this::convertToFirmwareDTO);
-        return Response.ok().entity(new Stream2JSONInputStream(firmwareStream)).build();
+        return Response.ok().entity(firmwareList).build();
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
+
         final ConfigDescription configDescription;
         if (thingType.getConfigDescriptionURI() != null) {
             configDescription = this.configDescriptionRegistry.getConfigDescription(thingType.getConfigDescriptionURI(),
@@ -258,21 +260,29 @@ public class ThingTypeResource implements RESTResource {
         return channelDefinitionDTOs;
     }
 
-    private StrippedThingTypeDTO convertToStrippedThingTypeDTO(ThingType thingType, Locale locale) {
-        final StrippedThingTypeDTO strippedThingTypeDTO = StrippedThingTypeDTOMapper.map(thingType, locale);
-        if (strippedThingTypeDTO != null) {
-            return strippedThingTypeDTO;
-        } else {
-            logger.warn("Cannot create DTO for thingType '{}'. Skip it.", thingType);
+    private Set<StrippedThingTypeDTO> convertToStrippedThingTypeDTOs(List<ThingType> thingTypes, Locale locale) {
+        Set<StrippedThingTypeDTO> strippedThingTypeDTOs = new HashSet<>();
+
+        for (ThingType thingType : thingTypes) {
+            final StrippedThingTypeDTO strippedThingTypeDTO = StrippedThingTypeDTOMapper.map(thingType, locale);
+            if (strippedThingTypeDTO != null) {
+                strippedThingTypeDTOs.add(strippedThingTypeDTO);
+            } else {
+                logger.warn("Cannot create DTO for thingType '{}'. Skip it.", thingType);
+            }
         }
 
-        return null;
+        return strippedThingTypeDTOs;
     }
 
-    private FirmwareDTO convertToFirmwareDTO(Firmware firmware) {
-        return new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
-                firmware.getDescription(), firmware.getVersion(), firmware.getPrerequisiteVersion(),
-                firmware.getChangelog());
+    private List<FirmwareDTO> convertToFirmwareDTO(Collection<Firmware> firmwares) {
+        List<FirmwareDTO> firmwareList = new ArrayList<>();
+        for (Firmware firmware : firmwares) {
+            firmwareList.add(new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
+                    firmware.getDescription(), firmware.getVersion(), firmware.getPrerequisiteVersion(),
+                    firmware.getChangelog()));
+        }
+        return firmwareList;
     }
 
     @Override
