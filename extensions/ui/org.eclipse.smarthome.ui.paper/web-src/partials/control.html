@@ -1,4 +1,4 @@
-<section id="main" class="control header-tabs">
+<section id="main" class="control header-tabs" ng-form name="controlForm">
 	<div class="header-toolbar">
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 	</div>
@@ -116,8 +116,8 @@
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
 															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
-															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number" ng-min="item.stateDescription.minimum" ng-max="item.stateDescription.maximum"></input> </md-input-container>
-															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+															<md-input-container ng-show="editMode"> <input name="{{item.name}}" ng-model="item.state" aria-label={{item.label}} type="number" ng-min="item.stateDescription.minimum" ng-max="item.stateDescription.maximum"></input> </md-input-container>
+															<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
 														</div>
 													</div>
 												</div>
@@ -136,8 +136,8 @@
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
 															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
-															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number" min="0" max="100"></input> </md-input-container>
-															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+															<md-input-container ng-show="editMode"> <input name="{{item.name}}" ng-model="item.state" aria-label={{item.label}} type="number" min="0" max="100"></input> </md-input-container>
+															<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
 														</div>
 													</div>
 												</div>
