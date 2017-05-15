@@ -1695,6 +1695,7 @@
 		});
 
 		_t.source.onerror = function() {
+			_t.source.close();
 			_t.connectionError();
 		};
 	}
