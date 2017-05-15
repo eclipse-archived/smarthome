@@ -116,7 +116,7 @@
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
 															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
-															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number"></input> </md-input-container>
+															<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}} type="number" ng-min="item.stateDescription.minimum" ng-max="item.stateDescription.maximum"></input> </md-input-container>
 															<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
 														</div>
 													</div>
