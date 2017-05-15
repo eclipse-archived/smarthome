@@ -16,7 +16,6 @@ import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -72,10 +71,7 @@ public class DimmerItem extends SwitchItem {
      */
     @Override
     public void setState(State state) {
-        if (state instanceof Convertible) {
-            state = ((Convertible) state).as(PercentType.class);
-        }
-        applyState(state);
+        applyState(state.as(PercentType.class));
     }
 
 }

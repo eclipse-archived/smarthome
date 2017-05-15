@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +76,9 @@ public class ItemUtil {
     }
 
     public static State convertToAcceptedState(final State state, final Item item) {
-        if (item != null && !isAccepted(item, state) && state instanceof Convertible) {
+        if (item != null && !isAccepted(item, state)) {
             for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
-                State convertedState = ((Convertible) state).as(acceptedType);
+                State convertedState = state.as(acceptedType);
                 if (convertedState != null) {
                     LoggerFactory.getLogger(ItemUtil.class).debug("Converting {} '{}' to {} '{}' for item '{}'",
                             state.getClass().getSimpleName(), state.toString(),
