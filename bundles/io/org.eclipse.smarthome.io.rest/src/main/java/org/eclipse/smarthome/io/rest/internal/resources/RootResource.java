@@ -24,7 +24,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.io.rest.RESTConstants;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.internal.Constants;
 import org.eclipse.smarthome.io.rest.internal.resources.beans.RootBean;
 import org.osgi.service.cm.Configuration;
@@ -68,8 +67,8 @@ public class RootResource {
         RootBean bean = new RootBean();
 
         for (RESTResource resource : restResources) {
-            // we will include all RESTResources and only the SatisfiableRESTResources that are currently satisfied
-            if (!(resource instanceof SatisfiableRESTResource) || ((SatisfiableRESTResource) resource).isSatisfied()) {
+            // we will include all RESTResources that are currently satisfied
+            if (resource.isSatisfied()) {
                 String path = resource.getClass().getAnnotation(Path.class).value();
                 bean.links
                         .add(new RootBean.Links(path, uriInfo.getBaseUriBuilder().path(path).build().toASCIIString()));

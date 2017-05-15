@@ -28,7 +28,7 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -50,7 +50,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-public class ConfigDescriptionResource implements SatisfiableRESTResource {
+public class ConfigDescriptionResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_CONFIG_DESCRIPTIONS = "config-descriptions";

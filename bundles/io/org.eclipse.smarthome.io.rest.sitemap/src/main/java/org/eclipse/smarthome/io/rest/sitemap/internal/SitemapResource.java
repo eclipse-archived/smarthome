@@ -46,7 +46,7 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
@@ -97,8 +97,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource
-        implements SatisfiableRESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
+public class SitemapResource implements RESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
