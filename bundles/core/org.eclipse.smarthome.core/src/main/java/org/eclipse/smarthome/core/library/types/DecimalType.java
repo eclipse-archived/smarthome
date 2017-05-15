@@ -141,6 +141,10 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         return value.longValue();
     }
 
+    protected State delegateStateAs(Class<? extends State> target) {
+        return State.super.as(target);
+    }
+
     @Override
     public State as(Class<? extends State> target) {
         if (target == OnOffType.class) {

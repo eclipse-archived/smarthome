@@ -80,12 +80,7 @@ public class PercentType extends DecimalType {
         } else if (target == HSBType.class) {
             return new HSBType(DecimalType.ZERO, PercentType.ZERO, this);
         } else {
-            // if the target is the same type return, otherwise give up
-            if (target != null && target.isInstance(this)) {
-                return this;
-            } else {
-                return null;
-            }
+            return delegateStateAs(target);
         }
     }
 
