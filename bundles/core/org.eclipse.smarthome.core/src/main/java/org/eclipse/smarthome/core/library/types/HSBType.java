@@ -267,8 +267,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         } else if (target == PercentType.class) {
             return new PercentType(getBrightness().toBigDecimal());
         } else {
-            // // if the target is the same type return, otherwise give up
-            return delegateStateAs(target);
+            return defaultConversion(target);
         }
     }
 }

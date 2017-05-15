@@ -141,7 +141,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         return value.longValue();
     }
 
-    protected State delegateStateAs(Class<? extends State> target) {
+    protected State defaultConversion(Class<? extends State> target) {
         return State.super.as(target);
     }
 
@@ -171,7 +171,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             return new HSBType(DecimalType.ZERO, PercentType.ZERO,
                     new PercentType(this.toBigDecimal().multiply(BigDecimal.valueOf(100))));
         } else {
-            return State.super.as(target);
+            return defaultConversion(target);
         }
     }
 
