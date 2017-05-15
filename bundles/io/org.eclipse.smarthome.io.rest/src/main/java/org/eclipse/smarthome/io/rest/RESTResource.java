@@ -20,7 +20,7 @@ public interface RESTResource {
      *
      * @return true if this RESTResource is ready to process requests, false otherwise.
      */
-    default public boolean isSatisfied() {
+    default boolean isSatisfied() {
         return true;
     }
 
