@@ -33,7 +33,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
     private static final String SUBCMD_ADDTAG = "addTag";
-    private static final String SUBCMD_REMTAG = "remTag";
+    private static final String SUBCMD_REMTAG = "rmTag";
 
     private ItemRegistry itemRegistry;
 
@@ -99,24 +99,6 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
         }
     }
 
-    private void removeTag(String itemName, String tag, Console console) {
-        Item item = itemRegistry.get(itemName);
-        if (item instanceof GenericItem) {
-            GenericItem gItem = (GenericItem) item;
-            gItem.removeTag(tag);
-            Item oldItem = itemRegistry.update(gItem);
-            if (oldItem == null) {
-                console.println("Error: Cannot remove tag " + tag + " from item " + itemName
-                        + " because this item does not belong to a ManagedProvider");
-            } else {
-                console.println("Successfully removed tag " + tag + " from item " + itemName);
-            }
-        } else {
-            console.println(
-                    "Error: Cannot remove tag " + tag + " from item " + itemName + " because it is not a GenericItem");
-        }
-    }
-
     private void addTag(String itemName, String tag, Console console) {
         Item item = itemRegistry.get(itemName);
         if (item instanceof GenericItem) {
@@ -132,6 +114,24 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
         } else {
             console.println(
                     "Error: Cannot add tag " + tag + " to item " + itemName + " because it is not a GenericItem");
+        }
+    }
+
+    private void removeTag(String itemName, String tag, Console console) {
+        Item item = itemRegistry.get(itemName);
+        if (item instanceof GenericItem) {
+            GenericItem gItem = (GenericItem) item;
+            gItem.removeTag(tag);
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem == null) {
+                console.println("Error: Cannot remove tag " + tag + " from item " + itemName
+                        + " because this item does not belong to a ManagedProvider");
+            } else {
+                console.println("Successfully removed tag " + tag + " from item " + itemName);
+            }
+        } else {
+            console.println(
+                    "Error: Cannot remove tag " + tag + " from item " + itemName + " because it is not a GenericItem");
         }
     }
 
