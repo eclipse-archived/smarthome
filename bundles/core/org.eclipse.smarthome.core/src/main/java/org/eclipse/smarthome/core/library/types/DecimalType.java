@@ -10,9 +10,7 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.util.IllegalFormatConversionException;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -24,7 +22,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType>, Convertible {
+public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType> {
 
     private static final long serialVersionUID = 4226845847123464690L;
 
@@ -143,6 +141,10 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         return value.longValue();
     }
 
+    protected State defaultConversion(Class<? extends State> target) {
+        return State.super.as(target);
+    }
+
     @Override
     public State as(Class<? extends State> target) {
         if (target == OnOffType.class) {
@@ -169,7 +171,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             return new HSBType(DecimalType.ZERO, PercentType.ZERO,
                     new PercentType(this.toBigDecimal().multiply(BigDecimal.valueOf(100))));
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return defaultConversion(target);
         }
     }
 

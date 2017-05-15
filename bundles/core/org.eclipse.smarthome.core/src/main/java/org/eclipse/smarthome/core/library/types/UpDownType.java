@@ -9,13 +9,11 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
-public enum UpDownType implements PrimitiveType, State, Command, Convertible {
+public enum UpDownType implements PrimitiveType, State, Command {
     UP,
     DOWN;
 
@@ -41,7 +39,7 @@ public enum UpDownType implements PrimitiveType, State, Command, Convertible {
         } else if (target == PercentType.class) {
             return equals(UP) ? PercentType.ZERO : PercentType.HUNDRED;
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return State.super.as(target);
         }
     }
 

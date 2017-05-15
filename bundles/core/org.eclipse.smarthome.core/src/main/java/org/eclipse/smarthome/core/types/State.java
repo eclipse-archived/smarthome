@@ -14,4 +14,19 @@ package org.eclipse.smarthome.core.types;
  *
  */
 public interface State extends Type {
+
+    /**
+     * Convert this {@link State}'s value into another type
+     *
+     * @param target the desired {@link State} type
+     * @return the {@link State}'s value in the given type's representation, or <code>null</code> if the conversion was
+     *         not possible
+     */
+    default State as(Class<? extends State> target) {
+        if (target != null && target.isInstance(this)) {
+            return this;
+        } else {
+            return null;
+        }
+    }
 }

@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -81,7 +80,7 @@ public class PercentType extends DecimalType {
         } else if (target == HSBType.class) {
             return new HSBType(DecimalType.ZERO, PercentType.ZERO, this);
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return defaultConversion(target);
         }
     }
 
