@@ -10,11 +10,9 @@ package org.eclipse.smarthome.binding.sonos.handler;
 import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,7 +28,6 @@ import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
@@ -524,58 +521,26 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
-    private URL getAlbumArtUrl() {
-        URL url = null;
+    private String getAlbumArtUrl() {
+        String url = null;
         String albumArtURI = stateMap.get("CurrentAlbumArtURI");
         if (albumArtURI != null) {
-            try {
-                if (albumArtURI.startsWith("http")) {
-                    url = new URL(albumArtURI);
-                } else if (albumArtURI.startsWith("/")) {
+            if (albumArtURI.startsWith("http")) {
+                url = albumArtURI;
+            } else if (albumArtURI.startsWith("/")) {
+                try {
                     URL serviceDescrUrl = service.getDescriptorURL(this);
                     if (serviceDescrUrl != null) {
                         url = new URL(serviceDescrUrl.getProtocol(), serviceDescrUrl.getHost(),
-                                serviceDescrUrl.getPort(), albumArtURI);
+                                serviceDescrUrl.getPort(), albumArtURI).toExternalForm();
                     }
+                } catch (MalformedURLException e) {
+                    logger.debug("Failed to build a valid album art URL from {}: {}", albumArtURI, e.getMessage());
+                    url = null;
                 }
-            } catch (MalformedURLException e) {
-                logger.debug("Failed to build a valid album art URL from {}: {}", albumArtURI, e.getMessage());
-                url = null;
             }
         }
         return url;
-    }
-
-    private String getContentTypeFromUrl(URL url) {
-        if (url == null) {
-            return null;
-        }
-        String contentType;
-        InputStream input = null;
-        try {
-            URLConnection connection = url.openConnection();
-            long length = connection.getContentLengthLong();
-            if (length < 0 || length > 500000) {
-                // We ignore the URL in case the data size is unknown or bigger than 500000 bytes
-                logger.debug("Content too big ({}): URL ignored", length);
-                contentType = RawType.DEFAULT_MIME_TYPE;
-            } else {
-                contentType = connection.getContentType();
-                logger.debug("Content type from headers: {}", contentType);
-                if (contentType == null || contentType.isEmpty()) {
-                    // We try to get the type from the data
-                    input = connection.getInputStream();
-                    contentType = URLConnection.guessContentTypeFromStream(input);
-                    logger.debug("Content type from data: {}", contentType);
-                }
-            }
-        } catch (IOException e) {
-            logger.debug("Failed to identify content type from URL: {}", e.getMessage());
-            contentType = RawType.DEFAULT_MIME_TYPE;
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
-        return (contentType == null || contentType.isEmpty()) ? RawType.DEFAULT_MIME_TYPE : contentType;
     }
 
     protected void updateChannel(String channeldD) {
@@ -583,7 +548,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return;
         }
 
-        URL url;
+        String url;
 
         State newState = UnDefType.UNDEF;
         switch (channeldD) {
@@ -691,25 +656,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CURRENTALBUMART:
                 url = getAlbumArtUrl();
                 if (url != null) {
-                    String contentType = getContentTypeFromUrl(url);
-                    if (contentType != RawType.DEFAULT_MIME_TYPE) {
-                        InputStream input = null;
-                        try {
-                            input = url.openStream();
-                            newState = new RawType(IOUtils.toByteArray(input), contentType);
-                        } catch (IOException e) {
-                            logger.debug("Failed to download the album cover art: {}", e.getMessage());
-                            newState = UnDefType.UNDEF;
-                        } finally {
-                            IOUtils.closeQuietly(input);
-                        }
+                    RawType image = HttpUtil.downloadImage(url, true, 500000);
+                    if (image != null) {
+                        newState = image;
                     }
                 }
                 break;
             case CURRENTALBUMARTURL:
                 url = getAlbumArtUrl();
                 if (url != null) {
-                    newState = new StringType(url.toExternalForm());
+                    newState = new StringType(url);
                 }
                 break;
             case CURRENTTRANSPORTURI:
