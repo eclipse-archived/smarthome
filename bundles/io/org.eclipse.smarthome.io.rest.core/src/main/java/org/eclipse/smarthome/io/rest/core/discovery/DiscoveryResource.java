@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.core.auth.Role;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = DiscoveryResource.PATH_DISCOVERY)
-public class DiscoveryResource implements SatisfiableRESTResource {
+public class DiscoveryResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_DISCOVERY = "discovery";

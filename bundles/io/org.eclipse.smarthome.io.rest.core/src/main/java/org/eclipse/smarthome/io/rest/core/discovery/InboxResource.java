@@ -36,7 +36,7 @@ import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,7 +57,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(InboxResource.PATH_INBOX)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = InboxResource.PATH_INBOX)
-public class InboxResource implements SatisfiableRESTResource {
+public class InboxResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_INBOX = "inbox";

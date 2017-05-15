@@ -23,7 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,7 +38,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("templates")
 @Api("templates")
-public class TemplateResource implements SatisfiableRESTResource {
+public class TemplateResource implements RESTResource {
 
     private TemplateRegistry templateRegistry;
 
