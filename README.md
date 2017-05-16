@@ -1,5 +1,7 @@
 # Eclipse SmartHome Build Instructions
 
+[![Join the chat at https://gitter.im/eclipse/smarthome](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eclipse/smarthome?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Thanks for your interest in the Eclipse SmartHome project!
 
 Building and running the project is fairly easy if you follow the steps
