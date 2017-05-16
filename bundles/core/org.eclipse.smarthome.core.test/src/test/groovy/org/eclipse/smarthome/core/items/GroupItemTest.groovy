@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.items
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import java.util.function.Predicate
+
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
@@ -89,6 +91,55 @@ class GroupItemTest extends OSGiTest {
                 fail("There are no GroupItems allowed in this Collection")
             }
         }
+    }
+
+    @Test
+    public void testGetAllMembersWithFilter() {
+        GroupItem rootGroupItem = new GroupItem("root")
+
+        TestItem member1 = new TestItem("member1");
+        member1.setLabel("mem1");
+        rootGroupItem.addMember(member1)
+
+        TestItem member2 = new TestItem("member2");
+        member2.setLabel("mem1");
+        rootGroupItem.addMember(member2)
+
+        rootGroupItem.addMember(new TestItem("member3"))
+        GroupItem subGroup = new GroupItem("subGroup1")
+        subGroup.addMember(new TestItem("subGroup member 1"))
+        subGroup.addMember(new TestItem("subGroup member 2"))
+        subGroup.addMember(new TestItem("subGroup member 3"))
+        subGroup.addMember(member1)
+        rootGroupItem.addMember(subGroup)
+
+        Predicate<Item> groupItemsInMembers = new Predicate<Item>() {
+                    @Override
+                    public boolean test(Item t) {
+                        if(t instanceof GroupItem) {
+                            return true;
+                        }
+                        return false;
+                    }
+                };
+
+        Set<Item> members = rootGroupItem.getMembers(groupItemsInMembers)
+        assertThat members.size(), is(1)
+
+        Predicate<Item> allMem1labelItems = new Predicate<Item>() {
+                    @Override
+                    public boolean test(Item t) {
+                        if(t.getLabel().equals("mem1")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                };
+
+        members = rootGroupItem.getMembers(allMem1labelItems)
+        assertThat members.size(), is(2)
+
+        println "done"
     }
 
     @Test

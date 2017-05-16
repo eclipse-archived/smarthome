@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
@@ -110,18 +112,34 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      */
     public Set<Item> getAllMembers() {
         Set<Item> allMembers = new HashSet<Item>();
-        collectMembers(allMembers, members);
+        collectMembers(allMembers, members, false);
         return ImmutableSet.copyOf(allMembers);
     }
 
-    private void collectMembers(Set<Item> allMembers, Set<Item> members) {
+    private void collectMembers(Set<Item> allMembers, Set<Item> members, boolean withGroupItems) {
         for (Item member : members) {
             if (member instanceof GroupItem) {
-                collectMembers(allMembers, ((GroupItem) member).members);
+                collectMembers(allMembers, ((GroupItem) member).members, withGroupItems);
+                if (withGroupItems) {
+                    allMembers.add(member);
+                }
             } else {
                 allMembers.add(member);
             }
         }
+    }
+
+    /**
+     * Retrieves ALL members of this group and filters it with the given Predicate
+     *
+     * @param filterItem Predicate with settings to filter member list
+     * @return Set of member items filtered by filterItem
+     */
+    public Set<Item> getMembers(Predicate<Item> filterItem) {
+        Set<Item> allMembers = new HashSet<Item>();
+        collectMembers(allMembers, members, true);
+
+        return allMembers.stream().filter(filterItem).collect(Collectors.toSet());
     }
 
     /**
