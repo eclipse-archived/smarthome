@@ -69,3 +69,15 @@ HSB string values consist of three comma-separated values for hue (0-360°), sat
 | StopMoveType | `STOP`, `MOVE` |
 | UpDownType | `UP`, `DOWN` |
 
+## A note on items which accept multiple state data types
+
+There are a number of items which accept multiple state data types, for example `DimmerItem`, which accepts `OnOffType` and `PercentType`, `RollershutterItem`, which  accepts `PercentType` and `UpDownType`, or `ColorItem`, which accepts `HSBType`, `OnOffType` and `PercentType`. Since an item has a SINGLE state, these multiple data types can be considered different views to this state.
+The data type carrying the most information about the state is usually used to keep the internal state for the item, and other datatypes are converted from this main data type. This main data type is normally the first element in the list returned by `Item.getAcceptedDataTypes()`.
+
+Here is a short table demonstrating conversions for the examples above:
+
+| Itemname | Main data type | Additional data types conversions |
+| --- | --- | --- |
+| Color | `HSBType` | <ul><li>`OnOffType` - `OFF` if the brightness level in the `HSBType` equals 0, `ON` otherwise</li><li>`PercentType` - the value for the brightness level in the `HSBType`</li></ul> |
+| Dimmer | `PercentType` | `OnOffType` - `OFF` if the brightness level indicated by the percent type equals 0, `ON` otherwise |
+| Rollershutter | `PercentType` | `UpDownType` - `UP` if the shutter level indicated by the percent type equals 0, `DOWN` if it equals 100, and `UnDefType.UNDEF` for any other value|
