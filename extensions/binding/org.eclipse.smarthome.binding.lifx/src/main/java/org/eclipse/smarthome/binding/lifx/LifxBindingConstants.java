@@ -29,7 +29,6 @@ import com.google.common.collect.Sets;
 public class LifxBindingConstants {
 
     public static final String BINDING_ID = "lifx";
-    public static final String THREADPOOL_NAME = "lifx";
 
     // The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not more.
     public static final long PACKET_INTERVAL = 50;

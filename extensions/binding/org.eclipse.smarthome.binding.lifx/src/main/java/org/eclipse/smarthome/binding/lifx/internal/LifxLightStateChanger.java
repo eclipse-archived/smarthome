@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
@@ -40,7 +39,6 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightInfraredRequ
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +65,13 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     private final Logger logger = LoggerFactory.getLogger(LifxLightStateChanger.class);
 
     private final String macAsHex;
+    private final ScheduledExecutorService scheduler;
     private final LifxLightState pendingLightState;
     private final LifxLightCommunicationHandler communicationHandler;
     private final long fadeTime;
     private final Products product;
 
     private final ReentrantLock lock = new ReentrantLock();
-
-    private ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
 
     private ScheduledFuture<?> sendJob;
 
@@ -131,9 +127,11 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         }
     };
 
-    public LifxLightStateChanger(MACAddress macAddress, LifxLightState pendingLightState,
-            LifxLightCommunicationHandler communicationHandler, Products product, long fadeTime) {
+    public LifxLightStateChanger(MACAddress macAddress, ScheduledExecutorService scheduler,
+            LifxLightState pendingLightState, LifxLightCommunicationHandler communicationHandler, Products product,
+            long fadeTime) {
         this.macAsHex = macAddress.getHex();
+        this.scheduler = scheduler;
         this.pendingLightState = pendingLightState;
         this.communicationHandler = communicationHandler;
         this.product = product;
