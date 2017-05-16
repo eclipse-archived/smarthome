@@ -69,10 +69,15 @@ HSB string values consist of three comma-separated values for hue (0-360°), sat
 | StopMoveType | `STOP`, `MOVE` |
 | UpDownType | `UP`, `DOWN` |
 
-## Additional notes
+## A note on items which accept multiple state data types
 
-### Using `UpDownType` states and commands in Rollershutter items
+There are a number of items which accept multiple state data types, for example `DimmerItem`, which accepts `OnOffType` and `PercentType`, `RollershutterItem`, which  accepts `PercentType` and `UpDownType`, or `ColorItem`, which accepts `HSBType`, `OnOffType` and `PercentType`. Since an item has a SINGLE state, these multiple data types can be considered different views to this state.
+The data type carrying the most information about the state is usually used to keep the internal state for the item, and other datatypes are converted from this main data type. This main data type is normally the first element in the list returned by `Item.getAcceptedDataTypes()`.
 
-Rollershutter items accept `UpDownType` command type and have an `UpDownType` state. It is important to note that the `UpDownType` state is not a directional indicator,
-that is, it does not indicate that the shutters are currently moving up or down. It is used only as a shorthand to indicate that the shutters are currently in their top(`UP`) or bottom(`DOWN`)
-positions. Respectively, the `UpDownType` command type is used to send a command to the shutters to move to their top or bottom positions.
+Here is a short table demonstrating conversions for the examples above:
+
+| Itemname | Main data type | Additional data types conversions |
+| --- | --- | --- |
+| Color | `HSBType` | <ul><li>`OnOffType` - `OFF` if the brightness level in the `HSBType` equals 0, `ON` otherwise</li><li>`PercentType` - the value for the brightness level in the `HSBType`</li></ul> |
+| Dimmer | `PercentType` | `OnOffType` - `OFF` if the brightness level indicated by the percent type equals 0, `ON` otherwise |
+| Rollershutter | `PercentType` | `UpDownType` - `UP` if the shutter level indicated by the percent type equals 0, `DOWN` if it equals 100, and `UnDefType.UNDEF` for any other value|
