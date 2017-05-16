@@ -16,6 +16,7 @@ Import-Package:
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.core.thing,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
