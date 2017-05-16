@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import java.io.IOException;
+
 /**
  * Callback interface for sending a message to the MqttBrokerConnection.
  *
@@ -21,6 +23,6 @@ public interface MqttSenderChannel {
      * @param message message payload.
      * @throws Exception if an error occurs during sending.
      */
-    public void publish(String topic, byte[] message) throws Exception;
+    public void publish(String topic, byte[] message) throws IOException;
 
 }
