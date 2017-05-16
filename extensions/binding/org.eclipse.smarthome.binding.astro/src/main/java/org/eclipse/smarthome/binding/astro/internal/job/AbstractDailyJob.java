@@ -61,6 +61,10 @@ public abstract class AbstractDailyJob extends AbstractBaseJob {
 
     protected void scheduleEvent(String thingUid, AstroThingHandler astroHandler, Calendar eventAt, String event,
             String channelId) {
+        if (eventAt == null) {
+            logger.trace("Timestamp for job for event {} of channel {} was NULL", event, channelId);
+            return;
+        }
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put(KEY_THING_UID, thingUid);
         jobDataMap.put(EventJob.KEY_EVENT, event);
