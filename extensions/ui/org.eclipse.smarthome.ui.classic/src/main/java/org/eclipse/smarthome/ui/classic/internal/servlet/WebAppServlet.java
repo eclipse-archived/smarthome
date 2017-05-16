@@ -160,6 +160,9 @@ public class WebAppServlet extends BaseServlet {
                     result.append(renderer.processPage(renderer.getItemUIRegistry().getWidgetId(w), sitemapName, label,
                             children, async));
                 }
+            } else if (widgetId.equals("Colorpicker")) {
+                result.append("<root></root>");
+
             }
         } catch (RenderException e) {
             throw new ServletException(e.getMessage(), e);
@@ -179,7 +182,7 @@ public class WebAppServlet extends BaseServlet {
      * @return the response of the servlet on a polling timeout
      */
     private String getTimeoutResponse() {
-        return "<root><part><destination mode=\"replace\" zone=\"timeout\" create=\"false\"/><data/></part></root>";
+        return "<root></root>";
     }
 
     /**
