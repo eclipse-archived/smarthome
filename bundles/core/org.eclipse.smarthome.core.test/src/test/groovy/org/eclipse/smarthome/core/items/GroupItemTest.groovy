@@ -10,8 +10,6 @@ package org.eclipse.smarthome.core.items
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.function.Predicate
-
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
@@ -113,33 +111,11 @@ class GroupItemTest extends OSGiTest {
         subGroup.addMember(member1)
         rootGroupItem.addMember(subGroup)
 
-        Predicate<Item> groupItemsInMembers = new Predicate<Item>() {
-                    @Override
-                    public boolean test(Item t) {
-                        if(t instanceof GroupItem) {
-                            return true;
-                        }
-                        return false;
-                    }
-                };
-
-        Set<Item> members = rootGroupItem.getMembers(groupItemsInMembers)
+        Set<Item> members = rootGroupItem.getMembers({Item i -> i instanceof GroupItem})
         assertThat members.size(), is(1)
 
-        Predicate<Item> allMem1labelItems = new Predicate<Item>() {
-                    @Override
-                    public boolean test(Item t) {
-                        if(t.getLabel().equals("mem1")) {
-                            return true;
-                        }
-                        return false;
-                    }
-                };
-
-        members = rootGroupItem.getMembers(allMem1labelItems)
+        members = rootGroupItem.getMembers({Item i -> i.getLabel().equals("mem1")})
         assertThat members.size(), is(2)
-
-        println "done"
     }
 
     @Test
