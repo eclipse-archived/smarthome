@@ -8,27 +8,25 @@
  */
 package org.eclipse.smarthome.binding.astro.test.cases
 
-import static org.eclipse.smarthome.binding.astro.test.AstroOSGiTest.*
+import static org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsData.*
 
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime;
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
-import org.eclipse.smarthome.binding.astro.test.AstroOSGiTest.AcceptedItemType
 import org.eclipse.smarthome.core.library.types.DateTimeType
 import org.eclipse.smarthome.core.library.types.DecimalType
 
 /**
  * Test cases used in the {@link org.eclipse.smarthome.binding.astro.test.AstroStateTest}
  *
- * @author Petar Valchev - Initial Implementation
+ * @author Petar Valchev - Initial implementation
  * @author Svilen Valakanov - Added test data from 
  *      <a href="http://www.suncalc.net">http://www.suncalc.net</a> and 
  *      <a href="http://www.mooncalc.org">http://www.mooncalc.org</a>
  */
 public class AstroParametrizedTestCases {
-
     public static final double TEST_LATITUDE = 22.4343
     public static final double TEST_LONGITUDE = 54.3225
     public static final ZoneOffset TEST_ZONE_OFSET = ZoneOffset.of("+03:00")

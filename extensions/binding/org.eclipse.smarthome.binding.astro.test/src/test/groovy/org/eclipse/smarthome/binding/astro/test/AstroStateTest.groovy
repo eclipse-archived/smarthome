@@ -21,6 +21,7 @@ import org.eclipse.smarthome.binding.astro.internal.calc.SunCalc
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig
 import org.eclipse.smarthome.binding.astro.internal.model.Planet
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils
+import org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsData;
 import org.eclipse.smarthome.binding.astro.test.cases.AstroParametrizedTestCases
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingUID
@@ -34,13 +35,12 @@ import org.junit.runners.Parameterized.Parameters
  * Tests for the Astro Channels state
  *
  * @See {@link AstroParametrizedTestCases}
- * @author Petar Valchev - Initial Implementation
- * @author Svilen Valkanov - Added missing configuration parameters and replaced headers
+ * @author Petar Valchev - Initial implementation
+ * @author Svilen Valkanov -  Reworked to plain unit tests
  *
  */
 @RunWith(Parameterized.class)
 class AstroStateTest {
-
     private String thingID
     private String channelId
     private State expectedState
@@ -70,12 +70,12 @@ class AstroStateTest {
         Planet planet
         ThingUID thingUID
         switch(thingID) {
-            case (AstroOSGiTest.TEST_SUN_THING_ID) :
+            case (AstroBindingTestsData.TEST_SUN_THING_ID) :
                 SunCalc sunCalc = new SunCalc();
                 planet = sunCalc.getSunInfo(calendar, TEST_LATITUDE, TEST_LONGITUDE, null);
                 thingUID = new ThingUID (AstroBindingConstants.THING_TYPE_SUN,thingID)
                 break
-            case(AstroOSGiTest.TEST_MOON_THING_ID) :
+            case(AstroBindingTestsData.TEST_MOON_THING_ID) :
                 MoonCalc moonCalc = new MoonCalc();
                 planet = moonCalc.getMoonInfo(calendar, TEST_LATITUDE, TEST_LONGITUDE);
                 thingUID = new ThingUID (AstroBindingConstants.THING_TYPE_MOON,thingID)
