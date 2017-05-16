@@ -103,10 +103,11 @@ public class PageRenderer extends AbstractWidgetRenderer {
         // put a single frame around all children widgets, if there are no explicit frames
         if (!children.isEmpty()) {
             EObject firstChild = children.get(0);
-            EObject parent = firstChild.eContainer();
+            EObject parent = itemUIRegistry.getParent((Widget) firstChild);
             if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
                     || parent instanceof org.eclipse.smarthome.model.sitemap.List)) {
                 String frameSnippet = getSnippet("frame");
+                frameSnippet = StringUtils.replace(frameSnippet, "%widget_id%", "");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
                 frameSnippet = StringUtils.replace(frameSnippet, "%frame_class%", "mdl-form--no-label");
 

@@ -186,7 +186,7 @@ public class PageChangeListener implements StateChangeListener {
         Set<SitemapEvent> events = new HashSet<>();
         for (Widget w : widgets) {
             if (w instanceof Frame) {
-                events.addAll(constructSitemapEvents(item, ((Frame) w).getChildren()));
+                events.addAll(constructSitemapEvents(item, itemUIRegistry.getChildren((Frame) w)));
             }
 
             if ((w.getItem() != null && w.getItem().equals(item.getName())) || definesVisibility(w, item.getName())) {

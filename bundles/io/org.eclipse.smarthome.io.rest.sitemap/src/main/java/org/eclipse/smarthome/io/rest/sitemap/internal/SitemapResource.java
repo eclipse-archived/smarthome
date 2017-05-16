@@ -271,8 +271,9 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
-                return createPageBean(sitemapName, sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(),
-                        sitemap.getChildren(), false, isLeaf(sitemap.getChildren()), uri, locale);
+                EList<Widget> children = itemUIRegistry.getChildren(sitemap);
+                return createPageBean(sitemapName, sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(), children,
+                        false, isLeaf(children), uri, locale);
             } else {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
@@ -356,7 +357,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
         bean.link = UriBuilder.fromUri(uri).path(SitemapResource.PATH_SITEMAPS).path(bean.name).build().toASCIIString();
         bean.homepage = createPageBean(sitemap.getName(), sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(),
-                sitemap.getChildren(), true, false, uri, locale);
+                itemUIRegistry.getChildren(sitemap), true, false, uri, locale);
         return bean;
     }
 
@@ -540,7 +541,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         Sitemap sitemap = getSitemap(sitemapname);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
-                waitForChanges(sitemap.getChildren());
+                EList<Widget> children = itemUIRegistry.getChildren(sitemap);
+                waitForChanges(children);
             } else {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
