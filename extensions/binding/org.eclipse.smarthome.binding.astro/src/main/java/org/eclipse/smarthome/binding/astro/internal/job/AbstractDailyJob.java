@@ -9,10 +9,10 @@
 package org.eclipse.smarthome.binding.astro.internal.job;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
@@ -22,9 +22,7 @@ import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Range;
 import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
 import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.Trigger;
+import org.eclipse.smarthome.core.scheduler.DateExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +30,20 @@ import org.slf4j.LoggerFactory;
  * Calculates and publishes the planet data and also schedules the events for the current day.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Removed Quartz dependency
  */
 public abstract class AbstractDailyJob extends AbstractBaseJob {
     private final Logger logger = LoggerFactory.getLogger(AbstractDailyJob.class);
+
+    public AbstractDailyJob(Map<String, Object> jobDataMap) {
+        super(jobDataMap);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void executeJob(String thingUid, JobDataMap jobDataMap) {
+    protected void executeJob(String thingUid) {
         AstroThingHandler handler = AstroHandlerFactory.getHandler(thingUid);
         if (handler != null) {
             handler.publishDailyInfo();
@@ -65,7 +68,7 @@ public abstract class AbstractDailyJob extends AbstractBaseJob {
             logger.trace("Timestamp for job for event {} of channel {} was NULL", event, channelId);
             return;
         }
-        JobDataMap jobDataMap = new JobDataMap();
+        Map<String, Object> jobDataMap = new HashMap<>();
         jobDataMap.put(KEY_THING_UID, thingUid);
         jobDataMap.put(EventJob.KEY_EVENT, event);
         jobDataMap.put(KEY_CHANNEL_ID, channelId);
@@ -78,7 +81,7 @@ public abstract class AbstractDailyJob extends AbstractBaseJob {
 
     protected void schedulePublishPlanet(String thingUid, AstroThingHandler astroHandler, String jobKey,
             Calendar eventAt) {
-        JobDataMap jobDataMap = new JobDataMap();
+        Map<String, Object> jobDataMap = new HashMap<>();
         jobDataMap.put(KEY_THING_UID, thingUid);
 
         schedule(astroHandler, PublishPlanetJob.class, jobDataMap, "publish-" + jobKey, eventAt);
@@ -86,7 +89,7 @@ public abstract class AbstractDailyJob extends AbstractBaseJob {
 
     protected void scheduleSunPhase(String thingUid, AstroThingHandler astroHandler, SunPhaseName phaseName,
             Calendar eventAt) {
-        JobDataMap jobDataMap = new JobDataMap();
+        Map<String, Object> jobDataMap = new HashMap<>();
         jobDataMap.put(KEY_THING_UID, thingUid);
         jobDataMap.put(KEY_PHASE_NAME, phaseName);
 
@@ -94,19 +97,18 @@ public abstract class AbstractDailyJob extends AbstractBaseJob {
                 eventAt);
     }
 
-    private void schedule(AstroThingHandler astroHandler, Class<? extends AbstractBaseJob> clazz, JobDataMap jobDataMap,
-            String jobKey, Calendar eventAt) {
+    private void schedule(AstroThingHandler astroHandler, Class<? extends AbstractBaseJob> clazz,
+            Map<String, Object> jobDataMap, String jobKey, Calendar eventAt) {
         try {
             Calendar today = Calendar.getInstance();
             if (eventAt != null && DateTimeUtils.isSameDay(eventAt, today)
                     && DateTimeUtils.isTimeGreaterEquals(eventAt, today)) {
                 jobDataMap.put(KEY_JOB_NAME, "job-" + jobKey);
-                String thingUid = jobDataMap.getString(KEY_THING_UID);
-                Trigger trigger = newTrigger().withIdentity("trigger-" + jobKey, thingUid).startAt(eventAt.getTime())
-                        .build();
-                JobDetail jobDetail = newJob(clazz).withIdentity("job-" + jobKey, thingUid).usingJobData(jobDataMap)
-                        .build();
-                astroHandler.getScheduler().scheduleJob(jobDetail, trigger);
+                String thingUid = (String) jobDataMap.get(KEY_THING_UID);
+                DateExpression dateExpression = new DateExpression(
+                        AbstractBaseJob.ISO8601_FORMAT.format(eventAt.getTime()));
+                astroHandler.getScheduler().schedule(clazz.getDeclaredConstructor(Map.class).newInstance(jobDataMap),
+                        dateExpression);
                 logger.debug("Scheduled astro job-{} for thing {} at {}", jobKey, thingUid,
                         DateFormatUtils.ISO_DATETIME_FORMAT.format(eventAt));
             }

@@ -10,25 +10,31 @@ package org.eclipse.smarthome.binding.astro.internal.job;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.CHANNEL_ID_SUN_PHASE_NAME;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.AstroHandlerFactory;
 import org.eclipse.smarthome.binding.astro.internal.model.Sun;
 import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.quartz.JobDataMap;
 
 /**
  * Job to publish the current sun phase.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Removed Quartz dependency
  */
 public class SunPhaseJob extends AbstractBaseJob {
+
+    public SunPhaseJob(Map<String, Object> jobDataMap) {
+        super(jobDataMap);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void executeJob(String thingUid, JobDataMap jobDataMap) {
+    protected void executeJob(String thingUid) {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUid);
         Channel phaseNameChannel = astroHandler.getThing().getChannel(CHANNEL_ID_SUN_PHASE_NAME);
         if (astroHandler != null && phaseNameChannel != null) {
