@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.core.internal.RuleRegistryImpl;
@@ -70,6 +71,11 @@ public class RuleRegistryTest {
         Assert.assertEquals("Rule list size", 1, ruleRegistry.getAll().size());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // checking that results from stream() have the same size as getAll() above
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().collect(Collectors.toList()).size());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking rule with 1 tag
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         name = "rule_with_tag1";
@@ -89,6 +95,11 @@ public class RuleRegistryTest {
         Assert.assertNotSame(getRule, rule_with_tag1);          // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 2, ruleRegistry.getAll().size());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // checking that results from stream() have the same size as getAll() above
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().collect(Collectors.toList()).size());
 
         Collection<Rule> rules_with_tag1 = ruleRegistry.getByTags(tag1);
         Assert.assertEquals("Rule list size", 1, rules_with_tag1.size());
@@ -114,6 +125,11 @@ public class RuleRegistryTest {
         Assert.assertNotSame(getRule, rule_with_tag1_tag2);         // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 3, ruleRegistry.getAll().size());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // checking that results from stream() have the same size as getAll() above
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().collect(Collectors.toList()).size());
 
         rules_with_tag1 = ruleRegistry.getByTags(tag1);
         Assert.assertEquals("Rule list size", 2, rules_with_tag1.size());
@@ -146,6 +162,11 @@ public class RuleRegistryTest {
         Assert.assertNotSame(getRule, rule_with_tag1_tag2_tag3);    // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 4, ruleRegistry.getAll().size());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // checking that results from stream() have the same size as getAll() above
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        Assert.assertEquals("Rule list size", 4, ruleRegistry.stream().collect(Collectors.toList()).size());
 
         rules_with_tag1 = ruleRegistry.getByTags(tag1);
         Assert.assertEquals("Rule list size", 3, rules_with_tag1.size());
