@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -33,7 +34,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
     private static final String SUBCMD_ADDTAG = "addTag";
-    private static final String SUBCMD_REMTAG = "rmTag";
+    private static final String SUBCMD_RMTAG = "rmTag";
 
     private ItemRegistry itemRegistry;
 
@@ -49,7 +50,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                 buildCommandUsage(SUBCMD_CLEAR, "removes all items"),
                 buildCommandUsage(SUBCMD_REMOVE + " <itemName>", "removes the given item"),
                 buildCommandUsage(SUBCMD_ADDTAG + " <itemName> <tag>", "adds a tag to the given item"),
-                buildCommandUsage(SUBCMD_REMTAG + " <itemName> <tag>", "removes a tag from the given item") });
+                buildCommandUsage(SUBCMD_RMTAG + " <itemName> <tag>", "removes a tag from the given item") });
     }
 
     @Override
@@ -75,18 +76,26 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                     break;
                 case SUBCMD_ADDTAG:
                     if (args.length > 2) {
-                        addTag(args[1], args[2], console);
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::addTag, args[2], gItem, console);
+                        }
                     } else {
                         console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
                                 + SUBCMD_ADDTAG + " <itemName> <tag>");
                     }
                     break;
-                case SUBCMD_REMTAG:
+                case SUBCMD_RMTAG:
                     if (args.length > 2) {
-                        removeTag(args[1], args[2], console);
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::removeTag, args[2], gItem, console);
+                        }
                     } else {
                         console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
-                                + SUBCMD_REMTAG + " <itemName> <tag>");
+                                + SUBCMD_RMTAG + " <itemName> <tag>");
                     }
                     break;
                 default:
@@ -99,39 +108,16 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
         }
     }
 
-    private void addTag(String itemName, String tag, Console console) {
-        Item item = itemRegistry.get(itemName);
-        if (item instanceof GenericItem) {
-            GenericItem gItem = (GenericItem) item;
-            gItem.addTag(tag);
-            Item oldItem = itemRegistry.update(gItem);
-            if (oldItem == null) {
-                console.println("Error: Cannot add tag " + tag + " to item " + itemName
-                        + " because this item does not belong to a ManagedProvider");
-            } else {
-                console.println("Successfully added tag " + tag + " to item " + itemName);
-            }
-        } else {
-            console.println(
-                    "Error: Cannot add tag " + tag + " to item " + itemName + " because it is not a GenericItem");
-        }
-    }
+    private <T> void handleTags(final Consumer<T> func, final T tag, GenericItem gItem, Console console) {
+        // add or remove tag method is passed here
+        func.accept(tag);
 
-    private void removeTag(String itemName, String tag, Console console) {
-        Item item = itemRegistry.get(itemName);
-        if (item instanceof GenericItem) {
-            GenericItem gItem = (GenericItem) item;
-            gItem.removeTag(tag);
-            Item oldItem = itemRegistry.update(gItem);
-            if (oldItem == null) {
-                console.println("Error: Cannot remove tag " + tag + " from item " + itemName
-                        + " because this item does not belong to a ManagedProvider");
-            } else {
-                console.println("Successfully removed tag " + tag + " from item " + itemName);
-            }
+        Item oldItem = itemRegistry.update(gItem);
+        if (oldItem == null) {
+            console.println("Error: Cannot change tag " + tag + " on item " + gItem.getName()
+                    + " because this item does not belong to a ManagedProvider");
         } else {
-            console.println(
-                    "Error: Cannot remove tag " + tag + " from item " + itemName + " because it is not a GenericItem");
+            console.println("Successfully changed tag " + tag + " on item " + gItem.getName());
         }
     }
 
