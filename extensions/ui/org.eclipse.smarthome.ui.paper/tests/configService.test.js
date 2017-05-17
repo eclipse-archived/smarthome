@@ -122,10 +122,16 @@ describe('factory configService', function() {
             expect(params[0].parameters[0].element).toEqual("input");
             expect(params[0].parameters[0].inputType).toEqual("text");
         });
-        it('should return dropdown widget for type TEXT with options', function() {
-            var inputParams=[{type:'text',options:[1,2]}];
+        it('should return dropdown widget for type TEXT with options no limit', function() {
+            var inputParams=[{type:'text',options:[1,2],limitToOptions:true,required:true}];
             var params=ConfigService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("select");
+            expect(params[0].parameters[0].options.length).toEqual(2);
+        });
+        it('should return multiselect widget for type TEXT with options and limit', function() {
+            var inputParams=[{type:'text',options:[1,2],limitToOptions:false,required:true}];
+            var params=ConfigService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("multiSelect");
             expect(params[0].parameters[0].options.length).toEqual(2);
         });
         it('should return text widget for type TEXT', function() {
@@ -135,7 +141,7 @@ describe('factory configService', function() {
             expect(params[0].parameters[0].inputType).toEqual("text");
         });
         it('should return dropdown widget for type INTEGER/DECIMAL with options', function() {
-            var inputParams=[{type:'integer',options:[{value:"1"},{value:"2"}]}];
+            var inputParams=[{type:'integer',options:[{value:"1"},{value:"2"}],limitToOptions:true}];
             var params=ConfigService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("select");
             expect(params[0].parameters[0].options[0].value).toEqual(1);
