@@ -77,7 +77,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     private final FirmwareStatusInfo updateExecutableInfoFw113 = createUpdateExecutableInfo(FW113_EN.getUID())
     private final FirmwareStatusInfo updateExecutableInfoFw120 = createUpdateExecutableInfo(FW120_EN.getUID())
 
-    Locale defaultLocale
+    Locale _defaultLocale
 
     @Rule
     public ExpectedException thrown = ExpectedException.none()
@@ -202,8 +202,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     @Before
     void setup() {
-        defaultLocale = Locale.getDefault()
-        Locale.setDefault(Locale.ENGLISH)
+        _defaultLocale = Locale.getDefault()
+        setDefaultLocale(Locale.ENGLISH)
 
         registerVolatileStorageService()
         managedThingProvider = getService ManagedThingProvider
@@ -249,7 +249,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        Locale.setDefault(defaultLocale)
+        setDefaultLocale(_defaultLocale)
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
@@ -410,9 +410,9 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     @Test
     void 'assert that cancel cancels the firmware update using the correct FirmwareUpdateHandler'(){
-        firmwareUpdateService.updateFirmware(THING1_UID, FW111_EN.getUID(), defaultLocale)
-        firmwareUpdateService.updateFirmware(THING2_UID, FW111_EN.getUID(), defaultLocale)
-        firmwareUpdateService.updateFirmware(THING3_UID, FWALPHA_EN.getUID(), defaultLocale)
+        firmwareUpdateService.updateFirmware(THING1_UID, FW111_EN.getUID(), _defaultLocale)
+        firmwareUpdateService.updateFirmware(THING2_UID, FW111_EN.getUID(), _defaultLocale)
+        firmwareUpdateService.updateFirmware(THING3_UID, FWALPHA_EN.getUID(), _defaultLocale)
 
         firmwareUpdateService.cancelFirmwareUpdate(THING3_UID)
 
