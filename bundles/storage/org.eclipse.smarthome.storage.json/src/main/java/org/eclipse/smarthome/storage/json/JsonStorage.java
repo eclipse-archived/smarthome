@@ -260,6 +260,14 @@ public class JsonStorage<T> implements Storage<T> {
                 fileTimes.get(fileTimes.size() - age) + SEPARATOR + file.getName());
     }
 
+    private void writeDatabaseFile(File dataFile, String data) {
+        try (FileOutputStream outputStream = new FileOutputStream(dataFile, false)) {
+            outputStream.write(data.getBytes());
+        } catch (Exception e) {
+            logger.error("Error writing JsonDB to {}. Cause {}.", dataFile.getPath(), e.getMessage());
+        }
+    }
+
     /**
      * Write out any outstanding data.
      * <p>
@@ -269,24 +277,15 @@ public class JsonStorage<T> implements Storage<T> {
      * writing the backup copy (which would require a read and write, and is thus slower).
      */
     public void commitDatabase() {
-        String s = mapper.toJson(map);
+        String json = mapper.toJson(map);
 
         synchronized (map) {
             // Write the database file
-            try (FileOutputStream outputStream = new FileOutputStream(file, false);) {
-                outputStream.write(s.getBytes());
-            } catch (Exception e) {
-                logger.error("Error writing JsonDB to {}. Cause {}.", file.getPath(), e.getMessage());
-            }
+            writeDatabaseFile(file, json);
 
             // And also write the backup
-            File backup = new File(file.getParent() + File.separator + BACKUP_EXTENSION,
-                    System.currentTimeMillis() + SEPARATOR + file.getName());
-            try (FileOutputStream outputStream = new FileOutputStream(backup, false);) {
-                outputStream.write(s.getBytes());
-            } catch (Exception e) {
-                logger.error("Error writing JsonDB to {}. Cause {}.", file.getPath(), e.getMessage());
-            }
+            writeDatabaseFile(new File(file.getParent() + File.separator + BACKUP_EXTENSION,
+                    System.currentTimeMillis() + SEPARATOR + file.getName()), json);
 
             deferredSince = 0;
         }
