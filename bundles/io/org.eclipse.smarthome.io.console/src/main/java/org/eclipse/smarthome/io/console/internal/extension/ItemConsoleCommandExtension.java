@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
  * @author Simon Kaufmann - Added commands to clear and remove items
+ * @author Stefan Triller - Added commands for adding and removing tags
  *
  */
 public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -37,6 +39,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_RMTAG = "rmTag";
 
     private ItemRegistry itemRegistry;
+    private ManagedItemProvider managedItemProvider;
 
     public ItemConsoleCommandExtension() {
         super("items", "Access the item registry.");
@@ -109,15 +112,18 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     }
 
     private <T> void handleTags(final Consumer<T> func, final T tag, GenericItem gItem, Console console) {
-        // add or remove tag method is passed here
-        func.accept(tag);
+        // allow adding/removing of tags only for managed items
+        if (managedItemProvider.get(gItem.getName()) != null) {
+            // add or remove tag method is passed here
+            func.accept(tag);
 
-        Item oldItem = itemRegistry.update(gItem);
-        if (oldItem == null) {
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem != null) {
+                console.println("Successfully changed tag " + tag + " on item " + gItem.getName());
+            }
+        } else {
             console.println("Error: Cannot change tag " + tag + " on item " + gItem.getName()
                     + " because this item does not belong to a ManagedProvider");
-        } else {
-            console.println("Successfully changed tag " + tag + " on item " + gItem.getName());
         }
     }
 
@@ -146,6 +152,14 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = null;
     }
 
 }
