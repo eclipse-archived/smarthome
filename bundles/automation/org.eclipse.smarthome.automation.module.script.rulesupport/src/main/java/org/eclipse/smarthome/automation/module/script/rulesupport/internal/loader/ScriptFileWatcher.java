@@ -43,6 +43,7 @@ public class ScriptFileWatcher extends AbstractWatchService {
     private long earliestStart = System.currentTimeMillis() + INITIAL_DELAY * 1000;
 
     private ScriptEngineManager manager;
+    ScheduledExecutorService scheduler;
 
     private Map<String, Set<URL>> urlsByScriptExtension = new ConcurrentHashMap<>();
     private Set<URL> loaded = new HashSet<>();
@@ -59,7 +60,17 @@ public class ScriptFileWatcher extends AbstractWatchService {
     public void activate() {
         super.activate();
         importResources(new File(pathToWatch));
-        startScheduler();
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleWithFixedDelay(this::checkFiles, INITIAL_DELAY, RECHECK_INTERVAL, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void deactivate() {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+            scheduler = null;
+        }
+        super.deactivate();
     }
 
     /**
@@ -214,11 +225,6 @@ public class ScriptFileWatcher extends AbstractWatchService {
 
     private String getScriptIdentifier(URL url) {
         return url.toString();
-    }
-
-    private void startScheduler() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleWithFixedDelay(this::checkFiles, INITIAL_DELAY, RECHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     private void checkFiles() {
