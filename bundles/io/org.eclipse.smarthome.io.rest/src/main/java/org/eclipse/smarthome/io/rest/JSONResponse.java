@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Static helper methods to build up JSON-like Response objects and error handling.
@@ -29,20 +36,24 @@ import com.google.gson.JsonObject;
  */
 @Provider
 public class JSONResponse {
-    public static final String JSON_KEY_ERROR_MESSAGE = "message";
+
+    private final Logger logger = LoggerFactory.getLogger(JSONResponse.class);
+
+    private static final String JSON_KEY_ERROR_MESSAGE = "message";
     public static final String JSON_KEY_ERROR = "error";
     public static final String JSON_KEY_HTTPCODE = "http-code";
 
     // also dump stacktrace?
     private final static boolean WITH_STACKTRACE = false;
 
-    final static Gson GSON = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)
-            .setPrettyPrinting().create();
+    private static JSONResponse INSTANCE = new JSONResponse();
+
+    private final Gson GSON = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS).create();
 
     /**
-     * hide ctor a bit from public
+     * avoid instantiation apart from {@link #createResponse}.
      */
-    JSONResponse() {
+    private JSONResponse() {
     }
 
     /**
@@ -51,7 +62,7 @@ public class JSONResponse {
      * @param status
      * @return ResponseBuilder configured for "Content-Type" MediaType.APPLICATION_JSON
      */
-    private static ResponseBuilder response(Response.Status status) {
+    private ResponseBuilder response(Response.Status status) {
         return Response.status(status).header("Content-Type", MediaType.APPLICATION_JSON);
     }
 
@@ -64,43 +75,43 @@ public class JSONResponse {
      * @param ex
      * @return
      */
-    private static JsonElement createErrorJson(String message, Response.Status status, Object entity, Exception ex) {
-        JsonObject ret = new JsonObject();
-        JsonObject err = new JsonObject();
-        ret.add(JSON_KEY_ERROR, err);
+    private JsonElement createErrorJson(String message, Response.Status status, Object entity, Exception ex) {
+        JsonObject resultJson = new JsonObject();
+        JsonObject errorJson = new JsonObject();
+        resultJson.add(JSON_KEY_ERROR, errorJson);
 
-        err.addProperty(JSON_KEY_ERROR_MESSAGE, message);
+        errorJson.addProperty(JSON_KEY_ERROR_MESSAGE, message);
 
         // in case we have a http status code, report it
-        if (null != status) {
-            err.addProperty(JSON_KEY_HTTPCODE, status.getStatusCode());
+        if (status != null) {
+            errorJson.addProperty(JSON_KEY_HTTPCODE, status.getStatusCode());
         }
 
         // in case there is an entity...
-        if (null != entity) {
+        if (entity != null) {
             // return the existing object
-            ret.add("entity", GSON.toJsonTree(entity));
+            resultJson.add("entity", GSON.toJsonTree(entity));
         }
 
         // is there an exception?
-        if (null != ex) {
+        if (ex != null) {
 
             // JSONify the Exception
-            JsonObject exc = new JsonObject();
-            err.add("exception", exc);
+            JsonObject exceptionJson = new JsonObject();
+            errorJson.add("exception", exceptionJson);
             {
-                exc.addProperty("class", ex.getClass().getName());
-                exc.addProperty("message", ex.getMessage());
-                exc.addProperty("localized-message", ex.getLocalizedMessage());
-                exc.addProperty("cause", null != ex.getCause() ? ex.getCause().getClass().getName() : null);
+                exceptionJson.addProperty("class", ex.getClass().getName());
+                exceptionJson.addProperty("message", ex.getMessage());
+                exceptionJson.addProperty("localized-message", ex.getLocalizedMessage());
+                exceptionJson.addProperty("cause", null != ex.getCause() ? ex.getCause().getClass().getName() : null);
 
                 if (WITH_STACKTRACE) {
-                    exc.add("stacktrace", GSON.toJsonTree(ex.getStackTrace()));
+                    exceptionJson.add("stacktrace", GSON.toJsonTree(ex.getStackTrace()));
                 }
             }
         }
 
-        return ret;
+        return resultJson;
     }
 
     /**
@@ -115,7 +126,7 @@ public class JSONResponse {
     }
 
     /**
-     * Depending in the status, create a Response object containing either the entity alone or an error JSON
+     * Depending on the status, create a Response object containing either the entity alone or an error JSON
      * which might hold the entity as well.
      *
      * @param status
@@ -124,19 +135,36 @@ public class JSONResponse {
      * @return Response configure for error or success
      */
     public static Response createResponse(Response.Status status, Object entity, String errormessage) {
-        JsonElement ret;
+        ResponseBuilder rp = INSTANCE.response(status);
         if (status.getFamily() == Response.Status.Family.SUCCESSFUL) {
-            // create non-null JsonElement if null!=entity
-            ret = null != entity ? GSON.toJsonTree(entity) : null;
+            PipedOutputStream out = new PipedOutputStream();
+
+            try {
+                PipedInputStream in = new PipedInputStream(out);
+                rp.entity(in);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try (JsonWriter jsonWriter = INSTANCE.GSON
+                            .newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
+                        if (entity != null) {
+                            INSTANCE.GSON.toJson(entity, entity.getClass(), jsonWriter);
+                        }
+                    } catch (IOException e) {
+                        INSTANCE.logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream.", e);
+                        throw new RuntimeException(e);
+                    }
+                }
+            }).start();
         } else {
-            ret = createErrorJson(errormessage, status, entity, null);
+            JsonElement errorJson = INSTANCE.createErrorJson(errormessage, status, entity, null);
+            rp.entity(errorJson);
         }
 
-        // configure response
-        ResponseBuilder rp = response(status);
-        if (null != ret) {
-            rp = rp.entity(GSON.toJson(ret));
-        }
         return rp.build();
     }
 
@@ -166,8 +194,8 @@ public class JSONResponse {
                 status = (Response.Status) ((WebApplicationException) e).getResponse().getStatusInfo();
             }
 
-            JsonElement ret = createErrorJson(e.getMessage(), status, null, e);
-            return response(status).entity(GSON.toJson(ret)).build();
+            JsonElement ret = INSTANCE.createErrorJson(e.getMessage(), status, null, e);
+            return INSTANCE.response(status).entity(INSTANCE.GSON.toJson(ret)).build();
         }
     }
 }

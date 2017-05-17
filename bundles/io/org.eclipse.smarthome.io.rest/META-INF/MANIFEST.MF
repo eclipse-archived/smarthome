@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
+ com.google.gson.stream,
  io.swagger.annotations;resolution:=optional,
  javax.servlet,
  javax.servlet.http,
