@@ -73,8 +73,8 @@ public class JsonStorage<T> implements Storage<T> {
         this.writeDelay = writeDelay;
         this.maxDeferredPeriod = maxDeferredPeriod;
 
-        this.mapper = new GsonBuilder().registerTypeAdapter(Map.class, new StringObjectMapDeserializer()).setPrettyPrinting()
-                .create();
+        this.mapper = new GsonBuilder().registerTypeAdapter(Map.class, new StringObjectMapDeserializer())
+                .setPrettyPrinting().create();
 
         commitTimer = new Timer();
 
@@ -260,23 +260,32 @@ public class JsonStorage<T> implements Storage<T> {
                 fileTimes.get(fileTimes.size() - age) + SEPARATOR + file.getName());
     }
 
+    private void writeDatabaseFile(File dataFile, String data) {
+        try (FileOutputStream outputStream = new FileOutputStream(dataFile, false)) {
+            outputStream.write(data.getBytes());
+        } catch (Exception e) {
+            logger.error("Error writing JsonDB to {}. Cause {}.", dataFile.getPath(), e.getMessage());
+        }
+    }
+
     /**
-     * Write out any outstanding data
+     * Write out any outstanding data.
+     * <p>
+     * This creates the backup copy at the same time as writing the database file. This avoids
+     * having to either rename the file later (which may leave a small window for there to
+     * be no file if the system crashes during the write process), or to copy the file when
+     * writing the backup copy (which would require a read and write, and is thus slower).
      */
     public void commitDatabase() {
-        String s = mapper.toJson(map);
+        String json = mapper.toJson(map);
 
         synchronized (map) {
-            // Rename the file for backup
-            File rename = new File(file.getParent() + File.separator + BACKUP_EXTENSION,
-                    System.currentTimeMillis() + SEPARATOR + file.getName());
-            file.renameTo(rename);
+            // Write the database file
+            writeDatabaseFile(file, json);
 
-            try (FileOutputStream outputStream = new FileOutputStream(file, false);) {
-                outputStream.write(s.getBytes());
-            } catch (Exception e) {
-                logger.error("Error writing JsonDB to {}. Cause {}.", file.getPath(), e.getMessage());
-            }
+            // And also write the backup
+            writeDatabaseFile(new File(file.getParent() + File.separator + BACKUP_EXTENSION,
+                    System.currentTimeMillis() + SEPARATOR + file.getName()), json);
 
             deferredSince = 0;
         }
