@@ -40,7 +40,7 @@ class SatisfiableResourceFilterTest {
     @Test
     public void testWithBasicRESTResource() {
 
-        RESTResource resource = [:] as RESTResource;
+        RESTResource resource = new RESTResource() {};
 
         ResponseHolder responseHolder = new ResponseHolder();
 
