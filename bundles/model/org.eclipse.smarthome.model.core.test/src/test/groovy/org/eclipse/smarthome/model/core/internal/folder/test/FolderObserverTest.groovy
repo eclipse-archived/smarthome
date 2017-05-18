@@ -518,7 +518,7 @@ class FolderObserverTest extends OSGiTest {
         }
         else {
             //windows needs a filesystem property set for a file to be hidden (untested)
-            Files.set.setAttribute (mockFileWithValidExt.toPath(), "dos:hidden", true);
+            Files.setAttribute (mockFileWithValidExt.toPath(), "dos:hidden", true);
         }
 
         waitForAssert{
