@@ -40,7 +40,7 @@ class SatisfiableResourceFilterTest {
     @Test
     public void testWithBasicRESTResource() {
 
-        RESTResource resource = [] as RESTResource;
+        RESTResource resource = [:] as RESTResource;
 
         ResponseHolder responseHolder = new ResponseHolder();
 
@@ -58,12 +58,13 @@ class SatisfiableResourceFilterTest {
 
         ResponseHolder responseHolder = new ResponseHolder();
 
-        RESTResource resource = [
-            isSatisfied: {
-                responseHolder.satisfiedCalled = true
-                true
-            }
-        ]
+        RESTResource resource = new RESTResource() {
+                    @Override
+                    boolean isSatisfied() {
+                        responseHolder.satisfiedCalled = true;
+                        return true;
+                    }
+                };
 
         ContainerRequestContext context = getContextMock(resource, responseHolder);
 
@@ -78,12 +79,13 @@ class SatisfiableResourceFilterTest {
     public void testWithSatisfiableRESTResourceNOTSatisfied() {
         ResponseHolder responseHolder = new ResponseHolder();
 
-        RESTResource resource = [
-            isSatisfied: {
-                responseHolder.satisfiedCalled=true
-                false
-            }
-        ]
+        RESTResource resource = new RESTResource() {
+                    @Override
+                    boolean isSatisfied() {
+                        responseHolder.satisfiedCalled = true;
+                        return false;
+                    }
+                };
 
         ContainerRequestContext context = getContextMock(resource, responseHolder);
 
