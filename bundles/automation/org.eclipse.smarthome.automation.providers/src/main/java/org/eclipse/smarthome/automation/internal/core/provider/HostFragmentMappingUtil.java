@@ -101,6 +101,10 @@ public class HostFragmentMappingUtil {
     }
 
     static boolean isFragmentBundle(Bundle bundle) {
+        PackageAdmin pkgAdmin = HostFragmentMappingUtil.pkgAdmin;
+        if (pkgAdmin == null) {
+            throw new IllegalStateException();
+        }
         return pkgAdmin.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT;
     }
 
