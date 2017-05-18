@@ -17,6 +17,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -26,29 +27,27 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 
 /**
  * Static helper methods to build up JSON-like Response objects and error handling.
  *
- * @author Joerg Plewe
+ * @author Joerg Plewe - initial contribution
+ * @author Henning Treu - Provide streaming capabilities
  */
-@Provider
 public class JSONResponse {
 
     private final Logger logger = LoggerFactory.getLogger(JSONResponse.class);
 
-    private static final String JSON_KEY_ERROR_MESSAGE = "message";
-    public static final String JSON_KEY_ERROR = "error";
-    public static final String JSON_KEY_HTTPCODE = "http-code";
-
-    // also dump stacktrace?
-    private final static boolean WITH_STACKTRACE = false;
-
-    private static JSONResponse INSTANCE = new JSONResponse();
-
+    private static final JSONResponse INSTANCE = new JSONResponse();
     private final Gson GSON = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS).create();
+
+    static final String JSON_KEY_ERROR_MESSAGE = "message";
+    static final String JSON_KEY_ERROR = "error";
+    static final String JSON_KEY_HTTPCODE = "http-code";
+    static final String JSON_KEY_ENTITY = "entity";
 
     /**
      * avoid instantiation apart from {@link #createResponse}.
@@ -57,12 +56,40 @@ public class JSONResponse {
     }
 
     /**
+     * in case of error (404 and such)
+     *
+     * @param status
+     * @param errormessage
+     * @return Response containing a status and the errormessage in JSON format
+     */
+    public static Response createErrorResponse(Response.Status status, String errormessage) {
+        return createResponse(status, null, errormessage);
+    }
+
+    /**
+     * Depending on the status, create a Response object containing either the entity alone or an error JSON
+     * which might hold the entity as well.
+     *
+     * @param status the {@link Response.Status} for the response.
+     * @param entity the entity which is transformed into a JSON stream.
+     * @param errormessage an optional error message (may be null), ignored if the status family is successful
+     * @return Response configure for error or success
+     */
+    public static Response createResponse(Response.Status status, Object entity, String errormessage) {
+        if (status.getFamily() != Response.Status.Family.SUCCESSFUL) {
+            return INSTANCE.createErrorResponse(status, entity, errormessage);
+        }
+
+        return INSTANCE.createResponse(status, entity);
+    }
+
+    /**
      * basic configuration of a ResponseBuilder
      *
      * @param status
      * @return ResponseBuilder configured for "Content-Type" MediaType.APPLICATION_JSON
      */
-    private ResponseBuilder response(Response.Status status) {
+    private ResponseBuilder responseBuilder(Response.Status status) {
         return Response.status(status).header("Content-Type", MediaType.APPLICATION_JSON);
     }
 
@@ -90,80 +117,54 @@ public class JSONResponse {
         // in case there is an entity...
         if (entity != null) {
             // return the existing object
-            resultJson.add("entity", GSON.toJsonTree(entity));
+            resultJson.add(JSON_KEY_ENTITY, GSON.toJsonTree(entity));
         }
 
         // is there an exception?
         if (ex != null) {
-
             // JSONify the Exception
             JsonObject exceptionJson = new JsonObject();
+            exceptionJson.addProperty("class", ex.getClass().getName());
+            exceptionJson.addProperty("message", ex.getMessage());
+            exceptionJson.addProperty("localized-message", ex.getLocalizedMessage());
+            exceptionJson.addProperty("cause", null != ex.getCause() ? ex.getCause().getClass().getName() : null);
             errorJson.add("exception", exceptionJson);
-            {
-                exceptionJson.addProperty("class", ex.getClass().getName());
-                exceptionJson.addProperty("message", ex.getMessage());
-                exceptionJson.addProperty("localized-message", ex.getLocalizedMessage());
-                exceptionJson.addProperty("cause", null != ex.getCause() ? ex.getCause().getClass().getName() : null);
-
-                if (WITH_STACKTRACE) {
-                    exceptionJson.add("stacktrace", GSON.toJsonTree(ex.getStackTrace()));
-                }
-            }
         }
 
         return resultJson;
     }
 
-    /**
-     * in case of error (404 and such)
-     *
-     * @param status
-     * @param errormessage
-     * @return Response containing a status and the errormessage in JSON format
-     */
-    public static Response createErrorResponse(Response.Status status, String errormessage) {
-        return createResponse(status, null, errormessage);
+    private Response createErrorResponse(Response.Status status, Object entity, String errormessage) {
+        ResponseBuilder rp = responseBuilder(status);
+        JsonElement errorJson = createErrorJson(errormessage, status, entity, null);
+        rp.entity(errorJson);
+        return rp.build();
     }
 
-    /**
-     * Depending on the status, create a Response object containing either the entity alone or an error JSON
-     * which might hold the entity as well.
-     *
-     * @param status
-     * @param entity
-     * @param errormessage an optional error message (may be null), ignored if the status family is successful
-     * @return Response configure for error or success
-     */
-    public static Response createResponse(Response.Status status, Object entity, String errormessage) {
-        ResponseBuilder rp = INSTANCE.response(status);
-        if (status.getFamily() == Response.Status.Family.SUCCESSFUL) {
-            PipedOutputStream out = new PipedOutputStream();
+    private Response createResponse(Status status, Object entity) {
+        ResponseBuilder rp = responseBuilder(status);
+        PipedOutputStream out = new PipedOutputStream();
 
-            try {
-                PipedInputStream in = new PipedInputStream(out);
-                rp.entity(in);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try (JsonWriter jsonWriter = INSTANCE.GSON
-                            .newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
-                        if (entity != null) {
-                            INSTANCE.GSON.toJson(entity, entity.getClass(), jsonWriter);
-                        }
-                    } catch (IOException e) {
-                        INSTANCE.logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream.", e);
-                        throw new RuntimeException(e);
-                    }
-                }
-            }).start();
-        } else {
-            JsonElement errorJson = INSTANCE.createErrorJson(errormessage, status, entity, null);
-            rp.entity(errorJson);
+        try {
+            PipedInputStream in = new PipedInputStream(out);
+            rp.entity(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
+                    if (entity != null) {
+                        GSON.toJson(entity, entity.getClass(), jsonWriter);
+                        jsonWriter.flush();
+                    }
+                } catch (IOException | JsonIOException e) {
+                    logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
+                }
+            }
+        }).start();
 
         return rp.build();
     }
@@ -195,7 +196,7 @@ public class JSONResponse {
             }
 
             JsonElement ret = INSTANCE.createErrorJson(e.getMessage(), status, null, e);
-            return INSTANCE.response(status).entity(INSTANCE.GSON.toJson(ret)).build();
+            return INSTANCE.responseBuilder(status).entity(INSTANCE.GSON.toJson(ret)).build();
         }
     }
 }
