@@ -352,13 +352,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             logger.debug("Checking WeMo GENA subscription for '{}'", this);
 
             ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-            String subscription = null;
-
-            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
-                subscription = "insight1";
-            } else {
-                subscription = "basicevent1";
-            }
+            String subscription = "basicevent1";
 
             if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), subscription);
@@ -366,6 +360,16 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                 subscriptionState.put(subscription, true);
             }
 
+            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
+                subscription = "insight1";
+                if ((subscriptionState.get(subscription) == null)
+                        || !subscriptionState.get(subscription).booleanValue()) {
+                    logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(),
+                            subscription);
+                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                    subscriptionState.put(subscription, true);
+                }
+            }
         } else {
             logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
@@ -377,19 +381,21 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
         if (service.isRegistered(this)) {
             ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-            String subscription = null;
-
-            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
-                subscription = "insight1";
-            } else {
-                subscription = "basicevent1";
-            }
+            String subscription = "basicevent1";
 
             if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
                 service.removeSubscription(this, subscription);
             }
 
+            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
+                subscription = "insight1";
+                if ((subscriptionState.get(subscription) != null)
+                        && subscriptionState.get(subscription).booleanValue()) {
+                    logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
+                    service.removeSubscription(this, subscription);
+                }
+            }
             subscriptionState = new HashMap<String, Boolean>();
             service.unregisterParticipant(this);
         }
