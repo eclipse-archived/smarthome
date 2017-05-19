@@ -21,7 +21,7 @@ public interface MqttSenderChannel {
      *
      * @param topic Topic to publish the message to.
      * @param message message payload.
-     * @throws Exception if an error occurs during sending.
+     * @throws IOException if an error occurs during sending.
      */
     public void publish(String topic, byte[] message) throws IOException;
 
