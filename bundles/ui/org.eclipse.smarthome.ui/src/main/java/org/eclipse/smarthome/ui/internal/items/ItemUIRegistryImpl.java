@@ -12,13 +12,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -94,6 +98,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
 
     protected ItemRegistry itemRegistry;
+
+    private Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
 
     public ItemUIRegistryImpl() {
     }
@@ -544,6 +550,23 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * {@inheritDoc}
      */
     @Override
+    public EList<Widget> getChildren(Sitemap sitemap) {
+        EList<Widget> widgets = sitemap.getChildren();
+
+        EList<Widget> result = new BasicEList<Widget>();
+        for (Widget widget : widgets) {
+            Widget resolvedWidget = resolveDefault(widget);
+            if (resolvedWidget != null) {
+                result.add(resolvedWidget);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public EList<Widget> getChildren(LinkableWidget w) {
         EList<Widget> widgets = null;
         if (w instanceof Group && w.getChildren().isEmpty()) {
@@ -562,6 +585,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EObject getParent(Widget w) {
+        Widget w2 = defaultWidgets.get(w);
+        return (w2 == null) ? w.eContainer() : w2.eContainer();
+    }
+
     private Widget resolveDefault(Widget widget) {
         if (!(widget instanceof Default)) {
             return widget;
@@ -571,13 +603,23 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (item != null) {
                     Widget defaultWidget = getDefaultWidget(item.getClass(), item.getName());
                     if (defaultWidget != null) {
-                        defaultWidget.setItem(item.getName());
+                        copyProperties(widget, defaultWidget);
+                        defaultWidgets.put(defaultWidget, widget);
                         return defaultWidget;
                     }
                 }
             }
             return null;
         }
+    }
+
+    private void copyProperties(Widget source, Widget target) {
+        target.setItem(source.getItem());
+        target.setIcon(source.getIcon());
+        target.setLabel(source.getLabel());
+        target.getVisibility().addAll(EcoreUtil.copyAll(source.getVisibility()));
+        target.getLabelColor().addAll(EcoreUtil.copyAll(source.getLabelColor()));
+        target.getValueColor().addAll(EcoreUtil.copyAll(source.getValueColor()));
     }
 
     /**
@@ -738,6 +780,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      */
     @Override
     public String getWidgetId(Widget w) {
+        Widget w2 = defaultWidgets.get(w);
+        if (w2 != null) {
+            return getWidgetId(w2);
+        }
+
         String id = "";
         while (w.eContainer() instanceof Widget) {
             Widget parent = (Widget) w.eContainer();
