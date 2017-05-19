@@ -498,7 +498,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
         if (w instanceof Slider || (w instanceof Switch && i instanceof RollershutterItem)) {
             returnState = i.getStateAs(PercentType.class);
-        } else if (w instanceof Switch) {
+            // if a Switch is attached to a Number item we do not want to convert it here
+        } else if (w instanceof Switch && !(i instanceof NumberItem)) {
             returnState = i.getStateAs(OnOffType.class);
         }
 
