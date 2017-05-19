@@ -14,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.sitemap.Frame;
-import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.servlet.WebAppServlet;
@@ -96,10 +95,14 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
         // put a single frame around all children widgets, if there are no explicit frames
         if (!children.isEmpty()) {
-            EObject firstChild = children.get(0);
-            EObject parent = firstChild.eContainer();
-            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
-                    || parent instanceof List)) {
+            boolean frameRequired = false;
+            for (Widget w : children) {
+                EObject parent = itemUIRegistry.getParent(w);
+                if (!(w instanceof Frame || parent instanceof Frame || parent instanceof List)) {
+                    frameRequired = true;
+                }
+            }
+            if (frameRequired) {
                 String frameSnippet = getSnippet("frame");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
 

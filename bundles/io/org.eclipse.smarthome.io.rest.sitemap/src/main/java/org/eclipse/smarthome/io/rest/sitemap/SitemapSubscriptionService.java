@@ -220,7 +220,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
-                widgets = sitemap.getChildren();
+                widgets = itemUIRegistry.getChildren(sitemap);
             } else {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
