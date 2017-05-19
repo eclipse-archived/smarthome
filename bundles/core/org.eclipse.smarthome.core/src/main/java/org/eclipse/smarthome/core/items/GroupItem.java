@@ -111,8 +111,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return all members of this and all contained {@link GroupItem}s
      */
     public Set<Item> getAllMembers() {
-        Set<Item> allMembers = getMembers((Item i) -> !(i instanceof GroupItem));
-        return ImmutableSet.copyOf(allMembers);
+        return ImmutableSet.copyOf(getMembers((Item i) -> !(i instanceof GroupItem)));
     }
 
     private void collectMembers(Set<Item> allMembers, Set<Item> members) {
@@ -120,7 +119,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             if (member instanceof GroupItem) {
                 collectMembers(allMembers, ((GroupItem) member).members);
                 allMembers.add(member);
-
             } else {
                 allMembers.add(member);
             }
@@ -136,7 +134,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public Set<Item> getMembers(Predicate<Item> filterItem) {
         Set<Item> allMembers = new HashSet<Item>();
         collectMembers(allMembers, members);
-
         return allMembers.stream().filter(filterItem).collect(Collectors.toSet());
     }
 
