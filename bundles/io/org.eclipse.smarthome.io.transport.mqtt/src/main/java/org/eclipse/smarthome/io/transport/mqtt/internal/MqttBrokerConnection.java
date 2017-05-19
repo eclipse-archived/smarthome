@@ -472,7 +472,7 @@ public class MqttBrokerConnection implements MqttCallback {
                         }
                     }
                 } catch (MqttException e) {
-                    logger.error("Could not publish message to topic {} {}", topic, e);
+                    logger.error("Could not publish message to topic {}", topic, e);
                 }
             }
         });
