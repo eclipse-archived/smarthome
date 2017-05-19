@@ -53,6 +53,8 @@ class FolderObserverTest extends OSGiTest {
 
     /** The directory which is watched for changes */
     private final static String WATCHED_DIRECTORY = "watched_dir"
+    /** The directory which is watched for changes */
+    private final static String UNWATCHED_DIRECTORY = "unwatched_dir"
     /** The name of the existing subdirectory which is used in most of the test cases */
     private final static String EXISTING_SUBDIR_NAME = "existing_subdir"
     /** The path of the existing subdirectory which is used in most of the test cases */
@@ -505,21 +507,32 @@ class FolderObserverTest extends OSGiTest {
         sleep(WAIT_ABSTRACTWATCHQUEUEREADER_TO_START)
 
         String mockFileWithValidExtName = ".HiddenNewlyCreatedMockFile" + "." + validExtension
-        String mockFileWithValidExtPath = EXISTING_SUBDIR_PATH + File.separatorChar + mockFileWithValidExtName
-        File mockFileWithValidExt = new File(mockFileWithValidExtPath)
-        mockFileWithValidExt.createNewFile()
-        sleep(WAIT_EVENT_TO_BE_HANDLED)
-        /*
-         * In some OS, like MacOS, creating an empty file is not related to sending an ENTRY_CREATE event.
-         * So, it's necessary to put some initial content in that file.
-         */
+
         if(!SystemUtils.IS_OS_WINDOWS) {
+            /*
+             * In some OS, like MacOS, creating an empty file is not related to sending an ENTRY_CREATE event.
+             * So, it's necessary to put some initial content in that file.
+             */
+            String mockFileWithValidExtPath = EXISTING_SUBDIR_PATH + File.separatorChar + mockFileWithValidExtName
+            File mockFileWithValidExt = new File(mockFileWithValidExtPath)
+            mockFileWithValidExt.createNewFile()
             mockFileWithValidExt << INITIAL_FILE_CONTENT
         }
         else {
-            //windows needs a filesystem property set for a file to be hidden (untested)
+            /* In windows a hidden file cannot be created with a single api call.
+             * The file must be created and afterwards it needs a filesystem property set for a file to be hidden.
+             * But the initial creation already triggers the folder observer mechanism,
+             * therefore the file is created in an unobserved directory, hidden and afterwards moved to the observed directory
+             */
+            new File(UNWATCHED_DIRECTORY).mkdirs()
+            String mockFileWithValidExtPath = UNWATCHED_DIRECTORY + File.separatorChar + mockFileWithValidExtName
+            File mockFileWithValidExt = new File(mockFileWithValidExtPath)
+            mockFileWithValidExt.createNewFile()
             Files.setAttribute (mockFileWithValidExt.toPath(), "dos:hidden", true);
+            FileUtils.moveFileToDirectory(mockFileWithValidExt, new File(EXISTING_SUBDIR_PATH), false)
+            FileUtils.deleteDirectory(new File(UNWATCHED_DIRECTORY))
         }
+        sleep(WAIT_EVENT_TO_BE_HANDLED)
 
         waitForAssert{
             assertThat("A model should NOT be added/refreshed on new hidden file creation in the watched directory",
