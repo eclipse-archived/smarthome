@@ -104,7 +104,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                     }
                 }
                 if (item.type === "Rollershutter") {
-                    if (stateObject.type == "PercentType" || stateObject.type == "DecimalType") {
+                    if (stateObject.type == "Percent" || stateObject.type == "Decimal") {
                         state = parseInt(stateObject.value);
                     }
                 }
@@ -131,7 +131,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
     eventService.onEvent('smarthome/items/*/statechanged', function(topic, stateObject) {
         var itemName = topic.split('/')[2];
-        if (itemName && (stateObject.type == "PercentType" || stateObject.type == "DecimalType")) {
+        if (itemName && (stateObject.type == "Percent" || stateObject.type == "Decimal")) {
             var index = getItemIndex(itemName);
             if (index !== -1) {
                 $scope.$apply(function(scope) {
