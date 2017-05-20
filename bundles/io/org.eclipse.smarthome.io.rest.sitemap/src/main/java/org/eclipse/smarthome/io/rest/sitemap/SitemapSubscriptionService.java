@@ -225,6 +225,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
                     widgets = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
+                    // We add the page widget. It will help any UI to update the page title.
+                    widgets.add(pageWidget);
                 }
             }
         }
