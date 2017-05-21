@@ -92,6 +92,33 @@ class GroupItemTest extends OSGiTest {
     }
 
     @Test
+    public void testGetAllMembersWithFilter() {
+        GroupItem rootGroupItem = new GroupItem("root")
+
+        TestItem member1 = new TestItem("member1");
+        member1.setLabel("mem1");
+        rootGroupItem.addMember(member1)
+
+        TestItem member2 = new TestItem("member2");
+        member2.setLabel("mem1");
+        rootGroupItem.addMember(member2)
+
+        rootGroupItem.addMember(new TestItem("member3"))
+        GroupItem subGroup = new GroupItem("subGroup1")
+        subGroup.addMember(new TestItem("subGroup member 1"))
+        subGroup.addMember(new TestItem("subGroup member 2"))
+        subGroup.addMember(new TestItem("subGroup member 3"))
+        subGroup.addMember(member1)
+        rootGroupItem.addMember(subGroup)
+
+        Set<Item> members = rootGroupItem.getMembers({Item i -> i instanceof GroupItem})
+        assertThat members.size(), is(1)
+
+        members = rootGroupItem.getMembers({Item i -> i.getLabel().equals("mem1")})
+        assertThat members.size(), is(2)
+    }
+
+    @Test
     void 'assert that group item posts events for changes correctly' (){
         events.clear()
         GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new GroupFunction.Equality())
