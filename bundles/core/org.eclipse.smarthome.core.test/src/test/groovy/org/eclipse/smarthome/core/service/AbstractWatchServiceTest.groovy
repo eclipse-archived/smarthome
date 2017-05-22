@@ -15,6 +15,7 @@ import static org.junit.matchers.JUnitMatchers.*
 import java.nio.file.Path
 import java.nio.file.WatchEvent
 import java.nio.file.WatchEvent.Kind
+import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.lang.SystemUtils
 import org.eclipse.smarthome.test.OSGiTest
@@ -381,7 +382,7 @@ class AbstractWatchServiceTest extends OSGiTest {
         boolean watchDirectoryChanges
 
         // Synchronize list as several watcher threads can write into it
-        def allFullEvents = [].asSynchronized()
+        def allFullEvents = new CopyOnWriteArrayList<FullEvent>()
 
         RelativeWatchService(String rootPath, boolean watchSubDirectories, boolean watchDirChanges){
             super(rootPath);
