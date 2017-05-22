@@ -9,10 +9,9 @@ package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -58,6 +57,7 @@ import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,8 +152,9 @@ public class ItemResource implements RESTResource {
         final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        Object responseObject = getItemBeans(type, tags, recursive, locale);
-        return Response.ok(responseObject).build();
+        Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
+                .map(item -> EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
+        return Response.ok(new Stream2JSONInputStream(itemStream)).build();
     }
 
     @GET
@@ -546,12 +547,10 @@ public class ItemResource implements RESTResource {
      * @return Item addressed by itemname
      */
     private Item getItem(String itemname) {
-        Item item = itemRegistry.get(itemname);
-        return item;
+        return itemRegistry.get(itemname);
     }
 
-    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive, Locale locale) {
-        List<EnrichedItemDTO> beans = new LinkedList<>();
+    private Collection<Item> getItems(String type, String tags) {
         Collection<Item> items;
         if (tags == null) {
             if (type == null) {
@@ -567,12 +566,8 @@ public class ItemResource implements RESTResource {
                 items = itemRegistry.getItemsByTagAndType(type, tagList);
             }
         }
-        if (items != null) {
-            for (Item item : items) {
-                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
-            }
-        }
-        return beans;
+
+        return items;
     }
 
     @Override

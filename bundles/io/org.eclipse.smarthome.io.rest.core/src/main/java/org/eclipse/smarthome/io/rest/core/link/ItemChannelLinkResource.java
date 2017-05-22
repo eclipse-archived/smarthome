@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.link;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -33,6 +32,7 @@ import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,8 +68,8 @@ public class ItemChannelLinkResource implements RESTResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ItemChannelLinkDTO.class, responseContainer = "Collection") })
     public Response getAll() {
-        Collection<ItemChannelLink> channelLinks = itemChannelLinkRegistry.getAll();
-        return Response.ok(toBeans(channelLinks)).build();
+        Stream<AbstractLinkDTO> linkStream = itemChannelLinkRegistry.getAll().stream().map(this::toBeans);
+        return Response.ok(new Stream2JSONInputStream(linkStream)).build();
     }
 
     @GET
@@ -132,13 +132,8 @@ public class ItemChannelLinkResource implements RESTResource {
         this.itemChannelLinkRegistry = null;
     }
 
-    private Collection<AbstractLinkDTO> toBeans(Iterable<ItemChannelLink> links) {
-        Collection<AbstractLinkDTO> beans = new ArrayList<>();
-        for (AbstractLink link : links) {
-            ItemChannelLinkDTO bean = new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
-            beans.add(bean);
-        }
-        return beans;
+    private AbstractLinkDTO toBeans(ItemChannelLink link) {
+        return new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
     }
 
     @Override

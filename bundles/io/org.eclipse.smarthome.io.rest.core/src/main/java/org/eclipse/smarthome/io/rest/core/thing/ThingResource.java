@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
@@ -81,6 +81,7 @@ import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,9 +214,9 @@ public class ThingResource implements RESTResource {
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
 
-        Collection<Thing> things = thingRegistry.getAll();
-        Set<EnrichedThingDTO> thingBeans = convertToListBean(things, locale);
-        return Response.ok(thingBeans).build();
+        Stream<EnrichedThingDTO> thingStream = thingRegistry.stream().map(t -> convertToEnrichedThingDTO(t, locale))
+                .distinct();
+        return Response.ok(new Stream2JSONInputStream(thingStream)).build();
     }
 
     @GET
@@ -718,18 +719,12 @@ public class ThingResource implements RESTResource {
         this.thingStatusInfoI18nLocalizationService = null;
     }
 
-    private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
-        Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
-        for (Thing thing : things) {
-            boolean managed = managedThingProvider.get(thing.getUID()) != null;
-            ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
-                    locale);
-            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, thingStatusInfo,
-                    this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing), managed);
-            thingBeans.add(thingBean);
-        }
-
-        return thingBeans;
+    private EnrichedThingDTO convertToEnrichedThingDTO(Thing thing, Locale locale) {
+        boolean managed = managedThingProvider.get(thing.getUID()) != null;
+        ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
+                locale);
+        return EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
+                getLinkedItemsMap(thing), managed);
     }
 
     private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {

@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -27,7 +25,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
@@ -37,6 +34,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -120,10 +118,8 @@ public class InboxResource implements RESTResource {
     @ApiOperation(value = "Get all discovered things.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = DiscoveryResultDTO.class) })
     public Response getAll() {
-        List<DiscoveryResult> discoveryResults = inbox.getAll();
-        Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
-
-        return Response.ok(discoveryResultBeans).build();
+        Stream<DiscoveryResultDTO> discoveryStream = inbox.getAll().stream().map(DiscoveryResultDTOMapper::map);
+        return Response.ok(new Stream2JSONInputStream(discoveryStream)).build();
     }
 
     @POST
@@ -142,14 +138,6 @@ public class InboxResource implements RESTResource {
     public Response unignore(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID) {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
         return Response.ok().build();
-    }
-
-    private Set<DiscoveryResultDTO> convertToListBean(List<DiscoveryResult> discoveryResults) {
-        Set<DiscoveryResultDTO> discoveryResultBeans = new LinkedHashSet<>();
-        for (DiscoveryResult discoveryResult : discoveryResults) {
-            discoveryResultBeans.add(DiscoveryResultDTOMapper.map(discoveryResult));
-        }
-        return discoveryResultBeans;
     }
 
     @Override
