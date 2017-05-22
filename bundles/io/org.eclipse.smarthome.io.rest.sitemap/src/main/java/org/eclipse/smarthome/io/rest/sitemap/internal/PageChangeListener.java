@@ -123,18 +123,13 @@ public class PageChangeListener implements StateChangeListener {
         Set<Item> items = new HashSet<Item>();
         if (itemUIRegistry != null) {
             for (Widget widget : widgets) {
-                String itemName = widget.getItem();
-                if (itemName != null) {
-                    addItemWithName(items, itemName);
-                } else {
-                    if (widget instanceof Frame) {
-                        items.addAll(getAllItems(((Frame) widget).getChildren()));
-                    }
+                addItemWithName(items, widget.getItem());
+                if (widget instanceof Frame) {
+                    items.addAll(getAllItems(((Frame) widget).getChildren()));
                 }
                 // now scan visibility rules
                 for (VisibilityRule vr : widget.getVisibility()) {
-                    String ruleItemName = vr.getItem();
-                    addItemWithName(items, ruleItemName);
+                    addItemWithName(items, vr.getItem());
                 }
             }
         }
