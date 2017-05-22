@@ -505,7 +505,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (w instanceof Slider || (w instanceof Switch && i instanceof RollershutterItem)) {
             returnState = i.getStateAs(PercentType.class);
         } else if (w instanceof Switch) {
-            returnState = i.getStateAs(OnOffType.class);
+            Switch sw = (Switch) w;
+            if (sw.getMappings().size() == 0) {
+                returnState = i.getStateAs(OnOffType.class);
+            }
         }
 
         // if returnState is null, a conversion was not possible

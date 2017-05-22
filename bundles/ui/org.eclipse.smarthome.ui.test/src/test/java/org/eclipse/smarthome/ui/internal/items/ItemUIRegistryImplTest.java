@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 
 import java.text.DecimalFormatSymbols;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
 import org.eclipse.smarthome.model.sitemap.Slider;
@@ -328,10 +330,34 @@ public class ItemUIRegistryImplTest {
 
         Switch switchWidget = mock(Switch.class);
         when(switchWidget.getItem()).thenReturn("myItem");
+        when(switchWidget.getMappings()).thenReturn(new BasicEList<Mapping>());
 
         State stateForSwitch = uiRegistry.getState(switchWidget);
 
         assertEquals(OnOffType.ON, stateForSwitch);
+    }
+
+    @Test
+    public void testStateConversionForSwitchWidgetWithMappingThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,50");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Switch switchWidget = mock(Switch.class);
+        when(switchWidget.getItem()).thenReturn("myItem");
+
+        Mapping mapping = mock(Mapping.class);
+        BasicEList<Mapping> mappings = new BasicEList<Mapping>();
+        mappings.add(mapping);
+        when(switchWidget.getMappings()).thenReturn(mappings);
+
+        State stateForSwitch = uiRegistry.getState(switchWidget);
+
+        assertEquals(colorState, stateForSwitch);
     }
 
     @Test
