@@ -500,7 +500,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             returnState = i.getStateAs(PercentType.class);
         } else if (w instanceof Switch) {
             Switch sw = (Switch) w;
-            if (sw.getMappings().size() == 0) { // only convert plain switches with no mappings
+            if (sw.getMappings().size() == 0) {
                 returnState = i.getStateAs(OnOffType.class);
             }
         }

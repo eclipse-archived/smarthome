@@ -338,6 +338,29 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
+    public void testStateConversionForSwitchWidgetWithMappingThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,50");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Switch switchWidget = mock(Switch.class);
+        when(switchWidget.getItem()).thenReturn("myItem");
+
+        Mapping mapping = mock(Mapping.class);
+        BasicEList<Mapping> mappings = new BasicEList<Mapping>();
+        mappings.add(mapping);
+        when(switchWidget.getMappings()).thenReturn(mappings);
+
+        State stateForSwitch = uiRegistry.getState(switchWidget);
+
+        assertEquals(colorState, stateForSwitch);
+    }
+
+    @Test
     public void testStateConversionForSliderWidgetThroughGetState() throws ItemNotFoundException {
         State colorState = new HSBType("23,42,75");
 
