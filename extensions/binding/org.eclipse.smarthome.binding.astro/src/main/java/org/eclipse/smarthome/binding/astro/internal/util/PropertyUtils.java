@@ -27,6 +27,11 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Gerhard Riegler - Initial contribution
  */
 public class PropertyUtils {
+    
+    /** Constructor */
+    private PropertyUtils() {
+        throw new IllegalAccessError("Non-instantiable");
+    }
 
     /**
      * Returns the state of the channel.

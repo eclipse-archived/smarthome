@@ -7,59 +7,127 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
+import static org.eclipse.smarthome.binding.astro.internal.job.Job.*;
+import static org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName.*;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Sun;
 import org.eclipse.smarthome.binding.astro.internal.model.SunEclipse;
-import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
 
 /**
- * Schedules the events for the sun for the current day.
+ * Daily Scheduled Jobs For Sun Planet
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public class DailyJobSun extends AbstractDailyJob {
+public final class DailyJobSun implements Job {
 
+    private final String thingUID;
+    private final AstroThingHandler handler;
+
+    /**
+     * Constructor
+     *
+     * @param thingUID
+     *            the Thing UID
+     * @param handler
+     *            the {@link AstroThingHandler} instance
+     * @throws NullPointerException
+     *             if {@code thingUID} or {@code handler} is {@code null}
+     */
+    public DailyJobSun(String thingUID, AstroThingHandler handler) {
+        checkArgument(thingUID != null, "Thing UID cannot be null");
+        checkArgument(handler != null, "AstroThingHandler instance cannot be null");
+
+        this.thingUID = thingUID;
+        this.handler = handler;
+    }
+
+    /** {@inheritDoc} */
     @Override
-    protected void schedulePlanetEvents(String thingUid, AstroThingHandler handler, Planet planet) {
+    public void run() {
+        handler.publishDailyInfo();
+        logger.info("Scheduled Astro event-jobs for thing {}", thingUID);
+
+        Planet planet = handler.getPlanet();
+        if (planet == null) {
+            logger.error("Planet not instantiated");
+            return;
+        }
         Sun sun = (Sun) planet;
-        scheduleRange(thingUid, handler, sun.getRise(), EVENT_CHANNEL_ID_RISE);
-        scheduleRange(thingUid, handler, sun.getSet(), EVENT_CHANNEL_ID_SET);
-        scheduleRange(thingUid, handler, sun.getNoon(), EVENT_CHANNEL_ID_NOON);
-        scheduleRange(thingUid, handler, sun.getNight(), EVENT_CHANNEL_ID_NIGHT);
-        scheduleRange(thingUid, handler, sun.getMorningNight(), EVENT_CHANNEL_ID_MORNING_NIGHT);
-        scheduleRange(thingUid, handler, sun.getAstroDawn(), EVENT_CHANNEL_ID_ASTRO_DAWN);
-        scheduleRange(thingUid, handler, sun.getNauticDawn(), EVENT_CHANNEL_ID_NAUTIC_DAWN);
-        scheduleRange(thingUid, handler, sun.getCivilDawn(), EVENT_CHANNEL_ID_CIVIL_DAWN);
-        scheduleRange(thingUid, handler, sun.getAstroDusk(), EVENT_CHANNEL_ID_ASTRO_DUSK);
-        scheduleRange(thingUid, handler, sun.getNauticDusk(), EVENT_CHANNEL_ID_NAUTIC_DUSK);
-        scheduleRange(thingUid, handler, sun.getCivilDusk(), EVENT_CHANNEL_ID_CIVIL_DUSK);
-        scheduleRange(thingUid, handler, sun.getEveningNight(), EVENT_CHANNEL_ID_EVENING_NIGHT);
-        scheduleRange(thingUid, handler, sun.getDaylight(), EVENT_CHANNEL_ID_DAYLIGHT);
+        scheduleRange(thingUID, handler, sun.getRise(), EVENT_CHANNEL_ID_RISE);
+        scheduleRange(thingUID, handler, sun.getSet(), EVENT_CHANNEL_ID_SET);
+        scheduleRange(thingUID, handler, sun.getNoon(), EVENT_CHANNEL_ID_NOON);
+        scheduleRange(thingUID, handler, sun.getNight(), EVENT_CHANNEL_ID_NIGHT);
+        scheduleRange(thingUID, handler, sun.getMorningNight(), EVENT_CHANNEL_ID_MORNING_NIGHT);
+        scheduleRange(thingUID, handler, sun.getAstroDawn(), EVENT_CHANNEL_ID_ASTRO_DAWN);
+        scheduleRange(thingUID, handler, sun.getNauticDawn(), EVENT_CHANNEL_ID_NAUTIC_DAWN);
+        scheduleRange(thingUID, handler, sun.getCivilDawn(), EVENT_CHANNEL_ID_CIVIL_DAWN);
+        scheduleRange(thingUID, handler, sun.getAstroDusk(), EVENT_CHANNEL_ID_ASTRO_DUSK);
+        scheduleRange(thingUID, handler, sun.getNauticDusk(), EVENT_CHANNEL_ID_NAUTIC_DUSK);
+        scheduleRange(thingUID, handler, sun.getCivilDusk(), EVENT_CHANNEL_ID_CIVIL_DUSK);
+        scheduleRange(thingUID, handler, sun.getEveningNight(), EVENT_CHANNEL_ID_EVENING_NIGHT);
+        scheduleRange(thingUID, handler, sun.getDaylight(), EVENT_CHANNEL_ID_DAYLIGHT);
 
         SunEclipse eclipse = sun.getEclipse();
-        scheduleEvent(thingUid, handler, eclipse.getPartial(), EVENT_ECLIPSE_PARTIAL, EVENT_CHANNEL_ID_ECLIPSE);
-        scheduleEvent(thingUid, handler, eclipse.getTotal(), EVENT_ECLIPSE_TOTAL, EVENT_CHANNEL_ID_ECLIPSE);
-        scheduleEvent(thingUid, handler, eclipse.getRing(), EVENT_ECLIPSE_RING, EVENT_CHANNEL_ID_ECLIPSE);
+        scheduleEvent(thingUID, handler, eclipse.getPartial(), EVENT_ECLIPSE_PARTIAL, EVENT_CHANNEL_ID_ECLIPSE);
+        scheduleEvent(thingUID, handler, eclipse.getTotal(), EVENT_ECLIPSE_TOTAL, EVENT_CHANNEL_ID_ECLIPSE);
+        scheduleEvent(thingUID, handler, eclipse.getRing(), EVENT_ECLIPSE_RING, EVENT_CHANNEL_ID_ECLIPSE);
 
         // schedule republish jobs
-        schedulePublishPlanet(thingUid, handler, "zodiac", sun.getZodiac().getEnd());
-        schedulePublishPlanet(thingUid, handler, "season", sun.getSeason().getNextSeason());
+        schedulePublishPlanet(thingUID, handler, sun.getZodiac().getEnd());
+        schedulePublishPlanet(thingUID, handler, sun.getSeason().getNextSeason());
 
         // schedule phase jobs
-        scheduleSunPhase(thingUid, handler, SunPhaseName.SUN_RISE, sun.getRise().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.SUN_SET, sun.getSet().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.NOON, sun.getNoon().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.NIGHT, sun.getNight().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.DAYLIGHT, sun.getDaylight().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.ASTRO_DAWN, sun.getAstroDawn().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.NAUTIC_DAWN, sun.getNauticDawn().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.CIVIL_DAWN, sun.getCivilDawn().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.ASTRO_DUSK, sun.getAstroDusk().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.NAUTIC_DUSK, sun.getNauticDusk().getStart());
-        scheduleSunPhase(thingUid, handler, SunPhaseName.CIVIL_DUSK, sun.getCivilDusk().getStart());
+        scheduleSunPhase(thingUID, handler, SUN_RISE, sun.getRise().getStart());
+        scheduleSunPhase(thingUID, handler, SUN_SET, sun.getSet().getStart());
+        scheduleSunPhase(thingUID, handler, NOON, sun.getNoon().getStart());
+        scheduleSunPhase(thingUID, handler, NIGHT, sun.getNight().getStart());
+        scheduleSunPhase(thingUID, handler, DAYLIGHT, sun.getDaylight().getStart());
+        scheduleSunPhase(thingUID, handler, ASTRO_DAWN, sun.getAstroDawn().getStart());
+        scheduleSunPhase(thingUID, handler, NAUTIC_DAWN, sun.getNauticDawn().getStart());
+        scheduleSunPhase(thingUID, handler, CIVIL_DAWN, sun.getCivilDawn().getStart());
+        scheduleSunPhase(thingUID, handler, ASTRO_DUSK, sun.getAstroDusk().getStart());
+        scheduleSunPhase(thingUID, handler, NAUTIC_DUSK, sun.getNauticDusk().getStart());
+        scheduleSunPhase(thingUID, handler, CIVIL_DUSK, sun.getCivilDusk().getStart());
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getThingUID() {
+        return thingUID;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
+        return result;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DailyJobSun other = (DailyJobSun) obj;
+        if (thingUID == null) {
+            if (other.thingUID != null)
+                return false;
+        } else if (!thingUID.equals(other.thingUID))
+            return false;
+        return true;
+    }
+    
+    
 
 }
