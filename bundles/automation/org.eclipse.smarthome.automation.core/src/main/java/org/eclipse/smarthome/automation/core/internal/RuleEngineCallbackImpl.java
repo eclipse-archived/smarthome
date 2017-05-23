@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -15,6 +18,7 @@ import java.util.concurrent.Future;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerChangeListener;
 
 /**
  * This class is implementation of {@link RuleEngineCallback} used by the {@link Trigger}s to notify rule engine about
@@ -34,6 +38,8 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     private RuleEngine re;
 
+    protected Collection<TriggerChangeListener> listeners = new CopyOnWriteArraySet<TriggerChangeListener>();
+
     protected RuleEngineCallbackImpl(RuleEngine re, RuntimeRule r) {
         this.re = re;
         this.r = r;
@@ -46,7 +52,15 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
             if (executor == null) {
                 return;
             }
+
             future = executor.submit(new TriggerData(trigger, outputs));
+
+            if (listeners != null) {
+                Map<String, ?> imOutputs = Collections.unmodifiableMap(outputs);
+                for (TriggerChangeListener triggerChangeListener : listeners) {
+                    triggerChangeListener.triggerChanged(trigger.getId(), imOutputs);
+                }
+            }
         }
         re.logger.debug("The trigger '{}' of rule '{}' is triggered.", trigger.getId(), r.getUID());
     }
@@ -58,6 +72,16 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     public boolean isRunning() {
         Future<?> future = this.future;
         return future == null || !future.isDone();
+    }
+
+    @Override
+    public void addTriggerChangeListener(TriggerChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeTriggerChangeListener(TriggerChangeListener listener) {
+        listeners.remove(listener);
     }
 
     class TriggerData implements Runnable {
@@ -89,6 +113,10 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
         synchronized (this) {
             executor.shutdownNow();
             executor = null;
+        }
+        if (listeners != null) {
+            listeners.clear();
+            listeners = null;
         }
     }
 

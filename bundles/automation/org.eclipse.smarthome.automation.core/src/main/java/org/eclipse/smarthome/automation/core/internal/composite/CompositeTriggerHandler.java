@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerChangeListener;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.Output;
@@ -123,6 +124,16 @@ public class CompositeTriggerHandler
     @Override
     protected List<Trigger> getChildren() {
         return moduleType.getChildren();
+    }
+
+    @Override
+    public void addTriggerChangeListener(TriggerChangeListener listener) {
+        ruleCallback.addTriggerChangeListener(listener);
+    }
+
+    @Override
+    public void removeTriggerChangeListener(TriggerChangeListener listener) {
+        ruleCallback.removeTriggerChangeListener(listener);
     }
 
 }
