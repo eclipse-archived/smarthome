@@ -29,6 +29,11 @@ public class DateTimeUtils {
 
     public static final double J1970 = 2440588.0;
     public static final double MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+    
+    /** Constructor */
+    private DateTimeUtils() {
+        throw new IllegalAccessError("Non-instantiable");
+    }
 
     /**
      * Truncates the time from the calendar object.
