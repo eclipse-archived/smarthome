@@ -24,6 +24,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final List<ChannelDefinition> channelDefinitions;
+    private String category;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -45,11 +46,12 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
-            List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
+            String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
 
         super(uid, label, description);
 
         this.advanced = advanced;
+        this.category = category;
 
         if (channelDefinitions != null) {
             this.channelDefinitions = Collections.unmodifiableList(channelDefinitions);
@@ -62,7 +64,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * Returns {@code true} if this {@link ChannelGroupType} contains advanced functionalities
      * which should be typically not shown in the basic view of user interfaces,
      * otherwise {@code false}.
-     * 
+     *
      * @return true if this channel group contains advanced functionalities, otherwise false
      */
     public boolean isAdvanced() {
@@ -78,6 +80,10 @@ public class ChannelGroupType extends AbstractDescriptionType {
      */
     public List<ChannelDefinition> getChannelDefinitions() {
         return channelDefinitions;
+    }
+
+    public String getCategory() {
+        return this.category;
     }
 
     @Override

@@ -231,12 +231,13 @@ Inside the thing types XML file channel groups can be defined like this:
 </thing-type>    
 ```
 
-The channel group type is defined on the same level as the thing types and channel types. The group type must have a label and an optional description. Moreover the list of contained channels must be specified:
+The channel group type is defined on the same level as the thing types and channel types. The group type must have a label, an optional description, and an optional category. Moreover the list of contained channels must be specified:
 
 ```xml
 <channel-group-type id="switchActor">
     <label>Switch Actor</label>
     <description>This is a single switch actor with a switch channel</description>
+    <category>Light</category>
     <channels>
         <channel id="switch" typeId="switch" />
     </channels>

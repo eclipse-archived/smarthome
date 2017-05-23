@@ -10,8 +10,12 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
@@ -35,13 +39,112 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
-@Component(immediate = true, property = { "esh.scope=core.xml.channels" })
-public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType> implements ChannelTypeProvider {
+@Component(immediate = true, property = { "esh.scope=core.xml" })
+public class XmlChannelTypeProvider implements ChannelTypeProvider {
+
+    private class LocalizedChannelTypeKey {
+        public String locale;
+        public UID uid;
+
+        public LocalizedChannelTypeKey(UID uid, String locale) {
+            this.uid = uid;
+            this.locale = locale;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            LocalizedChannelTypeKey other = (LocalizedChannelTypeKey) obj;
+            if (!getOuterType().equals(other.getOuterType())) {
+                return false;
+            }
+            if (locale == null) {
+                if (other.locale != null) {
+                    return false;
+                }
+            } else if (!locale.equals(other.locale)) {
+                return false;
+            }
+            if (uid == null) {
+                if (other.uid != null) {
+                    return false;
+                }
+            } else if (!uid.equals(other.uid)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + ((locale == null) ? 0 : locale.hashCode());
+            result = prime * result + ((uid == null) ? 0 : uid.hashCode());
+            return result;
+        }
+
+        private XmlChannelTypeProvider getOuterType() {
+            return XmlChannelTypeProvider.this;
+        }
+
+    }
+
+    private final Map<Bundle, List<ChannelGroupType>> bundleChannelGroupTypesMap = new ConcurrentHashMap<>();
+    private final Map<Bundle, List<ChannelType>> bundleChannelTypesMap = new ConcurrentHashMap<>();
+
+    private final Map<LocalizedChannelTypeKey, ChannelGroupType> localizedChannelGroupTypeCache = new ConcurrentHashMap<>();
+    private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
+    public synchronized void addChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType) {
+        if (channelGroupType != null) {
+            List<ChannelGroupType> channelGroupTypes = acquireChannelGroupTypes(bundle);
+
+            if (channelGroupTypes != null) {
+                channelGroupTypes.add(channelGroupType);
+                // just make sure no old entry remains in the cache
+                removeCachedChannelGroupTypes(channelGroupType);
+            }
+        }
+    }
+
+    public synchronized void addChannelType(Bundle bundle, ChannelType channelType) {
+        if (channelType != null) {
+            List<ChannelType> channelTypes = acquireChannelTypes(bundle);
+
+            if (channelTypes != null) {
+                channelTypes.add(channelType);
+                // just make sure no old entry remains in the cache
+                removeCachedChannelTypes(channelType);
+            }
+        }
+    }
+
     @Override
     public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
+        Collection<Entry<Bundle, List<ChannelGroupType>>> channelGroupTypesList = this.bundleChannelGroupTypesMap
+                .entrySet();
+
+        if (channelGroupTypesList != null) {
+            for (Entry<Bundle, List<ChannelGroupType>> channelGroupTypes : channelGroupTypesList) {
+                for (ChannelGroupType channelGroupType : channelGroupTypes.getValue()) {
+                    if (channelGroupType.getUID().equals(channelGroupTypeUID)) {
+                        return createLocalizedChannelGroupType(channelGroupTypes.getKey(), channelGroupType, locale);
+                    }
+                }
+            }
+        }
         return null;
     }
 
@@ -69,6 +172,68 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
         this.thingTypeI18nUtil = null;
     }
 
+    private List<ChannelGroupType> acquireChannelGroupTypes(Bundle bundle) {
+        if (bundle != null) {
+            List<ChannelGroupType> channelGroupTypes = this.bundleChannelGroupTypesMap.get(bundle);
+
+            if (channelGroupTypes == null) {
+                channelGroupTypes = new ArrayList<ChannelGroupType>(10);
+
+                this.bundleChannelGroupTypesMap.put(bundle, channelGroupTypes);
+            }
+
+            return channelGroupTypes;
+        }
+
+        return null;
+    }
+
+    private List<ChannelType> acquireChannelTypes(Bundle bundle) {
+        if (bundle != null) {
+            List<ChannelType> channelTypes = this.bundleChannelTypesMap.get(bundle);
+
+            if (channelTypes == null) {
+                channelTypes = new ArrayList<ChannelType>(10);
+
+                this.bundleChannelTypesMap.put(bundle, channelTypes);
+            }
+
+            return channelTypes;
+        }
+
+        return null;
+    }
+
+    private ChannelGroupType createLocalizedChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType,
+            Locale locale) {
+
+        LocalizedChannelTypeKey localizedChannelTypeKey = getLocalizedChannelTypeKey(channelGroupType.getUID(), locale);
+
+        ChannelGroupType cachedEntry = localizedChannelGroupTypeCache.get(localizedChannelTypeKey);
+        if (cachedEntry != null) {
+            return cachedEntry;
+        }
+
+        if (this.thingTypeI18nUtil != null) {
+
+            ChannelGroupTypeUID channelGroupTypeUID = channelGroupType.getUID();
+
+            String label = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID,
+                    channelGroupType.getLabel(), locale);
+            String description = this.thingTypeI18nUtil.getChannelGroupDescription(bundle, channelGroupTypeUID,
+                    channelGroupType.getDescription(), locale);
+
+            ChannelGroupType localizedChannelType = new ChannelGroupType(channelGroupTypeUID,
+                    channelGroupType.isAdvanced(), label, description, channelGroupType.getCategory(),
+                    channelGroupType.getChannelDefinitions());
+
+            localizedChannelGroupTypeCache.put(localizedChannelTypeKey, localizedChannelType);
+            return localizedChannelType;
+        }
+
+        return channelGroupType;
+    }
+
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
 
@@ -92,21 +257,75 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
         return null;
     }
 
-    @Override
-    protected ChannelType localize(Bundle bundle, ChannelType channelType, Locale locale) {
-        if (thingTypeI18nUtil == null) {
-            return null;
+    private ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
+
+        LocalizedChannelTypeKey localizedChannelTypeKey = getLocalizedChannelTypeKey(channelType.getUID(), locale);
+
+        ChannelType cachedEntry = localizedChannelTypeCache.get(localizedChannelTypeKey);
+        if (cachedEntry != null) {
+            return cachedEntry;
         }
 
-        ChannelTypeUID channelTypeUID = channelType.getUID();
-        String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
-        String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
-                channelType.getDescription(), locale);
-        StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
+        if (this.thingTypeI18nUtil != null) {
 
-        return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
-                channelType.getKind(), label, description, channelType.getCategory(), channelType.getTags(), state,
-                channelType.getEvent(), channelType.getConfigDescriptionURI());
+            ChannelTypeUID channelTypeUID = channelType.getUID();
+
+            String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(),
+                    locale);
+            String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
+                    channelType.getDescription(), locale);
+
+            StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
+
+            ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
+                    channelType.getItemType(), channelType.getKind(), label, description, channelType.getCategory(),
+                    channelType.getTags(), state, channelType.getEvent(), channelType.getConfigDescriptionURI());
+
+            localizedChannelTypeCache.put(localizedChannelTypeKey, localizedChannelType);
+
+            return localizedChannelType;
+        }
+
+        return channelType;
+    }
+
+    private LocalizedChannelTypeKey getLocalizedChannelTypeKey(UID uid, Locale locale) {
+        String localeString = locale != null ? locale.toLanguageTag() : null;
+        LocalizedChannelTypeKey localizedChannelTypeKey = new LocalizedChannelTypeKey(uid,
+                locale != null ? localeString : null);
+        return localizedChannelTypeKey;
+    }
+
+    private void removeCachedChannelGroupTypes(ChannelGroupType channelGroupType) {
+        for (Iterator<Entry<LocalizedChannelTypeKey, ChannelGroupType>> iterator = this.localizedChannelGroupTypeCache
+                .entrySet().iterator(); iterator.hasNext();) {
+            Entry<LocalizedChannelTypeKey, ChannelGroupType> entry = iterator.next();
+            if (entry.getKey().uid.equals(channelGroupType.getUID())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void removeCachedChannelGroupTypes(List<ChannelGroupType> channelGroupTypes) {
+        for (ChannelGroupType channelGroupType : channelGroupTypes) {
+            removeCachedChannelGroupTypes(channelGroupType);
+        }
+    }
+
+    private void removeCachedChannelTypes(ChannelType channelType) {
+        for (Iterator<Entry<LocalizedChannelTypeKey, ChannelType>> iterator = this.localizedChannelTypeCache.entrySet()
+                .iterator(); iterator.hasNext();) {
+            Entry<LocalizedChannelTypeKey, ChannelType> entry = iterator.next();
+            if (entry.getKey().uid.equals(channelType.getUID())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void removeCachedChannelTypes(List<ChannelType> channelTypes) {
+        for (ChannelType channelType : channelTypes) {
+            removeCachedChannelTypes(channelType);
+        }
     }
 
 }
