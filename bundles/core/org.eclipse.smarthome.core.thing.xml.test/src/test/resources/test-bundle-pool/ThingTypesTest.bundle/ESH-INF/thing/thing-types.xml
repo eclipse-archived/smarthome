@@ -10,6 +10,8 @@
 		<description>The hue Bridge represents the Philips hue bridge.
 		</description>
 
+		<category>Light</category>
+
 		<properties>
 			<property name="vendor">Philips</property>
 		</properties>
@@ -40,6 +42,8 @@
 
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>
+
+		<category>Light</category>
 
 		<channels>
 			<channel id="color" typeId="color">

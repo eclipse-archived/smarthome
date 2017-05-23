@@ -33,7 +33,7 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, true, null, null, null, null, null);
     }
 
     /**
@@ -67,7 +67,7 @@ public class BridgeType extends ThingType {
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
-        this(uid, supportedBridgeTypeUIDs, label, description, true, null, channelDefinitions, channelGroupDefinitions,
+        this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions, channelGroupDefinitions,
                 properties, configDescriptionURI);
     }
 
@@ -86,6 +86,8 @@ public class BridgeType extends ThingType {
      * @param description the human readable description for the according type
      *            (could be null or empty)
      *
+     * @param category provides information about the thing for filtering
+     *
      * @param listed determines whether it should be displayed for manually pairing or not
      *
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
@@ -101,11 +103,11 @@ public class BridgeType extends ThingType {
      *             or the the meta information is null
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            boolean listed, List<ChannelDefinition> channelDefinitions,
+            String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
 
-        this(uid, supportedBridgeTypeUIDs, label, description, listed, null, channelDefinitions,
+        this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
 

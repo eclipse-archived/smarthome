@@ -21,6 +21,7 @@ Things represent devices or services that can be individually added to, configur
         </supported-bridge-type-refs>
         <label>Sample Thing</label>
         <description>Some sample description</description>
+        <category>MyCategory</category>
 		...
     </thing-type>
 ```
@@ -34,6 +35,12 @@ Bindings may optionally set the listing of a thing type. By doing do, they indic
 ```
 
 Thing types are listed by default, unless specified otherwise. Hiding thing types potentially makes sense if they are deprecated and should not be used anymore. Also, this can be useful if users should not be bothered with distinguishing similar devices which for technical reasons have to have separate thing types. In that way, a generic thing type could be listed for users and a corresponding thing handler would change the thing type immediately to a more concrete one, handing over control to the correct specialized handler.
+
+### Thing Categories
+
+The thing type definition allows to specify a category. User interfaces can parse this category to get an idea how to render this thing. A binding can classify each thing into one of the existing categories. This is a list of all predefined categories:
+
+TODO: to be specified soon
 
 ## Channels
 

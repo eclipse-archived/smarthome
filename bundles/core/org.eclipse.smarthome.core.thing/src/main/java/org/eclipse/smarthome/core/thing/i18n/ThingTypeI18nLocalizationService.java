@@ -53,21 +53,10 @@ public class ThingTypeI18nLocalizationService {
                 thingType.getChannelDefinitions().size());
 
         for (final ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-            String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, thingType.getUID(), channelDefinition,
-                    channelDefinition.getLabel(), locale);
-            String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, thingType.getUID(),
-                    channelDefinition, channelDefinition.getDescription(), locale);
-            if (channelLabel == null || channelDescription == null) {
-                ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
-                if (channelLabel == null) {
-                    channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
-                            channelType.getLabel(), locale);
-                }
-                if (channelDescription == null) {
-                    channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
-                            channelType.getDescription(), locale);
-                }
-            }
+            final String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle,
+                    channelDefinition.getChannelTypeUID(), channelDefinition.getLabel(), locale);
+            final String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle,
+                    channelDefinition.getChannelTypeUID(), channelDefinition.getDescription(), locale);
             localizedChannelDefinitions
                     .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
                             channelDefinition.getProperties(), channelLabel, channelDescription));
@@ -98,11 +87,11 @@ public class ThingTypeI18nLocalizationService {
         if (thingType instanceof BridgeType) {
             final BridgeType bridgeType = (BridgeType) thingType;
             return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    thingType.getCategory(), thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
                     localizedChannelGroupDefinitions, thingType.getProperties(), bridgeType.getConfigDescriptionURI());
         } else {
             return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    thingType.getCategory(), thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
                     localizedChannelGroupDefinitions, thingType.getProperties(), thingType.getConfigDescriptionURI());
         }
     }
