@@ -54,8 +54,8 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
             String lon = StringUtils.trim(StringUtils.substringBetween(result, "\"lon\":", "}"));
 
             try {
-                Double latitude = Double.parseDouble(lat);
-                Double longitude = Double.parseDouble(lon);
+                double latitude = Double.parseDouble(lat);
+                double longitude = Double.parseDouble(lon);
 
                 logger.info("Evaluated Astro geolocation: latitude: {}, longitude: {}", latitude, longitude);
 

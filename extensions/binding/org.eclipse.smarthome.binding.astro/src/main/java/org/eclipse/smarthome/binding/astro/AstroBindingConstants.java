@@ -14,8 +14,14 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Amit Kumar Mondal - Made non-Instantiable
  */
-public class AstroBindingConstants {
+public final class AstroBindingConstants {
+	
+	/** Constructor */
+	private AstroBindingConstants() {
+		throw new IllegalAccessError("Non-instantiable");
+	}
 
     public static final String BINDING_ID = "astro";
 
