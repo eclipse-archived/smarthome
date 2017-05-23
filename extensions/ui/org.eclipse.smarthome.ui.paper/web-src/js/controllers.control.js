@@ -143,8 +143,8 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.getItem = function(itemName) {
-        for (var int = 0; int < $scope.data.items.length; int++) {
-            var item = $scope.data.items[int];
+        for (var i = 0; i < $scope.data.items.length; i++) {
+            var item = $scope.data.items[i];
             if (item.name === itemName) {
                 if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
                     var parsedValue = Number(item.state);
@@ -161,7 +161,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                     });
                     item.imageLoaded = false;
                 }
-                item.stateText=util.getItemStateText(item);
+                item.stateText = util.getItemStateText(item);
                 return item;
             }
         }
@@ -191,7 +191,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!item.stateDescription || isNaN(item.stateDescription.minimum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return ''+item.stateDescription.minimum;
+            return '' + item.stateDescription.minimum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.minimum);
         }
@@ -201,7 +201,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!item.stateDescription || isNaN(item.stateDescription.maximum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return ''+item.stateDescription.maximum;
+            return '' + item.stateDescription.maximum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.maximum);
         }
@@ -313,7 +313,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.isOptionList = function(item) {
         return (item.stateDescription != null && item.stateDescription.options.length > 0)
     }
-}).controller('ItemController', function($rootScope, $scope, itemService,util) {
+}).controller('ItemController', function($rootScope, $scope, itemService, util) {
     $scope.editMode = false;
     $scope.sendCommand = function(command, updateState) {
         $rootScope.itemUpdates[$scope.item.name] = new Date().getTime();
@@ -323,7 +323,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (updateState) {
             $scope.item.state = command;
         }
-        $scope.item.stateText=util.getItemStateText($scope.item);
+        $scope.item.stateText = util.getItemStateText($scope.item);
     };
     $scope.editState = function() {
         $scope.editMode = true;
