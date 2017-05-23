@@ -27,69 +27,64 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
  *
  * @author Thomas.Eichstaedt-Engelen
  * @author Kai Kreuzer
+ * @author Alexander Kostadinov
  */
 public class CoreItemFactory implements ItemFactory {
 
-    public static final String SWITCH = "Switch";
-    public static final String ROLLERSHUTTER = "Rollershutter";
-    public static final String CONTACT = "Contact";
-    public static final String STRING = "String";
-    public static final String NUMBER = "Number";
-    public static final String DIMMER = "Dimmer";
-    public static final String DATETIME = "DateTime";
-    public static final String COLOR = "Color";
-    public static final String IMAGE = "Image";
-    public static final String PLAYER = "Player";
-    public static final String LOCATION = "Location";
     public static final String CALL = "Call";
+    public static final String COLOR = "Color";
+    public static final String CONTACT = "Contact";
+    public static final String DATETIME = "DateTime";
+    public static final String DIMMER = "Dimmer";
+    public static final String IMAGE = "Image";
+    public static final String LOCATION = "Location";
+    public static final String NUMBER = "Number";
+    public static final String PLAYER = "Player";
+    public static final String ROLLERSHUTTER = "Rollershutter";
+    public static final String STRING = "String";
+    public static final String SWITCH = "Switch";
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public GenericItem createItem(String itemTypeName, String itemName) {
-        if (itemTypeName.equals(SWITCH)) {
-            return new SwitchItem(itemName);
-        }
-        if (itemTypeName.equals(ROLLERSHUTTER)) {
-            return new RollershutterItem(itemName);
-        }
-        if (itemTypeName.equals(CONTACT)) {
-            return new ContactItem(itemName);
-        }
-        if (itemTypeName.equals(STRING)) {
-            return new StringItem(itemName);
-        }
-        if (itemTypeName.equals(NUMBER)) {
-            return new NumberItem(itemName);
-        }
-        if (itemTypeName.equals(DIMMER)) {
-            return new DimmerItem(itemName);
-        }
-        if (itemTypeName.equals(DATETIME)) {
-            return new DateTimeItem(itemName);
-        }
-        if (itemTypeName.equals(COLOR)) {
-            return new ColorItem(itemName);
-        }
-        if (itemTypeName.equals(IMAGE)) {
-            return new ImageItem(itemName);
-        }
-        if (itemTypeName.equals(PLAYER)) {
-            return new PlayerItem(itemName);
-        }
-        if (itemTypeName.equals(LOCATION)) {
-            return new LocationItem(itemName);
-        }
-        if (itemTypeName.equals(CALL)) {
-            return new CallItem(itemName);
-        } else {
+        if (itemTypeName == null) {
             return null;
+        }
+        
+        switch (itemTypeName) {
+            case CALL:
+                return new CallItem(itemName);
+            case COLOR:
+                return new ColorItem(itemName);
+            case CONTACT:
+                return new ContactItem(itemName);
+            case DATETIME:
+                return new DateTimeItem(itemName);
+            case DIMMER:
+                return new DimmerItem(itemName);
+            case IMAGE:
+                return new ImageItem(itemName);
+            case LOCATION:
+                return new LocationItem(itemName);
+            case NUMBER:
+                return new NumberItem(itemName);
+            case PLAYER:
+                return new PlayerItem(itemName);
+            case ROLLERSHUTTER:
+                return new RollershutterItem(itemName);
+            case STRING:
+                return new StringItem(itemName);
+            case SWITCH:
+                return new SwitchItem(itemName);
+            default:
+                return null;
         }
     }
 
     /**
-     * @{inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String[] getSupportedItemTypes() {
