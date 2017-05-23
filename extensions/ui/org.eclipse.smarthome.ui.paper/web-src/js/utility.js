@@ -35,6 +35,7 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
             }
         }
     }
+
     function timePrint(pattern, date, dateTime) {
         if (pattern) {
             var exp = '%1$T';
