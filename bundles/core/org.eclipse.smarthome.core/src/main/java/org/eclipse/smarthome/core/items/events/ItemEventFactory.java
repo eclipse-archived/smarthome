@@ -264,8 +264,8 @@ public class ItemEventFactory extends AbstractEventFactory {
         assertValidArguments(itemName, memberName, newState, "state");
         String topic = buildGroupTopic(GROUPITEM_STATE_CHANGED_EVENT_TOPIC, itemName, memberName);
         ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(
-                newState.getClass().getSimpleName(), newState.toString(), oldState.getClass().getSimpleName(),
-                oldState.toString());
+                newState.getClass().getSimpleName(), newState.toFullString(), oldState.getClass().getSimpleName(),
+                oldState.toFullString());
         String payload = serializePayload(bean);
         return new GroupItemStateChangedEvent(topic, payload, itemName, memberName, newState, oldState);
     }
