@@ -41,57 +41,68 @@
               <artifacts>
                 <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
-                  <id>com.jayway.jsonpath:json-path:2.2.0</id>
+                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>net.minidev:asm:1.0.2</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>net.minidev:json-smart:2.1.1</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11322 -->
                   <id>org.mapdb:mapdb:1.0.9</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10855 *** not approved, to be removed before next release *** -->
                   <id>javax.measure:unit-api:0.8</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10854 *** not approved, to be removed before next release *** -->
                   <id>tec.units:unit-ri:0.8</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=12206 -->
                   <id>javax.measure:unit-api:1.0</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=12610 -->
                   <id>tec.uom:uom-se:1.0.3</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=12518 -->
                   <id>tec.uom.lib:uom-lib-common:1.0.1</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11900 -->
                   <id>com.h2database:h2:1.3.176</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
                 <artifact>
                   <id>org.osgi:org.osgi.service.jdbc:jar:1.0.0</id>
                   <transitive>false</transitive>
+                  <source>true</source>
                 </artifact>
               </artifacts>
             </configuration>
