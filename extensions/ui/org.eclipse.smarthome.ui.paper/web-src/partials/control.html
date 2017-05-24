@@ -56,7 +56,7 @@
 														</p>
 													</div>
 													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-														<h2>{{item.state}}%</h2>
+														<h2>{{item.stateText}}</h2>
 													</div>
 												</div>
 												<md-slider ng-if="!isOptionList(item) && !isReadOnly(item)" class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
@@ -99,7 +99,7 @@
 													</div>
 												</div>
 												<div ng-if="isReadOnly(item)" flex="100" layout="row" layout-align="end center">
-													<h2>{{item.state}}</h2>
+													<h2>{{item.stateText}}</h2>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
 											</div>
@@ -112,10 +112,10 @@
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
 														<div ng-show="isReadOnly(item)">
-															<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+															<h2 class="state" ng-if="isReadOnly(item)">{{item.stateText}}</h2>
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
-															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
+															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.stateText}}</h2>
 															<md-input-container ng-show="editMode"> <input name="{{item.name}}" ng-model="item.state" aria-label={{item.label}} type="number" ng-min="item.stateDescription.minimum" ng-max="item.stateDescription.maximum"></input> </md-input-container>
 															<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
 														</div>
@@ -132,10 +132,10 @@
 													</div>
 													<div flex="60" layout="row" layout-align="end center">
 														<div ng-show="isReadOnly(item)">
-															<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+															<h2 class="state" ng-if="isReadOnly(item)">{{item.stateText}}</h2>
 														</div>
 														<div layout="row" layout-align="end center" ng-if="!isReadOnly(item) && !isOptionList(item)">
-															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
+															<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.stateText}}</h2>
 															<md-input-container ng-show="editMode"> <input name="{{item.name}}" ng-model="item.state" aria-label={{item.label}} type="number" min="0" max="100"></input> </md-input-container>
 															<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
 														</div>
@@ -164,7 +164,7 @@
 
 													</div>
 													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
-														<h2>{{item.state}}</h2>
+														<h2>{{item.stateText}}</h2>
 													</div>
 												</div>
 											</div>
@@ -176,7 +176,7 @@
 														</p>
 													</div>
 													<div ng-if="isReadOnly(item)" flex="60" layout="row" layout-align="end center">
-														<h2 class="state">{{getStateText(item)}}</h2>
+														<h2 class="state">{{item.stateText}}</h2>
 													</div>
 												</div>
 												<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
@@ -229,23 +229,23 @@
 													<p flex="40">
 														<i class="material-icons">{{getIcon(item.category)}}</i>{{getLabel(item.category, item.name, 'Value')}}
 													</p>
-													<div ng-if="(getStateText(item).length<8 || shortEditMode) && !longEditMode" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+													<div ng-if="(item.stateText.length<8 || shortEditMode) && !longEditMode" flex="60" layout="row" layout-align="end center" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
 														<div ng-show="isReadOnly(item)">
-															<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
+															<span class="state" ng-if="isReadOnly(item)">{{item.stateText}}</span>
 														</div>
 														<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
-															<span class="state editable text-right" ng-class="{'minDimension':!item.state}" ng-if="!shortEditMode" ng-click="editState(true)" flex>{{getStateText(item)}}</span>
+															<span class="state editable text-right" ng-class="{'minDimension':!item.state}" ng-if="!shortEditMode" ng-click="editState(true)" flex>{{item.stateText}}</span>
 															<md-input-container ng-show="shortEditMode" flex> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
 															<i class="md-button control-button material-icons" ng-show="shortEditMode" ng-click="updateState(true)">check</i>
 														</div>
 													</div>
 												</div>
-												<div ng-if="(getStateText(item).length>7 || longEditMode) && !shortEditMode" flex="100" layout="row" layout-align="end center" style="height: 100%" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
+												<div ng-if="(item.stateText.length>7 || longEditMode) && !shortEditMode" flex="100" layout="row" layout-align="end center" style="height: 100%" ng-show="isReadOnly(item) || (!isReadOnly(item) && !isOptionList(item))">
 													<div ng-show="isReadOnly(item)">
-														<span class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</span>
+														<span class="state" ng-if="isReadOnly(item)">{{item.stateText}}</span>
 													</div>
 													<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center" flex="100">
-														<span class="state editable text-right" ng-if="!longEditMode" ng-click="editState(false)" flex>{{getStateText(item)}}</span>
+														<span class="state editable text-right" ng-if="!longEditMode" ng-click="editState(false)" flex>{{item.stateText}}</span>
 														<md-input-container ng-show="longEditMode" flex="80"> <input ng-if="item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{item.label}}></input> <input ng-if="item.groupType!='Number'" ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
 														<i class="md-button control-button material-icons" ng-show="longEditMode" ng-click="updateState(false)">check</i>
 													</div>
