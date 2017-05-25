@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -17,8 +20,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Grammling - Initial contribution and API
  * @author Simon Kaufmann - added type conversion
+ * @author Martin van Wingerden - when converting types convert null to UnDefType.NULL
  */
 public class ItemUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemUtil.class);
 
     /**
      * The constructor is private.
@@ -44,11 +49,7 @@ public class ItemUtil {
      * @return true if the specified name is a valid item name, otherwise false
      */
     public static boolean isValidItemName(final String itemName) {
-        if (itemName != null && !itemName.isEmpty()) {
-            return itemName.matches("[a-zA-Z0-9_]*");
-        }
-
-        return false;
+        return StringUtils.isNotEmpty(itemName) && itemName.matches("[a-zA-Z0-9_]*");
     }
 
     /**
@@ -75,14 +76,18 @@ public class ItemUtil {
         }
     }
 
-    public static State convertToAcceptedState(final State state, final Item item) {
+    public static State convertToAcceptedState(State state, Item item) {
+        if (state == null) {
+            LOGGER.error("A conversion of null was requested", new NullPointerException("state should not be null"));
+            return UnDefType.NULL;
+        }
+
         if (item != null && !isAccepted(item, state)) {
             for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
                 State convertedState = state.as(acceptedType);
                 if (convertedState != null) {
-                    LoggerFactory.getLogger(ItemUtil.class).debug("Converting {} '{}' to {} '{}' for item '{}'",
-                            state.getClass().getSimpleName(), state.toString(),
-                            convertedState.getClass().getSimpleName(), convertedState.toString(), item.getName());
+                    LOGGER.debug("Converting {} '{}' to {} '{}' for item '{}'", state.getClass().getSimpleName(), state,
+                            convertedState.getClass().getSimpleName(), convertedState, item.getName());
                     return convertedState;
                 }
             }
