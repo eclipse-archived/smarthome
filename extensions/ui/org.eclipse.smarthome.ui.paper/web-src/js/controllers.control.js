@@ -33,12 +33,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.thingTypes = [];
     $scope.thingChannels = [];
     $scope.isLoadComplete = false;
-    var thingList, thingCounter;
+    var thingList;
     function getThings() {
         $scope.things = [];
         thingService.getAll().$promise.then(function(things) {
             thingList = things;
-            thingCounter = 0;
             $scope.isLoadComplete = false;
             thingTypeService.getAll().$promise.then(function(thingTypes) {
                 $scope.thingTypes = thingTypes;
@@ -53,6 +52,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                             for (var t_i = 0; t_i < thingList.length; t_i++) {
                                 if (thingList[t_i].thingTypeUID === thingType.UID) {
                                     renderThing(thingList[t_i], thingType, $scope.channelTypes);
+                                }
+                                if (i == thingTypesUsed.length && t_i == thingList.length - 1) {
+                                    getTabs();
                                 }
                             }
                         });
@@ -69,11 +71,9 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                 return channel.linkedItems.length > 0;
             });
         });
-        thingCounter++;
         if (thingHasChannels(thing) && $scope.things.indexOf(thing) == -1) {
             $scope.things.push(thing);
         }
-        getTabs();
     }
     function thingHasChannels(thing) {
         for (var i = 0; i < thing.thingChannels.length; i++) {
@@ -85,7 +85,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     function getTabs() {
-        if (!$scope.things || (thingList.length != thingCounter)) {
+        if (!$scope.things) {
             return;
         }
         var arr = [], otherTab = false;
