@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.scheduler;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -36,10 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExpressionThreadPoolManager extends ThreadPoolManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolManager.class);
-
-    static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
     /**
      * Returns an instance of an expression-driven scheduled thread pool service. If it is the first request for the
      * given pool name, the instance is newly created.
@@ -47,7 +42,7 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
      * @param poolName a short name used to identify the pool, e.g. "discovery"
      * @return an instance to use
      */
-    static public ExpressionThreadPoolExecutor getExpressionScheduledPool(String poolName) {
+    public static ExpressionThreadPoolExecutor getExpressionScheduledPool(String poolName) {
         ExecutorService pool = pools.get(poolName);
         if (pool == null) {
             synchronized (pools) {
@@ -59,8 +54,8 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created an expression-drive scheduled thread pool '{}' of size {}",
-                            new Object[] { poolName, cfg });
+                    LoggerFactory.getLogger(ExpressionThreadPoolManager.class)
+                            .debug("Created an expression-drive scheduled thread pool '{}' of size {}", poolName, cfg);
                 }
             }
         }
@@ -73,6 +68,8 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
 
     public static class ExpressionThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
+        private final Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolExecutor.class);
+
         private Map<Expression, Runnable> scheduled = new ConcurrentHashMap<>();
         private Map<Runnable, ArrayList<Future<?>>> futures = Collections
                 .synchronizedMap(new HashMap<Runnable, ArrayList<Future<?>>>());
@@ -82,12 +79,14 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
 
         public ExpressionThreadPoolExecutor(final String poolName, int corePoolSize) {
             this(poolName, corePoolSize, new NamedThreadFactory(poolName), new ThreadPoolExecutor.DiscardPolicy() {
+
+                private final Logger logger = LoggerFactory.getLogger(ThreadPoolExecutor.DiscardPolicy.class);
+
                 // The pool is bounded and rejections will happen during shutdown
                 @Override
                 public void rejectedExecution(Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
                     // Log and discard
-                    logger.warn("Thread pool '{}' rejected execution of {}",
-                            new Object[] { poolName, runnable.getClass() });
+                    logger.debug("Thread pool '{}' rejected execution of {}", poolName, runnable.getClass());
                     super.rejectedExecution(runnable, threadPoolExecutor);
                 }
             });
@@ -178,7 +177,7 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                             Date time = e.getTimeAfter(now);
 
                             if (time != null) {
-                                logger.trace("Expression's '{}' next execution time is {}", e, sdf.format(time));
+                                logger.trace("Expression's '{}' next execution time is {}", e, time);
 
                                 Runnable task = scheduled.get(e);
 
