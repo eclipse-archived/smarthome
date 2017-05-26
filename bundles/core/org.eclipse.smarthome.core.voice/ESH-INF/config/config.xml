@@ -29,6 +29,12 @@
             <label>Magic Word</label>
             <description>The magic word to spot before initiating a dialog.</description>
         </parameter>
+        <parameter name="listeningItem" type="text" required="false">
+            <context>item</context>
+            <filter><criteria name="type">Switch</criteria></filter>
+            <label>Listening switch</label>
+            <description>If provided, the item will be switched on during the period when the dialog processor has spotted the keyword and is listening for commands.</description>
+        </parameter>
     </config-description>
 
 </config-description:config-descriptions>

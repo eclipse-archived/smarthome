@@ -16,6 +16,10 @@ import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ItemUtil;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.voice.KSErrorEvent;
 import org.eclipse.smarthome.core.voice.KSEvent;
 import org.eclipse.smarthome.core.voice.KSException;
@@ -43,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * and tts services together with the human language interpreter.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Yannick Schaus - Send commands to an item to indicate the keyword has been spotted
  */
 public class DialogProcessor implements KSListener, STTListener {
 
@@ -68,11 +73,14 @@ public class DialogProcessor implements KSListener, STTListener {
     private final AudioSink sink;
     private final Locale locale;
     private final String keyword;
+    private final String listeningItem;
+    private final EventPublisher eventPublisher;
 
     private final AudioFormat format;
 
     public DialogProcessor(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli,
-            AudioSource source, AudioSink sink, Locale locale, String keyword) {
+            AudioSource source, AudioSink sink, Locale locale, String keyword, String listeningItem,
+            EventPublisher eventPublisher) {
         this.locale = locale;
         this.ks = ks;
         this.hli = hli;
@@ -81,29 +89,46 @@ public class DialogProcessor implements KSListener, STTListener {
         this.source = source;
         this.sink = sink;
         this.keyword = keyword;
+        this.listeningItem = listeningItem;
+        this.eventPublisher = eventPublisher;
         this.format = AudioFormat.getBestMatch(source.getSupportedFormats(), sink.getSupportedFormats());
     }
 
     public void start() {
         try {
             ks.spot(this, source.getInputStream(format), locale, this.keyword);
-        } catch (KSException | AudioException e) {
+        } catch (KSException e) {
             logger.error("Encountered error calling spot: {}", e.getMessage());
+        } catch (AudioException e) {
+            logger.error("Error creating the audio stream", e);
+        }
+    }
+
+    private void toggleProcessing(boolean value) {
+        if (this.processing == value) {
+            return;
+        }
+        this.processing = value;
+        if (listeningItem != null && ItemUtil.isValidItemName(listeningItem)) {
+            OnOffType command = (value) ? OnOffType.ON : OnOffType.OFF;
+            eventPublisher.post(ItemEventFactory.createCommandEvent(listeningItem, command));
         }
     }
 
     @Override
     public void ksEventReceived(KSEvent ksEvent) {
         if (!processing) {
-            processing = true;
             this.isSTTServerAborting = false;
             if (ksEvent instanceof KSpottedEvent) {
+                toggleProcessing(true);
                 if (stt != null) {
                     try {
                         this.sttServiceHandle = stt.recognize(this, source.getInputStream(format), this.locale,
                                 new HashSet<String>());
-                    } catch (STTException | AudioException e) {
+                    } catch (STTException e) {
                         say("Error during recognition: " + e.getMessage());
+                    } catch (AudioException e) {
+                        logger.error("Error creating the audio stream", e);
                     }
                 }
             } else if (ksEvent instanceof KSErrorEvent) {
@@ -122,19 +147,22 @@ public class DialogProcessor implements KSListener, STTListener {
                 SpeechRecognitionEvent sre = (SpeechRecognitionEvent) sttEvent;
                 String question = sre.getTranscript();
                 try {
-                    this.processing = false;
-                    say(hli.interpret(this.locale, question));
+                    toggleProcessing(false);
+                    String answer = hli.interpret(this.locale, question);
+                    if (answer != null) {
+                        say(answer);
+                    }
                 } catch (InterpretationException e) {
                     say(e.getMessage());
                 }
             }
         } else if (sttEvent instanceof RecognitionStopEvent) {
-            this.processing = false;
+            toggleProcessing(false);
         } else if (sttEvent instanceof SpeechRecognitionErrorEvent) {
             if (false == this.isSTTServerAborting) {
                 this.sttServiceHandle.abort();
                 this.isSTTServerAborting = true;
-                this.processing = false;
+                toggleProcessing(false);
                 SpeechRecognitionErrorEvent sre = (SpeechRecognitionErrorEvent) sttEvent;
                 say("Encountered error: " + sre.getMessage());
             }

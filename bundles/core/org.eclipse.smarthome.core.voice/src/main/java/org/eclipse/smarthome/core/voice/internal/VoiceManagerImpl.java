@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.voice.KSService;
 import org.eclipse.smarthome.core.voice.STTService;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * This service provides functionality around voice services and is the central service to be used directly by others.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Yannick Schaus - Added ability to provide a item for feedback during listening phases
  */
 public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
@@ -50,6 +52,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     // constants for the configuration properties
     private static final String CONFIG_URI = "system:voice";
     private static final String CONFIG_KEYWORD = "keyword";
+    private static final String CONFIG_LISTENING_ITEM = "listeningItem";
     private static final String CONFIG_DEFAULT_HLI = "defaultHLI";
     private static final String CONFIG_DEFAULT_KS = "defaultKS";
     private static final String CONFIG_DEFAULT_STT = "defaultSTT";
@@ -71,6 +74,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
      * default settings filled through the service configuration
      */
     private String keyword = DEFAULT_KEYWORD;
+    private String listeningItem = null;
     private String defaultTTS = null;
     private String defaultSTT = null;
     private String defaultKS = null;
@@ -78,6 +82,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     private String defaultVoice = null;
     private Map<String, String> defaultVoices = new HashMap<>();
     private AudioManager audioManager;
+    private EventPublisher eventPublisher;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
@@ -89,6 +94,8 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
+            this.listeningItem = config.containsKey(CONFIG_LISTENING_ITEM)
+                    ? config.get(CONFIG_LISTENING_ITEM).toString() : null;
             this.defaultTTS = config.containsKey(CONFIG_DEFAULT_TTS) ? config.get(CONFIG_DEFAULT_TTS).toString() : null;
             this.defaultSTT = config.containsKey(CONFIG_DEFAULT_STT) ? config.get(CONFIG_DEFAULT_STT).toString() : null;
             this.defaultKS = config.containsKey(CONFIG_DEFAULT_KS) ? config.get(CONFIG_DEFAULT_KS).toString() : null;
@@ -353,12 +360,12 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     @Override
     public void startDialog() {
-        startDialog(null, null, null, null, null, null, null, this.keyword);
+        startDialog(null, null, null, null, null, null, null, this.keyword, this.listeningItem);
     }
 
     @Override
     public void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli,
-            AudioSource source, AudioSink sink, Locale locale, String keyword) {
+            AudioSource source, AudioSink sink, Locale locale, String keyword, String listeningItem) {
 
         // use defaults, if null
         ks = (ks == null) ? getKS() : ks;
@@ -369,10 +376,12 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         sink = (sink == null) ? audioManager.getSink() : sink;
         locale = (locale == null) ? localeProvider.getLocale() : locale;
         keyword = (keyword == null) ? this.keyword : keyword;
+        listeningItem = (listeningItem == null) ? this.listeningItem : listeningItem;
 
-        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null
-                && locale != null && keyword != null) {
-            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, locale, keyword);
+        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null && locale != null
+                && keyword != null) {
+            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, locale, keyword,
+                    listeningItem, this.eventPublisher);
             processor.start();
         } else {
             String msg = "Cannot start dialog as services are missing.";
@@ -427,6 +436,14 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     protected void unsetAudioManager(AudioManager audioManager) {
         this.audioManager = null;
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
     }
 
     @Override
