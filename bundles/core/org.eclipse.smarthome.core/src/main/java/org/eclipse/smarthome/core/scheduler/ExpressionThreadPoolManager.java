@@ -104,20 +104,9 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
             super.afterExecute(runnable, throwable);
 
             if (runnable instanceof Future) {
-                for (Runnable aRunnable : futures.keySet()) {
-                    Future<?> toDelete = null;
-                    synchronized (futures) {
-                        for (Future<?> future : futures.get(aRunnable)) {
-                            if (future == runnable) {
-                                toDelete = future;
-                                break;
-                            }
-                        }
-                        if (toDelete != null) {
-                            logger.trace("Removing Future '{}' (out of {}) for Runnable '{}'", toDelete,
-                                    futures.get(aRunnable).size(), aRunnable);
-                            futures.get(aRunnable).remove(toDelete);
-                        }
+                synchronized (futures) {
+                    for (Runnable aRunnable : futures.keySet()) {
+                        futures.get(aRunnable).removeIf(future -> future == runnable);
                     }
                 }
 
