@@ -276,36 +276,42 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                ThingUID thingUID = thing.getUID();
-                waitForRunningHandlerRegistrations(thingUID);
+                Lock lock = getLockForThing(thing.getUID());
+                try {
+                    lock.lock();
+                    ThingUID thingUID = thing.getUID();
+                    waitForRunningHandlerRegistrations(thingUID);
 
-                // Remove the ThingHandler, if any
-                final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
-                if (oldThingHandlerFactory != null) {
-                    ThingHandler thingHandler = thing.getHandler();
-                    unregisterAndDisposeHandler(oldThingHandlerFactory, thing, thingHandler);
-                    waitUntilHandlerUnregistered(thing, 60 * 1000);
-                } else {
-                    logger.debug("No ThingHandlerFactory available that can handle {}", thing.getThingTypeUID());
+                    // Remove the ThingHandler, if any
+                    final ThingHandlerFactory oldThingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
+                    if (oldThingHandlerFactory != null) {
+                        ThingHandler thingHandler = thing.getHandler();
+                        unregisterAndDisposeHandler(oldThingHandlerFactory, thing, thingHandler);
+                        waitUntilHandlerUnregistered(thing, 60 * 1000);
+                    } else {
+                        logger.debug("No ThingHandlerFactory available that can handle {}", thing.getThingTypeUID());
+                    }
+
+                    // Set the new channels
+                    List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID,
+                            configDescriptionRegistry);
+                    ((ThingImpl) thing).setChannels(channels);
+
+                    // Set the given configuration
+                    ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
+                    ((ThingImpl) thing).setConfiguration(configuration);
+
+                    // Change the ThingType
+                    ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
+
+                    // Register the new Handler - ThingManager.updateThing() is going to take care of that
+                    thingRegistry.update(thing);
+
+                    logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
+                            thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
+                } finally {
+                    lock.unlock();
                 }
-
-                // Set the new channels
-                List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID,
-                        configDescriptionRegistry);
-                ((ThingImpl) thing).setChannels(channels);
-
-                // Set the given configuration
-                ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
-                ((ThingImpl) thing).setConfiguration(configuration);
-
-                // Change the ThingType
-                ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
-
-                // Register the new Handler - ThingManager.updateThing() is going to take care of that
-                thingRegistry.update(thing);
-
-                logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.", thing.getUID().toString(),
-                        thing.getThingTypeUID(), thing.getHandler().toString());
             }
 
             private void waitUntilHandlerUnregistered(final Thing thing, int timeout) {
@@ -714,32 +720,27 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void doInitializeHandler(final ThingHandler thingHandler) {
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                logger.debug("Calling initialize handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(),
-                        thingHandler);
-                try {
-                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            thingHandler.initialize();
-                            return null;
-                        }
-                    });
-                } catch (TimeoutException ex) {
-                    logger.warn("Initializing handler for thing '{}' takes more than {}ms.",
-                            thingHandler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                } catch (Exception ex) {
-                    ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                            ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                            ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-                    setThingStatus(thingHandler.getThing(), statusInfo);
-                    logger.error("Exception occurred while initializing handler of thing '{}': {}",
-                            thingHandler.getThing().getUID(), ex.getMessage(), ex);
+        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(),
+                thingHandler);
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    thingHandler.initialize();
+                    return null;
                 }
-            }
-        }, 0, TimeUnit.NANOSECONDS);
+            });
+        } catch (TimeoutException ex) {
+            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
+                    SafeMethodCaller.DEFAULT_TIMEOUT);
+        } catch (Exception ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thingHandler.getThing(), statusInfo);
+            logger.error("Exception occurred while initializing handler of thing '{}': {}",
+                    thingHandler.getThing().getUID(), ex.getMessage(), ex);
+        }
     }
 
     private boolean isInitializing(Thing thing) {
