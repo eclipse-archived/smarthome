@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * and tts services together with the human language interpreter.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Yannick Schaus - Send commands to an item to indicate the keyword has been spotted
  */
 public class DialogProcessor implements KSListener, STTListener {
 
