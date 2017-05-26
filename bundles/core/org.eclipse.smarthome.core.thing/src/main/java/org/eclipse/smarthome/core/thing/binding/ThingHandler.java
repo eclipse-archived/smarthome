@@ -82,7 +82,7 @@ public interface ThingHandler {
     /**
      * Handles a command for a given channel.
      * <p>
-     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
+     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE/UNKNOWN).
      * <p>
      *
      * @param channelUID the {@link ChannelUID} of the channel to which the command was sent
@@ -93,7 +93,7 @@ public interface ThingHandler {
     /**
      * Handles a {@link State} update for a given channel.
      * <p>
-     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
+     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE/UNKNOWN).
      * <p>
      *
      * @param channelUID the {@link ChannelUID} of the channel on which the update was performed
@@ -117,7 +117,7 @@ public interface ThingHandler {
     /**
      * Notifies the handler about an updated {@link Thing}.
      * <p>
-     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
+     * This method will only be called once the {@link #initialize()} method returned.
      * <p>
      *
      * @param thing the {@link Thing}, that has been updated
@@ -127,7 +127,7 @@ public interface ThingHandler {
     /**
      * Notifies the handler that a channel was linked.
      * <p>
-     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
+     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE/UNKNOWN).
      * <p>
      *
      * @param channelUID UID of the linked channel
@@ -137,7 +137,7 @@ public interface ThingHandler {
     /**
      * Notifies the handler that a channel was unlinked.
      * <p>
-     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE).
+     * This method is only called, if the thing has been initialized (status ONLINE/OFFLINE/UNKNOWN).
      * <p>
      *
      * @param channelUID UID of the unlinked channel
@@ -145,14 +145,16 @@ public interface ThingHandler {
     void channelUnlinked(ChannelUID channelUID);
 
     /**
-     * This method is called, when the status of the bridge has been changed to {@link ThingStatus#ONLINE} or
-     * {@link ThingStatus#OFFLINE} after a bridge has been initialized. If the thing of this handler does not have a
-     * bridge, this method is never called.
+     * Notifies the handler that the bridge's status has changed.
      * <p>
-     * If the bridge status has changed to OFFLINE, the status of the handled thing must be updated to OFFLINE with
-     * detail {@link ThingStatusDetail#BRIDGE_OFFLINE}. If the bridge returns to ONLINE, the thing status must be
-     * changed at least to OFFLINE with detail {@link ThingStatusDetail#NONE}.
+     * This method is called, when the status of the bridge has been changed to {@link ThingStatus#ONLINE},
+     * {@link ThingStatus#OFFLINE} or {@link ThingStatus#UNKNOWN}, i.e. after a bridge has been initialized.
+     * If the thing of this handler does not have a bridge, this method is never called.
      * <p>
+     * If the bridge's status has changed to {@link ThingStatus#OFFLINE}, the status of the handled thing must be
+     * updated to {@link ThingStatus#OFFLINE} with detail {@link ThingStatusDetail#BRIDGE_OFFLINE}. If the bridge
+     * returns to {@link ThingStatus#ONLINE}, the thing status must be changed at least to {@link ThingStatus#OFFLINE}
+     * with detail {@link ThingStatusDetail#NONE}.
      *
      * @param thingStatusInfo the status info of the bridge
      */
