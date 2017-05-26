@@ -13,6 +13,7 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.eclipse.smarthome.config.core.BundleProcessorVetoManager;
@@ -118,6 +121,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private ThingTypeRegistry thingTypeRegistry;
 
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
+
+    private Map<ThingUID, Lock> thingLocks = new HashMap<>();
 
     private ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -559,7 +564,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
-        synchronized (thing) {
+        Lock lock = getLockForThing(thing.getUID());
+        try {
+            lock.lock();
             if (!isHandlerRegistered(thing)) {
                 if (!hasBridge(thing)) {
                     doRegisterHandler(thing, thingHandlerFactory);
@@ -576,6 +583,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 logger.debug("Attempt to register a handler twice for thing {} at the same time will be ignored.",
                         thing.getUID());
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -620,7 +629,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (!isHandlerRegistered(thing)) {
             return;
         }
-        synchronized (thing) {
+        Lock lock = getLockForThing(thing.getUID());
+        try {
+            lock.lock();
             if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                 logger.debug("Attempt to initialize the already initialized thing '{}' will be ignored.",
                         thing.getUID());
@@ -645,6 +656,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 setThingStatus(thing,
                         buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -752,10 +765,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void unregisterHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
-        synchronized (thing) {
+        Lock lock = getLockForThing(thing.getUID());
+        try {
+            lock.lock();
             if (isHandlerRegistered(thing)) {
                 doUnregisterHandler(thing, thingHandlerFactory);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -783,11 +800,15 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void disposeHandler(Thing thing, ThingHandler thingHandler) {
-        synchronized (thing) {
+        Lock lock = getLockForThing(thing.getUID());
+        try {
+            lock.lock();
             doDisposeHandler(thingHandler);
             if (hasBridge(thing)) {
                 notifyBridgeAboutChildHandlerDisposal(thing, thingHandler);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -1012,6 +1033,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
         thingHandlersByFactory.removeAll(thingHandlerFactory);
         thingHandlerFactories.remove(thingHandlerFactory);
+    }
+
+    private synchronized Lock getLockForThing(ThingUID thingUID) {
+        if (thingLocks.get(thingUID) == null) {
+            Lock lock = new ReentrantLock();
+            thingLocks.put(thingUID, lock);
+        }
+        return thingLocks.get(thingUID);
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
