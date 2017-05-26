@@ -354,6 +354,8 @@
 
 		_t.setValuePrivate = function() {};
 
+		_t.setLabel = function() {};
+
 		_t.suppressUpdate = function() {
 			suppress = true;
 		};
@@ -376,6 +378,7 @@
 		_t.parentNode = parentNode;
 		_t.id = _t.parentNode.getAttribute(o.idAttribute);
 		_t.visible = !_t.parentNode.classList.contains(o.formHidden);
+		_t.title = _t.parentNode.querySelector(o.formTitle);
 
 		_t.setVisible = function(state) {
 			if (state) {
@@ -385,6 +388,10 @@
 			}
 
 			_t.visible = state;
+		};
+
+		_t.setLabel = function(label) {
+			_t.title.innerHTML = label;
 		};
 
 		_t.setValue = function() {};
@@ -1680,6 +1687,9 @@
 					});
 				} else {
 					widget.setValue(value, data.item.state);
+					if (data.label !== undefined) {
+						widget.setLabel(data.label);
+					}
 					if (data.labelcolor !== undefined) {
 						widget.setLabelColor(data.labelcolor);
 					} else {
@@ -1725,6 +1735,7 @@
 					var
 						item = widget.item.name,
 						value = widget.item.state,
+						label = widget.label,
 						labelcolor = widget.labelcolor,
 						valuecolor = widget.valuecolor;
 
@@ -1732,6 +1743,9 @@
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
 							if (value !== "NULL") {
 								w.setValue(value, value);
+							}
+							if (label !== undefined) {
+								w.setLabel(label);
 							}
 							if (labelcolor !== undefined) {
 								w.setLabelColor(labelcolor);
@@ -1928,6 +1942,7 @@
 	modalContainer: ".mdl-modal__content",
 	selectionRows: ".mdl-form__selection-rows",
 	form: ".mdl-form",
+	formTitle: ".mdl-form__title",
 	formHidden: "mdl-form--hidden",
 	formControls: ".mdl-form__control",
 	formRowHidden: "mdl-form__row--hidden",
