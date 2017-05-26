@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.thing.internal
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import java.util.concurrent.TimeUnit
+
 import org.eclipse.smarthome.config.core.BundleProcessor
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
@@ -154,6 +156,54 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID_NEW.getAsString()))}
     }
 
+
+    @Test
+    void 'ThingManager changes the thing type correctly even if initialize takes long and called from there'() {
+        registerThingTypeProvider()
+
+        def THING_TYPE_UID_NEW = new ThingTypeUID("binding:type2")
+
+        boolean initializeRunning = false
+        boolean raceCondition = false
+        boolean migrateBlocked = false
+        ThingHandlerCallback thingHandlerCallback = null
+        def thingHandlerFactory = [
+            supportsThingType: { ThingTypeUID thingTypeUID -> true },
+            registerHandler: { thing ->
+                def thingHandler = [
+                    setCallback: {callback -> thingHandlerCallback = callback },
+                    initialize: {
+                        if (initializeRunning) {
+                            raceCondition = true
+                        }
+                        initializeRunning = true
+                        long start = System.nanoTime()
+                        thingHandlerCallback.migrateThingType(THING, THING_TYPE_UID_NEW, THING.getConfiguration())
+                        if (System.nanoTime() - start > TimeUnit.SECONDS.toNanos(1)) {
+                            migrateBlocked = true
+                        }
+                        Thread.sleep(3000)
+                        initializeRunning = false
+                    },
+                    dispose: {},
+                    getThing: { return THING }
+                ] as ThingHandler
+            },
+            unregisterHandler: {},
+            removeThing: {
+            }
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        managedThingProvider.add(THING)
+
+        waitForAssert {assertThat THING.getThingTypeUID().getAsString(), is(equalTo(THING_TYPE_UID_NEW.getAsString()))}
+
+        assertThat migrateBlocked, is(false)
+        assertThat raceCondition, is(false)
+    }
+
     @Test(expected=RuntimeException.class)
     void 'ThingManager does not change the thing type when new thing type is not registered'() {
 
@@ -187,6 +237,62 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
 
     @Test
+    void 'ThingManager waits with thingUpdated until initialize returned'() {
+        registerThingTypeProvider()
+
+        Thing thing2 = ThingBuilder.create(THING_UID).withChannels([
+            new Channel(CHANNEL_UID, "Switch")
+        ]).build()
+
+        boolean raceCondition = false
+        boolean initializeCalled = true
+        boolean initializeRunning = false
+        boolean thingUpdatedCalled = false
+        ThingHandlerCallback thingHandlerCallback = null
+        def thingHandlerFactory = [
+            supportsThingType: { ThingTypeUID thingTypeUID -> true },
+            registerHandler: { thing ->
+                def thingHandler = [
+                    setCallback: { callback -> thingHandlerCallback = callback },
+                    initialize: {
+                        initializeCalled = true
+                        initializeRunning = true
+                        Thread.sleep(3000)
+                        initializeRunning = false
+                    },
+                    dispose: {},
+                    getThing: { return THING },
+                    thingUpdated: { newThing ->
+                        thingUpdatedCalled = true
+                        if (initializeRunning) {
+                            raceCondition = true
+                        }
+                    }
+                ] as ThingHandler
+            },
+            unregisterHandler: {},
+            removeThing: {
+            }
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        new Thread({ managedThingProvider.add(THING) }).start();
+
+        waitForAssert {
+            assertThat THING.getStatus(), is(ThingStatus.INITIALIZING)
+        }
+
+        new Thread({ managedThingProvider.update(thing2) }).start();
+
+        waitForAssert({
+            assertThat thingUpdatedCalled, is(true)
+        })
+
+        assertThat raceCondition, is(false)
+    }
+
+    @Test
     void 'ThingManager calls registerHandler for added Thing'() {
 
         def registerHandlerCalled = false
@@ -211,7 +317,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         managedThingProvider.add(THING)
 
-        waitForAssert {assertThat registerHandlerCalled, is(true)}
+        waitForAssert {
+            assertThat registerHandlerCalled, is(true)
+        }
     }
 
     @Test
@@ -221,8 +329,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def removeThingCalled = false
 
         def thingHandlerFactory = [
-            supportsThingType: {thingTypeUID -> true },
-            registerHandler: {thing ->
+            supportsThingType: { thingTypeUID -> true },
+            registerHandler: { thing ->
                 def thingHandler = [
                     setCallback: {},
                     initialize: {},
@@ -240,8 +348,12 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         managedThingProvider.remove(THING.getUID())
 
-        waitForAssert {assertThat removeThingCalled, is(true)}
-        waitForAssert {assertThat unregisterHandlerCalled, is(true)}
+        waitForAssert {
+            assertThat removeThingCalled, is(true)
+        }
+        waitForAssert {
+            assertThat unregisterHandlerCalled, is(true)
+        }
     }
 
     @Test
