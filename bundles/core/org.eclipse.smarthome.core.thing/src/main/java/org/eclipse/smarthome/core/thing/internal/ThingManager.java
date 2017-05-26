@@ -501,49 +501,54 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     @Override
     public void thingUpdated(final Thing thing, ThingTrackerEvent thingTrackerEvent) {
+        Lock lock = getLockForThing(thing.getUID());
+        try {
+            lock.lock();
+            ThingUID thingUID = thing.getUID();
+            Thing oldThing = getThing(thingUID);
 
-        ThingUID thingUID = thing.getUID();
-        Thing oldThing = getThing(thingUID);
-
-        if (oldThing != thing) {
-            this.things.remove(oldThing);
-            this.things.add(thing);
-        }
-
-        final ThingHandler thingHandler = thingHandlers.get(thingUID);
-        if (thingHandler != null) {
             if (oldThing != thing) {
-                thing.setHandler(thingHandler);
+                this.things.remove(oldThing);
+                this.things.add(thing);
             }
-            if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
-                try {
-                    // prevent infinite loops by not informing handler about self-initiated update
-                    if (!thingUpdatedLock.contains(thingUID)) {
-                        SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
 
-                            @Override
-                            public Void call() throws Exception {
-                                thingHandler.thingUpdated(thing);
-                                return null;
-                            }
-                        });
+            final ThingHandler thingHandler = thingHandlers.get(thingUID);
+            if (thingHandler != null) {
+                if (oldThing != thing) {
+                    thing.setHandler(thingHandler);
+                }
+                if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
+                    try {
+                        // prevent infinite loops by not informing handler about self-initiated update
+                        if (!thingUpdatedLock.contains(thingUID)) {
+                            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+
+                                @Override
+                                public Void call() throws Exception {
+                                    thingHandler.thingUpdated(thing);
+                                    return null;
+                                }
+                            });
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while calling thing updated at ThingHandler '{}': {}",
+                                thingHandler, ex.getMessage(), ex);
                     }
-                } catch (Exception ex) {
-                    logger.error("Exception occurred while calling thing updated at ThingHandler '{}': {}",
-                            thingHandler, ex.getMessage(), ex);
+                } else {
+                    logger.debug(
+                            "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
+                            thing.getThingTypeUID());
+                    initializeHandler(thing);
                 }
             } else {
-                logger.debug(
-                        "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
-                        thing.getThingTypeUID());
-                initializeHandler(thing);
+                registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
             }
-        } else {
-            registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
-        }
 
-        if (oldThing != thing) {
-            oldThing.setHandler(null);
+            if (oldThing != thing) {
+                oldThing.setHandler(null);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
