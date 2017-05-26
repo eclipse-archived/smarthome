@@ -96,8 +96,10 @@ public class DialogProcessor implements KSListener, STTListener {
     public void start() {
         try {
             ks.spot(this, source.getInputStream(format), locale, this.keyword);
-        } catch (KSException | AudioException e) {
-            logger.error("Encountered error calling spot: {}", e);
+        } catch (KSException e) {
+            logger.error("Encountered error calling spot: {}", e.getMessage());
+        } catch (AudioException e) {
+            logger.error("Error creating the audio stream", e);
         }
     }
 
@@ -122,9 +124,10 @@ public class DialogProcessor implements KSListener, STTListener {
                     try {
                         this.sttServiceHandle = stt.recognize(this, source.getInputStream(format), this.locale,
                                 new HashSet<String>());
-                    } catch (STTException | AudioException e) {
-                        logger.error("Error during recognition", e);
+                    } catch (STTException e) {
                         say("Error during recognition: " + e.getMessage());
+                    } catch (AudioException e) {
+                        logger.error("Error creating the audio stream", e);
                     }
                 }
             } else if (ksEvent instanceof KSErrorEvent) {
