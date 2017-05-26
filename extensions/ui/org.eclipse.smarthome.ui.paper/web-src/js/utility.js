@@ -29,6 +29,9 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                     return $filter('date')(date, "dd.MM.yyyy HH:mm:ss");
                 }
             } else if (!item.stateDescription || !item.stateDescription.pattern) {
+                if (item.type && item.type.toUpperCase() == "DIMMER") {
+                    state += " %";
+                }
                 return state;
             } else {
                 return sprintf(item.stateDescription.pattern, state);
