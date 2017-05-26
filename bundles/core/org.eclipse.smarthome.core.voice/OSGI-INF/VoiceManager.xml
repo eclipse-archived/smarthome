@@ -16,6 +16,7 @@
    <reference bind="addTTSService" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.TTSService" name="TTSService" policy="dynamic" unbind="removeTTSService"/>
    <reference bind="addHumanLanguageInterpreter" cardinality="0..n" interface="org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter" name="HumanLanguageInterpreter" policy="dynamic" unbind="removeHumanLanguageInterpreter"/>
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
+   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
 
    <service>
       <provide interface="org.eclipse.smarthome.core.voice.VoiceManager"/>

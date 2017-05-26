@@ -91,7 +91,7 @@ public interface VoiceManager {
      * @throws IllegalStateException if required services are not available
      */
     void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli, AudioSource source,
-            AudioSink sink, Locale locale, String keyword);
+            AudioSink sink, Locale locale, String keyword, String listeningItem);
 
     /**
      * Retrieves a TTS service.
