@@ -30,7 +30,7 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                 }
             } else if (!item.stateDescription || !item.stateDescription.pattern) {
                 if (item.type && item.type.toUpperCase() == "DIMMER") {
-                    state += "%";
+                    state += " %";
                 }
                 return state;
             } else {
