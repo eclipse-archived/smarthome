@@ -191,7 +191,6 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         });
         return uuid;
     }
-    ;
 
     $scope.thingType = null;
     $scope.thing = {

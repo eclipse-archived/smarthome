@@ -13,7 +13,7 @@ module.exports = function(config) {
         angular : [ 'mocks' ],
 
         // list of files / patterns to load in the browser
-        files : [ 'web/js/jquery.min.js', 'web/js/*.js', 'tests/*.js' ],
+        files : [ 'web/js/jquery.min.js', 'web/js/*.js', 'tests/*.js','web-src/**/*.spec.js' ],
 
         // list of files to exclude
         exclude : [],
@@ -40,7 +40,7 @@ module.exports = function(config) {
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO ||
         // config.LOG_DEBUG
-        logLevel : config.LOG_DEBUG,
+        logLevel : config.LOG_ERROR,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch : false,

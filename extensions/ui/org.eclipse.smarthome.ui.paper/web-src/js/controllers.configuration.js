@@ -318,7 +318,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     $scope.showAdvanced = false;
     $scope.channelTypes;
     $scope.items;
-    
+
     channelTypeService.getAll().$promise.then(function(channels) {
         $scope.channelTypes = channels;
         $scope.refreshChannels(false);
@@ -326,7 +326,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     itemRepository.getAll(function(items) {
         $scope.items = items;
     });
-    
+
     $scope.remove = function(thing, event) {
         event.stopImmediatePropagation();
         $mdDialog.show({
@@ -424,20 +424,24 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
 
     function getItemNameSuggestion(channelID, label) {
         var itemName = getInCamelCase($scope.thing.label);
-        var id = channelID.split('#');
-        if (id.length > 1 && id[0].length > 0) {
-            itemName += ('_' + getInCamelCase(id[0]));
+        if (channelID) {
+            var id = channelID.split('#');
+            if (id.length > 1 && id[0].length > 0) {
+                itemName += ('_' + getInCamelCase(id[0]));
+            }
+            itemName += ('_' + getInCamelCase(label));
         }
-        itemName += ('_' + getInCamelCase(label));
         return itemName;
     }
 
     function getInCamelCase(str) {
-        var arr = str.split(/[^a-zA-Z0-9_]/g);
         var camelStr = "";
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i] && arr[i].length > 0) {
-                camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+        if (str) {
+            var arr = str.split(/[^a-zA-Z0-9_]/g);
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] && arr[i].length > 0) {
+                    camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+                }
             }
         }
         return camelStr;
@@ -527,7 +531,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             checkThingProperties(thing);
             $scope.thingTypeUID = thing.thingTypeUID;
             getThingType();
-            $scope.setSubtitle(['Things', thing.label]);
+            $scope.setSubtitle([ 'Things', thing.label ]);
         }, refresh);
     }
 
@@ -773,7 +777,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
 
             // Get the thing type
             $scope.getThingType();
-            $scope.setSubtitle([ 'Things', 'Edit', thing.label]);
+            $scope.setSubtitle([ 'Things', 'Edit', thing.label ]);
 
             // Now get the configuration information for this thing
             configDescriptionService.getByUri({
