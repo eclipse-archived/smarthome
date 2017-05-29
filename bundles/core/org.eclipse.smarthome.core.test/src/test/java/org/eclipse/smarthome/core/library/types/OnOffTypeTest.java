@@ -13,6 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Simon Kaufmann - Initial contribution and API
+ * @author Stefan Triller - more tests for type conversions
  */
 public class OnOffTypeTest {
 
@@ -32,5 +33,12 @@ public class OnOffTypeTest {
     public void testConversionToHSBType() {
         assertEquals(HSBType.WHITE, OnOffType.ON.as(HSBType.class));
         assertEquals(HSBType.BLACK, OnOffType.OFF.as(HSBType.class));
+    }
+
+    @Test
+    public void testConversionToPointType() {
+        // should not be possible => null
+        assertEquals(null, OnOffType.ON.as(PointType.class));
+        assertEquals(null, OnOffType.OFF.as(PointType.class));
     }
 }

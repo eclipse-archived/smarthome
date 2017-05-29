@@ -11,12 +11,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.junit.Test;
 
 /**
  *
  * @author Simon Kaufmann - initial contribution and API
+ * @author Stefan Triller - test with on/off type
  *
  */
 public class ColorItemTest {
@@ -36,10 +38,24 @@ public class ColorItemTest {
     }
 
     @Test
-    public void testSetStateWithDecimalType() {
+    public void testSetStateWithOnOffType() {
         ColorItem item = new ColorItem("test");
-        item.setState(new DecimalType("0.5"));
-        assertEquals(new HSBType("0,0,50"), item.getState());
+        item.setState(OnOffType.ON);
+        assertEquals(new HSBType("0,0,100"), item.getState());
+        item.setState(OnOffType.OFF);
+        assertEquals(new HSBType("0,0,0"), item.getState());
+    }
+
+    @Test
+    public void testUndefType() {
+        ColorItem item = new ColorItem("test");
+        StateUtil.testUndefStates(item);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        ColorItem item = new ColorItem("test");
+        StateUtil.testAcceptedStates(item);
     }
 
     @Test

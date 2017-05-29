@@ -13,6 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Simon Kaufmann - Initial contribution and API
+ * @author Stefan Triller - more tests for type conversions
  */
 public class OpenClosedTypeTest {
 
@@ -26,5 +27,12 @@ public class OpenClosedTypeTest {
     public void testConversionToDecimalType() {
         assertEquals(DecimalType.ZERO, OpenClosedType.CLOSED.as(DecimalType.class));
         assertEquals(new DecimalType(1), OpenClosedType.OPEN.as(DecimalType.class));
+    }
+
+    @Test
+    public void testConversionToPointType() {
+        // should not be possible => null
+        assertEquals(null, OpenClosedType.CLOSED.as(PointType.class));
+        assertEquals(null, OpenClosedType.OPEN.as(PointType.class));
     }
 }
