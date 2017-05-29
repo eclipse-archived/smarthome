@@ -53,7 +53,7 @@ public abstract class BluetoothGattCharacteristic {
     protected UUID uuid;
     protected BluetoothGattService service;
     protected BluetoothGatt notifyGatt = null;
-    protected Map<UUID, BluetoothGattDescriptor> gattDescriptors = new HashMap<UUID, BluetoothGattDescriptor>();
+    protected Map<UUID, BluetoothGattDescriptor> gattDescriptors = new HashMap<>();
     protected int instance;
     protected int properties;
     protected int permissions;
@@ -162,7 +162,7 @@ public abstract class BluetoothGattCharacteristic {
      *
      */
     public List<BluetoothGattDescriptor> getDescriptors() {
-        return new ArrayList<BluetoothGattDescriptor>(gattDescriptors.values());
+        return new ArrayList<>(gattDescriptors.values());
     }
 
     /**
@@ -546,7 +546,7 @@ public abstract class BluetoothGattCharacteristic {
         }
 
         private static void initMapping() {
-            uuidToServiceMapping = new HashMap<UUID, GattCharacteristic>();
+            uuidToServiceMapping = new HashMap<>();
             for (GattCharacteristic s : values()) {
                 uuidToServiceMapping.put(s.uuid, s);
             }

@@ -24,7 +24,7 @@ public abstract class BluetoothDevice {
     protected int manufacturer = -1;
     protected BluetoothClass bluetoothClass;
     protected int bondState = BOND_NONE;
-    protected List<UUID> supportedUuid = new ArrayList<UUID>();
+    protected List<UUID> supportedUuid = new ArrayList<>();
 
     public static final int DEVICE_TYPE_DUAL = 0x003;
     public static final int DEVICE_TYPE_LE = 0x002;

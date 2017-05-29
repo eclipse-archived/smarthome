@@ -98,7 +98,7 @@ public class BluetoothGattDescriptor {
         }
 
         private static void initMapping() {
-            uuidToServiceMapping = new HashMap<UUID, GattDescriptor>();
+            uuidToServiceMapping = new HashMap<>();
             for (GattDescriptor s : values()) {
                 uuidToServiceMapping.put(s.uuid, s);
             }

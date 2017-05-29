@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class YeelightHandlerFactory extends BaseThingHandlerFactory {
     private final Logger logger = LoggerFactory.getLogger(YeelightHandlerFactory.class);
 
-    Map<ThingTypeUID, Class<? extends BaseThingHandler>> thingHandlers = new HashMap<ThingTypeUID, Class<? extends BaseThingHandler>>();
+    Map<ThingTypeUID, Class<? extends BaseThingHandler>> thingHandlers = new HashMap<>();
 
     @Override
     protected void activate(ComponentContext componentContext) {

@@ -730,7 +730,7 @@ public enum BluetoothManufacturer {
     }
 
     private static void initMapping() {
-        codeToManufacturerMapping = new HashMap<Integer, BluetoothManufacturer>();
+        codeToManufacturerMapping = new HashMap<>();
         for (BluetoothManufacturer s : values()) {
             codeToManufacturerMapping.put(s.key, s);
         }

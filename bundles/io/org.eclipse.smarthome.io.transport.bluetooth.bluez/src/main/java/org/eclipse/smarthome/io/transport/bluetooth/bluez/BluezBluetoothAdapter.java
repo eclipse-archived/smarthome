@@ -119,7 +119,7 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
                         Adapter1.class);
 
                 // Setting the discovery filter should ensure we get more notifications about RSSI
-                Map<String, Variant> scanProperties = new HashMap<String, Variant>(2);
+                Map<String, Variant> scanProperties = new HashMap<>(2);
                 scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_FILTER_RSSI,
                         new Variant(new Short((short) -125)));
                 scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_FILTER_TRANSPORT,
@@ -259,7 +259,7 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
 
     @Override
     public Set<BluetoothDevice> getBondedDevices() {
-        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
+        Set<BluetoothDevice> pairedDevices = new HashSet<>();
 
         return pairedDevices;
     }

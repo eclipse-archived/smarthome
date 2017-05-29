@@ -25,9 +25,9 @@ public abstract class BluetoothAdapter {
     public static final int STATE_OFF = 10;
     public static final int STATE_ON = 12;
 
-    protected static Map<String, BluetoothDevice> bluetoothDevices = new HashMap<String, BluetoothDevice>();
+    protected static Map<String, BluetoothDevice> bluetoothDevices = new HashMap<>();
 
-    private ArrayList<BluetoothEventListener> eventListeners = new ArrayList<BluetoothEventListener>();
+    private ArrayList<BluetoothEventListener> eventListeners = new ArrayList<>();
     protected int state = STATE_OFF;
     protected String name;
     protected String address;
@@ -219,7 +219,7 @@ public abstract class BluetoothAdapter {
      * @param event
      */
     public void notifyEventListeners(BluetoothEvent event) {
-        ArrayList<BluetoothEventListener> copy = new ArrayList<BluetoothEventListener>(this.eventListeners);
+        ArrayList<BluetoothEventListener> copy = new ArrayList<>(this.eventListeners);
         for (BluetoothEventListener listener : copy) {
             listener.handleBluetoothEvent(event);
         }

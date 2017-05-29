@@ -217,7 +217,7 @@ public class BluezBluetoothGattDescriptor extends BluetoothGattDescriptor implem
             this.gatt = gatt;
             this.descriptor = descriptor;
 
-            this.value = new ArrayList<Byte>(value.length);
+            this.value = new ArrayList<>(value.length);
             int cnt = 0;
             for (byte b : value) {
                 this.value.add(value[cnt++]);

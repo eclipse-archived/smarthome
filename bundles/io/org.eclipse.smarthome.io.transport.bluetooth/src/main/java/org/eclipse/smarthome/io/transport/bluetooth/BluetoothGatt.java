@@ -37,7 +37,7 @@ public abstract class BluetoothGatt implements BluetoothProfile {
     public static final int GATT_SUCCESS = 0;
     public static final int GATT_FAILURE = 1;
 
-    protected Map<UUID, BluetoothGattService> gattServices = new HashMap<UUID, BluetoothGattService>();
+    protected Map<UUID, BluetoothGattService> gattServices = new HashMap<>();
 
     protected boolean autoConnect;
     protected BluetoothGattCallback callback;
@@ -45,8 +45,8 @@ public abstract class BluetoothGatt implements BluetoothProfile {
     protected boolean connectPending = false;
 
     private final int INITIAL_TX_QUEUE_SIZE = 25;
-    private final PriorityBlockingQueue<BluetoothCommand> sendQueue = new PriorityBlockingQueue<BluetoothCommand>(
-            INITIAL_TX_QUEUE_SIZE, new BluetoothCommand.PriorityComparator());
+    private final PriorityBlockingQueue<BluetoothCommand> sendQueue = new PriorityBlockingQueue<>(INITIAL_TX_QUEUE_SIZE,
+            new BluetoothCommand.PriorityComparator());
     TransmitNotify transmitMonitor = new TransmitNotify();
     private BluetoothCommand sentMessage;
     private TransmitThread sendThread = null;
@@ -198,7 +198,7 @@ public abstract class BluetoothGatt implements BluetoothProfile {
      * @return List of services
      */
     public List<BluetoothGattService> getServices() {
-        return new ArrayList<BluetoothGattService>(gattServices.values());
+        return new ArrayList<>(gattServices.values());
     }
 
     /**

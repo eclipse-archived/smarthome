@@ -34,8 +34,8 @@ public abstract class BluetoothGattService {
 
     public BluetoothGattService() {
         this.instanceId = 0;
-        this.gattCharacteristics = new HashMap<UUID, BluetoothGattCharacteristic>();
-        this.includedServices = new ArrayList<BluetoothGattService>();
+        this.gattCharacteristics = new HashMap<>();
+        this.includedServices = new ArrayList<>();
     }
 
     public BluetoothGattService(UUID uuid, int serviceType) {
@@ -55,7 +55,7 @@ public abstract class BluetoothGattService {
      * Get list of characteristics of the service
      */
     public List<BluetoothGattCharacteristic> getCharacteristics() {
-        return new ArrayList<BluetoothGattCharacteristic>(gattCharacteristics.values());
+        return new ArrayList<>(gattCharacteristics.values());
     }
 
     /**
@@ -157,7 +157,7 @@ public abstract class BluetoothGattService {
         }
 
         private static void initMapping() {
-            uuidToServiceMapping = new HashMap<UUID, GattService>();
+            uuidToServiceMapping = new HashMap<>();
             for (GattService s : values()) {
                 uuidToServiceMapping.put(s.uuid, s);
             }
