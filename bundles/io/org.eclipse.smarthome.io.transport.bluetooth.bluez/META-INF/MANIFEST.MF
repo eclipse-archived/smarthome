@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Bluetooth Transport Bundle for BlueZ
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.bluetooth.bluez
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.transport.bluetooth.bluez
 Import-Package: cx.ath.matthew.unix;resolution:=optional,
  javax.net,

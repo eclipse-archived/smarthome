@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Bluetooth Transport Bundle
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.bluetooth;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.transport.bluetooth,
  org.eclipse.smarthome.io.transport.bluetooth.events,
  org.eclipse.smarthome.io.transport.bluetooth.le
