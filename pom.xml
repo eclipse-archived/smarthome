@@ -284,18 +284,17 @@
               <mwe2>JAVADOC_STYLE</mwe2>
             </mapping>
             <includes>
-              <include>**/org/eclipse/smarthome/**/*.java</include>
-              <include>**/org/eclipse/smarthome/**/*.groovy</include>
-              <include>**/org/eclipse/smarthome/**/*.xtend</include>
-              <include>**/*.mwe2</include>
-              <include>**/feature.xml</include>
-              <include>**/OSGI-INF/*.xml</include>
+              <include>src/**/*.java</include>
+              <include>src/**/*.groovy</include>
+              <include>src/**/*.xtend</include>
+              <include>src/**/*.mwe2</include>
+              <include>bin/**/*.mwe2</include>
+              <include>workflows/**/*.mwe2</include>
+              <include>src/main/feature/feature.xml</include>
+              <include>feature.xml</include>
+              <include>OSGI-INF/*.xml</include>
             </includes>
             <excludes>
-              <exclude>**/org.eclipse.smarthome.automation.*/**</exclude>
-              <exclude>**/org/eclipse/smarthome/protocols/**</exclude>
-              <exclude>target/**</exclude>
-              <exclude>**/pom.xml</exclude>
               <exclude>_*.java</exclude>
             </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
