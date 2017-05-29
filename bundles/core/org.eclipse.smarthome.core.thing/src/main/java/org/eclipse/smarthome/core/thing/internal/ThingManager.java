@@ -692,16 +692,23 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private boolean isInitializable(Thing thing, ThingType thingType) {
         // determines if all 'required' configuration parameters are available in the configuration
         if (thingType == null) {
+            logger.debug("Thing type for thing {} is not known, assuming it is initializable", thing.getUID());
             return true;
         }
 
         ConfigDescription description = resolve(thingType.getConfigDescriptionURI(), null);
         if (description == null) {
+            logger.debug("Config description for thingtype {} is not resolvable, assuming thing {} is initializable",
+                    thingType.getUID(), thing.getUID());
             return true;
         }
 
         List<String> requiredParameters = getRequiredParameters(description);
         Map<String, Object> properties = thing.getConfiguration().getProperties();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Configuration of thing {} needs {}, has {}.", thing.getUID(), requiredParameters,
+                    thing.getConfiguration().getProperties().keySet());
+        }
         return properties.keySet().containsAll(requiredParameters);
     }
 
