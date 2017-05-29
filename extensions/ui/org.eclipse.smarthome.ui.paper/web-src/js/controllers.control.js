@@ -438,7 +438,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     $scope.setBrightness = function(brightness) {
         $scope.brightness = brightness;
-        setColor();
+        if (!$scope.pending) {
+            $timeout(function() {
+                var command = isNaN($scope.brightness) ? '0' : $scope.brightness;
+                $scope.sendCommand(command);
+                $scope.pending = false;
+            }, 300);
+            $scope.pending = true;
+        }
     }
 
     $scope.setHue = function(hue) {
