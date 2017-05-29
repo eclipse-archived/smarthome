@@ -11,7 +11,7 @@
     <version>0.9.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>org.eclipse.smarthome.binding.yeelight</artifactId>
+  <artifactId>org.eclipse.smarthome.binding.yeelightblue</artifactId>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome Yeelight Blue (BLE) Binding</name>

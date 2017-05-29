@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.yeelight;
+package org.eclipse.smarthome.binding.yeelightblue.internal;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  */
 public class YeelightBindingConstants {
 
-    public static final String BINDING_ID = "yeelight";
+    public static final String BINDING_ID = "yeelightblue";
 
     // List of all Thing Type UIDs
     public final static ThingTypeUID THING_TYPE_YEELIGHT_BLUE = new ThingTypeUID(BINDING_ID, "yeelight_blue");

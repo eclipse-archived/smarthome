@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.yeelight.internal.discovery;
+package org.eclipse.smarthome.binding.yeelightblue.internal.discovery;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.binding.yeelight.YeelightBindingConstants;
+import org.eclipse.smarthome.binding.yeelightblue.internal.YeelightBindingConstants;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;

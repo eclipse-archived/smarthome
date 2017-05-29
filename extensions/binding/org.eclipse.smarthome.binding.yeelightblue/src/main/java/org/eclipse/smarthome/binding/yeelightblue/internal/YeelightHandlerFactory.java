@@ -5,13 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.yeelight.internal;
+package org.eclipse.smarthome.binding.yeelightblue.internal;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.yeelight.YeelightBindingConstants;
-import org.eclipse.smarthome.binding.yeelight.handler.YeelightThingHandler;
+import org.eclipse.smarthome.binding.yeelightblue.internal.handler.YeelightThingHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;

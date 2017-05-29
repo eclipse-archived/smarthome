@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.yeelight.handler;
+package org.eclipse.smarthome.binding.yeelightblue.internal.handler;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.binding.yeelight.YeelightBindingConstants;
+import org.eclipse.smarthome.binding.yeelightblue.internal.YeelightBindingConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
