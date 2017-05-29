@@ -100,8 +100,8 @@ public class ScriptedAutomationManager {
     }
 
     public Rule addRule(Rule element) {
-        String uid = element.getUID() != null ? element.getUID() : getUniqueId(element);
-        Rule rule = new Rule(uid);
+
+        Rule rule = element.getUID() == null ? new Rule() : new Rule(element.getUID());
 
         String name = element.getName();
         if (name == null || name.isEmpty()) {
@@ -115,14 +115,15 @@ public class ScriptedAutomationManager {
         rule.setDescription(element.getDescription());
         rule.setTags(element.getTags());
 
-        try
+        // used for numbering the modules of the rule
+        int moduleIndex = 1;
 
-        {
+        try {
             ArrayList<Condition> conditions = new ArrayList<>();
             for (Condition cond : element.getConditions()) {
                 Condition toAdd = cond;
                 if (cond.getId() == null || cond.getId().isEmpty()) {
-                    toAdd = new Condition(getUniqueId(cond), cond.getTypeUID(), cond.getConfiguration(),
+                    toAdd = new Condition(Integer.toString(moduleIndex++), cond.getTypeUID(), cond.getConfiguration(),
                             cond.getInputs());
                 }
 
@@ -139,7 +140,8 @@ public class ScriptedAutomationManager {
             for (Trigger trigger : element.getTriggers()) {
                 Trigger toAdd = trigger;
                 if (trigger.getId() == null || trigger.getId().isEmpty()) {
-                    toAdd = new Trigger(getUniqueId(trigger), trigger.getTypeUID(), trigger.getConfiguration());
+                    toAdd = new Trigger(Integer.toString(moduleIndex++), trigger.getTypeUID(),
+                            trigger.getConfiguration());
                 }
 
                 triggers.add(toAdd);
@@ -157,8 +159,8 @@ public class ScriptedAutomationManager {
             String privId = addPrivateActionHandler(
                     new SimpleRuleActionHandlerDelegate((SimpleRuleActionHandler) element));
 
-            Action scriptedAction = new Action(getUniqueId(element), "jsr223.ScriptedAction", new Configuration(),
-                    null);
+            Action scriptedAction = new Action(Integer.toString(moduleIndex++), "jsr223.ScriptedAction",
+                    new Configuration(), null);
             scriptedAction.getConfiguration().put("privId", privId);
             actions.add(scriptedAction);
         }
@@ -167,10 +169,6 @@ public class ScriptedAutomationManager {
         ruleRegistryDelegate.add(rule);
 
         return rule;
-    }
-
-    private String getUniqueId(Object element) {
-        return "scripted_" + String.format("%016X", element.hashCode());
     }
 
     public void addConditionType(ConditionType condititonType) {
