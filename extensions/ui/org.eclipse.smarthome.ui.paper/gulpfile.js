@@ -89,7 +89,7 @@ var paths = {
     ]
 };
 
-gulp.task('default', ['build','inject']);
+gulp.task('default', ['test']);
 gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyJQUI', 'copyJSMisc', 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
@@ -184,7 +184,7 @@ function browserSyncInit(baseDir) {
     });
 }
 
-gulp.task('serve', ['inject'], function () {
+gulp.task('serve', ['test'], function () {
     browserSyncInit(isDevelopment ? ['./web-src', './web'] : './web');
 });
 
@@ -244,7 +244,7 @@ gulp.task('inject', ['build'], function () {
       .pipe(isDevelopment ? gulp.dest('./web-src'):gulp.dest('./web'));
   });
 
-gulp.task('test',['build'], function (done) {
+gulp.task('test',['inject'], function (done) {
     return new Server({
       configFile: __dirname + '/karma.conf.js',
       singleRun: true

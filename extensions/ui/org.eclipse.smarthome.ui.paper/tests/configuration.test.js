@@ -249,6 +249,9 @@ describe('module PaperUI.controllers.configuration', function() {
             itemRepository = $injector.get('itemRepository');
             spyOn(channelTypeService, 'getAll').and.callThrough();
             spyOn(itemRepository, 'getAll');
+            $controller('BodyController', {
+                '$scope' : scope
+            });
             ViewThingController = $controller('ViewThingController', {
                 '$scope' : scope
             });
@@ -280,14 +283,15 @@ describe('module PaperUI.controllers.configuration', function() {
             scope.thing = {};
             scope.thing.channels = [ {
                 id : "T",
-                linkedItems : []
+                linkedItems : [],
+                channelTypeUID : 'C:T'
             } ];
             scope.channelTypes = [ {
                 UID : 'C:T',
                 category : ''
             } ];
             scope.advancedMode = true;
-            scope.enableChannel(0, 'T', event);
+            scope.enableChannel(0, 'T', event, true);
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel simple mode', function() {
@@ -373,7 +377,7 @@ describe('module PaperUI.controllers.configuration', function() {
     });
     describe('tests for LinkChannelDialogController', function() {
         var LinkChannelDialogController, scope, itemService, deferred;
-        beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog,$q) {
+        beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
             scope = $rootScope.$new();
             $rootScope.data.items = [ {
                 type : 'T'
@@ -386,9 +390,11 @@ describe('module PaperUI.controllers.configuration', function() {
             });
             LinkChannelDialogController = $controller('LinkChannelDialogController', {
                 '$scope' : scope,
-                'linkedItems' : [],
-                'acceptedItemType' : 'T',
-                'category' : ''
+                'params' : {
+                    'linkedItems' : [],
+                    'acceptedItemType' : 'T',
+                    'category' : ''
+                }
             });
             mdDialog = $mdDialog;
             deferred = $q.defer();
@@ -411,7 +417,7 @@ describe('module PaperUI.controllers.configuration', function() {
         it('should create item and link', function() {
             spyOn(itemService, 'create').and.returnValue(deferred.promise).and.callThrough();
             spyOn(itemService.create({}).$promise, 'then').and.returnValue(deferred.promise);
-            scope.newItemName="N";
+            scope.newItemName = "N";
             scope.createAndLink();
             expect(itemService.create).toHaveBeenCalled();
         });
