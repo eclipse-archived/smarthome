@@ -89,7 +89,13 @@ public class ColorItem extends DimmerItem {
                 applyState(state);
             }
         } else {
-            applyState(state.as(HSBType.class));
+            // try conversion
+            State convertedState = state.as(HSBType.class);
+            if (convertedState != null) {
+                applyState(convertedState);
+            } else {
+                applyState(state);
+            }
         }
     }
 
