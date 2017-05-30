@@ -9,6 +9,8 @@ package org.eclipse.smarthome.binding.astro.internal.job;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Sun;
@@ -21,6 +23,10 @@ import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
  * @author Gerhard Riegler - Initial contribution
  */
 public class DailyJobSun extends AbstractDailyJob {
+
+    public DailyJobSun(Map<String, Object> jobDataMap) {
+        super(jobDataMap);
+    }
 
     /**
      * {@inheritDoc}

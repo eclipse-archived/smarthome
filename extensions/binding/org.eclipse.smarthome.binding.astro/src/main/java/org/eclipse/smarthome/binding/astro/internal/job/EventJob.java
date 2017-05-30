@@ -7,27 +7,33 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.AstroHandlerFactory;
-import org.quartz.JobDataMap;
 
 /**
  * Job to trigger a event.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Removed Quartz dependency
  */
 public class EventJob extends AbstractBaseJob {
     public static final String KEY_EVENT = "event";
+
+    public EventJob(Map<String, Object> jobDataMap) {
+        super(jobDataMap);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void executeJob(String thingUid, JobDataMap jobDataMap) {
+    protected void executeJob(String thingUid) {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUid);
         if (astroHandler != null) {
-            String event = jobDataMap.getString(KEY_EVENT);
-            String channelId = jobDataMap.getString(KEY_CHANNEL_ID);
+            String event = (String) jobDataMap.get(KEY_EVENT);
+            String channelId = (String) jobDataMap.get(KEY_CHANNEL_ID);
             astroHandler.triggerEvent(channelId, event);
         }
     }

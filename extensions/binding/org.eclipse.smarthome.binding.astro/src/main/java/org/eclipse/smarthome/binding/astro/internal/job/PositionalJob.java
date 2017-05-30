@@ -7,19 +7,25 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.AstroHandlerFactory;
-import org.quartz.JobDataMap;
 
 /**
  * Calculates and publishes astro positional data.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Removed Quartz dependency
  */
 public class PositionalJob extends AbstractBaseJob {
 
+    public PositionalJob(Map<String, Object> jobDataMap) {
+        super(jobDataMap);
+    }
+
     @Override
-    protected void executeJob(String thingUid, JobDataMap jobDataMap) {
+    protected void executeJob(String thingUid) {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUid);
         if (astroHandler != null) {
             astroHandler.publishPositionalInfo();
