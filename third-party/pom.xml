@@ -40,6 +40,12 @@
               <additionalArgs>-metadataRepositoryName esh.thirdparty.repo.metadata -artifactRepositoryName esh.thirdparty.repo.artifact</additionalArgs>
               <artifacts>
                 <artifact>
+                  <!-- old version, to be removed before next release, see https://github.com/eclipse/smarthome/pull/3422#issuecomment-304853696 *** -->
+                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>com.jayway.jsonpath:json-path:2.1.0</id>
                   <transitive>false</transitive>
