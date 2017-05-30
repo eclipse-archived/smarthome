@@ -137,8 +137,8 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="net.minidev.asm" version="0.0.0"/>
 <unit id="net.minidev.asm.source" version="0.0.0"/>
-<unit id="com.jayway.jsonpath.json-path" version="0.0.0"/>
-<unit id="com.jayway.jsonpath.json-path.source" version="0.0.0"/>
+<unit id="com.jayway.jsonpath.json-path" version="2.0.0"/>
+<unit id="com.jayway.jsonpath.json-path.source" version="2.0.0"/>
 <unit id="org.mapdb.mapdb" version="0.0.0"/>
 <unit id="org.mapdb.mapdb.source" version="0.0.0"/>
 <unit id="net.minidev.json-smart" version="0.0.0"/>
