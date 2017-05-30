@@ -110,6 +110,21 @@
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
+                <artifact>
+                  <id>org.eclipse.californium:californium-osgi:jar:1.0.5</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <id>org.eclipse.californium:element-connector:jar:1.0.5</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <id>org.eclipse.californium:scandium:jar:1.0.5</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
