@@ -206,8 +206,11 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         setDefaultLocale(Locale.ENGLISH)
 
         registerVolatileStorageService()
-        managedThingProvider = getService ManagedThingProvider
-        assertThat managedThingProvider, is(notNullValue())
+        waitForAssert {
+            managedThingProvider = getService ManagedThingProvider
+            assertThat managedThingProvider, is(notNullValue())
+        }
+        
         thingRegistry = getService(ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
 
@@ -249,11 +252,11 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        setDefaultLocale(_defaultLocale)
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
         unregisterMocks()
+        setDefaultLocale(_defaultLocale)
     }
 
     @Test
