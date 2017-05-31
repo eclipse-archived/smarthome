@@ -272,9 +272,6 @@ public class Sun extends RiseSet implements Planet {
         return ranges;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("sunrise", getRise())

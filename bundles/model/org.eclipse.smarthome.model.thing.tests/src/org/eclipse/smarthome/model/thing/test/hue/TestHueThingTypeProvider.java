@@ -83,25 +83,11 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingTypes
-     * (java.util.Locale)
-     */
     @Override
     public Collection<ThingType> getThingTypes(Locale locale) {
         return thingTypes.values();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingType
-     * (org.eclipse.smarthome.core.thing.ThingTypeUID, java.util.Locale)
-     */
     @Override
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
         return thingTypes.get(thingTypeUID);

@@ -30,9 +30,6 @@ public class RegExTransformationService implements TransformationService {
 
     private static final Pattern substPattern = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public String transform(String regExpression, String source) throws TransformationException {
 

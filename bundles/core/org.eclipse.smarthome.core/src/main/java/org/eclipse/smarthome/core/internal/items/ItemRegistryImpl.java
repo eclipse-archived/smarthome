@@ -53,13 +53,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super(ItemProvider.class);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
-     * .String)
-     */
     @Override
     public Item getItem(String name) throws ItemNotFoundException {
         final Item item = get(name);
@@ -82,13 +75,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
-     * (java.lang.String)
-     */
     @Override
     public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException {
         Collection<Item> items = getItems(name);
@@ -105,11 +91,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
-     */
     @Override
     public Collection<Item> getItems() {
         return getAll();
@@ -128,13 +109,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         return matchedItems;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
-     * lang.String)
-     */
     @Override
     public Collection<Item> getItems(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");

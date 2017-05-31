@@ -136,12 +136,6 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.handler.
-     * BaseCustomizedModuleHandlerFactory#dispose ()
-     */
     @Override
     public void dispose() {
         super.dispose();

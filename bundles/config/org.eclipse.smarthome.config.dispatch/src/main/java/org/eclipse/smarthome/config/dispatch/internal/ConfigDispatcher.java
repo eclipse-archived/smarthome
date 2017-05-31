@@ -131,25 +131,11 @@ public class ConfigDispatcher extends AbstractWatchService {
         this.configAdmin = null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.service.AbstractWatchService#watchSubDirectories
-     * ()
-     */
     @Override
     protected boolean watchSubDirectories() {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.service.AbstractWatchService#registerDirectory
-     * (java.nio.file.Path)
-     */
     @Override
     protected Kind<?>[] getWatchEventKinds(Path subDir) {
         return new Kind<?>[] { ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY };

@@ -18,21 +18,11 @@ public class ModelCoreActivator implements BundleActivator {
         return context;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         ModelCoreActivator.context = bundleContext;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         ModelCoreActivator.context = null;

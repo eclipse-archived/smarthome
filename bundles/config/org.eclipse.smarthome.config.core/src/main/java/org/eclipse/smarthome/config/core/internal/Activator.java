@@ -31,11 +31,6 @@ public final class Activator implements BundleActivator {
     private ServiceBinder configDescriptionRegistryServiceBinder;
     private ServiceBinder i18nProviderServiceBinder;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
     @Override
     public void start(BundleContext context) throws Exception {
         Activator.bundleContext = context;
@@ -48,11 +43,6 @@ public final class Activator implements BundleActivator {
         i18nProviderServiceBinder.open();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
     @Override
     public void stop(BundleContext context) throws Exception {
         Activator.bundleContext = null;

@@ -154,9 +154,6 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         // Check if this widget is visible
@@ -172,17 +169,11 @@ public class PageRenderer extends AbstractWidgetRenderer {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setConfig(WebAppConfig config) {
         this.config = config;

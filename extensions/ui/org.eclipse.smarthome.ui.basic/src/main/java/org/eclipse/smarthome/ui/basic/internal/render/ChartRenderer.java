@@ -33,17 +33,11 @@ public class ChartRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(ChartRenderer.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Chart;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Chart chart = (Chart) w;

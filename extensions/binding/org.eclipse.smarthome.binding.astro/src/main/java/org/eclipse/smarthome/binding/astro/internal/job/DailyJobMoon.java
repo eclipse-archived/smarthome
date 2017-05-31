@@ -22,9 +22,6 @@ import org.eclipse.smarthome.binding.astro.internal.model.Planet;
  */
 public class DailyJobMoon extends AbstractDailyJob {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void schedulePlanetEvents(String thingUid, AstroThingHandler handler, Planet planet) {
         Moon moon = (Moon) planet;

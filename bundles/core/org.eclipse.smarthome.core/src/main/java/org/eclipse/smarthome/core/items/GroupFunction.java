@@ -55,9 +55,6 @@ public interface GroupFunction {
      */
     static class Equality implements GroupFunction {
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             if (items.size() > 0) {
@@ -74,9 +71,6 @@ public interface GroupFunction {
             }
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);

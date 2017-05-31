@@ -62,12 +62,6 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
         thingTrackers.add(thingTracker);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
-     */
     @Override
     public Thing get(final ThingUID uid) {
         for (final Map.Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {

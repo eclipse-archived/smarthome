@@ -44,9 +44,6 @@ public class CoreItemFactory implements ItemFactory {
     public static final String STRING = "String";
     public static final String SWITCH = "Switch";
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public GenericItem createItem(String itemTypeName, String itemName) {
         if (itemTypeName == null) {
@@ -83,9 +80,6 @@ public class CoreItemFactory implements ItemFactory {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String[] getSupportedItemTypes() {
         return new String[] { SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE, PLAYER,

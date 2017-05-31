@@ -273,32 +273,20 @@ public class ChartServlet extends HttpServlet {
         return defaultHttpContext;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void init(ServletConfig config) throws ServletException {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ServletConfig getServletConfig() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getServletInfo() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void destroy() {
     }

@@ -39,11 +39,6 @@ public class SitemapProviderImpl implements SitemapProvider {
         this.modelRepo = null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.model.sitemap.internal.SitemapProvider#getSitemap(java.lang.String)
-     */
     @Override
     public Sitemap getSitemap(String sitemapName) {
         if (modelRepo != null) {

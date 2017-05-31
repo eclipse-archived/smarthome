@@ -77,41 +77,26 @@ abstract public class GenericItem implements ActiveItem {
         this.type = type;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public State getState() {
         return state;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
         return state.as(typeClass);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getType() {
         return type;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<String> getGroupNames() {
         return ImmutableList.copyOf(groupNames);
@@ -243,9 +228,6 @@ abstract public class GenericItem implements ActiveItem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

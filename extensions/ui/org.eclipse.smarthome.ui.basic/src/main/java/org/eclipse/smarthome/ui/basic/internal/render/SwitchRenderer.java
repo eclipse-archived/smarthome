@@ -35,17 +35,11 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(SwitchRenderer.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Switch;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Switch s = (Switch) w;

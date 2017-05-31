@@ -62,9 +62,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         super(thing);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void initialize() {
         logger.debug("Initializing thing {}", getThing().getUID());
@@ -102,9 +99,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         logger.debug("Thing {} initialized {}", getThing().getUID(), getThing().getStatus());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void dispose() {
         logger.debug("Disposing thing {}", getThing().getUID());
@@ -117,9 +111,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         logger.debug("Thing {} disposed", getThing().getUID());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (RefreshType.REFRESH == command) {
@@ -130,9 +121,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void handleUpdate(ChannelUID channelUID, State newState) {
         logger.warn("The Astro-Binding is a read-only binding and can not handle channel updates");
@@ -256,18 +244,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void channelLinked(ChannelUID channelUID) {
         linkedChannelChange(channelUID, 1);
         publishChannelIfLinked(channelUID);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void channelUnlinked(ChannelUID channelUID) {
         linkedChannelChange(channelUID, -1);

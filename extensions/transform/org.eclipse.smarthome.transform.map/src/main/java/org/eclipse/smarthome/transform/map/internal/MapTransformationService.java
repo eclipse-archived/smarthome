@@ -40,9 +40,6 @@ public class MapTransformationService extends AbstractFileTransformationService<
      *            the list of properties which contains the key value pairs for the mapping.
      * @param source
      *            the input to transform
-     *
-     * @{inheritDoc
-     *
      */
     @Override
     protected String internalTransform(Properties properties, String source) throws TransformationException {

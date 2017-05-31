@@ -215,9 +215,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         public Avg() {
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State calculate(Set<Item> items) {
             BigDecimal sum = BigDecimal.ZERO;
@@ -238,9 +235,6 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             }
         }
 
-        /**
-         * @{inheritDoc
-         */
         @Override
         public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
             State state = calculate(items);

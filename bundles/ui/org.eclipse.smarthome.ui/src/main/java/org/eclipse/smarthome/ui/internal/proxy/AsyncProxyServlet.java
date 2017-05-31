@@ -39,8 +39,6 @@ public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Override <code>newHttpClient</code> so we can proxy to HTTPS URIs.
      */
     @Override
@@ -49,8 +47,6 @@ public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Add Basic Authentication header to request if user and password are specified in URI.
      *
      * After Jetty is upgraded past 9.2.9, change to <code>copyRequestHeaders</code> to avoid deprecation warning.
@@ -63,17 +59,11 @@ public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet
         service.maybeAppendAuthHeader(service.uriFromRequest(clientRequest), proxyRequest);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected String rewriteTarget(HttpServletRequest request) {
         return Objects.toString(service.uriFromRequest(request), null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void onProxyRewriteFailed(HttpServletRequest request, HttpServletResponse response) {
         service.sendError(request, response);

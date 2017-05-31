@@ -35,20 +35,17 @@ public class XsltTransformationService implements TransformationService {
     private final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
 
     /**
-     * <p>
-     * Transforms the input <code>source</code> by XSLT. It expects the transformation rule to be read from a file which
-     * is stored under the 'configurations/transform' folder. To organize the various transformations one should use
-     * subfolders.
-     * </p>
+     * Transforms the input <code>source</code> by XSLT.
+     * 
+     * The method expects the transformation rule to be read from a file which
+     * is stored under the 'configurations/transform' folder. To organize the
+     * various transformations one should use subfolders.
      *
      * @param filename
-     *            the name of the file which contains the XSLT transformation rule. The name may contain subfoldernames
-     *            as well
+     *            the name of the file which contains the XSLT transformation rule. 
+     *            The name may contain subfoldernames as well
      * @param source
      *            the input to transform
-     *
-     * @{inheritDoc
-     *
      */
     @Override
     public String transform(String filename, String source) throws TransformationException {
