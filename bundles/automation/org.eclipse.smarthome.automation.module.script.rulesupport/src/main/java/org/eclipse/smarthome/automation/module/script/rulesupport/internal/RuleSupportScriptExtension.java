@@ -186,7 +186,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
     }
 
     @Override
-    public void unLoad(String scriptIdentifier) {
+    public void unload(String scriptIdentifier) {
         HashMap<String, Object> objects = objectCache.remove(scriptIdentifier);
 
         if (objects != null) {
