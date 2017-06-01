@@ -5,6 +5,11 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.jayway.jsonpath,
+ net.minidev.json,
+ net.minidev.json.annotate,
+ net.minidev.json.parser,
+ net.minidev.json.reader,
+ net.minidev.json.writer,
  org.eclipse.smarthome.core.transform,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.transform.jsonpath
