@@ -187,7 +187,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
     }
 
     @Override
-    public void unLoad(String scriptIdentifier) {
+    public void unload(String scriptIdentifier) {
         // nothing todo
     }
 
