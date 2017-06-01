@@ -39,9 +39,6 @@ public class JavaSoundInputStream extends AudioStream {
         this.input.start();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int read() throws IOException {
         byte[] b = new byte[1];

@@ -19,13 +19,6 @@ import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
  */
 final class PatternValidator implements ConfigDescriptionParameterValidator {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator#validate(org.eclipse.
-     * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
-     */
     @Override
     public ConfigValidationMessage validate(ConfigDescriptionParameter parameter, Object value) {
         if (value == null || parameter.getType() != Type.TEXT || parameter.getPattern() == null) {

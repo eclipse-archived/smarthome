@@ -17,13 +17,6 @@ import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
  */
 final class RequiredValidator implements ConfigDescriptionParameterValidator {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator#validate(org.eclipse.
-     * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
-     */
     @Override
     public ConfigValidationMessage validate(ConfigDescriptionParameter param, Object value) {
         if (param.isRequired() && value == null) {

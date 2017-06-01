@@ -627,9 +627,6 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
         private boolean changed = false;
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateChanged(Item item, State oldState, State newState) {
             changed = true;
@@ -644,9 +641,6 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             return changed;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateUpdated(Item item, State state) {
             // ignore if the state did not change

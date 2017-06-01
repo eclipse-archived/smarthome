@@ -19,9 +19,6 @@ import org.quartz.JobDataMap;
 public class EventJob extends AbstractBaseJob {
     public static final String KEY_EVENT = "event";
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void executeJob(String thingUid, JobDataMap jobDataMap) {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUid);

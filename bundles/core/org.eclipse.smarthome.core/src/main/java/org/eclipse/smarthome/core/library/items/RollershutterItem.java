@@ -72,9 +72,6 @@ public class RollershutterItem extends GenericItem {
         internalSend(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setState(State state) {
         // try conversion

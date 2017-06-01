@@ -35,9 +35,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDailyJob extends AbstractBaseJob {
     private final Logger logger = LoggerFactory.getLogger(AbstractDailyJob.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void executeJob(String thingUid, JobDataMap jobDataMap) {
         AstroThingHandler handler = AstroHandlerFactory.getHandler(thingUid);

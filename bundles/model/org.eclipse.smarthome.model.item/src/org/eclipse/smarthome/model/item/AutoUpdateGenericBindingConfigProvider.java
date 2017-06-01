@@ -50,25 +50,16 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
      */
     protected Map<String, Set<String>> contextMap = new ConcurrentHashMap<>();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getBindingType() {
         return "autoupdate";
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public void validateItemType(String itemType, String bindingConfig) throws BindingConfigParseException {
         // as AutoUpdate is a default binding, each binding type is valid
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
             throws BindingConfigParseException {
@@ -96,18 +87,12 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Boolean autoUpdate(String itemName) {
         AutoUpdateBindingConfig config = bindingConfigs.get(itemName);
         return config != null ? config.autoupdate : null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void startConfigurationUpdate(String context) {
         Set<String> itemNames = contextMap.get(context);
@@ -128,23 +113,14 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
         bindingConfigs.put(itemName, config);
     }
 
-    /**
-     * @{inheritDoc
-     */
     public boolean providesBindingFor(String itemName) {
         return bindingConfigs.get(itemName) != null;
     }
 
-    /**
-     * @{inheritDoc
-     */
     public boolean providesBinding() {
         return !bindingConfigs.isEmpty();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Collection<String> getItemNames() {
         return new ArrayList<String>(bindingConfigs.keySet());
     }

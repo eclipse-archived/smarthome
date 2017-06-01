@@ -22,9 +22,6 @@ import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
  */
 public class DailyJobSun extends AbstractDailyJob {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void schedulePlanetEvents(String thingUid, AstroThingHandler handler, Planet planet) {
         Sun sun = (Sun) planet;

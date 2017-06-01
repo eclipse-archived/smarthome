@@ -25,17 +25,11 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class MapviewRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Mapview;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Mapview mapview = (Mapview) w;

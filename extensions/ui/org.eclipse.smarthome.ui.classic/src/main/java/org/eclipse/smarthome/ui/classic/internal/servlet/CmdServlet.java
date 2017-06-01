@@ -69,9 +69,6 @@ public class CmdServlet extends BaseServlet {
         httpService.unregister(WEBAPP_ALIAS + "/" + SERVLET_NAME);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         res.setContentType("text/plain");

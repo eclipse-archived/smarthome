@@ -81,17 +81,11 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
     protected void unsetScriptRuntime(final ScriptRuntime scriptRuntime) {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Script newScriptFromString(String scriptAsString) throws ScriptParsingException {
         return newScriptFromXExpression(parseScriptIntoXTextEObject(scriptAsString));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Script newScriptFromXExpression(XExpression expression) {
         ScriptImpl script = ScriptRuntimeStandaloneSetup.getInjector().getInstance(ScriptImpl.class);
@@ -99,9 +93,6 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
         return script;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Object executeScript(String scriptAsString) throws ScriptParsingException, ScriptExecutionException {
         return newScriptFromString(scriptAsString).execute();

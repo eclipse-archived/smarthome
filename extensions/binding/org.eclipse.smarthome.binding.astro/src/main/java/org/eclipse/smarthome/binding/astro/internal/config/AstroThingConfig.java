@@ -96,9 +96,6 @@ public class AstroThingConfig {
         this.thingUid = thingUid;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         TimeZone tz = TimeZone.getDefault();

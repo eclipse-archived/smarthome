@@ -114,11 +114,6 @@ public class DeviceOutputValueSensorJob implements SensorJob {
         this.initalisationTime = time;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "DeviceOutputValueSensorJob [deviceDSID : " + device.getDSID().getValue() + ", meterDSID=" + meterDSID

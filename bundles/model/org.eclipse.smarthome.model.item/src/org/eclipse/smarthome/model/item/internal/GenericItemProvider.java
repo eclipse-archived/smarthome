@@ -129,9 +129,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<Item> getAll() {
         List<Item> items = new ArrayList<Item>();
@@ -339,11 +336,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Dispatches all binding configs and fires all {@link ItemsChangeListener}s if {@code modelName} ends with "items".
-     */
     @Override
     public void modelChanged(String modelName, EventType type) {
         if (modelName.endsWith("items")) {

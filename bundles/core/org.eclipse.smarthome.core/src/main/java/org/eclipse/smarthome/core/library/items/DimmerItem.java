@@ -66,9 +66,6 @@ public class DimmerItem extends SwitchItem {
         return Collections.unmodifiableList(acceptedCommandTypes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setState(State state) {
         // try conversion

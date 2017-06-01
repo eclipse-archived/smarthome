@@ -115,9 +115,6 @@ public class JsonStorage<T> implements Storage<T> {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T put(String key, T value) {
         Map<String, Object> val = new LinkedHashMap<String, Object>();
@@ -136,9 +133,6 @@ public class JsonStorage<T> implements Storage<T> {
         return deserialize(previousValue);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T remove(String key) {
         Map<String, Object> removedElement = map.remove(key);
@@ -146,9 +140,6 @@ public class JsonStorage<T> implements Storage<T> {
         return deserialize(removedElement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T get(String key) {
         Map<String, Object> value = map.get(key);
@@ -158,17 +149,11 @@ public class JsonStorage<T> implements Storage<T> {
         return deserialize(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<String> getKeys() {
         return map.keySet();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<T> getValues() {
         Collection<T> values = new ArrayList<T>();

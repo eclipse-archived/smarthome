@@ -34,9 +34,6 @@ public class XPathTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public String transform(String xpathExpression, String source) throws TransformationException {
 

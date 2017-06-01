@@ -48,9 +48,6 @@ public class MapDbStorage<T> implements Storage<T> {
         this.mapper = new GsonBuilder().registerTypeAdapterFactory(new PropertiesTypeAdapterFactory()).create();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T put(String key, T value) {
         String previousValue = map.put(key, serialize(value));
@@ -58,9 +55,6 @@ public class MapDbStorage<T> implements Storage<T> {
         return deserialize(previousValue);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T remove(String key) {
         String removedElement = map.remove(key);
@@ -68,25 +62,16 @@ public class MapDbStorage<T> implements Storage<T> {
         return deserialize(removedElement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T get(String key) {
         return deserialize(map.get(key));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<String> getKeys() {
         return map.keySet();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<T> getValues() {
         Collection<T> values = new ArrayList<T>();

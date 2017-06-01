@@ -39,52 +39,34 @@ public class MoonHandler extends AstroThingHandler {
         super(thing);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void publishDailyInfo() {
         moon = moonCalc.getMoonInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude());
         publishPositionalInfo();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void publishPositionalInfo() {
         moonCalc.setPositionalInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude(), moon);
         publishPlanet();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Planet getPlanet() {
         return moon;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void dispose() {
         super.dispose();
         moon = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected String[] getPositionalChannelIds() {
         return positionalChannelIds;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Class<? extends AbstractDailyJob> getDailyJobClass() {
         return DailyJobMoon.class;

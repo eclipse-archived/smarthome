@@ -65,9 +65,6 @@ public class MDNSClientImpl implements MDNSClient {
         return addresses;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Set<JmDNS> getClientInstances() {
         return jmdnsInstances;
@@ -93,9 +90,6 @@ public class MDNSClientImpl implements MDNSClient {
         close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addServiceListener(String type, ServiceListener listener) {
         for (JmDNS instance : jmdnsInstances) {
@@ -103,9 +97,6 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void removeServiceListener(String type, ServiceListener listener) {
         for (JmDNS instance : jmdnsInstances) {
@@ -113,9 +104,6 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void registerService(ServiceDescription description) throws IOException {
         for (JmDNS instance : jmdnsInstances) {
@@ -128,9 +116,6 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void unregisterService(ServiceDescription description) {
         for (JmDNS instance : jmdnsInstances) {
@@ -146,9 +131,6 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void unregisterAllServices() {
         for (JmDNS instance : jmdnsInstances) {
@@ -156,9 +138,6 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ServiceInfo[] list(String type) {
         ServiceInfo[] services = new ServiceInfo[0];
@@ -168,9 +147,6 @@ public class MDNSClientImpl implements MDNSClient {
         return services;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         for (JmDNS jmdns : jmdnsInstances) {

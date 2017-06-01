@@ -107,9 +107,6 @@ public class WebAppServlet extends BaseServlet {
         res.setContentType(CONTENT_TYPE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         logger.debug("Servlet request received!");

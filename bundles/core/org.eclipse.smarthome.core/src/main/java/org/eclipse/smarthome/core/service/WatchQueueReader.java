@@ -172,11 +172,6 @@ public class WatchQueueReader implements Runnable {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.core.service.IWatchService#activate()
-     */
     @Override
     public void run() {
         try {

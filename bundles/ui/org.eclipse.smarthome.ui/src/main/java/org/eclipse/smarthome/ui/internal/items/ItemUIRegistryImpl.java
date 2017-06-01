@@ -120,9 +120,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         itemUIProviders.remove(itemUIProvider);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getCategory(String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
@@ -156,9 +153,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getLabel(String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
@@ -178,9 +172,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Widget getWidget(String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
@@ -192,9 +183,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Widget getDefaultWidget(Class<? extends Item> itemType, String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
@@ -277,9 +265,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return playerItemSwitch;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getLabel(Widget w) {
         String label = getLabelFromWidget(w);
@@ -446,9 +431,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return label;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getCategory(Widget w) {
         String widgetTypeName = w.eClass().getInstanceTypeName()
@@ -473,9 +455,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return category;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public State getState(Widget w) {
         String itemName = w.getItem();
@@ -519,9 +498,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return returnState;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Widget getWidget(Sitemap sitemap, String id) {
         if (id.length() > 0) {
@@ -549,9 +525,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> getChildren(Sitemap sitemap) {
         EList<Widget> widgets = sitemap.getChildren();
@@ -566,9 +539,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> getChildren(LinkableWidget w) {
         EList<Widget> widgets = null;
@@ -588,9 +558,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EObject getParent(Widget w) {
         Widget w2 = defaultWidgets.get(w);
@@ -685,9 +652,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Item getItem(String name) throws ItemNotFoundException {
         if (itemRegistry != null) {
@@ -697,9 +661,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException {
         if (itemRegistry != null) {
@@ -709,9 +670,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<Item> getItems() {
         if (itemRegistry != null) {
@@ -730,9 +688,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<Item> getItems(String pattern) {
         if (itemRegistry != null) {
@@ -742,9 +697,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addRegistryChangeListener(RegistryChangeListener<Item> listener) {
         if (itemRegistry != null) {
@@ -752,9 +704,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void removeRegistryChangeListener(RegistryChangeListener<Item> listener) {
         if (itemRegistry != null) {
@@ -762,25 +711,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<Item> getAll() {
         return itemRegistry.getAll();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Stream<Item> stream() {
         return itemRegistry.stream();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getWidgetId(Widget w) {
         Widget w2 = defaultWidgets.get(w);
@@ -816,9 +756,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return id;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     private boolean matchStateToValue(State state, String value, String matchCondition) {
         // Check if the value is equal to the supplied value
         boolean matched = false;
@@ -935,9 +872,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return matched;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     private String processColorDefinition(State state, List<ColorArray> colorList) {
         // Sanity check
         if (colorList == null) {
@@ -1008,25 +942,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return colorString;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getLabelColor(Widget w) {
         return processColorDefinition(getState(w), w.getLabelColor());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getValueColor(Widget w) {
         return processColorDefinition(getState(w), w.getValueColor());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean getVisiblity(Widget w) {
         // Default to visible if parameters not set

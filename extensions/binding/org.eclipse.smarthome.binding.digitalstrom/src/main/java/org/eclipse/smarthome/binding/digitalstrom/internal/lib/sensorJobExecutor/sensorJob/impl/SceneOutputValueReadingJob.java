@@ -93,11 +93,6 @@ public class SceneOutputValueReadingJob implements SensorJob {
         this.initalisationTime = time;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "SceneOutputValueReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()

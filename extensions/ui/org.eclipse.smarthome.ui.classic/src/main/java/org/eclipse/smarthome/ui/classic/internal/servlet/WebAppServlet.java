@@ -99,9 +99,6 @@ public class WebAppServlet extends BaseServlet {
         logger.info("Stopped Classic UI");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         logger.debug("Servlet request received!");
@@ -253,9 +250,6 @@ public class WebAppServlet extends BaseServlet {
 
         private boolean changed = false;
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateChanged(Item item, State oldState, State newState) {
             changed = true;
@@ -270,9 +264,6 @@ public class WebAppServlet extends BaseServlet {
             return changed;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateUpdated(Item item, State state) {
             // ignore if the state did not change

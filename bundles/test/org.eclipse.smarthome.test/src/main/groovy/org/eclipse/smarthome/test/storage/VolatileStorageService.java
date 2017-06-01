@@ -24,11 +24,6 @@ public class VolatileStorageService implements StorageService {
     @SuppressWarnings("rawtypes")
     Map<String, Storage> storages = new ConcurrentHashMap<String, Storage>();
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
     @Override
     @SuppressWarnings("unchecked")
     public synchronized <T> Storage<T> getStorage(String name) {
@@ -38,11 +33,6 @@ public class VolatileStorageService implements StorageService {
         return storages.get(name);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     */
     @Override
     public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
         return getStorage(name);

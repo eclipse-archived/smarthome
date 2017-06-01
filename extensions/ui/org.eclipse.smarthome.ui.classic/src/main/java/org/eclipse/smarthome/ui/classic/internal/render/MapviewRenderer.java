@@ -24,16 +24,10 @@ import org.eclipse.smarthome.ui.classic.render.RenderException;
  */
 public class MapviewRenderer extends AbstractWidgetRenderer {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean canRender(Widget w) {
 		return w instanceof Mapview;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
 		Mapview mapview = (Mapview) w;
 		String snippet = getSnippet("mapview");
