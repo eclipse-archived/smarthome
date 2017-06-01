@@ -41,18 +41,21 @@
               <artifacts>
 
                 <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13559 -->                
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>com.jayway.jsonpath:json-path:2.1.0</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13628 -->
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>net.minidev:accessors-smart:1.1</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13627 -->
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>net.minidev:json-smart:2.2</id>
                   <transitive>false</transitive>
@@ -128,17 +131,17 @@
                 <artifact>
                   <id>org.eclipse.californium:californium-osgi:jar:1.0.5</id>
                   <transitive>false</transitive>
-                  <source>true</source>
+                  <source>false</source>
                 </artifact>
                 <artifact>
                   <id>org.eclipse.californium:element-connector:jar:1.0.5</id>
                   <transitive>false</transitive>
-                  <source>true</source>
+                  <source>false</source>
                 </artifact>
                 <artifact>
                   <id>org.eclipse.californium:scandium:jar:1.0.5</id>
                   <transitive>false</transitive>
-                  <source>true</source>
+                  <source>false</source>
                 </artifact>
               </artifacts>
             </configuration>
