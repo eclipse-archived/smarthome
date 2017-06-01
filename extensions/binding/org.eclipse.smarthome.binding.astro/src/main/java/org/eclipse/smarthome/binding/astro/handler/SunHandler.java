@@ -39,9 +39,6 @@ public class SunHandler extends AstroThingHandler {
         super(thing);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void publishDailyInfo() {
         sun = sunCalc.getSunInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude(),
@@ -49,9 +46,6 @@ public class SunHandler extends AstroThingHandler {
         publishPositionalInfo();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void publishPositionalInfo() {
         sunCalc.setPositionalInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude(),
@@ -59,34 +53,22 @@ public class SunHandler extends AstroThingHandler {
         publishPlanet();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Planet getPlanet() {
         return sun;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void dispose() {
         super.dispose();
         sun = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected String[] getPositionalChannelIds() {
         return positionalChannelIds;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Class<? extends AbstractDailyJob> getDailyJobClass() {
         return DailyJobSun.class;

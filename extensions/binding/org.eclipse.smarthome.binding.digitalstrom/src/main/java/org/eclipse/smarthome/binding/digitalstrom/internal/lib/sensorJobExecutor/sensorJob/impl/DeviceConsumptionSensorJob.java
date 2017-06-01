@@ -102,11 +102,6 @@ public class DeviceConsumptionSensorJob implements SensorJob {
         this.initalisationTime = time;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "DeviceConsumptionSensorJob [sensorType=" + sensorType + ", deviceDSID : " + device.getDSID().getValue()

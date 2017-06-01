@@ -130,9 +130,6 @@ public class MqttWillAndTestament {
         this.retain = retain;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

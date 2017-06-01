@@ -34,17 +34,11 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class ColorpickerRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Colorpicker;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Colorpicker cp = (Colorpicker) w;

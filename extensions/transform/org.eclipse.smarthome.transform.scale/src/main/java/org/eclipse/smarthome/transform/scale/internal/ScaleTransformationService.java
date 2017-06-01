@@ -38,18 +38,16 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
     private static final Pattern LIMITS_PATTERN = Pattern.compile("(\\[|\\])(.*)\\.\\.(.*)(\\[|\\])");
 
     /**
-     * <p>
-     * Transforms the input <code>source</code> by matching searching the range where it fits
-     * i.e. [min..max]=value or ]min..max]=value
-     * </p>
+     * Performs transformation of the input <code>source</code>
+     * 
+     * The method transforms the input <code>source</code> by matching searching
+     * the range where it fits i.e. [min..max]=value or ]min..max]=value
      *
      * @param properties
      *            the list of properties defining all the available ranges
      * @param source
      *            the input to transform
-     *
-     * @{inheritDoc
-     *
+     * 
      */
     @Override
     protected String internalTransform(Map<Range, String> data, String source) throws TransformationException {

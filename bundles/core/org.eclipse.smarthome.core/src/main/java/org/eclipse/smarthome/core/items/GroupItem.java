@@ -234,9 +234,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     protected void internalSend(Command command) {
         if (eventPublisher != null) {
@@ -247,9 +244,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
         // if a group does not have a function it cannot have a state
@@ -269,9 +263,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         return newState;
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -312,16 +303,10 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         return sb.toString();
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;

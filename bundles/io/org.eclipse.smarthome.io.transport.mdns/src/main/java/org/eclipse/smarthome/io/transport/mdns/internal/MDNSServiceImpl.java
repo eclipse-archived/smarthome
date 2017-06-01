@@ -70,9 +70,6 @@ public class MDNSServiceImpl implements MDNSService {
         mdnsClient.unregisterAllServices();
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public void registerService(final ServiceDescription description) {
         if (mdnsClient == null) {
@@ -97,9 +94,6 @@ public class MDNSServiceImpl implements MDNSService {
         }
     }
 
-    /**
-     * @{inheritDoc
-     */
     @Override
     public void unregisterService(ServiceDescription description) {
         if (mdnsClient != null) {

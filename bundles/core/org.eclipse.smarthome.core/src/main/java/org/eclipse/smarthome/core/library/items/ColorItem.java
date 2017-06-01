@@ -65,9 +65,6 @@ public class ColorItem extends DimmerItem {
         return Collections.unmodifiableList(acceptedCommandTypes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setState(State state) {
         State currentState = this.state;

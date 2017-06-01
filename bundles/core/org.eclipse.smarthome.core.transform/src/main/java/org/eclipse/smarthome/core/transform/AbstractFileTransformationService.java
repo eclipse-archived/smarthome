@@ -110,9 +110,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * @param source
      *            the input to transform
      * @throws TransformationException
-     *
-     * @{inheritDoc
-     *
      */
     @Override
     public String transform(String filename, String source) throws TransformationException {

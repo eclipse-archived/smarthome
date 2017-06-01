@@ -104,9 +104,6 @@ public class DefaultChartProvider implements ChartProvider {
     protected void deactivate() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public void destroy() {
     }
 

@@ -23,9 +23,6 @@ import org.quartz.JobDataMap;
  */
 public class SunPhaseJob extends AbstractBaseJob {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void executeJob(String thingUid, JobDataMap jobDataMap) {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUid);

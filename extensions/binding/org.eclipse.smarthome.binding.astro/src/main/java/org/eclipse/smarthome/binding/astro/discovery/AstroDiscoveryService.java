@@ -38,9 +38,6 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
         super(ImmutableSet.of(new ThingTypeUID(BINDING_ID, "-")), DISCOVER_TIMEOUT_SECONDS, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void startScan() {
         logger.debug("Starting Astro discovery scan");

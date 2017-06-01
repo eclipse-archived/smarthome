@@ -30,17 +30,11 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  */
 public class SliderRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Slider;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Slider s = (Slider) w;

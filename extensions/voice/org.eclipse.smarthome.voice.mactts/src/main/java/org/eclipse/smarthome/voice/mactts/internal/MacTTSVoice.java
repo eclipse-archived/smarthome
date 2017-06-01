@@ -119,9 +119,6 @@ public class MacTTSVoice implements Voice {
         return label;
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
     public Locale getLocale() {
         Locale locale;
