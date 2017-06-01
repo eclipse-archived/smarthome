@@ -400,7 +400,7 @@ public abstract class AbstractResourceBundleProvider<E> {
                 try {
                     uri = new URI(prefix + ":" + uid + ".name");
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    logger.error("Constructed invalid uri '{}:{}.name'", prefix, uid, e);
                 }
                 String llabel = parameter.getLabel();
                 if (llabel != null) {
