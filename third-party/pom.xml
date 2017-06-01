@@ -39,15 +39,29 @@
               <!--<compressSite>false</compressSite>-->
               <additionalArgs>-metadataRepositoryName esh.thirdparty.repo.metadata -artifactRepositoryName esh.thirdparty.repo.artifact</additionalArgs>
               <artifacts>
+
                 <artifact>
-                  <!-- old version, to be removed before next release, see https://github.com/eclipse/smarthome/pull/3422#issuecomment-304853696 *** -->
-                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
+                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
+                  <id>com.jayway.jsonpath:json-path:2.1.0</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
-                  <id>com.jayway.jsonpath:json-path:2.1.0</id>
+                  <id>net.minidev:accessors-smart:1.1</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
+                  <id>net.minidev:json-smart:2.2</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+
+                <!-- old versions, to be removed before next release, see https://github.com/eclipse/smarthome/pull/3422#issuecomment-304853696 *** -->
+                <artifact>
+                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
@@ -63,6 +77,7 @@
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
+
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11322 -->
                   <id>org.mapdb:mapdb:1.0.9</id>
