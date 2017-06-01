@@ -64,6 +64,6 @@ public interface ScriptExtensionProvider {
      *
      * @param scriptEngineId
      */
-    public void unLoad(String scriptIdentifier);
+    public void unload(String scriptIdentifier);
 
 }

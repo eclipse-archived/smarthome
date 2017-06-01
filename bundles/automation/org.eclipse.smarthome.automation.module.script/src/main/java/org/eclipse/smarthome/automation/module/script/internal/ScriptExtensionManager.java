@@ -107,7 +107,7 @@ public class ScriptExtensionManager {
 
     public static void dispose(String scriptIdentifier) {
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
-            provider.unLoad(scriptIdentifier);
+            provider.unload(scriptIdentifier);
         }
     }
 
