@@ -45,6 +45,9 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
     }
 
     public void unsetModelRepository(ModelRepository modelRepository) {
+        if (job != null && !job.isDone()) {
+            job.cancel(false);
+        }
         this.modelRepository = null;
     }
 
