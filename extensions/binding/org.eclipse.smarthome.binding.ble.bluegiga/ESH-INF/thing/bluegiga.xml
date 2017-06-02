@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="ble" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Sample Thing Type -->
+	<thing-type id="bluegiga">
+		<label>BlueGiga Bluetooth Interface</label>
+		<description>Serial interface to the BlueGiga BLE interface</description>
+
+		<channels>
+			<channel id="channel1" typeId="sample-channel" />
+		</channels>
+
+		<config-description>
+			<parameter name="bluegiga_port" type="text" required="true">
+				<label>Port</label>
+				<description>Serial Port</description>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<!-- Sample Channel Type -->
+	<channel-type id="sample-channel">
+		<item-type>bluegigaItem</item-type>
+		<label>BlueGiga Binding Channel</label>
+		<description>Sample channel for BlueGiga Binding</description>
+	</channel-type>
+
+</thing:thing-descriptions>
