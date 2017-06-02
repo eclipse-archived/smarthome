@@ -101,7 +101,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * Transforms the input <code>source</code> by the according method defined in subclass to another string.
      * It expects the transformation to be read from a file which is stored
      * under the 'conf/transform'
-     * </p>
      *
      * @param filename
      *            the name of the file which contains the transformation definition.
@@ -144,7 +143,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * <p>
      * Abstract method defined by subclasses to effectively operate the
      * transformation according to its rules
-     * </p>
      *
      * @param transform
      *            transformation held by the file provided to <code>transform</code> method
@@ -162,7 +160,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * <p>
      * Abstract method defined by subclasses to effectively read the transformation
      * source file according to their own needs.
-     * </p>
      *
      * @param filename
      *            Name of the file to be read. This filename may have been transposed

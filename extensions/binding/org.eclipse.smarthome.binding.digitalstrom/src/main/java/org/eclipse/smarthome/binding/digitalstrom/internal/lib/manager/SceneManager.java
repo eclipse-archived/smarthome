@@ -30,11 +30,10 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.s
  * {@link #callInternalScene(InternalScene)}, {@link #callInternalScene(String)},
  * {@link #callDeviceScene(Device, Short)}
  * , {@link #callDeviceScene(String, Short)} etc. can be used.
- * </p>
+ * 
  * <p>
  * If you call the {@link #start()} method a {@link EventListener} will be started to handle scene calls and undos from
  * the outside.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

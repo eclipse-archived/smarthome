@@ -21,12 +21,10 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  * <p>
  * This is an implementation of the {@link WidgetRenderer} interface, which can produce HTML code for Colorpicker
  * widgets.
- * </p>
  *
  * <p>
  * Note: This renderer requires the files "jquery.miniColors.css" and "jquery.miniColors.js" in the web folder of this
  * bundle
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Vlad Ivanov - BasicUI changes

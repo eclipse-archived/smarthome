@@ -21,12 +21,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In addition priorities can be assigned to jobs therefore the {@link SceneReadingJobExecutor} offers the methods
  * {@link #addHighPriorityJob()}, {@link #addLowPriorityJob()} and {@link #addLowPriorityJob()}.
- * </p>
+ * 
  * <p>
  * <b>NOTE:</b><br>
  * In contrast to the {@link SensorJobExecutor} the {@link SceneReadingJobExecutor} will execute {@link SensorJob}'s
  * with high priority always before medium priority {@link SensorJob}s and so on.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

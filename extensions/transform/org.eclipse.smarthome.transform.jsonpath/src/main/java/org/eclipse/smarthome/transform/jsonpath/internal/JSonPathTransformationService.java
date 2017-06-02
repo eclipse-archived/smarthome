@@ -19,7 +19,6 @@ import com.jayway.jsonpath.PathNotFoundException;
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by JSonPath Expressions.
- * </p>
  *
  * @author Gaël L'hopital
  * @author Sebastian Janzen

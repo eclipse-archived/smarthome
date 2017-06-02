@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableList;
  * It provides the possibility to transform the element into another java class, that can be persisted. This is needed,
  * if the original element class is not directly persistable. If the element type can be persisted directly the
  * {@link DefaultAbstractManagedProvider} can be used as base class.
- * </p>
  *
  * @author Dennis Nobel - Initial contribution
  *

@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
  * <li>implements the {@link ConnectionListener} to manage the {@link ThingStatus} of this {@link BridgeHandler}</li>
  * <li>and implements the {@link TotalPowerConsumptionListener} to update his Channels.</li>
  * </ul>
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

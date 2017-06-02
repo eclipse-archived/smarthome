@@ -18,11 +18,11 @@ import org.eclipse.smarthome.core.types.State;
  * It is designed as a Java bean, for which the different properties are constraints on the query result. These
  * properties include the item name, begin and end date and the item state. A compare operator can be defined to compare
  * not only state equality, but also its decimal value (<,>).
- * <p>
+ * 
  * <p>
  * Additionally, the filter criteria supports ordering and paging of the result, so the caller can ask to only return
  * chunks of the result of a certain size (=pageSize) from a starting index (pageNumber*pageSize).
- * </p>
+ * 
  * <p>
  * All setter methods return the filter criteria instance, so that the methods can be easily chained in order to define
  * a filter.

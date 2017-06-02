@@ -525,7 +525,6 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Updates the given property value for the thing that is handled by this thing handler instance. The value is only
      * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
-     * </p>
      *
      * If multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
      * should be used.

@@ -20,7 +20,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  * For that the {@link SceneStatusListener} has to be registered on the
  * {@link SceneManager#registerSceneListener(SceneStatusListener)}. Then the {@link SceneStatusListener} gets
  * informed by the methods {@link #onSceneAdded(InternalScene)} and {@link #onSceneRemoved(InternalScene)}.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

@@ -179,8 +179,6 @@ public final class FirmwareUpdateService implements EventSubscriber {
      * <p>
      * This operation is a non-blocking operation by spawning a new thread around the invocation of the firmware update
      * handler. The time out of the thread is 30 minutes.
-     * </p>
-     *
      *
      * @param thingUID the thing UID (must not be null)
      * @param firmwareUID the UID of the firmware to be updated (must not be null)

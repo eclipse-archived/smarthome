@@ -12,10 +12,9 @@ import org.eclipse.smarthome.core.types.State;
 /**
  * <p>
  * This interface must be implemented by all classes that want to be notified about changes in the state of an item.
- * </p>
+ * 
  * <p>
  * The {@link GenericItem} class provides the possibility to register such listeners.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  *

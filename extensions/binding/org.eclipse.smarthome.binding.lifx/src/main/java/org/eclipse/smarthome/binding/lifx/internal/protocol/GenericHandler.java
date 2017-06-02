@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
  * <p>
  * Packet types must have an empty constructor and cannot require any
  * additional logic (other than parsing).
- * </p>
  *
  * @param <T> the packet subtype this handler constructs
  * 

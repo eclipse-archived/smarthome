@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * The implementation of {@link TransformationService} which simply maps strings to other strings
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Gaël L'hopital - Make it localizable
@@ -34,7 +33,6 @@ public class MapTransformationService extends AbstractFileTransformationService<
      * Transforms the input <code>source</code> by mapping it to another string. It expects the mappings to be read from
      * a file which is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e.
      * simple lines with "key=value" pairs. To organize the various transformations one might use subfolders.
-     * </p>
      *
      * @param properties
      *            the list of properties which contains the key value pairs for the mapping.
