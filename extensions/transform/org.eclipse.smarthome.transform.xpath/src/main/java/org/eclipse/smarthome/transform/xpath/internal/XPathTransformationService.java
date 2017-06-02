@@ -26,7 +26,6 @@ import org.xml.sax.InputSource;
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by XPath Expressions.
- * </p>
  *
  * @author Thomas.Eichstaedt-Engelen
  */

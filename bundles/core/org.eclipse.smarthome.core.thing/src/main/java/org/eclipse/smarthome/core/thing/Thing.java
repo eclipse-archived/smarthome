@@ -78,7 +78,7 @@ public interface Thing {
 
     /**
      * Gets the status of a thing.
-     * </p>
+     * 
      * In order to get all status information (status, status detail and status description)
      * please use {@link Thing#getStatusInfo()}.
      *
@@ -88,7 +88,7 @@ public interface Thing {
 
     /**
      * Gets the status info of a thing.
-     * </p>
+     * 
      * The status info consists of the status itself, the status detail and a status description.
      *
      * @return the status info

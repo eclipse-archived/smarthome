@@ -38,10 +38,9 @@ public class ExecUtil {
      * properly. In that cases another exec-method is to be used. To accomplish this please use the special delimiter '
      * <code>@@</code>'. If <code>commandLine</code> contains this delimiter it is split into a String[] array and the
      * special exec-method is used.
-     * </p>
+     * 
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
-     * </p>
      *
      * @param commandLine
      *            the command line to execute
@@ -69,10 +68,9 @@ public class ExecUtil {
      * properly. In that cases another exec-method is to be used. To accomplish this please use the special delimiter '
      * <code>@@</code>'. If <code>commandLine</code> contains this delimiter it is split into a String[] array and the
      * special exec-method is used.
-     * </p>
+     * 
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
-     * </p>
      *
      * @param commandLine
      *            the command line to execute

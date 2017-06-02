@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by Regular Expressions.
- * </p>
+ * 
  * <p>
  * <b>Note:</b> the given Regular Expression must contain exactly one group!
  *

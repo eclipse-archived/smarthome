@@ -28,7 +28,6 @@ import com.google.common.base.Preconditions;
  * <li>config-status.error.any-suffix</li>
  * <li>config-status.pending.any-suffix</li>
  * </ul>
- * </p>
  *
  * @author Thomas Höfer - Initial contribution
  * @author Chris Jackson - Add withMessageKey and remove message from other methods

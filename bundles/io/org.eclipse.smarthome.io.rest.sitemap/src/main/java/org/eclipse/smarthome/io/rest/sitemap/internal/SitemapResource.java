@@ -88,7 +88,6 @@ import io.swagger.annotations.ApiResponses;
  * <p>
  * This class acts as a REST resource for sitemaps and provides different methods to interact with them, like retrieving
  * a list of all available sitemaps or just getting the widgets of a single page.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson

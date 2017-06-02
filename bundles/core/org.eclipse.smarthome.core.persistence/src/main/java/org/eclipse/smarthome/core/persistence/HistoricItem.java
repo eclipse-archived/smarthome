@@ -19,7 +19,6 @@ import org.eclipse.smarthome.core.types.State;
  * <p>
  * Note that this interface does not extend {@link Item} as the persistence services could not provide an implementation
  * that correctly implement getAcceptedXTypes() and getGroupNames().
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  */

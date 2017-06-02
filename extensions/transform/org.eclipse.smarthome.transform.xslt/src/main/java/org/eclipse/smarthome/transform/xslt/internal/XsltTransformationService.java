@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by XSLT.
- * </p>
  *
  * @author Thomas.Eichstaedt-Engelen
  */

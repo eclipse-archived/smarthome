@@ -74,7 +74,6 @@ public final class ConfigValidationException extends RuntimeException {
      * <p>
      * If there is no I18nProvider available then this operation will return the default validation messages by using
      * {@link ConfigValidationException#getValidationMessages()}.
-     * </p>
      *
      * @param locale the locale to be used; if null then the default locale will be used
      *

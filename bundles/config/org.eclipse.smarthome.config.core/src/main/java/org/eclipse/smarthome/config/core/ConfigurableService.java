@@ -17,14 +17,12 @@ import org.osgi.service.component.ComponentConstants;
  * {@link ConfigurableService#SERVICE_PROPERTY_DESCRIPTION_URI} set will be considered as a configurable service. The
  * properties {@link ConfigurableService#SERVICE_PROPERTY_LABEL} and
  * {@link ConfigurableService#SERVICE_PROPERTY_CATEGORY} are optional.
- * </p>
  *
  * <p>
  * The services are configured through the OSGi configuration admin. Therefore each service must provide a PID or a
  * component name service property if the configuration is done by declarative services. If the
  * {@link Constants#SERVICE_PID} property is not set the
  * {@link ComponentConstants#COMPONENT_NAME} property will be used as fallback.
- * </p>
  *
  * @author Dennis Nobel - Initial contribution
  *

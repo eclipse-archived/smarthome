@@ -23,10 +23,9 @@ import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
  * This class can parse information from the generic binding format and provides AutoUpdate binding information from it.
  * If no binding configuration is provided <code>autoupdate</code> is evaluated to true. This means every received
  * <code>Command</code> will update its corresponding <code>State</code> by default.
- * </p>
+ * 
  * <p>
  * This class registers as a {@link AutoUpdateBindingConfigProvider} service as well.
- * </p>
  *
  * <p>
  * A valid binding configuration strings looks like this:

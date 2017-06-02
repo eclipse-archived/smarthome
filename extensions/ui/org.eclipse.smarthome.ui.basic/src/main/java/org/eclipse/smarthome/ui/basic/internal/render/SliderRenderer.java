@@ -17,12 +17,10 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 /**
  * <p>
  * This is an implementation of the {@link WidgetRenderer} interface, which can produce HTML code for Slider widgets.
- * </p>
  *
  * <p>
  * Note: As the WebApp.Net framework cannot render real sliders in the UI, we instead show buttons to increase or
  * decrease the value.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Vlad Ivanov - BasicUI changes
