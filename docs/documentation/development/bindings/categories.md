@@ -14,7 +14,35 @@ The thing type definition allows to specify a category. User interfaces can pars
 
 | Category        | Description                                          |
 |-----------------|------------------------------------------------------|
-
+| Alarm           | Any device related to alarm systems, such as a Siren |
+| BinarySensor    | General purpose sensor that returns a boolean value |
+| Camera          | All kinds of cameras |
+| Clock           | Devices that provide the current time |
+| Cooling         | Devices that cool air, such as air conditioners, fans, etc. |
+| Door            | Anything closely related to a door such as an Open/Close contact or Opener |
+| Food            | Fridges, Mixers, etc. |
+| Furniture       | Smart furniture |
+| GeneralSensor   | General purpose sensor that does not fit in any category |
+| Heating         | Devices that deal with heating such as radiators, boilers, temperature actuators, heaters, returnpipes, etc. |
+| Light           | Devices that illuminate something, such as bulbs, etc. |
+| Lock            | Devices whose primary pupose is locking something |
+| Microphone      | Devices to record sound |
+| Motion          | Motion sensors/detectors |
+| MultiSwitch     | Device which controls MULTIPLE states (else see Switch) of something |
+| Phone           | Anything related to telephony, such as mobile phones, landline phones, etc. |
+| Power           | Anything related to power/electricity, for ex. power outlets, power plugs, etc. |
+| Robots          | Vacuum cleaners such as cleaning robots, lawn mowers, etc. |
+| RollerShutter   | Roller shutters |
+| SolarPlant      | Devices related to solar |
+| Smoke           | Smoke detectors |
+| Speakers        | Devices that are able to play sounds |
+| (Wall)Switch    | Any device that controls a BINARY status (else see MultiSwitch) of something, for ex. a light switch |
+| Television      | TV devices, projectors, satelite or cable receivers, recorders, etc. |
+| Temperature     | Devices related to Temperature, such as Temperature actuators, heaters etc. |
+| Washing         | Devices related to washing, such as washing machines, dryers, etc. |
+| Water           | Pumps, Softeners, Drainage, Cistern, etc. |
+| Weather         | Rain sensors, Humidity sensors, Pressure sensors, wind sensors, etc. |
+| Window          | Anything closely related to a window such as an Open/Close contact or Opener |
 
 ## Channel Categories
 

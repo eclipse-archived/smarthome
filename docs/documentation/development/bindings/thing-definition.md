@@ -21,7 +21,7 @@ Things represent devices or services that can be individually added to, configur
         </supported-bridge-type-refs>
         <label>Sample Thing</label>
         <description>Some sample description</description>
-        <category>MyCategory</category>
+        <category>Light</category>
 		...
     </thing-type>
 ```
@@ -38,9 +38,7 @@ Thing types are listed by default, unless specified otherwise. Hiding thing type
 
 ### Thing Categories
 
-The thing type definition allows to specify a category. User interfaces can parse this category to get an idea how to render this thing. A binding can classify each thing into one of the existing categories. This is a list of all predefined categories:
-
-TODO: to be specified soon
+A description about channel categories as well as an overview about which categories exist can be found in our [categories overview](categories.html).
 
 ## Channels
 
@@ -189,6 +187,10 @@ Some channels might have only a limited and countable set of states. These state
 
 The user interface can use these values to render labels for values or to provide a selection of states, when the channel is writable. The option labels can also be localized.
 
+### Channel Categories
+
+A description about channel categories as well as an overview about which categories exist can be found in out [categories overview](categories.html).
+
 ### Channel Groups
 
 Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside the switchboard, but controls switches in other rooms. Therefore channel groups can be used to group a set of channels together into one logical block. A thing can only have direct channels or channel groups, but not both.
@@ -219,7 +221,7 @@ The channel group type is defined on the same level as the thing types and chann
 </channel-group-type>
 ```
 
-When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before. Details about the category can be found in our [categories overview](categories.html).
 
 ## Properties
 
