@@ -21,10 +21,9 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * <p>
  * This interface defines the core features of an Eclipse SmartHome item.
- * </p>
+ * 
  * <p>
  * Item instances are used for all stateful services and are especially important for the {@link ItemRegistry}.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -63,18 +62,16 @@ public interface Item {
     /**
      * <p>
      * This method provides a list of all data types that can be used to update the item state
-     * </p>
+     * 
      * <p>
      * Imagine e.g. a dimmer device: It's status could be 0%, 10%, 50%, 100%, but also OFF or ON and maybe UNDEFINED. So
      * the accepted data types would be in this case {@link PercentType}, {@link OnOffType} and {@link UnDefType}
-     * </p>
      *
      * <p>
      * The order of data types denotes the order of preference. So in case a state needs to be converted
      * in order to be accepted, it will be attempted to convert it to a type from top to bottom. Therefore
      * the type with the least information loss should be on top of the list - in the example above the
      * {@link PercentType} carries more information than the {@link OnOffType}, hence it is listed first.
-     * </p>
      * 
      * @return a list of data types that can be used to update the item state
      */
@@ -83,11 +80,11 @@ public interface Item {
     /**
      * <p>
      * This method provides a list of all command types that can be used for this item
-     * </p>
+     * 
      * <p>
      * Imagine e.g. a dimmer device: You could ask it to dim to 0%, 10%, 50%, 100%, but also to turn OFF or ON. So the
      * accepted command types would be in this case {@link PercentType}, {@link OnOffType}
-     * </p>
+     * 
      *
      * @return a list of all command types that can be used for this item
      */

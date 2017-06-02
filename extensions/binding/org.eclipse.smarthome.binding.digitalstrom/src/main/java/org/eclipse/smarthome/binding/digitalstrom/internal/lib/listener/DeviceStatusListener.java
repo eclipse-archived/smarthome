@@ -22,7 +22,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices
  * For that the {@link DeviceStatusListener} has to be registered on the
  * {@link DeviceStatusManager#registerDeviceListener(DeviceStatusListener)}. Then the {@link DeviceStatusListener} gets
  * informed by the methods {@link #onDeviceAdded(Device)} and {@link #onDeviceRemoved(Device)}.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

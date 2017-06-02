@@ -73,7 +73,6 @@ public class StringListType implements Command, State {
      * {@link Formatter}). One single value of this type can be referenced
      * by the pattern using an index. The item order is defined by the natural
      * (alphabetical) order of their keys.
-     * </p>
      *
      * @param pattern the pattern to use containing indexes to reference the
      *            single elements of this type.

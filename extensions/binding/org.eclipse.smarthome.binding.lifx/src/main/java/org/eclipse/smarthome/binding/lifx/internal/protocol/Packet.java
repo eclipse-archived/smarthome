@@ -30,7 +30,6 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.UInt8Field;
  * in each subtype, followed by a listing of fields contained in the packet.
  * Field definitions should remain accessible to outside classes in the event
  * they need to worked with directly elsewhere.
- * </p>
  *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
@@ -241,7 +240,6 @@ public abstract class Packet {
      * The length of the buffer is the sum of the lengths of the defined
      * preamble fields (see {@link #PREAMBLE_FIELDS} for an ordered list), which
      * may also be accessed via {@link #preambleLength()}.
-     * </p>
      *
      * <p>
      * Certain fields are set to default values based on other class methods.
@@ -348,7 +346,6 @@ public abstract class Packet {
      * Note that returned ByteBuffers will have {@link ByteBuffer#rewind()}
      * called automatically before they are appended to the final packet
      * buffer.
-     * </p>
      *
      * @return the packet payload
      */

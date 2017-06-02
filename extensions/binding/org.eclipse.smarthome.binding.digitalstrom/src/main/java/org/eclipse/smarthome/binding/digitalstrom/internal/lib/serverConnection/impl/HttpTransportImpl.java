@@ -49,14 +49,13 @@ import org.slf4j.LoggerFactory;
  * {@link Config#getCert()}. If there is no SSL-Certificate, but an path to an external SSL-Certificate file what is set
  * in {@link Config#getTrustCertPath()} this will be set. If no SSL-Certificate is set in the {@link Config} it will be
  * red out from the server and set in {@link Config#setCert(String)}.
- * </p>
+ * 
  * <p>
  * If no {@link Config} is given the SSL-Certificate will be stored locally.
- * </p>
+ * 
  * <p>
  * The method {@link #writePEMCertFile(String)} saves the SSL-Certificate in a file at the given path. If all
  * SSL-Certificates shout be ignored the flag <i>exeptAllCerts</i> have to be true at the constructor
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

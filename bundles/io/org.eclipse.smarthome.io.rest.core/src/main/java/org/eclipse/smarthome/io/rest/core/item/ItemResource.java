@@ -71,15 +71,12 @@ import io.swagger.annotations.ApiResponses;
  * <p>
  * This class acts as a REST resource for items and provides different methods to interact with them, like retrieving
  * lists of items, sending commands to them or checking a single status.
- * </p>
  *
  * <p>
  * The typical content types are plain text for status values and XML or JSON(P) for more complex data structures
- * </p>
  *
  * <p>
  * This resource is registered with the Jersey servlet.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management

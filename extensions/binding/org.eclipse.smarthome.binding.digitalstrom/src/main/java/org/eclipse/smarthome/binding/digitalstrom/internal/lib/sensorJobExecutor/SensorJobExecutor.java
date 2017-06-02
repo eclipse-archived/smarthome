@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
  * <li>medium priority: read cycles before execution is set in {@link Config.MEDIUM_PRIORITY_FACTOR}</li>
  * <li>high priority: read cycles before execution 0</li>
  * </ul>
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

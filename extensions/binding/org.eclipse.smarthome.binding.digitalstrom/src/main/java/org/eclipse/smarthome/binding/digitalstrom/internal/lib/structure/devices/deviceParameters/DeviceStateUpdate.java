@@ -69,7 +69,6 @@ public interface DeviceStateUpdate {
      * <li>For all SensorUpdate-types will read the sensor data directly, if the value is 0, otherwise a
      * {@link SensorJob} will be added to the {@link SensorJobExecutor}.</li>
      * </ul>
-     * </p>
      *
      * @return new state value
      */

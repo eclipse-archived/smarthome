@@ -19,10 +19,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 /**
+ * <p>
  * The {@link ThingStatusInfoI18nLocalizationService} can be used to localize the {@link ThingStatusInfo} of a thing
  * using the I18N mechanism of the Eclipse SmartHome framework. Currently the description of the {@link ThingStatusInfo}
  * is the single attribute which can be localized.
- * </p>
+ * 
+ * <p>
  * In order to provide a localized description the corresponding {@link ThingHandler} of the thing does not provide a
  * localized string in the <i>ThingStatus.description</i> attribute, but instead provides the reference of the
  * localization string, e.g &#64;text/rate_limit. The handler is able to provide placeholder values as a JSON-serialized

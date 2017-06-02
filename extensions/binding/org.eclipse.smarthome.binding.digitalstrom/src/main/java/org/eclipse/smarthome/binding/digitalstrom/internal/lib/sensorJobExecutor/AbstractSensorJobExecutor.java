@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * <li>{@link #addMediumPriorityJob(SensorJob)}</li>
  * <li>{@link #addHighPriorityJob(SensorJob)}</li>
  * </ul>
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

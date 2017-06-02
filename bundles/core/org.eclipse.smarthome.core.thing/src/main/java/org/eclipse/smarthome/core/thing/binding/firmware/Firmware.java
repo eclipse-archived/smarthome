@@ -29,19 +29,23 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
+ * <p>
  * The {@link Firmware} is the description of a firmware to be installed on the physical device of a {@link Thing}. A
  * firmware relates always to exactly one {@link ThingType}. By its {@link FirmwareUID} it is ensured that there is only
  * one firmware in a specific version for a thing type available. Firmwares can be easily created by the
  * {@link Firmware.Builder}.
- * </p>
+ * 
+ * <p>
  * Firmwares are made available to the system by {@link FirmwareProvider}s that are tracked by the
  * {@link FirmwareRegistry}. The registry can be used to get a dedicated firmware or to get all available firmwares for
  * a specific {@link ThingType}.
- * </p>
+ * 
+ * <p>
  * The {@link FirmwareUpdateService} is responsible to provide the current {@link FirmwareStatusInfo} of a thing.
  * Furthermore this service is the central instance to start a firmware update process. In order that the firmware of a
  * thing can be updated the hander of the thing has to implement the {@link FirmwareUpdateHandler} interface.
- * </p>
+ * 
+ * <p>
  * The {@link Firmware} implements the {@link Comparable} interface in order to be able to sort firmwares based on their
  * versions. Firmwares are sorted in a descending sequence, i.e. that the latest firmware will be the first
  * element in a sorted result set. The implementation of {@link Firmware#compareTo(Firmware)} splits the firmware
@@ -50,7 +54,8 @@ import com.google.common.base.Preconditions;
  * <i>1-9_9.9_abc</i>. Consequently <i>2.0-0</i>, <i>2-0_0</i> and <i>2_0.0</i> represent the same firmware version.
  * Furthermore firmware version <i>xyz_1</i> is newer than firmware version <i>abc.2</i> which again is newer than
  * firmware version <i>2-0-1</i>.
- * </p>
+ * 
+ * <p>
  * A {@link Firmware} consists of various meta information like a version, a vendor or a description. Additionally
  * {@link FirmwareProvider}s can specify further meta information in form of properties (e.g. a factory reset of the
  * device is required afterwards) so that {@link FirmwareUpdateHandler}s can handle this information accordingly.
