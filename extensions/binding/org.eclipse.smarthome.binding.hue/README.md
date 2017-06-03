@@ -102,14 +102,16 @@ Bridge hue:bridge:1 [ ipAddress="192.168.0.64" ] {
 ```
 // Bulb1
 Switch	Light1_Toggle		{ channel="hue:0210:1:bulb1:color" }
-Dimmer  Light1_Dimmer		{ channel="hue:0210:1:bulb1:color" }
-Color 	Light1_Color		{ channel="hue:0210:1:bulb1:color" }
-Dimmer 	Light1_ColorTemp	{ channel="hue:0210:1:bulb1:color_temperature" }
+Dimmer	Light1_Dimmer		{ channel="hue:0210:1:bulb1:color" }
+Color	Light1_Color		{ channel="hue:0210:1:bulb1:color" }
+Dimmer	Light1_ColorTemp	{ channel="hue:0210:1:bulb1:color_temperature" }
+String	Light1_Alert		{ channel="hue:0210:1:bulb1:alert" }
+Switch	Light1_Effect		{ channel="hue:0210:1:bulb1:effect" }
 
 // Bulb2
-Switch	Light2_Toggle		{channel="hue:0220:1:bulb2:brightness"}				
-Dimmer	Light2_Dimm		{channel="hue:0220:1:bulb2:brightness"}
-Dimmer	Light2_ColorTemp	{channel="hue:0220:1:bulb2:color_temperature"}
+Switch	Light2_Toggle		{ channel="hue:0220:1:bulb2:brightness" }
+Dimmer	Light2_Dimm		{ channel="hue:0220:1:bulb2:brightness" }
+Dimmer	Light2_ColorTemp	{ channel="hue:0220:1:bulb2:color_temperature" }
 ```
 
 Note: The bridge ID is in this example **1** but can be different in each system.
@@ -121,15 +123,17 @@ sitemap demo label="Main Menu"
 {
 	Frame {
 		// Bulb1
-		Switch item=		Light1_Toggle
-		Slider item=		Light1_Dimmer
-		Colorpicker item=	Light1_Color
-		Slider item=		Light1_ColorTemp
+		Switch		item=		Light1_Toggle
+		Slider		item=		Light1_Dimmer
+		Colorpicker	item=		Light1_Color
+		Slider		item=		Light1_ColorTemp
+		Switch		item=		Light1_Alert		mappings=[NONE="None", SELECT="Alert", LSELECT="Long Alert"]
+		Switch		item=		Light1_Effect
 
 		// Bulb2
-		Switch item=		Light2_Toggle
-		Slider item=		Light2_Dimmer
-		Slider item=		Light2_ColorTemp
+		Switch		item=		Light2_Toggle
+		Slider		item=		Light2_Dimmer
+		Slider		item=		Light2_ColorTemp
 	}
 }
 ```
