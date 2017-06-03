@@ -51,10 +51,11 @@ public class ChartRenderer extends AbstractWidgetRenderer {
                 itemParam = "items=" + chart.getItem();
             }
 
-            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&t=" + (new Date()).getTime();
+            String chartUrl = "/chart?" + itemParam + "&period=" + chart.getPeriod();
             if (chart.getService() != null) {
-                url += "&service=" + chart.getService();
+                chartUrl += "&service=" + chart.getService();
             }
+            String url = chartUrl + "&t=" + (new Date()).getTime();
 
             String snippet = getSnippet("chart");
             snippet = preprocessSnippet(snippet, w);
@@ -66,6 +67,8 @@ public class ChartRenderer extends AbstractWidgetRenderer {
             }
 
             snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
+            snippet = StringUtils.replace(snippet, "%proxied_url%", chartUrl);
+            snippet = StringUtils.replace(snippet, "%valid_url%", "true");
             snippet = StringUtils.replace(snippet, "%url%", url);
 
             sb.append(snippet);
