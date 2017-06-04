@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.transform.processor.add">
-   <implementation class="AddTransformationService" />
+   <implementation class="org.eclipse.smarthome.transform.simplemath.internal.AddTransformationService" />
    
    <service>
       <provide interface="org.eclipse.smarthome.core.transform.TransformationService"/>

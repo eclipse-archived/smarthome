@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.transform.processor.multiply">
-   <implementation class="MultiplyTransformationService" />
+   <implementation class="org.eclipse.smarthome.transform.simplemath.internal.MultiplyTransformationService" />
    
    <service>
       <provide interface="org.eclipse.smarthome.core.transform.TransformationService"/>

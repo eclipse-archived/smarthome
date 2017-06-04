@@ -25,6 +25,13 @@ public class AddTransformationServiceTest {
         Assert.assertEquals("120", result);
     }
 
+    @Test
+    public void testTransformInsideString() throws TransformationException {
+        String result = subject.transform("20", "100 watt");
+
+        Assert.assertEquals("120 watt", result);
+    }
+
     @Test(expected = TransformationException.class)
     public void testTransformInvalidSource() throws TransformationException {
         subject.transform("20", "*");

@@ -25,6 +25,13 @@ public class MultiplyTransformationServiceTest {
         Assert.assertEquals("2000", result);
     }
 
+    @Test
+    public void testTransformInsideString() throws TransformationException {
+        String result = subject.transform("-20", "-0.5 watt");
+
+        Assert.assertEquals("10.0 watt", result);
+    }
+
     @Test(expected = TransformationException.class)
     public void testTransformInvalidSource() throws TransformationException {
         subject.transform("20", "*");
