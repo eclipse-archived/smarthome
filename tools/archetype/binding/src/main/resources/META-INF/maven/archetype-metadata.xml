@@ -28,9 +28,14 @@
 				<include>about.html</include>
 				<include>build.properties</include>
 				<include>pom.xml</include>
-				<include>README.md</include>
 				<include>.project</include>
 				<include>.classpath</include>
+			</includes>
+		</fileSet>
+		<fileSet filtered="false" packaged="false" encoding="UTF-8">
+			<directory></directory>
+			<includes>
+				<include>README.md</include>
 			</includes>
 		</fileSet>
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
