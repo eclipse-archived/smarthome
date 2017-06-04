@@ -8,12 +8,12 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.transform.processor.map">
-   <implementation class="org.eclipse.smarthome.transform.simplemath.internal.MapTransformationService" />
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.transform.processor.add">
+   <implementation class="AddTransformationService" />
    
    <service>
       <provide interface="org.eclipse.smarthome.core.transform.TransformationService"/>
    </service>
-   <property name="smarthome.transform" type="String" value="MAP"/>
+   <property name="smarthome.transform" type="String" value="ADD"/>
    
 </scr:component>
