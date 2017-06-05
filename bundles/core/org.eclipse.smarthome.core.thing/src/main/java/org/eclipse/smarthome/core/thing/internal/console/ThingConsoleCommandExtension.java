@@ -77,10 +77,12 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     break;
                 default:
+                    console.println("Unknown command '" + subCommand + "'");
+                    printUsage(console);
                     break;
             }
         } else {
-            printUsage(console);
+            printThings(console, things);
         }
     }
 
