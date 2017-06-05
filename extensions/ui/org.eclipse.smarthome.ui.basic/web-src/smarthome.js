@@ -361,7 +361,9 @@
 		};
 
 		_t.setLabelColor = function(color) {
-			_t.label.style.color = color;
+			if (_t.label !== null) {
+				_t.label.style.color = color;
+			}
 		};
 
 		_t.setValueColor = function(color) {
