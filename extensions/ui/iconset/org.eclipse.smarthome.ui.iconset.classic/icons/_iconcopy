@@ -9,6 +9,7 @@
 cp -f house.png             group.png
 cp -f house.svg             group.svg
 
+cp -f text.svg              number.svg
 
 # Alternative Types
 
