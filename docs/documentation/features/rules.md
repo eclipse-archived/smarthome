@@ -32,9 +32,9 @@ One rule can invoke one and the same operation upon receiving each trigger event
 
 The main building blocks of the rules are modules and each rule consists of one or more instances of each of the following modules:
 
-> **trigger** - specifies when to execute the rule, usually it is an event;
-> **condition** - acts like a filter depending on the defined condition type and its input and configuration. An example of a condition can be evaluation of trigger outputs or the state of the system / items;
-> **action** - specifies the operation of the rule which will be executed if the condition is statisfied. If more than one actions are specified in a rule they will be executed sequentially where the output of the previous action can be used as an input for the next action - like a processor modifying the data of the trigger output (e.g. converting temperature values from Celsius to Fahrenheit).
+    trigger - specifies when to execute the rule, usually it is an event;
+    condition - acts like a filter depending on the defined condition type and its input and configuration. An example of a condition can be evaluation of trigger outputs or the state of the system / items;
+    action - specifies the operation of the rule which will be executed if the condition is statisfied. If more than one actions are specified in a rule they will be executed sequentially where the output of the previous action can be used as an input for the next action - like a processor modifying the data of the trigger output (e.g. converting temperature values from Celsius to Fahrenheit).
 
 Each module is created from a template called "module type" and can specify configuration parameters for the template, like e.g. "eventTopic" for the "GenericEventTrigger" or "operator" for the "GenericCompareCondition".
 Since there are system module types which are provided by the system, composite module types can be added which are extensions of these system module types and use predefined configurations and/or modified module input/output objects. An example is the module type "ItemStateChangeTrigger" which is based on the GenericEventTrigger but specifies in its configuration that it is triggered only by item's state change events.
