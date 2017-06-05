@@ -144,13 +144,15 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
                     }
                 }
             } else {
-                try {
-                    URL url = file.toURI().toURL();
-                    String parserType = getParserType(url);
-                    importFile(parserType, url);
-                } catch (MalformedURLException e) {
-                    // can't happen for the 'file' protocol handler with a correctly formatted URI
-                    logger.debug("Can't create a URL", e);
+                if (!file.isHidden()) {
+                    try {
+                        URL url = file.toURI().toURL();
+                        String parserType = getParserType(url);
+                        importFile(parserType, url);
+                    } catch (MalformedURLException e) {
+                        // can't happen for the 'file' protocol handler with a correctly formatted URI
+                        logger.debug("Can't create a URL", e);
+                    }
                 }
             }
         }
