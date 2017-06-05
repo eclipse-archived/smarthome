@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!-- Groovy files produce a lot of warnings and will be ignored -->
+  <Match>
+    <Source name="~.*\.groovy" />
+  </Match>
+  <!-- Excludes all bugs with priority higher than 4 -->
+  <Match>
+    <Rank value="4"/>
+  </Match>
+</FindBugsFilter>

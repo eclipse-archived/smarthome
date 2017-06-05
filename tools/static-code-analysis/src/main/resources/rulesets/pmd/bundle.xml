@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<ruleset name="Default Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>Default set of PMD rules used for checking all bundles Eclipse SmartHome project</description>
+
+  <rule ref="rulesets/java/empty.xml/EmptyIfStmt">
+    <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/empty.html for all below -->
+    <!-- Priorities range in value from 1 to 5, with 5 being the lowest priority -->
+    <!--  We will use only priority 1,2 and 3 so the results of PMD can be comparable with the results of the other tools -->
+    
+    <!-- See http://pmd.github.io/pmd-5.0.1/apidocs/net/sourceforge/pmd/RulePriority.html -->
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyWhileStmt">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyTryBlock">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyFinallyBlock">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptySwitchStatements">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptySynchronizedBlock">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/empty.xml/EmptyStaticInitializer">
+    <priority>3</priority>
+  </rule>
+  
+  <!-- See  http://pmd.sourceforge.net/pmd-5.0.0/rules/java/basic.html -->
+  <rule ref="rulesets/java/basic.xml/MisplacedNullCheck">
+    <priority>1</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/BrokenNullCheck">
+    <priority>1</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/JumbledIncrementer">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/ClassCastExceptionWithToArray">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/DontCallThreadRun">
+    <priority>2</priority>
+  </rule>
+  
+  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/logging-java.html -->
+  <rule ref="rulesets/java/logging-java.xml/MoreThanOneLogger">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/logging-java.xml/AvoidPrintStackTrace">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/logging-java.xml/SystemPrintln">
+    <priority>3</priority>
+  </rule>
+  
+  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/strictexception.html -->
+  <rule ref="rulesets/java/strictexception.xml/AvoidCatchingNPE">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidCatchingThrowable">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidThrowingRawExceptionTypes">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidThrowingNullPointerException">
+    <priority>1</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/DoNotThrowExceptionInFinally">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/DoNotExtendJavaLangError">
+    <priority>1</priority>
+  </rule>
+  
+  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/design.html -->
+  <rule ref="rulesets/java/design.xml/EqualsNull">
+    <priority>1</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/InstantiationToGetClass">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AvoidInstanceofChecksInCatchClause">
+    <priority>2</priority>
+  </rule>
+   <rule ref="rulesets/java/design.xml/CompareObjectsWithEquals">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/NonThreadSafeSingleton">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/UnsynchronizedStaticDateFormatter">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/SimplifyBooleanExpressions">
+    <priority>3</priority>
+  </rule>
+
+  
+  <!-- See http://pmd.sourceforge.net/pmd-5.0.0/rules/java/optimizations.html -->
+  <rule ref="rulesets/java/optimizations.xml/AvoidInstantiatingObjectsInLoops">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/AvoidArrayLoops">
+    <priority>3</priority>
+  </rule>
+</ruleset>

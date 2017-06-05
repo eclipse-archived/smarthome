@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://findbugs.sourceforge.net/xsl/default.xsl"?>
+
+<!-- Resource used in the test in order an .html report to be build. Does not point to real files in the file system. -->
+<BugCollection version="1.3.9-rc2" sequence="0" timestamp="1279910105010" analysisTimestamp="1279910106071" release="">
+  <Project projectName="">
+    <Jar>C:\Workspace\default_ant\bin</Jar>
+    <AuxClasspathEntry>C:\Workspace\default_ant\lib\junit-4.5.jar</AuxClasspathEntry>
+  </Project>
+  <BugInstance type="CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE" priority="2" abbrev="CN" category="BAD_PRACTICE" instanceHash="57afbdc4c8b3eaf65667ad2375c54fbf" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Class defines clone() but doesn&apos;t implement Cloneable</ShortMessage>
+    <LongMessage>org.sprunck.bee.Bee defines clone() but doesn&apos;t implement Cloneable</LongMessage>
+    <Class classname="org.sprunck.bee.Bee" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="6" end="31">
+        <Message>At &lt;Unknown&gt;:[lines 6-31]</Message>
+      </SourceLine>
+      <Message>In class org.sprunck.bee.Bee</Message>
+    </Class>
+    <Method classname="org.sprunck.bee.Bee" name="clone" signature="()Ljava/lang/Object;" isStatic="false" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="31" end="31" startBytecode="0" endBytecode="25"/>
+      <Message>In method org.sprunck.bee.Bee.clone()</Message>
+    </Method>
+    <SourceLine classname="org.sprunck.bee.Bee" start="31" end="31" startBytecode="0" endBytecode="25" synthetic="true">
+      <Message>At &lt;Unknown&gt;:[line 31]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugInstance type="NP_CLONE_COULD_RETURN_NULL" priority="2" abbrev="NP" category="BAD_PRACTICE" instanceHash="83c0778b087a767c144d8d9f2eb1e2fb" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Clone method may return null</ShortMessage>
+    <LongMessage>org.sprunck.bee.Bee.clone() may return null</LongMessage>
+    <Class classname="org.sprunck.bee.Bee" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="6" end="31">
+        <Message>At &lt;Unknown&gt;:[lines 6-31]</Message>
+      </SourceLine>
+      <Message>In class org.sprunck.bee.Bee</Message>
+    </Class>
+    <Method classname="org.sprunck.bee.Bee" name="clone" signature="()Ljava/lang/Object;" isStatic="false" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="31" end="31" startBytecode="0" endBytecode="25"/>
+      <Message>In method org.sprunck.bee.Bee.clone()</Message>
+    </Method>
+    <SourceLine classname="org.sprunck.bee.Bee" primary="true" start="31" end="31" startBytecode="1" endBytecode="1">
+      <Message>At &lt;Unknown&gt;:[line 31]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugInstance type="RV_RETURN_VALUE_IGNORED" priority="1" abbrev="RV" category="CORRECTNESS" instanceHash="e2731da5e9908130587c6e3c2f03efdd" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Method ignores return value</ShortMessage>
+    <LongMessage>org.sprunck.bee.Bee.toString() ignores return value of String.concat(String)</LongMessage>
+    <Class classname="org.sprunck.bee.Bee" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="6" end="31">
+        <Message>At &lt;Unknown&gt;:[lines 6-31]</Message>
+      </SourceLine>
+      <Message>In class org.sprunck.bee.Bee</Message>
+    </Class>
+    <Method classname="org.sprunck.bee.Bee" name="toString" signature="()Ljava/lang/String;" isStatic="false" primary="true">
+      <SourceLine classname="org.sprunck.bee.Bee" start="18" end="22" startBytecode="0" endBytecode="73"/>
+      <Message>In method org.sprunck.bee.Bee.toString()</Message>
+    </Method>
+    <Method classname="java.lang.String" name="concat" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String" start="1996" end="2003" startBytecode="0" endBytecode="105" sourcefile="String.java" sourcepath="java/lang/String.java"/>
+      <Message>Called method String.concat(String)</Message>
+    </Method>
+    <SourceLine classname="org.sprunck.bee.Bee" primary="true" start="19" end="19" startBytecode="14" endBytecode="14">
+      <Message>At &lt;Unknown&gt;:[line 19]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE" instanceHash="25df32f98cb531473711f6d820a5cb44" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Method names should start with a lower case letter</ShortMessage>
+    <LongMessage>The method name org.sprunck.foo.Foo.Went() doesn&apos;t start with a lower case letter</LongMessage>
+    <Class classname="org.sprunck.foo.Foo" primary="true">
+      <SourceLine classname="org.sprunck.foo.Foo" start="6" end="39">
+        <Message>At &lt;Unknown&gt;:[lines 6-39]</Message>
+      </SourceLine>
+      <Message>In class org.sprunck.foo.Foo</Message>
+    </Class>
+    <Method classname="org.sprunck.foo.Foo" name="Went" signature="()Z" isStatic="false" primary="true">
+      <SourceLine classname="org.sprunck.foo.Foo" start="35" end="39" startBytecode="0" endBytecode="37"/>
+      <Message>In method org.sprunck.foo.Foo.Went()</Message>
+    </Method>
+    <SourceLine classname="org.sprunck.foo.Foo" start="35" end="39" startBytecode="0" endBytecode="37" synthetic="true">
+      <Message>At &lt;Unknown&gt;:[lines 35-39]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugCategory category="BAD_PRACTICE">
+    <Description>Bad practice</Description>
+  </BugCategory>
+  <BugCategory category="CORRECTNESS">
+    <Description>Correctness</Description>
+  </BugCategory>
+  <BugPattern type="NP_CLONE_COULD_RETURN_NULL" abbrev="NP" category="BAD_PRACTICE">
+    <ShortDescription>Clone method may return null</ShortDescription>
+    <Details><![CDATA[
+      
+      <p>
+	This clone method seems to return null in some circumstances, but clone is never
+	allowed to return a null value.  If you are convinced this path is unreachable, throw an AssertionError
+	instead.
+      </p>
+      
+   ]]></Details>
+  </BugPattern>
+  <BugPattern type="NM_METHOD_NAMING_CONVENTION" abbrev="Nm" category="BAD_PRACTICE">
+    <ShortDescription>Method names should start with a lower case letter</ShortDescription>
+    <Details><![CDATA[
+
+  <p>
+Methods should be verbs, in mixed case with the first letter lowercase, with the first letter of each internal word capitalized.
+</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugPattern type="RV_RETURN_VALUE_IGNORED" abbrev="RV" category="CORRECTNESS">
+    <ShortDescription>Method ignores return value</ShortDescription>
+    <Details><![CDATA[
+
+   <p> The return value of this method should be checked. One common
+cause of this warning is to invoke a method on an immutable object,
+thinking that it updates the object. For example, in the following code
+fragment,</p>
+<blockquote>
+<pre>
+String dateString = getHeaderField(name);
+dateString.trim();
+</pre>
+</blockquote>
+<p>the programmer seems to be thinking that the trim() method will update
+the String referenced by dateString. But since Strings are immutable, the trim()
+function returns a new String value, which is being ignored here. The code
+should be corrected to: </p>
+<blockquote>
+<pre>
+String dateString = getHeaderField(name);
+dateString = dateString.trim();
+</pre>
+</blockquote>
+
+    ]]></Details>
+  </BugPattern>
+  <BugPattern type="CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE" abbrev="CN" category="BAD_PRACTICE">
+    <ShortDescription>Class defines clone() but doesn&apos;t implement Cloneable</ShortDescription>
+    <Details><![CDATA[
+
+<p> This class defines a clone() method but the class doesn't implement Cloneable.
+There are some situations in which this is OK (e.g., you want to control how subclasses 
+can clone themselves), but just make sure that this is what you intended.
+</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugCode abbrev="Nm">
+    <Description>Confusing method name</Description>
+  </BugCode>
+  <BugCode abbrev="RV" cweid="440">
+    <Description>Bad use of return value from method</Description>
+  </BugCode>
+  <BugCode abbrev="NP" cweid="476">
+    <Description>Null pointer dereference</Description>
+  </BugCode>
+  <BugCode abbrev="CN" cweid="580">
+    <Description>Bad implementation of cloneable idiom</Description>
+  </BugCode>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Fri, 23 Jul 2010 20:35:05 +0200" total_classes="4" referenced_classes="18" total_bugs="4" total_size="45" num_packages="3" vm_version="14.2-b01" cpu_seconds="1.62" clock_seconds="1.40" peak_mbytes="24.91" alloc_mbytes="63.56" gc_seconds="0.26" priority_2="3" priority_1="1">
+    <FileStats path="org/sprunck/bee/&lt;Unknown&gt;" bugCount="3" size="11" bugHash="df1120c1c4b7708412d471df8e18b310"/>
+    <FileStats path="org/sprunck/foo/&lt;Unknown&gt;" bugCount="1" size="12" bugHash="2838bfeb77300e43a82da09454a1d353"/>
+    <FileStats path="org/sprunck/tests/&lt;Unknown&gt;" bugCount="0" size="22"/>
+    <PackageStats package="org.sprunck.bee" total_bugs="3" total_types="1" total_size="11" priority_2="2" priority_1="1">
+      <ClassStats class="org.sprunck.bee.Bee" sourceFile="&lt;Unknown&gt;" interface="false" size="11" bugs="3" priority_2="2" priority_1="1"/>
+    </PackageStats>
+    <PackageStats package="org.sprunck.foo" total_bugs="1" total_types="1" total_size="12" priority_2="1">
+      <ClassStats class="org.sprunck.foo.Foo" sourceFile="&lt;Unknown&gt;" interface="false" size="12" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="org.sprunck.tests" total_bugs="0" total_types="2" total_size="22">
+      <ClassStats class="org.sprunck.tests.BeeTest" sourceFile="&lt;Unknown&gt;" interface="false" size="9" bugs="0"/>
+      <ClassStats class="org.sprunck.tests.FooTest" sourceFile="&lt;Unknown&gt;" interface="false" size="13" bugs="0"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="11" invocations="18" avgMicrosecondsPerInvocation="611" maxMicrosecondsPerInvocation="1786" standardDeviationMircosecondsPerInvocation="635"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="12" invocations="12" avgMicrosecondsPerInvocation="1009" maxMicrosecondsPerInvocation="9060" standardDeviationMircosecondsPerInvocation="2440"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="14" invocations="12" avgMicrosecondsPerInvocation="1191" maxMicrosecondsPerInvocation="4932" standardDeviationMircosecondsPerInvocation="1342"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="19" invocations="18" avgMicrosecondsPerInvocation="1100" maxMicrosecondsPerInvocation="5828" standardDeviationMircosecondsPerInvocation="1514"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="22" invocations="12" avgMicrosecondsPerInvocation="1835" maxMicrosecondsPerInvocation="17810" standardDeviationMircosecondsPerInvocation="4827"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="29" invocations="12" avgMicrosecondsPerInvocation="2482" maxMicrosecondsPerInvocation="16333" standardDeviationMircosecondsPerInvocation="4594"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="30" invocations="25" avgMicrosecondsPerInvocation="1211" maxMicrosecondsPerInvocation="13843" standardDeviationMircosecondsPerInvocation="2750"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="30" invocations="12" avgMicrosecondsPerInvocation="2583" maxMicrosecondsPerInvocation="24261" standardDeviationMircosecondsPerInvocation="6559"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="31" invocations="21" avgMicrosecondsPerInvocation="1491" maxMicrosecondsPerInvocation="15508" standardDeviationMircosecondsPerInvocation="3259"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="31" invocations="18" avgMicrosecondsPerInvocation="1770" maxMicrosecondsPerInvocation="8428" standardDeviationMircosecondsPerInvocation="2406"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="39" invocations="18" avgMicrosecondsPerInvocation="2179" maxMicrosecondsPerInvocation="9310" standardDeviationMircosecondsPerInvocation="2427"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.impl.ZipCodeBaseFactory" totalMilliseconds="42" invocations="15" avgMicrosecondsPerInvocation="2804" maxMicrosecondsPerInvocation="38444" standardDeviationMircosecondsPerInvocation="9526"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="43" invocations="287" avgMicrosecondsPerInvocation="152" maxMicrosecondsPerInvocation="2219" standardDeviationMircosecondsPerInvocation="236"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="46" invocations="18" avgMicrosecondsPerInvocation="2558" maxMicrosecondsPerInvocation="7725" standardDeviationMircosecondsPerInvocation="2943"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="48" invocations="12" avgMicrosecondsPerInvocation="4046" maxMicrosecondsPerInvocation="46704" standardDeviationMircosecondsPerInvocation="12862"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="53" invocations="545" avgMicrosecondsPerInvocation="98" maxMicrosecondsPerInvocation="1898" standardDeviationMircosecondsPerInvocation="181"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="210" invocations="287" avgMicrosecondsPerInvocation="734" maxMicrosecondsPerInvocation="67446" standardDeviationMircosecondsPerInvocation="4201"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

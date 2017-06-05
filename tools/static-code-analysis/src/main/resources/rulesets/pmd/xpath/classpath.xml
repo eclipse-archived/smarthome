@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Classpath Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+  
+  <description>Rule set that contains custom defined rules regarding the .classpath files</description>
+  
+  <!-- This is an example how to define a Rule with XPath expression -->
+  <rule name="AvoidMavenPomderivedInClasspath" message="The classpath file contains maven.pomderived attribute "
+    class="net.sourceforge.pmd.lang.rule.XPathRule" language="xml">
+    <description>
+      Eclipse is adding the attribute "maven.pomderived" automatically to the classpath, when converting a
+      project to Maven project, but most of the time it is not required
+    </description>
+    <properties>
+      <property name="xpath">
+        <value>
+<![CDATA[
+/classpath/classpathentry/attributes/attribute[@name="maven.pomderived" and @value="true"]
+
+]]>
+        </value>
+      </property>
+    </properties>
+    <example>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="src/main/java" />
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
+  <classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+    <attributes>
+      <attribute name="maven.pomderived" value="true" />
+      <attribute name="org.eclipse.jst.component.nondependency" value="" />
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="output" path="target/classes" />
+</classpath>
+]]>
+    </example>
+  </rule>
+</ruleset>

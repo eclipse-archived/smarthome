@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!-- 
+    Checkstyle configuration that checks if a bundle is matching the Coding Guidelines in the Eclipse SmartHome project.
+    
+    For more information about the guidelines see - http://www.eclipse.org/smarthome/documentation/development/guidelines.html. 
+    
+    Note that some of the required checks may be provided by some of the other plugins used in the Static Code Analysis tool.
+ -->
+
+<module name="Checker">
+
+  <!-- Rules for Code Formatting -->
+  <module name="FileTabCharacter">
+    <property name="severity" value="info" />
+    <property name="fileExtensions" value="java"/>
+  </module>
+  
+  <!--See http://checkstyle.sourceforge.net/config_header.html#Header -->
+  <module name="Header">
+    <!--  This property represents the severity level of a check violation. The valid options are: 
+        -ignore
+        -info
+        -warning
+        -error   -->
+    <!-- The default level of a check is "error". -->
+    <!-- See http://checkstyle.sourceforge.net/config.html#Severity -->
+    <property name="severity" value="info" />
+    <property name="ignoreLines" value="1,2"/>
+    <property name="fileExtensions" value="java"/>
+    <property name="header"
+              value="/**\n * Copyright (c) 2014-2016 by the respective copyright holders.\n * All rights reserved. This program and the accompanying materials\n * are made available under the terms of the Eclipse Public License v1.0\n * which accompanies this distribution, and is available at\n * http://www.eclipse.org/legal/epl-v10.html\n */"/>
+  </module>
+  <module name="NewlineAtEndOfFile">
+    <property name="severity" value="info"/>
+  </module>
+  
+  <module name="org.eclipse.smarthome.tools.analysis.checkstyle.ExportInternalPackageCheck">
+    <property name="severity" value="warning" />
+  </module>
+  
+  <module name="org.eclipse.smarthome.tools.analysis.checkstyle.MavenPomderivedInClasspathCheck">
+    <property name="severity" value="warning" />
+  </module>
+  
+  <module name="org.eclipse.smarthome.tools.analysis.checkstyle.OverridingParentPomConfigurationCheck">
+    <property name="severity" value="warning" />
+  </module>
+
+  <module name="TreeWalker">
+    <!-- See http://checkstyle.sourceforge.net/config_coding.html#IllegalThrows -->
+    <module name="IllegalThrows">
+      <property name="severity" value="warning" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_coding.html#OneStatementPerLine -->
+    <module name="OneStatementPerLine">
+      <property name="severity" value="info" />
+    </module>
+    <!-- See http://checkstyle.sourceforge.net/config_misc.html#TodoComment -->
+    <module name="TodoComment">
+      <property name="format" value="(TODO)|(FIXME)" />
+      <property name="severity" value="info" />
+    </module>
+    <module name="org.eclipse.smarthome.tools.analysis.checkstyle.JavadocFilterCheck">
+      <property name="severity" value="warning" />
+      <property name="scope" value="public"/>
+      <property name="checkInnerUnits" value="false"/>
+      <property name="allowMissingParamTags" value="true"/>
+      <property name="allowUnknownTags" value="true"/>
+      <property name="tokens" value="INTERFACE_DEF,CLASS_DEF" />
+      <message key="javadoc.missing" value="Missing Javadoc comment."/>
+    </module>
+    <module name="UnusedImports">
+      <property name="processJavadoc" value="true"/>
+      <property name="severity" value="info" />
+    </module>
+    
+    <!-- Rules for Java Naming Convention -->
+    
+    <module name="PackageName">
+      <property name="format"
+              value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+      <property name="severity" value="info" />
+    </module>
+    <module name="TypeName">
+      <property name="tokens"
+              value="INTERFACE_DEF,CLASS_DEF"/>
+      <property name="severity" value="info" />
+    </module>
+    <module name="MethodName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="ConstantName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="LocalFinalVariableName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="LocalVariableName">
+      <property name="severity" value="info" />
+    </module>
+    <module name="StaticVariableName">
+      <property name="severity" value="info" />
+    </module>
+  </module>
+</module>

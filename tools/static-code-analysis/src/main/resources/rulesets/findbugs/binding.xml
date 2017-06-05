@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<FindBugsFilter>
+  <Match>
+   <!-- This element matches warnings with a particular bug rank or higher.
+    The value attribute should be an integer value between 1 and 20, where 1 to 4 are scariest, 5 to 9 scary,
+    10 to 14 troubling, and 15 to 20 of concern bugs.
+    See  http://findbugs.sourceforge.net/manual/filter.html-->
+    
+    <!-- All bugs will be matched. -->
+    <Rank value="1"/>
+  </Match>
+</FindBugsFilter>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test-data>
+  <test-code>
+    <description>While loop  must use braces</description>
+    <expected-problems>1</expected-problems>
+    <code><![CDATA[
+    
+class Example {
+
+  void test () {
+    int i = 0;
+    while(true) i++;
+  }
+}
+
+]]></code>
+  </test-code>
+</test-data>
