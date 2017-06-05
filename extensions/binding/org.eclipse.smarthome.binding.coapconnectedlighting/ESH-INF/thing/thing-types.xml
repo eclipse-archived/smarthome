@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="coap"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Sample Thing Type -->
+    <thing-type id="smarthome">
+        <label>Smart Home Device</label>
+        <description>Smart Home thing for CoAP Binding</description>
+
+        <channels><channel typeId="switch" id="Wall_Switch">
+        		<label>Wall Switch</label></channel><channel typeId="brightness" id="Dimmable_Light">
+	<label>Dimmable Light</label></channel><channel typeId="string" id="LCD">
+	<label>LCD</label></channel><channel typeId="number" id="Temperature">
+	<label>Temperature</label></channel>
+        	<channel typeId="number" id="Humidity">
+        		<label>Humidity</label></channel>
+        	<channel typeId="number" id="Pressure">
+        		<label>Pressure</label></channel><channel typeId="number" id="RGB_Sensor">
+        		<label>RGB Sensor</label></channel>
+        	
+        	
+        </channels>
+        <config-description>
+        	<parameter name="ipAddress" type="text">
+        		<required>true</required>
+        		<default>192.168.1.0</default></parameter>
+        	<parameter name="portNumber" type="integer">
+        		<required>true</required>
+        		<default>5683</default></parameter></config-description>
+    </thing-type>
+
+    <!-- Sample Channel Type -->
+    <channel-type id="string">
+        <item-type>String</item-type>
+        <label>CoAP String Channel</label>
+        <description>String Channel for CoAP Binding</description>
+    </channel-type>
+    <channel-type id="number">
+    	<item-type>Number</item-type>
+    	<label>CoAP Number Channel </label>
+    	<description>Number Channel for CoAP Binding</description>
+    </channel-type>
+    <channel-type id="brightness">
+    	<item-type>Dimmer</item-type>
+    	<label>CoAP Dimmer Channel</label>
+    	<description>Dimmer Channel for CoAP Binding</description>
+    </channel-type>
+    <channel-type id="switch">
+    	<item-type>Switch</item-type>
+    	<label>CoAP Switch Channel</label>
+    	<description>Switch Channel for CoAP Binding</description>
+    </channel-type>
+
+</thing:thing-descriptions>
