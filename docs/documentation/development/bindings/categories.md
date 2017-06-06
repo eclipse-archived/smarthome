@@ -14,35 +14,40 @@ The thing type definition allows to specify a category. User interfaces can pars
 
 | Category        | Description                                          |
 |-----------------|------------------------------------------------------|
-| Alarm           | Any device related to alarm systems, such as a Siren |
-| BinarySensor    | General purpose sensor that returns a boolean value |
+| Aircondition    | Air condition devices incl. Fans |
+| BinarySensor    | General purpose sensor that returns a boolean value, i.e. a contact that reports open/close on a door or window |
+| Boiler          | Devices that heat up water |
 | Camera          | All kinds of cameras |
+| Cistern         | Cistern |
 | Clock           | Devices that provide the current time |
-| Cooling         | Devices that cool air, such as air conditioners, fans, etc. |
-| Door            | Anything closely related to a door such as an Open/Close contact or Opener |
-| Food            | Fridges, Mixers, etc. |
+| Coffee          | Coffee machines |
+| Fridge          | Fridges, Freezers |
 | Furniture       | Smart furniture |
 | GeneralSensor   | General purpose sensor that does not fit in any category |
-| Heating         | Devices that deal with heating such as radiators, boilers, temperature actuators, heaters, returnpipes, etc. |
+| Heating         | Devices that deal with heating |
+| Hifi            | Devices related to TV/audio, such as satelite or cable receivers, recorders, etc.
+| HomeApplicance  | Devices that look like Waschingmachines, Dishwashers, Dryers, etc. |
 | Light           | Devices that illuminate something, such as bulbs, etc. |
 | Lock            | Devices whose primary pupose is locking something |
 | Microphone      | Devices to record sound |
-| Motion          | Motion sensors/detectors |
+| Mixer           | Kitchen devices for making cake |
+| MotionSensor    | Motion sensors/detectors |
 | MultiSwitch     | Device which controls MULTIPLE states (else see Switch) of something |
 | Phone           | Anything related to telephony, such as mobile phones, landline phones, etc. |
-| Power           | Anything related to power/electricity, for ex. power outlets, power plugs, etc. |
+| PowerSocketDevice | Small devices to be plugged into a power socket in a wall which stick there |
+| Projector       | Devices that project a picture somewhere |
+| Pump            | Water pumps |
+| Radiator        | Radiators that heat up rooms |
 | Robots          | Vacuum cleaners such as cleaning robots, lawn mowers, etc. |
 | RollerShutter   | Roller shutters |
+| Screen          | Devices that are able to show a picture |
+| Siren           | Siren used by Alarm systems |
+| Softener        | Water softeners |
 | SolarPlant      | Devices related to solar |
 | Smoke           | Smoke detectors |
 | Speakers        | Devices that are able to play sounds |
 | (Wall)Switch    | Any device that controls a BINARY status (else see MultiSwitch) of something, for ex. a light switch |
-| Television      | TV devices, projectors, satelite or cable receivers, recorders, etc. |
-| Temperature     | Devices related to Temperature, such as Temperature actuators, heaters etc. |
-| Washing         | Devices related to washing, such as washing machines, dryers, etc. |
-| Water           | Pumps, Softeners, Drainage, Cistern, etc. |
 | Weather         | Rain sensors, Humidity sensors, Pressure sensors, wind sensors, etc. |
-| Window          | Anything closely related to a window such as an Open/Close contact or Opener |
 
 ## Channel Categories
 
