@@ -149,7 +149,8 @@ public class ScriptFileWatcher extends AbstractWatchService {
                     try (InputStreamReader reader = new InputStreamReader(new BufferedInputStream(url.openStream()))) {
                         logger.info("Loading script '{}'", fileName);
 
-                        ScriptEngineContainer container = manager.createScriptEngine(scriptType, fileName);
+                        ScriptEngineContainer container = manager.createScriptEngine(scriptType,
+                                getScriptIdentifier(url));
 
                         if (container != null) {
                             manager.loadScript(container.getIdentifier(), reader);
