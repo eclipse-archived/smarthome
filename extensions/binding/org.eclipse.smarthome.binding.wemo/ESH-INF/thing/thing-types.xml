@@ -142,9 +142,7 @@
             <channel id="waterLevelReached" typeId="waterLevelReached"/>
             <channel id="cleanAdvise" typeId="cleanAdvise"/>
             <channel id="filterAdvise" typeId="filterAdvise"/>
-            <channel id="brewing" typeId="brewing"/>
             <channel id="brewed" typeId="brewed"/>
-            <channel id="cleaning" typeId="cleaning"/>
             <channel id="lastCleaned" typeId="lastCleaned"/>
         </channels>
 
@@ -286,6 +284,19 @@
         <item-type>String</item-type>
         <label>Mode</label>
         <description>Shows the operation mode of a WeMo Coffee Maker</description>
+        <state readOnly="true">
+           <options>
+              <option value="Refill">Not Ready: Refill Water and Replace Carafe</option>
+              <option value="PlaceCarafe">Not Ready: Replace Carafe</option>
+              <option value="RefillWater">Not Ready: Refill Water</option>
+              <option value="Ready">Ready</option>
+              <option value="Brewing">Brewing</option>
+              <option value="Brewed">Brewing Finished</option>
+              <option value="CleaningBrewing">Cleaning Coffee Maker</option>
+              <option value="CleaningSoaking">Cleaning Filter</option>
+              <option value="BrewFailCarafeRemoved">Brewing Failed: Carafe Removed</option>
+          </options>
+        </state>
     </channel-type>
 
      <channel-type id="modeTime">
@@ -321,27 +332,14 @@
         <state readOnly="true"></state>
     </channel-type>
 
-     <channel-type id="brewing" advanced="true">
-        <item-type>DateTime</item-type>
-        <label>Brewing</label>
-        <description>This channel is not documented right now. If You find a valid description, please post to community</description>
-    </channel-type>
-
      <channel-type id="brewed" advanced="true">
         <item-type>DateTime</item-type>
         <label>Brewed</label>
         <description>Date/time the coffee maker last completed brewing coffee</description>
     </channel-type>
 
-     <channel-type id="cleaning" advanced="true">
-        <item-type>Number</item-type>
-        <label>Cleaning</label>
-        <description>This channel is not documented right now. If You find a valid description, please post to community</description>
-        <state readOnly="true"></state>
-    </channel-type>
-
      <channel-type id="lastCleaned" advanced="true">
-        <item-type>Number</item-type>
+        <item-type>DateTime</item-type>
         <label>LastCleaned</label>
         <description>Date/time the coffee maker last completed cleaning</description>
     </channel-type>

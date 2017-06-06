@@ -108,7 +108,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
         super(thing);
 
-        logger.debug("Creating a WemoCoffeeHandler V0.3 for thing '{}'", getThing().getUID());
+        logger.debug("Creating a WemoCoffeeHandler V0.4 for thing '{}'", getThing().getUID());
 
         if (upnpIOService != null) {
             this.service = upnpIOService;
@@ -427,14 +427,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                         updateState(CHANNEL_FILTERADVISE, newAttributeValue);
                                     }
                                     break;
-                                case "Brewing":
-                                    if (attributeValue != null) {
-                                        State newAttributeValue = getDateTimeState(attributeValue);
-                                        if (newAttributeValue != null) {
-                                            updateState(CHANNEL_BREWING, newAttributeValue);
-                                        }
-                                    }
-                                    break;
                                 case "Brewed":
                                     if (attributeValue != null) {
                                         State newAttributeValue = getDateTimeState(attributeValue);
@@ -443,16 +435,12 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                         }
                                     }
                                     break;
-                                case "Cleaning":
-                                    if (attributeValue != null) {
-                                        State newAttributeValue = new DecimalType(attributeValue);
-                                        updateState(CHANNEL_CLEANING, newAttributeValue);
-                                    }
-                                    break;
                                 case "LastCleaned":
                                     if (attributeValue != null) {
-                                        State newAttributeValue = new DecimalType(attributeValue);
-                                        updateState(CHANNEL_LASTCLEANED, newAttributeValue);
+                                        State newAttributeValue = getDateTimeState(attributeValue);
+                                        if (newAttributeValue != null) {
+                                            updateState(CHANNEL_LASTCLEANED, newAttributeValue);
+                                        }
                                     }
                                     break;
                             }

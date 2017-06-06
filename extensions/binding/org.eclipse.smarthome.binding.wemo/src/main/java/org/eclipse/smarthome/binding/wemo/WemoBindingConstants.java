@@ -57,9 +57,7 @@ public class WemoBindingConstants {
     public final static String CHANNEL_WATERLEVELREACHED = "waterLevelReached";
     public final static String CHANNEL_CLEANADVISE = "cleanAdvise";
     public final static String CHANNEL_FILTERADVISE = "filterAdvise";
-    public final static String CHANNEL_BREWING = "brewing";
     public final static String CHANNEL_BREWED = "brewed";
-    public final static String CHANNEL_CLEANING = "cleaning";
     public final static String CHANNEL_LASTCLEANED = "lastCleaned";
 
     // List of thing configuration properties
