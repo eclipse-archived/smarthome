@@ -324,7 +324,7 @@
      <channel-type id="brewing" advanced="true">
         <item-type>DateTime</item-type>
         <label>Brewing</label>
-        <description>tba</description>
+        <description>This channel is not documented right now. If You find a valid description, please post to community</description>
     </channel-type>
 
      <channel-type id="brewed" advanced="true">
@@ -336,14 +336,14 @@
      <channel-type id="cleaning" advanced="true">
         <item-type>Number</item-type>
         <label>Cleaning</label>
-        <description>tba</description>
+        <description>This channel is not documented right now. If You find a valid description, please post to community</description>
         <state readOnly="true"></state>
     </channel-type>
 
      <channel-type id="lastCleaned" advanced="true">
         <item-type>Number</item-type>
         <label>LastCleaned</label>
-        <description>tba</description>
+        <description>Date/time the coffee maker last completed cleaning</description>
     </channel-type>
  
 </thing:thing-descriptions>

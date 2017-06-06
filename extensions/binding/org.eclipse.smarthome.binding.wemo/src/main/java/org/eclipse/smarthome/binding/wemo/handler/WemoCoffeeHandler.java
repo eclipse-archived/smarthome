@@ -385,7 +385,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                             break;
                                         case "7":
                                             updateState(CHANNEL_STATE, OnOffType.OFF);
-                                            newMode = new StringType("CleaingSoaking");
+                                            newMode = new StringType("CleaningSoaking");
                                             updateState(CHANNEL_COFFEEMODE, newMode);
                                             break;
                                         case "8":
