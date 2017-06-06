@@ -586,8 +586,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     if (bridge != null && ThingHandlerHelper.isHandlerInitialized(bridge)) {
                         doRegisterHandler(thing, thingHandlerFactory);
                     } else {
-                        setThingStatus(thing,
-                                buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
+                        setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
+                                ThingStatusDetail.BRIDGE_HANDLER_MISSING_ERROR));
                     }
                 }
             } else {
