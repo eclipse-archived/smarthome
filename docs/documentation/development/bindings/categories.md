@@ -16,13 +16,16 @@ The thing type definition allows to specify a category. User interfaces can pars
 |-----------------|------------------------------------------------------|
 | Aircondition    | Air condition devices incl. Fans |
 | BinarySensor    | General purpose sensor that returns a boolean value, i.e. a contact that reports open/close on a door or window |
+| Bridge          | Bridges/Gateway need to access other devices like used by Philips Hue for example |
 | Boiler          | Devices that heat up water |
 | Camera          | All kinds of cameras |
+| Car             | Smart Cars |
 | Cistern         | Cistern |
 | Clock           | Devices that provide the current time |
 | Coffee          | Coffee machines |
 | Fridge          | Fridges, Freezers |
 | Furniture       | Smart furniture |
+| GarageDoor      | Garage doors |
 | GeneralSensor   | General purpose sensor that does not fit in any category |
 | Heating         | Devices that deal with heating |
 | Hifi            | Devices related to TV/audio, such as satelite or cable receivers, recorders, etc.
@@ -33,6 +36,7 @@ The thing type definition allows to specify a category. User interfaces can pars
 | Mixer           | Kitchen devices for making cake |
 | MotionSensor    | Motion sensors/detectors |
 | MultiSwitch     | Device which controls MULTIPLE states (else see Switch) of something |
+| Oven            | Ovens, microwaves, etc. |
 | Phone           | Anything related to telephony, such as mobile phones, landline phones, etc. |
 | PowerSocketDevice | Small devices to be plugged into a power socket in a wall which stick there |
 | Projector       | Devices that project a picture somewhere |
