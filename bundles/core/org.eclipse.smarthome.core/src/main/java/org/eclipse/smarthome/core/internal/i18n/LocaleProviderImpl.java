@@ -48,7 +48,12 @@ public class LocaleProviderImpl implements LocaleProvider {
         final String location = (String) config.get(LOCATION);
 
         if (location != null) {
-            this.location = PointType.valueOf(location);
+            try {
+                this.location = PointType.valueOf(location);
+            } catch (IllegalArgumentException e) {
+                // preserve old location or null if none was set before
+                logger.warn("Could not set new location, keeping old one: ", e.getMessage());
+            }
         }
 
         if (StringUtils.isEmpty(language)) {
