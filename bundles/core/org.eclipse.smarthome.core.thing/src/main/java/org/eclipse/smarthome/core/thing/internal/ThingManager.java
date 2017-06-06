@@ -385,7 +385,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.info(
+                            logger.debug(
                                     "Not delegating command '{}' for item '{}' to handler for channel '{}', "
                                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     command, itemName, channelUID);
@@ -435,7 +435,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.info(
+                            logger.debug(
                                     "Not delegating update '{}' for item '{}' to handler for channel '{}', "
                                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     newState, itemName, channelUID);
