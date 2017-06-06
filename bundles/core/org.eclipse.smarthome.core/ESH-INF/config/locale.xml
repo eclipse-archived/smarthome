@@ -43,6 +43,14 @@
 			</description>
 			<advanced>true</advanced>
 		</parameter>
+		<parameter name="location" type="text" required="false">
+			<label>Location</label>
+			<description><![CDATA[
+		<p>Location of this installation.</p>
+		<p>Formated as "latitude,longitude,altitude"</p>
+		]]>
+			</description>
+		</parameter>
 	</config-description>
 
 </config-description:config-descriptions>

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.library.types.PointType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Markus Rathgeb - Initial contribution and API
  * @author Thomas Höfer - Removed default initialization of locale attribute
+ * @author Stefan Triller - Added location attribute
  */
 public class LocaleProviderImpl implements LocaleProvider {
 
@@ -29,8 +31,10 @@ public class LocaleProviderImpl implements LocaleProvider {
     private static final String SCRIPT = "script";
     private static final String REGION = "region";
     private static final String VARIANT = "variant";
+    private static final String LOCATION = "location";
 
     private Locale locale;
+    private PointType location;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
@@ -41,6 +45,11 @@ public class LocaleProviderImpl implements LocaleProvider {
         final String script = (String) config.get(SCRIPT);
         final String region = (String) config.get(REGION);
         final String variant = (String) config.get(VARIANT);
+        final String location = (String) config.get(LOCATION);
+
+        if (location != null) {
+            this.location = PointType.valueOf(location);
+        }
 
         if (StringUtils.isEmpty(language)) {
             // at least the language must be defined otherwise the system default locale is used
@@ -90,4 +99,8 @@ public class LocaleProviderImpl implements LocaleProvider {
         return locale;
     }
 
+    @Override
+    public PointType getLocation() {
+        return location;
+    }
 }

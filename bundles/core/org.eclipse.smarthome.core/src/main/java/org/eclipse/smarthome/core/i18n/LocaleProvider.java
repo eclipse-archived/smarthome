@@ -9,10 +9,13 @@ package org.eclipse.smarthome.core.i18n;
 
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.library.types.PointType;
+
 /**
  * The interface describe a provider for a locale.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Stefan Triller - Added location
  */
 public interface LocaleProvider {
 
@@ -25,4 +28,10 @@ public interface LocaleProvider {
      */
     Locale getLocale();
 
+    /**
+     * Provides access to the location of the installation
+     *
+     * @return location of the current installation
+     */
+    PointType getLocation();
 }
