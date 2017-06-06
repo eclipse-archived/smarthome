@@ -84,6 +84,8 @@ public class ScriptEngineManagerImpl implements ScriptEngineManager {
                 ScriptExtensionManager.importDefaultPresets(engineProvider, engine, scriptIdentifier);
 
                 loadedScriptEngineInstances.put(scriptIdentifier, result);
+                logger.info("Successfully loaded ScriptEngine for extension {} with identifier {}", fileExtension,
+                        scriptIdentifier);
             } catch (Exception ex) {
                 logger.error("Error while creating ScriptEngine", ex);
                 removeScriptExtensions(scriptIdentifier);
