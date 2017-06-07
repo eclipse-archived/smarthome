@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Sonos Binding
+Bundle-Name: Eclipse SmartHome Sonos Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.sonos
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
