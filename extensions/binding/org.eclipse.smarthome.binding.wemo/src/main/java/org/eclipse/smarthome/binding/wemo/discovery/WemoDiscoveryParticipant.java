@@ -109,6 +109,11 @@ public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
                                     device.getIdentity().getUdn().getIdentifierString());
                             return new ThingUID(THING_TYPE_MAKER, device.getIdentity().getUdn().getIdentifierString());
                         }
+                        if (device.getDetails().getModelDetails().getModelName().toLowerCase().startsWith("coffee")) {
+                            logger.debug("Discovered a WeMo Coffe Maker thing with UDN '{}'",
+                                    device.getIdentity().getUdn().getIdentifierString());
+                            return new ThingUID(THING_TYPE_COFFEE, device.getIdentity().getUdn().getIdentifierString());
+                        }
                     }
                 }
             }
