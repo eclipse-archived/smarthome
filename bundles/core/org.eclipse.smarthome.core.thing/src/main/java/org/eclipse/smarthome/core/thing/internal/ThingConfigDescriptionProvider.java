@@ -16,28 +16,33 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
+import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 
 /**
- * Provides a proxy for thing configuration descriptions.
+ * Provides a proxy for thing & channel configuration descriptions.
  *
- * If a thing config description is requested, the provider will look up the thingType
- * to get the configURI, get the config description for the thingType. If the thingHandler
- * supports the {@link ConfigOptionProvider} interface, it will call the getParameterOptions
- * method to get updated options.
+ * If a thing config description is requested, the provider will look up the thing/channel type
+ * to get the configURI and the config description for it. If there is a corresponding {@link ConfigOptionProvider}, it
+ * will be used to get updated options.
  *
  * @author Chris Jackson - Initial Implementation
  * @author Chris Jackson - Updated to separate thing type from thing name
+ * @author Simon Kaufmann - Added support for channel config descriptions
  *
  */
 public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider {
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry;
@@ -63,6 +68,14 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
         this.thingTypeRegistry = null;
     }
 
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
     @Override
     public Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
         return Collections.emptySet();
@@ -71,10 +84,21 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
         // If this is not a concrete thing, then return
-        if (uri == null || "thing".equals(uri.getScheme()) == false) {
+        if (uri == null || uri.getScheme() == null) {
             return null;
         }
 
+        switch (uri.getScheme()) {
+            case "thing":
+                return getThingConfigDescription(uri, locale);
+            case "channel":
+                return getChannelConfigDescription(uri, locale);
+            default:
+                return null;
+        }
+    }
+
+    private ConfigDescription getThingConfigDescription(URI uri, Locale locale) {
         // First, get the thing type so we get the generic config descriptions
         ThingUID thingUID = new ThingUID(uri.getSchemeSpecificPart());
         Thing thing = thingRegistry.get(thingUID);
@@ -94,6 +118,46 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
         }
 
         // Now call this again for the thing
+        ConfigDescription config = configDescriptionRegistry.getConfigDescription(configURI, locale);
+        if (config == null) {
+            return null;
+        }
+
+        // Return the new configuration description
+        return config;
+    }
+
+    private ConfigDescription getChannelConfigDescription(URI uri, Locale locale) {
+        String stringUID = uri.getSchemeSpecificPart();
+        if (uri.getFragment() != null) {
+            stringUID = stringUID + "#" + uri.getFragment();
+        }
+        ChannelUID channelUID = new ChannelUID(stringUID);
+        ThingUID thingUID = channelUID.getThingUID();
+
+        // First, get the thing so we get access to the channel type via the channel
+        Thing thing = thingRegistry.get(thingUID);
+        if (thing == null) {
+            return null;
+        }
+
+        Channel channel = thing.getChannel(channelUID.getId());
+        if (channel == null) {
+            return null;
+        }
+
+        ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+        if (channelType == null) {
+            return null;
+        }
+
+        // Get the config description URI for this channel type
+        URI configURI = channelType.getConfigDescriptionURI();
+        if (configURI == null) {
+            return null;
+        }
+
+        // Now get the channel type's config description
         ConfigDescription config = configDescriptionRegistry.getConfigDescription(configURI, locale);
         if (config == null) {
             return null;
