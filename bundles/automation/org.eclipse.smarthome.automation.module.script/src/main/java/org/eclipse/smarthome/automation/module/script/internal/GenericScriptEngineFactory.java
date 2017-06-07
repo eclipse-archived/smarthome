@@ -16,9 +16,19 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import org.eclipse.smarthome.automation.module.script.ScriptEngineFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GenericScriptEngineFactory implements ScriptEngineFactory {
     private ScriptEngineManager engineManager = new ScriptEngineManager();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    public GenericScriptEngineFactory() {
+        for (javax.script.ScriptEngineFactory f : engineManager.getEngineFactories()) {
+            logger.info("Supported script engine: {} for language {} with mimetypes {}", f.getEngineName(),
+                    f.getLanguageName(), f.getMimeTypes());
+        }
+    }
 
     @Override
     public List<String> getLanguages() {
