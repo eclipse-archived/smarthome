@@ -36,9 +36,11 @@ import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -233,6 +235,21 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         }
     }
 
+    // TODO remove once #3562 got resolved
+    private void checkPreconditions(File file) throws IOException {
+        String name = file.getName();
+        if (name.endsWith(".script") || name.endsWith(".rules")) {
+            Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+            BundleContext context = bundle.getBundleContext();
+            if (context == null) {
+                logger.debug("Bundle {} is not started", bundle.getSymbolicName());
+            } else {
+                logger.debug("Going to validate: {}, ScriptServiceUtil: {}, ModelParsers: {}", name,
+                        context.getServiceReference("org.eclipse.smarthome.model.script.ScriptServiceUtil"), parsers);
+            }
+        }
+    }
+
     @SuppressWarnings("rawtypes")
     private void checkFile(final ModelRepository modelRepo, final File file, final Kind kind) {
         if (modelRepo != null && file != null) {
@@ -240,11 +257,11 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                 synchronized (FolderObserver.class) {
                     if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
                         if (parsers.contains(getExtension(file.getName()))) {
+                            checkPreconditions(file);
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
                             } catch (IOException e) {
-                                LoggerFactory.getLogger(FolderObserver.class)
-                                        .warn("Error while opening file during update: {}", file.getAbsolutePath());
+                                logger.warn("Error while opening file during update: {}", file.getAbsolutePath());
                             }
                         } else {
                             ignoredFiles.add(file);
@@ -254,8 +271,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                     }
                 }
             } catch (Exception e) {
-                LoggerFactory.getLogger(FolderObserver.class).error("Error handling update of file '{}': {}.",
-                        file.getAbsolutePath(), e.getMessage(), e);
+                logger.error("Error handling update of file '{}': {}.", file.getAbsolutePath(), e.getMessage(), e);
             }
         }
     }
