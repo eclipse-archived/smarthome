@@ -201,7 +201,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
         }
         if (!configSceneID.isEmpty()) {
             try {
-                sceneID = Short.parseShort(configSceneID);
+                sceneID = Short.parseShort(fixNumber(configSceneID));
                 if (!SceneEnum.containsScene(sceneID)) {
                     return SCENE_WRONG;
                 }
@@ -219,7 +219,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
                     zoneID = 0;
                 } else {
                     try {
-                        zoneID = Integer.parseInt(configZoneID);
+                        zoneID = Integer.parseInt(fixNumber(configZoneID));
                         if (!strucMan.checkZoneID(zoneID)) {
                             return ZONE_WRONG;
                         }
@@ -235,7 +235,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
                     groupID = 0;
                 } else {
                     try {
-                        groupID = Short.parseShort(configGroupID);
+                        groupID = Short.parseShort(fixNumber(configGroupID));
                         if (!strucMan.checkZoneGroupID(zoneID, groupID)) {
                             return GROUP_WRONG;
                         }
@@ -340,4 +340,9 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     public String getSceneStatusListenerID() {
         return this.sceneThingID;
     }
+
+    private static String fixNumber(String numberString) {
+        return numberString.replace(".0", "");
+    }
+
 }
