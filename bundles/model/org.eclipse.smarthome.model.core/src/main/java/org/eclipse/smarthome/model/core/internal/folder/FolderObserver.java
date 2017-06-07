@@ -64,10 +64,10 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     private final Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
 
     /* set of file extensions for which we have parsers already registered */
-    private static Set<String> parsers = new HashSet<>();
+    private final Set<String> parsers = new HashSet<>();
 
     /* set of files that have been ignored due to a missing parser */
-    private static Set<File> ignoredFiles = new HashSet<>();
+    private final Set<File> ignoredFiles = new HashSet<>();
 
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
@@ -234,7 +234,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     }
 
     @SuppressWarnings("rawtypes")
-    private static void checkFile(final ModelRepository modelRepo, final File file, final Kind kind) {
+    private void checkFile(final ModelRepository modelRepo, final File file, final Kind kind) {
         if (modelRepo != null && file != null) {
             try {
                 synchronized (FolderObserver.class) {
@@ -260,11 +260,9 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         }
     }
 
-    private static File getFileByFileExtMap(Map<String, String[]> folderFileExtMap, String filename) {
+    private File getFileByFileExtMap(Map<String, String[]> folderFileExtMap, String filename) {
         if (StringUtils.isNotBlank(filename) && MapUtils.isNotEmpty(folderFileExtMap)) {
-
             String extension = getExtension(filename);
-
             if (StringUtils.isNotBlank(extension)) {
                 Set<Entry<String, String[]>> entries = folderFileExtMap.entrySet();
                 Iterator<Entry<String, String[]>> iterator = entries.iterator();
@@ -289,10 +287,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
      *            the file name to get the {@link File} for
      * @return the corresponding {@link File}
      */
-    private static File getFile(String filename) {
-        File folder = new File(ConfigConstants.getConfigFolder() + File.separator + filename);
-
-        return folder;
+    private File getFile(String filename) {
+        return new File(ConfigConstants.getConfigFolder() + File.separator + filename);
     }
 
     /**
@@ -302,10 +298,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
      *            the file name to get the extension
      * @return the file's extension
      */
-    public static String getExtension(String filename) {
-        String fileExt = filename.substring(filename.lastIndexOf(".") + 1);
-
-        return fileExt;
+    public String getExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
     @Override
