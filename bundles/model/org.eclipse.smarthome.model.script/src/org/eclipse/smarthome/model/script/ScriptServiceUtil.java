@@ -16,10 +16,14 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for providing easy access to script services.
@@ -28,6 +32,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Kai Kreuzer - renamed and removed interface
  */
 public class ScriptServiceUtil {
+
+    private final Logger logger = LoggerFactory.getLogger(ScriptServiceUtil.class);
 
     private static ScriptServiceUtil instance;
 
@@ -52,6 +58,7 @@ public class ScriptServiceUtil {
             throw new IllegalStateException("ScriptServiceUtil should only be activated once!");
         }
         instance = this;
+        logger.debug("ScriptServiceUtil started");
 
         scriptEngineTracker = new ServiceTracker(bc, ScriptEngine.class.getName(), new ServiceTrackerCustomizer() {
 
@@ -80,14 +87,41 @@ public class ScriptServiceUtil {
 
     public void deactivate() {
         scriptEngineTracker.close();
+        logger.debug("ScriptServiceUtil stopped");
         instance = null;
     }
 
     private static ScriptServiceUtil getInstance() {
         if (instance == null) {
+            // TODO remove the logging once #3562 got resolved
+            Logger logger = LoggerFactory.getLogger(ScriptServiceUtil.class);
+            Bundle bundle = FrameworkUtil.getBundle(ScriptServiceUtil.class);
+            BundleContext context = bundle.getBundleContext();
+            if (context != null) {
+                logger.debug(
+                        "ScriptServiceUtil is not initialized!\n  ThingRegistry: {}\n  ItemRegistry: {}\n  EventPublisher: {}\n  ModelRepository: {}",
+                        context.getServiceReference("org.eclipse.smarthome.core.thing.ThingRegistry"),
+                        context.getServiceReference("org.eclipse.smarthome.core.items.ItemRegistry"),
+                        context.getServiceReference("org.eclipse.smarthome.core.events.EventPublisher"),
+                        context.getServiceReference("org.eclipse.smarthome.model.core.ModelRepository"));
+                logger.debug("Bundle Versions:\n  o.e.sh.model.rule.runtime: {}\n  o.e.sh.model.core: {}",
+                        getVersion(context, "org.eclipse.smarthome.model.rule.runtime"),
+                        getVersion(context, "org.eclipse.smarthome.model.core"));
+            } else {
+                logger.debug("Bundle {} is not started", bundle.getSymbolicName());
+            }
             throw new IllegalStateException("ScriptServiceUtil not initialized yet!");
         }
         return instance;
+    }
+
+    private static String getVersion(BundleContext context, String bsn) {
+        for (Bundle bundle : context.getBundles()) {
+            if (bundle.getSymbolicName().equals(bsn)) {
+                return bundle.getVersion().toString();
+            }
+        }
+        return null;
     }
 
     public static ItemRegistry getItemRegistry() {
