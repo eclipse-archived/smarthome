@@ -1,4 +1,4 @@
-angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($httpProvider) {
+angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.constants' ]).config(function($httpProvider) {
     var language = localStorage.getItem('paperui.language');
     if (language) {
         $httpProvider.defaults.headers.common['Accept-Language'] = language;

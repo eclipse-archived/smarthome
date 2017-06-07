@@ -158,58 +158,6 @@ describe('module PaperUI.controllers.configuration', function() {
         });
     });
 
-    describe('tests for ConfigureServiceDialogController', function() {
-        var ConfigureServiceDialogController, scope, serviceConfigService;
-        beforeEach(inject(function($injector, $rootScope, $controller) {
-            scope = $rootScope.$new();
-            ConfigureServiceDialogController = $controller('ConfigureServiceDialogController', {
-                '$scope' : scope,
-                'serviceId' : 'B',
-                'configDescriptionURI' : 'CDURI'
-            });
-            $httpBackend = $injector.get('$httpBackend');
-            $httpBackend.when('GET', restConfig.restPath + "/config-descriptions/CDURI").respond({
-                parameters : [ {
-                    type : 'input',
-                    name : 'PNAME'
-                } ]
-            });
-            $httpBackend.when('GET', restConfig.restPath + "/services/B").respond({
-                label : '1'
-            });
-            $httpBackend.when('GET', restConfig.restPath + "/services/B/config").respond({
-                SNAME : '2'
-            });
-            $httpBackend.flush();
-            serviceConfigService = $injector.get('serviceConfigService');
-        }));
-        it('should require ConfigureServiceDialogController', function() {
-            expect(ConfigureServiceDialogController).toBeDefined();
-        });
-        it('should get service', function() {
-            expect(scope.service.label).toEqual('1');
-        });
-        it('should get service configuration', function() {
-            expect(scope.configuration.SNAME).toEqual(2);
-        });
-
-        it('should get service parameters', function() {
-            expect(scope.parameters.length).toEqual(1);
-        });
-
-        it('should add service parameter', function() {
-            scope.configArray = [];
-            scope.addParameter();
-            expect(scope.configArray.length).toEqual(1);
-        });
-        it('should save service configuration', function() {
-            spyOn(serviceConfigService, 'updateConfig');
-            scope.save();
-            expect(serviceConfigService.updateConfig).toHaveBeenCalled();
-        });
-
-    });
-
     describe('tests for ThingController', function() {
         var ThingController, scope, injector, deferred;
         beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
