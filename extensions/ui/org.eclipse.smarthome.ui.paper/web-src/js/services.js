@@ -530,7 +530,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     group.channels = this.matchGroup(thing.channels, thingType.channelGroups[i].id);
                     includedChannels = includedChannels.concat(group.channels);
                     group.channels = advanced ? group.channels : this.filterAdvance(thingType, channelTypes, group.channels, false);
-                    thingChannels.push(group);
+                    if (advanced || !thingType.channelGroups[i].advanced) {
+                        thingChannels.push(group);
+                    }
                 }
                 var group = {
                     "name" : "Others",
@@ -600,6 +602,44 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 }
             }
             return;
+        },
+        isAdvancedChannelType : function(thingType, channelTypes, channelUID) {
+            if (thingType) {
+                if (thingType.channels && thingType.channels.length > 0) {
+                    var c, c_i, c_l;
+                    for (c_i = 0, c_l = thingType.channels.length; c_i < c_l; ++c_i) {
+                        c = thingType.channels[c_i];
+                        if (c.typeUID == channelUID) {
+                            return (c.advanced == true);
+                        }
+                    }
+                }
+                if (thingType.channelGroups && thingType.channelGroups.length > 0) {
+                    var c, c_i, c_l;
+                    var cg, cg_i, cg_l;
+                    for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
+                        cg = thingType.channelGroups[cg_i];
+                        if (cg && cg.channels) {
+                            for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
+                                c = cg.channels[c_i];
+                                if (c.typeUID == channelUID) {
+                                    return (cg.advanced == true) || (c.advanced == true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (channelTypes) {
+                var c = {}, c_i, c_l;
+                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
+                    c = channelTypes[c_i];
+                    if (c.UID == channelUID) {
+                        return (c.advanced == true);
+                    }
+                }
+            }
+            return false;
         },
         getChannelFromChannelTypes : function(channelTypes, channelUID) {
             if (channelTypes) {
