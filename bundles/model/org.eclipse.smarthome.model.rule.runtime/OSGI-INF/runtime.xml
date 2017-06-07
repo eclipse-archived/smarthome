@@ -12,6 +12,7 @@
    <implementation class="org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator"/>
    <service>
       <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
+      <provide interface="org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator"/>
    </service>
    <reference cardinality="1..1" interface="org.eclipse.smarthome.model.script.ScriptServiceUtil" name="ScriptServiceUtil" policy="static"/>
 </scr:component>
