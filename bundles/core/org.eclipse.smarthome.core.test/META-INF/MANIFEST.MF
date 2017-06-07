@@ -18,4 +18,6 @@ Import-Package: groovy.lang,
  org.junit,
  org.junit.runner,
  org.junit.runners,
- org.osgi.service.cm
+ org.osgi.service.cm,
+ org.mockito
+Require-Bundle: org.junit,org.mockito,org.hamcrest
