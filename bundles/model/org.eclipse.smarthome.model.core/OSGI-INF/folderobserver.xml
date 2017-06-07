@@ -8,12 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.core.folderobserver">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="require" immediate="true" name="org.eclipse.smarthome.folder">
    <implementation class="org.eclipse.smarthome.model.core.internal.folder.FolderObserver"/>
-   <service>
-      <provide interface="org.osgi.service.cm.ManagedService"/>
-   </service>
-   <property name="service.pid" type="String" value="org.eclipse.smarthome.folder"/>
-   <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
+   <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="static" unbind="unsetModelRepository"/>
    <reference bind="addModelParser" cardinality="1..n" interface="org.eclipse.smarthome.model.core.ModelParser" name="ModelParser" policy="dynamic" unbind="removeModelParser"/>
 </scr:component>
