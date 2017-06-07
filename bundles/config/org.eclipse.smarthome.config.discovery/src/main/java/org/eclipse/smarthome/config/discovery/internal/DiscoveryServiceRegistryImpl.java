@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -94,8 +95,11 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                     errorOccurred = true;
                 } else {
-                    logger.warn("Error occurred while executing discovery service: " + exception.getMessage(),
-                            exception);
+                    // Skip error logging for aborted scans
+                    if (!(exception instanceof CancellationException)) {
+                        logger.warn("Error occurred while executing discovery service: {}", exception.getMessage(),
+                                exception);
+                    }
                 }
             }
         }
