@@ -49,7 +49,7 @@ class SitemapValidator extends AbstractSitemapValidator {
 			}
 			if (containsFrames && containsOtherWidgets) {
 				error("Sitemap should contain either only frames or none at all",
-					SitemapPackage.Literals.FRAME.getEStructuralFeature(SitemapPackage.SITEMAP__CHILDREN));
+					SitemapPackage.Literals.SITEMAP.getEStructuralFeature(SitemapPackage.SITEMAP__NAME));
 				return
 			}
 		}
