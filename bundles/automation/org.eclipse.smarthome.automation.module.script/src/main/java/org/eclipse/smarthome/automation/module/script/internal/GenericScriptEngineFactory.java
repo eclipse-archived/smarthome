@@ -25,9 +25,9 @@ public class GenericScriptEngineFactory implements ScriptEngineFactory {
 
     public GenericScriptEngineFactory() {
         for (javax.script.ScriptEngineFactory f : engineManager.getEngineFactories()) {
-            logger.info("Activated scripting support for language {}", f.getLanguageName());
+            logger.info("Activated scripting support for {}", f.getLanguageName());
             logger.debug(
-                    "Activated scripting support with engine {}({}) for language {}({}) with mimetypes {} and file extensions {}",
+                    "Activated scripting support with engine {}({}) for {}({}) with mimetypes {} and file extensions {}",
                     f.getEngineName(), f.getEngineVersion(), f.getLanguageName(), f.getLanguageVersion(),
                     f.getMimeTypes(), f.getExtensions());
         }
