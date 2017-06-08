@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="triggertest"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Sample Thing Type -->
+    <thing-type id="sample">
+        <label>TriggerTest Binding Thing</label>
+        <description>Sample thing for TriggerTest Binding</description>
+
+        <channels>
+            <channel id="channel_1" typeId="channel_1"/>
+            <channel id="channel_2" typeId="channel_2"/>
+            <channel id="trigger_1" typeId="trigger_1"/>
+            <channel id="trigger_2" typeId="trigger_2"/>
+        </channels>
+    </thing-type>
+
+    <!-- Example channel without kind (backward compatibility) -->
+    <channel-type id="channel_1">
+        <item-type>String</item-type>
+        <label>Channel 1</label>
+        <description>Description of channel 1</description>
+    </channel-type>
+
+    <!-- Example channel with kind (backward compatibility) -->
+    <channel-type id="channel_2">
+        <item-type>String</item-type>
+        <kind>state</kind>
+        <label>Channel 2</label>
+        <description>Description of channel 2</description>
+    </channel-type>
+
+    <!-- Trigger channel -->
+    <channel-type id="trigger_1">
+        <kind>trigger</kind>
+        <label>Trigger 1</label>
+        <description>Description of trigger 1</description>
+        <event>
+            <options>
+                <option value="PRESSED">pressed</option>
+                <option value="RELEASED">released</option>
+                <option value="DOUBLE_PRESSED">double pressed</option>
+            </options>
+        </event>
+    </channel-type>
+    
+    <!-- Trigger channel without event -->
+    <channel-type id="trigger_2">
+        <kind>trigger</kind>
+        <label>Trigger 2</label>
+        <description>Description of trigger 2</description>
+        <event/>
+    </channel-type>
+
+</thing:thing-descriptions>
