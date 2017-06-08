@@ -9,6 +9,7 @@ package org.eclipse.smarthome.model.rule.runtime.internal;
 
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,13 @@ public class RuleRuntimeActivator implements ModelParser {
     @Override
     public String getExtension() {
         return "rules";
+    }
+
+    protected void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        // noop - only make sure ScriptServiceUtil gets "used", hence activated
+    }
+
+    protected void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
     }
 
 }

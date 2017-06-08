@@ -18,5 +18,5 @@
    <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="static" unbind="unsetModelRepository"/>
    <reference bind="setScriptEngine" cardinality="1..1" interface="org.eclipse.smarthome.model.script.engine.ScriptEngine" name="ScriptEngine" policy="static" unbind="unsetScriptEngine"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
-   <reference cardinality="1..1" interface="org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator" name="RuleRuntimeActivator" policy="static"/>
+   <reference bind="setRuleRuntimeActivator" cardinality="1..1" interface="org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator" name="RuleRuntimeActivator" policy="static" unbind="unsetRuleRuntimeActivator"/>
 </scr:component>
