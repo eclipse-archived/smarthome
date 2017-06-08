@@ -9,7 +9,7 @@ package org.eclipse.smarthome.binding.astro.handler;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.smarthome.binding.astro.internal.util.CronHelper.*;
+import static org.eclipse.smarthome.core.scheduler.CronHelper.*;
 import static org.eclipse.smarthome.core.thing.ThingStatus.*;
 import static org.eclipse.smarthome.core.thing.type.ChannelKind.TRIGGER;
 import static org.eclipse.smarthome.core.types.RefreshType.REFRESH;
@@ -20,8 +20,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.locks.Lock;
@@ -61,7 +62,7 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     /** Logger Instance */
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    /** Delay for the scheduled job in Milliseconds */
+    /** Delay for the scheduled job in milliseconds */
     private static final int DELAY = 2000;
 
     /** Maximum number of scheduled jobs */
@@ -69,6 +70,7 @@ public abstract class AstroThingHandler extends BaseThingHandler {
 
     /** Scheduler to schedule jobs */
     private ExpressionThreadPoolExecutor scheduledExecutor;
+    private ExecutorService localExecutor;
 
     private ScheduledFuture<?> schedulerFuture;
     private int linkedPositionalChannels = 0;
@@ -82,7 +84,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         scheduledJobs = new LinkedBlockingQueue<>(MAX_SCHEDULED_JOBS);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void initialize() {
         logger.debug("Initializing thing {}", getThing().getUID());
@@ -184,6 +185,10 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         if (schedulerFuture != null && !schedulerFuture.isCancelled()) {
             schedulerFuture.cancel(true);
         }
+        if (localExecutor != null) {
+            localExecutor.shutdownNow();
+        }
+        localExecutor = Executors.newSingleThreadExecutor();
         schedulerFuture = scheduler.schedule(() -> {
             monitor.lock();
             try {
@@ -204,17 +209,14 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                     Expression midNightExpression = new CronExpression(DAILY_MIDNIGHT);
                     if (addJobToQueue(dailyJob)) {
                         scheduledExecutor.schedule(dailyJob, midNightExpression);
+                        logger.info("Scheduled astro job-daily-{} at midnight for thing {}", typeId, thingUID);
                     }
-                    logger.info("Scheduled astro job-daily-{} at midnight for thing {}", typeId, thingUID);
 
-                    // Startup Job
+                    // Execute startup job immediately
+                    localExecutor.submit(dailyJob);
+
+                    // Repeat scheduled job every configured seconds
                     LocalDateTime currentTime = LocalDateTime.now();
-                    Expression cronExpression = new CronExpression(createCronFromTemporal(currentTime));
-                    scheduledExecutor.schedule(dailyJob, cronExpression);
-                    logger.info("Scheduled astro job-startup-{} for thing {}", typeId, thingUID);
-
-                    // Repeat Scheduled Job every configured seconds
-                    currentTime = LocalDateTime.now();
                     LocalDateTime futureTimeWithInterval = currentTime.plusSeconds(thingConfig.getInterval());
                     Date start = Date.from(futureTimeWithInterval.atZone(ZoneId.systemDefault()).toInstant());
                     if (isPositionalChannelLinked()) {
@@ -223,14 +225,11 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                         Job positionalJob = new PositionalJob(thingUID);
                         if (addJobToQueue(positionalJob)) {
                             scheduledExecutor.schedule(positionalJob, expression);
+                            logger.info("Scheduled astro job-positional with interval of {} seconds for thing {}",
+                                    thingConfig.getInterval(), thingUID);
                         }
-                        logger.info("Scheduled astro job-positional with interval of {} seconds for thing {}",
-                                thingConfig.getInterval(), thingUID);
-
-                        // Execute Positional Job immediately
-                        currentTime = LocalDateTime.now();
-                        cronExpression = new CronExpression(createCronFromTemporal(currentTime));
-                        scheduledExecutor.schedule(positionalJob, cronExpression);
+                        // Execute positional job immediately
+                        localExecutor.submit(positionalJob);
                     }
                 }
             } catch (ParseException ex) {
@@ -273,14 +272,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void channelLinked(ChannelUID channelUID) {
         linkedChannelChange(channelUID, 1);
         publishChannelIfLinked(channelUID);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void channelUnlinked(ChannelUID channelUID) {
         linkedChannelChange(channelUID, -1);
@@ -324,14 +321,14 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     }
 
     /**
-     * Returns the scheduler for the Astro jobs wrapped in {@link Optional} instance
+     * Returns the scheduler for the Astro jobs
      */
     public ExpressionThreadPoolExecutor getScheduler() {
         return scheduledExecutor;
     }
 
     /**
-     * Adds the provided {@link Job} to the Queue (cannot be {@code null})
+     * Adds the provided {@link Job} to the queue (cannot be {@code null})
      *
      * @return {@code true} if the {@code job} is added to the queue, otherwise {@code false}
      */

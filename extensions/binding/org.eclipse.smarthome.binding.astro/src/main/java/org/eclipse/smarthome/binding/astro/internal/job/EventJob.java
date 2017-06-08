@@ -7,34 +7,29 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.internal.job.Job.checkNull;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.AstroHandlerFactory;
 
 /**
- * Scheduled Job to trigger Events
+ * Scheduled job to trigger events
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public final class EventJob implements Job {
+public final class EventJob extends AbstractJob {
 
-    private final String thingUID;
     private final String channelID;
     private final String event;
 
     /**
      * Constructor
      *
-     * @param thingUID
-     *            thing UID
-     * @param channelID
-     *            channel ID
-     * @param event
-     *            Event name
-     * @throws NullPointerException
+     * @param thingUID thing UID
+     * @param channelID channel ID
+     * @param event Event name
+     * @throws IllegalArgumentException
      *             if any of the arguments is {@code null}
      */
     public EventJob(String thingUID, String channelID, String event) {
@@ -47,7 +42,6 @@ public final class EventJob implements Job {
         this.event = event;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
@@ -56,40 +50,5 @@ public final class EventJob implements Job {
         }
         astroHandler.triggerEvent(channelID, event);
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getThingUID() {
-        return thingUID;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
-        return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        EventJob other = (EventJob) obj;
-        if (thingUID == null) {
-            if (other.thingUID != null)
-                return false;
-        } else if (!thingUID.equals(other.thingUID))
-            return false;
-        return true;
-    }
-    
-    
 
 }
