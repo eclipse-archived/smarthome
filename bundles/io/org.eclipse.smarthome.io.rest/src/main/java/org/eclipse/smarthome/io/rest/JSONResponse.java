@@ -20,7 +20,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,6 +143,10 @@ public class JSONResponse {
 
     private Response createResponse(Status status, Object entity) {
         ResponseBuilder rp = responseBuilder(status);
+
+        // The PipedOutputStream will only be closed by the writing thread
+        // since closing it during this method call would be too early.
+        // The receiver of the response will read from the pipe after this method returns.
         PipedOutputStream out = new PipedOutputStream();
 
         try {
@@ -155,22 +158,22 @@ public class JSONResponse {
             throw new RuntimeException(e);
         }
 
-        new Thread(new Runnable() {
+        Thread writerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                OutputStreamWriter outStreamWriter = new OutputStreamWriter(out);
-                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(outStreamWriter))) {
+                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
                     if (entity != null) {
                         GSON.toJson(entity, entity.getClass(), jsonWriter);
                         jsonWriter.flush();
                     }
                 } catch (IOException | JsonIOException e) {
                     logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
-                } finally {
-                    IOUtils.closeQuietly(outStreamWriter);
                 }
             }
-        }).start();
+        });
+
+        writerThread.setDaemon(true); // daemonize thread to permit the JVM shutdown even if we stream JSON.
+        writerThread.start();
 
         return rp.build();
     }

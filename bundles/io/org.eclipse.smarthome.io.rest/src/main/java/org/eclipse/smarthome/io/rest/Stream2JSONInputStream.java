@@ -63,7 +63,7 @@ public class Stream2JSONInputStream extends InputStream {
                 return -1;
             }
 
-            fillBuffer(); // get the next element into the jsonInputStream
+            fillBuffer(); // get the next element into a new jsonElementStream
             result = jsonElementStream.read();
         }
 
@@ -72,11 +72,10 @@ public class Stream2JSONInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-        closeJSONStream();
-        super.close();
+        jsonElementStream.close();
     }
 
-    private void fillBuffer() throws IOException {
+    private void fillBuffer() {
         String prefix;
         if (firstIteratorElement) {
             prefix = "[";
@@ -92,8 +91,8 @@ public class Stream2JSONInputStream extends InputStream {
             postfix = "]";
         }
 
+        IOUtils.closeQuietly(jsonElementStream);
         try {
-            closeJSONStream();
             jsonElementStream = IOUtils.toInputStream(prefix + entity + postfix, StandardCharsets.UTF_8.name());
         } catch (IOException e) {
             // IOException is thrown for invalid encoding. This will never happen with StandardCharsets.UTF_8.
@@ -104,13 +103,4 @@ public class Stream2JSONInputStream extends InputStream {
         return !firstIteratorElement && !iterator.hasNext();
     }
 
-    private void closeJSONStream() throws IOException {
-        if (jsonElementStream != null) {
-            try {
-                jsonElementStream.close();
-            } catch (IOException e) {
-                throw new IOException("Error closing the underlying JSON stream.", e);
-            }
-        }
-    }
 }
