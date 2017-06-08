@@ -23,7 +23,8 @@ public enum ThingStatusDetail {
     CONFIGURATION_ERROR,
     BRIDGE_OFFLINE,
     FIRMWARE_UPDATING,
-    DUTY_CYCLE;
+    DUTY_CYCLE,
+    BRIDGE_UNINITIALIZED;
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 

@@ -587,7 +587,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         doRegisterHandler(thing, thingHandlerFactory);
                     } else {
                         setThingStatus(thing,
-                                buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
+                                buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.BRIDGE_UNINITIALIZED));
                     }
                 }
             } else {

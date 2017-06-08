@@ -567,7 +567,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         // add thing - no thing initialization, because bridge is not available
         thingRegistry.add(thing)
         waitForAssert ({ assertThat thingInitCalled, is(false) })
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.BRIDGE_UNINITIALIZED).build()
         waitForAssert ({ assertThat thing.getStatusInfo(), is(statusInfo) })
 
         // add bridge - provokes bridge & thing initialization
