@@ -43,6 +43,7 @@ import org.eclipse.smarthome.model.rule.jvmmodel.RulesJvmModelInferrer;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.runtime.RuleEngine;
+import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -171,6 +172,13 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     public void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    protected void setRuleRuntimeActivator(RuleRuntimeActivator ruleRuntimeActivator) {
+        // noop - only make sure RuleRuntimeActivator gets "used", hence activated
+    }
+
+    protected void unsetRuleRuntimeActivator(RuleRuntimeActivator ruleRuntimeActivator) {
     }
 
     @Override
