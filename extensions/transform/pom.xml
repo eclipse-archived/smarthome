@@ -24,6 +24,8 @@
     <module>org.eclipse.smarthome.transform.scale.test</module>
     <module>org.eclipse.smarthome.transform.regex</module>
     <module>org.eclipse.smarthome.transform.regex.test</module>
+    <module>org.eclipse.smarthome.transform.simplemath</module>
+    <module>org.eclipse.smarthome.transform.simplemath.test</module>
     <module>org.eclipse.smarthome.transform.xpath</module>
     <module>org.eclipse.smarthome.transform.xpath.test</module>
     <module>org.eclipse.smarthome.transform.jsonpath</module>
