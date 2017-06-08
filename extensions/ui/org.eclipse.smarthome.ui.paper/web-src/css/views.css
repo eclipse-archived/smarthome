@@ -58,6 +58,15 @@ section#main.header-tabs {
 	color: #01324D;
 }
 
+.dimmer-widget p.no-icon-margin-left {
+	margin-left: 45px;
+}
+
+.md-default-theme.left-padded {
+	padding-left: 45px;
+	margin-left: 0px;
+}
+
 .image-widget {
 	/* This is a a utility class for image items so the !important is for the exceptional rule*/
 	height: auto !important;
