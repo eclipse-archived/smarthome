@@ -1,0 +1,95 @@
+grammar org.eclipse.smarthome.model.notification.Notification with org.eclipse.xtext.common.Terminals
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate notification "http://www.eclipse.org/smarthome/model/Notification"
+
+NotificationModel:
+    {NotificationModel}
+    'Targets' '{' targets+=Target* '}'
+    ('Filters' '{' filters+=Filter* '}')?
+    ('Events' '{' configs+=EventConfiguration* '}')?
+;
+
+Target:
+    name=ID ':' targetOptions+=STRING (',' targetOptions+=STRING)*
+;
+
+TargetOption:
+    targetOption=STRING
+;
+
+Filter:
+    name=ID ':' filterType=ID (':' options+=STRING (',' options+=STRING)*)?
+;
+
+FilterOption:
+    filterOption=STRING
+;
+
+
+EventConfiguration:
+        namespacedetail=NamespaceDetail '/' entitydetail=EntityTypeDetail '/' targetdetail=TargetDetail '/' actiondetail=ActionDetail
+          
+//        name=EventDetail
+        (':' 'targets' '=' targets+=[Target|ID] (',' targets+=[Target|ID])* )+ 
+        (';' 'filters' '=' filters+=[Filter|ID] (',' filters+=[Filter|ID])* )? 
+;
+
+EventDetail:
+    namespacedetail=NamespaceDetail '/' entitydetail=EntityTypeDetail '/' targetdetail=TargetDetail '/' actiondetail=ActionDetail 
+;
+
+
+NamespaceDetail:
+    (AllNamespaces | NamespaceID)
+;
+
+AllNamespaces:
+    {AllNamespaces}
+    '.'
+;
+
+NamespaceID:
+    namespace=ID
+;
+
+EntityTypeDetail:
+    (AllEntities | EntityTypeID)
+;
+
+AllEntities:
+    {AllEntities}
+    '.'
+;
+
+EntityTypeID:
+    entity=ID
+;
+
+
+TargetDetail:
+    (AllTargets | TargetID)
+;
+
+AllTargets:
+    {AllTargets}
+    '.'
+;
+
+TargetID:
+    target=ID
+;
+
+ActionDetail:
+    (AllActions | ActionID)
+;
+
+AllActions:
+    {AllActions}
+    '.'
+;
+
+ActionID:
+    action=ID
+;

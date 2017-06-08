@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="notification" nsURI="http://www.eclipse.org/smarthome/model/Notification"
+    nsPrefix="notification">
+  <eClassifiers xsi:type="ecore:EClass" name="NotificationModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targets" upperBound="-1"
+        eType="#//Target" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="filters" upperBound="-1"
+        eType="#//Filter" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="configs" upperBound="-1"
+        eType="#//EventConfiguration" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Target">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetOptions" unique="false"
+        upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TargetOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetOption" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Filter">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filterType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="options" unique="false"
+        upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FilterOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filterOption" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EventConfiguration">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="namespacedetail" eType="#//NamespaceDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entitydetail" eType="#//EntityTypeDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetdetail" eType="#//TargetDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actiondetail" eType="#//ActionDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targets" unique="false"
+        upperBound="-1" eType="#//Target"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="filters" unique="false"
+        upperBound="-1" eType="#//Filter"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EventDetail">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="namespacedetail" eType="#//NamespaceDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entitydetail" eType="#//EntityTypeDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetdetail" eType="#//TargetDetail"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actiondetail" eType="#//ActionDetail"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NamespaceDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AllNamespaces" eSuperTypes="#//NamespaceDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NamespaceID" eSuperTypes="#//NamespaceDetail">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="namespace" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EntityTypeDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AllEntities" eSuperTypes="#//EntityTypeDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EntityTypeID" eSuperTypes="#//EntityTypeDetail">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TargetDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AllTargets" eSuperTypes="#//TargetDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TargetID" eSuperTypes="#//TargetDetail">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="target" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ActionDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AllActions" eSuperTypes="#//ActionDetail"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ActionID" eSuperTypes="#//ActionDetail">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="action" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+</ecore:EPackage>

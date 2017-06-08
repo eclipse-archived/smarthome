@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Notification
+Bundle-SymbolicName: org.eclipse.smarthome.core.notification
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items
+Export-Package: org.eclipse.smarthome.core.notification
