@@ -13,10 +13,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -329,6 +331,11 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                 return false;
             }
 
+        }
+
+        @Override
+        public BlockingQueue<Runnable> getQueue() {
+            return new LinkedBlockingQueue<>(scheduled.values());
         }
     }
 }
