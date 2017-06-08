@@ -1,4 +1,4 @@
-angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function($httpProvider) {
+angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).config(function($httpProvider) {
     var accessToken = function getAccessToken() {
         return $('#authentication').data('access-token')
     }();

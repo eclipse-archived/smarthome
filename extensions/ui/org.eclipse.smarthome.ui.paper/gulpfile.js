@@ -193,7 +193,7 @@ gulp.task('inject', ['build'], function () {
    var target = gulp.src('./web/index.html');
    // It's not necessary to read the files (will speed up things), we're only after their paths:
    var files;
-   console.log("MODE:"+isDevelopment);
+   console.log("MODE: " + (isDevelopment ? "DEV" : "PROD"));
     if(!isDevelopment){
         files = [
                     'web/js/app.js',
@@ -219,14 +219,15 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/controllers.rules.js',
                      './web-src/js/controllers.module.js',
                      './web-src/js/controllers.setup.js',
-                     './web-src/js/controllers/controller.firmware.js',
+                     './web-src/js/controllers/*',
                      './web-src/js/extensions.js',
                      './web-src/js/main.js',
                      './web-src/js/services.js',
                      './web-src/js/services.repositories.js',
                      './web-src/js/services.rest.js',
                      './web-src/js/shared.properties.js',
-                     './web-src/js/filters/filter.firmware.js'
+                     './web-src/js/filters/*',
+                     '!./web-src/js/**/*.spec.js'
                      ]
     }    
     var sources = gulp.src(files, {read: false});

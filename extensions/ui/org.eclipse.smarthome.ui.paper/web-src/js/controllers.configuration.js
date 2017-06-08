@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware' ]) //
+angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog' ]) //
 .controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
     $scope.navigateTo = function(path) {
         $location.path('configuration/' + path);
@@ -164,9 +164,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             });
         });
     };
+
     $scope.configure = function(serviceId, configDescriptionURI, event) {
         $mdDialog.show({
-            controller : 'ConfigureServiceDialogController',
+            controller : 'ConfigurableServiceDialogController',
             templateUrl : 'partials/dialog.configureservice.html',
             targetEvent : event,
             hasBackdrop : true,
@@ -176,81 +177,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             }
         });
     }
+
     $scope.refresh();
-}).controller('ConfigureServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI) {
-
-    $scope.service = null;
-    $scope.parameters = [];
-    $scope.config = {};
-
-    if (configDescriptionURI) {
-        $scope.expertMode = false;
-        configDescriptionService.getByUri({
-            uri : configDescriptionURI
-        }, function(configDescription) {
-            if (configDescription) {
-                $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
-                if (!jQuery.isEmptyObject($scope.configuration)) {
-                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-                }
-            }
-        });
-    }
-    if (serviceId) {
-        serviceConfigService.getById({
-            id : serviceId
-        }, function(service) {
-            $scope.service = service;
-        });
-        serviceConfigService.getConfigById({
-            id : serviceId
-        }).$promise.then(function(config) {
-            if (config) {
-                $scope.configuration = configService.convertValues(config);
-                $scope.configArray = configService.getConfigAsArray($scope.configuration);
-                if ($scope.parameters && $scope.parameters.length > 0) {
-                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-                }
-            }
-        });
-    } else {
-        $scope.newConfig = true;
-        $scope.serviceId = '';
-        $scope.configuration = {
-            '' : ''
-        };
-        $scope.configArray = [];
-        $scope.expertMode = true;
-    }
-    $scope.close = function() {
-        $mdDialog.hide();
-    }
-    $scope.addParameter = function() {
-        $scope.configArray.push({
-            name : '',
-            value : undefined
-        });
-    }
-    $scope.save = function() {
-        var configuration = {};
-        if ($scope.expertMode) {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
-        }
-        var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
-        serviceConfigService.updateConfig({
-            id : (serviceId ? serviceId : $scope.serviceId)
-        }, configuration, function() {
-            toastService.showDefaultToast('Service config updated.');
-        });
-        $mdDialog.hide();
-    }
-    $scope.$watch('expertMode', function() {
-        if ($scope.expertMode) {
-            $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
-        } else {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
-        }
-    });
 }).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, bindingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
