@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.smarthome.model.core.ModelParser;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -79,6 +80,13 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
     }
 
     protected void unsetScriptRuntime(final ScriptRuntime scriptRuntime) {
+    }
+
+    protected void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        // noop - only make sure ScriptServiceUtil gets "used", hence activated
+    }
+
+    protected void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
     }
 
     @Override
