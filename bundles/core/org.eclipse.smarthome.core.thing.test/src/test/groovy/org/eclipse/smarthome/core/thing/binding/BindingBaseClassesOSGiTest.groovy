@@ -25,7 +25,7 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventFilter
 import org.eclipse.smarthome.core.events.EventSubscriber
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -207,11 +207,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         managedThingProvider.add(thing)
 
         ConfigStatusService service = getService(ConfigStatusService)
-        service.setI18nProvider([
+        service.setTranslationProvider([
             getText: { bundle, key, defaultText, locale, args ->
                 key.endsWith("param.invalid") ? "param invalid" : "param ok"
             }
-        ]  as I18nProvider)
+        ]  as TranslationProvider)
 
         EventSubscriber eventSubscriber = new EventSubscriber() {
                     Event event;

@@ -72,7 +72,7 @@ public final class ConfigValidationException extends RuntimeException {
      * Retrieves the internationalized validation messages for this exception. If there is no text found to be
      * internationalized then the default message is delivered.
      * <p>
-     * If there is no I18nProvider available then this operation will return the default validation messages by using
+     * If there is no TranslationProvider available then this operation will return the default validation messages by using
      * {@link ConfigValidationException#getValidationMessages()}.
      *
      * @param locale the locale to be used; if null then the default locale will be used
@@ -85,14 +85,14 @@ public final class ConfigValidationException extends RuntimeException {
     public Map<String, String> getValidationMessages(Locale locale) {
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
-            if (Activator.getI18nProvider() == null) {
+            if (Activator.getTranslationProvider() == null) {
                 logger.warn(
-                        "I18nProvider is not available. Will provide default validation message for parameter '{}'.",
+                        "TranslationProvider is not available. Will provide default validation message for parameter '{}'.",
                         configValidationMessage.parameterName);
                 builder.put(configValidationMessage.parameterName,
                         MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
             } else {
-                String text = Activator.getI18nProvider().getText(bundle, configValidationMessage.messageKey,
+                String text = Activator.getTranslationProvider().getText(bundle, configValidationMessage.messageKey,
                         configValidationMessage.defaultMessage, locale, configValidationMessage.content);
                 builder.put(configValidationMessage.parameterName, text);
             }

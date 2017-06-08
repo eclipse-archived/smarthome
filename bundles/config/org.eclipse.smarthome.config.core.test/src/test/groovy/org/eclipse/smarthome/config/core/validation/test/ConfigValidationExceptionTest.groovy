@@ -17,7 +17,7 @@ import org.eclipse.smarthome.config.core.internal.Activator
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage
 import org.eclipse.smarthome.config.core.validation.internal.MessageKey
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -81,7 +81,7 @@ class ConfigValidationExceptionTest {
                     }
                 }
             }
-        ] as I18nProvider
+        ] as TranslationProvider
     }
 
     @After

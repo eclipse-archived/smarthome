@@ -17,7 +17,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ParameterOption;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -32,12 +32,12 @@ public class ConfigI18nLocalizationService {
     private ConfigDescriptionI18nUtil configDescriptionParamI18nUtil;
     private ConfigDescriptionGroupI18nUtil configDescriptionGroupI18nUtil;
 
-    protected void setI18nProvider(final I18nProvider i18nProvider) {
+    protected void setTranslationProvider(final TranslationProvider i18nProvider) {
         this.configDescriptionParamI18nUtil = new ConfigDescriptionI18nUtil(i18nProvider);
         this.configDescriptionGroupI18nUtil = new ConfigDescriptionGroupI18nUtil(i18nProvider);
     }
 
-    protected void unsetI18nProvider(final I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(final TranslationProvider i18nProvider) {
         this.configDescriptionParamI18nUtil = null;
         this.configDescriptionGroupI18nUtil = null;
     }

@@ -25,7 +25,7 @@ import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -165,11 +165,11 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     }
 
     @Reference
-    public void setI18nProvider(I18nProvider i18nProvider) {
+    public void setTranslationProvider(TranslationProvider i18nProvider) {
         this.bindingI18nUtil = new BindingI18nUtil(i18nProvider);
     }
 
-    public void unsetI18nProvider(I18nProvider i18nProvider) {
+    public void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.bindingI18nUtil = null;
     }
 

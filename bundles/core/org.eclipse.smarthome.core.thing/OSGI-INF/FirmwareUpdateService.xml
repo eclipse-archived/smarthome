@@ -19,7 +19,7 @@
    <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
    <reference bind="setFirmwareRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry" name="FirmwareRegistry" policy="static" unbind="unsetFirmwareRegistry"/>
    <reference bind="addFirmwareUpdateHandler" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler" name="FirmwareUpdateHandler" policy="dynamic" unbind="removeFirmwareUpdateHandler"/>
-   <reference bind="setI18nProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.I18nProvider" name="I18nProvider" policy="static" unbind="unsetI18nProvider"/>
+   <reference bind="setTranslationProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.TranslationProvider" name="TranslationProvider" policy="static" unbind="unsetTranslationProvider"/>
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
    
 </scr:component>

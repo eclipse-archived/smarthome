@@ -16,7 +16,7 @@
       <provide interface="org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory"/>
    </service>
 
-   <reference bind="setI18nProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.I18nProvider" name="I18nprovider" policy="dynamic" unbind="unsetI18nProvider"/>
+   <reference bind="setTranslationProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.TranslationProvider" name="I18nprovider" policy="dynamic" unbind="unsetTranslationProvider"/>
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
 
 </scr:component>
