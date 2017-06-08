@@ -24,7 +24,7 @@ public enum ThingStatusDetail {
     BRIDGE_OFFLINE,
     FIRMWARE_UPDATING,
     DUTY_CYCLE,
-    BRIDGE_HANDLER_MISSING_ERROR;
+    BRIDGE_UNINITIALIZED;
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 

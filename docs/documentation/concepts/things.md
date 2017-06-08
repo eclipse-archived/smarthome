@@ -47,11 +47,12 @@ The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes
 A status is detailed further with a status detail object. The following table lists the different status details for each status:
 
 <table>
-<tr valign="top"><td rowspan="5">UNINITIALIZED</td><td>NONE</td><td>No further status details available.</td></tr>
+<tr valign="top"><td rowspan="6">UNINITIALIZED</td><td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top">                                  <td>HANDLER_MISSING_ERROR</td><td>The handler cannot be initialized, because the responsible binding is not available or started.</td></tr>
 <tr valign="top">                                  <td>HANDLER_REGISTERING_ERROR</td><td>The handler failed in the service registration phase.</td></tr>
 <tr valign="top">                                  <td>HANDLER_CONFIGURATION_PENDING</td><td>The handler is registered but can not be initialized caused by missing configuration parameters.</td></tr>
 <tr valign="top">                                  <td>HANDLER_INITIALIZING_ERROR</td><td>The handler failed in the initialization phase.</td></tr>
+<tr valign="top">                                  <td>BRIDGE_UNINITIALIZED</td><td>The bridge associated with this thing is not initialized.</td></tr>
 <tr valign="top"><td>INITIALIZING</td>             <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td>UNKNOWN</td>                  <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td rowspan="2">ONLINE</td>       <td>NONE</td><td>No further status details available.</td></tr>
