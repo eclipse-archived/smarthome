@@ -2,15 +2,19 @@ package org.eclipse.smarthome.io.rest;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.object.IsCompatibleType.typeCompatibleWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
@@ -74,6 +78,39 @@ public class JSONResponseTest {
             byte[] entityValue = new byte[ENTITY_JSON_VALUE.length()];
             entityInStream.read(entityValue);
             assertThat(new String(entityValue), is(ENTITY_JSON_VALUE));
+        }
+    }
+
+    @Test
+    public void shouldCreateSuccessResponseWithLargeStreamEntity() throws IOException {
+        Response response = JSONResponse.createResponse(Status.OK, new LargeEntity(), null);
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getMediaType(), is(MediaType.APPLICATION_JSON_TYPE));
+
+        Object entity = response.getEntity();
+        assertThat(entity.getClass(), is(typeCompatibleWith(InputStream.class)));
+
+        try (InputStream entityInStream = (InputStream) entity) {
+            String largeEntityJSON = IOUtils.toString(entityInStream);
+            assertThat(largeEntityJSON, is(notNullValue()));
+            assertTrue(largeEntityJSON.startsWith("{"));
+            assertTrue(largeEntityJSON.endsWith("}"));
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private final class LargeEntity {
+
+        private List<BigDecimal> randoms = getRandoms();
+
+        private List<BigDecimal> getRandoms() {
+            List<BigDecimal> randoms = new ArrayList<>();
+            for (int i = 0; i < 100000; i++) {
+                randoms.add(new BigDecimal(Math.random()));
+            }
+
+            return randoms;
         }
     }
 }

@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,6 +147,8 @@ public class JSONResponse {
         PipedOutputStream out = new PipedOutputStream();
 
         try {
+            // we will not actively close the PipedInputStream since it is read by the receiving end
+            // and will be GC'ed once the response is consumed.
             PipedInputStream in = new PipedInputStream(out);
             rp.entity(in);
         } catch (IOException e) {
@@ -155,13 +158,16 @@ public class JSONResponse {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
+                OutputStreamWriter outStreamWriter = new OutputStreamWriter(out);
+                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(outStreamWriter))) {
                     if (entity != null) {
                         GSON.toJson(entity, entity.getClass(), jsonWriter);
                         jsonWriter.flush();
                     }
                 } catch (IOException | JsonIOException e) {
                     logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
+                } finally {
+                    IOUtils.closeQuietly(outStreamWriter);
                 }
             }
         }).start();
