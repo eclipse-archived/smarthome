@@ -9,6 +9,7 @@ package org.eclipse.smarthome.binding.astro.internal;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +21,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -32,15 +32,13 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(SunHandler.SUPPORTED_THING_TYPES,
             MoonHandler.SUPPORTED_THING_TYPES);
-    private static final Map<String, AstroThingHandler> astroThingHandlers = Maps.newHashMap();
+    private static final Map<String, AstroThingHandler> astroThingHandlers = new HashMap<>();
 
-    /** {@inheritDoc} */
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
@@ -57,7 +55,6 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
         return thingHandler;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void unregisterHandler(Thing thing) {
         super.unregisterHandler(thing);

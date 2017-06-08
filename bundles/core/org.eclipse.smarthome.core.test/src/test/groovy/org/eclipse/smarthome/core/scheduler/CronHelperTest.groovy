@@ -6,13 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.astro.test
+package org.eclipse.smarthome.core.scheduler
 
-import static org.eclipse.smarthome.binding.astro.internal.util.CronHelper.*
-import static org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsData.*
 import static org.eclipse.smarthome.core.scheduler.CronExpression.*
+import static org.eclipse.smarthome.core.scheduler.CronHelper.*
 import static org.junit.Assert.*
-import static org.mockito.Mockito.*
 
 import java.time.LocalDateTime
 
@@ -21,7 +19,7 @@ import org.junit.Test
 /**
  * Tests for the {@link CronHelper}
  * <p>
- * This class tests the cron helper methods for the astro things.
+ * This class tests the CronHelper methods
  * </p>
  * @author Amit Kumar Mondal - Initial Contribution
  */

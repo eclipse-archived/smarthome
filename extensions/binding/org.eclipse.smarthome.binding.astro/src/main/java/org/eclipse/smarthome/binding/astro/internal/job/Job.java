@@ -11,8 +11,8 @@ package org.eclipse.smarthome.binding.astro.internal.job;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang.time.DateFormatUtils.ISO_DATETIME_FORMAT;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
-import static org.eclipse.smarthome.binding.astro.internal.util.CronHelper.createCronFromCalendar;
 import static org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils.*;
+import static org.eclipse.smarthome.core.scheduler.CronHelper.createCronFromCalendar;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
@@ -32,11 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The interface to be implemented by classes which represent a 'job' to be
- * performed.
+ * The interface to be implemented by classes which represent a 'job' to be performed
  *
- * @author Amit Kumar Mondal - New Simplified API, Implementation
- *         compliant with ESH Scheduler
+ * @author Amit Kumar Mondal - New Simplified API, Implementation compliant with ESH Scheduler
  */
 public interface Job extends Runnable {
 
@@ -46,14 +44,10 @@ public interface Job extends Runnable {
     /**
      * Schedules the provided {@link Job} instance
      *
-     * @param thingUID
-     *            the UID of the {@link Thing} instance
-     * @param astroHandler
-     *            the {@link AstroThingHandler} instance
-     * @param job
-     *            the {@link Job} instance to schedule
-     * @param eventAt
-     *            the {@link Calendar} instance denoting scheduled instant
+     * @param thingUID the UID of the {@link Thing} instance
+     * @param astroHandler the {@link AstroThingHandler} instance
+     * @param job the {@link Job} instance to schedule
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
      */
     public static void schedule(String thingUID, AstroThingHandler astroHandler, Job job, Calendar eventAt) {
         try {
@@ -77,16 +71,11 @@ public interface Job extends Runnable {
     /**
      * Schedules an {@link EventJob} instance
      *
-     * @param thingUID
-     *            the Thing UID
-     * @param astroHandler
-     *            the {@link ThingHandler} instance
-     * @param eventAt
-     *            the {@link Calendar} instance denoting scheduled instant
-     * @param event
-     *            the event ID
-     * @param channelId
-     *            the channel ID
+     * @param thingUID the Thing UID
+     * @param astroHandler the {@link ThingHandler} instance
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
+     * @param event the event ID
+     * @param channelId the channel ID
      */
     public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt, String event,
             String channelId) {
@@ -109,14 +98,10 @@ public interface Job extends Runnable {
     /**
      * Schedules {@link Channel} events
      *
-     * @param thingUID
-     *            the {@link Thing} UID
-     * @param astroHandler
-     *            the {@link AstroThingHandler} instance
-     * @param range
-     *            the {@link Range} instance
-     * @param channelId
-     *            the channel ID
+     * @param thingUID the {@link Thing} UID
+     * @param astroHandler the {@link AstroThingHandler} instance
+     * @param range the {@link Range} instance
+     * @param channelId the channel ID
      */
     public static void scheduleRange(String thingUID, AstroThingHandler astroHandler, Range range, String channelId) {
         boolean thingNull = checkNull(thingUID, "Thing UID is null");
@@ -134,12 +119,9 @@ public interface Job extends Runnable {
     /**
      * Schedules {@link Planet} events
      *
-     * @param thingUID
-     *            the {@link Thing} UID
-     * @param astroHandler
-     *            the {@link AstroThingHandler} instance
-     * @param eventAt
-     *            the {@link Calendar} instance denoting scheduled instant
+     * @param thingUID the {@link Thing} UID
+     * @param astroHandler the {@link AstroThingHandler} instance
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
      */
     public static void schedulePublishPlanet(String thingUID, AstroThingHandler astroHandler, Calendar eventAt) {
         boolean thingNull = checkNull(thingUID, "Thing UID is null");
@@ -156,14 +138,10 @@ public interface Job extends Runnable {
     /**
      * Schedules {@link SunPhaseJob}
      *
-     * @param thingUID
-     *            the {@link Thing} UID
-     * @param astroHandler
-     *            the {@link AstroThingHandler} instance
-     * @param sunPhaseName
-     *            {@link SunPhaseName} instance
-     * @param eventAt
-     *            the {@link Calendar} instance denoting scheduled instant
+     * @param thingUID the {@link Thing} UID
+     * @param astroHandler the {@link AstroThingHandler} instance
+     * @param sunPhaseName {@link SunPhaseName} instance
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
      */
     public static void scheduleSunPhase(String thingUID, AstroThingHandler astroHandler, SunPhaseName sunPhaseName,
             Calendar eventAt) {
@@ -194,10 +172,8 @@ public interface Job extends Runnable {
      *
      * </blockquote>
      *
-     * @param obj
-     *            the object reference to check for {@code null}
-     * @param message
-     *            detail message to be used in the event
+     * @param obj the object reference to check for {@code null}
+     * @param message detail message to be used in the event
      * @return {@code true} if {@code null} otherwise {@code false}
      */
     public static <T> boolean checkNull(T obj, String message) {

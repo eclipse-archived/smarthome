@@ -7,28 +7,24 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.internal.job.Job.checkNull;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.AstroHandlerFactory;
 
 /**
- * Scheduled Job for Planet Things
+ * Scheduled job for planets
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public final class PublishPlanetJob implements Job {
-
-    private final String thingUID;
+public final class PublishPlanetJob extends AbstractJob {
 
     /**
      * Constructor
      *
-     * @param thingUID
-     *            thing UID
-     * @throws NullPointerException
+     * @param thingUID thing UID
+     * @throws IllegalArgumentException
      *             if the provided argument is {@code null}
      */
     public PublishPlanetJob(String thingUID) {
@@ -36,7 +32,6 @@ public final class PublishPlanetJob implements Job {
         this.thingUID = thingUID;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
@@ -45,40 +40,5 @@ public final class PublishPlanetJob implements Job {
         }
         astroHandler.publishDailyInfo();
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getThingUID() {
-        return thingUID;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
-        return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        PublishPlanetJob other = (PublishPlanetJob) obj;
-        if (thingUID == null) {
-            if (other.thingUID != null)
-                return false;
-        } else if (!thingUID.equals(other.thingUID))
-            return false;
-        return true;
-    }
-    
-    
 
 }

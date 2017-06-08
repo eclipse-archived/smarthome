@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.astro.internal.util;
+package org.eclipse.smarthome.core.scheduler;
 
-import static com.google.common.base.Preconditions.*;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.time.LocalDateTime;
@@ -39,14 +39,13 @@ public final class CronHelper {
     /**
      * Returns CRON expression from the provided {@link Calendar} instance
      *
-     * @param calendar
-     *            the {@link Calendar} instance
+     * @param calendar the {@link Calendar} instance
      * @return the CRON expression
      * @throws NullPointerException
      *             if {@code calendar} is null
      */
     public static String createCronFromCalendar(Calendar calendar) {
-        checkNotNull(calendar, "Calendar instance cannot be null");
+        requireNonNull(calendar, "Calendar instance cannot be null");
         LocalDateTime temporal = LocalDateTime.ofInstant(calendar.toInstant(), ZoneId.systemDefault());
         return createCronFromTemporal(temporal);
     }
@@ -54,14 +53,13 @@ public final class CronHelper {
     /**
      * Returns CRON expression from the provided {@link LocalDateTime} instance
      *
-     * @param localDateTime
-     *            the {@link LocalDateTime} instance
+     * @param localDateTime the {@link LocalDateTime} instance
      * @return the CRON expression
      * @throws NullPointerException
      *             if {@code localDateTime} is null
      */
     public static String createCronFromTemporal(LocalDateTime localDateTime) {
-        checkNotNull(localDateTime, "Temporal instance cannot be null");
+        requireNonNull(localDateTime, "Temporal instance cannot be null");
         int minute = localDateTime.getMinute();
         int hour = localDateTime.getHour();
         int day = localDateTime.getDayOfMonth();
@@ -78,14 +76,15 @@ public final class CronHelper {
      * Returns CRON expression that denotes the repetition every provided
      * seconds
      *
-     * @param totalSecs
-     *            the seconds (cannot be zero or negative or more than 86400)
+     * @param totalSecs the seconds (cannot be zero or negative or more than 86400)
      * @return the CRON expression
      * @throws IllegalArgumentException
      *             if {@code totalSecs} is zero or negative or more than 86400
      */
     public static String createCronForRepeatEverySeconds(int totalSecs) {
-        checkArgument(totalSecs > 0 && totalSecs <= 86400, "Seconds cannot be zero or negative or more than 86400");
+        if(totalSecs < 0 && totalSecs <= 86400) {
+            throw new IllegalArgumentException("Seconds cannot be zero or negative or more than 86400");
+        }
 
         StringBuilder builder = new StringBuilder();
         if (totalSecs < 60) {
