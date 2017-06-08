@@ -9,7 +9,9 @@ package org.eclipse.smarthome.binding.astro.handler;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.THING_TYPE_SUN;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.astro.internal.calc.SunCalc;
@@ -20,8 +22,6 @@ import org.eclipse.smarthome.binding.astro.internal.model.Sun;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-import com.google.common.collect.Sets;
-
 /**
  * The SunHandler is responsible for updating calculated sun data.
  *
@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  */
 public class SunHandler extends AstroThingHandler {
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_SUN);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_SUN));
 
     private final String[] positionalChannelIds = new String[] { "position#azimuth", "position#elevation",
             "radiation#direct", "radiation#diffuse", "radiation#total" };
@@ -42,14 +42,12 @@ public class SunHandler extends AstroThingHandler {
         super(thing);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void publishDailyInfo() {
         initializeSun();
         publishPositionalInfo();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void publishPositionalInfo() {
         initializeSun();
@@ -58,26 +56,22 @@ public class SunHandler extends AstroThingHandler {
         publishPlanet();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Planet getPlanet() {
         return sun;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void dispose() {
         super.dispose();
         sun = null;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected String[] getPositionalChannelIds() {
         return positionalChannelIds;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Job getDailyJob() {
         return new DailyJobSun(thing.getUID().getAsString(), this);

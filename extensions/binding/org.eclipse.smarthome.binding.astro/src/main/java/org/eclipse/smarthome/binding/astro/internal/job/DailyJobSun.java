@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import static org.eclipse.smarthome.binding.astro.internal.job.Job.*;
 import static org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName.*;
@@ -18,24 +17,21 @@ import org.eclipse.smarthome.binding.astro.internal.model.Sun;
 import org.eclipse.smarthome.binding.astro.internal.model.SunEclipse;
 
 /**
- * Daily Scheduled Jobs For Sun Planet
+ * Daily scheduled jobs For Sun planet
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public final class DailyJobSun implements Job {
+public final class DailyJobSun extends AbstractJob {
 
-    private final String thingUID;
     private final AstroThingHandler handler;
 
     /**
      * Constructor
      *
-     * @param thingUID
-     *            the Thing UID
-     * @param handler
-     *            the {@link AstroThingHandler} instance
-     * @throws NullPointerException
+     * @param thingUID the Thing UID
+     * @param handler the {@link AstroThingHandler} instance
+     * @throws IllegalArgumentException
      *             if {@code thingUID} or {@code handler} is {@code null}
      */
     public DailyJobSun(String thingUID, AstroThingHandler handler) {
@@ -46,7 +42,6 @@ public final class DailyJobSun implements Job {
         this.handler = handler;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
         handler.publishDailyInfo();
@@ -94,40 +89,5 @@ public final class DailyJobSun implements Job {
         scheduleSunPhase(thingUID, handler, NAUTIC_DUSK, sun.getNauticDusk().getStart());
         scheduleSunPhase(thingUID, handler, CIVIL_DUSK, sun.getCivilDusk().getStart());
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getThingUID() {
-        return thingUID;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
-        return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        DailyJobSun other = (DailyJobSun) obj;
-        if (thingUID == null) {
-            if (other.thingUID != null)
-                return false;
-        } else if (!thingUID.equals(other.thingUID))
-            return false;
-        return true;
-    }
-    
-    
 
 }

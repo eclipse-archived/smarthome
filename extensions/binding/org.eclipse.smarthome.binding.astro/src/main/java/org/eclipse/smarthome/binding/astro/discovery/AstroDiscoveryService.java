@@ -10,6 +10,8 @@ package org.eclipse.smarthome.binding.astro.discovery;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -19,8 +21,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link AstroDiscoveryService} tries to automatically discover the geolocation based on the internet IP address.
@@ -35,7 +35,7 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
      * Creates a AstroDiscoveryService with disabled autostart.
      */
     public AstroDiscoveryService() {
-        super(ImmutableSet.of(new ThingTypeUID(BINDING_ID, "-")), DISCOVER_TIMEOUT_SECONDS, false);
+        super(new HashSet<>(Arrays.asList(new ThingTypeUID(BINDING_ID, "-"))), DISCOVER_TIMEOUT_SECONDS, false);
     }
 
     @Override

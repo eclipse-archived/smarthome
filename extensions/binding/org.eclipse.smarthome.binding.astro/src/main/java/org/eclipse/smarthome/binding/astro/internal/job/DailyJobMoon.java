@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import static org.eclipse.smarthome.binding.astro.internal.job.Job.scheduleEvent;
 
@@ -18,25 +17,21 @@ import org.eclipse.smarthome.binding.astro.internal.model.MoonPhase;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 
 /**
- * Daily Scheduled Jobs For Moon Planet
+ * Daily scheduled jobs for Moon planet
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public final class DailyJobMoon implements Job {
+public final class DailyJobMoon extends AbstractJob {
 
-    private final String thingUID;
     private final AstroThingHandler handler;
 
     /**
      * Constructor
      *
-     * @param thingUID
-     *            the Thing UID
-     * @param handler
-     *            the {@link AstroThingHandler} instance
-     * @throws NullPointerException
-     *             if {@code thingUID} or {@code handler} is {@code null}
+     * @param thingUID the Thing UID
+     * @param handler the {@link AstroThingHandler} instance
+     * @throws IllegalArgumentException if {@code thingUID} or {@code handler} is {@code null}
      */
     public DailyJobMoon(String thingUID, AstroThingHandler handler) {
         checkArgument(thingUID != null, "Thing UID cannot be null");
@@ -46,7 +41,6 @@ public final class DailyJobMoon implements Job {
         this.handler = handler;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
         handler.publishDailyInfo();
@@ -75,44 +69,6 @@ public final class DailyJobMoon implements Job {
 
         scheduleEvent(thingUID, handler, moon.getPerigee().getDate(), EVENT_PERIGEE, EVENT_CHANNEL_ID_PERIGEE);
         scheduleEvent(thingUID, handler, moon.getApogee().getDate(), EVENT_APOGEE, EVENT_CHANNEL_ID_APOGEE);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getThingUID() {
-        return thingUID;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (thingUID == null ? 0 : thingUID.hashCode());
-        return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DailyJobMoon other = (DailyJobMoon) obj;
-        if (thingUID == null) {
-            if (other.thingUID != null) {
-                return false;
-            }
-        } else if (!thingUID.equals(other.thingUID)) {
-            return false;
-        }
-        return true;
     }
 
 }

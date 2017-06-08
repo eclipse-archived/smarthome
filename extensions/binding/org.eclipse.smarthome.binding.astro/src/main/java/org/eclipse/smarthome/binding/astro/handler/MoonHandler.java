@@ -9,7 +9,9 @@ package org.eclipse.smarthome.binding.astro.handler;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.THING_TYPE_MOON;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.astro.internal.calc.MoonCalc;
@@ -20,8 +22,6 @@ import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-import com.google.common.collect.Sets;
-
 /**
  * The MoonHandler is responsible for updating calculated moon data.
  *
@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  */
 public class MoonHandler extends AstroThingHandler {
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_MOON);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_MOON));
 
     private final String[] positionalChannelIds = new String[] { "phase#name", "phase#age", "phase#illumination",
             "position#azimuth", "position#elevation", "zodiac#sign" };
@@ -42,14 +42,12 @@ public class MoonHandler extends AstroThingHandler {
         super(thing);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void publishDailyInfo() {
         initializeMoon();
         publishPositionalInfo();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void publishPositionalInfo() {
         initializeMoon();
@@ -57,26 +55,22 @@ public class MoonHandler extends AstroThingHandler {
         publishPlanet();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Planet getPlanet() {
         return moon;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void dispose() {
         super.dispose();
         moon = null;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected String[] getPositionalChannelIds() {
         return positionalChannelIds;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Job getDailyJob() {
         return new DailyJobMoon(thing.getUID().getAsString(), this);

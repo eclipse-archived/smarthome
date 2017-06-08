@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.CHANNEL_ID_SUN_PHASE_NAME;
 import static org.eclipse.smarthome.binding.astro.internal.job.Job.checkNull;
 
@@ -19,24 +18,21 @@ import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
 import org.eclipse.smarthome.core.thing.Channel;
 
 /**
- * Scheduled Job for Sun Phase Change
+ * Scheduled job for Sun phase change
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public final class SunPhaseJob implements Job {
+public final class SunPhaseJob extends AbstractJob {
 
-    private final String thingUID;
     private final SunPhaseName sunPhaseName;
 
     /**
      * Constructor
      *
-     * @param thingUID
-     *            thing UID
-     * @param sunPhaseName
-     *            {@link SunPhaseName} name
-     * @throws NullPointerException
+     * @param thingUID thing UID
+     * @param sunPhaseName {@link SunPhaseName} name
+     * @throws IllegalArgumentException
      *             if any of the arguments is {@code null}
      */
     public SunPhaseJob(String thingUID, SunPhaseName sunPhaseName) {
@@ -47,7 +43,6 @@ public final class SunPhaseJob implements Job {
         this.sunPhaseName = sunPhaseName;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
         AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
@@ -64,39 +59,6 @@ public final class SunPhaseJob implements Job {
             typedSun.getPhase().setName(sunPhaseName);
             astroHandler.publishChannelIfLinked(phaseNameChannel.getUID());
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getThingUID() {
-        return thingUID;
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
-        return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SunPhaseJob other = (SunPhaseJob) obj;
-        if (thingUID == null) {
-            if (other.thingUID != null)
-                return false;
-        } else if (!thingUID.equals(other.thingUID))
-            return false;
-        return true;
     }
 
 }
