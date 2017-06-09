@@ -20,14 +20,11 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -39,10 +36,7 @@ import org.eclipse.smarthome.model.core.ModelRepository;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
-
-import com.google.common.collect.Lists;
+import org.osgi.service.component.ComponentContext;
 
 /**
  * This class is able to observe multiple folders for changes and notifies the
@@ -53,7 +47,7 @@ import com.google.common.collect.Lists;
  * @author Ana Dimova - reduce to a single watch thread for all class instances
  *
  */
-public class FolderObserver extends AbstractWatchService implements ManagedService {
+public class FolderObserver extends AbstractWatchService {
 
     public FolderObserver() {
         super(ConfigConstants.getConfigFolder());
@@ -81,6 +75,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
 
     protected void addModelParser(ModelParser modelParser) {
         parsers.add(modelParser.getExtension());
+
+        // if the component isn't activated yet, ignoredFiles will be empty and thus this method does nothing
         processIgnoredFiles(modelParser.getExtension());
     }
 
@@ -88,16 +84,50 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         parsers.remove(modelParser.getExtension());
     }
 
+    public void activate(ComponentContext ctx) {
+        Dictionary<String, Object> config = ctx.getProperties();
+
+        Enumeration<String> keys = config.keys();
+        while (keys.hasMoreElements()) {
+
+            String foldername = keys.nextElement();
+            if (!StringUtils.isAlphanumeric(foldername)) {
+                // we allow only simple alphanumeric names for model folders - everything else might be other service
+                // properties
+                continue;
+            }
+
+            String[] fileExts = ((String) config.get(foldername)).split(",");
+
+            File folder = getFile(foldername);
+            if (folder.exists() && folder.isDirectory()) {
+                folderFileExtMap.put(foldername, fileExts);
+            } else {
+                logger.warn("Directory '{}' does not exist in '{}'. Please check your configuration settings!",
+                        foldername, ConfigConstants.getConfigFolder());
+            }
+        }
+
+        addModelsToRepo();
+
+        super.activate();
+    }
+
     @Override
-    public void activate() {
+    public void deactivate() {
+        super.deactivate();
+        deleteModelsFromRepo();
+        this.ignoredFiles.clear();
+        this.folderFileExtMap.clear();
+        this.parsers.clear();
     }
 
     private void processIgnoredFiles(String extension) {
-        HashSet<File> clonedSet = new HashSet<>(ignoredFiles);
+        HashSet<File> clonedSet = new HashSet<>(this.ignoredFiles);
         for (File file : clonedSet) {
             if (extension.equals(getExtension(file.getPath()))) {
                 checkFile(modelRepo, file, ENTRY_CREATE);
-                ignoredFiles.remove(file);
+                this.ignoredFiles.remove(file);
             }
         }
     }
@@ -111,56 +141,20 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     protected Kind<?>[] getWatchEventKinds(Path directory) {
         if (directory != null && MapUtils.isNotEmpty(folderFileExtMap)) {
             String folderName = directory.getFileName().toString();
-            if (folderFileExtMap.containsKey(folderName)) {
+            if (this.folderFileExtMap.containsKey(folderName)) {
                 return new Kind<?>[] { ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY };
             }
         }
         return null;
     }
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    public synchronized void updated(Dictionary config) throws ConfigurationException {
-        if (config != null) {
-            // necessary to check removed models
-            Map<String, String[]> previousFolderFileExtMap = new ConcurrentHashMap<String, String[]>(folderFileExtMap);
-
-            // make sure to clear the caches first
-            folderFileExtMap.clear();
-
-            Enumeration keys = config.keys();
-            while (keys.hasMoreElements()) {
-
-                String foldername = (String) keys.nextElement();
-                if (foldername.equals("service.pid")) {
-                    continue;
-                }
-
-                String[] fileExts = ((String) config.get(foldername)).split(",");
-
-                File folder = getFile(foldername);
-                if (folder.exists() && folder.isDirectory()) {
-                    folderFileExtMap.put(foldername, fileExts);
-                } else {
-                    logger.warn("Directory '{}' does not exist in '{}'. Please check your configuration settings!",
-                            foldername, ConfigConstants.getConfigFolder());
-                }
-            }
-
-            notifyUpdateToModelRepo(previousFolderFileExtMap);
-            deactivate();
-            super.activate();
-        }
-    }
-
-    private void notifyUpdateToModelRepo(Map<String, String[]> previousFolderFileExtMap) {
-        checkDeletedModels(previousFolderFileExtMap);
-        if (MapUtils.isNotEmpty(folderFileExtMap)) {
-            Iterator<String> iterator = folderFileExtMap.keySet().iterator();
+    private void addModelsToRepo() {
+        if (MapUtils.isNotEmpty(this.folderFileExtMap)) {
+            Iterator<String> iterator = this.folderFileExtMap.keySet().iterator();
             while (iterator.hasNext()) {
                 String folderName = iterator.next();
 
-                final String[] validExtension = folderFileExtMap.get(folderName);
+                final String[] validExtension = this.folderFileExtMap.get(folderName);
                 if (validExtension != null && validExtension.length > 0) {
                     File folder = getFile(folderName);
 
@@ -178,36 +172,14 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
         }
     }
 
-    private void checkDeletedModels(Map<String, String[]> previousFolderFileExtMap) {
-        if (MapUtils.isNotEmpty(previousFolderFileExtMap)) {
-            List<String> modelsToRemove = new LinkedList<String>();
-            if (MapUtils.isNotEmpty(folderFileExtMap)) {
-                Set<String> folders = previousFolderFileExtMap.keySet();
-                for (String folder : folders) {
-                    if (!folderFileExtMap.containsKey(folder)) {
-                        Iterable<String> models = modelRepo.getAllModelNamesOfType(folder);
-                        if (models != null) {
-                            modelsToRemove.addAll(Lists.newLinkedList(models));
-                        }
-                    }
-                }
-            } else {
-                Set<String> folders = previousFolderFileExtMap.keySet();
-                for (String folder : folders) {
-                    synchronized (FolderObserver.class) {
-                        Iterable<String> models = modelRepo.getAllModelNamesOfType(folder);
-                        if (models != null) {
-                            modelsToRemove.addAll(Lists.newLinkedList(models));
-                        }
-                    }
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(modelsToRemove)) {
-                for (String modelToRemove : modelsToRemove) {
-                    synchronized (FolderObserver.class) {
-                        modelRepo.removeModel(modelToRemove);
-                    }
+    private void deleteModelsFromRepo() {
+        Set<String> folders = this.folderFileExtMap.keySet();
+        for (String folder : folders) {
+            Iterable<String> models = modelRepo.getAllModelNamesOfType(folder);
+            if (models != null) {
+                for (String model : models) {
+                    logger.debug("Removing file {} from the model repo.", model);
+                    modelRepo.removeModel(model);
                 }
             }
         }
