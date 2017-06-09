@@ -83,10 +83,11 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
     }
 
     protected void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
-        // noop - only make sure ScriptServiceUtil gets "used", hence activated
+        scriptServiceUtil.setScriptEngine(this);
     }
 
     protected void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        scriptServiceUtil.unsetScriptEngine(this);
     }
 
     @Override
