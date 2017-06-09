@@ -10,17 +10,18 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 
 import javax.measure.Dimension;
+import javax.measure.IncommensurableException;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.quantity.Quantities;
@@ -31,26 +32,31 @@ import tec.uom.se.quantity.Quantities;
  * @author Gaël L'hopital - Initial contribution
  *
  */
-public class QuantityType extends Number
-        implements PrimitiveType, State, Command, Comparable<QuantityType>, Convertible {
+public class QuantityType extends Number implements PrimitiveType, State, Command, Comparable<QuantityType> {
+    private final static Logger logger = LoggerFactory.getLogger(QuantityType.class);
 
     private static final long serialVersionUID = 8828949721938234629L;
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     // Regular expression to split unit from value
-    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ])";
+    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%])";
 
-    protected Quantity<?> quantity;
+    public Quantity<?> quantity;
 
     public QuantityType(String value) {
-        if (value != null) {
-            String[] constituents = value.split(UNIT_PATTERN);
-
-            // getQuantity needs a space between numeric value and unit
-            String formatted = String.join(" ", constituents);
-            quantity = Quantities.getQuantity(formatted);
-        } else {
+        if (value == null) {
             throw new IllegalArgumentException("Constructor argument must not be null");
+        }
+
+        String[] constituents = value.split(UNIT_PATTERN);
+
+        // getQuantity needs a space between numeric value and unit
+        String formatted = String.join(" ", constituents);
+        try {
+            quantity = Quantities.getQuantity(formatted);
+        } catch (IllegalArgumentException e) {
+            logger.debug("Unable to convert {} to QuantityType", value);
+            throw e;
         }
     }
 
@@ -115,20 +121,20 @@ public class QuantityType extends Number
         return getUnit().getDimension();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public QuantityType toUnit(Unit targetUnit) {
-        try {
-            if (targetUnit != getUnit()) {
-                UnitConverter uc = getUnit().getConverterTo(targetUnit);
-                Quantity result = Quantities.getQuantity(uc.convert(quantity.getValue()), targetUnit);
+    public QuantityType toUnit(Unit<?> targetUnit) {
+        if (!targetUnit.equals(getUnit())) {
+            try {
+                UnitConverter uc = getUnit().getConverterToAny(targetUnit);
+                Quantity<?> result = Quantities.getQuantity(uc.convert(quantity.getValue()), targetUnit);
 
                 return new QuantityType(result.getValue().doubleValue(), targetUnit);
-            } else {
-                return this;
+            } catch (UnconvertibleException | IncommensurableException e) {
+                logger.debug("Unable to convert unit from {} to {}",
+                        new Object[] { getUnit().toString(), targetUnit.toString() });
+                return null;
             }
-        } catch (UnconvertibleException e) {
-            return null;
         }
+        return this;
     }
 
     public QuantityType toUnit(String targetUnit) {
@@ -195,7 +201,7 @@ public class QuantityType extends Number
                 return UnDefType.UNDEF;
             }
         } else if (target == UpDownType.class) {
-            if (intValue() == 0) {
+            if (doubleValue() == 0) {
                 return UpDownType.UP;
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
                 return UpDownType.DOWN;
@@ -203,7 +209,7 @@ public class QuantityType extends Number
                 return UnDefType.UNDEF;
             }
         } else if (target == OpenClosedType.class) {
-            if (intValue() == 0) {
+            if (doubleValue() == 0) {
                 return OpenClosedType.CLOSED;
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
                 return OpenClosedType.OPEN;
@@ -218,7 +224,7 @@ public class QuantityType extends Number
         } else if (target == DecimalType.class) {
             return new DecimalType(toBigDecimal());
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return State.super.as(target);
         }
     }
 

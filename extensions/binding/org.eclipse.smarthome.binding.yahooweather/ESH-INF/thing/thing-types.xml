@@ -33,9 +33,9 @@
     <channel-type id="temperature">
         <item-type>Number</item-type>
         <label>Temperature</label>
-        <description>Current temperature in degrees celsius</description>
+        <description>Current temperature in degrees</description>
         <category>Temperature</category>
-        <state readOnly="true" pattern="%.1f °C">
+        <state readOnly="true" pattern="%.1f">
         </state>
     </channel-type>
 
@@ -51,9 +51,9 @@
     <channel-type id="pressure">
         <item-type>Number</item-type>
         <label>Pressure</label>
-        <description>Current pressure in millibar</description>
+        <description>Current pressure</description>
         <category>Pressure</category>
-        <state readOnly="true" pattern="%.1f hPa">
+        <state readOnly="true" pattern="%.1f">
         </state>
     </channel-type>
 
