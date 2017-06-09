@@ -9,6 +9,7 @@ package org.eclipse.smarthome.model.script;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -19,9 +20,6 @@ import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,48 +43,19 @@ public class ScriptServiceUtil {
 
     private ModelRepository modelRepository;
 
-    private ScriptEngine scriptEngine;
-
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker scriptEngineTracker;
+    private final AtomicReference<ScriptEngine> scriptEngine = new AtomicReference<>();
 
     public List<ActionService> actionServices = new CopyOnWriteArrayList<ActionService>();
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void activate(final BundleContext bc) {
         if (instance != null) {
             throw new IllegalStateException("ScriptServiceUtil should only be activated once!");
         }
         instance = this;
         logger.debug("ScriptServiceUtil started");
-
-        scriptEngineTracker = new ServiceTracker(bc, ScriptEngine.class.getName(), new ServiceTrackerCustomizer() {
-
-            @Override
-            public Object addingService(ServiceReference reference) {
-                Object service = bc.getService(reference);
-                if (service instanceof ScriptEngine) {
-                    instance.scriptEngine = (ScriptEngine) service;
-                }
-                return null;
-            }
-
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
-
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                if (service instanceof ScriptEngine) {
-                    instance.scriptEngine = null;
-                }
-            }
-        });
-        scriptEngineTracker.open();
     }
 
     public void deactivate() {
-        scriptEngineTracker.close();
         logger.debug("ScriptServiceUtil stopped");
         instance = null;
     }
@@ -141,7 +110,7 @@ public class ScriptServiceUtil {
     }
 
     public static ScriptEngine getScriptEngine() {
-        return getInstance().scriptEngine;
+        return getInstance().scriptEngine.get();
     }
 
     public static List<ActionService> getActionServices() {
@@ -186,6 +155,16 @@ public class ScriptServiceUtil {
 
     public void unsetModelRepository(ModelRepository modelRepository) {
         this.modelRepository = null;
+    }
+
+    public void setScriptEngine(ScriptEngine scriptEngine) {
+        // injected as a callback from the script engine, not via DS as it is a circular dependency...
+        this.scriptEngine.set(scriptEngine);
+    }
+
+    public void unsetScriptEngine(ScriptEngine scriptEngine) {
+        // uninjected as a callback from the script engine, not via DS as it is a circular dependency...
+        this.scriptEngine.compareAndSet(scriptEngine, null);
     }
 
 }
