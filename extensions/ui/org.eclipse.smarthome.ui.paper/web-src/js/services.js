@@ -6,7 +6,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     $httpProvider.interceptors.push(function($q, $injector) {
         return {
             'responseError' : function(rejection) {
-                var showError = rejection.showError;
+                var showError = rejection.data.showError;
                 if (showError !== false) {
                     var errorText = "";
                     if (rejection.data && rejection.data.customMessage) {
