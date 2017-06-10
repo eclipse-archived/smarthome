@@ -16,6 +16,7 @@
 	<property name="service.config.description.uri" type="String" value="system:json_storage" />
 	<property name="service.config.label" type="String" value="Json Storage" />
 	<property name="service.config.category" type="String" value="system" />
+	<property name="storage.format" type="String" value="json"/>
 
 	<service>
 		<provide interface="org.eclipse.smarthome.core.storage.StorageService" />
