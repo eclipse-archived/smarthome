@@ -49,11 +49,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
-    private final int MAX_DATA_AGE = 3 * 60 * 60 * 1000; // 3h
-    private final int CACHE_EXPIRY = 10 * 1000; // 10s
-    private final ExpiringCacheMap<String, String> CACHE = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
-    private final String CACHE_KEY_CONFIG = "CONFIG_STATUS";
-    private final String CACHE_KEY_WEATHER = "WEATHER";
+    private static final int MAX_DATA_AGE = 3 * 60 * 60 * 1000; // 3h
+    private static final int CACHE_EXPIRY = 10 * 1000; // 10s
+    private static final String CACHE_KEY_CONFIG = "CONFIG_STATUS";
+    private static final String CACHE_KEY_WEATHER = "WEATHER";
+
+    private final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
     private final YahooWeatherConnection connection = new YahooWeatherConnection();
 
@@ -89,14 +90,10 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             refresh = new BigDecimal(60);
         }
 
-        CACHE.put(CACHE_KEY_CONFIG, () -> {
-            return connection.getResponseFromQuery(
-                    "SELECT location FROM weather.forecast WHERE woeid = " + location.toPlainString());
-        });
-        CACHE.put(CACHE_KEY_WEATHER, () -> {
-            return connection.getResponseFromQuery(
-                    "SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location.toPlainString());
-        });
+        cache.put(CACHE_KEY_CONFIG, () -> connection.getResponseFromQuery(
+                "SELECT location FROM weather.forecast WHERE woeid = " + location.toPlainString()));
+        cache.put(CACHE_KEY_WEATHER, () -> connection.getResponseFromQuery(
+                "SELECT * FROM weather.forecast WHERE u = 'c' AND woeid = " + location.toPlainString()));
 
         startAutomaticRefresh();
     }
@@ -151,7 +148,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     public Collection<ConfigStatusMessage> getConfigStatus() {
         Collection<ConfigStatusMessage> configStatus = new ArrayList<>();
 
-        String locationData = CACHE.get(CACHE_KEY_CONFIG);
+        final String locationData = cache.get(CACHE_KEY_CONFIG);
         if (locationData != null) {
             String city = getValue(locationData, "location", "city");
             if (city == null) {
@@ -159,11 +156,12 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                         .withMessageKeySuffix("location-not-found").withArguments(location.toPlainString()).build());
             }
         }
+
         return configStatus;
     }
 
     private synchronized boolean updateWeatherData() {
-        String data = CACHE.get(CACHE_KEY_WEATHER);
+        final String data = cache.get(CACHE_KEY_WEATHER);
         if (data != null) {
             if (data.contains("\"results\":null")) {
                 if (isCurrentDataExpired()) {
