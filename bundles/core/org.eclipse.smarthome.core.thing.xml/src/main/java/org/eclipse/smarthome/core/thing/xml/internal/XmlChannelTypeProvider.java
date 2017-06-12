@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
@@ -224,11 +224,11 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
     }
 
     @Reference
-    public void setI18nProvider(I18nProvider i18nProvider) {
+    public void setTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
     }
 
-    public void unsetI18nProvider(I18nProvider i18nProvider) {
+    public void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = null;
     }
 

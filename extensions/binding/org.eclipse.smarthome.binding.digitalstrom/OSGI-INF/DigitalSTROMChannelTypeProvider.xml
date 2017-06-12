@@ -14,5 +14,5 @@
 	<service>
 		<provide interface="org.eclipse.smarthome.core.thing.type.ChannelTypeProvider" />
 	</service>
- <reference bind="setI18nProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.I18nProvider" name="I18nprovider" policy="dynamic" unbind="unsetI18nProvider"/>
+ <reference bind="setTranslationProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.TranslationProvider" name="I18nprovider" policy="dynamic" unbind="unsetTranslationProvider"/>
 </scr:component>

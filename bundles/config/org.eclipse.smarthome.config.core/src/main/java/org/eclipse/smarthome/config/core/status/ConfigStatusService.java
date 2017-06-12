@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import org.eclipse.smarthome.config.core.status.events.ConfigStatusInfoEvent;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -39,7 +39,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
     private final List<ConfigStatusProvider> configStatusProviders = new CopyOnWriteArrayList<>();
     private EventPublisher eventPublisher;
     private LocaleProvider localeProvider;
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
 
     private final ExecutorService executorService = ThreadPoolManager
             .getPool(ConfigStatusService.class.getSimpleName());
@@ -154,11 +154,11 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         this.localeProvider = null;
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 }

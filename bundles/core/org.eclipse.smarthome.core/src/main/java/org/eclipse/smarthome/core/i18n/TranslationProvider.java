@@ -12,7 +12,7 @@ import java.util.Locale;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link I18nProvider} is a service interface for internationalization support within
+ * The {@link TranslationProvider} is a service interface for internationalization support within
  * the platform. This service can be used to translate specific keys into its according
  * text by considering the specified {@link Locale} (language). Any module which supports
  * resource files is managed by this provider and used for translation. This service uses
@@ -21,7 +21,7 @@ import org.osgi.framework.Bundle;
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added getText operation with arguments
  */
-public interface I18nProvider {
+public interface TranslationProvider {
 
     /**
      * Returns a translation for the specified key in the specified locale (language) by only

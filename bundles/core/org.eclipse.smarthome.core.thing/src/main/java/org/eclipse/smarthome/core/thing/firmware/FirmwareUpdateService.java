@@ -34,7 +34,7 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -86,7 +86,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
     private FirmwareRegistry firmwareRegistry;
     private EventPublisher eventPublisher;
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
     private LocaleProvider localeProvider;
 
     private Runnable firmwareStatusRunnable = new Runnable() {
@@ -504,11 +504,11 @@ public final class FirmwareUpdateService implements EventSubscriber {
         this.eventPublisher = null;
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 

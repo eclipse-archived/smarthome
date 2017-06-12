@@ -17,7 +17,7 @@
 
     <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.module.type)"/>
     <reference bind="setModuleTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.type.ModuleTypeRegistry" name="ModuleTypeRegistry" policy="static" unbind="removeModuleTypeRegistry"/>
-    <reference bind="setI18nProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.i18n.I18nProvider" name="I18nProvider" policy="dynamic" unbind="removeI18nProvider"/>
+    <reference bind="setTranslationProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.i18n.TranslationProvider" name="TranslationProvider" policy="dynamic" unbind="removeTranslationProvider"/>
     <service>
         <provide interface="org.eclipse.smarthome.automation.type.ModuleTypeProvider" />
         <provide interface="org.eclipse.smarthome.core.common.registry.Provider" />

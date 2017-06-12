@@ -12,7 +12,7 @@ import java.util.Locale;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link BindingI18nUtil} uses the {@link I18nProvider} to resolve the
+ * The {@link BindingI18nUtil} uses the {@link TranslationProvider} to resolve the
  * localized texts. It automatically infers the key if the default text is not a
  * constant.
  *
@@ -20,9 +20,9 @@ import org.osgi.framework.Bundle;
  */
 public class BindingI18nUtil {
 
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
 
-    public BindingI18nUtil(I18nProvider i18nProvider) {
+    public BindingI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 

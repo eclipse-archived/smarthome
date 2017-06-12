@@ -11,7 +11,7 @@ import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -34,7 +34,7 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
     private static final String TEMPERATURE_ZONE_DESCRIPTION_KEY = "channel-type.lifx.temperaturezone.description";
 
     private Bundle bundle;
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
     private LocaleProvider localeProvider;
 
     @Override
@@ -70,11 +70,11 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
         this.bundle = null;
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 

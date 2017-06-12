@@ -15,7 +15,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
@@ -41,7 +41,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
      */
     private final FirmwareUpdateHandler firmwareUpdateHandler;
     private final EventPublisher eventPublisher;
-    private final I18nProvider i18nProvider;
+    private final TranslationProvider i18nProvider;
     private final ThingUID thingUID;
     private final FirmwareUID firmwareUID;
     private final Locale locale;
@@ -61,7 +61,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private InternalState state;
 
     ProgressCallbackImpl(FirmwareUpdateHandler firmwareUpdateHandler, EventPublisher eventPublisher,
-            I18nProvider i18nProvider, ThingUID thingUID, FirmwareUID firmwareUID, Locale locale) {
+            TranslationProvider i18nProvider, ThingUID thingUID, FirmwareUID firmwareUID, Locale locale) {
         this.firmwareUpdateHandler = firmwareUpdateHandler;
         this.eventPublisher = eventPublisher;
         this.i18nProvider = i18nProvider;

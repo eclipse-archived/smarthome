@@ -30,7 +30,7 @@ import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventFilter
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -445,7 +445,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         def publisher = [
             post : { event -> postedEvent = event }
         ] as EventPublisher
-        def i18nProvider = getService(I18nProvider)
+        def i18nProvider = getService(TranslationProvider)
         assertThat i18nProvider, is(notNullValue())
         registerService(firmwareUpdateHandler)
         def service = getService(FirmwareUpdateHandler) {
@@ -514,7 +514,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         def publisher = [
             post : { event -> postedEvent = event }
         ] as EventPublisher
-        def i18nProvider = getService(I18nProvider)
+        def i18nProvider = getService(TranslationProvider)
         assertThat i18nProvider, is(notNullValue())
 
         registerService(firmwareUpdateHandler)
