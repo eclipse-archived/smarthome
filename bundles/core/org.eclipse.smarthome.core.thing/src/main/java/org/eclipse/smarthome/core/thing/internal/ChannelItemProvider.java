@@ -263,7 +263,6 @@ public class ChannelItemProvider implements ItemProvider {
         }
         Item item = items.get(key);
         if (item != null) {
-            items.remove(key);
             for (ProviderChangeListener<Item> listener : listeners) {
                 listener.removed(this, item);
             }
@@ -329,17 +328,25 @@ public class ChannelItemProvider implements ItemProvider {
                 }
             }
             // it is from some other provider, so remove ours, if we have one
-            Item oldElement = items.remove(element.getName());
+            Item oldElement = items.get(element.getName());
             if (oldElement != null) {
                 for (ProviderChangeListener<Item> listener : listeners) {
                     listener.removed(ChannelItemProvider.this, oldElement);
                 }
+                items.remove(element.getName());
             }
             lastUpdate = System.nanoTime();
         }
 
         @Override
         public void removed(Item element) {
+            // check, if it is our own item
+            for (Item item : items.values()) {
+                if (item == element) {
+                    return;
+                }
+            }
+            // it is from some other provider, so create one ourselves if needed
             for (ChannelUID uid : linkRegistry.getBoundChannels(element.getName())) {
                 for (ItemChannelLink link : linkRegistry.getLinks(uid)) {
                     if (itemRegistry.get(link.getItemName()) == null) {
