@@ -10,7 +10,7 @@ package org.eclipse.smarthome.core.thing.i18n;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -43,7 +43,7 @@ import org.osgi.framework.FrameworkUtil;
  */
 public final class ThingStatusInfoI18nLocalizationService {
 
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
 
     /**
      * Localizes the {@link ThingStatusInfo} for the given thing.
@@ -82,11 +82,11 @@ public final class ThingStatusInfoI18nLocalizationService {
         return new ThingStatusInfo(thing.getStatus(), thing.getStatusInfo().getStatusDetail(), translatedDescription);
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         i18nProvider = null;
     }
 
@@ -101,7 +101,7 @@ public final class ThingStatusInfoI18nLocalizationService {
         private final Object[] args;
 
         private Description(final Bundle bundle, final Locale locale, String description,
-                final I18nProvider theI18nProvider) {
+                final TranslationProvider theTranslationProvider) {
             String[] parts = description.split("\\s+", LIMIT);
             this.key = I18nUtil.stripConstant(parts[0]);
 
@@ -116,7 +116,7 @@ public final class ThingStatusInfoI18nLocalizationService {
                 }).map(s -> {
                     String input = s.trim();
                     return I18nUtil.isConstant(input)
-                            ? theI18nProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale) : input;
+                            ? theTranslationProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale) : input;
                 }).toArray(size -> new String[size]);
             }
         }

@@ -27,7 +27,7 @@
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core/${project.version}</bundle>
     <capability>
-      osgi.service;objectClass=org.eclipse.smarthome.core.i18n.I18nProvider
+      osgi.service;objectClass=org.eclipse.smarthome.core.i18n.TranslationProvider
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemRegistry

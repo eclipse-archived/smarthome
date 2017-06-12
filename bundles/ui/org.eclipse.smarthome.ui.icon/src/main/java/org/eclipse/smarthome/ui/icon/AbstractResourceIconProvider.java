@@ -10,7 +10,7 @@ package org.eclipse.smarthome.ui.icon;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.ui.icon.IconSet.Format;
 import org.osgi.framework.BundleContext;
 
@@ -39,9 +39,9 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
     protected BundleContext context;
 
     /**
-     * An I18nProvider service
+     * An TranslationProvider service
      */
-    protected I18nProvider i18nProvider;
+    protected TranslationProvider i18nProvider;
 
     /**
      * When activating the service, we need to keep the bundle context.
@@ -52,11 +52,11 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
         this.context = context;
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 

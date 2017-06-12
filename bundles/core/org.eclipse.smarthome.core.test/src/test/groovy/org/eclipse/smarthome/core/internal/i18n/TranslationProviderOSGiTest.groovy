@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -21,14 +21,14 @@ import org.osgi.framework.Bundle
 
 
 /**
- * The {@link I18nProviderOSGiTest} checks if the {@link I18nProvider} service is working
- * properly. This test retrieves the {@link I18nProvider} service from the <i>OSGi</i>
+ * The {@link TranslationProviderOSGiTest} checks if the {@link TranslationProvider} service is working
+ * properly. This test retrieves the {@link TranslationProvider} service from the <i>OSGi</i>
  * service registry and calls any public methods on it in different scenarios.
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added tests for getText operation with arguments
  */
-class I18nProviderOSGiTest extends OSGiTest {
+class TranslationProviderOSGiTest extends OSGiTest {
 
     def RESOURCE = "resourceName"
 
@@ -55,13 +55,13 @@ class I18nProviderOSGiTest extends OSGiTest {
 
     def BYE_DEFAULT = "Tschuess!"
 
-    I18nProvider i18nProvider
+    TranslationProvider i18nProvider
 
     Locale defaultLocale
 
     @Before
     void setUp() {
-        i18nProvider = getService(I18nProvider)
+        i18nProvider = getService(TranslationProvider)
         assertThat i18nProvider, is(notNullValue())
 
         LocaleProviderImpl localeProvider = getService(LocaleProvider,LocaleProviderImpl)

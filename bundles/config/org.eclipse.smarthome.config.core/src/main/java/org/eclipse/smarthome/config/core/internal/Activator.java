@@ -11,7 +11,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -26,7 +26,7 @@ public final class Activator implements BundleActivator {
     private static Bundle bundle;
     private static BundleContext bundleContext;
     private static ConfigDescriptionRegistry configDescriptionRegistry;
-    private static I18nProvider i18nProvider;
+    private static TranslationProvider i18nProvider;
 
     private ServiceBinder configDescriptionRegistryServiceBinder;
     private ServiceBinder i18nProviderServiceBinder;
@@ -39,7 +39,7 @@ public final class Activator implements BundleActivator {
         configDescriptionRegistryServiceBinder = new ServiceBinder(context, new ConfigDescriptionRegistryBinder());
         configDescriptionRegistryServiceBinder.open();
 
-        i18nProviderServiceBinder = new ServiceBinder(context, new I18nProviderBinder());
+        i18nProviderServiceBinder = new ServiceBinder(context, new TranslationProviderBinder());
         i18nProviderServiceBinder.open();
     }
 
@@ -89,7 +89,7 @@ public final class Activator implements BundleActivator {
     /**
      * @return the i18nProvider or null if i18nProvider is not available
      **/
-    public static final I18nProvider getI18nProvider() {
+    public static final TranslationProvider getTranslationProvider() {
         return i18nProvider;
     }
 
@@ -101,10 +101,10 @@ public final class Activator implements BundleActivator {
         }
     }
 
-    public static final class I18nProviderBinder {
+    public static final class TranslationProviderBinder {
         @Bind
         @Unbind
-        public void bindI18nProvider(I18nProvider i18nProvider) {
+        public void bindTranslationProvider(TranslationProvider i18nProvider) {
             Activator.i18nProvider = i18nProvider;
         }
     }

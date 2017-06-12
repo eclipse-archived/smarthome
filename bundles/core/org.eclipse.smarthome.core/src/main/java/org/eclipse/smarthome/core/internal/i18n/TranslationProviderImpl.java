@@ -11,13 +11,13 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
- * The {@link I18nProviderImpl} is a concrete implementation of the {@link I18nProvider} service interface.
+ * The {@link TranslationProviderImpl} is a concrete implementation of the {@link TranslationProvider} service interface.
  * <p>
  * This implementation uses the i18n mechanism of Java ({@link ResourceBundle}) to translate a given key into text. The
  * resources must be placed under the specific directory {@link LanguageResourceBundleManager#RESOURCE_DIRECTORY} within
@@ -28,7 +28,7 @@ import org.osgi.framework.BundleContext;
  * @author Thomas Höfer - Added getText operation with arguments
  * @author Markus Rathgeb - Add locale provider support
  */
-public class I18nProviderImpl implements I18nProvider {
+public class TranslationProviderImpl implements TranslationProvider {
 
     private LocaleProvider localeProvider;
     private ResourceBundleTracker resourceBundleTracker;

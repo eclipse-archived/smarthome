@@ -38,7 +38,7 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
@@ -81,7 +81,7 @@ public abstract class AbstractResourceBundleProvider<E> {
     /**
      * This field holds a reference to the service instance for internationalization support within the platform.
      */
-    protected I18nProvider i18nProvider;
+    protected TranslationProvider i18nProvider;
 
     /**
      * This field keeps instance of {@link Logger} that is used for logging.
@@ -214,11 +214,11 @@ public abstract class AbstractResourceBundleProvider<E> {
         parsers.remove(parserType);
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void removeI18nProvider(I18nProvider i18nProvider) {
+    protected void removeTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 
@@ -389,7 +389,7 @@ public abstract class AbstractResourceBundleProvider<E> {
         return null;
     }
 
-    protected List<ConfigDescriptionParameter> getLocalizedConfigurationDescription(I18nProvider i18nProvider,
+    protected List<ConfigDescriptionParameter> getLocalizedConfigurationDescription(TranslationProvider i18nProvider,
             List<ConfigDescriptionParameter> config, Bundle bundle, String uid, String prefix, Locale locale) {
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<ConfigDescriptionParameter>();
         if (config != null) {

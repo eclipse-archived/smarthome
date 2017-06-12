@@ -12,12 +12,12 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.eclipse.smarthome.config.core.internal.Activator;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link ConfigDescriptionI18nUtil} uses the {@link I18nProvider} to
+ * The {@link ConfigDescriptionI18nUtil} uses the {@link TranslationProvider} to
  * resolve the localized texts. It automatically infers the key if the default
  * text is not a constant.
  *
@@ -27,11 +27,11 @@ import org.osgi.framework.Bundle;
  */
 public class ConfigDescriptionI18nUtil {
 
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
 
     private static final Pattern delimiter = Pattern.compile("[:=\\s]");
 
-    public ConfigDescriptionI18nUtil(I18nProvider i18nProvider) {
+    public ConfigDescriptionI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 

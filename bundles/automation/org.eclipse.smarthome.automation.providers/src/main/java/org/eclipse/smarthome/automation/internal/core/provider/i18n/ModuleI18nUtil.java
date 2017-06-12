@@ -15,20 +15,20 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
 
 /**
  * This class is used as utility for resolving the localized {@link Module}s. It automatically infers the key if the
- * default text is not a constant with the assistance of {@link I18nProvider}.
+ * default text is not a constant with the assistance of {@link TranslationProvider}.
  *
  * @author Ana Dimova - Initial Contribution
  *
  */
 public class ModuleI18nUtil {
 
-    public static <T extends Module> List<T> getLocalizedModules(I18nProvider i18nProvider, List<T> modules,
+    public static <T extends Module> List<T> getLocalizedModules(TranslationProvider i18nProvider, List<T> modules,
             Bundle bundle, String uid, String prefix, Locale locale) {
         List<T> lmodules = new ArrayList<T>();
         for (T module : modules) {
@@ -76,14 +76,14 @@ public class ModuleI18nUtil {
         return action;
     }
 
-    private static String getModuleLabel(I18nProvider i18nProvider, Bundle bundle, String uid, String moduleName,
+    private static String getModuleLabel(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,
             String defaultLabel, String prefix, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
                 : inferModuleKey(prefix, uid, moduleName, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    private static String getModuleDescription(I18nProvider i18nProvider, Bundle bundle, String uid, String moduleName,
+    private static String getModuleDescription(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,
             String defaultDescription, String prefix, Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
                 : inferModuleKey(prefix, uid, moduleName, "description");
