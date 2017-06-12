@@ -249,15 +249,22 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 }
                 groupsList[indexArray[group[0].name]].groupName = group[0].name;
                 groupsList[indexArray[group[0].name]].groupLabel = group[0].label;
+                groupsList[indexArray[group[0].name]].advanced = group[0].advanced;
                 groupsList[indexArray[group[0].name]].parameters.push(parameter);
             }
             parameters.hasAdvanced = false;
             for (var j = 0; j < groupsList.length; j++) {
                 if (groupsList[j].groupName) {
+                    if (groupsList[j].advanced) {
+                        groupsList[j].parameters.map(function(param) {
+                            param.advanced = true;
+                            return param
+                        });
+                    }
                     groupsList[j].advParam = $.grep(groupsList[j].parameters, function(parameter) {
                         return parameter.advanced;
                     }).length;
-                    if (groupsList[j].advParam > 0) {
+                    if (groupsList[j].advParam > 0 || groupsList[j].advanced) {
                         parameters.hasAdvanced = true;
                     }
                     parameters.push(groupsList[j]);
