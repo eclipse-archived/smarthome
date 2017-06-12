@@ -28,4 +28,8 @@ public class BlueGigaBindingConstants {
 
     public static final String CONFIGURATION_PORT = "bluegiga_port";
 
+    public static final String PROPERTY_FIRMWARE = "bluegiga_version_firmware";
+    public static final String PROPERTY_HARDWARE = "bluegiga_version_firmware";
+    public static final String PROPERTY_LINKLAYER = "bluegiga_version_linklayer";
+    public static final String PROPERTY_PROTOCOL = "bluegiga_version_protocol";
 }

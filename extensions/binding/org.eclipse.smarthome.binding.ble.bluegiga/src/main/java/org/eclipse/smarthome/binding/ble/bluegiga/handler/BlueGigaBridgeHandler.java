@@ -48,8 +48,10 @@ import com.zsmartsystems.bluetooth.bluegiga.command.attributeclient.BlueGigaRead
 import com.zsmartsystems.bluetooth.bluegiga.command.attributeclient.BlueGigaReadByGroupTypeResponse;
 import com.zsmartsystems.bluetooth.bluegiga.command.attributeclient.BlueGigaReadByHandleCommand;
 import com.zsmartsystems.bluetooth.bluegiga.command.attributeclient.BlueGigaReadByHandleResponse;
+import com.zsmartsystems.bluetooth.bluegiga.command.connection.BlueGigaConnectionStatusEvent;
 import com.zsmartsystems.bluetooth.bluegiga.command.connection.BlueGigaDisconnectCommand;
 import com.zsmartsystems.bluetooth.bluegiga.command.connection.BlueGigaDisconnectResponse;
+import com.zsmartsystems.bluetooth.bluegiga.command.connection.BlueGigaDisconnectedEvent;
 import com.zsmartsystems.bluetooth.bluegiga.command.gap.BlueGigaConnectDirectCommand;
 import com.zsmartsystems.bluetooth.bluegiga.command.gap.BlueGigaConnectDirectResponse;
 import com.zsmartsystems.bluetooth.bluegiga.command.gap.BlueGigaDiscoverCommand;
@@ -63,6 +65,8 @@ import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaAddressGetCom
 import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaAddressGetResponse;
 import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaGetConnectionsCommand;
 import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaGetConnectionsResponse;
+import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaGetInfoCommand;
+import com.zsmartsystems.bluetooth.bluegiga.command.system.BlueGigaGetInfoResponse;
 import com.zsmartsystems.bluetooth.bluegiga.enumeration.BgApiResponse;
 import com.zsmartsystems.bluetooth.bluegiga.enumeration.BluetoothAddressType;
 import com.zsmartsystems.bluetooth.bluegiga.enumeration.GapConnectableMode;
@@ -126,7 +130,7 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
     private final Map<BluetoothAddress, BleDevice> devices = new HashMap<BluetoothAddress, BleDevice>();
 
     // Map of open connections
-    private final Map<Integer, BlueGigaBleDevice> connections = new HashMap<Integer, BlueGigaBleDevice>();
+    private final Map<Integer, BluetoothAddress> connections = new HashMap<Integer, BluetoothAddress>();
 
     // List of device listeners
     protected final ConcurrentHashMap<BluetoothAddress, BleDeviceListener> deviceListeners = new ConcurrentHashMap<BluetoothAddress, BleDeviceListener>();
@@ -201,13 +205,9 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
                     maxConnections = connectionsResponse.getMaxconn();
                 }
 
-                Map<String, String> properties = editProperties();
-                properties.put(BleBindingConstants.PROPERTY_MAXCONNECTIONS, Integer.toString(maxConnections));
-                updateProperties(properties);
-
                 // Close all connections so we start from a known position
                 for (int connection = 0; connection < maxConnections; connection++) {
-                    bgCloseConnection(connection);
+                    bgDisconnect(connection);
                 }
 
                 // Get our Bluetooth address
@@ -220,6 +220,9 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
                 } else {
                     updateStatus(ThingStatus.OFFLINE);
                 }
+
+                command = new BlueGigaGetInfoCommand();
+                BlueGigaGetInfoResponse infoResponse = (BlueGigaGetInfoResponse) bgHandler.sendTransaction(command);
 
                 // Set mode to non-discoverable etc.
                 // Not doing this will cause connection failures later
@@ -235,6 +238,18 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
 
                 // Start passive scan
                 bgStartScanning(false, passiveScanInterval, passiveScanWindow);
+
+                Map<String, String> properties = editProperties();
+                properties.put(BleBindingConstants.PROPERTY_MAXCONNECTIONS, Integer.toString(maxConnections));
+                properties.put(BlueGigaBindingConstants.PROPERTY_FIRMWARE,
+                        String.format("%d.%d", infoResponse.getMajor(), infoResponse.getMinor()));
+                properties.put(BlueGigaBindingConstants.PROPERTY_HARDWARE,
+                        Integer.toString(infoResponse.getHardware()));
+                properties.put(BlueGigaBindingConstants.PROPERTY_PROTOCOL,
+                        Integer.toString(infoResponse.getProtocolVersion()));
+                properties.put(BlueGigaBindingConstants.PROPERTY_LINKLAYER,
+                        Integer.toString(infoResponse.getLlVersion()));
+                updateProperties(properties);
             }
         };
 
@@ -333,6 +348,18 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
 
             return;
         }
+
+        if (event instanceof BlueGigaConnectionStatusEvent) {
+            BlueGigaConnectionStatusEvent connectionEvent = (BlueGigaConnectionStatusEvent) event;
+
+            connections.put(connectionEvent.getConnection(), new BluetoothAddress(connectionEvent.getAddress()));
+        }
+
+        if (event instanceof BlueGigaDisconnectedEvent) {
+            BlueGigaDisconnectedEvent disconnectedEvent = (BlueGigaDisconnectedEvent) event;
+
+            connections.remove(disconnectedEvent.getConnection());
+        }
     }
 
     @Override
@@ -377,12 +404,25 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
      */
 
     /**
-     * Connects to a device
+     * Connects to a device.
+     * <p>
+     * If the device is already connected, or the attempt to connect failed, then we return false. If we have reached
+     * the maximum number of connections supported by this dongle, then we return false.
      *
+     * @param address the device {@link BluetoothAddress} to connect to
+     * @param addressType the {@link BluetoothAddressType} of the device
      * @return true if the connection was started
      */
-    public boolean bgConnect(String address, BluetoothAddressType addressType) {
-        // Check the connection to make sure we're not already connected
+    public boolean bgConnect(BluetoothAddress address, BluetoothAddressType addressType) {
+        // Check the connection to make sure we're not already connected to this device
+        if (connections.containsValue(address)) {
+            return false;
+        }
+
+        if (connections.size() == maxConnections) {
+            logger.debug("BlueGiga: Attempt to connect to {} but no connections available.", address);
+            return false;
+        }
 
         bgSetMode();
 
@@ -393,7 +433,7 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
         int timeout = 100;
 
         BlueGigaConnectDirectCommand connect = new BlueGigaConnectDirectCommand();
-        connect.setAddress(address);
+        connect.setAddress(address.toString());
         connect.setAddrType(addressType);
         connect.setConnIntervalMin(connIntervalMin);
         connect.setConnIntervalMax(connIntervalMax);
@@ -409,6 +449,20 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
     }
 
     /**
+     * Close a connection using {@link BlueGigaDisconnectCommand}
+     *
+     * @param connectionHandle
+     * @return
+     */
+    public boolean bgDisconnect(int connectionHandle) {
+        BlueGigaDisconnectCommand command = new BlueGigaDisconnectCommand();
+        command.setConnection(connectionHandle);
+        BlueGigaDisconnectResponse response = (BlueGigaDisconnectResponse) bgHandler.sendTransaction(command);
+
+        return response.getResult() == BgApiResponse.SUCCESS;
+    }
+
+    /**
      * Device discovered. This simply passes the discover information to the discovery service for processing.
      */
     public void deviceDiscovered(BlueGigaBleDevice device) {
@@ -416,20 +470,6 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
             return;
         }
         discoveryService.deviceDiscovered(device);
-    }
-
-    /**
-     * Close a connection using {@link BlueGigaDisconnectCommand}
-     *
-     * @param connectionHandle
-     * @return
-     */
-    public boolean bgCloseConnection(int connectionHandle) {
-        BlueGigaDisconnectCommand command = new BlueGigaDisconnectCommand();
-        command.setConnection(connectionHandle);
-        BlueGigaDisconnectResponse response = (BlueGigaDisconnectResponse) bgHandler.sendTransaction(command);
-
-        return response.getResult() == BgApiResponse.SUCCESS;
     }
 
     /**
@@ -539,10 +579,20 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler implements BleBridg
         bgHandler.sendTransaction(discoverCommand);
     }
 
+    /**
+     * Add an event listener for the BlueGiga events
+     *
+     * @param listener the {@link BlueGigaEventListener} to add
+     */
     public void addEventListener(BlueGigaEventListener listener) {
         bgHandler.addEventListener(listener);
     }
 
+    /**
+     * Remove an event listener for the BlueGiga events
+     *
+     * @param listener the {@link BlueGigaEventListener} to remove
+     */
     public void removeEventListener(BlueGigaEventListener listener) {
         bgHandler.removeEventListener(listener);
     }

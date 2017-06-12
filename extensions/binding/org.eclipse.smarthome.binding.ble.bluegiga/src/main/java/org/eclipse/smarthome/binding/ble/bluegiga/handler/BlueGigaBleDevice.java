@@ -93,13 +93,28 @@ public class BlueGigaBleDevice extends BleDevice implements BlueGigaEventListene
 
     @Override
     public boolean connect() {
-        if (bgHandler.bgConnect(address.toString(), addressType)) {
+        if (connection != -1) {
+            // We're already connected
+            return false;
+        }
+
+        if (bgHandler.bgConnect(address, addressType)) {
             connectionState = ConnectionState.CONNECTING;
             return true;
         } else {
             connectionState = ConnectionState.DISCONNECTED;
             return false;
         }
+    }
+
+    @Override
+    public boolean disconnect() {
+        if (connection == -1) {
+            // We're already disconnected
+            return false;
+        }
+
+        return bgHandler.bgDisconnect(connection);
     }
 
     @Override
@@ -370,10 +385,10 @@ public class BlueGigaBleDevice extends BleDevice implements BlueGigaEventListene
         }
 
         if (event instanceof BlueGigaDisconnectedEvent) {
-            BlueGigaDisconnectedEvent disconnecedEvent = (BlueGigaDisconnectedEvent) event;
+            BlueGigaDisconnectedEvent disconnectedEvent = (BlueGigaDisconnectedEvent) event;
 
             // If this is not our connection handle then ignore.
-            if (connection != disconnecedEvent.getConnection()) {
+            if (connection != disconnectedEvent.getConnection()) {
                 return;
             }
 

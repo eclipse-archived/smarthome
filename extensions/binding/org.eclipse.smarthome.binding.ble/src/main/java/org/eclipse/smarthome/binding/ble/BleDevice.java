@@ -259,8 +259,10 @@ public class BleDevice {
     /**
      * Connects to a device. This is an asynchronous method. Once the connection state is updated, the
      * {@link BleDeviceListener.onConnectionState} method will be called with the connection state.
+     * <p>
+     * If the device is already connected, this will return false.
      *
-     * @return true if the connection process is started
+     * @return true if the connection process is started successfully
      */
     public boolean connect() {
         return false;
@@ -269,8 +271,10 @@ public class BleDevice {
     /**
      * Disconnects from a device. Once the connection state is updated, the {@link BleDeviceListener.onConnectionState}
      * method will be called with the connection state.
+     * <p>
+     * If the device is not currently connected, this will return false.
      *
-     * @return true if the disconnection process is started
+     * @return true if the disconnection process is started successfully
      */
     public boolean disconnect() {
         return false;
@@ -282,7 +286,7 @@ public class BleDevice {
      * <p>
      * This method should be called before attempting to read or write characteristics.
      *
-     * @return true if the discovery process is started
+     * @return true if the discovery process is started successfully
      */
     public boolean discoverServices() {
         return false;
@@ -427,7 +431,7 @@ public class BleDevice {
 
     /**
      * Notify the listeners of an event
-     * 
+     *
      * @param event the {@link BleEventType} of this event
      * @param args an array of arguments to pass to the callback
      */
