@@ -404,7 +404,15 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
     return $resource(restConfig.restPath + '/extensions', {}, {
         getAll : {
             method : 'GET',
-            isArray : true
+            isArray : true,
+            transformResponse : function(response, headerGetter, status) {
+                if (status == 503) {
+                    return {
+                        showError : false
+                    };
+                }
+                return angular.fromJson(response);
+            }
         },
         getByUri : {
             method : 'GET',
