@@ -1,4 +1,4 @@
-var configurableServiceDialogController = angular.module('PaperUI.controllers.configurableServiceDialog', [ 'PaperUI.services', 'PaperUI.services.rest', 'ngMaterial' ]);
+var configurableServiceDialogController = angular.module('PaperUI.controllers.configurableServiceDialog', [ 'PaperUI.services', 'PaperUI.services.rest', 'ngMaterial', 'PaperUI.directive.parameterDescription' ]);
 
 configurableServiceDialogController.controller('ConfigurableServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI) {
 
@@ -90,4 +90,5 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
             $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
     });
+
 });
