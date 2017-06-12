@@ -100,7 +100,7 @@
 		<item-type>Number</item-type>
 		<label>Duration</label>
 		<description>The duration time in minutes of the event</description>
-		<state readOnly="true" />
+		<state readOnly="true" pattern="%.1f min"/>
 	</channel-type>
 
 	<channel-type id="rangeEvent">
