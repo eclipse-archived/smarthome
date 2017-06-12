@@ -25,15 +25,16 @@ public class YahooWeatherConnection {
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherConnection.class);
 
-    private final String WEBSERVICE_URL = "https://query.yahooapis.com/v1/public/yql?format=json";
+    private static final String WEBSERVICE_URL = "https://query.yahooapis.com/v1/public/yql?format=json";
 
-    private final int WEBSERVICE_TIMEOUT = 10 * 1000; // 10s
+    private static final String METHOD = "GET";
+
+    private static final int TIMEOUT = 10 * 1000; // 10s
 
     public String getResponseFromQuery(String query) {
         try {
-            return HttpUtil.executeUrl("GET",
-                    WEBSERVICE_URL + "&q=" + URLEncoder.encode(query, StandardCharsets.UTF_8.toString()),
-                    WEBSERVICE_TIMEOUT);
+            return HttpUtil.executeUrl(METHOD,
+                    WEBSERVICE_URL + "&q=" + URLEncoder.encode(query, StandardCharsets.UTF_8.toString()), TIMEOUT);
         } catch (IOException e) {
             logger.warn("Communication error occurred while getting Yahoo weather information: {}", e.getMessage());
         }
