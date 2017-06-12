@@ -614,37 +614,16 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
     min-height: 110px;
 }
 
+.parameter md-switch {
+	margin-bottom: 9px;
+}
+
 .parameter>div md-select-value>span:first-child, .parameter>div md-select-value .md-text>span:first-child{
     max-width: 100%;
 }
 
 .parameter md-input-container {
 	padding-bottom: 5px;
-}
-
-.parameter>div p.hint {
-	margin-top: 0px;
-    height: 20px;
-}
-
-.parameter>div .nowrap{
-	white-space: nowrap;
-}
-
-.parameter>div p.hint .desc {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	float: left;
-}
-
-.parameter>div p.hint .moreLess {
-	cursor: pointer;
-	color: blue;
-	float: right;
-}
-
-.parameter>div p.hint .reducedWidth{
-	width: 85%;
 }
 
 .includeConfig legend {
@@ -797,8 +776,9 @@ textarea.scriptArea {
 }
 
 .configContainer {
-    margin-top: 0px;
-    padding-left: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
 }
 
 .ruleNameDesc {
