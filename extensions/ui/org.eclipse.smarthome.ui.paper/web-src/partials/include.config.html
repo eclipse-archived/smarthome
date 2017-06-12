@@ -18,11 +18,8 @@
 											<div ng-message="pattern">Input should satisfy expression {{parameter.pattern}}</div>
 											<div ng-message="required">Field is required</div>
 										</div>
-										<span>
-											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-											</p>
-										</span> </md-input-container>
+										<parameter-description description="parameter.description" />
+										</md-input-container>
 									</div>
 									<div ng-if="parameter.type=='TEXT'">
 										<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
@@ -33,18 +30,13 @@
 											<div ng-message="pattern">Input should satisfy expression {{parameter.pattern}}</div>
 											<div ng-message="required">Field is required</div>
 										</div>
-										<span>
-											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-											</p>
-										</span> </md-input-container>
+										<parameter-description description="parameter.description" />
+										</md-input-container>
 									</div>
 								</div>
 								<div ng-switch-when="switch" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<md-switch class="md-default-theme" ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
-									<p class="hint nowrap" overflown>
-										<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-									</p>
+									<parameter-description description="parameter.description" />
 								</div>
 								<div ng-switch-when="select" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
@@ -55,11 +47,8 @@
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>
-									<span>
-										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-										</p>
-									</span></md-input-container>
+									<parameter-description description="parameter.description" />
+									</md-input-container>
 								</div>
 								<div ng-switch-when="multiSelect">
 									<label class="config-textInput">{{parameter.label}}</label>
@@ -83,11 +72,7 @@
 										</dd>
 
 									</dl>
-									<span>
-										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-										</p>
-									</span>
+									<parameter-description description="parameter.description" />
 								</div>
 								<div ng-switch-when="date" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
@@ -96,11 +81,7 @@
 										<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 											<div ng-message="required" class="customMessage">Field is required</div>
 										</div>
-										<span>
-											<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-												<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-											</p>
-										</span>
+										<parameter-description description="parameter.description" />
 									</div>
 								</div>
 								<div ng-switch-when="color" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
@@ -111,11 +92,8 @@
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>
-									<span>
-										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-										</p>
-									</span> </md-input-container>
+									<parameter-description description="parameter.description" />
+									</md-input-container>
 									<div style="float: left;">
 										<i class="material-icons color-remove" ng-model="configuration[parameter.name]" color-remove>close</i>
 									</div>
@@ -130,11 +108,7 @@
 										<p ng-message="maxlength" class="customMessage">Maximum length is {{parameter.max}}</p>
 										<p ng-message="required" class="customMessage">Field is required</p>
 									</div>
-									<span>
-										<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-											<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-										</p>
-									</span>
+									<parameter-description description="parameter.description" />
 								</div>
 								<span>
 									<md-chips class="scriptChips" id="{{parameter.name}}" ng-show="items && items.length>0" ng-model="items" placeholder="Add an item" md-on-select="selectChip($chip,parameter.name)"> <input disabled /> <md-chip-template> <strong>{{$chip.name}}</strong> </md-chip-template> </md-chips>
@@ -157,11 +131,7 @@
 									<button value="SAT" class="md-button dow-button">S</button>
 									<button value="SUN" class="md-button dow-button">S</button>
 								</div>
-								<span>
-									<p class="hint nowrap" ng-class="{'hidden':focus}" overflown>
-										<small class="desc" ng-bind-html="parameter.description"></small> <small class="moreLess">more</small>
-									</p>
-								</span>
+								<parameter-description description="parameter.description" />
 							</div>
 						</div>
 					</div>
