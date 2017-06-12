@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Support more types for getStateAs
+ * @author Chris Jackson - Add IncreaseDecreaseType as state
  *
  */
 public class DimmerItem extends SwitchItem {
@@ -36,6 +37,7 @@ public class DimmerItem extends SwitchItem {
     static {
         acceptedDataTypes.add(PercentType.class);
         acceptedDataTypes.add(OnOffType.class);
+        acceptedDataTypes.add(IncreaseDecreaseType.class);
         acceptedDataTypes.add(UnDefType.class);
 
         acceptedCommandTypes.add(PercentType.class);
@@ -50,6 +52,10 @@ public class DimmerItem extends SwitchItem {
 
     /* package */ DimmerItem(String type, String name) {
         super(type, name);
+    }
+
+    public void send(IncreaseDecreaseType command) {
+        internalSend(command);
     }
 
     public void send(PercentType command) {

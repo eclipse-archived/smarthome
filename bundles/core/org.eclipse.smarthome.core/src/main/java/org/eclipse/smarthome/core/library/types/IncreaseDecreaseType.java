@@ -9,8 +9,9 @@ package org.eclipse.smarthome.core.library.types;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
+import org.eclipse.smarthome.core.types.State;
 
-public enum IncreaseDecreaseType implements PrimitiveType, Command {
+public enum IncreaseDecreaseType implements PrimitiveType, State, Command {
     INCREASE,
     DECREASE;
 
