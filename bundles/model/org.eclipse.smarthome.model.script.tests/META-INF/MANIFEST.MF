@@ -31,5 +31,6 @@ Import-Package: groovy.lang,
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
  org.junit.runners;version="4.0.0",
- org.junit.runners.model;version="4.0.0"
+ org.junit.runners.model;version="4.0.0",
+ org.slf4j
 Bundle-ActivationPolicy: lazy
