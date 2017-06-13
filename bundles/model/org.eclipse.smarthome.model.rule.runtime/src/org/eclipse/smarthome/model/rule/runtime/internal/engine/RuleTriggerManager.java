@@ -526,7 +526,7 @@ public class RuleTriggerManager {
                 rules.add(rule);
             } else if (t instanceof ThingStateUpdateEventTrigger) {
                 ThingStateUpdateEventTrigger tsuTrigger = (ThingStateUpdateEventTrigger) t;
-                Set<Rule> rules = thingUpdateEventTriggeredRules.get(tsuTrigger);
+                Set<Rule> rules = thingUpdateEventTriggeredRules.get(tsuTrigger.getThing());
                 if (rules == null) {
                     rules = new HashSet<Rule>();
                     thingUpdateEventTriggeredRules.put(tsuTrigger.getThing(), rules);
@@ -574,7 +574,9 @@ public class RuleTriggerManager {
                 }
                 break;
             case TRIGGER:
-                triggerEventTriggeredRules.remove(rule);
+                for (Set<Rule> rules : triggerEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
             case TIMER:
                 timerEventTriggeredRules.remove(rule);
