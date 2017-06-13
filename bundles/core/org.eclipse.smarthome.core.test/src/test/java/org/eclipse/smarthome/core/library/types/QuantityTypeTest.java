@@ -51,7 +51,6 @@ public class QuantityTypeTest {
         new QuantityType("3 µs");
         new QuantityType("3km/h");
         new QuantityType("1084 hPa");
-        new QuantityType("10000 inHg");
         QuantityType.valueOf("2m");
     }
 

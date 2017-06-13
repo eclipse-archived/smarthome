@@ -162,7 +162,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
 
     @Override
     public String format(String pattern) {
-        return String.format(pattern, quantity.getValue());
+        return String.format(pattern, quantity);
     }
 
     @Override
