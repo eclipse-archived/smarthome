@@ -174,7 +174,7 @@ Number   Azimuth            "Azimuth"                { channel="astro:sun:home:p
 Number   Elevation          "Elevation"              { channel="astro:sun:home:position#elevation" }
 String   MoonPhase          "MoonPhase"              { channel="astro:moon:home:phase#name" }
 Number   Total_Radiation    "Radiation"              { channel="astro:sun:home:radiation#total" }
-Number   Total_Radiation    "Radiation"              { channel="astro:sun:home:radiation#total" }
+Number   Diffuse_Radiation  "Diffuse Radiation"      { channel="astro:sun:home:radiation#diffuse" }
 ```
 
 Events:
