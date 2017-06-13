@@ -9,7 +9,6 @@ package org.eclipse.smarthome.ui.internal.chart;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -55,8 +54,7 @@ public class ChartServlet extends HttpServlet {
     private static final long serialVersionUID = 7700873790924746422L;
     private static final int CHART_HEIGHT = 240;
     private static final int CHART_WIDTH = 480;
-    private static final String dateFormat = "yyyyMMddHHmm";
-    private static final DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
+    private static final String DATE_FORMAT = "yyyyMMddHHmm";
 
     private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
@@ -214,17 +212,17 @@ public class ChartServlet extends HttpServlet {
 
         if (req.getParameter("begin") != null) {
             try {
-                timeBegin = dateFormatter.parse(req.getParameter("begin"));
+                timeBegin = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("begin"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
+                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
             }
         }
 
         if (req.getParameter("end") != null) {
             try {
-                timeEnd = dateFormatter.parse(req.getParameter("end"));
+                timeEnd = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("end"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
+                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
             }
         }
 
