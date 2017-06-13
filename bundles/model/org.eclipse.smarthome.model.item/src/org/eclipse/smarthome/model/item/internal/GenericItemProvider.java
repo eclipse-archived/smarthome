@@ -160,7 +160,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
         return items;
     }
 
-    private void processBindingConfigsFromModel(String modelName) {
+    private void processBindingConfigsFromModel(String modelName, EventType type) {
         logger.debug("Processing binding configs for items from model '{}'", modelName);
 
         if (modelRepository != null) {
@@ -175,10 +175,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
             }
 
             // create items and read new binding configuration
-            for (ModelItem modelItem : model.getItems()) {
-                Item item = createItemFromModelItem(modelItem);
-                if (item != null) {
-                    internalDispatchBindings(modelName, item, modelItem.getBindings());
+            if (!EventType.REMOVED.equals(type)) {
+                for (ModelItem modelItem : model.getItems()) {
+                    Item item = createItemFromModelItem(modelItem);
+                    if (item != null) {
+                        internalDispatchBindings(modelName, item, modelItem.getBindings());
+                    }
                 }
             }
 
@@ -341,15 +343,14 @@ public class GenericItemProvider extends AbstractProvider<Item>
         if (modelName.endsWith("items")) {
             switch (type) {
                 case ADDED:
-                    processBindingConfigsFromModel(modelName);
                     Collection<Item> allNewItems = getItemsFromModel(modelName);
                     itemsMap.put(modelName, allNewItems);
                     for (Item item : allNewItems) {
                         notifyListenersAboutAddedElement(item);
                     }
+                    processBindingConfigsFromModel(modelName, type);
                     break;
                 case MODIFIED:
-                    processBindingConfigsFromModel(modelName);
                     Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
                     Map<String, Item> newItems = toItemMap(getAll());
                     itemsMap.put(modelName, newItems.values());
@@ -363,6 +364,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                             notifyListenersAboutAddedElement(newItem);
                         }
                     }
+                    processBindingConfigsFromModel(modelName, type);
                     for (Item oldItem : oldItems.values()) {
                         if (!newItems.containsKey(oldItem.getName())) {
                             notifyListenersAboutRemovedElement(oldItem);
@@ -370,6 +372,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     }
                     break;
                 case REMOVED:
+                    processBindingConfigsFromModel(modelName, type);
                     Collection<Item> itemsFromModel = getItemsFromModel(modelName);
                     itemsMap.remove(modelName);
                     for (Item item : itemsFromModel) {
