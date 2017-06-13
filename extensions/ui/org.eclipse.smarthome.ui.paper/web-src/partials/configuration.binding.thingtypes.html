@@ -6,9 +6,9 @@
 	<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 </div>
 
-<div class="container">
+<div class="">
 	<div class="thing-type list-item" ng-repeat="thingType in binding.thingTypes | filter:filterItems(['uid','label'], searchText)">
-		<div ng-init="thingType.collapsed=true" class="thing container">
+		<div ng-init="thingType.collapsed=true" class="thing">
 			<div>
 				<h3>{{thingType.label}}</h3>
 				<div ng-if="thingType.description != null && thingType.description.length > 0">
