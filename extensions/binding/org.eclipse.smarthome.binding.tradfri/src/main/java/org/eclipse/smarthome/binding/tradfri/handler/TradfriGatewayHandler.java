@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.config.NetworkConfig;
@@ -96,8 +97,12 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         dtlsConnector = new DTLSConnector(builder.build());
         endPoint = new CoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
         deviceClient.setEndpoint(endPoint);
-        startScan();
         updateStatus(ThingStatus.UNKNOWN);
+
+        // schedule a new scan every minute
+        scheduler.scheduleWithFixedDelay(() -> {
+            startScan();
+        }, 0, 1, TimeUnit.MINUTES);
     }
 
     /**
