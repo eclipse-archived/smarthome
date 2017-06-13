@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.State;
 import org.junit.Test;
@@ -66,6 +67,17 @@ public class DimmerItemTest {
         final DimmerItem item = createDimmerItem(new PercentType(origin));
         final BigDecimal result = getState(item, DecimalType.class);
         assertEquals(origin.divide(new BigDecimal(100)).compareTo(result), 0);
+    }
+
+    @Test
+    public void getAsPercentFromIncreaseDecrease() {
+        DimmerItem item = createDimmerItem(IncreaseDecreaseType.DECREASE);
+        BigDecimal result = getState(item, PercentType.class);
+        assertEquals(new BigDecimal(0).compareTo(result), 0);
+
+        item = createDimmerItem(IncreaseDecreaseType.INCREASE);
+        result = getState(item, PercentType.class);
+        assertEquals(new BigDecimal(100).compareTo(result), 0);
     }
 
 }
