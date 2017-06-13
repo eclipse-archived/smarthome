@@ -23,7 +23,6 @@ import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -83,9 +82,6 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public void startScan() {
-        if (hueBridgeHandler.getThing().getStatus() != ThingStatus.ONLINE) {
-            return;
-        }
         List<FullLight> lights = hueBridgeHandler.getFullLights();
         if (lights != null) {
             for (FullLight l : lights) {
