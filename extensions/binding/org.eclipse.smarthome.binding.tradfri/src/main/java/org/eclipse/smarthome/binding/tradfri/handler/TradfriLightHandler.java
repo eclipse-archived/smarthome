@@ -244,8 +244,8 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
 
         public boolean getReachabilityStatus() {
-            if (attributes.get(REACHABILITY_STATE) != null) {
-                return attributes.get(REACHABILITY_STATE).getAsInt() == 1;
+            if (root.get(REACHABILITY_STATE) != null) {
+                return root.get(REACHABILITY_STATE).getAsInt() == 1;
             } else {
                 return false;
             }
