@@ -107,8 +107,8 @@ public class LogHandler implements RESTResource {
     public Response log(final LogMessage logMessage) {
         if (logMessage == null) {
             logger.debug("Received null log message model!");
-            return Response.status(500).entity(String.format(TEMPLATE_INTERNAL_ERROR, LogConstants.LOG_HANDLE_ERROR))
-                    .build();
+            return Response.status(500)
+                    .entity(String.format(TEMPLATE_INTERNAL_ERROR, LogConstants.LOG_HANDLE_ERROR, "ERROR")).build();
         }
         logMessage.timestamp = Calendar.getInstance().getTimeInMillis();
 

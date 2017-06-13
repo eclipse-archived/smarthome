@@ -10,8 +10,8 @@ package org.eclipse.smarthome.core.thing.i18n;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -23,7 +23,7 @@ import org.osgi.framework.FrameworkUtil;
  * The {@link ThingStatusInfoI18nLocalizationService} can be used to localize the {@link ThingStatusInfo} of a thing
  * using the I18N mechanism of the Eclipse SmartHome framework. Currently the description of the {@link ThingStatusInfo}
  * is the single attribute which can be localized.
- * 
+ *
  * <p>
  * In order to provide a localized description the corresponding {@link ThingHandler} of the thing does not provide a
  * localized string in the <i>ThingStatus.description</i> attribute, but instead provides the reference of the
@@ -87,7 +87,7 @@ public final class ThingStatusInfoI18nLocalizationService {
     }
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
-        i18nProvider = null;
+        this.i18nProvider = null;
     }
 
     /**
@@ -116,7 +116,8 @@ public final class ThingStatusInfoI18nLocalizationService {
                 }).map(s -> {
                     String input = s.trim();
                     return I18nUtil.isConstant(input)
-                            ? theTranslationProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale) : input;
+                            ? theTranslationProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale)
+                            : input;
                 }).toArray(size -> new String[size]);
             }
         }

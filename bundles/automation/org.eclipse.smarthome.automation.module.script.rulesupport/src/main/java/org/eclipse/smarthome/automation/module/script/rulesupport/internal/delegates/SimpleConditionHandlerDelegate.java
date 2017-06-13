@@ -22,11 +22,11 @@ import org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.
  */
 public class SimpleConditionHandlerDelegate extends BaseModuleHandler<Condition> implements ConditionHandler {
 
-    private org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleConditionHandler conditionHandler;
+    private SimpleConditionHandler conditionHandler;
 
     public SimpleConditionHandlerDelegate(Condition condition, SimpleConditionHandler scriptedHandler) {
         super(condition);
-
+        this.conditionHandler = scriptedHandler;
         scriptedHandler.init(condition);
     }
 
