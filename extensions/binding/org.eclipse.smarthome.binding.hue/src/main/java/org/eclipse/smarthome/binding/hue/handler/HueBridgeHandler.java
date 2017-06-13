@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
@@ -300,20 +301,26 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     /**
      * This method is called whenever the connection to the given {@link HueBridge} is available,
      * but requests are not allowed due to a missing or invalid authentication.
+     * <p>
+     * If there is a user name available, it attempts to re-authenticate. Otherwise new authentication credentials will
+     * be requested from the bridge.
      *
      * @param bridge the hue bridge the connection is not authorized
+     * @return returns {@code true} if re-authentication was successful, {@code false} otherwise
      */
-    public void onNotAuthenticated(HueBridge bridge) {
+    public boolean onNotAuthenticated(HueBridge bridge) {
         String userName = (String) getConfig().get(USER_NAME);
         if (userName == null) {
             createUser(bridge);
         } else {
             try {
                 bridge.authenticate(userName);
+                return true;
             } catch (Exception e) {
                 handleAuthenticationFailure(e, userName);
             }
         }
+        return false;
     }
 
     private void createUser(HueBridge bridge) {
@@ -395,41 +402,42 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     public List<FullLight> getFullLights() {
-        List<FullLight> lights = null;
-        if (bridge != null) {
-            try {
-                try {
-                    lights = bridge.getFullConfig().getLights();
-                } catch (UnauthorizedException | IllegalStateException e) {
-                    lastBridgeConnectionState = false;
-                    onNotAuthenticated(bridge);
-                    lights = bridge.getFullConfig().getLights();
-                }
-            } catch (Exception e) {
-                logger.error("Bridge cannot search for new lights.", e);
-            }
-        }
-        return lights;
+        List<FullLight> ret = withReAuthentication("search for new lights", () -> {
+            return bridge.getFullConfig().getLights();
+        });
+        return ret != null ? ret : Collections.emptyList();
     }
 
     public void startSearch() {
-        if (bridge != null) {
-            try {
-                bridge.startSearch();
-            } catch (Exception e) {
-                logger.error("Bridge cannot start search mode", e);
-            }
-        }
+        withReAuthentication("start search mode", () -> {
+            bridge.startSearch();
+            return null;
+        });
     }
 
     public void startSearch(List<String> serialNumbers) {
+        withReAuthentication("start search mode", () -> {
+            bridge.startSearch(serialNumbers);
+            return null;
+        });
+    }
+
+    private <T> T withReAuthentication(String taskDescription, Callable<T> runnable) {
         if (bridge != null) {
             try {
-                bridge.startSearch(serialNumbers);
+                try {
+                    return runnable.call();
+                } catch (UnauthorizedException | IllegalStateException e) {
+                    lastBridgeConnectionState = false;
+                    if (onNotAuthenticated(bridge)) {
+                        return runnable.call();
+                    }
+                }
             } catch (Exception e) {
-                logger.error("Bridge cannot start search mode", e);
+                logger.error("Bridge cannot {}.", taskDescription, e);
             }
         }
+        return null;
     }
 
     /**
