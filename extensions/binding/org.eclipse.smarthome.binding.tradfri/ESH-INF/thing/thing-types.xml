@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tradfri"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <bridge-type id="gateway">
+        <label>Trådfri Gateway</label>
+
+        <config-description>
+            <parameter name="host" type="text" required="true">
+                <context>network-address</context>
+                <label>Host</label>
+                <description>Hostname or IP address of the IKEA Trådfri gateway</description>
+            </parameter>
+            <parameter name="port" type="integer" required="false">
+                <label>Port</label>
+                <description>Port for accessing the gateway</description>
+                <advanced>true</advanced>
+                <default>5684</default>
+            </parameter>
+            <parameter name="code" type="text" required="true">
+                <context>password</context>
+                <label>Security Code</label>
+                <description>Security code printed on the label underneath the gateway.</description>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+    <!-- thing types for devices -->
+    <!-- their IDs refer to the Zigbee Lightlink device ids (see chapter 2.2 in https://www.nxp.com/documents/user_manual/JN-UG-3091.pdf) -->
+    <thing-type id="0100">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="gateway"/>
+        </supported-bridge-type-refs>
+
+        <label>Dimmable Light</label>
+
+        <channels>
+            <channel id="brightness" typeId="brightness"/>
+        </channels>
+
+        <config-description>
+            <parameter name="id" type="text" required="true">
+                <label>ID</label>
+                <description>The identifier of the light on the gateway</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <thing-type id="0220">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="gateway"/>
+        </supported-bridge-type-refs>
+
+        <label>Color Temperature Light</label>
+
+        <channels>
+            <channel id="brightness" typeId="brightness"/>
+            <channel id="colorTemperature" typeId="colorTemperature"/>
+        </channels>
+
+        <config-description>
+            <parameter name="id" type="text" required="true">
+                <label>ID</label>
+                <description>The identifier of the light on the gateway</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
+    <thing-type id="0820" listed="false">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="gateway"/>
+        </supported-bridge-type-refs>
+
+        <label>Non-Color Control Unit</label>
+
+        <channels>
+            <channel id="brightness" typeId="brightness"/>
+        </channels>
+
+        <config-description>
+            <parameter name="id" type="text" required="true">
+                <label>ID</label>
+                <description>The identifier of the controller on the gateway</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>
+            The brightness channel allows to control the brightness of a light.
+            It is also possible to switch the light on and off.
+        </description>
+        <category>DimmableLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>Control the color of light.</description>
+        <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+
+    <channel-type id="colorTemperature">
+        <item-type>Dimmer</item-type>
+        <label>Color Temperature</label>
+        <description>Allows to control the color temperature of light.</description>
+        <tags>
+            <tag>ColorTemperature</tag>
+        </tags>
+    </channel-type>
+
+</thing:thing-descriptions>

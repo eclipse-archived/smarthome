@@ -40,6 +40,13 @@
     <bundle dependency="true">mvn:commons-net/commons-net/3.2</bundle>
   </feature>
 
+  <feature name="esh-tp-coap" description="Californium CoAP library" version="${project.version}">
+    <capability>esh.tp;feature=coap;version=1.0.5</capability>
+    <bundle>mvn:org.eclipse.californium/californium-osgi/1.0.5</bundle>
+    <bundle>mvn:org.eclipse.californium/element-connector/1.0.5</bundle>
+    <bundle>mvn:org.eclipse.californium/scandium/1.0.5</bundle>
+  </feature>
+
   <feature name="esh-tp-httpclient" version="${project.version}">
     <capability>esh.tp;feature=httpclient;version=4.2.3</capability>
     <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/4.2.3</bundle>
@@ -147,7 +154,7 @@
     <bundle>mvn:org.jupnp/org.jupnp/2.2.0</bundle>
   </feature>
 
-  <feature name="esh-tp-jmdns" description="An implemenation of multi-cast DNS in Java." version="${project.version}">
+  <feature name="esh-tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
     <capability>esh.tp;feature=jmdns;version=3.5.1</capability>
 
     <bundle>mvn:org.jmdns/jmdns/3.5.1</bundle>
