@@ -12,6 +12,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -284,7 +285,12 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public synchronized void thingRemoved(final DiscoveryService source, final ThingUID thingUID) {
         synchronized (cachedResults) {
-            cachedResults.remove(source, thingUID);
+            Iterator<DiscoveryResult> it = cachedResults.get(source).iterator();
+            while (it.hasNext()) {
+                if (it.next().getThingUID().equals(thingUID)) {
+                    it.remove();
+                }
+            }
         }
         for (final DiscoveryListener listener : this.listeners) {
             try {
