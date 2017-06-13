@@ -151,6 +151,6 @@ class LocaleProviderOSGiTest extends OSGiTest {
     }
 
     def getConfig() {
-        return configAdmin.getConfiguration("org.eclipse.smarthome.core.localeprovider")
+        return configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider")
     }
 }

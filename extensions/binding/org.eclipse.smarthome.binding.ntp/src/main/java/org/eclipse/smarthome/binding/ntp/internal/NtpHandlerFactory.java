@@ -13,7 +13,6 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.binding.ntp.handler.NtpHandler;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
-import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -34,11 +33,6 @@ public class NtpHandlerFactory extends BaseThingHandlerFactory {
         @Override
         public Locale getLocale() {
             return localeProvider.getLocale();
-        }
-
-        @Override
-        public PointType getLocation() {
-            return localeProvider.getLocation();
         }
     }
 
