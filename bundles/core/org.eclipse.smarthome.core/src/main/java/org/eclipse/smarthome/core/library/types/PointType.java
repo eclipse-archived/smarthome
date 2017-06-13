@@ -191,7 +191,7 @@ public class PointType implements ComplexType, Command, State {
         latitude = flat.add(aLat.toBigDecimal()).remainder(circle);
         longitude = aLon.toBigDecimal();
         if (latitude.compareTo(BigDecimal.ZERO) == -1) {
-            latitude.add(circle);
+            latitude = latitude.add(circle);
         }
 
         latitude = latitude.subtract(flat);
