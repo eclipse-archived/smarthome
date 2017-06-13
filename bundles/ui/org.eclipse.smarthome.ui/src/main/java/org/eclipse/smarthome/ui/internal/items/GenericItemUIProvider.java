@@ -65,9 +65,12 @@ public class GenericItemUIProvider implements ItemUIProvider {
         if (itemName != null && modelRepository != null) {
             for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
                 ItemModel model = (ItemModel) modelRepository.getModel(modelName);
-                for (ModelItem item : model.getItems()) {
-                    if (itemName.equals(item.getName()))
-                        return item;
+                if (model != null) {
+                    for (ModelItem item : model.getItems()) {
+                        if (itemName.equals(item.getName())) {
+                            return item;
+                        }
+                    }
                 }
             }
         }
