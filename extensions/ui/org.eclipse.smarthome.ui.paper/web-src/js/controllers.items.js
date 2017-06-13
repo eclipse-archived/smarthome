@@ -248,10 +248,17 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         if (!$scope.item) {
             return;
         }
-        if ($scope.item.groupType === 'Number' || $scope.item.groupType === 'Dimmer') {
-            $scope.functions = itemConfig.arithmeticFunctions;
-        } else {
-            $scope.functions = itemConfig.logicalFunctions;
+        var groupType = $scope.item.groupType;
+        switch (groupType) {
+            case 'Number':
+            case 'Dimmer':
+                $scope.functions = itemConfig.arithmeticFunctions;
+                break;
+            case 'Contact':
+                $scope.functions = itemConfig.logicalOpenClosedFunctions;
+                break;
+            default:
+                $scope.functions = itemConfig.logicalOnOffFunctions;
         }
     });
 
