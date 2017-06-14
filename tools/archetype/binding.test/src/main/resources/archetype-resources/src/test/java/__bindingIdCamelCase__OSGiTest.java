@@ -54,7 +54,7 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
     public void creationOf${bindingIdCamelCase}Handler() {
         assertThat(bridge.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));        
+        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));        
     }
 
 }
