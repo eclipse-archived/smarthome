@@ -1398,9 +1398,23 @@
 		_t.iconType = document.body.getAttribute(o.iconTypeAttribute);
 		_t.notification = document.querySelector(o.notify);
 
-		_t.setTitle = function(title) {
-			document.querySelector("title").innerHTML = title;
-			_t.layoutTitle.innerHTML = title;
+		_t.setTitle = function(title, needsEscape) {
+			var
+				escapedText = title,
+				escapeTable = [
+					[ /&/g, "&amp;" ],
+					[ /</g, "&lt;"  ],
+					[ />/g, "&gt;"  ]
+				];
+
+			if (needsEscape) {
+				for (var i = 0; i < escapeTable.length; i++) {
+					escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
+				}
+			}
+
+			document.querySelector("title").innerHTML = escapedText;
+			_t.layoutTitle.innerHTML = escapedText;
 		};
 
 		function replaceContent(xmlResponse) {
@@ -1418,7 +1432,8 @@
 				}
 			});
 
-			_t.setTitle(nodeArray[0].textContent);
+			// HTML entities are already escaped on server
+			_t.setTitle(nodeArray[0].textContent, false);
 
 			var
 				contentElement = document.querySelector(".page-content");
@@ -1681,7 +1696,7 @@
 			}
 
 			if ((data.widgetId === smarthome.UI.page) && (title !== undefined)) {
-				smarthome.UI.setTitle(title);
+				smarthome.UI.setTitle(title, true);
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
 				var
 					widget = smarthome.dataModel[data.widgetId];
