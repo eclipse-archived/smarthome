@@ -18,5 +18,10 @@ Import-Package: com.google.gson,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
- org.junit;version="4.0.0"
+ org.junit;version="4.0.0",
+ org.mockito,
+ org.mockito.stubbing,
+ org.mockito.verification
+Require-Bundle: org.hamcrest
