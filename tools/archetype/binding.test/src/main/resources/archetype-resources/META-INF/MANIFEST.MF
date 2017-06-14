@@ -21,4 +21,3 @@ Import-Package: ${package},
 Require-Bundle: org.junit,org.mockito,org.hamcrest
 Export-Package: ${package}.internal;x-internal:=true,
  ${package};uses:="org.eclipse.smarthome.test"
-
