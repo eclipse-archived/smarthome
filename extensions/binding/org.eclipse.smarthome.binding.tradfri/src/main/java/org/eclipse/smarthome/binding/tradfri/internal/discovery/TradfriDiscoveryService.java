@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private TradfriGatewayHandler handler;
 
+    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm" };
+
     public TradfriDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         super(TradfriBindingConstants.SUPPORTED_LIGHT_TYPES_UIDS, 10, true);
         this.handler = bridgeHandler;
@@ -63,13 +66,18 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
             if (data.has(INSTANCE_ID)) {
                 int id = data.get(INSTANCE_ID).getAsInt();
                 String type = data.get(TYPE).getAsString();
+                JsonObject deviceInfo = data.get(DEVICE).getAsJsonObject();
+                String model = deviceInfo.get(DEVICE_MODEL).getAsString();
                 ThingUID thingId = null;
 
                 if (type.equals(TYPE_LIGHT) && data.has(LIGHT)) {
                     JsonObject state = data.get(LIGHT).getAsJsonArray().get(0).getAsJsonObject();
 
                     // Color temperature light
-                    if (state.has(COLOR)) {
+                    // We do not always receive a COLOR attribute, even the light supports it - but the gateway does not
+                    // seem to have this information, if the bulb is unreachable. We therefore also check against
+                    // concrete model names.
+                    if (state.has(COLOR) || (model != null && Arrays.asList(COLOR_TEMP_MODELS).contains(model))) {
                         thingId = new ThingUID(THING_TYPE_COLOR_TEMP_LIGHT, bridge, Integer.toString(id));
                     } else {
                         thingId = new ThingUID(THING_TYPE_DIMMABLE_LIGHT, bridge, Integer.toString(id));
@@ -90,6 +98,9 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
+                if (deviceInfo.get(DEVICE_VENDOR) != null) {
+                    properties.put("vendor", deviceInfo.get(DEVICE_VENDOR));
+                }
                 logger.debug("Adding device {} to inbox", thingId);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingId).withBridge(bridge)
                         .withLabel(label).withProperties(properties).withRepresentationProperty("id").build();
