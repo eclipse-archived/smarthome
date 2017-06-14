@@ -105,12 +105,27 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         }, 0, 1, TimeUnit.MINUTES);
     }
 
+    @Override
+    public void dispose() {
+        if (deviceClient != null) {
+            deviceClient.shutdown();
+            deviceClient = null;
+        }
+        if (endPoint != null) {
+            endPoint.destroy();
+            endPoint = null;
+        }
+        super.dispose();
+    }
+
     /**
      * Does a request to the gateway to list all available devices/services.
      * The response is received and processed by the method {@link onUpdate(JsonElement data)}.
      */
     public void startScan() {
-        deviceClient.get(new TradfriCoapHandler(this));
+        if (endPoint != null) {
+            deviceClient.get(new TradfriCoapHandler(this));
+        }
     }
 
     /**
