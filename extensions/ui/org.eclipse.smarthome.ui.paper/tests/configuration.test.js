@@ -2,7 +2,6 @@ describe('module PaperUI.controllers.configuration', function() {
     beforeEach(function() {
         module('PaperUI');
     });
-    var restConfig;
     describe('tests for ConfigurationPageController', function() {
         var configurationPageController, scope;
         beforeEach(inject(function($injector, $rootScope, $controller) {
