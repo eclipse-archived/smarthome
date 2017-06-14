@@ -504,22 +504,26 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      */
     private void getPropsAndConfigParams(final DiscoveryResult discoveryResult, final Map<String, String> props,
             final Map<String, Object> configParams) {
-        final Set<String> paramNames = getConfigDescParamNames(discoveryResult);
+        final List<ConfigDescriptionParameter> configDescParams = getConfigDescParams(discoveryResult);
+        final Set<String> paramNames = getConfigDescParamNames(configDescParams);
         final Map<String, Object> resultProps = discoveryResult.getProperties();
         for (String resultKey : resultProps.keySet()) {
             if (paramNames.contains(resultKey)) {
-                configParams.put(resultKey, resultProps.get(resultKey));
+                ConfigDescriptionParameter param = getConfigDescriptionParam(configDescParams, resultKey);
+                Object normalizedValue = ConfigUtil.normalizeType(resultProps.get(resultKey), param);
+                configParams.put(resultKey, normalizedValue);
             } else {
                 props.put(resultKey, String.valueOf(resultProps.get(resultKey)));
             }
         }
     }
 
-    private Set<String> getConfigDescParamNames(DiscoveryResult discoveryResult) {
-        List<ConfigDescriptionParameter> confDescParams = getConfigDescParams(discoveryResult);
+    private Set<String> getConfigDescParamNames(List<ConfigDescriptionParameter> configDescParams) {
         Set<String> paramNames = new HashSet<>();
-        for (ConfigDescriptionParameter param : confDescParams) {
-            paramNames.add(param.getName());
+        if (configDescParams != null) {
+            for (ConfigDescriptionParameter param : configDescParams) {
+                paramNames.add(param.getName());
+            }
         }
         return paramNames;
     }
