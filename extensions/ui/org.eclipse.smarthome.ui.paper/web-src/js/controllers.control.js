@@ -1,4 +1,5 @@
-angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService, imageService, util) {
+angular.module('PaperUI.controllers.control', []) //
+.controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService, imageService, util) {
     $scope.items = [];
     $scope.selectedIndex = 0;
     $scope.tabs = [];
@@ -140,6 +141,15 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     $scope.tabComparator = function(actual, expected) {
         return actual == expected;
+    }
+
+    $scope.getItems = function(itemNames) {
+        var items = [];
+        angular.forEach(itemNames, function(itemName) {
+            items.push($scope.getItem(itemName));
+        });
+
+        return items;
     }
 
     $scope.getItem = function(itemName) {
