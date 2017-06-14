@@ -12,6 +12,7 @@ import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.binding.tradfri.DeviceConfig;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
@@ -49,13 +50,13 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
     private static final int STEP = 10;
 
     // keeps track of the current state for handling of increase/decrease
-    private LightData state = null;
+    private LightData state;
 
     // the unique instance id of the light
     private Integer id;
 
     // used to check whether we have already been disposed when receiving data asynchronously
-    private volatile boolean active = false;
+    private volatile boolean active;
 
     private TradfriCoapClient coapClient;
 
@@ -64,7 +65,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
     }
 
     @Override
-    public void initialize() {
+    public synchronized void initialize() {
         this.id = getConfigAs(DeviceConfig.class).id;
         TradfriGatewayHandler handler = (TradfriGatewayHandler) getBridge().getHandler();
         String uriString = handler.getGatewayURI() + "/" + id;
@@ -79,11 +80,14 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
         updateStatus(ThingStatus.UNKNOWN);
         active = true;
-        coapClient.startObserve(this);
+
+        scheduler.schedule(() -> {
+            coapClient.startObserve(this);
+        }, 3, TimeUnit.SECONDS);
     }
 
     @Override
-    public void dispose() {
+    public synchronized void dispose() {
         active = false;
         if (coapClient != null) {
             coapClient.shutdown();
@@ -95,6 +99,10 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
     public void setStatus(ThingStatus status, ThingStatusDetail statusDetail) {
         if (active && getBridge().getStatus() != ThingStatus.OFFLINE && status != ThingStatus.ONLINE) {
             updateStatus(status, statusDetail);
+            // we are offline and lost our observe relation - let's try to establish the connection in 10 seconds again
+            scheduler.schedule(() -> {
+                coapClient.startObserve(this);
+            }, 10, TimeUnit.SECONDS);
         }
     }
 
@@ -158,46 +166,53 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
 
         switch (channelUID.getId()) {
             case CHANNEL_BRIGHTNESS:
-                if (command instanceof PercentType) {
-                    setBrightness((PercentType) command);
-                } else if (command instanceof OnOffType) {
-                    setState(((OnOffType) command));
-                } else if (command instanceof IncreaseDecreaseType) {
-                    if (state != null) {
-                        int current = state.getBrightness().intValue();
-                        if (IncreaseDecreaseType.INCREASE.equals(command)) {
-                            setBrightness(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
-                        } else {
-                            setBrightness(new PercentType(Math.max(current - STEP, PercentType.ZERO.intValue())));
-                        }
-                    } else {
-                        logger.debug("Cannot handle inc/dec as current state is not known.");
-                    }
-                } else {
-                    logger.debug("Cannot handle command {} for channel {}", command, channelUID);
-                }
+                handleBrightnessCommand(command);
                 break;
             case CHANNEL_COLOR_TEMPERATURE:
-                if (command instanceof PercentType) {
-                    setColorTemperature((PercentType) command);
-                } else if (command instanceof IncreaseDecreaseType) {
-                    if (state != null) {
-                        int current = state.getColorTemperature().intValue();
-                        if (IncreaseDecreaseType.INCREASE.equals(command)) {
-                            setColorTemperature(
-                                    new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
-                        } else {
-                            setColorTemperature(new PercentType(Math.max(current - STEP, PercentType.ZERO.intValue())));
-                        }
-                    } else {
-                        logger.debug("Cannot handle inc/dec as current state is not known.");
-                    }
-                } else {
-                    logger.debug("Can't handle command {} on channel {}", command, channelUID);
-                }
+                handleColorTemperatureCommand(command);
                 break;
             default:
                 logger.error("Unknown channel UID {}", channelUID);
+        }
+    }
+
+    private void handleBrightnessCommand(Command command) {
+        if (command instanceof PercentType) {
+            setBrightness((PercentType) command);
+        } else if (command instanceof OnOffType) {
+            setState(((OnOffType) command));
+        } else if (command instanceof IncreaseDecreaseType) {
+            if (state != null) {
+                int current = state.getBrightness().intValue();
+                if (IncreaseDecreaseType.INCREASE.equals(command)) {
+                    setBrightness(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
+                } else {
+                    setBrightness(new PercentType(Math.max(current - STEP, PercentType.ZERO.intValue())));
+                }
+            } else {
+                logger.debug("Cannot handle inc/dec as current state is not known.");
+            }
+        } else {
+            logger.debug("Cannot handle command {} for channel {}", command, CHANNEL_BRIGHTNESS);
+        }
+    }
+
+    private void handleColorTemperatureCommand(Command command) {
+        if (command instanceof PercentType) {
+            setColorTemperature((PercentType) command);
+        } else if (command instanceof IncreaseDecreaseType) {
+            if (state != null) {
+                int current = state.getColorTemperature().intValue();
+                if (IncreaseDecreaseType.INCREASE.equals(command)) {
+                    setColorTemperature(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
+                } else {
+                    setColorTemperature(new PercentType(Math.max(current - STEP, PercentType.ZERO.intValue())));
+                }
+            } else {
+                logger.debug("Cannot handle inc/dec as current state is not known.");
+            }
+        } else {
+            logger.debug("Can't handle command {} on channel {}", command, CHANNEL_COLOR_TEMPERATURE);
         }
     }
 
@@ -205,6 +220,12 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
      * This class is a Java wrapper for the raw JSON data about the light state.
      */
     private static class LightData {
+
+        // Tradfri uses the CIE color space (see https://en.wikipedia.org/wiki/CIE_1931_color_space),
+        // which uses x,y-coordinates.
+        // Its own app comes with 3 predefined color temperature settings (0,1,2), which have those values:
+        private final static double[] X = new double[] { 24933.0, 30138.0, 33137.0 };
+        private final static double[] Y = new double[] { 24691.0, 26909.0, 27211.0 };
 
         private final Logger logger = LoggerFactory.getLogger(LightData.class);
 
@@ -261,18 +282,17 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             return attributes.get(TRANSITION_TIME).getAsInt();
         }
 
-        private final static double[] X = new double[] { 33137.0, 30138.0, 24933.0 };
-        private final static double[] Y = new double[] { 27211.0, 26909.0, 24691.0 };
-
         public LightData setColorTemperature(PercentType c) {
             double percent = c.doubleValue();
 
             long x, y;
             if (percent < 50.0) {
+                // we calculate a value that is between preset 0 and 1
                 double p = percent / 50.0;
                 x = Math.round(X[0] + p * (X[1] - X[0]));
                 y = Math.round(Y[0] + p * (Y[1] - Y[0]));
             } else {
+                // we calculate a value that is between preset 1 and 2
                 double p = (percent - 50) / 50.0;
                 x = Math.round(X[1] + p * (X[2] - X[1]));
                 y = Math.round(Y[1] + p * (Y[2] - Y[1]));
@@ -285,14 +305,17 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
 
         PercentType getColorTemperature() {
+            // we only need to check one of the coordinates and figure out where between the presets we are
             JsonElement colorX = attributes.get(COLOR_X);
             if (colorX != null) {
                 double x = attributes.get(COLOR_X).getAsInt();
                 double value = 0.0;
                 if (x > X[1]) {
-                    value = (x - X[0]) / (X[1] - X[0]) / 2.0;
-                } else {
+                    // is it between preset 1 and 2?
                     value = (x - X[1]) / (X[2] - X[1]) / 2.0 + 0.5;
+                } else {
+                    // it is between preset 0 and 1
+                    value = (x - X[0]) / (X[1] - X[0]) / 2.0;
                 }
                 return new PercentType((int) Math.round(value * 100.0));
             } else {

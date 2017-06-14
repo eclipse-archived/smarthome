@@ -35,6 +35,7 @@
         </supported-bridge-type-refs>
 
         <label>Dimmable Light</label>
+        <description>A light that has continuous brightness control.</description>
 
         <channels>
             <channel id="brightness" typeId="brightness"/>
@@ -54,10 +55,11 @@
         </supported-bridge-type-refs>
 
         <label>Color Temperature Light</label>
+        <description>A dimmable light that supports different color temperature settings.</description>
 
         <channels>
             <channel id="brightness" typeId="brightness"/>
-            <channel id="colorTemperature" typeId="colorTemperature"/>
+            <channel id="color_temperature" typeId="color_temperature"/>
         </channels>
 
         <config-description>
@@ -101,23 +103,11 @@
         </tags>
     </channel-type>
 
-    <channel-type id="color">
-        <item-type>Color</item-type>
-        <label>Color</label>
-        <description>Control the color of light.</description>
-        <category>ColorLight</category>
-        <tags>
-            <tag>Lighting</tag>
-        </tags>
-    </channel-type>
-
-    <channel-type id="colorTemperature">
+    <channel-type id="color_temperature">
         <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
         <description>Allows to control the color temperature of light.</description>
-        <tags>
-            <tag>ColorTemperature</tag>
-        </tags>
+        <category>ColorLight</category>
     </channel-type>
 
 </thing:thing-descriptions>

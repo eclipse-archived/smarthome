@@ -28,7 +28,7 @@ import com.google.gson.JsonParser;
  */
 public class TradfriCoapHandler implements CoapHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(CoapHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(TradfriCoapHandler.class);
     private final JsonParser parser = new JsonParser();
 
     private CoapCallback callback;

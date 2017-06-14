@@ -89,12 +89,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                     return;
                 }
 
-                String label = "Unknown device"; // this is only a default as an unlikely fallback situation
-                try {
-                    label = data.get(NAME).getAsString();
-                } catch (JsonSyntaxException e) {
-                    logger.error("JSON error: {}", e.getMessage());
-                }
+                String label = data.get(NAME).getAsString();
 
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
@@ -107,7 +102,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                 thingDiscovered(discoveryResult);
             }
         } catch (JsonSyntaxException e) {
-            logger.error("JSON error: {}", e.getMessage());
+            logger.debug("JSON error during discovery: {}", e.getMessage());
         }
     }
 }

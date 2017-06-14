@@ -33,11 +33,13 @@ public class TradfriBindingConstants {
 
     public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMABLE_LIGHT,
             THING_TYPE_COLOR_TEMP_LIGHT);
+
+    // Not yet used - included for future support
     public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMER);
 
     // List of all Channel IDs
     public static final String CHANNEL_BRIGHTNESS = "brightness";
-    public static final String CHANNEL_COLOR_TEMPERATURE = "colorTemperature";
+    public static final String CHANNEL_COLOR_TEMPERATURE = "color_temperature";
 
     // IPSO Objects
     public static final String DEVICES = "15001";
