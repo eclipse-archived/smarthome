@@ -99,4 +99,18 @@ class ConfigurationTest {
         def res = configuration.toString()
         assertThat res.contains("type=?"), is(true)
     }
+
+    @Test
+    void 'assert normalization in setProperties'() {
+        Configuration configuration = new Configuration()
+        configuration.setProperties(["intField" : 1])
+        assertThat configuration.get("intField"), is(equalTo(BigDecimal.ONE))
+    }
+
+    @Test
+    void 'assert normalization in put'() {
+        Configuration configuration = new Configuration()
+        configuration.put("intField", 1)
+        assertThat configuration.get("intField"), is(equalTo(BigDecimal.ONE))
+    }
 }
