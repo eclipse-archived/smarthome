@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerChangeListener;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleRuleEngineCallback;
 
 /**
@@ -36,5 +37,15 @@ public class SimpleRuleEngineCallbackDelegate implements SimpleRuleEngineCallbac
     @Override
     public void triggered(Map<String, ?> context) {
         callback.triggered(this.trigger, context);
+    }
+
+    @Override
+    public void addTriggerChangeListener(TriggerChangeListener listener) {
+        callback.addTriggerChangeListener(listener);
+    }
+
+    @Override
+    public void removeTriggerChangeListener(TriggerChangeListener listener) {
+        callback.removeTriggerChangeListener(listener);
     }
 }

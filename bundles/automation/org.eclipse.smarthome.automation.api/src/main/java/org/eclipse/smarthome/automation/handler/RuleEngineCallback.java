@@ -38,4 +38,19 @@ public interface RuleEngineCallback {
      *            </ul>
      */
     public void triggered(Trigger trigger, Map<String, ?> context);
+
+    /**
+     * Add new trigger chaned listener which will listen to changed of other triggers.
+     *
+     * @param listener a trigger changed.
+     */
+    public void addTriggerChangeListener(TriggerChangeListener listener);
+
+    /**
+     * Removes triggre chaned listener.
+     * 
+     * @param listener
+     */
+    public void removeTriggerChangeListener(TriggerChangeListener listener);
+
 }
