@@ -146,9 +146,10 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
         if (enabled) {
-            Executors.newSingleThreadExecutor().submit(new Runnable() {
-                @Override
-                public void run() {
+            boolean initialDelay = properties == null
+                    || !"false".equalsIgnoreCase((String) properties.get("initialDelay"));
+            if (initialDelay) {
+                Executors.newSingleThreadExecutor().submit(() -> {
                     // we wait until no further new links or items are announced in order to avoid creation of
                     // items which then must be removed again immediately.
                     while (lastUpdate > System.nanoTime() - TimeUnit.SECONDS.toNanos(2)) {
@@ -157,13 +158,11 @@ public class ChannelItemProvider implements ItemProvider {
                         } catch (InterruptedException e) {
                         }
                     }
-                    logger.debug("Enabling channel item provider.");
-                    initialized = true;
-                    // simply call getAll() will create the items and notify all registered listeners automatically
-                    getAll();
-                    addRegistryChangeListeners();
-                }
-            });
+                    initialize();
+                });
+            } else {
+                initialize();
+            }
         } else {
             logger.debug("Disabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
@@ -173,6 +172,14 @@ public class ChannelItemProvider implements ItemProvider {
             }
             removeRegistryChangeListeners();
         }
+    }
+
+    private void initialize() {
+        logger.debug("Enabling channel item provider.");
+        initialized = true;
+        // simply call getAll() will create the items and notify all registered listeners automatically
+        getAll();
+        addRegistryChangeListeners();
     }
 
     protected void deactivate() {
