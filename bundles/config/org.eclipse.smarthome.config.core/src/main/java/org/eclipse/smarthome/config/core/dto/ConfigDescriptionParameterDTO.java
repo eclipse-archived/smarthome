@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * This is a data transfer object that is used to serialize parameter of a
  * configuration description.
@@ -24,6 +26,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 public class ConfigDescriptionParameterDTO {
 
     public String context;
+
+    @SerializedName("default")
     public String defaultValue;
     public String description;
     public String label;
