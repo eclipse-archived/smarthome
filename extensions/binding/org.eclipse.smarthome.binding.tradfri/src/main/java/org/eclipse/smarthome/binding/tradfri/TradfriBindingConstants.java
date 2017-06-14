@@ -145,4 +145,7 @@ public class TradfriBindingConstants {
 
     public static final String TYPE_LIGHT = "2";
     public static final String TYPE_SWITCH = "0";
+    public static final String DEVICE_VENDOR = "0";
+    public static final String DEVICE_MODEL = "1";
+    public static final String DEVICE_FIRMWARE = "3";
 }

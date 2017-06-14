@@ -22,7 +22,7 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry;
  */
 public class TradfriCoapClient extends CoapClient {
 
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 2000;
 
     public TradfriCoapClient(URI uri) {
         super(uri);
