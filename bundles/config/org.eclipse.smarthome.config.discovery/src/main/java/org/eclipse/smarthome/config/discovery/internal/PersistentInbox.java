@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -197,7 +198,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 logger.debug("Discovery result with thing '{}' not added as inbox entry."
                         + " It is already present as thing in the ThingRegistry.", thingUID);
 
-                boolean updated = synchronizeConfiguration(result.getProperties(), thing.getConfiguration());
+                boolean updated = synchronizeConfiguration(result.getThingTypeUID(), result.getProperties(),
+                        thing.getConfiguration());
 
                 if (updated) {
                     logger.debug("The configuration for thing '{}' is updated...", thingUID);
@@ -209,10 +211,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         return false;
     }
 
-    private boolean synchronizeConfiguration(Map<String, Object> properties, Configuration config) {
+    private boolean synchronizeConfiguration(ThingTypeUID thingTypeUID, Map<String, Object> properties,
+            Configuration config) {
         boolean configUpdated = false;
 
         final Set<Map.Entry<String, Object>> propertySet = properties.entrySet();
+        final ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        final List<ConfigDescriptionParameter> configDescParams = getConfigDescParams(thingType);
 
         for (Map.Entry<String, Object> propertyEntry : propertySet) {
             final String propertyKey = propertyEntry.getKey();
@@ -223,8 +228,12 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 continue;
             }
 
+            // Normalize first
+            ConfigDescriptionParameter configDescParam = getConfigDescriptionParam(configDescParams, propertyKey);
+            Object normalizedValue = ConfigUtil.normalizeType(propertyValue, configDescParam);
+
             // If the value is equal to the one of the configuration, there is nothing to do.
-            if (Objects.equals(propertyValue, config.get(propertyKey))) {
+            if (Objects.equals(normalizedValue, config.get(propertyKey))) {
                 continue;
             }
 
@@ -232,11 +241,21 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             // - the values differ
 
             // update value
-            config.put(propertyKey, propertyValue);
+            config.put(propertyKey, normalizedValue);
             configUpdated = true;
         }
 
         return configUpdated;
+    }
+
+    private ConfigDescriptionParameter getConfigDescriptionParam(List<ConfigDescriptionParameter> configDescParams,
+            String paramName) {
+        for (ConfigDescriptionParameter configDescriptionParameter : configDescParams) {
+            if (configDescriptionParameter.getName().equals(paramName)) {
+                return configDescriptionParameter;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -506,9 +525,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     private List<ConfigDescriptionParameter> getConfigDescParams(DiscoveryResult discoveryResult) {
-        ThingType type = thingTypeRegistry.getThingType(discoveryResult.getThingTypeUID());
-        if (type != null && type.getConfigDescriptionURI() != null) {
-            URI descURI = type.getConfigDescriptionURI();
+        ThingType thingType = thingTypeRegistry.getThingType(discoveryResult.getThingTypeUID());
+        return getConfigDescParams(thingType);
+    }
+
+    private List<ConfigDescriptionParameter> getConfigDescParams(ThingType thingType) {
+        if (thingType != null && thingType.getConfigDescriptionURI() != null) {
+            URI descURI = thingType.getConfigDescriptionURI();
             ConfigDescription desc = configDescRegistry.getConfigDescription(descURI);
             if (desc != null) {
                 return desc.getParameters();
