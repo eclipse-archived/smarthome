@@ -22,6 +22,7 @@ Import-Package: com.google.gson,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
+ org.mockito.invocation,
  org.mockito.stubbing,
  org.mockito.verification
 Require-Bundle: org.hamcrest
