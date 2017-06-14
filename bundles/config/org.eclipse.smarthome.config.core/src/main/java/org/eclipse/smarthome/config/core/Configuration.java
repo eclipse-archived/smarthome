@@ -143,7 +143,7 @@ public class Configuration {
 
     public Object put(String key, Object value) {
         synchronized (this) {
-            return properties.put(key, value);
+            return properties.put(key, ConfigUtil.normalizeType(value));
         }
     }
 
@@ -181,7 +181,7 @@ public class Configuration {
 
     public void setProperties(Map<String, Object> properties) {
         for (Entry<String, Object> entrySet : properties.entrySet()) {
-            this.put(entrySet.getKey(), ConfigUtil.normalizeType(entrySet.getValue()));
+            this.put(entrySet.getKey(), entrySet.getValue());
         }
         for (Iterator<String> it = this.properties.keySet().iterator(); it.hasNext();) {
             String entry = it.next();
