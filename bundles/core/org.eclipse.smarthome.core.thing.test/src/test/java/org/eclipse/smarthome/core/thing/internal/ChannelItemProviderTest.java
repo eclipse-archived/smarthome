@@ -71,8 +71,8 @@ public class ChannelItemProviderTest {
 
         Map<String, Object> props = new HashMap<>();
         props.put("enable", "true");
+        props.put("initialDelay", "false");
         provider.activate(props);
-        Thread.sleep(2500);
 
         when(thingRegistry.getChannel(same(CHANNEL_UID))).thenReturn(new Channel(CHANNEL_UID, "Number"));
         when(itemFactory.createItem("Number", ITEM_NAME)).thenReturn(ITEM);
