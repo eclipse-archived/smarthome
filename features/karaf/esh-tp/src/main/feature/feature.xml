@@ -15,6 +15,7 @@
     <feature>eventadmin</feature>
 
     <feature dependency="true">esh-tp-apache-commons</feature>
+    <feature dependency="true">esh-tp-coap</feature>
     <feature dependency="true">esh-tp-httpclient</feature>
     <feature dependency="true">esh-tp-measurement</feature>
     <feature dependency="true">esh-tp-jax-rs</feature>
