@@ -35,19 +35,26 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
 
     private ManagedThingProvider managedThingProvider;
     private VolatileStorageService volatileStorageService = new VolatileStorageService();
-
+    private Bridge bridge;
+    
     @Before
     public void setUp() {
         registerService(volatileStorageService);
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertThat(managedThingProvider, is(notNullValue()));
+        bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();		        
+    }
+
+    @After
+    public void tearDown() {
+        managedThingProvider.remove(bridge.getUID());
+        unregisterService(volatileStorageService);
     }
 
     @Test
     public void creationOf${bindingIdCamelCase}Handler() {
-        ${bindingIdCamelCase}Handler handler = getService(ThingHandler.class,${bindingIdCamelCase}Handler.class);
-
-        assertThat(handler, is(nullValue()));
+        assertThat(bridge.getHandler(), is(nullValue()));
+        managedThingProvider.add(bridge);
+        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));        
     }
 
 }
