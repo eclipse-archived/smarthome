@@ -42,7 +42,7 @@
         </channels>
 
         <config-description>
-            <parameter name="id" type="text" required="true">
+            <parameter name="id" type="integer" required="true">
                 <label>ID</label>
                 <description>The identifier of the light on the gateway</description>
             </parameter>
@@ -63,7 +63,7 @@
         </channels>
 
         <config-description>
-            <parameter name="id" type="text" required="true">
+            <parameter name="id" type="integer" required="true">
                 <label>ID</label>
                 <description>The identifier of the light on the gateway</description>
             </parameter>
@@ -83,7 +83,7 @@
         </channels>
 
         <config-description>
-            <parameter name="id" type="text" required="true">
+            <parameter name="id" type="integer" required="true">
                 <label>ID</label>
                 <description>The identifier of the controller on the gateway</description>
             </parameter>
