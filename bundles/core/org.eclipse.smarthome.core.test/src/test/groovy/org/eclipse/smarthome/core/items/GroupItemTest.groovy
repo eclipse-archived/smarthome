@@ -14,9 +14,13 @@ import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
+import org.eclipse.smarthome.core.library.items.ColorItem
+import org.eclipse.smarthome.core.library.items.DimmerItem
 import org.eclipse.smarthome.core.library.items.NumberItem
+import org.eclipse.smarthome.core.library.items.RollershutterItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction
+import org.eclipse.smarthome.core.library.types.HSBType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.RawType
@@ -122,13 +126,13 @@ class GroupItemTest extends OSGiTest {
     void 'assert that group item posts events for changes correctly' (){
         events.clear()
         GroupItem groupItem = new GroupItem("root", new SwitchItem("mySwitch"), new GroupFunction.Equality())
-        def member = new TestItem("member1")
+        def member = new SwitchItem("member1")
         groupItem.addMember(member)
         groupItem.setEventPublisher(publisher)
         def oldGroupState = groupItem.getState()
 
         //State changes -> one change event is fired
-        member.setState(new RawType())
+        member.setState(OnOffType.ON)
 
         waitForAssert {
             assertThat events.size(), is(1)
@@ -304,5 +308,56 @@ class GroupItemTest extends OSGiTest {
 
         //any value >0 means on, so 50% means the group state should be ON
         assertTrue OnOffType.ON.equals(groupStateAsOnOff)
+    }
+
+    @Test
+    void 'assert that group item with rollershutter baseItem conversion works' (){
+        //initially this group has State UndefType.NULL
+        GroupItem groupItem = new GroupItem("root", new RollershutterItem("myRollerShutter"))
+        def groupStateAsOnOff = groupItem.getStateAs(OnOffType);
+
+        //a state conversion from NULL to OnOffType should not be possible
+        assertThat groupStateAsOnOff, is(null)
+
+        //init group
+        groupItem.setState(new PercentType(70));
+        groupStateAsOnOff = groupItem.getStateAs(OnOffType);
+
+        //any value >0 means on, so 50% means the group state should be ON
+        assertTrue OnOffType.ON.equals(groupStateAsOnOff)
+    }
+
+    @Test
+    void 'assert that group item with coloritem baseItem conversion works' (){
+        //initially this group has State UndefType.NULL
+        GroupItem groupItem = new GroupItem("root", new ColorItem("myColor"))
+        def groupStateAsPercent = groupItem.getStateAs(PercentType);
+
+        //a state conversion from NULL to PercentType should not be possible
+        assertThat groupStateAsPercent, is(null)
+
+        //init group
+        groupItem.setState(new HSBType("200,80,80"));
+        groupStateAsPercent = groupItem.getStateAs(PercentType);
+
+        assertTrue groupStateAsPercent instanceof PercentType
+        assertThat groupStateAsPercent.intValue(), is(80)
+    }
+
+    @Test
+    void 'assert that group item with dimmeritem baseItem conversion works' (){
+        //initially this group has State UndefType.NULL
+        GroupItem groupItem = new GroupItem("root", new DimmerItem("myDimmer"))
+        def groupStateAsPercent = groupItem.getStateAs(PercentType);
+
+        //a state conversion from NULL to PercentType should not be possible
+        assertThat groupStateAsPercent, is(null)
+
+        //init group
+        groupItem.setState(new PercentType(80));
+        groupStateAsPercent = groupItem.getStateAs(PercentType);
+
+        assertTrue groupStateAsPercent instanceof PercentType
+        assertThat groupStateAsPercent.intValue(), is(80)
     }
 }

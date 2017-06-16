@@ -407,4 +407,19 @@ abstract public class GenericItem implements ActiveItem {
         return null;
     }
 
+    /**
+     * Tests if state is within acceptedDataTypes list or a subclass of one of them
+     *
+     * @param acceptedDataTypes list of datatypes this items accepts as a state
+     * @param state to be tested
+     * @return true if state is an acceptedDataType or subclass thereof
+     */
+    public boolean isAcceptedState(List<Class<? extends State>> acceptedDataTypes, State state) {
+        if (acceptedDataTypes.stream().map(clazz -> clazz.isAssignableFrom(state.getClass()))
+                .filter(found -> found == true).findAny().isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
 }

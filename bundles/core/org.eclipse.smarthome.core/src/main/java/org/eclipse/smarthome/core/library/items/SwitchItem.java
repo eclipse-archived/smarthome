@@ -18,6 +18,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SwitchItem represents a normal switch that can be ON or OFF.
@@ -27,6 +29,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  */
 public class SwitchItem extends GenericItem {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -59,6 +63,16 @@ public class SwitchItem extends GenericItem {
     @Override
     public List<Class<? extends Command>> getAcceptedCommandTypes() {
         return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    @Override
+    public void setState(State state) {
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            super.setState(state);
+        } else {
+            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
+                    getClass().getSimpleName());
+        }
     }
 
 }

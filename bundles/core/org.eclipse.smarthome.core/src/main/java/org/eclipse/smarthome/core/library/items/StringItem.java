@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A StringItem can be used for any kind of string to either send or receive
@@ -29,6 +31,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  */
 public class StringItem extends GenericItem {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -69,6 +73,16 @@ public class StringItem extends GenericItem {
             return convertedState;
         } else {
             return super.getStateAs(typeClass);
+        }
+    }
+
+    @Override
+    public void setState(State state) {
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            super.setState(state);
+        } else {
+            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
+                    getClass().getSimpleName());
         }
     }
 }

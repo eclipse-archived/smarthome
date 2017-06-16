@@ -18,6 +18,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A NumberItem has a decimal value and is usually used for all kinds
@@ -29,6 +31,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  */
 public class NumberItem extends GenericItem {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -57,6 +61,16 @@ public class NumberItem extends GenericItem {
 
     public void send(DecimalType command) {
         internalSend(command);
+    }
+
+    @Override
+    public void setState(State state) {
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            super.setState(state);
+        } else {
+            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
+                    getClass().getSimpleName());
+        }
     }
 
 }

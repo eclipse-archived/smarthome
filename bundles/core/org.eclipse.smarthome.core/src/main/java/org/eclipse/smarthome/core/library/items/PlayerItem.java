@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link PlayerItem} allows to control a player, e.g. an audio player.
@@ -27,6 +29,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Alex Tugarev
  */
 public class PlayerItem extends GenericItem {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -46,7 +50,7 @@ public class PlayerItem extends GenericItem {
         super(CoreItemFactory.PLAYER, name);
     }
 
-    /* package */PlayerItem(String type, String name) {
+    /* package */ PlayerItem(String type, String name) {
         super(type, name);
     }
 
@@ -70,6 +74,16 @@ public class PlayerItem extends GenericItem {
 
     public void send(NextPreviousType command) {
         internalSend(command);
+    }
+
+    @Override
+    public void setState(State state) {
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            super.setState(state);
+        } else {
+            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
+                    getClass().getSimpleName());
+        }
     }
 
 }
