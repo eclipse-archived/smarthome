@@ -500,8 +500,8 @@ public class HttpUtil {
      * @return <code>true</code> if the content is a JPEG file, <code>false</code> otherwise
      */
     private static boolean isJpeg(byte[] data) {
-        return (data[0] == (byte) 0xFF && data[1] == (byte) 0xD8 && data[data.length - 2] == (byte) 0xFF
-                && data[data.length - 1] == (byte) 0xD9);
+        return (data.length >= 2 && data[0] == (byte) 0xFF && data[1] == (byte) 0xD8
+                && data[data.length - 2] == (byte) 0xFF && data[data.length - 1] == (byte) 0xD9);
     }
 
 }
