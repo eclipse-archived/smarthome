@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Locale;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,10 +30,7 @@ import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,13 +53,6 @@ public class ConfigDescriptionResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_CONFIG_DESCRIPTIONS = "config-descriptions";
 
-    private final class ConfigDescriptionConverter implements Function<ConfigDescription, ConfigDescriptionDTO> {
-        @Override
-        public ConfigDescriptionDTO apply(ConfigDescription configDescription) {
-            return ConfigDescriptionDTOMapper.map(configDescription);
-        }
-    }
-
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
     @GET
@@ -70,9 +61,10 @@ public class ConfigDescriptionResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class, responseContainer = "List"))
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Iterable<ConfigDescriptionDTO> transform = Iterables
-                .transform(configDescriptionRegistry.getConfigDescriptions(locale), new ConfigDescriptionConverter());
-        return Response.ok(Lists.newArrayList(transform)).build();
+        Collection<ConfigDescription> configDescriptions = configDescriptionRegistry.getConfigDescriptions(locale);
+
+        return Response.ok(new Stream2JSONInputStream(configDescriptions.stream().map(ConfigDescriptionDTOMapper::map)))
+                .build();
     }
 
     @GET
