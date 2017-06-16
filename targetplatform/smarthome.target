@@ -117,10 +117,8 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.eclipsesource.jaxrs.provider.security.feature.source.feature.group" version="0.0.0"/>
-<unit id="com.eclipsesource.jaxrs.provider.gson.feature.feature.group" version="0.0.0"/>
 <unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="0.0.0"/>
 <unit id="com.eclipsesource.jaxrs.connector.feature.source.feature.group" version="0.0.0"/>
-<unit id="com.eclipsesource.jaxrs.provider.gson.feature.source.feature.group" version="0.0.0"/>
 <unit id="com.eclipsesource.jaxrs.provider.security.feature.feature.group" version="0.0.0"/>
 <unit id="com.eclipsesource.jaxrs.jersey.runtime.feature.source.feature.group" version="0.0.0"/>
 <unit id="com.eclipsesource.jaxrs.provider.sse.feature.source.feature.group" version="0.0.0"/>
