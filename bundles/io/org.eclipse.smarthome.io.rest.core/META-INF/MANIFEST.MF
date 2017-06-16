@@ -7,10 +7,12 @@ Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ com.google.gson,
  io.swagger.annotations;resolution:=optional,
  javax.annotation.security;resolution:=optional,
  javax.ws.rs,
  javax.ws.rs.core,
+ javax.ws.rs.ext,
  org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.dto,
