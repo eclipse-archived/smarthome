@@ -86,7 +86,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             return;
         }
 
-        this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "//" + DEVICES;
+        this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
         try {
             URI uri = new URI(gatewayURI);
             deviceClient = new TradfriCoapClient(uri);
