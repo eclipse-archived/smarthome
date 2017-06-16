@@ -194,6 +194,11 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.mdns/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-io-transport-coap" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(feature=coap)"</requirement>
+  </feature>
+
   <feature name="esh-io-transport-dbus" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.dbus/${project.version}</bundle>
