@@ -35,7 +35,7 @@ public class Stream2JSONInputStream extends InputStream {
 
     private boolean firstIteratorElement;
 
-    private Gson GSON = new GsonBuilder().create();
+    private Gson gson = new GsonBuilder().create();
 
     /**
      * Creates a new {@link Stream2JSONInputStream} backed by the given {@link Stream} source.
@@ -49,7 +49,7 @@ public class Stream2JSONInputStream extends InputStream {
             throw new IllegalArgumentException("The source must not be null!");
         }
 
-        iterator = source.map(e -> GSON.toJson(e)).iterator();
+        iterator = source.map(e -> gson.toJson(e)).iterator();
         jsonElementStream = IOUtils.toInputStream("");
         firstIteratorElement = true;
     }

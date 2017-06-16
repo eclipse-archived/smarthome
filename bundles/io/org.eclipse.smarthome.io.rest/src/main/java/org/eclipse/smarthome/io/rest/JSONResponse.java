@@ -42,7 +42,7 @@ public class JSONResponse {
     private final Logger logger = LoggerFactory.getLogger(JSONResponse.class);
 
     private static final JSONResponse INSTANCE = new JSONResponse();
-    private final Gson GSON = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS).create();
+    private final Gson gson = new GsonBuilder().setDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS).create();
 
     static final String JSON_KEY_ERROR_MESSAGE = "message";
     static final String JSON_KEY_ERROR = "error";
@@ -117,7 +117,7 @@ public class JSONResponse {
         // in case there is an entity...
         if (entity != null) {
             // return the existing object
-            resultJson.add(JSON_KEY_ENTITY, GSON.toJsonTree(entity));
+            resultJson.add(JSON_KEY_ENTITY, gson.toJsonTree(entity));
         }
 
         // is there an exception?
@@ -158,17 +158,14 @@ public class JSONResponse {
             throw new RuntimeException(e);
         }
 
-        Thread writerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try (JsonWriter jsonWriter = GSON.newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
-                    if (entity != null) {
-                        GSON.toJson(entity, entity.getClass(), jsonWriter);
-                        jsonWriter.flush();
-                    }
-                } catch (IOException | JsonIOException e) {
-                    logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
+        Thread writerThread = new Thread(() -> {
+            try (JsonWriter jsonWriter = gson.newJsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
+                if (entity != null) {
+                    gson.toJson(entity, entity.getClass(), jsonWriter);
+                    jsonWriter.flush();
                 }
+            } catch (IOException | JsonIOException e) {
+                logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
             }
         });
 
@@ -205,7 +202,7 @@ public class JSONResponse {
             }
 
             JsonElement ret = INSTANCE.createErrorJson(e.getMessage(), status, null, e);
-            return INSTANCE.responseBuilder(status).entity(INSTANCE.GSON.toJson(ret)).build();
+            return INSTANCE.responseBuilder(status).entity(INSTANCE.gson.toJson(ret)).build();
         }
     }
 }
