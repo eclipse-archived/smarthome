@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.californium.core.network.CoapEndpoint;
@@ -59,6 +60,8 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     private Set<DeviceUpdateListener> deviceUpdateListeners = new CopyOnWriteArraySet<>();
 
+    private ScheduledFuture<?> scanJob;
+
     public TradfriGatewayHandler(Bridge bridge) {
         super(bridge);
     }
@@ -100,13 +103,17 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         updateStatus(ThingStatus.UNKNOWN);
 
         // schedule a new scan every minute
-        scheduler.scheduleWithFixedDelay(() -> {
+        scanJob = scheduler.scheduleWithFixedDelay(() -> {
             startScan();
         }, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
     public void dispose() {
+        if (scanJob != null) {
+            scanJob.cancel(true);
+            scanJob = null;
+        }
         if (deviceClient != null) {
             deviceClient.shutdown();
             deviceClient = null;
