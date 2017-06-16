@@ -13,6 +13,8 @@ import java.util.Set;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.ui.icon.IconSet.Format;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an abstract base class for implementing icon providers that serve icons from file resources.
@@ -32,6 +34,8 @@ import org.osgi.framework.BundleContext;
  *
  */
 abstract public class AbstractResourceIconProvider implements IconProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(AbstractResourceIconProvider.class);
 
     /**
      * The OSGi bundle context
@@ -73,7 +77,12 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
 
     @Override
     public InputStream getIcon(String category, String iconSetId, String state, Format format) {
-        String resourceWithState = category + ((state != null) ? "-" + state.toLowerCase() : "") + "."
+        String resourceWithoutState = category.toLowerCase() + "." + format.toString().toLowerCase();
+        if (state == null) {
+            return getResource(iconSetId, resourceWithoutState);
+        }
+
+        String resourceWithState = category.toLowerCase() + "-" + state.toLowerCase() + "."
                 + format.toString().toLowerCase();
         if (hasResource(iconSetId, resourceWithState)) {
             return getResource(iconSetId, resourceWithState);
@@ -83,7 +92,8 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
                 Double stateAsDouble = Double.valueOf(state);
                 if (stateAsDouble >= 0 && stateAsDouble <= 100) {
                     for (int i = stateAsDouble.intValue(); i >= 0; i--) {
-                        String resourceWithNumberState = category + "-" + i + "." + format.toString().toLowerCase();
+                        String resourceWithNumberState = category.toLowerCase() + "-" + i + "."
+                                + format.toString().toLowerCase();
                         if (hasResource(iconSetId, resourceWithNumberState)) {
                             return getResource(iconSetId, resourceWithNumberState);
                         }
@@ -92,7 +102,8 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
             } catch (NumberFormatException e) {
                 // does not seem to be a number, so ignore it
             }
-            return getResource(iconSetId, category + "." + format.toString().toLowerCase());
+            logger.debug("Use icon {} as {} is not found", resourceWithoutState, resourceWithState);
+            return getResource(iconSetId, resourceWithoutState);
         }
     }
 
