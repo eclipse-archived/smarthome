@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.tradfri.handler;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.DEVICES;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -187,6 +188,14 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         // are we still connected at all?
         if (endPoint != null) {
             updateStatus(status, statusDetail);
+            if (dtlsConnector != null && status == ThingStatus.OFFLINE) {
+                try {
+                    dtlsConnector.stop();
+                    dtlsConnector.start();
+                } catch (IOException e) {
+                    logger.debug("Error restarting the DTLS connector: {}", e.getMessage());
+                }
+            }
         }
     }
 
