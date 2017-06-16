@@ -125,25 +125,6 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
         assertThat(itemChannelLinkRegistry.getAll().size(), is(1));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testTransaction_requiredStart() {
-        GenericItemChannelLinkProvider provider = new GenericItemChannelLinkProvider();
-        provider.stopConfigurationUpdate(ITEMS_TESTMODEL_NAME);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testTransaction_requiredProcess() throws Exception {
-        GenericItemChannelLinkProvider provider = new GenericItemChannelLinkProvider();
-        provider.processBindingConfiguration(ITEMS_TESTMODEL_NAME, "Number", ITEM, CHANNEL);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testTransaction_duplicate() {
-        GenericItemChannelLinkProvider provider = new GenericItemChannelLinkProvider();
-        provider.startConfigurationUpdate(ITEMS_TESTMODEL_NAME);
-        provider.startConfigurationUpdate(ITEMS_TESTMODEL_NAME);
-    }
-
     @SuppressWarnings("unchecked")
     @Test
     public void testNoAmnesia() throws Exception {
