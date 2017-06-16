@@ -14,7 +14,8 @@ import org.eclipse.smarthome.core.library.types.PointType;
 import org.junit.Test;
 
 /**
- * @author Gaël L'hopital
+ * @author Gaël L'hopital - Initial version
+ * @author Stefan Triller - tests for undef and illegal states
  */
 public class LocationItemTest {
 
@@ -33,6 +34,18 @@ public class LocationItemTest {
 
         double parisBerlin = locationParis.distanceFrom(locationBerlin).doubleValue();
         assertEquals(parisBerlin, 878400, 50);
+    }
+
+    @Test
+    public void testUndefType() {
+        ImageItem item = new ImageItem("test");
+        StateUtil.testUndefStates(item);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        DateTimeItem item = new DateTimeItem("test");
+        StateUtil.testAcceptedStates(item);
     }
 
 }

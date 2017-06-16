@@ -13,6 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Simon Kaufmann - Initial contribution and API
+ * @author Stefan Triller - more tests for type conversions
  */
 public class UpDownTypeTest {
 
@@ -28,4 +29,10 @@ public class UpDownTypeTest {
         assertEquals(new DecimalType(1), UpDownType.DOWN.as(DecimalType.class));
     }
 
+    @Test
+    public void testConversionToPointType() {
+        // should not be possible => null
+        assertEquals(null, UpDownType.UP.as(PointType.class));
+        assertEquals(null, UpDownType.DOWN.as(PointType.class));
+    }
 }

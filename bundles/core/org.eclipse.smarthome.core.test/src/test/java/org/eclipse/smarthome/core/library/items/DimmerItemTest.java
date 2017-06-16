@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.HSBType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.State;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.junit.Test;
 /**
  * @author Chris Jackson - Initial contribution
  * @author Markus Rathgeb - Add more tests
+ * @author Stefan Triller - tests for type conversions
  */
 public class DimmerItemTest {
 
@@ -45,27 +47,50 @@ public class DimmerItemTest {
     }
 
     @Test
-    public void getAsDecimalFromDecimal() {
-        final BigDecimal origin = new BigDecimal(0.25);
-        final DimmerItem item = createDimmerItem(new DecimalType(origin));
-        final BigDecimal result = getState(item, DecimalType.class);
-        assertEquals(origin.compareTo(result), 0);
-    }
-
-    @Test
-    public void getAsPercentFromDecimal() {
-        final BigDecimal origin = new BigDecimal(0.25);
-        final DimmerItem item = createDimmerItem(new DecimalType(origin));
+    public void getAsPercentFromOn() {
+        final DimmerItem item = createDimmerItem(OnOffType.ON);
         final BigDecimal result = getState(item, PercentType.class);
-        assertEquals(origin.multiply(new BigDecimal(100)).compareTo(result), 0);
+        assertEquals(new BigDecimal(100), result);
     }
 
     @Test
-    public void getAsDecimalFromPercent() {
-        final BigDecimal origin = new BigDecimal(25);
-        final DimmerItem item = createDimmerItem(new PercentType(origin));
-        final BigDecimal result = getState(item, DecimalType.class);
-        assertEquals(origin.divide(new BigDecimal(100)).compareTo(result), 0);
+    public void getAsPercentFromOff() {
+        final DimmerItem item = createDimmerItem(OnOffType.OFF);
+        final BigDecimal result = getState(item, PercentType.class);
+        assertEquals(new BigDecimal(0), result);
+    }
+
+    @Test
+    public void getAsPercentFromHSB() {
+        // HSBType is supported because it is a sub-type of PercentType
+        HSBType origin = new HSBType("23,42,75");
+        final DimmerItem item = createDimmerItem(origin);
+        final BigDecimal result = getState(item, PercentType.class);
+        assertEquals(origin.getBrightness().toBigDecimal(), result);
+    }
+
+    @Test
+    public void getAsPercentFromDummy() {
+        DummyType origin = new DummyType();
+        final DimmerItem item = createDimmerItem(origin);
+        final BigDecimal result = getState(item, PercentType.class);
+        assertEquals(origin.getBrightness().toBigDecimal(), result);
+    }
+
+    @Test
+    public void testUndefType() {
+        DimmerItem item = new DimmerItem("test");
+        StateUtil.testUndefStates(item);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        DimmerItem item = new DimmerItem("test");
+        StateUtil.testAcceptedStates(item);
+    }
+
+    private class DummyType extends HSBType {
+
     }
 
 }

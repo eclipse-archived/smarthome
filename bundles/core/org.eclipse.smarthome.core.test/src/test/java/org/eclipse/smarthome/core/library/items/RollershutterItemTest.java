@@ -9,12 +9,18 @@ package org.eclipse.smarthome.core.library.items;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.State;
 import org.junit.Test;
 
+/**
+ *
+ * @author Hans Hazelius - Initial version
+ * @author Stefan Triller - Tests for type conversions
+ *
+ */
 public class RollershutterItemTest {
 
     @Test
@@ -42,11 +48,23 @@ public class RollershutterItemTest {
     }
 
     @Test
-    public void setState_stateDecimal050_returnPercent50() {
+    public void setState_stateHSB50_returnPercent50() {
+        // HSB supported because it is a sub-type of PercentType
         RollershutterItem sut = new RollershutterItem("Test");
-        State state = new DecimalType(0.50);
+        State state = new HSBType("5,23,42");
         sut.setState(state);
-        assertEquals(new PercentType(50), sut.getState());
+        assertEquals(new PercentType(42), sut.getState());
     }
 
+    @Test
+    public void setState_stateUndef() {
+        RollershutterItem sut = new RollershutterItem("Test");
+        StateUtil.testUndefStates(sut);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        RollershutterItem item = new RollershutterItem("testItem");
+        StateUtil.testAcceptedStates(item);
+    }
 }

@@ -22,6 +22,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A ColorItem can be used for color values, e.g. for LED lights
@@ -30,6 +32,8 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  */
 public class ColorItem extends DimmerItem {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -67,33 +71,37 @@ public class ColorItem extends DimmerItem {
 
     @Override
     public void setState(State state) {
-        State currentState = this.state;
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            State currentState = this.state;
 
-        if (currentState instanceof HSBType) {
-            DecimalType hue = ((HSBType) currentState).getHue();
-            PercentType saturation = ((HSBType) currentState).getSaturation();
-            // we map ON/OFF values to dark/bright, so that the hue and saturation values are not changed
-            if (state == OnOffType.OFF) {
-                applyState(new HSBType(hue, saturation, PercentType.ZERO));
-            } else if (state == OnOffType.ON) {
-                applyState(new HSBType(hue, saturation, PercentType.HUNDRED));
-            } else if (state instanceof PercentType && !(state instanceof HSBType)) {
-                applyState(new HSBType(hue, saturation, (PercentType) state));
-            } else if (state instanceof DecimalType && !(state instanceof HSBType)) {
-                applyState(new HSBType(hue, saturation,
-                        new PercentType(((DecimalType) state).toBigDecimal().multiply(BigDecimal.valueOf(100)))));
+            if (currentState instanceof HSBType) {
+                DecimalType hue = ((HSBType) currentState).getHue();
+                PercentType saturation = ((HSBType) currentState).getSaturation();
+                // we map ON/OFF values to dark/bright, so that the hue and saturation values are not changed
+                if (state == OnOffType.OFF) {
+                    applyState(new HSBType(hue, saturation, PercentType.ZERO));
+                } else if (state == OnOffType.ON) {
+                    applyState(new HSBType(hue, saturation, PercentType.HUNDRED));
+                } else if (state instanceof PercentType && !(state instanceof HSBType)) {
+                    applyState(new HSBType(hue, saturation, (PercentType) state));
+                } else if (state instanceof DecimalType && !(state instanceof HSBType)) {
+                    applyState(new HSBType(hue, saturation,
+                            new PercentType(((DecimalType) state).toBigDecimal().multiply(BigDecimal.valueOf(100)))));
+                } else {
+                    applyState(state);
+                }
             } else {
-                applyState(state);
+                // try conversion
+                State convertedState = state.as(HSBType.class);
+                if (convertedState != null) {
+                    applyState(convertedState);
+                } else {
+                    applyState(state);
+                }
             }
         } else {
-            // try conversion
-            State convertedState = state.as(HSBType.class);
-            if (convertedState != null) {
-                applyState(convertedState);
-            } else {
-                applyState(state);
-            }
+            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
+                    getClass().getSimpleName());
         }
     }
-
 }

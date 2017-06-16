@@ -16,6 +16,7 @@ import org.junit.Test;
 /**
  *
  * @author Chris Jackson - added fromRGB() test
+ * @author Stefan Triller - more tests for type conversions
  *
  */
 public class HSBTypeTest {
@@ -99,6 +100,12 @@ public class HSBTypeTest {
         assertEquals(PercentType.HUNDRED, new HSBType("100,100,100").as(PercentType.class));
         assertEquals(new PercentType("1"), new HSBType("100,100,1").as(PercentType.class));
         assertEquals(PercentType.ZERO, new HSBType("100,100,0").as(PercentType.class));
+    }
+
+    @Test
+    public void testConversionToPointType() {
+        // should not be possible => null
+        assertEquals(null, new HSBType("100,100,100").as(PointType.class));
     }
 
 }
