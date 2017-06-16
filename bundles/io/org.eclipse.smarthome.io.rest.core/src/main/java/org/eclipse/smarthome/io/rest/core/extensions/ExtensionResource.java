@@ -10,13 +10,12 @@ package org.eclipse.smarthome.io.rest.core.extensions;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -43,6 +42,7 @@ import org.eclipse.smarthome.core.extension.ExtensionType;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,11 +96,10 @@ public class ExtensionResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extensions.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public List<Extension> getExtensions(
-            @HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
+    public Response getExtensions(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        return getAllExtensions(locale);
+        return Response.ok(new Stream2JSONInputStream(getAllExtensions(locale))).build();
     }
 
     @GET
@@ -108,10 +107,11 @@ public class ExtensionResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extension types.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public Set<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
+    public Response getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        return getAllExtensionTypes(locale);
+        Stream<ExtensionType> extensionTypeStream = getAllExtensionTypes(locale).stream().distinct();
+        return Response.ok(new Stream2JSONInputStream(extensionTypeStream)).build();
     }
 
     @GET
@@ -125,12 +125,12 @@ public class ExtensionResource implements RESTResource {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
         ExtensionService extensionService = getExtensionService(extensionId);
-        Object responseObject = extensionService.getExtension(extensionId, locale);
+        Extension responseObject = extensionService.getExtension(extensionId, locale);
         if (responseObject != null) {
             return Response.ok(responseObject).build();
-        } else {
-            return Response.status(404).build();
         }
+
+        return Response.status(404).build();
     }
 
     @POST
@@ -206,12 +206,8 @@ public class ExtensionResource implements RESTResource {
         return !extensionServices.isEmpty();
     }
 
-    private List<Extension> getAllExtensions(Locale locale) {
-        List<Extension> ret = new ArrayList<>();
-        for (ExtensionService extensionService : extensionServices) {
-            ret.addAll(extensionService.getExtensions(locale));
-        }
-        return ret;
+    private Stream<Extension> getAllExtensions(Locale locale) {
+        return extensionServices.stream().map(s -> s.getExtensions(locale)).flatMap(l -> l.stream());
     }
 
     private Set<ExtensionType> getAllExtensionTypes(Locale locale) {
