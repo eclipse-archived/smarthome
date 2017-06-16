@@ -49,6 +49,13 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.sonos/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-tradfri" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-coap</feature>
+    <feature>esh-io-transport-mdns</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.tradfri/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-wemo" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-upnp</feature>
