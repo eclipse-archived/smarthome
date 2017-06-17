@@ -35,7 +35,7 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute' ]).conf
             }
         });
     }
-    bindingRepository.getAll();
+    $scope.refresh();
 
 }).controller('BindingDetailController', function($scope, $location, $mdExpansionPanel, thingTypeRepository, bindingRepository) {
     /**
