@@ -58,9 +58,6 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     @Override
     public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
             throws BindingConfigParseException {
-        if (previousItemNames == null) {
-            throw new IllegalStateException("No active update transaction");
-        }
         String[] uids = bindingConfig.split(",");
         if (uids.length == 0) {
             throw new BindingConfigParseException(
@@ -87,7 +84,9 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
             contextMap.put(context, itemNames);
         }
         itemNames.add(itemName);
-        previousItemNames.remove(itemName);
+        if (previousItemNames != null) {
+            previousItemNames.remove(itemName);
+        }
 
         Set<ItemChannelLink> links = itemChannelLinkMap.get(itemName);
         if (links == null) {
@@ -104,7 +103,7 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     @Override
     public void startConfigurationUpdate(String context) {
         if (previousItemNames != null) {
-            throw new IllegalStateException("There already is an active update transaction");
+            logger.warn("There already is an update transaction for generic item channel links. Continuing anyway.");
         }
         Set<String> previous = contextMap.get(context);
         previousItemNames = previous != null ? new HashSet<>(previous) : Collections.emptySet();
@@ -112,22 +111,21 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 
     @Override
     public void stopConfigurationUpdate(String context) {
-        if (previousItemNames == null) {
-            throw new IllegalStateException("An update transaction has to be started first");
-        }
-        for (String itemName : previousItemNames) {
-            // we remove all binding configurations that were not processed
-            Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
-            if (links != null) {
-                for (ItemChannelLink removedItemChannelLink : links) {
-                    notifyListenersAboutRemovedElement(removedItemChannelLink);
+        if (previousItemNames != null) {
+            for (String itemName : previousItemNames) {
+                // we remove all binding configurations that were not processed
+                Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
+                if (links != null) {
+                    for (ItemChannelLink removedItemChannelLink : links) {
+                        notifyListenersAboutRemovedElement(removedItemChannelLink);
+                    }
                 }
             }
+            if (contextMap.get(context) != null) {
+                contextMap.get(context).removeAll(previousItemNames);
+            }
+            previousItemNames = null;
         }
-        if (contextMap.get(context) != null) {
-            contextMap.get(context).removeAll(previousItemNames);
-        }
-        previousItemNames = null;
     }
 
     @Override
