@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -149,7 +150,8 @@ public class ChannelItemProvider implements ItemProvider {
             boolean initialDelay = properties == null
                     || !"false".equalsIgnoreCase((String) properties.get("initialDelay"));
             if (initialDelay) {
-                Executors.newSingleThreadExecutor().submit(() -> {
+                final ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.submit(() -> {
                     // we wait until no further new links or items are announced in order to avoid creation of
                     // items which then must be removed again immediately.
                     while (lastUpdate > System.nanoTime() - TimeUnit.SECONDS.toNanos(2)) {
@@ -160,6 +162,7 @@ public class ChannelItemProvider implements ItemProvider {
                     }
                     initialize();
                 });
+                executor.shutdown();
             } else {
                 initialize();
             }
