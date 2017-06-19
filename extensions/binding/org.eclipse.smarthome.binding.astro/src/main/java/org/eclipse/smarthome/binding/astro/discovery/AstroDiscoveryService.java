@@ -54,8 +54,13 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
         ThingUID sunThing = new ThingUID(AstroBindingConstants.THING_TYPE_SUN, LOCAL);
         ThingUID moonThing = new ThingUID(AstroBindingConstants.THING_TYPE_MOON, LOCAL);
 
-        String propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
-                location.getAltitude());
+        String propGeolocation;
+        if (location.getAltitude() != null) {
+            propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
+                    location.getAltitude());
+        } else {
+            propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
+        }
         thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
                 .withProperty("geolocation", propGeolocation).build());
         thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")

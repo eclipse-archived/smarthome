@@ -80,14 +80,9 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         final String variant = (String) config.get(VARIANT);
         final String location = (String) config.get(LOCATION);
 
-        boolean locationChanged = false;
         if (location != null) {
             try {
-                PointType newLocation = PointType.valueOf(location);
-                if (newLocation != this.location) {
-                    locationChanged = true;
-                    this.location = newLocation;
-                }
+                this.location = PointType.valueOf(location);
             } catch (IllegalArgumentException e) {
                 // preserve old location or null if none was set before
                 logger.warn("Could not set new location, keeping old one: ", e.getMessage());
@@ -131,11 +126,8 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         }
 
         locale = builder.build();
-        if (locationChanged) {
-            logger.info("Locale set to {}, Location set to {}", locale, location);
-        } else {
-            logger.info("Locale set to {}", locale);
-        }
+
+        logger.info("Locale set to {}, Location set to {}", locale, this.location);
     }
 
     @Override
