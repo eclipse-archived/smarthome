@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2017 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.internal;
 
 import java.text.MessageFormat;
@@ -28,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * using one certain {@link LanguageResourceBundleManager} which is responsible for the translation.
  * <p>
  * <p>
- * It reads a user defined configuration to set a locale and a location for this installation
+ * It reads a user defined configuration to set a locale and a location for this installation.
  *
  * @author Michael Grammling - Initial Contribution of TranslationProvider
  * @author Thomas Höfer - Added getText operation with arguments
@@ -73,9 +80,14 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         final String variant = (String) config.get(VARIANT);
         final String location = (String) config.get(LOCATION);
 
+        boolean locationChanged = false;
         if (location != null) {
             try {
-                this.location = PointType.valueOf(location);
+                PointType newLocation = PointType.valueOf(location);
+                if (newLocation != this.location) {
+                    locationChanged = true;
+                    this.location = newLocation;
+                }
             } catch (IllegalArgumentException e) {
                 // preserve old location or null if none was set before
                 logger.warn("Could not set new location, keeping old one: ", e.getMessage());
@@ -119,7 +131,11 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         }
 
         locale = builder.build();
-        logger.info("Locale set to {}", locale);
+        if (locationChanged) {
+            logger.info("Locale set to {}, Location set to {}", locale, location);
+        } else {
+            logger.info("Locale set to {}", locale);
+        }
     }
 
     @Override

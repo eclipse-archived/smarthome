@@ -12,6 +12,7 @@ import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.eclipse.smarthome.binding.astro.AstroBindingConstants;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
@@ -22,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AstroDiscoveryService} creates things based on configured location.
+ * The {@link AstroDiscoveryService} creates things based on the configured location.
  *
  * @author Gerhard Riegler - Initial Contribution
  * @author Stefan Triller - Use configured location
@@ -50,13 +51,11 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
             return;
         }
 
-        ThingTypeUID sunType = new ThingTypeUID(BINDING_ID, SUN);
-        ThingTypeUID moonType = new ThingTypeUID(BINDING_ID, MOON);
+        ThingUID sunThing = new ThingUID(AstroBindingConstants.THING_TYPE_SUN, LOCAL);
+        ThingUID moonThing = new ThingUID(AstroBindingConstants.THING_TYPE_MOON, LOCAL);
 
-        ThingUID sunThing = new ThingUID(sunType, LOCAL);
-        ThingUID moonThing = new ThingUID(moonType, LOCAL);
-
-        String propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
+        String propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
+                location.getAltitude());
         thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
                 .withProperty("geolocation", propGeolocation).build());
         thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
