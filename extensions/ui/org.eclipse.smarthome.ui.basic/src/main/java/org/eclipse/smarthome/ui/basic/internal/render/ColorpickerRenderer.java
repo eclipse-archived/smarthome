@@ -55,12 +55,12 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
             HSBType hsbState = (HSBType) state;
             hexValue = "#" + Integer.toHexString(hsbState.getRGB()).substring(2);
         }
-        String label = getLabel(cp);
         String purelabel = itemUIRegistry.getLabel(w);
         purelabel = purelabel.replaceAll("\\\"", "\\\\'");
 
         // Should be called before preprocessSnippet
         snippet = StringUtils.replace(snippet, "%state%", hexValue);
+        snippet = StringUtils.replace(snippet, "%icon_state%", escapeURL(hexValue));
 
         snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%purelabel%", purelabel);
