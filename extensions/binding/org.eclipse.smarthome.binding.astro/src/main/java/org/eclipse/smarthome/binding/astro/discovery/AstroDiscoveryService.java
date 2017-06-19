@@ -9,27 +9,29 @@ package org.eclipse.smarthome.binding.astro.discovery;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.astro.AstroBindingConstants;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.core.i18n.LocationProvider;
+import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AstroDiscoveryService} tries to automatically discover the geolocation based on the internet IP address.
+ * The {@link AstroDiscoveryService} creates things based on the configured location.
  *
- * @author Gerhard Riegler
+ * @author Gerhard Riegler - Initial Contribution
+ * @author Stefan Triller - Use configured location
  */
 public class AstroDiscoveryService extends AbstractDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(AstroDiscoveryService.class);
     private static final int DISCOVER_TIMEOUT_SECONDS = 30;
+    private LocationProvider locationProvider;
 
     /**
      * Creates a AstroDiscoveryService with disabled autostart.
@@ -41,38 +43,36 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     @Override
     protected void startScan() {
         logger.debug("Starting Astro discovery scan");
-        String result = null;
-        try {
-            result = HttpUtil.executeUrl("GET", "http://ip-api.com/json/?fields=lat,lon", 5000);
-        } catch (IOException e) {
-            logger.warn("Can't get latitude and longitude for the current location: {}", e);
+
+        PointType location = locationProvider.getLocation();
+
+        if (location == null) {
+            logger.debug("LocationProvider.getLocation() is not set -> Will not provide any discovery results");
+            return;
         }
 
-        if (result != null) {
+        ThingUID sunThing = new ThingUID(AstroBindingConstants.THING_TYPE_SUN, LOCAL);
+        ThingUID moonThing = new ThingUID(AstroBindingConstants.THING_TYPE_MOON, LOCAL);
 
-            String lat = StringUtils.trim(StringUtils.substringBetween(result, "\"lat\":", ","));
-            String lon = StringUtils.trim(StringUtils.substringBetween(result, "\"lon\":", "}"));
-
-            try {
-                double latitude = Double.parseDouble(lat);
-                double longitude = Double.parseDouble(lon);
-
-                logger.info("Evaluated Astro geolocation: latitude: {}, longitude: {}", latitude, longitude);
-
-                ThingTypeUID sunType = new ThingTypeUID(BINDING_ID, SUN);
-                ThingTypeUID moonType = new ThingTypeUID(BINDING_ID, MOON);
-
-                ThingUID sunThing = new ThingUID(sunType, LOCAL);
-                ThingUID moonThing = new ThingUID(moonType, LOCAL);
-
-                String propGeolocation = String.format("%s,%s", latitude, longitude);
-                thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
-                        .withProperty("geolocation", propGeolocation).build());
-                thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
-                        .withProperty("geolocation", propGeolocation).build());
-            } catch (Exception ex) {
-                logger.warn("Can't discover Astro geolocation");
-            }
+        String propGeolocation;
+        if (location.getAltitude() != null) {
+            propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
+                    location.getAltitude());
+        } else {
+            propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
         }
+        thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
+                .withProperty("geolocation", propGeolocation).build());
+        thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
+                .withProperty("geolocation", propGeolocation).build());
     }
+
+    protected void setLocationProvider(LocationProvider locationProvider) {
+        this.locationProvider = locationProvider;
+    }
+
+    protected void unsetLocationProvider(LocationProvider locationProvider) {
+        this.locationProvider = null;
+    }
+
 }

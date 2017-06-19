@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-	<config-description uri="system:locale">
+	<config-description uri="system:i18n">
 		<parameter name="language" type="text">
 			<label>Language</label>
 			<description><![CDATA[
@@ -42,6 +42,14 @@
              ]]>
 			</description>
 			<advanced>true</advanced>
+		</parameter>
+		<parameter name="location" type="text" required="false">
+			<context>location</context>
+			<label>Location</label>
+			<description><![CDATA[
+		<p>Location of this installation.</p>
+		]]>
+			</description>
 		</parameter>
 	</config-description>
 

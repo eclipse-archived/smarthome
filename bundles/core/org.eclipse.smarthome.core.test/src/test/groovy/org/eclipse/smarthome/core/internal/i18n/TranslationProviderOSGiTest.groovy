@@ -11,8 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -64,7 +64,7 @@ class TranslationProviderOSGiTest extends OSGiTest {
         i18nProvider = getService(TranslationProvider)
         assertThat i18nProvider, is(notNullValue())
 
-        LocaleProviderImpl localeProvider = getService(LocaleProvider,LocaleProviderImpl)
+        LocaleProvider localeProvider = getService(LocaleProvider)
         Map<String,String> localeCfg = new HashMap<>();
         localeCfg.putAt("language", "de");
         localeCfg.putAt("region", "DE");
