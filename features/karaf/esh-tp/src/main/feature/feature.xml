@@ -57,7 +57,6 @@
   <feature name="esh-tp-jax-rs" version="${project.version}">
     <capability>esh.tp;feature=jax-rs;version=5.3.1</capability>
     <feature>esh-tp-jax-rs-min</feature>
-    <feature>esh-tp-jax-rs-provider-gson</feature>
   </feature>
 
   <feature name="esh-tp-jax-rs-min" version="${project.version}">
@@ -126,13 +125,6 @@
     <capability>esh.tp;feature=jax-rs-provider-security;version=2.2</capability>
     <feature dependency="true">esh-tp-jax-rs-min</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/provider-security/2.2</bundle>
-  </feature>
-
-  <feature name="esh-tp-jax-rs-provider-gson" description="JAX-RS provider for de/serialization using Gson" version="${project.version}">
-    <capability>esh.tp;feature=jax-rs-provider-gson;version=2.3</capability>
-    <feature dependency="true">esh-tp-jax-rs-min</feature>
-    <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
-    <bundle>mvn:com.eclipsesource.jaxrs/provider-gson/2.3</bundle>
   </feature>
 
   <feature name="esh-tp-jax-rs-provider-swagger" description="JAX-RS provider for Swagger integration" version="${project.version}">
