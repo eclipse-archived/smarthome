@@ -128,7 +128,7 @@ Context is used to provide some semantic details about the parameter. The UIs us
   <tr><td>service</td><td>text</td><td>service name</td><td>custom input field</td></tr>
   <tr><td>channel</td><td>text</td><td>UID of a channel<br></td><td>custom input field</td></tr>
   <tr><td>rule</td><td>text</td><td>UID of a rule<br></td><td>custom input field</td></tr>
-  <tr><td>location</td><td>text</td><td>latitude,longitude,altitude or latitude,longitude<br></td><td>custom input field</td></tr>
+  <tr><td>location</td><td>text</td><td>latitude,longitude[,altitude]<br></td><td>custom input field</td></tr>
   
 </table>
 
