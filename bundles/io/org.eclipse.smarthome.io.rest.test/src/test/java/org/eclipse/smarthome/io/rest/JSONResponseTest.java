@@ -82,6 +82,17 @@ public class JSONResponseTest {
     }
 
     @Test
+    public void shouldCreateSuccessResponseWithNullEntity() throws Exception {
+        Response response = JSONResponse.createResponse(Status.ACCEPTED, null, null);
+
+        assertThat(response.getStatus(), is(202));
+        assertThat(response.getMediaType(), is(MediaType.APPLICATION_JSON_TYPE));
+
+        Object entity = response.getEntity();
+        assertThat(entity, is(nullValue()));
+    }
+
+    @Test
     public void shouldCreateSuccessResponseWithLargeStreamEntity() throws IOException {
         Response response = JSONResponse.createResponse(Status.OK, new LargeEntity(), null);
 

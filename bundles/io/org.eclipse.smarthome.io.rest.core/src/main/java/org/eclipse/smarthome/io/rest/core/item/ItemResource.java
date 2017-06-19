@@ -215,7 +215,7 @@ public class ItemResource implements RESTResource {
     @Path("/{itemname: [a-zA-Z_0-9]*}/state")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Updates the state of an item.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted"),
             @ApiResponse(code = 404, message = "Item not found"),
             @ApiResponse(code = 400, message = "Item state null") })
     public Response putItemState(
