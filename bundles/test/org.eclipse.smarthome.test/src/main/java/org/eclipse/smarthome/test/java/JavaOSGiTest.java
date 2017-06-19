@@ -47,7 +47,7 @@ public class JavaOSGiTest {
     protected final int DFL_SLEEP_TIME = 50;
 
     private final Map<String, ServiceRegistration<?>> registeredServices = new HashMap<>();
-    BundleContext bundleContext;
+    protected BundleContext bundleContext;
 
     @Before
     public void bindBundleContext() {
