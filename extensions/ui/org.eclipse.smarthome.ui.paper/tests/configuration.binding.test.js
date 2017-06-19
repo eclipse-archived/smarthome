@@ -2,7 +2,6 @@ describe('module PaperUI.controllers.configuration.bindings', function() {
     beforeEach(function() {
         module('PaperUI');
     });
-    var restConfig;
     describe('tests for BindingController', function() {
         var bindingController, scope, mdDialog;
         beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog) {
@@ -22,6 +21,7 @@ describe('module PaperUI.controllers.configuration.bindings', function() {
 
     describe('tests for ConfigureBindingDialogController', function() {
         var configureBindingDialogController, scope, bindingService;
+        var restConfig;
         beforeEach(inject(function($injector, $rootScope, $controller) {
             scope = $rootScope.$new();
             var bindingRepository = $injector.get('bindingRepository');
