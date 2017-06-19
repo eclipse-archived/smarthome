@@ -144,6 +144,10 @@ public class JSONResponse {
     private Response createResponse(Status status, Object entity) {
         ResponseBuilder rp = responseBuilder(status);
 
+        if (entity == null) {
+            return rp.build();
+        }
+
         // The PipedOutputStream will only be closed by the writing thread
         // since closing it during this method call would be too early.
         // The receiver of the response will read from the pipe after this method returns.
