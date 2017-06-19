@@ -326,7 +326,7 @@
 					"/icon/" +
 					_t.iconName +
 					"?state=" +
-					state +
+					encodeURIComponent(state) +
 					"&format=" +
 					smarthome.UI.iconType
 				);
