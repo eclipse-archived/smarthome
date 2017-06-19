@@ -8,6 +8,8 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import static org.eclipse.smarthome.automation.RulePredicates.*;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +18,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.core.internal.RuleRegistryImpl;
-import static org.eclipse.smarthome.automation.core.util.RulePredicates.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 
