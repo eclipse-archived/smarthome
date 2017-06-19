@@ -8,10 +8,14 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.i18n.i18nprovider" immediate="true">
-   <implementation class="org.eclipse.smarthome.core.internal.i18n.TranslationProviderImpl"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" modified="modified" name="org.eclipse.smarthome.core.i18nprovider">
+   <implementation class="org.eclipse.smarthome.core.internal.I18nProviderImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.i18n.TranslationProvider"/>
+      <provide interface="org.eclipse.smarthome.core.i18n.LocaleProvider"/>
+      <provide interface="org.eclipse.smarthome.core.i18n.LocationProvider"/>
    </service>
-   <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
+   <property name="service.config.description.uri" type="String" value="system:i18n"/>
+   <property name="service.config.label" type="String" value="Regional Settings"/>
+   <property name="service.config.category" type="String" value="system"/>
 </scr:component>
