@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.automation.rest.internal;
 
+import static org.eclipse.smarthome.automation.RulePredicates.*;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -36,7 +38,6 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
-import static org.eclipse.smarthome.automation.core.util.RulePredicates.*;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.automation.dto.ActionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
@@ -98,21 +99,19 @@ public class RuleResource implements RESTResource {
 
         // prefix parameter has been used
         if (null != prefix) {
-            // works also for null namespace/prefix
-            // (empty prefix used if searching for rules without namespace/prefix)
-            p = p.and(hasNamespace(prefix));
+            // works also for null prefix
+            // (empty prefix used if searching for rules without prefix)
+            p = p.and(hasPrefix(prefix));
         }
 
         // tag parameter has been used
         if (null != tags) {
-            // works also for empty tag list  
+            // works also for empty tag list
             // (empty tags list used if searching for rules without _any_ tags)
             p = p.and(hasAllTags(tags));
         }
 
-        final Collection<EnrichedRuleDTO> rules = ruleRegistry
-                .stream()
-                .filter(p)      // filter according to Predicates
+        final Collection<EnrichedRuleDTO> rules = ruleRegistry.stream().filter(p) // filter according to Predicates
                 .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleRegistry)) // map matching rules
                 .collect(Collectors.toList());
 

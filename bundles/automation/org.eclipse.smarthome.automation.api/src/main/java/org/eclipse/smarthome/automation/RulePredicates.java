@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.core.util;
+package org.eclipse.smarthome.automation;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,12 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.core.internal.RuleEngine;
-import org.eclipse.smarthome.core.thing.UID;
-
 /**
- * Add support for namespace prefix and provide default predicates for namespace and tags.
+ * Add support for prefixes and provide default predicates for prefixes and tags.
  *
  * @author Victor Toni - initial contribution
  *
@@ -27,24 +23,28 @@ import org.eclipse.smarthome.core.thing.UID;
 public class RulePredicates {
 
     /**
-     * Constant defining separator between module UID and output name.
-     * 
-     * Reuses the value from {@link UID#SEPARATOR}.
+     * Constant defining separator between prefix and name.
      */
-    public static final String PREFIX_SEPARATOR = UID.SEPARATOR;
+    public static final String PREFIX_SEPARATOR = ":";
 
     /**
-     * Gets the namespace of the {@link Rule}, if any exist. This property is either set by the {@link RuleEngine} when
+     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the {@link RuleEngine} when
      * the {@link Rule} is added or by the creating party. It's an optional property.
-     * <br/><br/>Implementation note
-     *    <br/>The namespace is part of the {@code UID} and the prefix thereof.
-     *    <br/>If the UID does not contain a {@link UID#SEPARATOR} {@code null} will be returned.
-     *    <br/>If the UID does contain a {@link UID#SEPARATOR} the prefix until the first occurrence will be returned.
-     *    <br/>If the prefix would have a zero length {@code null} will be returned.
+     * <br/>
+     * <br/>
+     * Implementation note
+     * <br/>
+     * The namespace is part of the UID and the prefix thereof.
+     * <br/>
+     * If the UID does not contain a {@link PREFIX_SEPARATOR} {@code null} will be returned.
+     * <br/>
+     * If the UID does contain a {@link PREFIX_SEPARATOR} the prefix until the first occurrence will be returned.
+     * <br/>
+     * If the prefix would have a zero length {@code null} will be returned.
      *
-     * @return namespace of this {@link Rule}, or {@code null} if no prefix or an empty prefix is found
-    */
-    public static String getNamespace(Rule rule) {
+     * @return prefix of this {@link Rule}, or {@code null} if no prefix or an empty prefix is found
+     */
+    public static String getPrefix(Rule rule) {
         if (null != rule) {
             final String uid = rule.getUID();
             if (null != uid) {
@@ -61,37 +61,40 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to filter {@link Rule}s for a given namespace or {@code null} namespace.
+     * Creates a {@link Predicate} which can be used to filter {@link Rule}s for a given prefix or {@code null}
+     * prefix.
      *
-     * @param namespace to search for
+     * @param prefix to search for
      * @return created {@link Predicate}
      */
-    public static Predicate<Rule> hasNamespace(final String namespace) {
-        if (null == namespace) {
-            return r -> null == getNamespace(r);
-       } else {
-            return r-> namespace.equals(getNamespace(r));
+    public static Predicate<Rule> hasPrefix(final String prefix) {
+        if (null == prefix) {
+            return r -> null == getPrefix(r);
+        } else {
+            return r -> prefix.equals(getPrefix(r));
         }
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given namespaces and even {@code null} namespace.
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given prefixes and even
+     * {@code null} prefix.
      *
-     * @param namespaces to search for
+     * @param prefixes to search for
      * @return created {@link Predicate}
      */
-    public static Predicate<Rule> hasAnyOfNamespaces(String... namespaces) {
-        final HashSet<String> namespaceSet = new HashSet<String>(namespaces.length);
-        for(final String namespace : namespaces) {
+    public static Predicate<Rule> hasAnyOfPrefixes(String... prefixes) {
+        final HashSet<String> namespaceSet = new HashSet<String>(prefixes.length);
+        for (final String namespace : prefixes) {
             namespaceSet.add(namespace);
         }
 
         // this will even work for null namepace
-        return r -> namespaceSet.contains(getNamespace(r));
+        return r -> namespaceSet.contains(getPrefix(r));
     }
 
     /**
      * Creates a {@link Predicate} which can be used to match {@link Rule}s with one or more tags.
+     *
      * @param tags to search for
      * @return created {@link Predicate}
      */
@@ -103,6 +106,7 @@ public class RulePredicates {
 
     /**
      * Creates a {@link Predicate} which can be used to match {@link Rule}s without tags.
+     *
      * @param tags to search for
      * @return created {@link Predicate}
      */
@@ -146,7 +150,9 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s without tags.
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * without tags.
+     *
      * @param tags to search for
      * @return created {@link Predicate}
      */
@@ -164,7 +170,9 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s without tags.
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * without tags.
+     *
      * @param tags to search for
      * @return created {@link Predicate}
      */
