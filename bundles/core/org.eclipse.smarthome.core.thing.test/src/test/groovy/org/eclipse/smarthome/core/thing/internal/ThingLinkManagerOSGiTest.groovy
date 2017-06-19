@@ -26,7 +26,6 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
-import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
@@ -94,7 +93,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
             getChannelGroupType: { null }
         ] as ChannelTypeProvider)
 
-        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType.UID)], null, null, null)])
+        def thingTypeProvider = new SimpleThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType.UID)], null, null, null)])
         registerService(thingTypeProvider)
     }
 
@@ -186,24 +185,6 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
                             putContext("unlinkedChannel", channelUID)
                         }
                     }
-        }
-    }
-
-    class TestThingTypeProvider implements ThingTypeProvider {
-        def Collection<ThingType> thingTypes
-
-        TestThingTypeProvider(Collection<ThingType> thingTypes){
-            this.thingTypes = thingTypes
-        }
-
-        @Override
-        public Collection<ThingType> getThingTypes(Locale locale) {
-            return this.thingTypes;
-        }
-
-        @Override
-        public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-            return thingTypes.find { it.UID == thingTypeUID }
         }
     }
 }
