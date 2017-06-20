@@ -15,6 +15,8 @@ import static org.eclipse.smarthome.core.thing.type.ChannelKind.TRIGGER;
 import static org.eclipse.smarthome.core.types.RefreshType.REFRESH;
 
 import java.lang.invoke.MethodHandles;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -186,7 +188,10 @@ public abstract class AstroThingHandler extends BaseThingHandler {
             schedulerFuture.cancel(true);
         }
         if (localExecutor != null) {
-            localExecutor.shutdownNow();
+            AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+                localExecutor.shutdownNow();
+                return null;
+            });
         }
         localExecutor = Executors.newSingleThreadExecutor();
         schedulerFuture = scheduler.schedule(() -> {
