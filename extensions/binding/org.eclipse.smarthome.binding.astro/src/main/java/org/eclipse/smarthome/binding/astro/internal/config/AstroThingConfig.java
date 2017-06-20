@@ -36,6 +36,10 @@ public class AstroThingConfig {
         if (geoParts.length == 2) {
             latitude = toDouble(geoParts[0]);
             longitude = toDouble(geoParts[1]);
+        } else if (geoParts.length == 3) {
+            latitude = toDouble(geoParts[0]);
+            longitude = toDouble(geoParts[1]);
+            altitude = Integer.parseInt(geoParts[2]);
         }
     }
 
