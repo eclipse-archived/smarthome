@@ -33,7 +33,7 @@ public class GroupRenderer extends AbstractWidgetRenderer {
         String snippet = getSnippet("group");
 
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(w)));
+        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%state%", getState(w));
         snippet = StringUtils.replace(snippet, "%format%", getFormat());
