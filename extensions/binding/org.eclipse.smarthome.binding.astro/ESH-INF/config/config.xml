@@ -8,7 +8,7 @@
 		<parameter name="geolocation" type="text" required="true">
 			<context>location</context>
 			<label>Location</label>
-			<description>The latitude, longitude and altitude separated with a comma (<lat>,<long>,<alt>)</description>
+			<description>The latitude, longitude and altitude separated with a comma (lat,long,[alt])</description>
 		</parameter>
 		<parameter name="interval" type="integer" min="1" max="86400">
 			<label>Interval</label>
