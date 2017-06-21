@@ -15,7 +15,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 
 /**
- * Helper class to be required for Astro Jobs to deal with CRON expressions
+ * Helper class to create CRON expressions from calendar or temporal instance. 
  *
  * @author Amit Kumar Mondal - Initial Contribution
  */
@@ -24,7 +24,6 @@ public final class CronHelper {
     /** CRON Constants */
     private static final String ANY = "*";
     private static final String SPACE = " ";
-    private static final String SECONDS = "*";
     private static final String EACH = "/";
     private static final String DAYS_OF_WEEK = "?";
 
@@ -59,6 +58,7 @@ public final class CronHelper {
      */
     public static String createCronFromTemporal(LocalDateTime localDateTime) {
         requireNonNull(localDateTime, "Temporal instance cannot be null");
+        int second = localDateTime.getSecond();
         int minute = localDateTime.getMinute();
         int hour = localDateTime.getHour();
         int day = localDateTime.getDayOfMonth();
@@ -66,7 +66,7 @@ public final class CronHelper {
         int year = localDateTime.getYear();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(SECONDS).append(SPACE).append(minute).append(SPACE).append(hour).append(SPACE).append(day)
+        builder.append(second).append(SPACE).append(minute).append(SPACE).append(hour).append(SPACE).append(day)
                 .append(SPACE).append(month).append(SPACE).append(DAYS_OF_WEEK).append(SPACE).append(year);
         return builder.toString();
     }
@@ -76,7 +76,7 @@ public final class CronHelper {
      * seconds
      *
      * @param totalSecs the seconds (cannot be zero or negative or more than 86400)
-     * @return the CRON expression
+     * @return the CRON expression or empty string
      * @throws IllegalArgumentException
      *             if {@code totalSecs} is zero or negative or more than 86400
      */

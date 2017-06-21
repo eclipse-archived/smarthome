@@ -57,9 +57,9 @@ public interface Job extends Runnable {
                     Expression cron = new CronExpression(createCronFromCalendar(eventAt));
                     if (astroHandler.addJobToQueue(job)) {
                         executor.schedule(job, cron);
+                        String formattedDate = ISO_DATETIME_FORMAT.format(eventAt);
+                        logger.debug("Scheduled astro job for thing {} at {}", thingUID, formattedDate);
                     }
-                    String formattedDate = ISO_DATETIME_FORMAT.format(eventAt);
-                    logger.debug("Scheduled Astro Job for thing {} at {}", thingUID, formattedDate);
                 }
             }
         } catch (Exception ex) {
