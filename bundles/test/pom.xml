@@ -17,6 +17,8 @@
 
   <modules>
     <module>org.eclipse.smarthome.test</module>
+    <module>org.eclipse.smarthome.magic</module>
+    <module>org.eclipse.smarthome.magic.test</module>
   </modules>
 
 </project>

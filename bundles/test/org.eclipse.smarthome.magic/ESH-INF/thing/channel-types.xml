@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="magic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<channel-type id="switch">
+		<item-type>Switch</item-type>
+		<label>Switch</label>
+		<description>The on/off channel allows to toggle between on and off.</description>
+	</channel-type>
+
+	<channel-type id="brightness">
+		<item-type>Dimmer</item-type>
+		<label>Dimmer</label>
+		<description>The dimmer channel allows to control the brightness.</description>
+	</channel-type>
+
+	<channel-type id="color">
+		<item-type>Color</item-type>
+		<label>Color</label>
+		<description>The color channel allows to control the color of a light.
+            It is also possible to dim values and switch the light on and off.
+        </description>
+		<category>ColorLight</category>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+</thing:thing-descriptions>
