@@ -1481,3 +1481,16 @@ search-field {
 search-field i {
 	margin-top: 4px;
 }
+
+md-input-container .md-input.location-input {
+	float: none;
+}
+
+.map-container {
+	margin-top: 10px;
+}
+
+.map-container > .map {
+	height: 300px; 
+	width: 100%;
+}

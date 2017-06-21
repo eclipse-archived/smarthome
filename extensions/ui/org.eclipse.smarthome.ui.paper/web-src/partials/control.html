@@ -178,29 +178,9 @@
 									</div>
 									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
 								</div>
-								<div ng-if="::(item.type === 'Location')" ng-controller="LocationItemController">
-									<div layout="row" layout-align="start center">
-										<p>
-											<i class="material-icons">place</i>{{::getLabel(item, 'Location')}}
-										</p>
-									</div>
-									<div layout="row" layout-align="start center" class="map-container">
-										<div layout="row" layout-align="start center" flex>
-											<iframe width="100%" ng-src="{{url}}"></iframe>
-										</div>
-									</div>
-									<div layout="row" layout-align="start center">
-										<div ng-if="::item.readOnly" layout="row" layout-align="end center">
-											<h2 class="state">{{formattedState}}</h2>
-										</div>
-										<div ng-if="::!item.readOnly" layout="row" layout-align="end center">
-											<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{formattedState}}</h2>
-											<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{::item.label}}></input> </md-input-container>
-											<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
-								</div>
+								<div ng-if="::(item.type === 'Location')" >
+                                     <location-control/>
+                                 </div>
 								<div ng-if="::(item.type === 'Image')" ng-controller="ImageItemController">
 									<div layout-align="start center" layout="row">
 										<div flex="60">

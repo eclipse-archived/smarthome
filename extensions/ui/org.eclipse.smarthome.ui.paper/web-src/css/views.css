@@ -32,8 +32,6 @@ section#main.header-tabs {
 .items .item h2.state {
 	margin: 5px 0px;
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .items .item h1.state:last-child {
@@ -98,7 +96,7 @@ section#main.header-tabs {
 }
 
 .items .item .map-container {
-	height: 200px !important;
+	height: 100%;
 }
 
 .items .item hr {
