@@ -38,6 +38,7 @@
     <module>org.eclipse.smarthome.io.transport.dbus</module>
     <module>org.eclipse.smarthome.io.transport.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
+    <module>org.eclipse.smarthome.io.transport.mqtt.test</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
   </modules>

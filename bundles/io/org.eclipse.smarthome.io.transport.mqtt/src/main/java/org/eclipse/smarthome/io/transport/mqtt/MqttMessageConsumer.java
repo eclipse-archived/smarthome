@@ -13,23 +13,13 @@ import org.eclipse.smarthome.core.events.EventPublisher;
  * All message consumers which want to register as a message consumer to a MqttBrokerConnection should implement this
  * interface.
  *
+ * This is a deprecated interface. Please use MqttMessageSubscriber instead.
+ *
  * @author Davy Vanherbergen
+ * @deprecated
  */
-public interface MqttMessageConsumer {
-
-    /**
-     * Process a received MQTT message.
-     *
-     * @param topic The mqtt topic on which the message was received.
-     * @param payload content of the message.
-     */
-    public void processMessage(String topic, byte[] payload);
-
-    /**
-     * @return topic to subscribe to. May contain + or # wildcards
-     */
-    public String getTopic();
-
+@Deprecated
+public interface MqttMessageConsumer extends MqttMessageSubscriber {
     /**
      * Set Topic to subscribe to. May contain + or # wildcards
      *

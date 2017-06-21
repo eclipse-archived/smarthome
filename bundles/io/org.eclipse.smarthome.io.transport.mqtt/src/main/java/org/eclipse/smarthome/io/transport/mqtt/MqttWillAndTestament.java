@@ -45,23 +45,32 @@ public class MqttWillAndTestament {
             String value = StringUtils.trimToEmpty(components[i]);
             switch (i) {
                 case 0:
-                    result.setTopic(value);
+                    result.topic = value;
                     break;
                 case 1:
-                    result.setPayload(value.getBytes());
+                    result.payload = value.getBytes();
                     break;
                 case 2:
                     if (!"".equals(value)) {
-                        result.setQos(Integer.valueOf(value));
+                        int qos = Integer.valueOf(value);
+                        if (qos >= 0 && qos <= 2) {
+                            result.qos = qos;
+                        }
                     }
                     break;
                 case 3:
-                    result.setRetain(Boolean.valueOf(value));
+                    result.retain = Boolean.valueOf(value);
                     break;
             }
         }
-        return result;
+        return result.isValid() ? result : null;
+    }
 
+    /**
+     * Return true if the last will and testament object is valid.
+     */
+    private boolean isValid() {
+        return !StringUtils.isBlank(topic);
     }
 
     /**
@@ -72,28 +81,10 @@ public class MqttWillAndTestament {
     }
 
     /**
-     * Set the topic for the last will.
-     *
-     * @param topic the topic
-     */
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    /**
      * @return the payload of the last will.
      */
     public byte[] getPayload() {
         return payload;
-    }
-
-    /**
-     * Set the payload of the last will.
-     *
-     * @param payload the payload
-     */
-    public void setPayload(byte[] payload) {
-        this.payload = payload;
     }
 
     /**
@@ -104,30 +95,10 @@ public class MqttWillAndTestament {
     }
 
     /**
-     * Set quality of service. Valid values are 0,1,2
-     *
-     * @param qos level.
-     */
-    public void setQos(int qos) {
-        if (qos >= 0 && qos <= 2) {
-            this.qos = qos;
-        }
-    }
-
-    /**
      * @return true if the last will should be retained by the broker.
      */
     public boolean isRetain() {
         return retain;
-    }
-
-    /**
-     * Set whether the last will should be retained by the broker.
-     *
-     * @param retain true to retain.
-     */
-    public void setRetain(boolean retain) {
-        this.retain = retain;
     }
 
     @Override

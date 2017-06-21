@@ -8,19 +8,14 @@
 package org.eclipse.smarthome.io.transport.mqtt;
 
 /**
- * All MQTT connection observers which want to register as a connection observer to a MqttBrokerConnection should
- * implement this interface.
+ * Implement this interface to get notified of connection state changes.
+ * Register this observer at {@see MqttBrokerConnection}.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-
 public interface MqttConnectionObserver {
-
     /**
      * Inform the observer if the connection is active or disconnected.
-     *
-     * This callback is called after a observer is registered to a MqttBrokerConnection or if the connection state
-     * changed.
      *
      * @param connected true if the connection is established, false if disconnected.
      */
