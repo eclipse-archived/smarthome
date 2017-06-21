@@ -9,8 +9,6 @@ package org.eclipse.smarthome.binding.ntp.internal;
 
 import static org.eclipse.smarthome.binding.ntp.NtpBindingConstants.*;
 
-import java.util.Locale;
-
 import org.eclipse.smarthome.binding.ntp.handler.NtpHandler;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -27,23 +25,14 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  */
 public class NtpHandlerFactory extends BaseThingHandlerFactory {
 
-    private class LocaleProviderHolder implements LocaleProvider {
-        private LocaleProvider localeProvider;
-
-        @Override
-        public Locale getLocale() {
-            return localeProvider.getLocale();
-        }
-    }
-
-    private final LocaleProviderHolder localeProviderHolder = new LocaleProviderHolder();
+    private LocaleProvider localeProvider;
 
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
-        localeProviderHolder.localeProvider = localeProvider;
+        this.localeProvider = localeProvider;
     }
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
-        localeProviderHolder.localeProvider = null;
+        this.localeProvider = null;
     }
 
     @Override
@@ -57,7 +46,7 @@ public class NtpHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(THING_TYPE_NTP)) {
-            return new NtpHandler(thing, localeProviderHolder);
+            return new NtpHandler(thing, localeProvider);
         }
 
         return null;
