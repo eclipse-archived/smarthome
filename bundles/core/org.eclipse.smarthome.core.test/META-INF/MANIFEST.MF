@@ -14,10 +14,11 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit,
  org.junit.runner,
  org.junit.runners,
- org.osgi.service.cm,
- org.mockito
+ org.mockito,
+ org.osgi.service.cm
 Require-Bundle: org.junit,org.mockito,org.hamcrest
