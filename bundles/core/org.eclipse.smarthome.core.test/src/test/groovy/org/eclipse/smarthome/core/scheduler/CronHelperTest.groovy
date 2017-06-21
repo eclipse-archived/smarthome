@@ -28,7 +28,7 @@ class CronHelperTest {
     public void 'create CRON expression from specified date'(){
         def date = LocalDateTime.of(2014, 4, 3, 1, 23, 45)
         def cron = createCronFromTemporal(date)
-        assertEquals('* 23 1 3 4 ? 2014', cron)
+        assertEquals('45 23 1 3 4 ? 2014', cron)
         assertTrue(isValidExpression(cron))
     }
 
