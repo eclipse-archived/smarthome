@@ -24,7 +24,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final List<ChannelDefinition> channelDefinitions;
-    private String category;
+    private final String category;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -39,6 +39,8 @@ public class ChannelGroupType extends AbstractDescriptionType {
      *
      * @param description the human readable description for the according type
      *            (could be null or empty)
+     *
+     * @param category the category of this channel group type, e.g. Temperature (could be null or empty)
      *
      * @param channelDefinitions the channel definitions this channel group forms
      *            (could be null or empty)
