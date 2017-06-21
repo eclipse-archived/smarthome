@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class AstroThingConfig {
     private String geolocation;
-    private Integer altitude;
+    private Double altitude;
     private Double latitude;
     private Double longitude;
     private Integer interval;
@@ -36,6 +36,10 @@ public class AstroThingConfig {
         if (geoParts.length == 2) {
             latitude = toDouble(geoParts[0]);
             longitude = toDouble(geoParts[1]);
+        } else if (geoParts.length == 3) {
+            latitude = toDouble(geoParts[0]);
+            longitude = toDouble(geoParts[1]);
+            altitude = toDouble(geoParts[2]);
         }
     }
 
@@ -71,7 +75,7 @@ public class AstroThingConfig {
     /**
      * Returns the longitude.
      */
-    public Integer getAltitude() {
+    public Double getAltitude() {
         return altitude;
     }
 
