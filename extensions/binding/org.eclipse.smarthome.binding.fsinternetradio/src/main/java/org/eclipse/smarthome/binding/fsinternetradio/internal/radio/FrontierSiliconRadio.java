@@ -60,8 +60,8 @@ public class FrontierSiliconRadio {
      * @author Rainer Ostendorf
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
-    public void login() throws IOException {
-        conn.doLogin();
+    public boolean login() throws IOException {
+        return conn.doLogin();
     }
 
     /**
@@ -145,8 +145,9 @@ public class FrontierSiliconRadio {
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
     public void increaseVolumeAbsolute() throws IOException {
-        if (currentVolume < 32)
+        if (currentVolume < 32) {
             setVolumeAbsolute(currentVolume + 1);
+        }
     }
 
     /**
@@ -155,8 +156,9 @@ public class FrontierSiliconRadio {
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
     public void decreaseVolumeAbsolute() throws IOException {
-        if (currentVolume > 0)
+        if (currentVolume > 0) {
             setVolumeAbsolute(currentVolume - 1);
+        }
     }
 
     /**
@@ -237,5 +239,12 @@ public class FrontierSiliconRadio {
     public void setMuted(boolean muted) throws IOException {
         final String params = "value=" + (muted ? "1" : "0");
         conn.doRequest(REQUEST_SET_MUTE, params);
+    }
+
+    /**
+     * Closes the Http Client used to make requests to the radio
+     */
+    public void closeClient() {
+        conn.close();
     }
 }

@@ -10,11 +10,12 @@ package org.eclipse.smarthome.binding.fsinternetradio.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import org.apache.commons.lang.StringUtils
+import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants
+import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler
+import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioHandlerFactory
+import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConnection
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.config.discovery.DiscoveryResult
-import org.eclipse.smarthome.config.discovery.DiscoveryService
-
-import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.items.*
@@ -23,26 +24,14 @@ import org.eclipse.smarthome.core.thing.*
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
-
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
-import org.eclipse.smarthome.core.types.State
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.*
-
 import org.osgi.service.http.HttpService
-
-import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants
-import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioDiscoveryParticipant
-import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioHandlerFactory;
-import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio
-import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConnection
-import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler
-
-import org.apache.commons.lang.StringUtils
 
 /**
  * OSGi tests for the {@link FSInternetRadioHandler}
@@ -656,6 +645,32 @@ public class FSInternetRadioHandlerOSGiTest extends OSGiTest{
         waitForAssert {
             assertThat("The item's state was not updated correctly in attempt to get the additional information about the station", playInfoTextTestItem.getState(), is("additional_info"))
         }
+    }
+
+    @Test
+    void 'verify error on login doesnt craete new threads' () {
+        def wrongPin = "5678"
+        // The default number of threads that are created by the Jetty HttpClient for each new client instance
+        def threadsCreatedByHttpClient = 8
+        Configuration config = createConfiguration(wrongPin, DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PORT, DEFAULT_CONFIG_PROPERTY_REFRESH)
+
+        Thing radioThing = initializeRadioThing(config)
+
+        int threadsBeforeSleep = getThreadsCountByName("HttpClient")
+
+        sleep(2 * Integer.parseInt(DEFAULT_CONFIG_PROPERTY_REFRESH) * 1000)
+
+        int threadsAfterSleep = getThreadsCountByName("HttpClient")
+
+        int newThreads = threadsAfterSleep - threadsBeforeSleep
+
+        assertTrue("$newThreads new threads created", newThreads < threadsCreatedByHttpClient)
+
+    }
+
+    private int getThreadsCountByName(String name) {
+        Set<Thread> allThreads = Thread.getAllStackTraces().keySet();
+        return allThreads.stream().filter({t -> t.getName().startsWith(name)}).count();
     }
 
     private Configuration createDefaultConfiguration() {
