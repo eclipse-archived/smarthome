@@ -57,7 +57,7 @@ public class SunCalc {
     /**
      * Calculates the sun position (azimuth and elevation).
      */
-    public void setPositionalInfo(Calendar calendar, double latitude, double longitude, Integer altitude, Sun sun) {
+    public void setPositionalInfo(Calendar calendar, double latitude, double longitude, Double altitude, Sun sun) {
         double lw = -longitude * DEG2RAD;
         double phi = latitude * DEG2RAD;
 
@@ -82,7 +82,7 @@ public class SunCalc {
     /**
      * Calculates sun radiation data.
      */
-    public void setRadiationInfo(Calendar calendar, double elevation, Integer altitude, Sun sun) {
+    public void setRadiationInfo(Calendar calendar, double elevation, Double altitude, Sun sun) {
         double sinAlpha = Math.sin(DEG2RAD * elevation);
 
         int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
@@ -111,7 +111,7 @@ public class SunCalc {
     /**
      * Returns true, if the sun is up all day (no rise and set).
      */
-    private boolean isSunUpAllDay(Calendar calendar, double latitude, double longitude, Integer altitude) {
+    private boolean isSunUpAllDay(Calendar calendar, double latitude, double longitude, Double altitude) {
         Calendar cal = DateTimeUtils.truncateToMidnight(calendar);
         Sun sun = new Sun();
         for (int minutes = 0; minutes <= MINUTES_PER_DAY; minutes += CURVE_TIME_INTERVAL) {
@@ -127,11 +127,11 @@ public class SunCalc {
     /**
      * Calculates all sun rise and sets at the specified coordinates.
      */
-    public Sun getSunInfo(Calendar calendar, double latitude, double longitude, Integer altitude) {
+    public Sun getSunInfo(Calendar calendar, double latitude, double longitude, Double altitude) {
         return getSunInfo(calendar, latitude, longitude, altitude, false);
     }
 
-    private Sun getSunInfo(Calendar calendar, double latitude, double longitude, Integer altitude, boolean onlyAstro) {
+    private Sun getSunInfo(Calendar calendar, double latitude, double longitude, Double altitude, boolean onlyAstro) {
         double lw = -longitude * DEG2RAD;
         double phi = latitude * DEG2RAD;
         double j = DateTimeUtils.midnightDateToJulianDate(calendar) + 0.5;
