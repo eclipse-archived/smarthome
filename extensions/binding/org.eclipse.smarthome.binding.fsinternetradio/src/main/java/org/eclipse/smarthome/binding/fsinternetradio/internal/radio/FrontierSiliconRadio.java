@@ -54,6 +54,10 @@ public class FrontierSiliconRadio {
         this.conn = new FrontierSiliconRadioConnection(hostname, port, pin);
     }
 
+    public boolean isLoggedIn() {
+        return conn.isLoggedIn();
+    }
+
     /**
      * Perform login to the radio and establish new session
      *

@@ -46,8 +46,6 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     private FrontierSiliconRadio radio;
 
-    private boolean isLoginSuccessful = false;
-
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
 
@@ -55,7 +53,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!isLoginSuccessful) {
+            if (!radio.isLoggedIn()) {
                 // radio is not set, so set all channels to 'undefined'
                 for (Channel channel : getThing().getChannels()) {
                     updateState(channel.getUID(), UnDefType.UNDEF);
@@ -147,8 +145,6 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             public void run() {
                 try {
                     if (radio.login()) {
-                        isLoginSuccessful = true;
-
                         // Thing initialized. If done set status to ONLINE to indicate proper working.
                         updateStatus(ThingStatus.ONLINE);
 
@@ -178,7 +174,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(final ChannelUID channelUID, final Command command) {
-        if (!isLoginSuccessful) {
+        if (!radio.isLoggedIn()) {
             // connection to radio is not initialized, log ignored command and set status, if it is not already offline
             logger.debug("Ignoring command " + channelUID.getId() + " = " + command + " because device is offline.");
             if (ThingStatus.ONLINE.equals(getThing().getStatus())) {

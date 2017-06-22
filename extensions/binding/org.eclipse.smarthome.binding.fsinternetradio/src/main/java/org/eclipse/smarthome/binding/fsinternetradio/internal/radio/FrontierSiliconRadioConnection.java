@@ -61,6 +61,10 @@ public class FrontierSiliconRadioConnection {
         this.pin = pin;
     }
 
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
     protected void close() {
         stopHttpClient(httpClient);
     }
