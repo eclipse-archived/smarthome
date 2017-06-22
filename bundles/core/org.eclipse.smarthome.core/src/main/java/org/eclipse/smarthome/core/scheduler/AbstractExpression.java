@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
@@ -34,7 +36,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     private String expression;
     private String delimiters;
-    private ArrayList<E> expressionParts = new ArrayList<E>();
+    private List<E> expressionParts = Collections.emptyList();
 
     private boolean continueSearch;
     private ArrayList<Date> candidates = new ArrayList<Date>();
@@ -155,14 +157,16 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         StringTokenizer expressionTokenizer = new StringTokenizer(expression, delimiters, false);
         int position = 0;
 
-        setExpressionParts(new ArrayList<E>());
         setCandidates(new ArrayList<Date>());
 
+        List<E> parts = new LinkedList<E>();
         while (expressionTokenizer.hasMoreTokens()) {
             String token = expressionTokenizer.nextToken().trim();
             position++;
-            getExpressionParts().add(parseToken(token, position));
+            parts.add(parseToken(token, position));
         }
+        Collections.sort(parts);
+        setExpressionParts(parts);
 
         validateExpression();
 
@@ -192,7 +196,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
     abstract protected void validateExpression() throws IllegalArgumentException;
 
     protected void applyExpressionParts(boolean searchMode) {
-        Collections.sort(getExpressionParts());
         for (ExpressionPart part : getExpressionParts()) {
             logger.trace("Expanding {} from {} candidates", part.getClass().getSimpleName(), getCandidates().size());
             setCandidates(part.apply(startDate, getCandidates()));
@@ -356,13 +359,13 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         this.candidates = null;
     }
 
-    public ArrayList<E> getExpressionParts() {
+    public List<E> getExpressionParts() {
         return expressionParts;
     }
 
-    public void setExpressionParts(ArrayList<E> expressionParts) {
+    public void setExpressionParts(List<E> expressionParts) {
         synchronized (this) {
-            this.expressionParts = expressionParts;
+            this.expressionParts = Collections.unmodifiableList(new LinkedList<>(expressionParts));
         }
     }
 
