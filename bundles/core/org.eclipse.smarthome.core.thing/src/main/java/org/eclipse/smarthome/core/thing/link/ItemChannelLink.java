@@ -35,7 +35,7 @@ public class ItemChannelLink extends AbstractLink {
     }
 
     @Override
-    public ChannelUID getUID() {
+    public ChannelUID getLinkedUID() {
         return this.channelUID;
     }
 

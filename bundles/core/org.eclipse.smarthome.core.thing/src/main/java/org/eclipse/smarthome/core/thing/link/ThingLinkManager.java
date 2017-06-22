@@ -160,7 +160,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
                 // The handler will be informed on item creation.
                 return;
             }
-            ChannelUID channelUID = itemChannelLink.getUID();
+            ChannelUID channelUID = itemChannelLink.getLinkedUID();
             Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());
@@ -177,7 +177,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
              * If an item and its link are removed before the registry change listener methods are called,
              * a check for the item could prevent that the handler is informed about the unlink at all.
              */
-            ChannelUID channelUID = itemChannelLink.getUID();
+            ChannelUID channelUID = itemChannelLink.getLinkedUID();
             Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());

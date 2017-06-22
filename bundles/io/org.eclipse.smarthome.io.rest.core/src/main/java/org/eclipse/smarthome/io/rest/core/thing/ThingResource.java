@@ -748,7 +748,7 @@ public class ThingResource implements RESTResource {
     private void unlinkChannelIfAlreadyLinked(ChannelUID channelUID) {
         Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
         for (ItemChannelLink link : links) {
-            if (link.getUID().equals(channelUID)) {
+            if (link.getLinkedUID().equals(channelUID)) {
                 logger.debug(
                         "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
                         channelUID, link.getItemName());

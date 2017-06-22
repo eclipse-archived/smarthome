@@ -62,7 +62,7 @@ public abstract class AbstractLink {
      * @return id (can not be null)
      */
     public String getID() {
-        return getIDFor(getItemName(), getUID());
+        return getIDFor(getItemName(), getLinkedUID());
     }
 
     /**
@@ -79,11 +79,11 @@ public abstract class AbstractLink {
      *
      * @return UID (can not be null)
      */
-    public abstract UID getUID();
+    public abstract UID getLinkedUID();
 
     @Override
     public int hashCode() {
-        return this.itemName.hashCode() * this.getUID().hashCode();
+        return this.itemName.hashCode() * this.getLinkedUID().hashCode();
     }
 
     @Override

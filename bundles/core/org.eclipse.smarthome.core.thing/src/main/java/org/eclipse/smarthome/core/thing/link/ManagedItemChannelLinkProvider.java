@@ -40,7 +40,7 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
     public void removeLinksForThing(ThingUID thingUID) {
         Collection<ItemChannelLink> itemChannelLinks = getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
-            if (itemChannelLink.getUID().getThingUID().equals(thingUID)) {
+            if (itemChannelLink.getLinkedUID().getThingUID().equals(thingUID)) {
                 this.remove(itemChannelLink.getID());
             }
         }

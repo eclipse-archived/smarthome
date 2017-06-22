@@ -31,7 +31,7 @@ public class ItemThingLink extends AbstractLink {
     }
 
     @Override
-    public ThingUID getUID() {
+    public ThingUID getLinkedUID() {
         return thingUID;
     }
 

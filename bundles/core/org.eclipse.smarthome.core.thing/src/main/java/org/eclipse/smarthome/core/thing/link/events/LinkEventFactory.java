@@ -99,12 +99,12 @@ public class LinkEventFactory extends AbstractEventFactory {
     }
 
     private static String buildTopic(String topic, AbstractLink itemChannelLink) {
-        String targetEntity = itemChannelLink.getItemName() + "-" + itemChannelLink.getUID().toString();
+        String targetEntity = itemChannelLink.getItemName() + "-" + itemChannelLink.getLinkedUID().toString();
         return topic.replace("{linkID}", targetEntity);
     }
 
     private static ItemChannelLinkDTO map(ItemChannelLink itemChannelLink) {
-        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getUID().toString());
+        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getLinkedUID().toString());
     }
 
 }
