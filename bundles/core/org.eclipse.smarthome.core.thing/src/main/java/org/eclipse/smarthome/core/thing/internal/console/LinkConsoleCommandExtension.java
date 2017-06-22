@@ -88,7 +88,7 @@ public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension
     private void clear(Console console) {
         Collection<ItemChannelLink> itemChannelLinks = itemChannelLinkRegistry.getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
-            itemChannelLinkRegistry.remove(itemChannelLink.getID());
+            itemChannelLinkRegistry.remove(itemChannelLink.getUID());
         }
         console.println(itemChannelLinks.size() + " links successfully removed.");
     }
@@ -107,7 +107,7 @@ public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     private void removeChannelLink(Console console, String itemName, ChannelUID channelUID) {
         ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUID);
-        ItemChannelLink removedItemChannelLink = itemChannelLinkRegistry.remove(itemChannelLink.getID());
+        ItemChannelLink removedItemChannelLink = itemChannelLinkRegistry.remove(itemChannelLink.getUID());
         if (removedItemChannelLink != null) {
             console.println("Link " + itemChannelLink.toString() + "successfully removed.");
         } else {

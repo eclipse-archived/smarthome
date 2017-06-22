@@ -51,7 +51,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getID()) }
+        managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getUID()) }
         managedThingProvider.getAll().each { managedThingProvider.remove(it.getUID()) }
         thingLinkManager.activate(null)
     }
@@ -66,7 +66,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
         assertThat  itemChannelLinkRegistry.getAll().size(), is(1)
         assertThat  managedItemChannelLinkProvider.getAll().size(), is(1)
 
-        managedItemChannelLinkProvider.remove(ITEM_CHANNEL_LINK.getID())
+        managedItemChannelLinkProvider.remove(ITEM_CHANNEL_LINK.getUID())
 
         assertThat itemChannelLinkRegistry.getAll().size(), is(0)
         assertThat managedItemChannelLinkProvider.getAll().size(), is(0)

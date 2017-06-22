@@ -56,7 +56,7 @@ class LinkEventOSGiTest extends OSGiTest {
         waitForAssert { assertThat lastReceivedEvent.type, is(ItemChannelLinkAddedEvent.TYPE) }
         assertThat lastReceivedEvent.topic, is("smarthome/links/item-a:b:c:d/added")
 
-        itemChannelLinkRegistry.remove(link.ID)
+        itemChannelLinkRegistry.remove(link.getUID())
         waitForAssert { assertThat lastReceivedEvent.type, is(ItemChannelLinkRemovedEvent.TYPE) }
         assertThat lastReceivedEvent.topic, is("smarthome/links/item-a:b:c:d/removed")
     }

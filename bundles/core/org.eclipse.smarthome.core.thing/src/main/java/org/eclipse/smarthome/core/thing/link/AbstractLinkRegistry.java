@@ -89,7 +89,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     public L get(final String key) {
         for (final Map.Entry<Provider<L>, Collection<L>> entry : elementMap.entrySet()) {
             for (final L link : entry.getValue()) {
-                if (key.equals(link.getID())) {
+                if (key.equals(link.getUID())) {
                     return link;
                 }
             }

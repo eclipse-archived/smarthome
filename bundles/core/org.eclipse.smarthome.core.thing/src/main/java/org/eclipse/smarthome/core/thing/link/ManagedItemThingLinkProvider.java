@@ -21,7 +21,7 @@ public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider
 
     @Override
     protected String getKey(ItemThingLink element) {
-        return element.getID();
+        return element.getUID();
     }
 
     @Override

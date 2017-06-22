@@ -380,7 +380,7 @@ public class ThingResource implements RESTResource {
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
-            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());
+            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getUID());
         }
 
         return Response.ok().build();
@@ -752,7 +752,7 @@ public class ThingResource implements RESTResource {
                 logger.debug(
                         "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
                         channelUID, link.getItemName());
-                managedItemChannelLinkProvider.remove(link.getID());
+                managedItemChannelLinkProvider.remove(link.getUID());
             }
         }
     }

@@ -51,7 +51,7 @@ public abstract class AbstractLink {
     public boolean equals(Object obj) {
         if (obj instanceof AbstractLink) {
             AbstractLink link = (AbstractLink) obj;
-            return this.getID().equals(link.getID());
+            return this.getUID().equals(link.getUID());
         }
         return false;
     }
@@ -61,7 +61,7 @@ public abstract class AbstractLink {
      *
      * @return id (can not be null)
      */
-    public String getID() {
+    public String getUID() {
         return getIDFor(getItemName(), getLinkedUID());
     }
 
@@ -88,6 +88,6 @@ public abstract class AbstractLink {
 
     @Override
     public String toString() {
-        return getID();
+        return getUID();
     }
 }

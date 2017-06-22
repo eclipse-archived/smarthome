@@ -137,7 +137,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
             managedThingProvider.remove(thing.getUID());
         });
         linkRegistry.getAll().forEach(link -> {
-            linkRegistry.remove(link.getID());
+            linkRegistry.remove(link.getUID());
         });
     }
 

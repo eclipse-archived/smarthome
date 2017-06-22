@@ -225,7 +225,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
                 ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
-                itemChannelLinkRegistry.remove(link.getID());
+                itemChannelLinkRegistry.remove(link.getUID());
             }
         }
 
@@ -235,7 +235,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
                 if (newThing.getChannel(channel.getUID().getId()) == null) {
                     // this channel does not exist anymore, so remove outdated links
                     ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
-                    itemChannelLinkRegistry.remove(link.getID());
+                    itemChannelLinkRegistry.remove(link.getUID());
                 }
             }
             for (Channel channel : newThing.getChannels()) {
