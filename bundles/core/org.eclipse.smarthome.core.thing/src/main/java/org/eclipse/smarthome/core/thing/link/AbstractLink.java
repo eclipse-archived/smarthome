@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.thing.UID;
 
@@ -15,7 +16,7 @@ import org.eclipse.smarthome.core.thing.UID;
  *
  * @author Dennis Nobel - Initial contribution
  */
-public abstract class AbstractLink {
+public abstract class AbstractLink implements UniqueIdProvider<String> {
 
     /**
      * Returns the link ID for a given item name and UID
@@ -61,6 +62,7 @@ public abstract class AbstractLink {
      *
      * @return id (can not be null)
      */
+    @Override
     public String getUID() {
         return getIDFor(getItemName(), getLinkedUID());
     }
