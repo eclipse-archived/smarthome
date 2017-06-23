@@ -32,6 +32,7 @@ public class WemoBindingConstants {
     public final static ThingTypeUID THING_TYPE_MZ100 = new ThingTypeUID(BINDING_ID, "MZ100");
     public final static ThingTypeUID THING_TYPE_MAKER = new ThingTypeUID(BINDING_ID, "Maker");
     public final static ThingTypeUID THING_TYPE_COFFEE = new ThingTypeUID(BINDING_ID, "CoffeeMaker");
+    public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "dimmer");
 
     // List of all Channel ids
     public final static String CHANNEL_STATE = "state";
@@ -74,6 +75,6 @@ public class WemoBindingConstants {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
             THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION, THING_TYPE_BRIDGE, THING_TYPE_MZ100, THING_TYPE_MAKER,
-            THING_TYPE_COFFEE);
+            THING_TYPE_COFFEE, THING_TYPE_DIMMER);
 
 }

@@ -161,6 +161,24 @@
          </config-description>
     </thing-type>
 
+     <thing-type id="dimmer">
+        <label>WeMo DimmerSwitch</label>
+        <description>This is a WeMo DimmerSwitch</description>
+
+        <channels>
+            <channel id="state" typeId="state"/>
+            <channel id="brightness" typeId="brightness"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+                <required>true</required>
+            </parameter>
+
+         </config-description>
+    </thing-type>
      <channel-type id="state">
         <item-type>Switch</item-type>
         <label>Switch</label>

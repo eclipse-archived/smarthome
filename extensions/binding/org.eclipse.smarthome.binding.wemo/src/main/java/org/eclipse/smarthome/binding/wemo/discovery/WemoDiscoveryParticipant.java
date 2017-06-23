@@ -114,6 +114,11 @@ public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
                                     device.getIdentity().getUdn().getIdentifierString());
                             return new ThingUID(THING_TYPE_COFFEE, device.getIdentity().getUdn().getIdentifierString());
                         }
+                        if (device.getDetails().getModelDetails().getModelName().toLowerCase().startsWith("dimmer")) {
+                            logger.debug("Discovered a WeMo DimmerSwitch thing with UDN '{}'",
+                                    device.getIdentity().getUdn().getIdentifierString());
+                            return new ThingUID(THING_TYPE_DIMMER, device.getIdentity().getUdn().getIdentifierString());
+                        }
                     }
                 }
             }
