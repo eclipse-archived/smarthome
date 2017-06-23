@@ -9,19 +9,15 @@ package org.eclipse.smarthome.binding.astro.discovery;
 
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.CronHelper;
-import org.eclipse.smarthome.core.scheduler.Expression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -38,8 +34,8 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     private static final int DISCOVER_TIMEOUT_SECONDS = 30;
     private static final int LOCATION_CHANGED_CHECK_INTERVAL = 60;
     private LocationProvider locationProvider;
-    private final ExpressionThreadPoolExecutor scheduledExecutor;
-    private Runnable backgroundJob;
+    private ScheduledFuture<?> astroDiscoveryJob;
+    private PointType previousLocation;
 
     private static ThingUID SUN_THING = new ThingUID(THING_TYPE_SUN, LOCAL);
     private static ThingUID MOON_THING = new ThingUID(THING_TYPE_MOON, LOCAL);
@@ -49,8 +45,6 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
      */
     public AstroDiscoveryService() {
         super(new HashSet<>(Arrays.asList(new ThingTypeUID(BINDING_ID, "-"))), DISCOVER_TIMEOUT_SECONDS, true);
-
-        scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
     }
 
     @Override
@@ -66,26 +60,26 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected void startBackgroundDiscovery() {
-        Expression expression = null;
-        try {
-            expression = new CronExpression(
-                    CronHelper.createCronForRepeatEverySeconds(LOCATION_CHANGED_CHECK_INTERVAL));
-        } catch (ParseException e) {
-            return;
-        }
-        if (expression != null && backgroundJob == null) {
-            AstroDiscoveryLocationChangedTask job = new AstroDiscoveryLocationChangedTask(this, locationProvider);
-            scheduledExecutor.schedule(job, expression);
-            logger.info("Scheduled astro location-changed job every {} seconds", LOCATION_CHANGED_CHECK_INTERVAL);
-            backgroundJob = job;
+        if (astroDiscoveryJob == null) {
+            astroDiscoveryJob = scheduler.scheduleAtFixedRate(() -> {
+                PointType currentLocation = locationProvider.getLocation();
+                if ((currentLocation != null) && !currentLocation.equals(previousLocation)) {
+                    logger.info("Location has been changed from {} to {}: Creating new Discovery Results",
+                            previousLocation, currentLocation);
+                    createResults(currentLocation);
+                    previousLocation = currentLocation;
+                }
+            }, 0, LOCATION_CHANGED_CHECK_INTERVAL, TimeUnit.SECONDS);
+            logger.debug("Scheduled astro location-changed job every {} seconds", LOCATION_CHANGED_CHECK_INTERVAL);
         }
     }
 
     @Override
     protected void stopBackgroundDiscovery() {
-        if (backgroundJob != null) {
-            scheduledExecutor.remove(backgroundJob);
-            backgroundJob = null;
+        logger.debug("Stop Astro device background discovery");
+        if (astroDiscoveryJob != null && !astroDiscoveryJob.isCancelled()) {
+            astroDiscoveryJob.cancel(true);
+            astroDiscoveryJob = null;
         }
     }
 
