@@ -76,10 +76,11 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected void stopBackgroundDiscovery() {
-        logger.debug("Stop Astro device background discovery");
+        logger.debug("Stopping Astro device background discovery");
         if (astroDiscoveryJob != null && !astroDiscoveryJob.isCancelled()) {
             astroDiscoveryJob.cancel(true);
             astroDiscoveryJob = null;
+            logger.debug("Stopped Astro device background discovery");
         }
     }
 
