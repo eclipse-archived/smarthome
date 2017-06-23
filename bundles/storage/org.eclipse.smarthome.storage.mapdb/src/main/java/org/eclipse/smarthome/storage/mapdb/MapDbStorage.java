@@ -9,6 +9,7 @@ package org.eclipse.smarthome.storage.mapdb;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.smarthome.core.storage.DisposableStorage;
@@ -82,7 +83,7 @@ public class MapDbStorage<T> implements DisposableStorage<T> {
 
     @Override
     public Collection<String> getKeys() {
-        return map.keySet();
+        return new HashSet<>(map.keySet());
     }
 
     @Override
