@@ -74,7 +74,7 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
             return;
         }
         if (expression != null && backgroundJob == null) {
-            AstroDiscoveryLocationChangedTask job = new AstroDiscoveryLocationChangedTask(this);
+            AstroDiscoveryLocationChangedTask job = new AstroDiscoveryLocationChangedTask(this, locationProvider);
             scheduledExecutor.schedule(job, expression);
             logger.info("Scheduled astro location-changed job every {} seconds", LOCATION_CHANGED_CHECK_INTERVAL);
             backgroundJob = job;
@@ -101,10 +101,6 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
                 .withProperty("geolocation", propGeolocation).build());
         thingDiscovered(DiscoveryResultBuilder.create(MOON_THING).withLabel("Local Moon")
                 .withProperty("geolocation", propGeolocation).build());
-    }
-
-    public LocationProvider getLocationProvider() {
-        return locationProvider;
     }
 
     protected void setLocationProvider(LocationProvider locationProvider) {
