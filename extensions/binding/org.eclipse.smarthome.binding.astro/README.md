@@ -190,6 +190,6 @@ then
 end
 ```
 
-## Tipps
+## Tips
 
 Do not worry if for example the "astro dawn" is "-" in the place that you set for your item. The reason might be that you live in a northern country and it is summer, because then by definition the sun is not 18 degrees below the horizon in the morning. For details see: https://en.wikipedia.org/wiki/Dawn Also while reading this wikipedia article you might come to the conclusion that you want to use "civil dawn" anyway.

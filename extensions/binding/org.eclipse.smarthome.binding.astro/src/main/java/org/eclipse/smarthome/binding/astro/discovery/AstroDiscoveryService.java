@@ -11,6 +11,7 @@ import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -37,8 +38,8 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     private ScheduledFuture<?> astroDiscoveryJob;
     private PointType previousLocation;
 
-    private static ThingUID SUN_THING = new ThingUID(THING_TYPE_SUN, LOCAL);
-    private static ThingUID MOON_THING = new ThingUID(THING_TYPE_MOON, LOCAL);
+    private static final ThingUID sunThing = new ThingUID(THING_TYPE_SUN, LOCAL);
+    private static final ThingUID moonThing = new ThingUID(THING_TYPE_MOON, LOCAL);
 
     /**
      * Creates a AstroDiscoveryService with enabled autostart.
@@ -63,7 +64,7 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
         if (astroDiscoveryJob == null) {
             astroDiscoveryJob = scheduler.scheduleAtFixedRate(() -> {
                 PointType currentLocation = locationProvider.getLocation();
-                if ((currentLocation != null) && !currentLocation.equals(previousLocation)) {
+                if (!Objects.equals(currentLocation, previousLocation)) {
                     logger.info("Location has been changed from {} to {}: Creating new Discovery Results",
                             previousLocation, currentLocation);
                     createResults(currentLocation);
@@ -78,9 +79,10 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     protected void stopBackgroundDiscovery() {
         logger.debug("Stopping Astro device background discovery");
         if (astroDiscoveryJob != null && !astroDiscoveryJob.isCancelled()) {
-            astroDiscoveryJob.cancel(true);
-            astroDiscoveryJob = null;
-            logger.debug("Stopped Astro device background discovery");
+            if (astroDiscoveryJob.cancel(true)) {
+                astroDiscoveryJob = null;
+                logger.debug("Stopped Astro device background discovery");
+            }
         }
     }
 
@@ -92,9 +94,9 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
         } else {
             propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
         }
-        thingDiscovered(DiscoveryResultBuilder.create(SUN_THING).withLabel("Local Sun")
+        thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
                 .withProperty("geolocation", propGeolocation).build());
-        thingDiscovered(DiscoveryResultBuilder.create(MOON_THING).withLabel("Local Moon")
+        thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
                 .withProperty("geolocation", propGeolocation).build());
     }
 
