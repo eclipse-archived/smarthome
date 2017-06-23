@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.internal.radio;
 
+import static org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants.*;
+
 import java.io.IOException;
 
 /**
@@ -18,19 +20,6 @@ import java.io.IOException;
  * @author Mihaela Memova - removed duplicated check for the percent value range
  */
 public class FrontierSiliconRadio {
-
-    private static final String REQUEST_SET_POWER = "SET/netRemote.sys.power";
-    private static final String REQUEST_GET_POWER = "GET/netRemote.sys.power";
-    private static final String REQUEST_GET_MODE = "GET/netRemote.sys.mode";
-    private static final String REQUEST_SET_MODE = "SET/netRemote.sys.mode";
-    private static final String REQUEST_SET_VOLUME = "SET/netRemote.sys.audio.volume";
-    private static final String REQUEST_GET_VOLUME = "GET/netRemote.sys.audio.volume";
-    private static final String REQUEST_SET_MUTE = "SET/netRemote.sys.audio.mute";
-    private static final String REQUEST_GET_MUTE = "GET/netRemote.sys.audio.mute";
-    private static final String REQUEST_SET_PRESET = "SET/netRemote.nav.state";
-    private static final String REQUEST_SET_PRESET_ACTION = "SET/netRemote.nav.action.selectPreset";
-    private static final String REQUEST_GET_PLAY_INFO_TEXT = "GET/netRemote.play.info.text";
-    private static final String REQUEST_GET_PLAY_INFO_NAME = "GET/netRemote.play.info.name";
 
     /** The http connection/session used for controlling the radio. */
     private FrontierSiliconRadioConnection conn;
@@ -145,8 +134,9 @@ public class FrontierSiliconRadio {
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
     public void increaseVolumeAbsolute() throws IOException {
-        if (currentVolume < 32)
+        if (currentVolume < 32) {
             setVolumeAbsolute(currentVolume + 1);
+        }
     }
 
     /**
@@ -155,8 +145,9 @@ public class FrontierSiliconRadio {
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
     public void decreaseVolumeAbsolute() throws IOException {
-        if (currentVolume > 0)
+        if (currentVolume > 0) {
             setVolumeAbsolute(currentVolume - 1);
+        }
     }
 
     /**
