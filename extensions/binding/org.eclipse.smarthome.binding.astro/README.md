@@ -10,7 +10,7 @@ This binding supports two Things: Sun and Moon
 
 ## Discovery
 
-You can use the auto discovery if you have a location set in "Configuration - System - Regional Settings - Location". This will automatically create a "Local Sun" and a "Local Moon" item for this location.
+If you have a location set (see for ex. PaperUI: "Configuration - System - Regional Settings - Location"), this will automatically create a "Local Sun" and a "Local Moon" item for this location.
 
 If you change your system location the background discovery detects this change and applies it to the "Local Sun" and a "Local Moon" items automatically.
 
@@ -20,7 +20,7 @@ No binding configuration required.
 
 ## Thing Configuration
 
-A thing requires the geolocation (latitude, longitude, (altitude)) for which the calculation is done.
+A thing requires the geolocation (latitude,longitude[,altitude]) for which the calculation is done.
 Optionally, a refresh interval (in seconds) can be defined to also calculate positional data like azimuth and elevation.
 The complementary altitude part of the geolocation parameter is optional and sharpens results provided by the Radiation group.
 
