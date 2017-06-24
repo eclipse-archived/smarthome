@@ -110,7 +110,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         errors = errors.trim();
 
         if (validConfig) {
-            updateStatus(ThingStatus.UNKNOWN);
             startAutomaticRefresh();
         } else {
             logger.debug("Disabling thing '{}': {}", getThing().getUID(), errors);
