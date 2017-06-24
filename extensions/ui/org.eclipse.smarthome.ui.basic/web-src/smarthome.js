@@ -1653,6 +1653,39 @@
 		this.resume = function() {
 			this.paused = false;
 		};
+
+		this.extractValueFromLabel = function(label) {
+			var
+				value = null;
+
+			if (
+				(typeof(label) === "string") &&
+				(label.indexOf("[") !== -1) &&
+				(label.indexOf("]") !== -1)
+			) {
+				var
+					pos = label.indexOf("[") + 1;
+
+				value = label.substr(
+					pos,
+					label.lastIndexOf("]") - pos
+				);
+			}
+
+			return value;
+		};
+
+		this.getTitleFromLabel = function(label) {
+			var
+				value = this.extractValueFromLabel(label),
+				title = null;
+
+			if (value  !== null) {
+				title = label.substr(0, label.indexOf("[")) + value;
+			}
+
+			return title;
+		};
 	}
 
 	function ChangeListenerEventsource(subscribeLocation) {
@@ -1678,24 +1711,13 @@
 				return;
 			}
 
-			if (
-				(typeof(data.label) === "string") &&
-				(data.label.indexOf("[") !== -1) &&
-				(data.label.indexOf("]") !== -1)
-			) {
-				var
-					pos = data.label.indexOf("[");
-
-				value = data.label.substr(
-					pos + 1,
-					data.label.lastIndexOf("]") - (pos + 1)
-				);
-				title = data.label.substr(0, pos) + value;
-			} else {
+			value = _t.extractValueFromLabel(data.label);
+			if (value === null) {
 				value = data.item.state;
 			}
+			title = _t.getTitleFromLabel(data.label);
 
-			if ((data.widgetId === smarthome.UI.page) && (title !== undefined)) {
+			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
 				smarthome.UI.setTitle(title, true);
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
 				var
@@ -1741,10 +1763,18 @@
 		_t.page = document.body.getAttribute("data-page-id");
 
 		function applyChanges(response) {
+			var
+				title;
+
 			try {
 				response = JSON.parse(response);
 			} catch (e) {
 				return;
+			}
+
+			title = _t.getTitleFromLabel(response.title);
+			if (title !== null) {
+				smarthome.UI.setTitle(title, true);
 			}
 
 			function walkWidgets(widgets) {
@@ -1755,15 +1785,20 @@
 
 					var
 						item = widget.item.name,
-						value = widget.item.state,
+						state = widget.item.state,
 						label = widget.label,
+						value = _t.extractValueFromLabel(widget.label),
 						labelcolor = widget.labelcolor,
 						valuecolor = widget.valuecolor;
 
+					if (value === null) {
+						value = state;
+					}
+
 					if (smarthome.dataModelLegacy[item] !== undefined) {
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-							if (value !== "NULL") {
-								w.setValue(value, value);
+							if (state !== "NULL") {
+								w.setValue(value, state);
 							}
 							if (label !== undefined) {
 								w.setLabel(label);
