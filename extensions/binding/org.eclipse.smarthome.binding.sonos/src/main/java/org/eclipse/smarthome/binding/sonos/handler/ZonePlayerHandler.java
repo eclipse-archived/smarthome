@@ -281,6 +281,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case PLAYLIST:
                     playPlayList(command);
                     break;
+                case CLEARQUEUE:
+                    clearQueue();
+                    break;
                 case PLAYQUEUE:
                     playQueue();
                     break;
@@ -2440,6 +2443,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (String variable : result.keySet()) {
                 this.onValueReceived(variable, result.get(variable), "AVTransport");
             }
+        }
+    }
+
+    public void clearQueue() {
+        try {
+            ZonePlayerHandler coordinator = getCoordinatorHandler();
+
+            coordinator.removeAllTracksFromQueue();
+
+        } catch (IllegalStateException e) {
+            logger.warn("Cannot clear queue ({})", e.getMessage());
         }
     }
 

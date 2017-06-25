@@ -114,6 +114,12 @@
 		<description>Play the given playlist. The playlist has to predefined in the Sonos Controller app</description>
 	</channel-type>
 
+	<channel-type id="clearqueue" advanced="true">
+		<item-type>Switch</item-type>
+		<label>Clear Queue</label>
+		<description>Suppress all songs from the current queue</description>
+	</channel-type>
+
 	<channel-type id="playqueue" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Play Queue</label>
