@@ -3,8 +3,7 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<!-- Sample Thing Type -->
-	<thing-type id="bluegiga">
+	<bridge-type id="bluegiga">
 		<label>BlueGiga Bluetooth Interface</label>
 		<description>Serial interface to the BlueGiga BLE interface</description>
 
@@ -18,13 +17,6 @@
 				<description>Serial Port</description>
 			</parameter>
 		</config-description>
-	</thing-type>
-
-	<!-- Sample Channel Type -->
-	<channel-type id="sample-channel">
-		<item-type>bluegigaItem</item-type>
-		<label>BlueGiga Binding Channel</label>
-		<description>Sample channel for BlueGiga Binding</description>
-	</channel-type>
+	</bridge-type>
 
 </thing:thing-descriptions>
