@@ -91,8 +91,8 @@ public class SunCalc {
         // Direct Solar Radiation (in W/m²) at the atmosphere entry
         // At sunrise/sunset - calculations limits are reached
         double rOut = (elevation > 3) ? SC * (0.034 * Math.cos(DEG2RAD * (360 * dayOfYear / daysInYear)) + 1) : 0;
-        double altitudeRatio = (altitude != null) ? 1 / Math.pow((1 - (6.5 / 288) * (altitude / 1000)), 5.256) : 1;
-        double M = Math.sqrt(1229 + Math.pow(614 * sinAlpha, 2)) - 614 * sinAlpha * altitudeRatio;
+        double altitudeRatio = (altitude != null) ? 1 / Math.pow((1 - (6.5 / 288) * (altitude / 1000.0)), 5.256) : 1;
+        double M = (Math.sqrt(1229 + Math.pow(614 * sinAlpha, 2)) - 614 * sinAlpha) * altitudeRatio;
 
         // Direct radiation after atmospheric layer
         // 0.6 = Coefficient de transmissivité
