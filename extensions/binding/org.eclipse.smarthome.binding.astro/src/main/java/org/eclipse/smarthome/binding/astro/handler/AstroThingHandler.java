@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -71,11 +69,9 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     protected AstroThingConfig thingConfig;
     private final Lock monitor = new ReentrantLock();
     private final Queue<Job> scheduledJobs;
-    private final List<Future<?>> futures;
 
     public AstroThingHandler(Thing thing) {
         super(thing);
-        futures = new CopyOnWriteArrayList<>();
         scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
         scheduledJobs = new LinkedBlockingQueue<>(MAX_SCHEDULED_JOBS);
     }
@@ -194,8 +190,8 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                     scheduledExecutor.schedule(dailyJob, midNightExpression);
                     logger.info("Scheduled astro job-daily-{} at midnight for thing {}", typeId, thingUID);
                 }
-                // Execute startup job immediately
-                futures.add(scheduler.submit(dailyJob));
+                // Execute daily startup job immediately
+                dailyJob.run();
 
                 // Repeat scheduled job every configured seconds
                 LocalDateTime currentTime = LocalDateTime.now();
@@ -210,8 +206,8 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                         logger.info("Scheduled astro job-positional with interval of {} seconds for thing {}",
                                 thingConfig.getInterval(), thingUID);
                     }
-                    // Execute positional job immediately
-                    futures.add(scheduler.submit(positionalJob));
+                    // Execute positional startup job immediately
+                    positionalJob.run();
                 }
             }
         } catch (ParseException ex) {
@@ -228,7 +224,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         ThingUID thingUID = getThing().getUID();
         monitor.lock();
         try {
-            cancelFutures();
             if (scheduledExecutor != null) {
                 List<Job> jobsToRemove = scheduledJobs.stream().filter(this::isJobAssociatedWithThing)
                         .collect(toList());
@@ -241,27 +236,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                 jobsToRemove.forEach(removalFromExecutor.andThen(removalFromQueue));
                 logger.debug("Stopped {} Scheduled Jobs for thing {}", jobsToRemove.size(), thingUID);
             }
-        } catch (Exception ex) {
-            logger.error("{}", ex.getMessage(), ex);
-        } finally {
-            monitor.unlock();
-        }
-    }
-
-    /**
-     * Cancels all submitted futures
-     */
-    private void cancelFutures() {
-        ThingUID thingUID = getThing().getUID();
-        monitor.lock();
-        try {
-            if (futures.isEmpty()) {
-                return;
-            }
-            logger.debug("Cancelling futures for thing {}", thingUID);
-            futures.forEach(f -> f.cancel(true));
-            futures.clear();
-            logger.debug("Cancelled futures for thing {}", thingUID);
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
         } finally {
