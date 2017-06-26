@@ -167,6 +167,7 @@
 
         <channels>
             <channel id="state" typeId="state"/>
+            <channel id="brightness" typeId="brightness" />
             <channel id="faderState" typeId="faderState"/>
             <channel id="faderTime" typeId="faderTime"/>
             <channel id="faderStart" typeId="faderStart"/>
