@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -78,8 +77,7 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
     @Before
     public void setUp() {
         discoveryParticipant = getService(UpnpDiscoveryParticipant.class, FSInternetRadioDiscoveryParticipant.class);
-        assertThat("The FSInternetRadioDiscoveryParticipant service cannot be found", discoveryParticipant,
-                is(notNullValue()));
+        assertNotNull(discoveryParticipant);
     }
 
     /**
@@ -87,11 +85,9 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
      */
     @Test
     public void correctSupportedTypes() {
-        assertThat("The number of thing types that FSInternetRadioDiscoveryParticipant can identify is wrong",
-                discoveryParticipant.getSupportedThingTypeUIDs().size(), is(1));
-        assertThat("The FSInternetRadioDiscoveryParticipant cannot identify THING_TYPE_RADIO",
-                discoveryParticipant.getSupportedThingTypeUIDs().iterator().next(),
-                is(FSInternetRadioBindingConstants.THING_TYPE_RADIO));
+        assertEquals(1, discoveryParticipant.getSupportedThingTypeUIDs().size());
+        assertEquals(FSInternetRadioBindingConstants.THING_TYPE_RADIO,
+                discoveryParticipant.getSupportedThingTypeUIDs().iterator().next());
     }
 
     /**
@@ -103,18 +99,12 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
     public void validDiscoveryResultWithComplete() throws ValidationException {
         RemoteDevice completeFSInternetRadioDevice = createDefaultFSInternetRadioDevice(DEFAULT_RADIO_BASE_URL);
         final DiscoveryResult result = discoveryParticipant.createResult(completeFSInternetRadioDevice);
-
-        assertThat("A result with wrong thingUID was created for a valid FSInternetRadio device", result.getThingUID(),
-                is(new ThingUID(DEFAULT_RADIO_THING_UID)));
-        assertThat("A result with wrong thingTypeUID was created for a valid FSInternetRadio device",
-                result.getThingTypeUID(), is(FSInternetRadioBindingConstants.THING_TYPE_RADIO));
-        assertThat("A result with wrong manifacturer was created for a completete FSInternetRadio device",
-                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MANUFACTURER),
-                is(DEFAULT_RADIO_MANIFACTURER));
-        assertThat("A result with wrong model number was created for a completete FSInternetRadio device",
-                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MODEL),
-                is(DEFAULT_RADIO_MODEL_NUMBER));
-
+        assertEquals(new ThingUID(DEFAULT_RADIO_THING_UID), result.getThingUID());
+        assertEquals(FSInternetRadioBindingConstants.THING_TYPE_RADIO, result.getThingTypeUID());
+        assertEquals(DEFAULT_RADIO_MANIFACTURER,
+                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MANUFACTURER));
+        assertEquals(DEFAULT_RADIO_MODEL_NUMBER,
+                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MODEL));
     }
 
     /**
@@ -125,8 +115,7 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
     @Test
     public void noDiscoveryResultIfNullDetails() throws ValidationException {
         RemoteDevice fsInterntRadioDeviceWithNullDetails = new RemoteDevice(null);
-        assertThat("A discovery result was created for a device with null details",
-                discoveryParticipant.createResult(fsInterntRadioDeviceWithNullDetails), is(nullValue()));
+        assertNull(discoveryParticipant.createResult(fsInterntRadioDeviceWithNullDetails));
     }
 
     /**
@@ -138,8 +127,7 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
     @Test
     public void noDiscoveryResultIfUnknown() throws MalformedURLException, ValidationException {
         RemoteDevice unknownRemoteDevice = createUnknownRemoteDevice();
-        assertThat("A discovery result was created for an unknown device",
-                discoveryParticipant.createResult(unknownRemoteDevice), is(nullValue()));
+        assertNull(discoveryParticipant.createResult(unknownRemoteDevice));
     }
 
     /**
@@ -152,17 +140,12 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
 
         RemoteDevice fsInternetRadioDeviceWithoutUrl = createDefaultFSInternetRadioDevice(null);
         final DiscoveryResult result = discoveryParticipant.createResult(fsInternetRadioDeviceWithoutUrl);
-        assertThat("A result with wrong thingUID was created for a FSInternetRadio device without base URL",
-                result.getThingUID(), is(new ThingUID(DEFAULT_RADIO_THING_UID)));
-        assertThat("A result with wrong thingTypeUID was created for a FSInternetRadio device without base URL",
-                result.getThingTypeUID(), is(FSInternetRadioBindingConstants.THING_TYPE_RADIO));
-        assertThat("A result with wrong manifacturer was created for a FSInternetRadio device without base URL",
-                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MANUFACTURER),
-                is(DEFAULT_RADIO_MANIFACTURER));
-        assertThat("A result with wrong model number was created for a FSInternetRadio device without base URL",
-                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MODEL),
-                is(DEFAULT_RADIO_MODEL_NUMBER));
-
+        assertEquals(new ThingUID(DEFAULT_RADIO_THING_UID), result.getThingUID());
+        assertEquals(FSInternetRadioBindingConstants.THING_TYPE_RADIO, result.getThingTypeUID());
+        assertEquals(DEFAULT_RADIO_MANIFACTURER,
+                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MANUFACTURER));
+        assertEquals(DEFAULT_RADIO_MODEL_NUMBER,
+                result.getProperties().get(FSInternetRadioBindingConstants.PROPERTY_MODEL));
     }
 
     private RemoteDevice createDefaultFSInternetRadioDevice(URL baseURL) throws ValidationException {

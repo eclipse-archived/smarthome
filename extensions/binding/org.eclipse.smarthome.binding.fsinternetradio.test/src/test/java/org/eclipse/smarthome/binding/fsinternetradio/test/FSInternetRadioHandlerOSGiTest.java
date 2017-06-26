@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -187,11 +188,9 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
                 DEFAULT_CONFIG_PROPERTY_REFRESH);
         Thing radioThingWithWrongPin = initializeRadioThing(config);
         waitForAssert(() -> {
-            assertThat("The ThingStatus was not updated correctly when a wrong PIN is used",
-                    radioThingWithWrongPin.getStatus(), is(equalTo(ThingStatus.OFFLINE)));
-            assertThat("The ThingStatusInfo was not updated correctly when a wrong PIN is used",
-                    radioThingWithWrongPin.getStatusInfo().getStatusDetail(),
-                    is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)));
+            assertEquals(ThingStatus.OFFLINE, radioThingWithWrongPin.getStatus());
+            assertEquals(ThingStatusDetail.COMMUNICATION_ERROR,
+                    radioThingWithWrongPin.getStatusInfo().getStatusDetail());
         });
     }
 
@@ -223,10 +222,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
 
         waitForAssert(() -> {
-            assertThat("The ThingStatus was not updated correctly when the HTTP response cannot be parsed",
-                    radioThing.getStatus(), is(equalTo(ThingStatus.OFFLINE)));
-            assertThat("The ThingStatusInfo was not updated correctly when the HTTP response cannot be parsed",
-                    radioThing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)));
+            assertEquals(ThingStatus.OFFLINE, radioThing.getStatus());
+            assertEquals(ThingStatusDetail.COMMUNICATION_ERROR, radioThing.getStatusInfo().getStatusDetail());
         });
     }
 
@@ -244,8 +241,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         waitForAssert(() -> {
             radioHandler = getService(ThingHandler.class, FSInternetRadioHandler.class);
-            assertThat("A FSInternetradioHandler was created for a Thing which is not a radio", radioHandler,
-                    nullValue());
+            assertNull(radioHandler);
         });
     }
 
@@ -280,8 +276,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
 
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly when the HTTP status is different from OK_200",
-                    modeTestItem.getState(), is(UnDefType.NULL));
+            assertSame(UnDefType.NULL, modeTestItem.getState());
         });
     }
 
@@ -308,14 +303,12 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(powerChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly in attempt to turn-on the radio",
-                    powerTestItem.getState(), is(OnOffType.ON));
+            assertSame(OnOffType.ON, powerTestItem.getState());
         });
 
         radioHandler.handleCommand(powerChannelUID, OnOffType.OFF);
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly in attempt to turn-off the radio",
-                    powerTestItem.getState(), is(OnOffType.OFF));
+            assertSame(OnOffType.OFF, powerTestItem.getState());
         });
 
         /*
@@ -326,9 +319,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(powerChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when an invalid power value is returned in the HTTP response",
-                    powerTestItem.getState(), is(OnOffType.OFF));
+            assertSame(OnOffType.OFF, powerTestItem.getState());
         });
     }
 
@@ -351,14 +342,12 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly in attempt to mute the radio",
-                    muteTestItem.getState(), is(OnOffType.ON));
+            assertSame(OnOffType.ON, muteTestItem.getState());
         });
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.OFF);
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly in attempt to unmute the radio",
-                    muteTestItem.getState(), is(OnOffType.OFF));
+            assertSame(OnOffType.OFF, muteTestItem.getState());
         });
 
         /*
@@ -369,9 +358,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when an invalid mute value is returned in the HTTP response",
-                    muteTestItem.getState(), is(OnOffType.OFF));
+            assertSame(OnOffType.OFF, muteTestItem.getState());
         });
     }
 
@@ -394,8 +381,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly in attempt to set the radio mode",
-                    modeTestItem.getState(), is(DecimalType.valueOf("1")));
+            assertEquals(DecimalType.valueOf("1"), modeTestItem.getState());
         });
 
         /*
@@ -406,9 +392,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("3"));
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when an invalid mode value is returned in the HTTP response",
-                    modeTestItem.getState(), is(DecimalType.valueOf("0")));
+            assertEquals(DecimalType.valueOf("0"), modeTestItem.getState());
         });
     }
 
@@ -476,35 +460,27 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("36"));
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when a value greater than the maximum volume is passed",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("32")));
+            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
         });
 
         // Trying to increase the volume more than its maximum value using the INCREASE command
         radioHandler.handleCommand(absoluteVolumeChannelUID, IncreaseDecreaseType.INCREASE);
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly in an attemt to increase the volume above the maximum",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("32")));
+            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
         });
 
         // Trying to increase the volume more than its maximum value using the UP command
         radioHandler.handleCommand(absoluteVolumeChannelUID, UpDownType.UP);
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly in an attemt to increase the volume above the maximum",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("32")));
+            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
         });
 
         // Trying to set a value that is lower than the minimum volume value
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("-10"));
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when a value lower than the minimum volume is passed",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("0")));
+            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
         });
 
         /*
@@ -516,9 +492,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         // trying to set the volume
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("15"));
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when an invalid volume value is returned in the HTTP response",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("0")));
+            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
         });
     }
 
@@ -619,8 +593,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          */
         radioHandler.handleCommand(percentVolumeChannelUID, PercentType.valueOf("50"));
         waitForAssert(() -> {
-            assertThat("The item's state was not updated correctly when a valid volume percent value is passed",
-                    volumeTestItem.getState(), is(DecimalType.valueOf("16")));
+            assertEquals(DecimalType.valueOf("16"), volumeTestItem.getState());
         });
 
         /*
@@ -632,9 +605,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         radioHandler.handleCommand(percentVolumeChannelUID, PercentType.valueOf("15"));
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly when an invalid volume value is returned in the HTTP response",
-                    volumeTestItem.getState(), is(PercentType.valueOf("0")));
+            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
         });
     }
 
@@ -643,9 +614,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
             // First we have to make sure that the item state is 0
             radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"));
             waitForAssert(() -> {
-                assertThat(
-                        "The item's state was not updated correctly in attempt to set a value using the DecimalType command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
 
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.INCREASE);
@@ -657,16 +626,13 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE);
             waitForAssert(() -> {
-                assertThat("The item's state was not updated correctly in attempt to use the DECREASE command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
 
             // Trying to decrease one more time
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE);
             waitForAssert(() -> {
-                assertThat(
-                        "The item's state was not updated correctly in an attemt to decrease the value below zero using the DECREASE command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
         }
     }
@@ -676,29 +642,23 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
             // First we have to make sure that the item state is 0
             radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"));
             waitForAssert(() -> {
-                assertThat(
-                        "The item's state was not updated correctly in attempt to set a value using the DecimalType command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
 
             radioHandler.handleCommand(channelUID, UpDownType.UP);
             waitForAssert(() -> {
-                assertThat("The item's state was not updated correctly in attempt to use the UP command",
-                        item.getState(), is(DecimalType.valueOf("1")));
+                assertEquals(DecimalType.valueOf("1"), item.getState());
             });
 
             radioHandler.handleCommand(channelUID, UpDownType.DOWN);
             waitForAssert(() -> {
-                assertThat("The item's state was not updated correctly in attempt to use the DOWN command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
 
             // Trying to decrease one more time
             radioHandler.handleCommand(channelUID, UpDownType.DOWN);
             waitForAssert(() -> {
-                assertThat(
-                        "The item's state was not updated correctly in an attemt to decrease the value below zero using the DOWN command",
-                        item.getState(), is(DecimalType.valueOf("0")));
+                assertEquals(DecimalType.valueOf("0"), item.getState());
             });
         }
     }
@@ -721,7 +681,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler.handleCommand(presetChannelUID, DecimalType.valueOf("100"));
         waitForAssert(() -> {
-            assertThat("The radio station was not set correctly", servlet.getRadioStation(), is("100"));
+            assertEquals("100", servlet.getRadioStation());
         });
     }
 
@@ -744,9 +704,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         Item playInfoNameTestItem = initializeItem(playInfoNameChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly in attempt to get the name of the current radio station or track",
-                    playInfoNameTestItem.getState(), is("random_station"));
+            assertEquals(new StringType("random_station"), playInfoNameTestItem.getState());
         });
     }
 
@@ -769,9 +727,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         Item playInfoTextTestItem = initializeItem(playInfoTextChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
-            assertThat(
-                    "The item's state was not updated correctly in attempt to get the additional information about the station",
-                    playInfoTextTestItem.getState(), is("additional_info"));
+            assertEquals(new StringType("additional_info"), playInfoTextTestItem.getState());
         });
     }
 
@@ -809,20 +765,19 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
 
         thingRegistry = getService(ThingRegistry.class);
-        assertThat("The ThingRegistry service cannot be found", thingRegistry, is(notNullValue()));
+        assertNotNull(thingRegistry);
 
         itemRegistry = getService(ItemRegistry.class);
-        assertThat("The ItemRegistry service cannot be found", itemRegistry, is(notNullValue()));
+        assertNotNull(itemRegistry);
 
         itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
-        assertThat("The ManagedItemChannelLinkProvider service cannot be found", itemChannelLinkProvider,
-                is(notNullValue()));
+        assertNotNull(itemChannelLinkProvider);
     }
 
     private void registerRadioTestServlet() throws ServletException, NamespaceException {
         HttpService httpService = waitForAssert(() -> {
             HttpService tmp = getService(HttpService.class);
-            assertThat("The HttpService cannot be found", tmp, is(notNullValue()));
+            assertNotNull(tmp);
             return tmp;
         });
         servlet = new RadioServiceMock();
@@ -837,7 +792,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
     private void unregisterRadioTestServlet() {
         HttpService httpService = getService(HttpService.class);
-        assertThat("No HttpService can be found", httpService, is(notNullValue()));
+        assertNotNull(httpService);
         httpService.unregister(MOCK_SERVLET_PATH);
         servlet = null;
     }
@@ -847,8 +802,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         for (final Thing thing : things) {
             managedThingProvider.remove(thing.getUID());
         }
-        assertThat("Something went wrong with the removal of the registered Things",
-                managedThingProvider.getAll().isEmpty(), is(true));
+        assertTrue(managedThingProvider.getAll().isEmpty());
     }
 
     private void clearTheItemRegistry() {
@@ -856,8 +810,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         for (final Item item : items) {
             itemRegistry.remove(item.getName());
         }
-        assertThat("Something went wrong with the removal of the registered Items", itemRegistry.getItems().isEmpty(),
-                is(true));
+        assertTrue(itemRegistry.getItems().isEmpty());
     }
 
     private Item initializeItem(ChannelUID channelUID, String itemName, String acceptedItemType) {
@@ -904,17 +857,12 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         Configuration config = thing.getConfiguration();
         if (isConfigurationComplete(config)) {
             waitForAssert(() -> {
-                assertThat("The radioThing with complete configuration was not created successfully", thing.getStatus(),
-                        is(equalTo(ThingStatus.ONLINE)));
+                assertEquals(ThingStatus.ONLINE, thing.getStatus());
             });
         } else {
             waitForAssert(() -> {
-                assertThat(
-                        "The ThingStatus was not updated correctly when a Thing with incomplete configuration was created",
-                        thing.getStatus(), is(equalTo(ThingStatus.OFFLINE)));
-                assertThat(
-                        "The ThingStatusInfo was not updated correctly when a Thing with incomplete configuration was created",
-                        thing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.CONFIGURATION_ERROR)));
+                assertEquals(ThingStatus.OFFLINE, thing.getStatus());
+                assertEquals(ThingStatusDetail.CONFIGURATION_ERROR, thing.getStatusInfo().getStatusDetail());
             });
         }
     }
@@ -937,7 +885,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         radioHandler = waitForAssert(() -> {
             final ThingHandler thingHandler = radioThing.getHandler();
-            assertThat("RadioHandler service is not found", thingHandler, is(instanceOf(FSInternetRadioHandler.class)));
+            assertThat(thingHandler, is(instanceOf(FSInternetRadioHandler.class)));
             return (FSInternetRadioHandler) thingHandler;
         });
         return radioThing;
@@ -959,7 +907,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         waitForAssert(() -> {
             try {
-                assertThat("The radio was not turned on successfully", radio.getPower(), is(true));
+                assertTrue(radio.getPower());
             } catch (IOException ex) {
                 throw new AssertionError("I/O error", ex);
             }
