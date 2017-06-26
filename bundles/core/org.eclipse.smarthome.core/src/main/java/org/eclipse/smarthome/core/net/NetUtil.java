@@ -7,11 +7,15 @@
  */
 package org.eclipse.smarthome.core.net;
 
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * Some utility functions related to network interfaces etc.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Mark Herwege - Added methods to find broadcast address(es)
  */
 public class NetUtil {
 
@@ -55,9 +60,53 @@ public class NetUtil {
             }
             return hostAddress;
         } catch (SocketException ex) {
-            LOGGER.error("Could not retrieve network interface: " + ex.getMessage(), ex);
+            LOGGER.error("Could not retrieve network interface: {}", ex.getMessage(), ex);
             return null;
         }
+    }
+
+    /**
+     * Get all broadcast addresses on the current host
+     *
+     * @return list of broadcast addresses
+     */
+    public static List<String> getAllBroadcastAddresses() {
+        try {
+            List<String> broadcastAddresses = new ArrayList<String>();
+            final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                final NetworkInterface networkInterface = networkInterfaces.nextElement();
+                final List<InterfaceAddress> interfaceAddresses = networkInterface.getInterfaceAddresses();
+                for (InterfaceAddress interfaceAddress : interfaceAddresses) {
+                    final InetAddress addr = interfaceAddress.getAddress();
+                    if (!addr.isLinkLocalAddress() && !addr.isLoopbackAddress() && addr instanceof Inet4Address) {
+                        broadcastAddresses.add(interfaceAddress.getBroadcast().getHostAddress());
+                    }
+                }
+            }
+            return broadcastAddresses;
+        } catch (SocketException ex) {
+            LOGGER.error("Could not find broadcast address: {}", ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    /**
+     * Get the first candidate for a broadcast address
+     *
+     * @return broadcast address
+     */
+    public static String getBroadcastAddress() {
+        String broadcastAddress = null;
+        final List<String> broadcastAddresses = getAllBroadcastAddresses();
+        for (String current : broadcastAddresses) {
+            if (broadcastAddress != null) {
+                LOGGER.warn("Found multiple broadcast addresses - ignoring {}", broadcastAddress);
+            } else {
+                broadcastAddress = current;
+            }
+        }
+        return broadcastAddress;
     }
 
 }
