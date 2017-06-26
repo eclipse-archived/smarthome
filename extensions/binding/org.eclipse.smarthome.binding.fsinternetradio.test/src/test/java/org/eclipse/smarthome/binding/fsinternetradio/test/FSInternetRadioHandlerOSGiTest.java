@@ -101,8 +101,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
 
     /** An instance of the mock HttpServlet which is used for the tests */
-    private RadioServiceMock servlet;
-    private static final String MOCK_SERVLET_PATH = FrontierSiliconRadioConstants.CONNECTION_PATH;
+    private RadioServiceDummy servlet;
+    private static final String DUMMY_SERVLET_PATH = FrontierSiliconRadioConstants.CONNECTION_PATH;
 
     private FSInternetRadioHandler radioHandler;
 
@@ -780,8 +780,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
             assertNotNull(tmp);
             return tmp;
         });
-        servlet = new RadioServiceMock();
-        httpService.registerServlet(MOCK_SERVLET_PATH, servlet, null, null);
+        servlet = new RadioServiceDummy();
+        httpService.registerServlet(DUMMY_SERVLET_PATH, servlet, null, null);
     }
 
     private void createThePowerChannel() {
@@ -793,7 +793,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     private void unregisterRadioTestServlet() {
         HttpService httpService = getService(HttpService.class);
         assertNotNull(httpService);
-        httpService.unregister(MOCK_SERVLET_PATH);
+        httpService.unregister(DUMMY_SERVLET_PATH);
         servlet = null;
     }
 

@@ -24,7 +24,7 @@ import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSili
  * @author Markus Rathgeb - Migrated from Groovy to pure Java, made more robust
  *
  */
-public class RadioServiceMock extends HttpServlet {
+public class RadioServiceDummy extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -79,7 +79,7 @@ public class RadioServiceMock extends HttpServlet {
 
     private String radioStation;
 
-    public RadioServiceMock() {
+    public RadioServiceDummy() {
         this.httpStatus = HttpStatus.OK_200;
     }
 
