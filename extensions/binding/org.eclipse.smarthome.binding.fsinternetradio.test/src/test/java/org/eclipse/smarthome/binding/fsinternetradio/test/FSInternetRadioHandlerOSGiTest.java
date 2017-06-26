@@ -11,7 +11,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
+import org.eclipse.smarthome.binding.fsinternetradio.handler.HandlerUtils;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -895,15 +895,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         radioHandler.handleCommand(radioThing.getChannel(FSInternetRadioBindingConstants.CHANNEL_POWER).getUID(),
                 OnOffType.ON);
 
-        FrontierSiliconRadio radio;
-        try {
-            Field f = radioHandler.getClass().getDeclaredField("radio");
-            f.setAccessible(true);
-            radio = (FrontierSiliconRadio) f.get(radioHandler);
-        } catch (IllegalStateException | NoSuchFieldException | SecurityException | IllegalArgumentException
-                | IllegalAccessException ex) {
-            throw new IllegalStateException("Cannot access radio per reflection.", ex);
-        }
+        final FrontierSiliconRadio radio = HandlerUtils.getRadio(radioHandler);
 
         waitForAssert(() -> {
             try {
