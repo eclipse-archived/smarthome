@@ -47,7 +47,9 @@
 			<context>location</context>
 			<label>Location</label>
 			<description><![CDATA[
-		<p>Location of this installation.</p>
+                 <p>The location of this installation.</p>
+                 <p>Coordinates as &lt;latitude&gt;,&lt;longitude&gt;[&lt;altitude&gt;]</p>
+                 <p>Example: "52.5200066,13.4049540" (Berlin)</p>
 		]]>
 			</description>
 		</parameter>
