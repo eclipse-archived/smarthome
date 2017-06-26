@@ -61,6 +61,14 @@ public class WemoBindingConstants {
     public final static String CHANNEL_BREWED = "brewed";
     public final static String CHANNEL_LASTCLEANED = "lastCleaned";
 
+    public final static String CHANNEL_FADERSTATE = "faderState";
+    public final static String CHANNEL_FADERTIME = "faderTime";
+    public final static String CHANNEL_FADERSTART = "faderStart";
+    public final static String CHANNEL_NIGHTMODE = "nightMode";
+    public final static String CHANNEL_STARTTIME = "startTime";
+    public final static String CHANNEL_ENDTIME = "endTime";
+    public final static String CHANNEL_NIGHTMODEBRIGHTNESS = "nightModeBrightness";
+
     // List of thing configuration properties
     public static final String UDN = "udn";
     public static final String DEVICE_ID = "deviceID";

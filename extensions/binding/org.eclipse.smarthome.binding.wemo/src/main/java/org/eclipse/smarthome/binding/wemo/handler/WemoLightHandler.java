@@ -70,7 +70,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
      * The default refresh interval in Seconds.
      */
     private int DEFAULT_REFRESH_INTERVAL = 60;
-    
+
     /**
      * The default refresh initial delay in Seconds.
      */
@@ -183,16 +183,13 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
             }
         } else {
 
-            Configuration configuration = getConfig();
-            configuration.get(DEVICE_ID);
-
             WemoBridgeHandler wemoBridge = getWemoBridgeHandler();
             if (wemoBridge == null) {
                 logger.debug("wemoBridgeHandler not found, cannot handle command");
                 return;
             }
             String devUDN = "uuid:" + wemoBridge.getThing().getConfiguration().get(UDN).toString();
-            logger.trace("WeMo Bridge to send command to : {}", devUDN);
+            logger.info("WeMo Bridge to send command to : {}", devUDN);
 
             String value = null;
             String capability = null;
@@ -201,11 +198,12 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     capability = "10008";
                     if (command instanceof PercentType) {
                         int newBrightness = ((PercentType) command).intValue();
-                        logger.trace("wemoLight received Value {}", newBrightness);
+                        logger.info("wemoLight {} received Value {}", wemoLightID, newBrightness);
                         int value1 = Math.round(newBrightness * 255 / 100);
                         value = value1 + ":0";
                         currentBrightness = newBrightness;
                     } else if (command instanceof OnOffType) {
+                        logger.info("wemoLight {} received command {}", wemoLightID, command.toString());
                         switch (command.toString()) {
                             case "ON":
                                 value = "255:0";
@@ -215,19 +213,20 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                                 break;
                         }
                     } else if (command instanceof IncreaseDecreaseType) {
+                        logger.info("wemoLight {} received command {}", wemoLightID, command.toString());
                         int newBrightness;
                         switch (command.toString()) {
                             case "INCREASE":
-                                currentBrightness = currentBrightness + DIM_STEPSIZE;
-                                newBrightness = Math.round(currentBrightness * 255 / 100);
+                                newBrightness = currentBrightness + DIM_STEPSIZE;
+                                newBrightness = Math.round(newBrightness * 255 / 100);
                                 if (newBrightness > 255) {
                                     newBrightness = 255;
                                 }
                                 value = newBrightness + ":0";
                                 break;
                             case "DECREASE":
-                                currentBrightness = currentBrightness - DIM_STEPSIZE;
-                                newBrightness = Math.round(currentBrightness * 255 / 100);
+                                newBrightness = currentBrightness - DIM_STEPSIZE;
+                                newBrightness = Math.round(newBrightness * 255 / 100);
                                 if (newBrightness < 0) {
                                     newBrightness = 0;
                                 }
@@ -238,6 +237,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     break;
                 case CHANNEL_STATE:
                     capability = "10006";
+                    logger.info("wemoLight {} received command {}", wemoLightID, command.toString());
                     switch (command.toString()) {
                         case "ON":
                             value = "1";
@@ -267,9 +267,11 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
                     if (wemoCallResponse != null) {
                         if (capability != null && capability.equals("10008") && value != null) {
+                            logger.info("wemoLight {} send value {}", wemoLightID, value);
                             OnOffType binaryState = null;
                             binaryState = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
                             if (binaryState != null) {
+                                logger.info("transformed value {} to binaryState {}", value, binaryState);
                                 updateState(CHANNEL_STATE, binaryState);
                             }
                         }
@@ -309,10 +311,11 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
             if (wemoURL != null) {
                 String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
                 if (wemoCallResponse != null) {
+                    logger.info("wemoLightResponse = {}", wemoCallResponse);
                     wemoCallResponse = StringEscapeUtils.unescapeXml(wemoCallResponse);
                     String response = StringUtils.substringBetween(wemoCallResponse, "<CapabilityValue>",
                             "</CapabilityValue>");
-                    logger.trace("wemoNewLightState = {}", response);
+                    logger.info("wemoNewLightState = {}", response);
                     String[] splitResponse = response.split(",");
                     if (splitResponse[0] != null) {
                         OnOffType binaryState = null;
@@ -326,7 +329,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                         if (splitBrightness[0] != null) {
                             int newBrightnessValue = Integer.valueOf(splitBrightness[0]);
                             int newBrightness = Math.round(newBrightnessValue * 100 / 255);
-                            logger.trace("newBrightness = {}", newBrightness);
+                            logger.info("newBrightness = {}", newBrightness);
                             State newBrightnessState = new PercentType(newBrightness);
                             updateState(CHANNEL_BRIGHTNESS, newBrightnessState);
                             currentBrightness = newBrightness;
@@ -417,7 +420,8 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
             logger.trace("Start polling job for LightID '{}'", wemoLightID);
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval,
+                    TimeUnit.SECONDS);
         }
     }
 

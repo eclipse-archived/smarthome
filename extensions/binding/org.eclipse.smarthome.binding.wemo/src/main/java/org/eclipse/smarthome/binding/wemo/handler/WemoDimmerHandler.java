@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,8 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.library.types.DateTimeType;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -273,14 +276,14 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
 
         switch (variable) {
             case "BinaryState":
-                State state = variable.equals("0") ? OnOffType.OFF : OnOffType.ON;
-                logger.debug("State '{}' for device '{}' received", state, getThing().getUID());
+                State state = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
+                logger.info("State '{}' for device '{}' received", state, getThing().getUID());
                 if (state != null) {
                     updateState(CHANNEL_STATE, state);
                 }
                 break;
             case "brightness":
-                logger.debug("brightness '{}' for device '{}' received", value, getThing().getUID());
+                logger.info("brightness '{}' for device '{}' received", value, getThing().getUID());
 
                 int newBrightnessValue = Integer.valueOf(value);
                 State newBrightnessState = new PercentType(newBrightnessValue);
@@ -288,7 +291,25 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
                 currentBrightness = newBrightnessValue;
                 break;
             case "fader":
-                // not implemented yet
+                logger.info("fader '{}' for device '{}' received", value, getThing().getUID());
+                String[] splitFader = value.split(":");
+                if (splitFader[0] != null) {
+                    int faderSeconds = Integer.valueOf(splitFader[0]);
+                    State faderMinutes = new DecimalType(faderSeconds / 60);
+                    logger.info("faderTime '{} minutes' for device '{}' received", faderMinutes, getThing().getUID());
+                    updateState(CHANNEL_FADERTIME, faderMinutes);
+                }
+                if (splitFader[1] != null) {
+                    if (splitFader[1] == "-1") {
+                        updateState(CHANNEL_FADERSTATE, OnOffType.OFF);
+                    } else {
+                        updateState(CHANNEL_FADERSTATE, OnOffType.ON);
+                        State faderStartState = getDateTimeState(splitFader[1]);
+                        logger.info("New faderStart '{}' for device '{}' received", faderStartState,
+                                getThing().getUID());
+                        updateState(CHANNEL_FADERSTART, faderStartState);
+                    }
+                }
                 break;
         }
     }
@@ -416,6 +437,59 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
             logger.error("Failed to get actual state for device '{}': {}", getThing().getUID(), e.getMessage());
         }
 
+        action = "GetNightModeConfiguration";
+        variable = null;
+        value = null;
+
+        soapHeader = "\"urn:Belkin:service:" + actionService + ":1#" + action + "\"";
+        content = "<?xml version=\"1.0\"?>"
+                + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
+                + "<s:Body>" + "<u:" + action + " xmlns:u=\"urn:Belkin:service:" + actionService + ":1\">" + "</u:"
+                + action + ">" + "</s:Body>" + "</s:Envelope>";
+
+        try {
+            String wemoURL = getWemoURL(actionService);
+            if (wemoURL != null) {
+                String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                if (wemoCallResponse != null) {
+                    logger.info("GetNightModeConfiguration response '{}' for device '{}' received", wemoCallResponse,
+                            getThing().getUID());
+                    value = StringUtils.substringBetween(wemoCallResponse, "<startTime>", "</startTime>");
+                    if (value != null) {
+                        State startTimeState = getDateTimeState(value);
+                        logger.info("New startTime '{}' for device '{}' received", startTimeState, getThing().getUID());
+                        updateState(CHANNEL_STARTTIME, startTimeState);
+                    }
+                    value = StringUtils.substringBetween(wemoCallResponse, "<endTime>", "</endTime>");
+                    if (value != null) {
+                        State endTimeState = getDateTimeState(value);
+                        logger.info("New endTime '{}' for device '{}' received", endTimeState, getThing().getUID());
+                        updateState(CHANNEL_ENDTIME, endTimeState);
+                    }
+                    value = StringUtils.substringBetween(wemoCallResponse, "<nightModeBrightness>",
+                            "</nightModeBrightness>");
+                    if (value != null) {
+                        int nightModeBrightnessValue = Integer.valueOf(value);
+                        State nightModeBrightnessState = new PercentType(nightModeBrightnessValue);
+                        logger.info("New nightModeBrightness '{}' for device '{}' received", value,
+                                getThing().getUID());
+                        updateState(CHANNEL_NIGHTMODEBRIGHTNESS, nightModeBrightnessState);
+                    }
+                    value = StringUtils.substringBetween(wemoCallResponse, "<nightMode>", "</nightMode>");
+                    if (value != null) {
+                        State nightModeState = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
+                        logger.info("nightMode state '{}' for device '{}' received", nightModeState,
+                                getThing().getUID());
+                        if (nightModeState != null) {
+                            updateState(CHANNEL_NIGHTMODE, nightModeState);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to get actual state for device '{}': {}", getThing().getUID(), e.getMessage());
+        }
+
     }
 
     public String getWemoURL(String actionService) {
@@ -425,6 +499,27 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
             String deviceURL = StringUtils.substringBefore(descriptorURL.toString(), "/setup.xml");
             wemoURL = deviceURL + "/upnp/control/" + actionService + "1";
             return wemoURL;
+        }
+        return null;
+    }
+
+    public State getDateTimeState(String responseValue) {
+        if (responseValue != null) {
+            long value = 0;
+            try {
+                value = Long.parseLong(responseValue) * 1000; // convert s to ms
+            } catch (NumberFormatException e) {
+                logger.error("Unable to parse attributeValue '{}' for device '{}'; expected long", responseValue,
+                        getThing().getUID());
+                return null;
+            }
+            GregorianCalendar brewCal = new GregorianCalendar();
+            brewCal.setTimeInMillis(value);
+            State dateTimeState = new DateTimeType(brewCal);
+            if (dateTimeState != null) {
+                logger.trace("New date/time '{}' received", dateTimeState);
+                return dateTimeState;
+            }
         }
         return null;
     }

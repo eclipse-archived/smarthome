@@ -167,7 +167,13 @@
 
         <channels>
             <channel id="state" typeId="state"/>
-            <channel id="brightness" typeId="brightness"/>
+            <channel id="faderState" typeId="faderState"/>
+            <channel id="faderTime" typeId="faderTime"/>
+            <channel id="faderStart" typeId="faderStart"/>
+            <channel id="nightMode" typeId="nightMode"/>
+            <channel id="startTime" typeId="startTime"/>
+            <channel id="endTime" typeId="endTime"/>
+            <channel id="nightModeBrightness" typeId="nightModeBrightness"/>
         </channels>
 
         <config-description>
@@ -360,6 +366,48 @@
         <item-type>DateTime</item-type>
         <label>LastCleaned</label>
         <description>Date/time the coffee maker last completed cleaning</description>
+    </channel-type>
+
+     <channel-type id="faderState" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Fader Switch</label>
+        <description>Allows to switch the fader ON/OFF</description>
+    </channel-type>
+
+     <channel-type id="faderTime" advanced="true">
+        <item-type>Number</item-type>
+        <label>Fader Time</label>
+        <description>Fading duration</description>
+    </channel-type>
+
+     <channel-type id="faderStart" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>Fader Start</label>
+        <description>Date/time when the fader was switched on</description>
+    </channel-type>
+
+     <channel-type id="nightMode" advanced="true">
+        <item-type>Switch</item-type>
+        <label>NightMode</label>
+        <description>Allows to switch the nightMode ON/OFF</description>
+    </channel-type>
+
+     <channel-type id="startTime" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>NightMode Start Time</label>
+        <description>Date/time when the Night Mode starts</description>
+    </channel-type>
+
+     <channel-type id="endTime" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>NightMode End Time</label>
+        <description>Date/time when the Night Mode ends</description>
+    </channel-type>
+
+     <channel-type id="nightModeBrightness" advanced="true">
+        <item-type>Number</item-type>
+        <label>Night Mode Brightness</label>
+        <description>Allows setting the brightness of Night Mode</description>
     </channel-type>
  
 </thing:thing-descriptions>
