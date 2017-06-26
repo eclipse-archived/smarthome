@@ -137,7 +137,6 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
      */
     @Test
     public void validDiscoveryResultIfWithoutBaseUrl() throws ValidationException {
-
         RemoteDevice fsInternetRadioDeviceWithoutUrl = createDefaultFSInternetRadioDevice(null);
         final DiscoveryResult result = discoveryParticipant.createResult(fsInternetRadioDeviceWithoutUrl);
         assertEquals(new ThingUID(DEFAULT_RADIO_THING_UID), result.getThingUID());
@@ -149,7 +148,6 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
     }
 
     private RemoteDevice createDefaultFSInternetRadioDevice(URL baseURL) throws ValidationException {
-
         ManufacturerDetails manifacturerDetails = new ManufacturerDetails(DEFAULT_RADIO_MANIFACTURER);
         ModelDetails modelDetails = new ModelDetails(DEFAULT_RADIO_MODEL_NAME, DEFAULT_RADIO_MODEL_DESCRIPTION,
                 DEFAULT_RADIO_MODEL_NUMBER);
