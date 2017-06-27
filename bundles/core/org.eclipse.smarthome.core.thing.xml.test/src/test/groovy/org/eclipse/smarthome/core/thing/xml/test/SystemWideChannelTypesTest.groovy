@@ -160,7 +160,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that i18n is working for system channels'() {
+    void 'assert that translation is working for system channels'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
         def initialNumberOfChannelTypes = getChannelTypes().size()
@@ -199,7 +199,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
 
         assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getLabel(), is(not("Mein String Signal Strength"))
         assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getDescription(), is(not("Wetterinformation mit Signal Strength Channel Type Beschreibung"))
-        
+
         assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Signalstärke")
 
         assertThat TypeResolver.resolve(lowBat[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Niedriger Batteriestatus")

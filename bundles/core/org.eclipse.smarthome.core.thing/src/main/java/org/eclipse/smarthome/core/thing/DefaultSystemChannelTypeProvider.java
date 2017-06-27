@@ -100,9 +100,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     new EventOption(CommonTriggerEvents.LONG_PRESSED, null))),
             null);
 
-    private class LocalizedChannelTypeKey {
-        public String locale;
-        public UID uid;
+    private static class LocalizedChannelTypeKey {
+        public final String locale;
+        public final UID uid;
 
         public LocalizedChannelTypeKey(UID uid, String locale) {
             this.uid = uid;
@@ -121,9 +121,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                 return false;
             }
             LocalizedChannelTypeKey other = (LocalizedChannelTypeKey) obj;
-            if (!getOuterType().equals(other.getOuterType())) {
-                return false;
-            }
             if (locale == null) {
                 if (other.locale != null) {
                     return false;
@@ -145,14 +142,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + getOuterType().hashCode();
             result = prime * result + ((locale == null) ? 0 : locale.hashCode());
             result = prime * result + ((uid == null) ? 0 : uid.hashCode());
             return result;
-        }
-
-        private DefaultSystemChannelTypeProvider getOuterType() {
-            return DefaultSystemChannelTypeProvider.this;
         }
 
     }
@@ -177,9 +169,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         final List<ChannelType> allChannelTypes = new ArrayList<>(10);
         final Bundle bundle = FrameworkUtil.getBundle(DefaultSystemChannelTypeProvider.class);
 
-        for (ChannelType channelType : channelTypes) {
-            ChannelType localizedChannelType = createLocalizedChannelType(bundle, channelType, locale);
-            allChannelTypes.add(localizedChannelType);
+        for (final ChannelType channelType : channelTypes) {
+            allChannelTypes.add(createLocalizedChannelType(bundle, channelType, locale));
         }
 
         return allChannelTypes;
