@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" modified="modified" name="org.eclipse.smarthome.core.i18nprovider">
-   <implementation class="org.eclipse.smarthome.core.internal.I18nProviderImpl"/>
+   <implementation class="org.eclipse.smarthome.core.internal.i18n.I18nProviderImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.i18n.TranslationProvider"/>
       <provide interface="org.eclipse.smarthome.core.i18n.LocaleProvider"/>

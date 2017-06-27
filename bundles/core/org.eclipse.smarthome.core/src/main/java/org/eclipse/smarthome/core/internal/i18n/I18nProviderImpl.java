@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.internal;
+package org.eclipse.smarthome.core.internal.i18n;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -16,8 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
-import org.eclipse.smarthome.core.internal.i18n.LanguageResourceBundleManager;
-import org.eclipse.smarthome.core.internal.i18n.ResourceBundleTracker;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
