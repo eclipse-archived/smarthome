@@ -40,9 +40,6 @@ public class FrontierSiliconRadioConnection {
     /** Port number, usually 80. */
     private final int port;
 
-    /** URL path, must begin with a slash (/) */
-    private static final String path = "/fsapi";
-
     /** Access pin, passed upon login as GET parameter. */
     private final String pin;
 
@@ -81,7 +78,8 @@ public class FrontierSiliconRadioConnection {
 
         startHttpClient(httpClient);
 
-        final String url = "http://" + hostname + ":" + port + path + "/CREATE_SESSION?pin=" + pin;
+        final String url = "http://" + hostname + ":" + port + FrontierSiliconRadioConstants.CONNECTION_PATH
+                + "/CREATE_SESSION?pin=" + pin;
 
         logger.trace("opening URL: {}", url);
 
@@ -155,8 +153,9 @@ public class FrontierSiliconRadioConnection {
                 continue; // not logged in and login was not successful - try again!
             }
 
-            final String url = "http://" + hostname + ":" + port + path + "/" + requestString + "?pin=" + pin + "&sid="
-                    + sessionId + (params == null || params.trim().length() == 0 ? "" : "&" + params);
+            final String url = "http://" + hostname + ":" + port + FrontierSiliconRadioConstants.CONNECTION_PATH + "/"
+                    + requestString + "?pin=" + pin + "&sid=" + sessionId
+                    + (params == null || params.trim().length() == 0 ? "" : "&" + params);
 
             logger.trace("calling url: '{}'", url);
 

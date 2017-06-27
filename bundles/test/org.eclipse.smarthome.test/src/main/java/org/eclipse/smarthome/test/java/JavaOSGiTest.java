@@ -140,7 +140,7 @@ public class JavaOSGiTest {
      * Get an OSGi service for the given class and the given filter.
      *
      * @param clazz class under which the OSGi service is registered
-     * @param filter
+     * @param implementationClass the implementation class
      * @return OSGi service or null if no service can be found for the given class
      */
     protected <T, I extends T> I getService(Class<T> clazz, Class<I> implementationClass) {

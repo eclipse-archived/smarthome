@@ -13,6 +13,7 @@ import static org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindi
 import java.math.BigDecimal;
 import java.util.concurrent.ScheduledFuture;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -31,8 +32,6 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * The {@link FSInternetRadioHandler} is responsible for handling commands, which are
  * sent to one of the channels.
@@ -44,7 +43,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
 
-    private FrontierSiliconRadio radio;
+    FrontierSiliconRadio radio;
 
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
