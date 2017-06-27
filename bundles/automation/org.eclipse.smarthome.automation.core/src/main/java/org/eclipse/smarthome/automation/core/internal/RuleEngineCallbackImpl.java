@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -87,7 +89,10 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     public void dispose() {
         synchronized (this) {
-            executor.shutdownNow();
+            AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+                executor.shutdownNow();
+                return null;
+            });
             executor = null;
         }
     }
