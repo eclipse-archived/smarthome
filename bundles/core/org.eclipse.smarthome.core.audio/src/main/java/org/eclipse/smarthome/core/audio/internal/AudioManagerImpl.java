@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FileAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -90,6 +93,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
                     sink.process(audioStream);
                 } catch (UnsupportedAudioFormatException e) {
                     logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
+                } catch (UnsupportedAudioStreamException e) {
+                    logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
                 }
             } else {
                 logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream.toString());
@@ -124,6 +129,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.process(audioStream);
             } catch (UnsupportedAudioFormatException e) {
+                logger.error("Error playing '{}': {}", url, e.getMessage());
+            } catch (UnsupportedAudioStreamException e) {
                 logger.error("Error playing '{}': {}", url, e.getMessage());
             }
         }

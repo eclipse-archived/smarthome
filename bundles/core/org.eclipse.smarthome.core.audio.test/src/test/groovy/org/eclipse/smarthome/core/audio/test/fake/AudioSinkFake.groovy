@@ -7,19 +7,23 @@
  */
 package org.eclipse.smarthome.core.audio.test.fake
 
+import java.util.Set
+
 import org.eclipse.smarthome.core.audio.AudioFormat
 import org.eclipse.smarthome.core.audio.AudioSink
 import org.eclipse.smarthome.core.audio.AudioStream
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException
 import org.eclipse.smarthome.core.library.types.PercentType
 
-public class AudioSinkFake implements AudioSink{
+public class AudioSinkFake implements AudioSink {
     public AudioStream audioStream
     public AudioFormat audioFormat
     public boolean isStreamProcessed = false
     public PercentType volume
     public boolean isIOExceptionExpected = false
     public boolean isUnsupportedAudioFormatExceptionExpected = false
+    public boolean isUnsupportedAudioStreamExceptionExpected = false
 
     @Override
     public String getId() {
@@ -32,9 +36,12 @@ public class AudioSinkFake implements AudioSink{
     }
 
     @Override
-    public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
+    public void process(AudioStream audioStream) throws UnsupportedAudioFormatException, UnsupportedAudioStreamException {
         if(isUnsupportedAudioFormatExceptionExpected){
             throw new UnsupportedAudioFormatException("Expected audio format exception", null)
+        }
+        if(isUnsupportedAudioStreamExceptionExpected){
+            throw new UnsupportedAudioStreamException("Expected audio stream exception", null)
         }
         this.audioStream = audioStream
         audioFormat =  audioStream.getFormat()
@@ -43,6 +50,11 @@ public class AudioSinkFake implements AudioSink{
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
+        return null;
+    }
+
+    @Override
+    public Set<Class<? extends AudioStream>> getSupportedStreams() {
         return null;
     }
 
