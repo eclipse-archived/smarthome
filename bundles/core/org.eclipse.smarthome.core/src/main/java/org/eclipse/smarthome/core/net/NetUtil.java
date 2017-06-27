@@ -13,8 +13,8 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -68,11 +68,11 @@ public class NetUtil {
     /**
      * Get all broadcast addresses on the current host
      *
-     * @return list of broadcast addresses
+     * @return list of broadcast addresses, empty list if no broadcast addresses found
      */
     public static List<String> getAllBroadcastAddresses() {
+        List<String> broadcastAddresses = new LinkedList<String>();
         try {
-            List<String> broadcastAddresses = new ArrayList<String>();
             final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
             while (networkInterfaces.hasMoreElements()) {
                 final NetworkInterface networkInterface = networkInterfaces.nextElement();
@@ -84,29 +84,24 @@ public class NetUtil {
                     }
                 }
             }
-            return broadcastAddresses;
         } catch (SocketException ex) {
             LOGGER.error("Could not find broadcast address: {}", ex.getMessage(), ex);
-            return null;
         }
+        return broadcastAddresses;
     }
 
     /**
      * Get the first candidate for a broadcast address
      *
-     * @return broadcast address
+     * @return broadcast address, null of no broadcast address is found
      */
     public static String getBroadcastAddress() {
-        String broadcastAddress = null;
         final List<String> broadcastAddresses = getAllBroadcastAddresses();
-        for (String current : broadcastAddresses) {
-            if (broadcastAddress != null) {
-                LOGGER.warn("Found multiple broadcast addresses - ignoring {}", broadcastAddress);
-            } else {
-                broadcastAddress = current;
-            }
+        if (!broadcastAddresses.isEmpty()) {
+            return broadcastAddresses.get(0);
+        } else {
+            return null;
         }
-        return broadcastAddress;
     }
 
 }
