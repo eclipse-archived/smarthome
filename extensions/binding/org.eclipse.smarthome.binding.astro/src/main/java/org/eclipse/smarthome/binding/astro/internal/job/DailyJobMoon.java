@@ -34,16 +34,15 @@ public final class DailyJobMoon extends AbstractJob {
      * @throws IllegalArgumentException if {@code thingUID} or {@code handler} is {@code null}
      */
     public DailyJobMoon(String thingUID, AstroThingHandler handler) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        checkArgument(handler != null, "AstroThingHandler instance cannot be null");
-
-        this.thingUID = thingUID;
+        super(thingUID);
+        checkArgument(handler != null, "The handler must not be null");
         this.handler = handler;
     }
 
     @Override
     public void run() {
         handler.publishDailyInfo();
+        String thingUID = getThingUID();
         logger.info("Scheduled Astro event-jobs for thing {}", thingUID);
 
         Planet planet = handler.getPlanet();
@@ -69,6 +68,11 @@ public final class DailyJobMoon extends AbstractJob {
 
         scheduleEvent(thingUID, handler, moon.getPerigee().getDate(), EVENT_PERIGEE, EVENT_CHANNEL_ID_PERIGEE);
         scheduleEvent(thingUID, handler, moon.getApogee().getDate(), EVENT_APOGEE, EVENT_CHANNEL_ID_APOGEE);
+    }
+
+    @Override
+    public String toString() {
+        return "Daily job moon " + getThingUID();
     }
 
 }
