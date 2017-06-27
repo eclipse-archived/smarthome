@@ -154,11 +154,6 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     }
 
     @Override
-    protected boolean checkExistence(String uid) {
-        return mProvider.get(uid) != null;
-    }
-
-    @Override
     protected String getUID(Rule parsedObject) {
         return parsedObject.getUID();
     }
