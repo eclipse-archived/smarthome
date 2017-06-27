@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.internal;
+package org.eclipse.smarthome.core.internal.i18n;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;

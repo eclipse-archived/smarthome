@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.core.internal;
+package org.eclipse.smarthome.core.internal.i18n;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
