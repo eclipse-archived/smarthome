@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Magic Bundle Tests
 Bundle-SymbolicName: org.eclipse.smarthome.magic.test
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.9.0.b5
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.magic
 Import-Package: org.eclipse.smarthome.core.events,
