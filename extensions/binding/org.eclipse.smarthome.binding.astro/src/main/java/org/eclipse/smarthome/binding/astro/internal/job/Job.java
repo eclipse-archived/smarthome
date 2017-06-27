@@ -7,12 +7,18 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
+import static java.util.Arrays.asList;
+import static java.util.Calendar.SECOND;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.time.DateUtils.truncatedEquals;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import static org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils.*;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
+import java.util.List;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
@@ -65,20 +71,34 @@ public interface Job extends Runnable {
      */
     public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt, String event,
             String channelId) {
+        scheduleEvent(thingUID, astroHandler, eventAt, singletonList(event), channelId);
+    }
+
+    /**
+     * Schedules an {@link EventJob} instance
+     *
+     * @param thingUID the Thing UID
+     * @param astroHandler the {@link ThingHandler} instance
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
+     * @param events the event IDs to schedule
+     * @param channelId the channel ID
+     */
+    public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt,
+            List<String> events, String channelId) {
         boolean thingNull = checkNull(thingUID, "Thing UID is null");
         boolean astroHandlerNull = checkNull(astroHandler, "AstroThingHandler is null");
         boolean eventAtNull = checkNull(eventAt, "Scheduled Instant is null");
-        boolean eventNull = checkNull(event, "Event is null");
+        boolean eventsNull = checkNull(events, "Events list is null");
         boolean channelIdNull = checkNull(channelId, "Channel ID is null");
 
-        if (thingNull || astroHandlerNull || eventAtNull || eventNull || channelIdNull) {
+        if (thingNull || astroHandlerNull || eventAtNull || eventsNull || channelIdNull || events.isEmpty()) {
             return;
         }
         AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
                 .as(AstroChannelConfig.class);
         Calendar instant = applyConfig(eventAt, config);
-        Job eventJob = new EventJob(thingUID, channelId, event);
-        schedule(thingUID, astroHandler, eventJob, instant);
+        List<Job> jobs = events.stream().map(e -> new EventJob(thingUID, channelId, e)).collect(toList());
+        schedule(thingUID, astroHandler, new CompositeJob(thingUID, jobs), instant);
     }
 
     /**
@@ -98,8 +118,15 @@ public interface Job extends Runnable {
         if (thingNull || astroHandlerNull || rangeNull || channelIdNull) {
             return;
         }
-        scheduleEvent(thingUID, astroHandler, range.getStart(), EVENT_START, channelId);
-        scheduleEvent(thingUID, astroHandler, range.getEnd(), EVENT_END, channelId);
+        
+        Calendar start = range.getStart();
+        Calendar end = range.getEnd();
+        if (truncatedEquals(start, end, SECOND)) {
+            scheduleEvent(thingUID, astroHandler, start, asList(EVENT_START, EVENT_END), channelId);
+        } else {
+            scheduleEvent(thingUID, astroHandler, start, EVENT_START, channelId);
+            scheduleEvent(thingUID, astroHandler, end, EVENT_END, channelId);
+        }
     }
 
     /**
