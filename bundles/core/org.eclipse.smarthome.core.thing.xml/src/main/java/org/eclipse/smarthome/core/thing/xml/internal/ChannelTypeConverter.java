@@ -12,15 +12,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.core.thing.type.ChannelDimension;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
+
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -58,6 +61,10 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
     private String readItemType(NodeIterator nodeIterator) throws ConversionException {
         return (String) nodeIterator.nextValue("item-type", false);
+    }
+
+    private String readDimension(NodeIterator nodeIterator) throws ConversionException {
+        return (String) nodeIterator.nextValue("dimension", false);
     }
 
     private String readKind(NodeIterator nodeIterator) throws ConversionException {
@@ -133,6 +140,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(uid);
 
         String itemType = readItemType(nodeIterator);
+        String dimension = readDimension(nodeIterator);
         String kind = readKind(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
@@ -149,8 +157,9 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             kind = "state";
         }
 
-        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.parse(kind), label,
-                description, category, tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
+        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, ChannelDimension.parse(dimension),
+                ChannelKind.parse(kind), label, description, category, tags, stateDescription, eventDescription,
+                (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
                 (ConfigDescription) configDescriptionObjects[1], system);

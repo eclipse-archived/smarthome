@@ -27,21 +27,12 @@
                 <description>Specifies the refresh interval in seconds.</description>
                 <default>300</default>
             </parameter>
-            
-            <parameter name="tempUnit" type="text" required="true">
-                <label>Unit for temperature</label>
-                <description>Specifies the temperature unit used</description>
-                <default>"0"</default>
-                <options>
-                    <option value="0">Celsius</option>
-                    <option value="1">Fahrenheit</option>
-                </options>
-            </parameter>
         </config-description>
     </thing-type>
 
     <channel-type id="temperature">
         <item-type>Number</item-type>
+        <dimension>Temperature</dimension>
         <label>Temperature</label>
         <description>Current temperature</description>
         <category>Temperature</category>
@@ -60,6 +51,7 @@
 
     <channel-type id="pressure">
         <item-type>Number</item-type>
+        <dimension>Pressure</dimension>
         <label>Pressure</label>
         <description>Current pressure</description>
         <category>Pressure</category>

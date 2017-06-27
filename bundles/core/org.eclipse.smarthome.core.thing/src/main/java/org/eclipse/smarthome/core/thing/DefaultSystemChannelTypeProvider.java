@@ -53,8 +53,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * with values 0, 1, 2, 3 or 4, 0 being worst strength and 4 being best strength.
      */
     public static final ChannelType SYSTEM_CHANNEL_SIGNAL_STRENGTH = new ChannelType(
-            new ChannelTypeUID("system:signal-strength"), false, "Number", "Signal Strength", null, "QualityOfService",
-            null,
+            new ChannelTypeUID("system:signal-strength"), false, "Number", null, "Signal Strength", null,
+            "QualityOfService", null,
             new StateDescription(BigDecimal.ZERO, new BigDecimal(4), BigDecimal.ONE, null, true,
                     Arrays.asList(new StateOption("0", "no signal"), new StateOption("1", "weak"),
                             new StateOption("2", "average"), new StateOption("3", "good"),
@@ -66,27 +66,27 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * on/off.
      */
     public static final ChannelType SYSTEM_CHANNEL_LOW_BATTERY = new ChannelType(
-            new ChannelTypeUID("system:low-battery"), false, "Switch", "Low Battery", null, "Battery", null,
+            new ChannelTypeUID("system:low-battery"), false, "Switch", null, "Low Battery", null, "Battery", null,
             new StateDescription(null, null, null, null, true, null), null);
 
     /**
      * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
      */
     public static final ChannelType SYSTEM_CHANNEL_BATTERY_LEVEL = new ChannelType(
-            new ChannelTypeUID("system:battery-level"), false, "Number", "Battery Level", null, "Battery", null,
+            new ChannelTypeUID("system:battery-level"), false, "Number", null, "Battery Level", null, "Battery", null,
             new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %%", true, null), null);
 
     /**
      * System wide trigger {@link ChannelType} without event options.
      */
     public static final ChannelType SYSTEM_TRIGGER = new ChannelType(new ChannelTypeUID("system:trigger"), false, null,
-            ChannelKind.TRIGGER, "Trigger", null, null, null, null, null, null);
+            null, ChannelKind.TRIGGER, "Trigger", null, null, null, null, null, null);
 
     /**
      * System wide trigger {@link ChannelType} which triggers "PRESSED" and "RELEASED" events.
      */
     public static final ChannelType SYSTEM_RAWBUTTON = new ChannelType(new ChannelTypeUID("system:rawbutton"), false,
-            null, ChannelKind.TRIGGER, "Raw button", null, null, null, null,
+            null, null, ChannelKind.TRIGGER, "Raw button", null, null, null, null,
             new EventDescription(Arrays.asList(new EventOption(CommonTriggerEvents.PRESSED, null),
                     new EventOption(CommonTriggerEvents.RELEASED, null))),
             null);
@@ -96,7 +96,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * events.
      */
     public static final ChannelType SYSTEM_BUTTON = new ChannelType(new ChannelTypeUID("system:button"), false, null,
-            ChannelKind.TRIGGER, "Button", null, null, null, null,
+            null, ChannelKind.TRIGGER, "Button", null, null, null, null,
             new EventDescription(Arrays.asList(new EventOption(CommonTriggerEvents.SHORT_PRESSED, null),
                     new EventOption(CommonTriggerEvents.DOUBLE_PRESSED, null),
                     new EventOption(CommonTriggerEvents.LONG_PRESSED, null))),

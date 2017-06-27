@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.types.EventDescription;
@@ -29,6 +30,7 @@ public class ChannelType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final String itemType;
+    private final ChannelDimension dimension;
     private final ChannelKind kind;
     private final Set<String> tags;
     private final String category;
@@ -44,6 +46,7 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @param advanced true if this channel type contains advanced features, otherwise false
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem} (must neither be null nor empty)
+     * @param dimension the dimension of this Channel, can be null
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
      * @param description the human readable description for the according type
@@ -56,10 +59,10 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label, String description,
-            String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
-        this(uid, advanced, itemType, ChannelKind.STATE, label, description, category, tags, state, null,
-                configDescriptionURI);
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String dimension, String label,
+            String description, String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
+        this(uid, advanced, itemType, ChannelDimension.parse(dimension), ChannelKind.STATE, label, description,
+                category, tags, state, null, configDescriptionURI);
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");
@@ -73,6 +76,7 @@ public class ChannelType extends AbstractDescriptionType {
      *            the overall system (must neither be null, nor empty)
      * @param advanced true if this channel type contains advanced features, otherwise false
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
+     * @param dimension the dimension of this Channel, can be null
      * @param kind the channel kind.
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
@@ -86,9 +90,9 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelKind kind, String label,
-            String description, String category, Set<String> tags, StateDescription state, EventDescription event,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelDimension dimension,
+            ChannelKind kind, String label, String description, String category, Set<String> tags,
+            StateDescription state, EventDescription event, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -104,6 +108,7 @@ public class ChannelType extends AbstractDescriptionType {
         }
 
         this.itemType = itemType;
+        this.dimension = dimension;
         this.kind = kind;
         this.configDescriptionURI = configDescriptionURI;
 
@@ -132,6 +137,15 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public String getItemType() {
         return this.itemType;
+    }
+
+    /**
+     * Returns the item dimension of this {@link ChannelType}, e.g. {@code Temperature}.
+     *
+     * @return the item dimension of this Channel type, e.g. {@code Temperature}. Can be null.
+     */
+    public ChannelDimension getDimension() {
+        return this.dimension;
     }
 
     /**
