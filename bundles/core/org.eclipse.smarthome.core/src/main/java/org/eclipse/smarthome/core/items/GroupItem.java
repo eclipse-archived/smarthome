@@ -17,6 +17,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -310,8 +312,15 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
-        if (function != null) {
-            setState(function.calculate(members));
+        if (function != null && baseItem != null) {
+            State calculatedState = function.calculate(members);
+
+            // functions return DecimalTypes so we have to convert them if the baseItem type only supports PercentType
+            if (baseItem.getAcceptedDataTypes().contains(PercentType.class)
+                    && !baseItem.getAcceptedDataTypes().contains(DecimalType.class)) {
+                calculatedState = calculatedState.as(PercentType.class);
+            }
+            setState(calculatedState);
         }
         if (!oldState.equals(this.state)) {
             sendGroupStateChangedEvent(item.getName(), this.state, oldState);
