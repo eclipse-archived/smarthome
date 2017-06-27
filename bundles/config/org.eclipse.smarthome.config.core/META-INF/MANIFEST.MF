@@ -15,6 +15,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
  org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Export-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.dto,
