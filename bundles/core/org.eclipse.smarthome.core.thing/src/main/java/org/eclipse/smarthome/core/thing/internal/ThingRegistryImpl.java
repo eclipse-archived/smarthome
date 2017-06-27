@@ -275,4 +275,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
         return null;
     }
 
+    @Override
+    protected ThingUID getKey(Thing element) {
+        return element.getUID();
+    }
+
 }

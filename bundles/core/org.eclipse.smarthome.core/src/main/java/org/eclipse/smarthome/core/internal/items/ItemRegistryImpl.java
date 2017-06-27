@@ -339,4 +339,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         }
     }
 
+    @Override
+    protected String getKey(Item element) {
+        return element.getName();
+    }
+
 }
