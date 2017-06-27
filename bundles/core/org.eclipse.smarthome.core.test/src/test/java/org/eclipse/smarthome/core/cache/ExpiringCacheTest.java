@@ -24,12 +24,12 @@ public class ExpiringCacheTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException1() throws IllegalArgumentException {
-        new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY, null);
+        new ExpiringCache<>(ExpiringCacheMapTest.CACHE_EXPIRY, null);
     }
 
     @Test
     public void testGetValue() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
+        final ExpiringCache<String> single_cache = new ExpiringCache<>(ExpiringCacheMapTest.CACHE_EXPIRY,
                 ExpiringCacheMapTest.CACHE_ACTION);
 
         // use the same key twice
@@ -42,7 +42,7 @@ public class ExpiringCacheTest {
 
     @Test
     public void testExpired() throws InterruptedException {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
+        final ExpiringCache<String> single_cache = new ExpiringCache<>(ExpiringCacheMapTest.CACHE_EXPIRY,
                 ExpiringCacheMapTest.CACHE_ACTION);
 
         String value1 = single_cache.getValue();
@@ -59,7 +59,7 @@ public class ExpiringCacheTest {
 
     @Test
     public void testInvalidate() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
+        final ExpiringCache<String> single_cache = new ExpiringCache<>(ExpiringCacheMapTest.CACHE_EXPIRY,
                 ExpiringCacheMapTest.CACHE_ACTION);
 
         String value1 = single_cache.getValue();
@@ -73,7 +73,7 @@ public class ExpiringCacheTest {
 
     @Test
     public void testRefresh() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
+        final ExpiringCache<String> single_cache = new ExpiringCache<>(ExpiringCacheMapTest.CACHE_EXPIRY,
                 ExpiringCacheMapTest.CACHE_ACTION);
 
         String value1 = single_cache.getValue();
