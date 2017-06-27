@@ -43,14 +43,18 @@ public class FrontierSiliconRadio {
         this.conn = new FrontierSiliconRadioConnection(hostname, port, pin);
     }
 
+    public boolean isLoggedIn() {
+        return conn.isLoggedIn();
+    }
+
     /**
      * Perform login to the radio and establish new session
      *
      * @author Rainer Ostendorf
      * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
      */
-    public void login() throws IOException {
-        conn.doLogin();
+    public boolean login() throws IOException {
+        return conn.doLogin();
     }
 
     /**
@@ -228,5 +232,12 @@ public class FrontierSiliconRadio {
     public void setMuted(boolean muted) throws IOException {
         final String params = "value=" + (muted ? "1" : "0");
         conn.doRequest(REQUEST_SET_MUTE, params);
+    }
+
+    /**
+     * Closes the Http Client used to make requests to the radio
+     */
+    public void closeClient() {
+        conn.close();
     }
 }
