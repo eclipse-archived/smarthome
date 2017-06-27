@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Patrick Koenemann - Initial contribution
  * @author Mihaela Memova - removed the unused boolean parameter, changed the check for the PIN
+ * @author Svilen Valkanov - changed handler initialization
  */
 public class FSInternetRadioHandler extends BaseThingHandler {
 
@@ -52,7 +53,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            if (radio == null) {
+            if (!radio.isLoggedIn()) {
                 // radio is not set, so set all channels to 'undefined'
                 for (Channel channel : getThing().getChannels()) {
                     updateState(channel.getUID(), UnDefType.UNDEF);
@@ -114,18 +115,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        // Long running initialization should be done asynchronously in background
-        radioLogin();
-
-        // also schedule a thread for polling with configured refresh rate
-        final BigDecimal period = (BigDecimal) getThing().getConfiguration().get(CONFIG_PROPERTY_REFRESH);
-        if (period != null && period.intValue() > 0) {
-            updateJob = scheduler.scheduleWithFixedDelay(updateRunnable, period.intValue(), period.intValue(), SECONDS);
-        }
-    }
-
-    private void radioLogin() {
-        // read configuration and spawn thread to establish connection to device
+        // read configuration
         final String ip = (String) getThing().getConfiguration().get(CONFIG_PROPERTY_IP);
         final BigDecimal port = (BigDecimal) getThing().getConfiguration().get(CONFIG_PROPERTY_PORT);
         final String pin = (String) getThing().getConfiguration().get(CONFIG_PROPERTY_PIN);
@@ -134,26 +124,39 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             // configuration incomplete
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Configuration incomplete");
         } else {
-            scheduler.execute(new Runnable() {
-                @Override
-                public void run() {
-                    logger.debug("creating new connection to " + ip + ":" + port);
-                    try {
-                        final FrontierSiliconRadio tmpRadio = new FrontierSiliconRadio(ip, port.intValue(), pin);
-                        tmpRadio.login();
-                        radio = tmpRadio; // login successful, now store radio in field
+            radio = new FrontierSiliconRadio(ip, port.intValue(), pin);
+            logger.debug("Initializing connection to {}:{}", ip, port);
 
+            // Long running initialization should be done asynchronously in background
+            radioLogin();
+
+            // also schedule a thread for polling with configured refresh rate
+            final BigDecimal period = (BigDecimal) getThing().getConfiguration().get(CONFIG_PROPERTY_REFRESH);
+            if (period != null && period.intValue() > 0) {
+                updateJob = scheduler.scheduleWithFixedDelay(updateRunnable, period.intValue(), period.intValue(),
+                        SECONDS);
+            }
+        }
+    }
+
+    private void radioLogin() {
+        scheduler.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (radio.login()) {
                         // Thing initialized. If done set status to ONLINE to indicate proper working.
                         updateStatus(ThingStatus.ONLINE);
 
                         // now update all channels!
                         updateRunnable.run();
-                    } catch (Exception e) {
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
                     }
+                } catch (Exception e) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
                 }
-            });
-        }
+            }
+        });
+
     }
 
     @Override
@@ -162,12 +165,16 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             updateJob.cancel(true);
         }
         updateJob = null;
+
+        if (radio != null) {
+            radio.closeClient();
+        }
         radio = null;
     }
 
     @Override
     public void handleCommand(final ChannelUID channelUID, final Command command) {
-        if (radio == null) {
+        if (!radio.isLoggedIn()) {
             // connection to radio is not initialized, log ignored command and set status, if it is not already offline
             logger.debug("Ignoring command " + channelUID.getId() + " = " + command + " because device is offline.");
             if (ThingStatus.ONLINE.equals(getThing().getStatus())) {
