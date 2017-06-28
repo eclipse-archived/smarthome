@@ -210,7 +210,7 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         Stream.of("switch1", "switch2", "switch3").forEach(itemName -> {
             final Item item = itemRegistry.get(itemName);
             Assert.assertNotNull(item);
-            Assert.assertEquals(OnOffType.ON, item.getState());
+            waitForAssert(() -> Assert.assertEquals(OnOffType.ON, item.getState()));
         });
     }
 }
