@@ -16,7 +16,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * Each {@link ModuleType} instance defines the meta-information needed for creation of {@link Module} instance which is
@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public abstract class ModuleType implements UniqueIdProvider<String> {
+public abstract class ModuleType implements Identifiable<String> {
 
     /**
      * This field is used as reference from the {@link Module}s, to find their meta-information.

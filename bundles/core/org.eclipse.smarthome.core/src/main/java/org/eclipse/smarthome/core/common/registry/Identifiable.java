@@ -16,7 +16,7 @@ package org.eclipse.smarthome.core.common.registry;
  *
  * @author Markus Rathgeb - Initial contribution
  */
-public interface UniqueIdProvider<T> {
+public interface Identifiable<T> {
 
     /**
      * Get the unique identifier.

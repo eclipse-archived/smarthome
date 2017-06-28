@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableList;
  * @param <PE>
  *            type of the persistable element
  */
-public abstract class AbstractManagedProvider<E extends UniqueIdProvider<K>, K, PE> extends AbstractProvider<E>
+public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> extends AbstractProvider<E>
         implements ManagedProvider<E, K> {
 
     private Storage<PE> storage;

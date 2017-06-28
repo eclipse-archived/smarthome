@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  * @author Simon Kaufmann - Added label, location
  * @author Kai Kreuzer - Removed linked items from Thing
  */
-public interface Thing extends UniqueIdProvider<ThingUID> {
+public interface Thing extends Identifiable<ThingUID> {
 
     /** the key for the vendor property */
     public static final String PROPERTY_VENDOR = "vendor";

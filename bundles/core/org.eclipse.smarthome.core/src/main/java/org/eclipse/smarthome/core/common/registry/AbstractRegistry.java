@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @param <E>
  *            type of the element
  */
-public abstract class AbstractRegistry<E extends UniqueIdProvider<K>, K, P extends Provider<E>>
+public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends Provider<E>>
         implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {

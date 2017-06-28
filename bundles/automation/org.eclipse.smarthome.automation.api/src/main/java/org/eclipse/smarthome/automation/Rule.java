@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * Rule is built from {@link Module}s and consists of three sections:
@@ -34,7 +34,7 @@ import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class Rule implements UniqueIdProvider<String> {
+public class Rule implements Identifiable<String> {
 
     protected List<Trigger> triggers;
     protected List<Condition> conditions;

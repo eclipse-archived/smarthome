@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.common.registry.UniqueIdProvider;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
@@ -29,7 +29,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface Item extends UniqueIdProvider<String> {
+public interface Item extends Identifiable<String> {
 
     /**
      * returns the current state of the item
