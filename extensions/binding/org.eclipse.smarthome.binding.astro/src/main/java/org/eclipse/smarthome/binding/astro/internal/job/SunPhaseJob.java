@@ -36,16 +36,14 @@ public final class SunPhaseJob extends AbstractJob {
      *             if any of the arguments is {@code null}
      */
     public SunPhaseJob(String thingUID, SunPhaseName sunPhaseName) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        checkArgument(sunPhaseName != null, "Sun Phase Name cannot be null");
-
-        this.thingUID = thingUID;
+        super(thingUID);
+        checkArgument(sunPhaseName != null, "The sunPhaseName must not be null");
         this.sunPhaseName = sunPhaseName;
     }
 
     @Override
     public void run() {
-        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
+        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(getThingUID());
         if (checkNull(astroHandler, "AstroThingHandler is null")) {
             return;
         }
@@ -59,6 +57,11 @@ public final class SunPhaseJob extends AbstractJob {
             typedSun.getPhase().setName(sunPhaseName);
             astroHandler.publishChannelIfLinked(phaseNameChannel.getUID());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Sun phase job " + getThingUID() + "/" + sunPhaseName;
     }
 
 }

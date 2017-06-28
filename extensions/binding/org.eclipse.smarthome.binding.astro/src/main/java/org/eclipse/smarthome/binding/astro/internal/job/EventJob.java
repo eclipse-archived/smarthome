@@ -33,22 +33,25 @@ public final class EventJob extends AbstractJob {
      *             if any of the arguments is {@code null}
      */
     public EventJob(String thingUID, String channelID, String event) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        checkArgument(channelID != null, "Channel ID cannot be null");
-        checkArgument(event != null, "Event cannot be null");
-
-        this.thingUID = thingUID;
+        super(thingUID);
+        checkArgument(channelID != null, "The channelID must not be null");
+        checkArgument(event != null, "The event must not be null");
         this.channelID = channelID;
         this.event = event;
     }
 
     @Override
     public void run() {
-        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
+        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(getThingUID());
         if (checkNull(astroHandler, "AstroThingHandler is null")) {
             return;
         }
         astroHandler.triggerEvent(channelID, event);
+    }
+
+    @Override
+    public String toString() {
+        return "Event job " + getThingUID() + "/" + channelID + "/" + event;
     }
 
 }

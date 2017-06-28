@@ -28,17 +28,21 @@ public final class PositionalJob extends AbstractJob {
      *             if the provided argument is {@code null}
      */
     public PositionalJob(String thingUID) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        this.thingUID = thingUID;
+        super(thingUID);
     }
 
     @Override
     public void run() {
-        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
+        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(getThingUID());
         if (checkNull(astroHandler, "AstroThingHandler is null")) {
             return;
         }
         astroHandler.publishPositionalInfo();
+    }
+
+    @Override
+    public String toString() {
+        return "Positional job " + getThingUID();
     }
 
 }
