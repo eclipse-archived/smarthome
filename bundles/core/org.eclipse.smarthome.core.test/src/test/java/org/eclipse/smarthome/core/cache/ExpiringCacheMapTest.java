@@ -31,16 +31,14 @@ public class ExpiringCacheMapTest {
 
     public static final long CACHE_EXPIRY = 2 * 1000; // 2s
 
-    public static final Supplier<String> CACHE_ACTION = () -> {
-        return RandomStringUtils.random(8);
-    };
+    public static final Supplier<String> CACHE_ACTION = () -> RandomStringUtils.random(8);
 
     public static final String FIRST_TEST_KEY = "FIRST_TEST_KEY";
     public static final String SECOND_TEST_KEY = "SECOND_TEST_KEY";
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddIllegalArgumentException1() throws IllegalArgumentException {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         final Supplier<String> action = null;
         cache.put(FIRST_TEST_KEY, action);
@@ -48,7 +46,7 @@ public class ExpiringCacheMapTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddIllegalArgumentException2() throws IllegalArgumentException {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         final ExpiringCache<String> item = null;
         cache.put(FIRST_TEST_KEY, item);
@@ -56,19 +54,28 @@ public class ExpiringCacheMapTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddIllegalArgumentException3() throws IllegalArgumentException {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(null, CACHE_ACTION);
     }
 
     @Test
+    public void testContainsKey() {
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
+
+        cache.put(FIRST_TEST_KEY, CACHE_ACTION);
+
+        assertTrue(cache.containsKey(FIRST_TEST_KEY));
+    }
+
+    @Test
     public void testKeys() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
         // get all keys
-        final Set<String> expected_keys = new LinkedHashSet<String>();
+        final Set<String> expected_keys = new LinkedHashSet<>();
         expected_keys.add(FIRST_TEST_KEY);
 
         final Set<String> keys = cache.keys();
@@ -77,7 +84,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testValues() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
@@ -96,7 +103,7 @@ public class ExpiringCacheMapTest {
         assertNotEquals(value1, value3);
 
         // get all values
-        final Collection<String> expected_values = new LinkedList<String>();
+        final Collection<String> expected_values = new LinkedList<>();
         expected_values.add(value3);
         expected_values.add(value1);
 
@@ -110,7 +117,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testExpired() throws InterruptedException {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
@@ -125,7 +132,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testInvalidate() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
@@ -146,7 +153,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testRefresh() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
@@ -157,7 +164,7 @@ public class ExpiringCacheMapTest {
         assertNotEquals(value1, value2);
 
         // refresh all
-        final Collection<String> expected_values = new LinkedList<String>();
+        final Collection<String> expected_values = new LinkedList<>();
         expected_values.add(value2);
 
         final Collection<String> values = cache.refreshAll();
@@ -166,7 +173,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testRemove() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 
@@ -180,7 +187,7 @@ public class ExpiringCacheMapTest {
 
     @Test
     public void testClear() {
-        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<String, String>(CACHE_EXPIRY);
+        final ExpiringCacheMap<String, String> cache = new ExpiringCacheMap<>(CACHE_EXPIRY);
 
         cache.put(FIRST_TEST_KEY, CACHE_ACTION);
 

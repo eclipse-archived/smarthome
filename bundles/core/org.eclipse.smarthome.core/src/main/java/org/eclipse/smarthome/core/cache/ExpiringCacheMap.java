@@ -41,7 +41,7 @@ public class ExpiringCacheMap<K, V> {
      */
     public ExpiringCacheMap(long expiry) {
         this.expiry = expiry;
-        this.items = new ConcurrentHashMap<K, ExpiringCache<V>>();
+        this.items = new ConcurrentHashMap<>();
     }
 
     /**
@@ -51,7 +51,7 @@ public class ExpiringCacheMap<K, V> {
      * @param action the action for the item to be associated with the specified key to retrieve/calculate the value
      */
     public void put(K key, Supplier<V> action) {
-        put(key, new ExpiringCache<V>(expiry, action));
+        put(key, new ExpiringCache<>(expiry, action));
     }
 
     /**
@@ -69,6 +69,16 @@ public class ExpiringCacheMap<K, V> {
         }
 
         items.put(key, item);
+    }
+
+    /**
+     * Checks if the key is present in the cache.
+     * 
+     * @param key the key whose presence in the cache is to be tested
+     * @return true if the cache contains a value for the specified key
+     */
+    public boolean containsKey(K key) {
+        return items.containsKey(key);
     }
 
     /**
@@ -93,7 +103,7 @@ public class ExpiringCacheMap<K, V> {
      * @return the set of all keys
      */
     public synchronized Set<K> keys() {
-        final Set<K> keys = new LinkedHashSet<K>();
+        final Set<K> keys = new LinkedHashSet<>();
         for (final K key : items.keySet()) {
             keys.add(key);
         }
@@ -122,7 +132,7 @@ public class ExpiringCacheMap<K, V> {
      * @return the collection of all values
      */
     public synchronized Collection<V> values() {
-        final Collection<V> values = new LinkedList<V>();
+        final Collection<V> values = new LinkedList<>();
         for (final ExpiringCache<V> item : items.values()) {
             values.add(item.getValue());
         }
@@ -172,7 +182,7 @@ public class ExpiringCacheMap<K, V> {
      * @return the collection of all values
      */
     public synchronized Collection<V> refreshAll() {
-        final Collection<V> values = new LinkedList<V>();
+        final Collection<V> values = new LinkedList<>();
         for (final ExpiringCache<V> item : items.values()) {
             values.add(item.refreshValue());
         }
