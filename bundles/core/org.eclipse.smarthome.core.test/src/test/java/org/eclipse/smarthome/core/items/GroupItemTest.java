@@ -362,22 +362,39 @@ public class GroupItemTest extends JavaOSGiTest {
         groupItem.setEventPublisher(publisher);
 
         member1.setState(new PercentType(50));
-        member2.setState(new PercentType(10));
 
         waitForAssert(() -> assertThat(events.size(), is(1)));
 
         List<Event> changes = events.stream().filter(it -> it instanceof GroupItemStateChangedEvent)
                 .collect(Collectors.toList());
-        assertThat(changes.size(), is(1));
-
         GroupItemStateChangedEvent change = (GroupItemStateChangedEvent) changes.get(0);
         assertTrue(change.getItemName().equals(groupItem.getName()));
 
         State newEventState = change.getItemState();
         assertTrue(newEventState instanceof PercentType);
-        assertThat(((PercentType) newEventState).intValue(), is(30));
+        assertThat(((PercentType) newEventState).intValue(), is(50));
 
         State newGroupState = groupItem.getState();
+        assertTrue(newGroupState instanceof PercentType);
+        assertThat(((PercentType) newGroupState).intValue(), is(50));
+
+        events.clear();
+
+        member2.setState(new PercentType(10));
+
+        waitForAssert(() -> assertThat(events.size(), is(1)));
+
+        changes = events.stream().filter(it -> it instanceof GroupItemStateChangedEvent).collect(Collectors.toList());
+        assertThat(changes.size(), is(1));
+
+        change = (GroupItemStateChangedEvent) changes.get(0);
+        assertTrue(change.getItemName().equals(groupItem.getName()));
+
+        newEventState = change.getItemState();
+        assertTrue(newEventState instanceof PercentType);
+        assertThat(((PercentType) newEventState).intValue(), is(30));
+
+        newGroupState = groupItem.getState();
         assertTrue(newGroupState instanceof PercentType);
         assertThat(((PercentType) newGroupState).intValue(), is(30));
     }
