@@ -28,17 +28,21 @@ public final class PublishPlanetJob extends AbstractJob {
      *             if the provided argument is {@code null}
      */
     public PublishPlanetJob(String thingUID) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        this.thingUID = thingUID;
+        super(thingUID);
     }
 
     @Override
     public void run() {
-        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
+        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(getThingUID());
         if (checkNull(astroHandler, "AstroThingHandler is null")) {
             return;
         }
         astroHandler.publishDailyInfo();
+    }
+
+    @Override
+    public String toString() {
+        return "Publish planet job " + getThingUID();
     }
 
 }

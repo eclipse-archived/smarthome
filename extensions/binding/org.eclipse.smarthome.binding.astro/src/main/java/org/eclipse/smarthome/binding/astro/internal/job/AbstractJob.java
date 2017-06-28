@@ -14,7 +14,12 @@ package org.eclipse.smarthome.binding.astro.internal.job;
  */
 public abstract class AbstractJob implements Job {
 
-    protected String thingUID;
+    private final String thingUID;
+
+    public AbstractJob(String thingUID) {
+        checkArgument(thingUID != null, "The thingUID must not be null");
+        this.thingUID = thingUID;
+    }
 
     @Override
     public String getThingUID() {
