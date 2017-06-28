@@ -28,8 +28,7 @@ public interface ConfigOptionProvider {
      *            the parameter name for which the requested options shall be returned
      * @param locale
      *            locale
-     * @return the configuration options provided by this provider (not
-     *         null, could be empty)
+     * @return the configuration options provided by this provider if any or {@code null} otherwise
      */
     Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale);
 }
