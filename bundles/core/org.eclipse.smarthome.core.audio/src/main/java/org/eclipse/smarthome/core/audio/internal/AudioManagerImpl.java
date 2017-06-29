@@ -91,9 +91,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             if (sink != null) {
                 try {
                     sink.process(audioStream);
-                } catch (UnsupportedAudioFormatException e) {
-                    logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
-                } catch (UnsupportedAudioStreamException e) {
+                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                     logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
                 }
             } else {
@@ -128,9 +126,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         if (sink != null) {
             try {
                 sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException e) {
-                logger.error("Error playing '{}': {}", url, e.getMessage());
-            } catch (UnsupportedAudioStreamException e) {
+            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.error("Error playing '{}': {}", url, e.getMessage());
             }
         }
