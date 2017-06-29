@@ -12,11 +12,19 @@ import java.util.Set
 import org.eclipse.smarthome.core.audio.AudioFormat
 import org.eclipse.smarthome.core.audio.AudioSink
 import org.eclipse.smarthome.core.audio.AudioStream
+import org.eclipse.smarthome.core.audio.FixedLengthAudioStream
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException
+import org.eclipse.smarthome.core.audio.URLAudioStream
 import org.eclipse.smarthome.core.library.types.PercentType
 
+/**
+ *
+ * @author Christoph Weitkamp - Added examples for getSupportedFormats() and getSupportedStreams()
+ *
+ */
 public class AudioSinkFake implements AudioSink {
+
     public AudioStream audioStream
     public AudioFormat audioFormat
     public boolean isStreamProcessed = false
@@ -24,6 +32,17 @@ public class AudioSinkFake implements AudioSink {
     public boolean isIOExceptionExpected = false
     public boolean isUnsupportedAudioFormatExceptionExpected = false
     public boolean isUnsupportedAudioStreamExceptionExpected = false
+
+    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
+    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
+
+    static {
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
+
+        SUPPORTED_AUDIO_STREAMS.add(URLAudioStream.class);
+        SUPPORTED_AUDIO_STREAMS.add(FixedLengthAudioStream.class);
+    }
 
     @Override
     public String getId() {
@@ -50,12 +69,12 @@ public class AudioSinkFake implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        return null;
+        return SUPPORTED_AUDIO_FORMATS;
     }
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        return null;
+        return SUPPORTED_AUDIO_STREAMS;
     }
 
     @Override
