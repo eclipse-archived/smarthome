@@ -7,27 +7,24 @@
  */
 package org.eclipse.smarthome.binding.astro.handler;
 
-import static java.util.stream.Collectors.toList;
-import static org.eclipse.smarthome.core.scheduler.CronHelper.*;
 import static org.eclipse.smarthome.core.thing.ThingStatus.*;
 import static org.eclipse.smarthome.core.thing.type.ChannelKind.TRIGGER;
 import static org.eclipse.smarthome.core.types.RefreshType.REFRESH;
 
 import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroThingConfig;
 import org.eclipse.smarthome.binding.astro.internal.job.Job;
@@ -35,13 +32,11 @@ import org.eclipse.smarthome.binding.astro.internal.job.PositionalJob;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
 import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.Expression;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -56,11 +51,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AstroThingHandler extends BaseThingHandler {
 
+    private static final String DAILY_MIDNIGHT = "0 0 0 * * ? *";
+
     /** Logger Instance */
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    /** Maximum number of scheduled jobs */
-    private static final int MAX_SCHEDULED_JOBS = 200;
 
     /** Scheduler to schedule jobs */
     private final ExpressionThreadPoolExecutor scheduledExecutor;
@@ -68,12 +62,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     private int linkedPositionalChannels = 0;
     protected AstroThingConfig thingConfig;
     private final Lock monitor = new ReentrantLock();
-    private final Queue<Job> scheduledJobs;
+    private Job dailyJob;
+    private final Set<ScheduledFuture<?>> scheduledFutures = new HashSet<>();
 
     public AstroThingHandler(Thing thing) {
         super(thing);
         scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
-        scheduledJobs = new LinkedBlockingQueue<>(MAX_SCHEDULED_JOBS);
     }
 
     @Override
@@ -174,40 +168,24 @@ public abstract class AstroThingHandler extends BaseThingHandler {
             stopJobs();
             if (getThing().getStatus() == ONLINE) {
                 String thingUID = getThing().getUID().toString();
-                String typeId = getThing().getThingTypeUID().getId();
                 if (scheduledExecutor == null) {
                     logger.warn("Thread Pool Executor is not available");
                     return;
                 }
                 // Daily Job
-                Job dailyJob = getDailyJob();
-                if (dailyJob == null) {
-                    logger.error("Daily job instance is not available");
-                    return;
-                }
-                Expression midNightExpression = new CronExpression(DAILY_MIDNIGHT);
-                if (addJobToQueue(dailyJob)) {
-                    scheduledExecutor.schedule(dailyJob, midNightExpression);
-                    logger.info("Scheduled astro job-daily-{} at midnight for thing {}", typeId, thingUID);
-                }
+                dailyJob = getDailyJob();
+                scheduledExecutor.schedule(dailyJob, new CronExpression(DAILY_MIDNIGHT));
+                logger.debug("Scheduled {} at midnight", dailyJob);
                 // Execute daily startup job immediately
                 dailyJob.run();
 
-                // Repeat scheduled job every configured seconds
-                LocalDateTime currentTime = LocalDateTime.now();
-                LocalDateTime futureTimeWithInterval = currentTime.plusSeconds(thingConfig.getInterval());
-                Date start = Date.from(futureTimeWithInterval.atZone(ZoneId.systemDefault()).toInstant());
+                // Repeat positional job every configured seconds
                 if (isPositionalChannelLinked()) {
-                    Expression expression = new CronExpression(
-                            createCronForRepeatEverySeconds(thingConfig.getInterval()), start);
                     Job positionalJob = new PositionalJob(thingUID);
-                    if (addJobToQueue(positionalJob)) {
-                        scheduledExecutor.schedule(positionalJob, expression);
-                        logger.info("Scheduled astro job-positional with interval of {} seconds for thing {}",
-                                thingConfig.getInterval(), thingUID);
-                    }
-                    // Execute positional startup job immediately
-                    positionalJob.run();
+                    ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(positionalJob, 0,
+                            thingConfig.getInterval(), TimeUnit.SECONDS);
+                    scheduledFutures.add(future);
+                    logger.info("Scheduled {} every {} seconds", positionalJob, thingConfig.getInterval());
                 }
             }
         } catch (ParseException ex) {
@@ -221,32 +199,26 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      * Stops all jobs for this thing.
      */
     private void stopJobs() {
-        ThingUID thingUID = getThing().getUID();
+        logger.debug("Stopping scheduled jobs for thing {}", getThing().getUID());
         monitor.lock();
         try {
             if (scheduledExecutor != null) {
-                List<Job> jobsToRemove = scheduledJobs.stream().filter(this::isJobAssociatedWithThing)
-                        .collect(toList());
-                if (jobsToRemove.isEmpty()) {
-                    return;
+                if (dailyJob != null) {
+                    scheduledExecutor.remove(dailyJob);
                 }
-                logger.debug("Stopping Scheduled Jobs for thing {}", thingUID);
-                Consumer<Job> removalFromExecutor = scheduledExecutor::remove;
-                Consumer<Job> removalFromQueue = scheduledJobs::remove;
-                jobsToRemove.forEach(removalFromExecutor.andThen(removalFromQueue));
-                logger.debug("Stopped {} Scheduled Jobs for thing {}", jobsToRemove.size(), thingUID);
+                dailyJob = null;
             }
+            for (ScheduledFuture<?> future : scheduledFutures) {
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
+            }
+            scheduledFutures.clear();
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
         } finally {
             monitor.unlock();
         }
-    }
-
-    private boolean isJobAssociatedWithThing(Job job) {
-        String thingUID = getThing().getUID().getAsString();
-        String jobThingUID = job.getThingUID();
-        return Objects.equals(thingUID, jobThingUID);
     }
 
     @Override
@@ -298,22 +270,24 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     }
 
     /**
-     * Returns the scheduler for the Astro jobs
-     */
-    public ExpressionThreadPoolExecutor getScheduler() {
-        return scheduledExecutor;
-    }
-
-    /**
      * Adds the provided {@link Job} to the queue (cannot be {@code null})
      *
      * @return {@code true} if the {@code job} is added to the queue, otherwise {@code false}
      */
-    public boolean addJobToQueue(Job job) {
-        if (job != null) {
-            return scheduledJobs.add(job);
+    public void schedule(Job job, Calendar eventAt) {
+        long sleepTime;
+        monitor.lock();
+        try {
+            sleepTime = eventAt.getTimeInMillis() - new Date().getTime();
+            ScheduledFuture<?> future = scheduler.schedule(job, sleepTime, TimeUnit.MILLISECONDS);
+            scheduledFutures.add(future);
+        } finally {
+            monitor.unlock();
         }
-        return false;
+        if (logger.isDebugEnabled()) {
+            String formattedDate = DateFormatUtils.ISO_DATETIME_FORMAT.format(eventAt);
+            logger.debug("Scheduled {} in {}ms (at {})", job, sleepTime, formattedDate);
+        }
     }
 
     /**

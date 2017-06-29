@@ -8,10 +8,8 @@
 package org.eclipse.smarthome.binding.astro.internal.job;
 
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang.time.DateFormatUtils.ISO_DATETIME_FORMAT;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import static org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils.*;
-import static org.eclipse.smarthome.core.scheduler.CronHelper.createCronFromCalendar;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
@@ -21,9 +19,6 @@ import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Range;
 import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.Expression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -52,15 +47,7 @@ public interface Job extends Runnable {
         try {
             Calendar today = Calendar.getInstance();
             if (isSameDay(eventAt, today) && isTimeGreaterEquals(eventAt, today)) {
-                ExpressionThreadPoolExecutor executor = astroHandler.getScheduler();
-                if (executor != null) {
-                    Expression cron = new CronExpression(createCronFromCalendar(eventAt));
-                    if (astroHandler.addJobToQueue(job)) {
-                        executor.schedule(job, cron);
-                        String formattedDate = ISO_DATETIME_FORMAT.format(eventAt);
-                        logger.debug("Scheduled astro job for thing {} at {}", thingUID, formattedDate);
-                    }
-                }
+                astroHandler.schedule(job, eventAt);
             }
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
