@@ -20,7 +20,8 @@ package org.eclipse.smarthome.core.common.registry;
  * @param <K>
  *            type of the element key
  */
-public abstract class DefaultAbstractManagedProvider<E, K> extends AbstractManagedProvider<E, K, E> {
+public abstract class DefaultAbstractManagedProvider<E extends Identifiable<K>, K>
+        extends AbstractManagedProvider<E, K, E> {
 
     @Override
     protected E toElement(String key, E element) {

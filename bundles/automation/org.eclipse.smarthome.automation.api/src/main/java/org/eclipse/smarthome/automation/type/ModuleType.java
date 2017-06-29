@@ -16,6 +16,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * Each {@link ModuleType} instance defines the meta-information needed for creation of {@link Module} instance which is
@@ -30,7 +31,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public abstract class ModuleType {
+public abstract class ModuleType implements Identifiable<String> {
 
     /**
      * This field is used as reference from the {@link Module}s, to find their meta-information.
@@ -109,6 +110,7 @@ public abstract class ModuleType {
      *
      * @return the unique id (UID) of the {@link ModuleType}, corresponding to the some type of {@link Module}s.
      */
+    @Override
     public String getUID() {
         return uid;
     }

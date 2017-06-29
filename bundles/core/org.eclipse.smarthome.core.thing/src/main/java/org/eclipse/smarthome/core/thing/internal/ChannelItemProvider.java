@@ -213,7 +213,7 @@ public class ChannelItemProvider implements ItemProvider {
             // there is already an item, we do not need to create one
             return;
         }
-        Channel channel = thingRegistry.getChannel(link.getUID());
+        Channel channel = thingRegistry.getChannel(link.getLinkedUID());
         if (channel != null) {
             Item item = null;
             // Only create an item for state channels

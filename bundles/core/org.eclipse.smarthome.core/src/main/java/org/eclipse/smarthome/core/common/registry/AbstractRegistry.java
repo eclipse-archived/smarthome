@@ -22,9 +22,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
 /**
  * The {@link AbstractRegistry} is an abstract implementation of the {@link Registry} interface, that can be used as
  * base class for {@link Registry} implementations.
@@ -36,7 +33,7 @@ import com.google.common.collect.Iterables;
  * @param <E>
  *            type of the element
  */
-public abstract class AbstractRegistry<E, K, P extends Provider<E>>
+public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends Provider<E>>
         implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {
@@ -142,9 +139,9 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
 
     @Override
     public Stream<E> stream() {
-        return elementMap.values()                              // gets a Collection<Collection<E>>
-                .stream()                                       // creates a Stream<Collection<E>>
-                .flatMap(collection -> collection.stream());    // flattens the stream to Stream<E>
+        return elementMap.values() // gets a Collection<Collection<E>>
+                .stream() // creates a Stream<Collection<E>>
+                .flatMap(collection -> collection.stream()); // flattens the stream to Stream<E>
     }
 
     @Override

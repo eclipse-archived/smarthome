@@ -133,7 +133,7 @@ public class ItemChannelLinkResource implements RESTResource {
     }
 
     private AbstractLinkDTO toBeans(ItemChannelLink link) {
-        return new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
+        return new ItemChannelLinkDTO(link.getItemName(), link.getLinkedUID().toString());
     }
 
     @Override

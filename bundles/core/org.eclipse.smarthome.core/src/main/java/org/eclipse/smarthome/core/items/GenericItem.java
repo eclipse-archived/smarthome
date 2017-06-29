@@ -88,6 +88,11 @@ abstract public class GenericItem implements ActiveItem {
     }
 
     @Override
+    public String getUID() {
+        return getName();
+    }
+
+    @Override
     public String getName() {
         return name;
     }

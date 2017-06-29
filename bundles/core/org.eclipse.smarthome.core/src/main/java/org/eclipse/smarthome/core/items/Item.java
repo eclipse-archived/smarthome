@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
@@ -21,14 +22,14 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * <p>
  * This interface defines the core features of an Eclipse SmartHome item.
- * 
+ *
  * <p>
  * Item instances are used for all stateful services and are especially important for the {@link ItemRegistry}.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface Item {
+public interface Item extends Identifiable<String> {
 
     /**
      * returns the current state of the item
@@ -62,7 +63,7 @@ public interface Item {
     /**
      * <p>
      * This method provides a list of all data types that can be used to update the item state
-     * 
+     *
      * <p>
      * Imagine e.g. a dimmer device: It's status could be 0%, 10%, 50%, 100%, but also OFF or ON and maybe UNDEFINED. So
      * the accepted data types would be in this case {@link PercentType}, {@link OnOffType} and {@link UnDefType}
@@ -72,7 +73,7 @@ public interface Item {
      * in order to be accepted, it will be attempted to convert it to a type from top to bottom. Therefore
      * the type with the least information loss should be on top of the list - in the example above the
      * {@link PercentType} carries more information than the {@link OnOffType}, hence it is listed first.
-     * 
+     *
      * @return a list of data types that can be used to update the item state
      */
     public List<Class<? extends State>> getAcceptedDataTypes();
@@ -80,11 +81,11 @@ public interface Item {
     /**
      * <p>
      * This method provides a list of all command types that can be used for this item
-     * 
+     *
      * <p>
      * Imagine e.g. a dimmer device: You could ask it to dim to 0%, 10%, 50%, 100%, but also to turn OFF or ON. So the
      * accepted command types would be in this case {@link PercentType}, {@link OnOffType}
-     * 
+     *
      *
      * @return a list of all command types that can be used for this item
      */
