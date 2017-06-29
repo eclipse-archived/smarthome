@@ -160,16 +160,14 @@ class SystemWideChannelTypesTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that i18n is working for system channels'() {
+    void 'assert that translation is working for system channels'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
         def initialNumberOfChannelTypes = getChannelTypes().size()
 
-
         // install test bundle
         Bundle sysBundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME)
         assertThat sysBundle, is(notNullValue())
-
 
         def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN);
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 1)
@@ -188,12 +186,23 @@ class SystemWideChannelTypesTest extends OSGiTest {
             it.id.equals("sigstr") &&
                     it.getChannelTypeUID().getAsString().equals("system:signal-strength") }
 
+        def lowBat = channelDefs.findAll {
+            it.id.equals("lowbat") &&
+                    it.getChannelTypeUID().getAsString().equals("system:low-battery") }
 
         assertThat myChannel.size(), is(1)
         assertThat sigStr.size(), is(1)
+        assertThat lowBat.size(), is(1)
 
         assertThat TypeResolver.resolve(myChannel[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Mein String My Channel")
         assertThat TypeResolver.resolve(myChannel[0].channelTypeUID, Locale.GERMAN).getDescription(), is("Wetterinformation mit My Channel Type Beschreibung")
+
+        assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getLabel(), is(not("Mein String Signal Strength"))
+        assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getDescription(), is(not("Wetterinformation mit Signal Strength Channel Type Beschreibung"))
+
+        assertThat TypeResolver.resolve(sigStr[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Signalstärke")
+
+        assertThat TypeResolver.resolve(lowBat[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Niedriger Batteriestatus")
     }
 
     List<ChannelType> getChannelTypes() {
