@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * Rule is built from {@link Module}s and consists of three sections:
@@ -33,7 +34,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class Rule {
+public class Rule implements Identifiable<String> {
 
     protected List<Trigger> triggers;
     protected List<Condition> conditions;
@@ -96,6 +97,7 @@ public class Rule {
      *
      * @return unique id of this {@link Rule}
      */
+    @Override
     public String getUID() {
         return uid;
     }

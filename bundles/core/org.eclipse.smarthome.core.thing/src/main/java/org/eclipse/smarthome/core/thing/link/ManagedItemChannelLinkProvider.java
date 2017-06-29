@@ -34,14 +34,14 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
 
     @Override
     protected String getKey(ItemChannelLink element) {
-        return element.getID();
+        return element.getUID();
     }
 
     public void removeLinksForThing(ThingUID thingUID) {
         Collection<ItemChannelLink> itemChannelLinks = getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
-            if (itemChannelLink.getUID().getThingUID().equals(thingUID)) {
-                this.remove(itemChannelLink.getID());
+            if (itemChannelLink.getLinkedUID().getThingUID().equals(thingUID)) {
+                this.remove(itemChannelLink.getUID());
             }
         }
     }

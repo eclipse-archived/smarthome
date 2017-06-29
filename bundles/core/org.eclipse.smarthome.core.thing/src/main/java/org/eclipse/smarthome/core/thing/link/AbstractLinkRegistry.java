@@ -45,7 +45,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     public boolean isLinked(String itemName, UID uid) {
 
         for (AbstractLink link : getAll()) {
-            if (link.getUID().equals(uid) && link.getItemName().equals(itemName)) {
+            if (link.getLinkedUID().equals(uid) && link.getItemName().equals(itemName)) {
                 return true;
             }
         }
@@ -62,7 +62,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     public Set<String> getLinkedItemNames(UID uid) {
         Set<String> linkedItems = new LinkedHashSet<>();
         for (AbstractLink link : getAll()) {
-            if (link.getUID().equals(uid)) {
+            if (link.getLinkedUID().equals(uid)) {
                 linkedItems.add(link.getItemName());
             }
         }
@@ -78,7 +78,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     public Set<L> getLinks(UID uid) {
         Set<L> links = new LinkedHashSet<>();
         for (L link : getAll()) {
-            if (link.getUID().equals(uid)) {
+            if (link.getLinkedUID().equals(uid)) {
                 links.add(link);
             }
         }
@@ -89,7 +89,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     public L get(final String key) {
         for (final Map.Entry<Provider<L>, Collection<L>> entry : elementMap.entrySet()) {
             for (final L link : entry.getValue()) {
-                if (key.equals(link.getID())) {
+                if (key.equals(link.getUID())) {
                     return link;
                 }
             }

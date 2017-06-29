@@ -50,7 +50,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
 
         for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getItemName().equals(itemName)) {
-                channelUIDs.add(itemChannelLink.getUID());
+                channelUIDs.add(itemChannelLink.getLinkedUID());
             }
         }
 
@@ -70,7 +70,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         final Set<String> linkedItems = new LinkedHashSet<>();
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
-            if (link.getUID().equals(uid) && itemRegistry.get(itemName) != null) {
+            if (link.getLinkedUID().equals(uid) && itemRegistry.get(itemName) != null) {
                 linkedItems.add(itemName);
             }
         }
@@ -82,7 +82,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
             Item item = itemRegistry.get(itemName);
-            if (link.getUID().equals(uid) && item != null) {
+            if (link.getLinkedUID().equals(uid) && item != null) {
                 linkedItems.add(item);
             }
         }

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  * @param <E> type of the elements in the registry
  */
-public interface Registry<E, K> {
+public interface Registry<E extends Identifiable<K>, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.

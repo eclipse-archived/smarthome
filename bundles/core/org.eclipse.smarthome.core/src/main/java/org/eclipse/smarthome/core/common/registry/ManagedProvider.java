@@ -18,7 +18,7 @@ package org.eclipse.smarthome.core.common.registry;
  * @param <K>
  *            type of the element key
  */
-public interface ManagedProvider<E, K> extends Provider<E> {
+public interface ManagedProvider<E extends Identifiable<K>, K> extends Provider<E> {
 
     /**
      * Adds an element.

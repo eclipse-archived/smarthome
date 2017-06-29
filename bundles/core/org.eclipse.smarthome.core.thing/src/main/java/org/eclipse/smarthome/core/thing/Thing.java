@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  * @author Simon Kaufmann - Added label, location
  * @author Kai Kreuzer - Removed linked items from Thing
  */
-public interface Thing {
+public interface Thing extends Identifiable<ThingUID> {
 
     /** the key for the vendor property */
     public static final String PROPERTY_VENDOR = "vendor";
@@ -78,7 +79,7 @@ public interface Thing {
 
     /**
      * Gets the status of a thing.
-     * 
+     *
      * In order to get all status information (status, status detail and status description)
      * please use {@link Thing#getStatusInfo()}.
      *
@@ -88,7 +89,7 @@ public interface Thing {
 
     /**
      * Gets the status info of a thing.
-     * 
+     *
      * The status info consists of the status itself, the status detail and a status description.
      *
      * @return the status info
@@ -145,6 +146,7 @@ public interface Thing {
      *
      * @return the uid
      */
+    @Override
     ThingUID getUID();
 
     /**

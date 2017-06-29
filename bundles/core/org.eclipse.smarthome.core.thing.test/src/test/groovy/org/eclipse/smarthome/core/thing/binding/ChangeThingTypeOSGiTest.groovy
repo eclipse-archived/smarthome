@@ -170,7 +170,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         }
 
         getService(ManagedItemChannelLinkProvider).getAll().each {
-            getService(ManagedItemChannelLinkProvider).remove(it.getUID().toString())
+            getService(ManagedItemChannelLinkProvider).remove(it.getLinkedUID().toString())
         }
     }
 
