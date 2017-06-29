@@ -68,5 +68,9 @@ Import-Package:
  org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.service.event,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ tec.uom.lib.common.function,
+ tec.uom.se,
+ tec.uom.se.quantity,
+ tec.uom.se.unit
 Service-Component: OSGI-INF/*.xml

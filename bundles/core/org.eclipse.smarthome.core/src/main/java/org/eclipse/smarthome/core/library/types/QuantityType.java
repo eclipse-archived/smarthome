@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
+import java.util.IllegalFormatConversionException;
 
 import javax.measure.Dimension;
 import javax.measure.IncommensurableException;
@@ -61,7 +62,9 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     }
 
     public QuantityType(double value, Unit<?> unit) {
-        quantity = Quantities.getQuantity(value, unit);
+        // Avoid scientific notation for double
+        BigDecimal bd = new BigDecimal(value);
+        quantity = Quantities.getQuantity(bd, unit);
     }
 
     public static QuantityType valueOf(double value, Unit<?> unit) {
@@ -162,7 +165,20 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
 
     @Override
     public String format(String pattern) {
-        return String.format(pattern, quantity);
+        // The value could be an integer value. Try to convert to BigInteger in
+        // order to have access to more conversion formats.
+        try {
+            return String.format(pattern, toBigDecimal().toBigIntegerExact());
+        } catch (ArithmeticException ae) {
+            // Could not convert to integer value without loss of
+            // information. Fall through to default behavior.
+        } catch (IllegalFormatConversionException ifce) {
+            // The conversion is not valid for the type BigInteger. This
+            // happens, if the format is like "%.1f" but the value is an
+            // integer. Fall through to default behavior.
+        }
+
+        return String.format(pattern, toBigDecimal());
     }
 
     @Override

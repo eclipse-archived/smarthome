@@ -36,7 +36,7 @@
         <label>Temperature</label>
         <description>Current temperature</description>
         <category>Temperature</category>
-        <state readOnly="true" pattern="%s">
+        <state readOnly="true" pattern="%.1f °C">
         </state>
     </channel-type>
 
@@ -55,7 +55,7 @@
         <label>Pressure</label>
         <description>Current pressure</description>
         <category>Pressure</category>
-        <state readOnly="true" pattern="%s">
+        <state readOnly="true" pattern="%.1f hPa">
         </state>
     </channel-type>
 

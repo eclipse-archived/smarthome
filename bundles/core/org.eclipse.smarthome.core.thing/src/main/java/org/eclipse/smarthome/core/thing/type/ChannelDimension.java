@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import javax.measure.Unit;
+
+import org.eclipse.smarthome.core.i18n.UnitProvider;
+
 /**
  * Dimension of the channel.
  *
@@ -68,4 +72,36 @@ public enum ChannelDimension {
 
         throw new IllegalArgumentException("Unknown channel dimension: '" + input + "'");
     }
+
+    /**
+     * Parses the input string into a {@link ChannelDimension}.
+     *
+     * @param input the input string
+     * @return the parsed ChannelDimension.
+     * @throws IllegalArgumentException if the input couldn't be parsed.
+     */
+
+    public static ChannelDimension fromUnit(Unit<?> input) {
+
+        if (input == null) {
+            return null;
+        }
+        
+        if (input.isCompatible(UnitProvider.PASCAL)) return PRESSURE;
+        if (input.isCompatible(UnitProvider.CELSIUS)) return TEMPERATURE;      
+
+        throw new IllegalArgumentException("Unknown channel dimension: '" + input.getClass().getName() + "'");
+    }
+
+    public static Unit<?> getDefaultUnit(ChannelDimension dimension) {
+        switch (dimension) {
+            case TEMPERATURE:
+                return UnitProvider.CELSIUS;
+            case PRESSURE:
+                return UnitProvider.PASCAL;
+            default:
+                return null;
+        }
+    }
+
 }
