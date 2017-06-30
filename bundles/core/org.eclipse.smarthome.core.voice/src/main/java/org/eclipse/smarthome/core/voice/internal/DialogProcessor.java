@@ -186,7 +186,7 @@ public class DialogProcessor implements KSListener, STTListener {
                 }
             }
             if (null == voice) {
-                throw new TTSException("Unable to find a voice");
+                throw new TTSException("Unable to find a suitable voice");
             }
             AudioStream audioStream = tts.synthesize(text, voice, null);
 

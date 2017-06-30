@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.javasound.internal;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -47,6 +48,12 @@ public class JavaSoundAudioSink implements AudioSink {
     private boolean isMac = false;
     private PercentType macVolumeValue = null;
 
+    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
+
+    static {
+        SUPPORTED_AUDIO_STREAMS.add(AudioStream.class);
+    }
+
     protected void activate(BundleContext context) {
         String os = context.getProperty(Constants.FRAMEWORK_OS_NAME);
         if (os != null && os.toLowerCase().startsWith("macos")) {
@@ -76,7 +83,8 @@ public class JavaSoundAudioSink implements AudioSink {
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        return Collections.emptySet();
+        // we accept any stream
+        return SUPPORTED_AUDIO_STREAMS;
     }
 
     @Override
