@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
@@ -30,16 +31,22 @@ import org.slf4j.LoggerFactory;
  * to pick it up.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public class SSEAudioSink implements AudioSink {
 
     private final Logger logger = LoggerFactory.getLogger(SSEAudioSink.class);
 
-    private static final HashSet<AudioFormat> supportedFormats = new HashSet<>();
+    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
+    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
 
     static {
-        supportedFormats.add(AudioFormat.WAV);
-        supportedFormats.add(AudioFormat.MP3);
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
+
+        SUPPORTED_AUDIO_STREAMS.add(URLAudioStream.class);
+        SUPPORTED_AUDIO_STREAMS.add(FixedLengthAudioStream.class);
     }
 
     private AudioHTTPServer audioHTTPServer;
@@ -47,24 +54,24 @@ public class SSEAudioSink implements AudioSink {
     private EventPublisher eventPublisher;
 
     @Override
-    public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
+    public void process(AudioStream audioStream)
+            throws UnsupportedAudioFormatException, UnsupportedAudioStreamException {
         logger.debug("Received audio stream of format {}", audioStream.getFormat());
         if (audioStream instanceof URLAudioStream) {
             // it is an external URL, so we can directly pass this on.
             URLAudioStream urlAudioStream = (URLAudioStream) audioStream;
             sendEvent(urlAudioStream.getURL());
             IOUtils.closeQuietly(audioStream);
+        } else if (audioStream instanceof FixedLengthAudioStream) {
+            // we need to serve it for a while and make it available to multiple clients, hence
+            // only FixedLengthAudioStreams are supported
+            String url = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
+            sendEvent(url);
         } else {
-            // we serve it on our own HTTP server
-            if (audioStream instanceof FixedLengthAudioStream) {
-                // we need to serve it for a while and make it available to multiple clients, hence
-                // only FixedLengthAudioStreams are supported
-                String url = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
-                sendEvent(url);
-            } else {
-                logger.warn("Only FixedLengthAudioStream are supported for the web audio sink.");
-                IOUtils.closeQuietly(audioStream);
-            }
+            IOUtils.closeQuietly(audioStream);
+            throw new UnsupportedAudioStreamException(
+                    "Web audio sink can only handle FixedLengthAudioStreams and URLAudioStreams.",
+                    audioStream.getClass());
         }
     }
 
@@ -75,7 +82,12 @@ public class SSEAudioSink implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        return supportedFormats;
+        return SUPPORTED_AUDIO_FORMATS;
+    }
+
+    @Override
+    public Set<Class<? extends AudioStream>> getSupportedStreams() {
+        return SUPPORTED_AUDIO_STREAMS;
     }
 
     @Override

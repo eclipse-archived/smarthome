@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.voice.KSService;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Yannick Schaus - Added ability to provide a item for feedback during listening phases
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  */
 public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
@@ -139,19 +141,23 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             } else if (voiceId.contains(":")) {
                 // it is a fully qualified unique id
                 String[] segments = voiceId.split(":");
-                tts = ttsServices.get(segments[0]);
-                voice = getVoice(tts.getAvailableVoices(), segments[1]);
+                tts = getTTS(segments[0]);
+                if (tts != null) {
+                    voice = getVoice(tts.getAvailableVoices(), segments[1]);
+                }
             } else {
                 // voiceId is not fully qualified
                 tts = getTTS();
-                voice = getVoice(tts.getAvailableVoices(), voiceId);
+                if (tts != null) {
+                    voice = getVoice(tts.getAvailableVoices(), voiceId);
+                }
+            }
+            if (tts == null) {
+                throw new TTSException("No TTS service can be found for voice " + voiceId);
             }
             if (voice == null) {
                 throw new TTSException(
                         "Unable to find a voice for language " + localeProvider.getLocale().getLanguage());
-            }
-            if (tts == null) {
-                throw new TTSException("No TTS service can be found for voice " + voiceId);
             }
             Set<AudioFormat> audioFormats = tts.getSupportedFormats();
             AudioSink sink = null;
@@ -167,7 +173,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
                     try {
                         sink.process(audioStream);
-                    } catch (UnsupportedAudioFormatException e) {
+                    } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                         logger.error("Error saying '{}': {}", text, e.getMessage());
                     }
                 } else {

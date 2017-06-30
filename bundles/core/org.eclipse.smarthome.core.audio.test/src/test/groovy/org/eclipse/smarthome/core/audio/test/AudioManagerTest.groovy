@@ -100,6 +100,20 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     @Test
+    public void 'audio manager handles UnsupportedAudioStreamException'(){
+        registerSink()
+
+        audioStream = getFileAudioStream(MP3_FILE_PATH)
+
+        audioSinkFake.isUnsupportedAudioStreamExceptionExpected = true
+        try{
+            audioManager.playFile(audioStream.file.getName(), audioSinkFake.getId())
+        } catch (UnsupportedAudioStreamException e){
+            fail("An exception $e was thrown, while trying to process a stream")
+        }
+    }
+
+    @Test
     public void 'audio manager sets the volume of a sink'(){
         registerSink()
 
@@ -322,12 +336,12 @@ public class AudioManagerTest extends AudioOSGiTest {
 
         Collection<ParameterOption> parameterOptions = audioManager.getParameterOptions(URI.create(AudioManagerImpl.CONFIG_URI), param, Locale.US)
 
-        boolean isParameterOptionAdded = parameterOptions.find { parameterOption -> 
+        boolean isParameterOptionAdded = parameterOptions.find { parameterOption ->
             if(parameterOption.getValue().equals(id) && parameterOption.getLabel().equals(label)){
                 return true
             }
         }
-        
+
         assertThat "$param was not added to the parameter options",
                 isParameterOptionAdded,
                 is(equalTo(true))
