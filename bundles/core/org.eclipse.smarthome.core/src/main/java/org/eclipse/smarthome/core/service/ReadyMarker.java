@@ -15,8 +15,4 @@ package org.eclipse.smarthome.core.service;
  */
 public interface ReadyMarker {
 
-    public final static String XML_THING_TYPE = "esh.xmlThingTypes";
-    public final static String XML_BINDING_INFO = "esh.xmlBindingInfo";
-    public final static String XML_CONFIG = "esh.xmlConfig";
-
 }

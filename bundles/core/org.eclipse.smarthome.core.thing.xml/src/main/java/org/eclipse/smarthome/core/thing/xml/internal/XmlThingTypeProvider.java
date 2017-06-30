@@ -18,14 +18,14 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
-import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,11 +43,12 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
-@Component(immediate = true, property = { "esh.scope=core.xml" })
-public class XmlThingTypeProvider extends AbstractXmlBasedProvider<ThingTypeUID, ThingType>
+@Component(immediate = true, property = { "esh.scope=core.xml.thing" })
+public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingType>
         implements ThingTypeProvider, XmlDocumentProviderFactory<List<?>> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/thing/";
+    public static final String READY_MARKER = "esh.xmlThingTypes";
 
     private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
     private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
@@ -57,16 +58,16 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<ThingTypeUID,
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
 
     @Activate
-    protected void activate(ComponentContext componentContext) {
+    protected void activate(BundleContext bundleContext) {
         XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
 
-        thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(componentContext.getBundleContext(), XML_DIRECTORY,
-                thingTypeReader, this, ReadyMarker.XML_THING_TYPE);
+        thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(bundleContext, XML_DIRECTORY, thingTypeReader, this,
+                READY_MARKER);
         thingTypeTracker.open();
     }
 
     @Deactivate
-    protected void deactivate(ComponentContext componentContext) {
+    protected void deactivate() {
         thingTypeTracker.close();
         thingTypeTracker = null;
     }
@@ -117,11 +118,6 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<ThingTypeUID,
 
     public void unsetChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProvider = null;
-    }
-
-    @Override
-    protected ThingTypeUID getIndentifier(ThingType thingType) {
-        return thingType.getUID();
     }
 
     @Override

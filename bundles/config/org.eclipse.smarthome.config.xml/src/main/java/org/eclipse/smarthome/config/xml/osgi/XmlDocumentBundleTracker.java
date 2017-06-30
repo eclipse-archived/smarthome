@@ -230,9 +230,9 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      * a fragment. So the fragment bundle resources can override the
      * host bundles resources.
      *
-     * @param xmlDocumentPaths
-     * @param bundle
-     * @return
+     * @param xmlDocumentPaths the paths within the bundle/fragments
+     * @param bundle the host bundle
+     * @return the URLs of the resources, never {@code null}
      */
     private Collection<URL> filterPatches(Enumeration<URL> xmlDocumentPaths, Bundle bundle) {
         List<URL> hostResources = new ArrayList<URL>();
@@ -303,7 +303,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         if (!remainingBundles.isEmpty()) {
             logger.trace("Remaining bundles with {}: {}", xmlDirectory, remainingBundles);
         } else {
-            logger.debug("Finished loading bundles with {}", xmlDirectory);
+            logger.trace("Finished loading bundles with {}", xmlDirectory);
             loadingCompleted();
         }
     }

@@ -18,7 +18,6 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
-import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +36,7 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
         implements XmlDocumentProviderFactory<List<ConfigDescription>> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/config/";
+    public static final String READY_MARKER = "esh.xmlConfig";
 
     private XmlDocumentBundleTracker<List<ConfigDescription>> configDescriptionTracker;
 
@@ -47,7 +47,7 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
         XmlDocumentReader<List<ConfigDescription>> configDescriptionReader = new ConfigDescriptionReader();
 
         configDescriptionTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                configDescriptionReader, this, ReadyMarker.XML_CONFIG);
+                configDescriptionReader, this, READY_MARKER);
         configDescriptionTracker.open();
     }
 

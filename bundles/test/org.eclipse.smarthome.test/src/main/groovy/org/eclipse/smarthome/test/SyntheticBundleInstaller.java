@@ -60,6 +60,10 @@ public class SyntheticBundleInstaller {
     private static final int WAIT_TIMOUT = 30; // [seconds]
     private static final String bundlePoolPath = "/test-bundle-pool";
 
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
+    private static final String XML_BINDING_INFO = "esh.xmlBindingInfo";
+    private static final String XML_CONFIG = "esh.xmlConfig";
+
     /**
      * A list of default extensions to be included in the synthetic bundle.
      */
@@ -260,13 +264,13 @@ public class SyntheticBundleInstaller {
      */
     public static void waitUntilLoadingFinished(BundleContext context, Bundle bundle) {
         if (isXmlThingTypeBundleAvailable(context)) {
-            waitForReadyMarker(context, ReadyMarker.XML_THING_TYPE, bundle);
+            waitForReadyMarker(context, XML_THING_TYPE, bundle);
         }
         if (isXmlBindingInfoBundleAvailable(context)) {
-            waitForReadyMarker(context, ReadyMarker.XML_BINDING_INFO, bundle);
+            waitForReadyMarker(context, XML_BINDING_INFO, bundle);
         }
         if (isXmlConfigBundleAvailable(context)) {
-            waitForReadyMarker(context, ReadyMarker.XML_CONFIG, bundle);
+            waitForReadyMarker(context, XML_CONFIG, bundle);
         }
     }
 

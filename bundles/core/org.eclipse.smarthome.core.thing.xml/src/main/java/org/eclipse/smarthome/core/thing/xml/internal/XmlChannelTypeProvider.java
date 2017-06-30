@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -35,8 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
 @Component(immediate = true, property = { "esh.scope=core.xml.channels" })
-public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<ChannelTypeUID, ChannelType>
-        implements ChannelTypeProvider {
+public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType> implements ChannelTypeProvider {
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
@@ -107,11 +107,6 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<ChannelType
         return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
                 channelType.getKind(), label, description, channelType.getCategory(), channelType.getTags(), state,
                 channelType.getEvent(), channelType.getConfigDescriptionURI());
-    }
-
-    @Override
-    protected ChannelTypeUID getIndentifier(ChannelType channelType) {
-        return channelType.getUID();
     }
 
 }

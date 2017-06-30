@@ -100,8 +100,8 @@ import com.google.common.collect.SetMultimap;
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
-
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
@@ -994,16 +994,16 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
 
     protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(ReadyMarker.XML_THING_TYPE)) {
-            String bsn = (String) properties.get(ReadyMarker.XML_THING_TYPE);
+        if (properties.containsKey(XML_THING_TYPE)) {
+            String bsn = (String) properties.get(XML_THING_TYPE);
             loadedXmlThingTypes.add(bsn);
             handleThingHandlerFactoryAddition(bsn);
         }
     }
 
     protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(ReadyMarker.XML_THING_TYPE)) {
-            String bsn = (String) properties.get(ReadyMarker.XML_THING_TYPE);
+        if (properties.containsKey(XML_THING_TYPE)) {
+            String bsn = (String) properties.get(XML_THING_TYPE);
             loadedXmlThingTypes.remove(bsn);
         }
     }
@@ -1024,8 +1024,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         });
     }
 
-    private String getBundleName(ThingHandlerFactory it) {
-        return FrameworkUtil.getBundle(it.getClass()).getSymbolicName();
+    private String getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        return FrameworkUtil.getBundle(thingHandlerFactory.getClass()).getSymbolicName();
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {

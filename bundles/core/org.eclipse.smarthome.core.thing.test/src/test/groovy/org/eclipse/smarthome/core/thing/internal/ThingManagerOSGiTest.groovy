@@ -111,6 +111,10 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         assertNotNull(itemChannelLinkRegistry)
+
+        waitForAssert {
+            assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
+        }
     }
 
     @After
@@ -1337,7 +1341,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ReadyMarker.XML_THING_TYPE + "=" + FrameworkUtil.getBundle(this.getClass()).getSymbolicName() + ")")
+            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ThingManager.XML_THING_TYPE + "=" + FrameworkUtil.getBundle(this.getClass()).getSymbolicName() + ")")
             assertThat ref, is(notNullValue())
             def registration = ref.registration.getAt(0)
             assertThat registration, is(notNullValue())
@@ -1354,7 +1358,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
-        ReadyUtil.markAsReady(bundleContext, ReadyMarker.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+        ReadyUtil.markAsReady(bundleContext, ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()

@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -29,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Simon Kaufmann - factored out from {@link XmlChannelTypeProvider}
  */
 @Component(immediate = true, property = { "esh.scope=core.xml.channelGroups" })
-public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<ChannelGroupTypeUID, ChannelGroupType>
+public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<UID, ChannelGroupType>
         implements ChannelTypeProvider {
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
@@ -78,11 +79,6 @@ public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<Channe
     @Override
     public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
         return null;
-    }
-
-    @Override
-    protected ChannelGroupTypeUID getIndentifier(ChannelGroupType channelGroupType) {
-        return channelGroupType.getUID();
     }
 
 }

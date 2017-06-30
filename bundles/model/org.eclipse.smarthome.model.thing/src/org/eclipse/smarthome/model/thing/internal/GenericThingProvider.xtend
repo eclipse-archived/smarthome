@@ -68,6 +68,8 @@ import org.osgi.framework.FrameworkUtil
  */
 class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
 
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
+
     private LocaleProvider localeProvider
 
     private ModelRepository modelRepository
@@ -521,8 +523,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
     
     def protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(ReadyMarker.XML_THING_TYPE)) {
-            val bsn = properties.get(ReadyMarker.XML_THING_TYPE) as String
+        if (properties.containsKey(XML_THING_TYPE)) {
+            val bsn = properties.get(XML_THING_TYPE) as String
             loadedXmlThingTypes.add(bsn)
             bsn.handleXmlThingTypesLoaded
         }
@@ -541,8 +543,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
 
     def protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(ReadyMarker.XML_THING_TYPE)) {
-            val bsn = properties.get(ReadyMarker.XML_THING_TYPE) as String
+        if (properties.containsKey(XML_THING_TYPE)) {
+            val bsn = properties.get(XML_THING_TYPE) as String
             loadedXmlThingTypes.remove(bsn);
         }
     }

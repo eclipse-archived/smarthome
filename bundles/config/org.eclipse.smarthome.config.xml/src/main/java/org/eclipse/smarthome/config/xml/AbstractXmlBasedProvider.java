@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.osgi.framework.Bundle;
 
 /**
@@ -29,7 +30,7 @@ import org.osgi.framework.Bundle;
  * @param <T_ID> the key type, e.g. ThingTypeUID, ChannelUID, URI,...
  * @param <T_OBJECT> the object type, e.g. ThingType, ChannelType, ConfigDescription,...
  */
-public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
+public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT extends Identifiable<T_ID>> {
 
     private static class LocalizedKey {
         public final Object id;
@@ -76,14 +77,6 @@ public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
     private final Map<LocalizedKey, T_OBJECT> localizedObjectCache = new ConcurrentHashMap<>();
 
     /**
-     * Return the unique identifier of the given object (e.g. UID, URI,...)
-     *
-     * @param object the object to return the identifier for
-     * @return the identifier. Must not be <code>null</code>
-     */
-    protected abstract T_ID getIndentifier(T_OBJECT object);
-
-    /**
      * Create a translated/localized copy of the given object.
      *
      * @param bundle the module to be used for the look-up of the translations
@@ -121,8 +114,8 @@ public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
         if (objects == null) {
             return;
         }
+        objects.addAll(objectList);
         for (T_OBJECT object : objectList) {
-            objects.add(object);
             // just make sure no old entry remains in the cache
             removeCachedEntries(object);
         }
@@ -150,7 +143,7 @@ public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
     protected final T_OBJECT get(T_ID key, Locale locale) {
         for (Entry<Bundle, List<T_OBJECT>> objects : bundleObjectMap.entrySet()) {
             for (T_OBJECT object : objects.getValue()) {
-                if (key.equals(getIndentifier(object))) {
+                if (key.equals(object.getUID())) {
                     return acquireLocalizedObject(objects.getKey(), object, locale);
                 }
             }
@@ -201,7 +194,7 @@ public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
     private void removeCachedEntries(T_OBJECT object) {
         for (Iterator<Entry<LocalizedKey, T_OBJECT>> it = localizedObjectCache.entrySet().iterator(); it.hasNext();) {
             Entry<LocalizedKey, T_OBJECT> entry = it.next();
-            if (entry.getKey().id.equals(getIndentifier(object))) {
+            if (entry.getKey().id.equals(object.getUID())) {
                 it.remove();
             }
         }
@@ -225,7 +218,7 @@ public abstract class AbstractXmlBasedProvider<T_ID, T_OBJECT> {
     }
 
     private LocalizedKey getLocalizedKey(T_OBJECT object, Locale locale) {
-        return new LocalizedKey(getIndentifier(object), locale != null ? locale.toLanguageTag() : null);
+        return new LocalizedKey(object.getUID(), locale != null ? locale.toLanguageTag() : null);
     }
 
 }

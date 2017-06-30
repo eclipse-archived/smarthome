@@ -56,9 +56,4 @@ public abstract class AbstractXmlConfigDescriptionProvider extends AbstractXmlBa
 
     protected abstract ConfigI18nLocalizationService getConfigI18nLocalizerService();
 
-    @Override
-    protected URI getIndentifier(ConfigDescription configDescription) {
-        return configDescription.getURI();
-    }
-
 }

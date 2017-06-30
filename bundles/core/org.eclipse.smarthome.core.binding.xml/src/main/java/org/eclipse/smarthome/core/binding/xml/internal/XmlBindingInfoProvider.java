@@ -22,7 +22,6 @@ import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
-import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -45,6 +44,8 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
         implements BindingInfoProvider, XmlDocumentProviderFactory<BindingInfoXmlResult> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/binding/";
+    public static final String READY_MARKER = "esh.xmlBindingInfo";
+
     private BindingI18nUtil bindingI18nUtil;
     private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
     private XmlDocumentBundleTracker<BindingInfoXmlResult> bindingInfoTracker;
@@ -54,7 +55,7 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
         XmlDocumentReader<BindingInfoXmlResult> bindingInfoReader = new BindingInfoReader();
 
         bindingInfoTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                bindingInfoReader, this, ReadyMarker.XML_BINDING_INFO);
+                bindingInfoReader, this, READY_MARKER);
         bindingInfoTracker.open();
     }
 
@@ -104,11 +105,6 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
 
         return new BindingInfo(bindingInfo.getUID(), name, description, bindingInfo.getAuthor(),
                 bindingInfo.getServiceId(), bindingInfo.getConfigDescriptionURI());
-    }
-
-    @Override
-    protected String getIndentifier(BindingInfo bindingInfo) {
-        return bindingInfo.getId();
     }
 
     @Override

@@ -31,13 +31,14 @@ import org.osgi.util.tracker.BundleTracker;
  * @author Markus Rathgeb - Add locale provider support
  * @author Ana Dimova - fragments support
  */
-@SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
+@SuppressWarnings({ "deprecation", "rawtypes" })
 public class ResourceBundleTracker extends BundleTracker {
 
     private LocaleProvider localeProvider;
     private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
     private PackageAdmin pkgAdmin;
 
+    @SuppressWarnings("unchecked")
     public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider) {
         super(bundleContext, Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null);
         this.localeProvider = localeProvider;

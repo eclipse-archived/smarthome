@@ -20,7 +20,6 @@ import org.osgi.framework.ServiceRegistration;
  * @author Simon Kaufmann - initial contribution and API
  *
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReadyUtil {
 
     /**
@@ -34,6 +33,7 @@ public class ReadyUtil {
      * @param identifier an identifier. What that is depends on the key.
      * @return a {@link ServiceRegistration} object
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static ServiceRegistration markAsReady(BundleContext context, String key, String identifier) {
         Dictionary props = new Properties();
         props.put(key, identifier);
