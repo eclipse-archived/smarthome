@@ -80,7 +80,7 @@ public class ConfigDescriptionRegistry {
             // And for each provider, loop over all their config descriptions
             for (ConfigDescription configDescription : configDescriptionProvider.getConfigDescriptions(locale)) {
                 // See if there already exists a configuration for this URI in the map
-                ConfigDescription configFromMap = configMap.get(configDescription.getURI());
+                ConfigDescription configFromMap = configMap.get(configDescription.getUID());
                 if (configFromMap != null) {
                     // Yes - Merge the groups and parameters
                     List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
@@ -92,11 +92,11 @@ public class ConfigDescriptionRegistry {
                     parameterGroups.addAll(configDescription.getParameterGroups());
 
                     // And add the combined configuration to the map
-                    configMap.put(configDescription.getURI(),
-                            new ConfigDescription(configDescription.getURI(), parameters, parameterGroups));
+                    configMap.put(configDescription.getUID(),
+                            new ConfigDescription(configDescription.getUID(), parameters, parameterGroups));
                 } else {
                     // No - Just add the new configuration to the map
-                    configMap.put(configDescription.getURI(), configDescription);
+                    configMap.put(configDescription.getUID(), configDescription);
                 }
             }
         }

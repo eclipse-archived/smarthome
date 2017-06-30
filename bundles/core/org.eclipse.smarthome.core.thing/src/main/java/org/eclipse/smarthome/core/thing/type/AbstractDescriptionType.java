@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -18,7 +19,7 @@ import org.eclipse.smarthome.core.thing.UID;
  *
  * @author Michael Grammling - Initial Contribution
  */
-public abstract class AbstractDescriptionType {
+public abstract class AbstractDescriptionType implements Identifiable<UID> {
 
     private UID uid;
     private String label;
@@ -59,6 +60,7 @@ public abstract class AbstractDescriptionType {
      * @return the unique identifier which identifies the according type within
      *         the overall system (neither null, nor empty)
      */
+    @Override
     public UID getUID() {
         return this.uid;
     }

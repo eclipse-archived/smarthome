@@ -9,6 +9,8 @@ package org.eclipse.smarthome.core.binding;
 
 import java.net.URI;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
+
 /**
  * The {@link BindingInfo} class contains general information about a binding.
  * <p>
@@ -20,7 +22,7 @@ import java.net.URI;
  * @author Michael Grammling - Initial Contribution
  * @author Andre Fuechsel - Made author tag optional
  */
-public class BindingInfo {
+public class BindingInfo implements Identifiable<String> {
 
     /**
      * The default service ID prefix.
@@ -69,7 +71,8 @@ public class BindingInfo {
      *
      * @return an identifier for the binding (neither null, nor empty)
      */
-    public String getId() {
+    @Override
+    public String getUID() {
         return this.id;
     }
 
