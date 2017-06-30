@@ -15,6 +15,7 @@
 
    <service>
       <provide interface="org.eclipse.smarthome.core.storage.StorageService"/>
+      <provide interface="org.eclipse.smarthome.core.storage.DeletableStorageService"/>
    </service>
 
 </scr:component>
