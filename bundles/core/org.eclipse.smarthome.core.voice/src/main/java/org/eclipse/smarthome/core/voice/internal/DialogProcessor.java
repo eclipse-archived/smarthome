@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Yannick Schaus - Send commands to an item to indicate the keyword has been spotted
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  */
 public class DialogProcessor implements KSListener, STTListener {
 
@@ -187,9 +189,14 @@ public class DialogProcessor implements KSListener, STTListener {
                 throw new TTSException("Unable to find a suitable voice");
             }
             AudioStream audioStream = tts.synthesize(text, voice, null);
-            sink.process(audioStream);
-        } catch (TTSException | UnsupportedAudioFormatException e) {
-            logger.error("Error saying '{}'", text);
+
+            try {
+                sink.process(audioStream);
+            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                logger.error("Error saying '{}': {}", text, e.getMessage());
+            }
+        } catch (TTSException e) {
+            logger.error("Error saying '{}': {}", text, e.getMessage());
         }
     }
 
