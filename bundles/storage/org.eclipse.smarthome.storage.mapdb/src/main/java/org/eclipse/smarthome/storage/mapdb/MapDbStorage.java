@@ -9,8 +9,10 @@ package org.eclipse.smarthome.storage.mapdb;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.smarthome.core.storage.DeletableStorage;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.mapdb.DB;
 import org.slf4j.Logger;
@@ -28,13 +30,15 @@ import com.google.gson.GsonBuilder;
  *
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
  * @author Alex Tugarev - Loading with Class.forName() if classLoader is null
+ * @author Markus Rathgeb - Made the MapDB storage a disposable one
  */
-public class MapDbStorage<T> implements Storage<T> {
+public class MapDbStorage<T> implements DeletableStorage<T> {
 
     private static final String TYPE_SEPARATOR = "@@@";
 
     private final Logger logger = LoggerFactory.getLogger(MapDbStorage.class);
 
+    private final String name;
     private DB db;
     private ClassLoader classLoader;
     private Map<String, String> map;
@@ -42,10 +46,20 @@ public class MapDbStorage<T> implements Storage<T> {
     private transient Gson mapper;
 
     public MapDbStorage(DB db, String name, ClassLoader classLoader) {
+        this.name = name;
         this.db = db;
         this.classLoader = classLoader;
         this.map = db.createTreeMap(name).makeOrGet();
         this.mapper = new GsonBuilder().registerTypeAdapterFactory(new PropertiesTypeAdapterFactory()).create();
+    }
+
+    @Override
+    public void delete() {
+        map = null;
+        if (db != null) {
+            db.delete(name);
+            db = null;
+        }
     }
 
     @Override
@@ -69,7 +83,7 @@ public class MapDbStorage<T> implements Storage<T> {
 
     @Override
     public Collection<String> getKeys() {
-        return map.keySet();
+        return new HashSet<>(map.keySet());
     }
 
     @Override
@@ -86,7 +100,7 @@ public class MapDbStorage<T> implements Storage<T> {
      * of {@code value} while
      * deserializing it afterwards we prepend its qualified type name to the
      * JSON String.
-     * 
+     *
      * @param value the {@code value} to store
      * @return the JSON document prepended with the qualified type name of {@code value}
      */
@@ -109,7 +123,7 @@ public class MapDbStorage<T> implements Storage<T> {
      * given JSON String. A special classloader (other than the one of the
      * MapDB bundle) is used in order to load the classes in the context of
      * the calling bundle.
-     * 
+     *
      * @param json
      * @return
      */
