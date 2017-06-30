@@ -252,8 +252,9 @@ public class ModelRepositoryImpl implements ModelRepository {
             if (resource != null && !resource.getContents().isEmpty()) {
                 // Check for syntactical errors
                 for (Diagnostic diagnostic : resource.getErrors()) {
-                    criticalErrors.append(MessageFormat.format("[{0},{1}]: {2}\n", diagnostic.getLine(),
-                            diagnostic.getColumn(), diagnostic.getMessage()));
+                    criticalErrors
+                            .append(MessageFormat.format("[{0},{1}]: {2}\n", Integer.toString(diagnostic.getLine()),
+                                    Integer.toString(diagnostic.getColumn()), diagnostic.getMessage()));
                 }
                 if (criticalErrors.length() > 0) {
                     return criticalErrors.toString();
