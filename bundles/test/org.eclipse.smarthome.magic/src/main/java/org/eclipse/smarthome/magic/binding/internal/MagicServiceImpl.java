@@ -11,7 +11,6 @@ package org.eclipse.smarthome.magic.binding.internal;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Locale;
 
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -26,7 +25,7 @@ public class MagicServiceImpl implements MagicService {
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
         if (!uri.equals(CONFIG_URI)) {
-            return Collections.emptyList();
+            return null;
         }
 
         if (param.equals(PARAMETER_BACKEND_DECIMAL)) {
@@ -35,7 +34,7 @@ public class MagicServiceImpl implements MagicService {
                     new ParameterOption(BigDecimal.valueOf(21d).toPlainString(), "21"));
         }
 
-        return Collections.emptyList();
+        return null;
     }
 
 }

@@ -89,13 +89,14 @@ public class PersistenceServiceRegistryImpl implements ConfigOptionProvider, Per
 
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
-        Set<ParameterOption> options = new HashSet<>();
         if (uri.toString().equals("system:persistence") && param.equals("default")) {
+            Set<ParameterOption> options = new HashSet<>();
             for (PersistenceService service : getAll()) {
                 options.add(new ParameterOption(service.getId(), service.getLabel(locale)));
             }
+            return options;
         }
-        return options;
+        return null;
     }
 
 }
