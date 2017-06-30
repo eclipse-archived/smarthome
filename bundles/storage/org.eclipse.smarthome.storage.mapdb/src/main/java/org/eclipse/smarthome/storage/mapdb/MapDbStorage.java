@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.smarthome.core.storage.DisposableStorage;
+import org.eclipse.smarthome.core.storage.DeletableStorage;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.mapdb.DB;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import com.google.gson.GsonBuilder;
  * @author Alex Tugarev - Loading with Class.forName() if classLoader is null
  * @author Markus Rathgeb - Made the MapDB storage a disposable one
  */
-public class MapDbStorage<T> implements DisposableStorage<T> {
+public class MapDbStorage<T> implements DeletableStorage<T> {
 
     private static final String TYPE_SEPARATOR = "@@@";
 
@@ -54,7 +54,7 @@ public class MapDbStorage<T> implements DisposableStorage<T> {
     }
 
     @Override
-    public void dispose() {
+    public void delete() {
         map = null;
         if (db != null) {
             db.delete(name);

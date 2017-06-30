@@ -12,15 +12,15 @@ package org.eclipse.smarthome.core.storage;
  *
  * @author Markus Rathgeb - Initial Contribution and API
  */
-public interface DisposableStorage<T> extends Storage<T> {
+public interface DeletableStorage<T> extends Storage<T> {
 
     /**
-     * Dispose the storage.
+     * Delete the storage.
      *
      * <p>
      * This function could be called if the storage is not longer used (now and in future). The storage implementation
      * will clean up / remove the storage (e.g. file, database, etc.).
      * After this function has been called the storage must not be used anymore.
      */
-    void dispose();
+    void delete();
 }
