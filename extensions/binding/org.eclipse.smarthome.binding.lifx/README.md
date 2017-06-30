@@ -90,14 +90,11 @@ Or create items for each type (*Color*, *Switch*, *Dimmer*) and define the corre
 ### demo.things:
 
 ```
-Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ] {
-    Channels:
-        Type color : color [ powerOnBrightness= ]
-}
+Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ]
 
 Thing lifx:colorlight:living2 [ deviceId="D073D5A2A2A2" ] {
     Channels:
-        Type color : color [ powerOnBrightness= ]
+        Type color : color [ powerOnBrightness=50 ]
 }
 
 Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", fadetime=0 ] {
@@ -135,7 +132,7 @@ Dimmer Ceiling_Temperature { channel="lifx:colormzlight:ceiling:temperature" }
 Color Ceiling_Color_Zone_0 { channel="lifx:colormzlight:ceiling:colorzone0" }
 Dimmer Ceiling_Temperature_Zone_0 { channel="lifx:colormzlight:ceiling:temperaturezone0" }
 Color Ceiling_Color_Zone_15 { channel="lifx:colormzlight:ceiling:colorzone15" }
-Dimmer Ceiling_Temperature_Zone_15 { channel="lifx:colormzlight:ceiling:colorzone15" }
+Dimmer Ceiling_Temperature_Zone_15 { channel="lifx:colormzlight:ceiling:temperaturezone15" }
 
 // Kitchen
 Switch Kitchen_Toggle { channel="lifx:whitelight:kichen:brightness" }

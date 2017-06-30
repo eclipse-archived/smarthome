@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 
 /**
  * The {@link LifxLightPropertiesUpdater} updates the light properties when a light goes online. When packets get lost
- * the requests are resend when the {@code UPDATE_INTERVAL} elapses.
+ * the requests are resent when the {@code UPDATE_INTERVAL} elapses.
  *
  * @author Wouter Born - Update light properties when online
  */
