@@ -126,4 +126,48 @@ public class Audio {
         setMasterVolume(newVolume);
     }
 
+    @ActionDoc(text = "creates an empty group of sinks")
+    public static void createSinkGroup(@ParamDoc(name = "group", text = "the id of the group") String group) {
+        try {
+            AudioActionService.audioManager.createGroup(group);
+        } catch (Exception e) {
+            logger.warn("Failed to create a group of sinks: {}", e.getMessage());
+        }
+    }
+
+    @ActionDoc(text = "clears a group of sinks")
+    public static void clearSinkGroup(@ParamDoc(name = "group", text = "the id of the group") String group) {
+        try {
+            AudioActionService.audioManager.removeGroup(group);
+        } catch (Exception e) {
+            logger.warn("Failed to clear a group of sinks: {}", e.getMessage());
+        }
+    }
+
+    @ActionDoc(text = "adds a sink to a group")
+    public static void addToSinkGroup(@ParamDoc(name = "group", text = "the id of the group") String group,
+            @ParamDoc(name = "sink", text = "the id of the sink") String sink) {
+        try {
+            AudioActionService.audioManager.addToGroup(sink, group);
+        } catch (Exception e) {
+            logger.warn("Failed to add a sink to a group of sinks: {}", e.getMessage());
+        }
+    }
+
+    @ActionDoc(text = "removes a sink to a group")
+    public static void removeFromSinkGroup(@ParamDoc(name = "group", text = "the id of the group") String group,
+            @ParamDoc(name = "sink", text = "the id of the sink") String sink) {
+        try {
+            AudioActionService.audioManager.removeFromGroup(sink, group);
+        } catch (Exception e) {
+            logger.warn("Failed to remove a sink to a group of sinks: {}", e.getMessage());
+        }
+    }
+
+    @ActionDoc(text = "sets the volume of a sink or group of sinks")
+    public static void setSinkVolume(@ParamDoc(name = "sink", text = "the id of the sink or group") String sink,
+            @ParamDoc(name = "percent") final PercentType percent) throws IOException {
+        AudioActionService.audioManager.setVolume(percent, sink);
+    }
+
 }

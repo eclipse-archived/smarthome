@@ -26,6 +26,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  */
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
+    private static final String SUBCMD_GROUPS = "group";
     private static final String SUBCMD_PLAY = "play";
     private static final String SUBCMD_STREAM = "stream";
     private static final String SUBCMD_SOURCES = "sources";
@@ -40,12 +41,16 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_PLAY + " <sink> <filename>",
+                buildCommandUsage(SUBCMD_PLAY + " <sink or group> <filename>",
                         "plays a sound file from the sounds folder through the optionally specified audio sink(s)"),
-                buildCommandUsage(SUBCMD_STREAM + " <sink> <url>",
+                buildCommandUsage(SUBCMD_STREAM + " <sink or group> <url>",
                         "streams the sound from the url through the optionally specified audio sink(s)"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
-                buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
+                buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks"),
+                buildCommandUsage(SUBCMD_GROUPS + " create <name>", "create a group of sinks"),
+                buildCommandUsage(SUBCMD_GROUPS + " clear <name>", "remove a group of sinks"),
+                buildCommandUsage(SUBCMD_GROUPS + " add <group> <sink>", "add a sink to a group of sinks"),
+                buildCommandUsage(SUBCMD_GROUPS + " remove <group> <sink>", "remove a sink to a group of sinks") });
 
     }
 
@@ -75,11 +80,67 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 case SUBCMD_SINKS:
                     listSinks(console);
                     return;
+                case SUBCMD_GROUPS:
+                    handleGroups(args, console);
                 default:
                     break;
             }
         } else {
             printUsage(console);
+        }
+    }
+
+    private static final String SUBCMD_CREATE = "create";
+    private static final String SUBCMD_REMOVE = "remove";
+    private static final String SUBCMD_ADD = "add";
+    private static final String SUBCMD_CLEAR = "clear";
+
+    private void handleGroups(String[] args, Console console) {
+        if (args.length == 1) {
+            if (this.audioManager.getGroups().size() > 0) {
+                for (String group : this.audioManager.getGroups()) {
+                    console.println("Audio sink group " + group);
+                    if (audioManager.getGroup(group).size() > 0) {
+                        for (String sink : audioManager.getGroup(group)) {
+                            console.println(sink);
+                        }
+                    } else {
+                        console.println("No audio sinks found.");
+                    }
+                }
+            } else {
+                console.println("No audio sink groups found.");
+            }
+        } else if (args.length > 1) {
+            String subCommand = args[1];
+            switch (subCommand) {
+                case SUBCMD_CREATE: {
+                    if (args.length > 2) {
+                        this.audioManager.createGroup(args[2]);
+                    }
+                    return;
+                }
+                case SUBCMD_REMOVE: {
+                    if (args.length > 3) {
+                        this.audioManager.removeFromGroup(args[3], args[2]);
+                    }
+                    return;
+                }
+                case SUBCMD_ADD: {
+                    if (args.length > 3) {
+                        this.audioManager.addToGroup(args[3], args[2]);
+                    }
+                    return;
+                }
+                case SUBCMD_CLEAR: {
+                    if (args.length > 2) {
+                        this.audioManager.removeGroup(args[2]);
+                    }
+                    return;
+                }
+                default:
+                    break;
+            }
         }
     }
 
@@ -119,6 +180,15 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     console.println(e.getMessage());
                 }
             }
+
+            Set<String> groups = audioManager.getGroups(args[0]);
+            for (String aGroup : groups) {
+                try {
+                    audioManager.playFile(args[1], aGroup);
+                } catch (AudioException e) {
+                    console.println(e.getMessage());
+                }
+            }
         }
     }
 
@@ -134,6 +204,15 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
             for (String aSink : sinks) {
                 try {
                     audioManager.stream(args[1], aSink);
+                } catch (AudioException e) {
+                    console.println(e.getMessage());
+                }
+            }
+
+            Set<String> groups = audioManager.getGroups(args[0]);
+            for (String aGroup : groups) {
+                try {
+                    audioManager.stream(args[1], aGroup);
                 } catch (AudioException e) {
                     console.println(e.getMessage());
                 }
