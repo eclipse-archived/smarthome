@@ -8,11 +8,7 @@
 package org.eclipse.smarthome.core.common.registry;
 
 /**
- * Interface for classes that instances provide a system wide unique identifier.
- *
- * <p>
- * The requirement "unique" should be seen at least unique per respective type.
- * Two unrelated stuff that is not hold at the same place every could perhaps return the same identifier.
+ * Interface for classes that instances provide an identifier.
  *
  * @author Markus Rathgeb - Initial contribution
  */
