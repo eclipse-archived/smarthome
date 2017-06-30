@@ -22,12 +22,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
@@ -41,6 +43,7 @@ import com.google.gson.JsonSyntaxException;
  *
  * @author Chris Jackson - Initial Contribution
  * @author Stefan Triller - Removed dependency to internal GSon packages
+ * @author Simon Kaufmann - Distinguish between inner and outer de-/serialization, keep json structures in map
  */
 public class JsonStorage<T> implements Storage<T> {
 
@@ -50,8 +53,8 @@ public class JsonStorage<T> implements Storage<T> {
     private final int writeDelay;
     private final int maxDeferredPeriod;
 
-    private final String CLASS = "class";
-    private final String VALUE = "value";
+    static final String CLASS = "class";
+    static final String VALUE = "value";
     private final String BACKUP_EXTENSION = "backup";
     private final String SEPARATOR = "--";
 
@@ -64,7 +67,8 @@ public class JsonStorage<T> implements Storage<T> {
     private ClassLoader classLoader;
     private final Map<String, Map<String, Object>> map = new ConcurrentHashMap<String, Map<String, Object>>();
 
-    private transient Gson mapper;
+    private transient Gson outerMapper;
+    private transient Gson innerMapper;
 
     public JsonStorage(File file, ClassLoader classLoader, int maxBackupFiles, int writeDelay, int maxDeferredPeriod) {
         this.file = file;
@@ -73,7 +77,9 @@ public class JsonStorage<T> implements Storage<T> {
         this.writeDelay = writeDelay;
         this.maxDeferredPeriod = maxDeferredPeriod;
 
-        this.mapper = new GsonBuilder().registerTypeAdapter(Map.class, new StringObjectMapDeserializer())
+        this.outerMapper = new GsonBuilder().registerTypeHierarchyAdapter(Map.class, new OuterMapDeserializer())
+                .setPrettyPrinting().create();
+        this.innerMapper = new GsonBuilder().registerTypeAdapter(Configuration.class, new ConfigurationDeserializer())
                 .setPrettyPrinting().create();
 
         commitTimer = new Timer();
@@ -119,7 +125,7 @@ public class JsonStorage<T> implements Storage<T> {
     public T put(String key, T value) {
         Map<String, Object> val = new LinkedHashMap<String, Object>();
         val.put(CLASS, value.getClass().getName());
-        val.put(VALUE, value);
+        val.put(VALUE, innerMapper.toJsonTree(value));
 
         Map<String, Object> previousValue = map.get(key);
 
@@ -170,8 +176,8 @@ public class JsonStorage<T> implements Storage<T> {
      * the calling bundle.
      */
     @SuppressWarnings("unchecked")
-    private T deserialize(Map<String, Object> jsonValue) {
-        if (jsonValue == null) {
+    private T deserialize(Map<String, Object> entry) {
+        if (entry == null) {
             // nothing to deserialize
             return null;
         }
@@ -181,16 +187,15 @@ public class JsonStorage<T> implements Storage<T> {
             // load required class within the given bundle context
             Class<T> loadedValueType = null;
             if (classLoader == null) {
-                loadedValueType = (Class<T>) Class.forName((String) jsonValue.get(CLASS));
+                loadedValueType = (Class<T>) Class.forName((String) entry.get(CLASS));
             } else {
-                loadedValueType = (Class<T>) classLoader.loadClass((String) jsonValue.get(CLASS));
+                loadedValueType = (Class<T>) classLoader.loadClass((String) entry.get(CLASS));
             }
 
-            String jsonString = mapper.toJson(jsonValue.get("value"));
-            value = mapper.fromJson(jsonString, loadedValueType);
+            value = innerMapper.fromJson((JsonElement) entry.get(VALUE), loadedValueType);
             logger.trace("deserialized value '{}' from Json", value);
         } catch (Exception e) {
-            logger.error("Couldn't deserialize value '{}'. Root cause is: {}", jsonValue, e.getMessage());
+            logger.error("Couldn't deserialize value '{}'. Root cause is: {}", entry, e.getMessage());
         }
 
         return value;
@@ -203,10 +208,10 @@ public class JsonStorage<T> implements Storage<T> {
 
             FileReader reader = new FileReader(inputFile);
             Map<String, Map<String, Object>> type = new HashMap<String, Map<String, Object>>();
-            Map<String, Map<String, Object>> loadedMap = mapper.fromJson(reader, type.getClass());
+            Map<String, Map<String, Object>> loadedMap = outerMapper.fromJson(reader, type.getClass());
 
             if (loadedMap != null && loadedMap.size() != 0) {
-                map.putAll(loadedMap);
+                inputMap.putAll(loadedMap);
             }
 
             return inputMap;
@@ -217,12 +222,21 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     private File getBackupFile(int age) {
-        // Delete old backups
-        List<Long> fileTimes = new ArrayList<Long>();
-        File folder = new File(file.getParent() + File.separator + BACKUP_EXTENSION);
-        File[] files = folder.listFiles();
+        List<Long> fileTimes = calculateFileTimes();
+        if (fileTimes.size() < age) {
+            return null;
+        }
+        return new File(file.getParent() + File.separator + BACKUP_EXTENSION,
+                fileTimes.get(fileTimes.size() - age) + SEPARATOR + file.getName());
+    }
 
-        // Get an array of file times from the filename
+    private List<Long> calculateFileTimes() {
+        File folder = new File(file.getParent() + File.separator + BACKUP_EXTENSION);
+        if (!folder.isDirectory()) {
+            return Collections.emptyList();
+        }
+        List<Long> fileTimes = new ArrayList<Long>();
+        File[] files = folder.listFiles();
         if (files != null) {
             int count = files.length;
             for (int i = 0; i < count; i++) {
@@ -236,15 +250,8 @@ public class JsonStorage<T> implements Storage<T> {
                 }
             }
         }
-
-        // Sort
         Collections.sort(fileTimes);
-        if (fileTimes.size() < age) {
-            return null;
-        }
-
-        return new File(file.getParent() + File.separator + BACKUP_EXTENSION,
-                fileTimes.get(fileTimes.size() - age) + SEPARATOR + file.getName());
+        return fileTimes;
     }
 
     private void writeDatabaseFile(File dataFile, String data) {
@@ -264,7 +271,7 @@ public class JsonStorage<T> implements Storage<T> {
      * writing the backup copy (which would require a read and write, and is thus slower).
      */
     public void commitDatabase() {
-        String json = mapper.toJson(map);
+        String json = outerMapper.toJson(map);
 
         synchronized (map) {
             // Write the database file
@@ -283,34 +290,9 @@ public class JsonStorage<T> implements Storage<T> {
         public void run() {
             // Save the database
             commitDatabase();
+            List<Long> fileTimes = calculateFileTimes();
 
-            // Delete old backups
-            List<Long> fileTimes = new ArrayList<Long>();
-            File folder = new File(file.getParent() + File.separator + BACKUP_EXTENSION);
-
-            if (!folder.isDirectory()) {
-                return;
-            }
-
-            File[] files = folder.listFiles();
-
-            // Get an array of file times from the filename
-            if (files != null) {
-                int count = files.length;
-                for (int i = 0; i < count; i++) {
-                    if (files[i].isFile()) {
-                        String[] parts = files[i].getName().split(SEPARATOR);
-                        if (parts.length != 2 || !parts[1].equals(file.getName())) {
-                            continue;
-                        }
-                        long time = Long.parseLong(parts[0]);
-                        fileTimes.add(time);
-                    }
-                }
-            }
-
-            // Sort, and delete the oldest
-            Collections.sort(fileTimes);
+            // delete the oldest
             if (fileTimes.size() > maxBackupFiles) {
                 for (int counter = 0; counter < fileTimes.size() - maxBackupFiles; counter++) {
                     File deleter = new File(file.getParent() + File.separator + BACKUP_EXTENSION,

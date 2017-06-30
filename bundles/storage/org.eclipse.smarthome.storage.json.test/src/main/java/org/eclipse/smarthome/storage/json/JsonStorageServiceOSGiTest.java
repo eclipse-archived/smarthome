@@ -7,11 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -45,8 +44,6 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
         storage.put("Key1", new PersistedItem("String", Arrays.asList("LIGHT", "GROUND_FLOOR")));
         storage.put("Key2", new PersistedItem("Number", Arrays.asList("TEMPERATURE", "OUTSIDE")));
         assertThat(storage.getKeys().size(), is(2));
-
-        storage.get("Key1");
 
         storage.remove("Key1");
         storage.remove("Key2");
@@ -85,30 +82,22 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testConfiguration() {
-        Storage<MockConfiguration> storageWithoutClassloader = storageService.getStorage("storage");
+        Storage<DummyObject> storageWithoutClassloader = storageService.getStorage("storage");
 
-        MockConfiguration configuration = new MockConfiguration();
-        configuration.put("bigDecimal", new BigDecimal(3));
+        DummyObject dummy = new DummyObject();
+        dummy.configuration.put("bigDecimal", new BigDecimal(3));
 
-        storageWithoutClassloader.put("configuration", configuration);
+        storageWithoutClassloader.put("configuration", dummy);
 
-        Object bigDecimal = storageWithoutClassloader.get("configuration").get("bigDecimal");
+        Object bigDecimal = storageWithoutClassloader.get("configuration").configuration.get("bigDecimal");
         assertThat(bigDecimal instanceof BigDecimal, is(true));
     }
 
-    private class MockConfiguration {
-        private Map<String, Object> configuration = new HashMap<String, Object>();
-
-        public void put(String key, Object value) {
-            configuration.put(key, value);
-        }
-
-        public Object get(String key) {
-            return configuration.get(key);
-        }
+    public static class DummyObject {
+        private Configuration configuration = new Configuration();
     }
 
-    private class PersistedItem {
+    public static class PersistedItem {
 
         public String itemType;
         public List<String> groupNames;
@@ -124,11 +113,6 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
             this.baseItemType = baseItemType;
         }
 
-        @Override
-        public String toString() {
-            return "PersistedItem [itemType=" + itemType + ", groupNames=" + groupNames + ", baseItemType="
-                    + baseItemType + "]";
-        }
     }
 
 }
