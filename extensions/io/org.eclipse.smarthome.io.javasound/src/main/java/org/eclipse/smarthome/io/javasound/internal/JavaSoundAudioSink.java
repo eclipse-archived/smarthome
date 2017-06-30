@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
  * line-out).
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public class JavaSoundAudioSink implements AudioSink {
 
@@ -52,7 +55,8 @@ public class JavaSoundAudioSink implements AudioSink {
     }
 
     @Override
-    public void process(AudioStream audioStream) throws UnsupportedAudioFormatException {
+    public void process(AudioStream audioStream)
+            throws UnsupportedAudioFormatException, UnsupportedAudioStreamException {
         AudioPlayer audioPlayer = new AudioPlayer(audioStream);
         audioPlayer.start();
         try {
@@ -68,6 +72,11 @@ public class JavaSoundAudioSink implements AudioSink {
         AudioFormat format = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null, null, null,
                 null);
         return Collections.singleton(format);
+    }
+
+    @Override
+    public Set<Class<? extends AudioStream>> getSupportedStreams() {
+        return Collections.emptySet();
     }
 
     @Override
