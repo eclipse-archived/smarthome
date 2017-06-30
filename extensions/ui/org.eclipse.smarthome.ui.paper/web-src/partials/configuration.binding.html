@@ -1,0 +1,49 @@
+<section id="main" class="white-bg">
+	<div class="header-toolbar">
+		<md-button class="md-icon-button" aria-label="Refresh" ng-click="navigateTo('configuration/bindings')" aria-label="Close"> <md-tooltip>Close</md-tooltip> <i class="material-icons">close</i> </md-button>
+	</div>
+
+	<md-expansion-panel-group multiple>
+	
+    	<md-expansion-panel md-component-id="bindingOverview">
+	 	    <md-expansion-panel-collapsed>
+				<div class="md-title">Binding Overview</div>
+		        <div class="md-summary"></div>
+				<md-expansion-panel-icon></md-expansion-panel-icon>
+	 	    </md-expansion-panel-collapsed>
+	    	<md-expansion-panel-expanded>
+			    <md-expansion-panel-header ng-click="$panel.collapse()">
+                    <div class="md-title">Binding Overview</div>
+                    <div class="md-summary"></div>
+			        <md-expansion-panel-icon></md-expansion-panel-icon>
+			    </md-expansion-panel-header>
+			    <md-expansion-panel-content>
+			    
+			        <div ng-include="'partials/configuration.binding.overview.html'" class=""></div>
+			        
+		        </md-expansion-panel-content>
+		    </md-expansion-panel-expanded>
+	    </md-expansion-panel>
+
+        <md-expansion-panel>
+            <md-expansion-panel-collapsed>
+                <div class="md-title">Supported Thing-Types</div>
+                <div class="md-summary">{{binding.thingTypes.length}} thing types defined</div>
+                <md-expansion-panel-icon></md-expansion-panel-icon>
+            </md-expansion-panel-collapsed>
+            <md-expansion-panel-expanded>
+                <md-expansion-panel-header ng-click="$panel.collapse()">
+                    <div class="md-title">Supported Thing-Types</div>
+                    <div class="md-summary"></div>
+                    <md-expansion-panel-icon></md-expansion-panel-icon>
+                </md-expansion-panel-header>
+                <md-expansion-panel-content>
+                
+                    <div ng-include="'partials/configuration.binding.thingtypes.html'" class=""></div>
+                    
+                </md-expansion-panel-content>
+            </md-expansion-panel-expanded>
+        </md-expansion-panel>
+
+    </md-expansion-panel-group>
+</section>

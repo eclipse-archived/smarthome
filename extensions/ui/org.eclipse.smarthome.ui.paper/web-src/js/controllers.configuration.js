@@ -23,54 +23,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         }
     };
     getThingTypes();
-}).controller('BindingController', function($scope, $mdDialog, bindingRepository) {
-    $scope.setSubtitle([ 'Bindings' ]);
-    $scope.setHeaderText('Shows all installed bindings.');
-    $scope.refresh = function() {
-        bindingRepository.getAll(true);
-    };
-    $scope.openBindingInfoDialog = function(bindingId, event) {
-        $mdDialog.show({
-            controller : 'BindingInfoDialogController',
-            templateUrl : 'partials/dialog.bindinginfo.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            locals : {
-                bindingId : bindingId
-            }
-        });
-    }
-    $scope.configure = function(bindingId, configDescriptionURI, event) {
-        $mdDialog.show({
-            controller : 'ConfigureBindingDialogController',
-            templateUrl : 'partials/dialog.configurebinding.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            locals : {
-                bindingId : bindingId,
-                configDescriptionURI : configDescriptionURI
-            }
-        });
-    }
-    bindingRepository.getAll();
-}).controller('BindingInfoDialogController', function($scope, $mdDialog, thingTypeRepository, bindingRepository, bindingId) {
-    $scope.binding = undefined;
-    bindingRepository.getOne(function(binding) {
-        return binding.id === bindingId;
-    }, function(binding) {
-        $scope.binding = binding;
-        $scope.binding.thingTypes = [];
-        thingTypeRepository.getAll(function(thingTypes) {
-            $.each(thingTypes, function(index, thingType) {
-                if (thingType.UID.split(':')[0] === binding.id) {
-                    $scope.binding.thingTypes.push(thingType);
-                }
-            });
-        });
-    });
-    $scope.close = function() {
-        $mdDialog.hide();
-    }
 }).controller('ConfigureBindingDialogController', function($scope, $mdDialog, bindingRepository, bindingService, configService, configDescriptionService, toastService, bindingId, configDescriptionURI) {
 
     $scope.binding = null;
