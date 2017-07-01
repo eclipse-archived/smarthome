@@ -256,11 +256,16 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
 
         public PercentType getBrightness() {
-            int b = attributes.get(DIMMER).getAsInt();
-            if (b == 1) {
-                return new PercentType(1);
+            JsonElement dimmer = attributes.get(DIMMER);
+            if (dimmer != null) {
+                int b = dimmer.getAsInt();
+                if (b == 1) {
+                    return new PercentType(1);
+                }
+                return new PercentType((int) Math.round(b / 2.54));
+            } else {
+                return null;
             }
-            return new PercentType((int) Math.round(b / 2.54));
         }
 
         public boolean getReachabilityStatus() {
@@ -278,7 +283,12 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
 
         @SuppressWarnings("unused")
         public int getTransitionTime() {
-            return attributes.get(TRANSITION_TIME).getAsInt();
+            JsonElement transitionTime = attributes.get(TRANSITION_TIME);
+            if (transitionTime != null) {
+                return transitionTime.getAsInt();
+            } else {
+                return 0;
+            }
         }
 
         public LightData setColorTemperature(PercentType c) {
@@ -307,7 +317,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             // we only need to check one of the coordinates and figure out where between the presets we are
             JsonElement colorX = attributes.get(COLOR_X);
             if (colorX != null) {
-                double x = attributes.get(COLOR_X).getAsInt();
+                double x = colorX.getAsInt();
                 double value = 0.0;
                 if (x > X[1]) {
                     // is it between preset 1 and 2?
