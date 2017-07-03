@@ -21,7 +21,7 @@ The devices require only a single (integer) parameter, which is their instance i
 
 ## Channels
 
-All devices support the `brightness` channel, while the white spectrum bulbs additionally also support the `colorTemperature` channel.
+All devices support the `brightness` channel, while the white spectrum bulbs additionally also support the `color_temperature` channel.
 
 | Channel Type ID   | Item Type | Description                                 |
 |-------------------|-----------|---------------------------------------------|
@@ -51,7 +51,7 @@ demo.sitemap:
 sitemap demo label="Main Menu"
 {
     Frame {
-    	Slider item=Light label="Brightness [%.1f %%]"
-	}
+        Slider item=Light label="Brightness [%.1f %%]"
+    }
 }
 ```

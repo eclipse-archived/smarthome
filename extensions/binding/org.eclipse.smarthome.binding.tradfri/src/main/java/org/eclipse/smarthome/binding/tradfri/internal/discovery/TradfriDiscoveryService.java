@@ -37,7 +37,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private TradfriGatewayHandler handler;
 
-    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm" };
+    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
+            "TRADFRI bulb GU10 WS 400lm" };
 
     public TradfriDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         super(TradfriBindingConstants.SUPPORTED_LIGHT_TYPES_UIDS, 10, true);
