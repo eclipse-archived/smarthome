@@ -606,7 +606,7 @@
 		_t.setValuePrivate = function(value, itemState) {
 			_t.value = "" + itemState;
 			if (_t.valueMap[itemState] !== undefined) {
-				_t.valueNode.innerHTML = _t.valueMap[itemState];
+				_t.valueNode.innerHTML = smarthome.UI.escapeHtml(_t.valueMap[itemState]);
 			} else {
 				_t.valueNode.innerHTML = "";
 			}
@@ -1398,23 +1398,25 @@
 		_t.iconType = document.body.getAttribute(o.iconTypeAttribute);
 		_t.notification = document.querySelector(o.notify);
 
-		_t.setTitle = function(title, needsEscape) {
+		_t.escapeHtml = function(text) {
 			var
-				escapedText = title,
+				escapedText = text,
 				escapeTable = [
 					[ /&/g, "&amp;" ],
 					[ /</g, "&lt;"  ],
 					[ />/g, "&gt;"  ]
 				];
 
-			if (needsEscape) {
-				for (var i = 0; i < escapeTable.length; i++) {
-					escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
-				}
+			for (var i = 0; i < escapeTable.length; i++) {
+				escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
 			}
 
-			document.querySelector("title").innerHTML = escapedText;
-			_t.layoutTitle.innerHTML = escapedText;
+			return escapedText;
+		};
+
+		_t.setTitle = function(title) {
+			document.querySelector("title").innerHTML = title;
+			_t.layoutTitle.innerHTML = title;
 		};
 
 		function replaceContent(xmlResponse) {
@@ -1433,7 +1435,7 @@
 			});
 
 			// HTML entities are already escaped on server
-			_t.setTitle(nodeArray[0].textContent, false);
+			_t.setTitle(nodeArray[0].textContent);
 
 			var
 				contentElement = document.querySelector(".page-content");
@@ -1718,7 +1720,7 @@
 			title = _t.getTitleFromLabel(data.label);
 
 			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
-				smarthome.UI.setTitle(title, true);
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
 				var
 					widget = smarthome.dataModel[data.widgetId];
@@ -1729,7 +1731,7 @@
 						visibility: data.visibility
 					});
 				} else {
-					widget.setValue(value, data.item.state);
+					widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
 					if (data.label !== undefined) {
 						widget.setLabel(data.label);
 					}
@@ -1774,7 +1776,7 @@
 
 			title = _t.getTitleFromLabel(response.title);
 			if (title !== null) {
-				smarthome.UI.setTitle(title, true);
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			}
 
 			function walkWidgets(widgets) {
@@ -1798,7 +1800,7 @@
 					if (smarthome.dataModelLegacy[item] !== undefined) {
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
 							if (state !== "NULL") {
-								w.setValue(value, state);
+								w.setValue(smarthome.UI.escapeHtml(value), state);
 							}
 							if (label !== undefined) {
 								w.setLabel(label);
