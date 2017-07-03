@@ -68,6 +68,7 @@ public class SonosBindingConstants {
     public final static String NOTIFICATIONVOLUME = "notificationvolume";
     public final static String PLAYLINEIN = "playlinein";
     public final static String PLAYLIST = "playlist";
+    public final static String CLEARQUEUE = "clearqueue";
     public final static String PLAYQUEUE = "playqueue";
     public final static String PLAYTRACK = "playtrack";
     public final static String PLAYURI = "playuri";
