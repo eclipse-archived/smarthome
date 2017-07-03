@@ -43,6 +43,7 @@ import org.osgi.framework.ServiceRegistration
  *
  * @author Michael Grammling - Initial Contribution
  * @author Simon Kaufmann - added tests for ExtendedDiscoveryService
+ * @author Andre Fuechsel - added tests for the discovery using all registered discovery services
  */
 class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
@@ -383,6 +384,23 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     }
 
     @Test
+    void 'assert start discovery for all bindings works' () {
+        // unregister the faulty service
+        discoveryServiceFaultyMock.abortScan()
+        serviceRegs.get(2).unregister()
+        
+        AsyncResultWrapper<Boolean> listenerResult = new AsyncResultWrapper<Boolean>()
+
+        discoveryServiceRegistry.startScan([
+            onFinished: {listenerResult.set(true)},
+            onErrorOccurred: {
+            }
+        ] as ScanListener)
+
+        waitForAssert ({ assertTrue(listenerResult.isSet) }, 2000 )
+    }
+
+    @Test
     void 'assert supportsDiscovery works' () {
 
         assertTrue discoveryServiceRegistry.supportsDiscovery(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1))
@@ -399,6 +417,8 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
         assertEquals 3, discoveryServiceRegistry.getMaxScanTimeout(ANY_BINDING_ID_2)
         assertEquals 0, discoveryServiceRegistry.getMaxScanTimeout('unknownBindingId')
+        
+        assertEquals 3, discoveryServiceRegistry.getMaxScanTimeout()
     }
 
     @Test
