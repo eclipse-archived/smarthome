@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -100,8 +101,7 @@ public class ScriptedAutomationManager {
     }
 
     public Rule addRule(Rule element) {
-
-        Rule rule = element.getUID() == null ? new Rule() : new Rule(element.getUID());
+        Rule rule = element.getUID() == null ? new Rule(generateUID()) : new Rule(element.getUID());
 
         String name = element.getName();
         if (name == null || name.isEmpty()) {
@@ -169,6 +169,10 @@ public class ScriptedAutomationManager {
         ruleRegistryDelegate.add(rule);
 
         return rule;
+    }
+
+    private String generateUID() {
+        return UUID.randomUUID().toString();
     }
 
     public void addConditionType(ConditionType condititonType) {
