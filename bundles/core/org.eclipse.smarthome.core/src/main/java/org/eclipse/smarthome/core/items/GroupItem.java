@@ -116,11 +116,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
     private void collectMembers(Set<Item> allMembers, Set<Item> members) {
         for (Item member : members) {
+            if (allMembers.contains(member)) {
+                continue;
+            }
+            allMembers.add(member);
             if (member instanceof GroupItem) {
                 collectMembers(allMembers, ((GroupItem) member).members);
-                allMembers.add(member);
-            } else {
-                allMembers.add(member);
             }
         }
     }
