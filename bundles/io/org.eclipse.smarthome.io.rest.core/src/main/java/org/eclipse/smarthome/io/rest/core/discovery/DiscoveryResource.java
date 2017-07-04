@@ -43,6 +43,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Ivaylo Ivanov - Added payload to the response of <code>scan</code>
  * @author Franck Dechavanne - Added DTOs to ApiResponses
+ * @author Andre Fuechsel - Added a new resource to trigger a discovery on all discovery services
  */
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @RolesAllowed({ Role.ADMIN })
@@ -97,6 +98,28 @@ public class DiscoveryResource implements RESTResource {
         });
 
         return Response.ok(discoveryServiceRegistry.getMaxScanTimeout(bindingId)).build();
+    }
+
+    @POST
+    @Path("/scan")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Starts asynchronous discovery process for all installed bindings and returns the timeout in seconds of the discovery operation.", response = Integer.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Integer.class) })
+    public Response scan() {
+        discoveryServiceRegistry.startScan(new ScanListener() {
+            @Override
+            public void onErrorOccurred(Exception exception) {
+                logger.error("Error occurred while scanning: {}", exception.getMessage(),
+                        exception);
+            }
+
+            @Override
+            public void onFinished() {
+                logger.debug("Scan for all bindings successfully finished.");
+            }
+        });
+
+        return Response.ok(discoveryServiceRegistry.getMaxScanTimeout()).build();
     }
 
     @Override

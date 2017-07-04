@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the {@link DiscoveryServiceRegistry}.
@@ -53,6 +54,7 @@ import com.google.common.collect.HashMultimap;
  * @author Kai Kreuzer - Refactored API
  * @author Andre Fuechsel - Added removeOlderResults
  * @author Ivaylo Ivanov - Added getMaxScanTimeout
+ * @author Andre Fuechsel - Added support for a scan of all registered discovery services
  *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
@@ -219,6 +221,11 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
 
         return startScans(discoveryServicesForBinding, listener);
+    }
+
+    @Override
+    public boolean startScan(final ScanListener listener) throws IllegalStateException {
+        return startScans(ImmutableSet.copyOf(this.discoveryServices), listener);
     }
 
     @Override
@@ -479,6 +486,11 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public int getMaxScanTimeout(String bindingId) {
         return getMaxScanTimeout(getDiscoveryServices(bindingId));
+    }
+    
+    @Override
+    public int getMaxScanTimeout() {
+        return getMaxScanTimeout(ImmutableSet.copyOf(this.discoveryServices)); 
     }
 
     protected void setInbox(Inbox inbox) {

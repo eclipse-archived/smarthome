@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Dennis Nobel - Added background discovery commands
+ * @author Andre Fuechsel - Added a command to start a discovery for all bindings
  */
 public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
@@ -51,7 +52,9 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
             String subCommand = args[0];
             switch (subCommand) {
                 case SUBCMD_START:
-                    if (args.length > 1) {
+                    if (args.length == 1) { 
+                        discoveryServiceRegistry.startScan(null); 
+                    } else if (args.length == 2) {
                         String arg1 = args[1];
                         if (arg1.contains(":")) {
                             ThingTypeUID thingTypeUID = new ThingTypeUID(arg1);

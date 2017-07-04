@@ -20,8 +20,9 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * <li>Forwarding all events received from the monitored {@link DiscoveryService}s.</li>
  * </ul>
  *
- * @author Michael Grammling - Initial Contribution.
+ * @author Michael Grammling - Initial Contribution
  * @author Ivaylo Ivanov - Added getMaxScanTimeout
+ * @author Andre Fuechsel - Added support for a scan of all registered discovery services
  *
  * @see DiscoveryService
  * @see DiscoveryListener
@@ -74,6 +75,29 @@ public interface DiscoveryServiceRegistry {
      */
     boolean startScan(String bindingId, ScanListener listener);
 
+    /**
+     * Forces the associated {@link DiscoveryService}s to start a discovery for
+     * all thing types of all bindings, that support discovery. 
+     * 
+     * @see {@link #getSupportedBindings()}
+     * <p>
+     * Returns {@code true}, if a at least one {@link DiscoveryService} could be found and forced to start a discovery,
+     * otherwise {@code false}.
+     *
+     * @param listener
+     *            a callback to inform about errors or termination, can be null.
+     *            If more than one discovery service is started, the {@link ScanListener#onFinished()} callback is
+     *            called after all
+     *            discovery services finished their scan. If one discovery
+     *            service raises an error, the method {@link ScanListener#onErrorOccurred(Exception)} is called
+     *            directly. All other finished or error callbacks will be ignored
+     *            and not forwarded to the listener.
+     *
+     * @return true if a t least one discovery service could be found and forced
+     *         to start a discovery, otherwise false
+     */
+    boolean startScan(ScanListener listener);
+    
     /**
      * Aborts a started discovery on all {@link DiscoveryService}s for the given
      * thing type.
@@ -167,7 +191,7 @@ public interface DiscoveryServiceRegistry {
     List<String> getSupportedBindings();
 
     /**
-     * Returns the maximum discovery timeout from all discovery services registered for the specified thingTypeUID
+     * Returns the maximum discovery timeout from all discovery services registered for the specified thingTypeUID. 
      * 
      * @param thingTypeUID
      *            thing type UID
@@ -176,7 +200,7 @@ public interface DiscoveryServiceRegistry {
     int getMaxScanTimeout(ThingTypeUID thingTypeUID);
 
     /**
-     * Returns the maximum discovery timeout from all discovery services registered for the specified binding id
+     * Returns the maximum discovery timeout from all discovery services registered for the specified binding id. 
      * 
      * @param bindingId
      *            id of the binding 
@@ -184,4 +208,10 @@ public interface DiscoveryServiceRegistry {
      */
     int getMaxScanTimeout(String bindingId);
 
+    /**
+     * Returns the maximum discovery timeout from all discovery services registered.
+     * 
+     * @return the maximum amount of seconds which the discovery can take
+     */
+    int getMaxScanTimeout();
 }
