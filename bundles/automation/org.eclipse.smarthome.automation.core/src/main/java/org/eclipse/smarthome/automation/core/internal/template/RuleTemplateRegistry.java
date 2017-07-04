@@ -180,8 +180,4 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
         return getByTag(null, locale);
     }
 
-    @Override
-    protected String getKey(RuleTemplate element) {
-        return element.getUID();
-    }
 }

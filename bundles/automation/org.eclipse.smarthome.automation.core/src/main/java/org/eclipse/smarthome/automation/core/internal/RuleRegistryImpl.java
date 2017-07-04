@@ -591,9 +591,4 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.runNow(ruleUID, considerConditions, context);
     }
 
-    @Override
-    protected String getKey(Rule element) {
-        return element.getUID();
-    }
-
 }

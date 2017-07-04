@@ -151,9 +151,4 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         // it is not needed to send an event, because links can not be updated
     }
 
-    @Override
-    protected String getKey(ItemChannelLink element) {
-        return element.getID();
-    }
-
 }
