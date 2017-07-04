@@ -74,6 +74,23 @@ public class GroupItemTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testGetAllMembersWithCircleDependency() {
+        GroupItem rootGroupItem = new GroupItem("root");
+        rootGroupItem.addMember(new TestItem("member1"));
+        rootGroupItem.addMember(new TestItem("member2"));
+        GroupItem subGroup = new GroupItem("subGroup1");
+        subGroup.addMember(new TestItem("subGroup member 1"));
+        subGroup.addMember(rootGroupItem);
+        rootGroupItem.addMember(subGroup);
+        assertThat(rootGroupItem.getAllMembers().size(), is(3));
+        for (Item member : rootGroupItem.getAllMembers()) {
+            if (member instanceof GroupItem) {
+                fail("There are no GroupItems allowed in this Collection");
+            }
+        }
+    }
+
+    @Test
     public void testGetAllMembersWithFilter() {
         GroupItem rootGroupItem = new GroupItem("root");
 
