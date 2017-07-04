@@ -470,6 +470,12 @@ public class HttpUtil {
      */
     public static String guessContentTypeFromData(byte[] data) {
         String contentType = null;
+
+        // URLConnection.guessContentTypeFromStream(input) is not sufficient to detect all JPEG files
+        if (isJpeg(data)) {
+            return "image/jpeg";
+        }
+
         try (final ByteArrayInputStream input = new ByteArrayInputStream(data)) {
             try {
                 contentType = URLConnection.guessContentTypeFromStream(input);
@@ -483,6 +489,19 @@ public class HttpUtil {
             // Error on closing input stream -- nothing we can do here.
         }
         return contentType;
+    }
+
+    /**
+     * Check whether the content data is a JPEG file checking file start and end bytes.
+     * {@link URLConnection#guessContentTypeFromStream(InputStream)} is wrong for some JPEG files.
+     *
+     * @see https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
+     * @param data the data as buffer of bytes
+     * @return <code>true</code> if the content is a JPEG file, <code>false</code> otherwise
+     */
+    private static boolean isJpeg(byte[] data) {
+        return (data.length >= 2 && data[0] == (byte) 0xFF && data[1] == (byte) 0xD8
+                && data[data.length - 2] == (byte) 0xFF && data[data.length - 1] == (byte) 0xD9);
     }
 
 }
