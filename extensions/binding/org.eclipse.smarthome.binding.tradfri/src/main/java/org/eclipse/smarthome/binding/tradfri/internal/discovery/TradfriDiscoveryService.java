@@ -10,10 +10,10 @@ package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
@@ -30,6 +31,7 @@ import com.google.gson.JsonSyntaxException;
  * This class identifies devices that are available on the gateway and adds discovery results for them.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Mario Smit - Group Handler added
  */
 public class TradfriDiscoveryService extends AbstractDiscoveryService implements DeviceUpdateListener {
 
@@ -37,17 +39,18 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private TradfriGatewayHandler handler;
 
-    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
-            "TRADFRI bulb GU10 WS 400lm" };
+    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm", "TRADFRI bulb GU10 WS 400lm",
+            "TRADFRI bulb E14 WS opal 400lm" };
 
     public TradfriDiscoveryService(TradfriGatewayHandler bridgeHandler) {
-        super(TradfriBindingConstants.SUPPORTED_LIGHT_TYPES_UIDS, 10, true);
+        super(Sets.union(SUPPORTED_LIGHT_TYPES_UIDS, Collections.singleton(THING_TYPE_GROUP)), 10, true);
         this.handler = bridgeHandler;
     }
 
     @Override
     protected void startScan() {
-        handler.startScan();
+        handler.devices.startScan();
+        handler.groups.startScan();
     }
 
     public void activate() {
@@ -65,23 +68,30 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
         try {
             if (data.has(INSTANCE_ID)) {
                 int id = data.get(INSTANCE_ID).getAsInt();
-                String type = data.get(TYPE).getAsString();
-                JsonObject deviceInfo = data.get(DEVICE).getAsJsonObject();
-                String model = deviceInfo.get(DEVICE_MODEL).getAsString();
                 ThingUID thingId = null;
+                JsonObject deviceInfo = new JsonObject();
+                if (data.has(TYPE)) {
+                    String type = data.get(TYPE).getAsString();
+                    deviceInfo = data.get(DEVICE).getAsJsonObject();
+                    String model = deviceInfo.get(DEVICE_MODEL).getAsString();
 
-                if (type.equals(TYPE_LIGHT) && data.has(LIGHT)) {
-                    JsonObject state = data.get(LIGHT).getAsJsonArray().get(0).getAsJsonObject();
+                    if (type.equals(TYPE_LIGHT) && data.has(LIGHT)) {
+                        JsonObject state = data.get(LIGHT).getAsJsonArray().get(0).getAsJsonObject();
 
-                    // Color temperature light
-                    // We do not always receive a COLOR attribute, even the light supports it - but the gateway does not
-                    // seem to have this information, if the bulb is unreachable. We therefore also check against
-                    // concrete model names.
-                    if (state.has(COLOR) || (model != null && Arrays.asList(COLOR_TEMP_MODELS).contains(model))) {
-                        thingId = new ThingUID(THING_TYPE_COLOR_TEMP_LIGHT, bridge, Integer.toString(id));
-                    } else {
-                        thingId = new ThingUID(THING_TYPE_DIMMABLE_LIGHT, bridge, Integer.toString(id));
+                        // Color temperature light
+                        // We do not always receive a COLOR attribute, even the light supports it - but the gateway does
+                        // not
+                        // seem to have this information, if the bulb is unreachable. We therefore also check against
+                        // concrete model names.
+                        if (state.has(COLOR) || (model != null && Arrays.asList(COLOR_TEMP_MODELS).contains(model))) {
+                            thingId = new ThingUID(THING_TYPE_COLOR_TEMP_LIGHT, bridge, Integer.toString(id));
+                        } else {
+                            thingId = new ThingUID(THING_TYPE_DIMMABLE_LIGHT, bridge, Integer.toString(id));
+                        }
                     }
+                } else if (data.has(HS_ACCESSORY_LINK)) {
+                    // GROUP info
+                    thingId = new ThingUID(THING_TYPE_GROUP, bridge, Integer.toString(id));
                 }
 
                 if (thingId == null) {
