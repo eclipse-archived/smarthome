@@ -159,7 +159,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
 
         if (firmwareUpdateHandler == null) {
-            logger.debug("No firmware update handler available for thing with UID {}.", thingUID);
+            logger.trace("No firmware update handler available for thing with UID {}.", thingUID);
             return null;
         }
 
