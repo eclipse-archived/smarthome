@@ -118,11 +118,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         Collection<E> elements = elementMap.get(provider);
         if (elements != null) {
             try {
-                K key = getKey(element);
-                if (key != null && get(key) != null) {
+                K uid = element.getUID();
+                if (uid != null && get(uid) != null) {
                     logger.warn(String.format(
                             "%s with Key \"%s\" already exists! Failed to add a second with the same UID!",
-                            element.getClass().getName(), key));
+                            element.getClass().getName(), uid));
                     return;
                 }
                 onAddElement(element);
@@ -173,7 +173,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     @Override
     public void updated(Provider<E> provider, E oldElement, E element) {
         Collection<E> elements = elementMap.get(provider);
-        if (elements != null && elements.contains(oldElement) && getKey(oldElement).equals(getKey(element))) {
+        if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
             try {
                 onUpdateElement(oldElement, element);
                 elements.remove(oldElement);
@@ -261,11 +261,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             elementMap.put(provider, elements);
             for (E element : elementsOfProvider) {
                 try {
-                    K key = getKey(element);
-                    if (key != null && get(key) != null) {
+                    K uid = element.getUID();
+                    if (uid != null && get(uid) != null) {
                         logger.warn(String.format(
                                 "%s with Key \"%s\" already exists! Failed to add a second with the same UID!",
-                                element.getClass().getName(), key));
+                                element.getClass().getName(), uid));
                         continue;
                     }
                     onAddElement(element);
@@ -278,16 +278,6 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
         }
     }
-
-    /**
-     * Returns the key for a given element under which the element will be found in the registry. This key should be
-     * unique in scope of the registry, so if an element with such key is already added, the second one will be
-     * rejected.
-     *
-     * @param element the element that is the owner of the key and which will be found in the registry under this key
-     * @return key (must not be null) the key under which the element will be found in the registry
-     */
-    protected abstract K getKey(E element);
 
     protected void setManagedProvider(ManagedProvider<E, K> provider) {
         managedProvider = provider;

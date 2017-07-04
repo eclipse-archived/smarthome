@@ -283,9 +283,4 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         return res;
     }
 
-    @Override
-    protected String getKey(ModuleType element) {
-        return element.getUID();
-    }
-
 }
