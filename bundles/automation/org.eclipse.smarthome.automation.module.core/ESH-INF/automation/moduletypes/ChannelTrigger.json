@@ -18,6 +18,14 @@
                      "name": "kind"
                   }
                ]
+            },
+            {
+               "name":"eventOnChannel",
+               "type":"TEXT",
+               "label":"Event",
+               "description":"the event on the channel to react on",
+               "required":false,
+               "defaultValue":""
             }
          ],
          "children":[
@@ -27,7 +35,8 @@
                "configuration":{
                   "eventSource":"${channelUID}",
                   "eventTopic":"smarthome/channels/*/triggered",
-                  "eventTypes":"ChannelTriggeredEvent"
+                  "eventTypes":"ChannelTriggeredEvent",
+                  "eventOnChannel":"${eventOnChannel}"
                }
             }
          ],

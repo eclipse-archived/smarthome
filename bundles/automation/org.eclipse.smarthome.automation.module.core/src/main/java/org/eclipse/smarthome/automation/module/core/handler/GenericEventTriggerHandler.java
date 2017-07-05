@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
     private String source;
+    private String eventOnChannel;
     private String topic;
     private Set<String> types;
     private BundleContext bundleContext;
@@ -52,6 +54,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     private static final String CFG_EVENT_TOPIC = "eventTopic";
     private static final String CFG_EVENT_SOURCE = "eventSource";
     private static final String CFG_EVENT_TYPES = "eventTypes";
+    private static final String CFG_CHANNEL_EVENT = "eventOnChannel";
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration eventSubscriberRegistration;
@@ -59,6 +62,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     public GenericEventTriggerHandler(Trigger module, BundleContext bundleContext) {
         super(module);
         this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
+        this.eventOnChannel = (String) module.getConfiguration().get(CFG_CHANNEL_EVENT);
         this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
         this.types = ImmutableSet.copyOf(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","));
         this.bundleContext = bundleContext;
@@ -86,6 +90,15 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
                     event.getTopic(), event.getType(), event.getPayload());
             if (!event.getTopic().contains(source)) {
                 return;
+            }
+            // if the optional parameter "eventOnChannel" is set different from the defaultValue (""), compare it to the
+            // received event on the channel
+            if (eventOnChannel != null && !eventOnChannel.equals("")) {
+                if (event instanceof ChannelTriggeredEvent) {
+                    if (!this.eventOnChannel.equals(((ChannelTriggeredEvent) event).getEvent())) {
+                        return;
+                    }
+                }
             }
             Map<String, Object> values = Maps.newHashMap();
             values.put("event", event);
