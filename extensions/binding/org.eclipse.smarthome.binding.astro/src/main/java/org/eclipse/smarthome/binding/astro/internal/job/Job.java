@@ -118,9 +118,15 @@ public interface Job extends Runnable {
         if (thingNull || astroHandlerNull || rangeNull || channelIdNull) {
             return;
         }
-        
+
         Calendar start = range.getStart();
         Calendar end = range.getEnd();
+
+        // depending on the location you might not have a valid range for day/night, so skip the events:
+        if (start == null || end == null) {
+            return;
+        }
+
         if (truncatedEquals(start, end, SECOND)) {
             scheduleEvent(thingUID, astroHandler, start, asList(EVENT_START, EVENT_END), channelId);
         } else {
