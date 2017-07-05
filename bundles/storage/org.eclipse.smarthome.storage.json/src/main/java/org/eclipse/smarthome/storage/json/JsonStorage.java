@@ -223,15 +223,17 @@ public class JsonStorage<T> implements Storage<T> {
         File[] files = folder.listFiles();
 
         // Get an array of file times from the filename
-        int count = files.length;
-        for (int i = 0; i < count; i++) {
-            if (files[i].isFile()) {
-                String[] parts = files[i].getName().split(SEPARATOR);
-                if (parts.length != 2 || !parts[1].equals(file.getName())) {
-                    continue;
+        if (files != null) {
+            int count = files.length;
+            for (int i = 0; i < count; i++) {
+                if (files[i].isFile()) {
+                    String[] parts = files[i].getName().split(SEPARATOR);
+                    if (parts.length != 2 || !parts[1].equals(file.getName())) {
+                        continue;
+                    }
+                    long time = Long.parseLong(parts[0]);
+                    fileTimes.add(time);
                 }
-                long time = Long.parseLong(parts[0]);
-                fileTimes.add(time);
             }
         }
 
@@ -293,15 +295,17 @@ public class JsonStorage<T> implements Storage<T> {
             File[] files = folder.listFiles();
 
             // Get an array of file times from the filename
-            int count = files.length;
-            for (int i = 0; i < count; i++) {
-                if (files[i].isFile()) {
-                    String[] parts = files[i].getName().split(SEPARATOR);
-                    if (parts.length != 2 || !parts[1].equals(file.getName())) {
-                        continue;
+            if (files != null) {
+                int count = files.length;
+                for (int i = 0; i < count; i++) {
+                    if (files[i].isFile()) {
+                        String[] parts = files[i].getName().split(SEPARATOR);
+                        if (parts.length != 2 || !parts[1].equals(file.getName())) {
+                            continue;
+                        }
+                        long time = Long.parseLong(parts[0]);
+                        fileTimes.add(time);
                     }
-                    long time = Long.parseLong(parts[0]);
-                    fileTimes.add(time);
                 }
             }
 
