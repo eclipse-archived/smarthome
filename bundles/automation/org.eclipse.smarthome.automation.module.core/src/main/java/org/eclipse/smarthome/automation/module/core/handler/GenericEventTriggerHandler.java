@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.core.events.Event;
@@ -93,11 +94,9 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
             }
             // if the optional parameter "eventOnChannel" is set different from the defaultValue (""), compare it to the
             // received event on the channel
-            if (eventOnChannel != null && !eventOnChannel.equals("")) {
-                if (event instanceof ChannelTriggeredEvent) {
-                    if (!this.eventOnChannel.equals(((ChannelTriggeredEvent) event).getEvent())) {
-                        return;
-                    }
+            if (StringUtils.isNotBlank(eventOnChannel)) {
+                if (!channelEventMatchesConfigEvent(event)) {
+                    return;
                 }
             }
             Map<String, Object> values = Maps.newHashMap();
@@ -138,6 +137,15 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     public boolean apply(Event event) {
         logger.trace("->FILTER: {}:{}", event.getTopic(), source);
         return event.getTopic().contains(source);
+    }
+
+    private boolean channelEventMatchesConfigEvent(Event event) {
+        if (event instanceof ChannelTriggeredEvent) {
+            if (this.eventOnChannel.equals(((ChannelTriggeredEvent) event).getEvent())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
