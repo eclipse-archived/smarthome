@@ -114,7 +114,7 @@ public class InboxResource implements RESTResource {
     }
 
     @GET
-    @Produces({ MediaType.WILDCARD })
+    @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get all discovered things.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = DiscoveryResultDTO.class) })
     public Response getAll() {
