@@ -14,6 +14,7 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.junit.matchers;version="4.0.0"
