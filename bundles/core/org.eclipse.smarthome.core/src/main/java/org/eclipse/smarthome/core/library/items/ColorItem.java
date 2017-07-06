@@ -22,8 +22,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A ColorItem can be used for color values, e.g. for LED lights
@@ -32,8 +30,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ColorItem extends DimmerItem {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -100,8 +96,7 @@ public class ColorItem extends DimmerItem {
                 }
             }
         } else {
-            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
-                    getClass().getSimpleName());
+            logSetTypeError(state);
         }
     }
 }
