@@ -11,8 +11,10 @@ public class ZonePlayerConfiguration {
 
     public static final String UDN = "udn";
     public static final String REFRESH = "refresh";
+    public static final String NOTIFICATION_TIMEOUT = "notificationTimeout";
 
     public String udn;
     public Integer refresh;
+    public Integer notificationTimeout;
 
 }
