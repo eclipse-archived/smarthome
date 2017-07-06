@@ -31,7 +31,7 @@
          "children":[
             {
                "id":"channelEventTriggerId",
-               "type":"core.GenericEventTrigger",
+               "type":"core.ChannelPayloadTrigger",
                "configuration":{
                   "eventSource":"${channelUID}",
                   "eventTopic":"smarthome/channels/*/triggered",
