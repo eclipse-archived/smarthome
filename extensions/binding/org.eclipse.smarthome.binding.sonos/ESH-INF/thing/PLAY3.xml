@@ -60,18 +60,6 @@
 			<property name="modelId">PLAY:3</property>
 		</properties>
 
-		<config-description>
-			<parameter name="udn" type="text">
-				<label>Unique Device Name</label>
-				<description>The UDN identifies the Zone Player.</description>
-				<required>true</required>
-			</parameter>
-
-			<parameter name="refresh" type="integer">
-				<label>Refresh interval</label>
-				<description>Specifies the refresh interval in seconds</description>
-				<default>60</default>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="config:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>
