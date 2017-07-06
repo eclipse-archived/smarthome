@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an ModuleHandler implementation for Trigger Channel with specific events
+ * This is an ModuleHandler implementation for trigger channels with specific events
  *
  * @author Stefan Triller - Initial contribution
  *
@@ -25,7 +25,7 @@ public class ChannelPayloadTriggerHandler extends GenericEventTriggerHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelPayloadTriggerHandler.class);
 
-    private String eventOnChannel;
+    private final String eventOnChannel;
 
     public static final String MODULE_TYPE_ID = "core.ChannelPayloadTrigger";
 

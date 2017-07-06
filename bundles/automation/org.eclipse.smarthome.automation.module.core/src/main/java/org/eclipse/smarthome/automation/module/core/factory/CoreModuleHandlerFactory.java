@@ -45,13 +45,12 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays
-            .asList(new String[] { ItemCommandTriggerHandler.MODULE_TYPE_ID,
-                    ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
-                    ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemCommandActionHandler.ITEM_COMMAND_ACTION,
-                    GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelPayloadTriggerHandler.MODULE_TYPE_ID,
-                    GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
-                    CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID });
+    private static final Collection<String> types = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
+            ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
+            ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemCommandActionHandler.ITEM_COMMAND_ACTION,
+            GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelPayloadTriggerHandler.MODULE_TYPE_ID,
+            GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
+            CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID);
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
