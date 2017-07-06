@@ -87,8 +87,8 @@ public class RollershutterItem extends GenericItem {
                 applyState(state);
             }
         } else {
-            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
-                    getClass().getSimpleName());
+            logger.error("Tried to set invalid state {}({}) on item {} of type {}, ignoring it", state,
+                    state.getClass().getSimpleName(), getName(), getClass().getSimpleName());
         }
     }
 

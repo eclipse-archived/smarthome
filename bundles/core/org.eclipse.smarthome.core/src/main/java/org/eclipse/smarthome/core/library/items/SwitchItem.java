@@ -70,8 +70,8 @@ public class SwitchItem extends GenericItem {
         if (isAcceptedState(acceptedDataTypes, state)) {
             super.setState(state);
         } else {
-            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
-                    getClass().getSimpleName());
+            logger.error("Tried to set invalid state {}({}) on item {} of type {}, ignoring it", state,
+                    state.getClass().getSimpleName(), getName(), getClass().getSimpleName());
         }
     }
 
