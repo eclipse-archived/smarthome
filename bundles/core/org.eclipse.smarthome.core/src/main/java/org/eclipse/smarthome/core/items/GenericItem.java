@@ -427,4 +427,9 @@ abstract public class GenericItem implements ActiveItem {
         return false;
     }
 
+    protected void logSetTypeError(State state) {
+        logger.error("Tried to set invalid state {} ({}) on item {} of type {}, ignoring it", state,
+                state.getClass().getSimpleName(), getName(), getClass().getSimpleName());
+    }
+
 }

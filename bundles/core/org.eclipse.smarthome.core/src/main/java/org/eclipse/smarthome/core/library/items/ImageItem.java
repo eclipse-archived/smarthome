@@ -18,8 +18,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An ImageItem holds the binary image data as its status.
@@ -28,8 +26,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ImageItem extends GenericItem {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
@@ -60,8 +56,7 @@ public class ImageItem extends GenericItem {
         if (isAcceptedState(acceptedDataTypes, state)) {
             super.setState(state);
         } else {
-            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
-                    getClass().getSimpleName());
+            logSetTypeError(state);
         }
     }
 }
