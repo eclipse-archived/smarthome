@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.model.sitemap.List;
@@ -38,7 +39,7 @@ public class ListRenderer extends AbstractWidgetRenderer {
         String[] rowContents = state.split(((List) w).getSeparator());
         StringBuilder rowSB = new StringBuilder();
         for (String row : rowContents) {
-            rowSB.append(StringUtils.replace(rowSnippet, "%title%", row));
+            rowSB.append(StringUtils.replace(rowSnippet, "%title%", StringEscapeUtils.escapeHtml(row)));
         }
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
 
