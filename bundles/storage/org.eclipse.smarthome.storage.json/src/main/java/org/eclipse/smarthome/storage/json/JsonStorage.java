@@ -14,8 +14,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -65,10 +63,10 @@ public class JsonStorage<T> implements Storage<T> {
 
     private File file;
     private ClassLoader classLoader;
-    private final Map<String, Map<String, Object>> map = new ConcurrentHashMap<String, Map<String, Object>>();
+    private final Map<String, StorageEntry> map = new ConcurrentHashMap<String, StorageEntry>();
 
-    private transient Gson outerMapper;
-    private transient Gson innerMapper;
+    private transient Gson internalMapper;
+    private transient Gson entityMapper;
 
     public JsonStorage(File file, ClassLoader classLoader, int maxBackupFiles, int writeDelay, int maxDeferredPeriod) {
         this.file = file;
@@ -77,14 +75,14 @@ public class JsonStorage<T> implements Storage<T> {
         this.writeDelay = writeDelay;
         this.maxDeferredPeriod = maxDeferredPeriod;
 
-        this.outerMapper = new GsonBuilder().registerTypeHierarchyAdapter(Map.class, new OuterMapDeserializer())
+        this.internalMapper = new GsonBuilder().registerTypeHierarchyAdapter(Map.class, new StorageEntryMapDeserializer())
                 .setPrettyPrinting().create();
-        this.innerMapper = new GsonBuilder().registerTypeAdapter(Configuration.class, new ConfigurationDeserializer())
+        this.entityMapper = new GsonBuilder().registerTypeAdapter(Configuration.class, new ConfigurationDeserializer())
                 .setPrettyPrinting().create();
 
         commitTimer = new Timer();
 
-        Map<String, Map<String, Object>> inputMap = null;
+        Map<String, StorageEntry> inputMap = null;
         if (file.exists()) {
 
             // Read the file
@@ -123,13 +121,8 @@ public class JsonStorage<T> implements Storage<T> {
 
     @Override
     public T put(String key, T value) {
-        Map<String, Object> val = new LinkedHashMap<String, Object>();
-        val.put(CLASS, value.getClass().getName());
-        val.put(VALUE, innerMapper.toJsonTree(value));
-
-        Map<String, Object> previousValue = map.get(key);
-
-        map.put(key, val);
+        StorageEntry val = new StorageEntry(value.getClass().getName(), entityMapper.toJsonTree(value));
+        StorageEntry previousValue = map.put(key, val);
         deferredCommit();
 
         if (previousValue == null) {
@@ -141,14 +134,14 @@ public class JsonStorage<T> implements Storage<T> {
 
     @Override
     public T remove(String key) {
-        Map<String, Object> removedElement = map.remove(key);
+        StorageEntry removedElement = map.remove(key);
         deferredCommit();
         return deserialize(removedElement);
     }
 
     @Override
     public T get(String key) {
-        Map<String, Object> value = map.get(key);
+        StorageEntry value = map.get(key);
         if (value == null) {
             return null;
         }
@@ -176,7 +169,7 @@ public class JsonStorage<T> implements Storage<T> {
      * the calling bundle.
      */
     @SuppressWarnings("unchecked")
-    private T deserialize(Map<String, Object> entry) {
+    private T deserialize(StorageEntry entry) {
         if (entry == null) {
             // nothing to deserialize
             return null;
@@ -187,12 +180,12 @@ public class JsonStorage<T> implements Storage<T> {
             // load required class within the given bundle context
             Class<T> loadedValueType = null;
             if (classLoader == null) {
-                loadedValueType = (Class<T>) Class.forName((String) entry.get(CLASS));
+                loadedValueType = (Class<T>) Class.forName(entry.getEntityClassName());
             } else {
-                loadedValueType = (Class<T>) classLoader.loadClass((String) entry.get(CLASS));
+                loadedValueType = (Class<T>) classLoader.loadClass(entry.getEntityClassName());
             }
 
-            value = innerMapper.fromJson((JsonElement) entry.get(VALUE), loadedValueType);
+            value = entityMapper.fromJson((JsonElement) entry.getValue(), loadedValueType);
             logger.trace("deserialized value '{}' from Json", value);
         } catch (Exception e) {
             logger.error("Couldn't deserialize value '{}'. Root cause is: {}", entry, e.getMessage());
@@ -202,13 +195,12 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Map<String, Object>> readDatabase(File inputFile) {
+    private Map<String, StorageEntry> readDatabase(File inputFile) {
         try {
-            final Map<String, Map<String, Object>> inputMap = new ConcurrentHashMap<String, Map<String, Object>>();
+            final Map<String, StorageEntry> inputMap = new ConcurrentHashMap<>();
 
             FileReader reader = new FileReader(inputFile);
-            Map<String, Map<String, Object>> type = new HashMap<String, Map<String, Object>>();
-            Map<String, Map<String, Object>> loadedMap = outerMapper.fromJson(reader, type.getClass());
+            Map<String, StorageEntry> loadedMap = internalMapper.fromJson(reader, map.getClass());
 
             if (loadedMap != null && loadedMap.size() != 0) {
                 inputMap.putAll(loadedMap);
@@ -271,7 +263,7 @@ public class JsonStorage<T> implements Storage<T> {
      * writing the backup copy (which would require a read and write, and is thus slower).
      */
     public void commitDatabase() {
-        String json = outerMapper.toJson(map);
+        String json = internalMapper.toJson(map);
 
         synchronized (map) {
             // Write the database file

@@ -38,19 +38,21 @@ public class ConfigurationDeserializer implements JsonDeserializer<Configuration
             throws JsonParseException {
         Configuration configuration = new Configuration();
         JsonObject configurationObject = json.getAsJsonObject();
-        JsonObject propertiesObject = configurationObject.get("properties").getAsJsonObject();
-        for (Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
-            JsonElement value = entry.getValue();
-            String key = entry.getKey();
-            if (value.isJsonPrimitive()) {
-                JsonPrimitive primitive = value.getAsJsonPrimitive();
-                configuration.put(key, deserialize(primitive));
-            } else if (value.isJsonArray()) {
-                JsonArray array = value.getAsJsonArray();
-                configuration.put(key, deserialize(array));
-            } else {
-                throw new IllegalArgumentException(
-                        "Configuration parameters must be primitives or arrays of primities only but was " + value);
+        if (configurationObject.get("properties") != null) {
+            JsonObject propertiesObject = configurationObject.get("properties").getAsJsonObject();
+            for (Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
+                JsonElement value = entry.getValue();
+                String key = entry.getKey();
+                if (value.isJsonPrimitive()) {
+                    JsonPrimitive primitive = value.getAsJsonPrimitive();
+                    configuration.put(key, deserialize(primitive));
+                } else if (value.isJsonArray()) {
+                    JsonArray array = value.getAsJsonArray();
+                    configuration.put(key, deserialize(array));
+                } else {
+                    throw new IllegalArgumentException(
+                            "Configuration parameters must be primitives or arrays of primities only but was " + value);
+                }
             }
         }
         return configuration;

@@ -8,10 +8,10 @@
 package org.eclipse.smarthome.storage.json;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonDeserializationContext;
@@ -28,7 +28,7 @@ import com.google.gson.JsonParseException;
  * @author Simon Kaufmann - initial contribution and API
  *
  */
-public class OuterMapDeserializer implements JsonDeserializer<Map<String, Object>> {
+public class StorageEntryMapDeserializer implements JsonDeserializer<Map<String, StorageEntry>> {
 
     /**
      *
@@ -61,7 +61,7 @@ public class OuterMapDeserializer implements JsonDeserializer<Map<String, Object
     }
 
     @Override
-    public Map<String, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public Map<String, StorageEntry> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         JsonObject obj = json.getAsJsonObject();
         if (!isOuterMap(obj)) {
@@ -70,14 +70,13 @@ public class OuterMapDeserializer implements JsonDeserializer<Map<String, Object
         return readOuterMap(obj, context);
     }
 
-    private Map<String, Object> readOuterMap(JsonObject obj, JsonDeserializationContext context) {
-        Map<String, Object> map = new HashMap<String, Object>();
+    private Map<String, StorageEntry> readOuterMap(JsonObject obj, JsonDeserializationContext context) {
+        Map<String, StorageEntry> map = new ConcurrentHashMap<>();
         for (Map.Entry<String, JsonElement> me : obj.entrySet()) {
             String key = me.getKey();
             JsonObject value = me.getValue().getAsJsonObject();
-            Map<String, Object> innerMap = new HashMap<>();
-            innerMap.put(JsonStorage.CLASS, value.get(JsonStorage.CLASS).getAsString());
-            innerMap.put(JsonStorage.VALUE, value.get(JsonStorage.VALUE));
+            StorageEntry innerMap = new StorageEntry(value.get(JsonStorage.CLASS).getAsString(),
+                    value.get(JsonStorage.VALUE));
             map.put(key, innerMap);
         }
         return map;
