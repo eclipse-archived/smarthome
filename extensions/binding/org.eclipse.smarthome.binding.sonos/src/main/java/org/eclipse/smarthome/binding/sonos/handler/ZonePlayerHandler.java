@@ -37,6 +37,7 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -102,7 +103,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     /**
      * Default notification timeout
      */
-    private static final int NOTIFICATION_TIMEOUT = 20000;
+    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 40000;
+    
+    /**
+     * configurable notification timeout
+     */
+    private Integer notificationTimeout = null;
 
     /**
      * Intrinsic lock used to synchronize the execution of notification sounds
@@ -205,8 +211,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         if (getUDN() != null) {
-            updateStatus(ThingStatus.ONLINE);
             onUpdate();
+            
+            if (getConfigAs(ZonePlayerConfiguration.class).notificationTimeout == null) {
+                Configuration c = editConfiguration();
+                c.put(ZonePlayerConfiguration.NOTIFICATION_TIMEOUT, DEFAULT_NOTIFICATION_TIMEOUT);
+                updateConfiguration(c);
+            }
+            
+            this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
+            
             super.initialize();
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
@@ -2374,7 +2388,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         // check Sonos state events to determine the end of the notification sound
         String notificationTitle = stateMap.get("CurrentTitle");
         long playstart = System.currentTimeMillis();
-        while (System.currentTimeMillis() - playstart < NOTIFICATION_TIMEOUT) {
+        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue()) {
             try {
                 Thread.sleep(50);
                 if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
@@ -2393,7 +2407,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (!stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -2409,7 +2423,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
                         break;
                     }
                 } catch (InterruptedException e) {
