@@ -49,7 +49,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
             rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", StringEscapeUtils.escapeHtml(command));
             rowSnippet = StringUtils.replace(rowSnippet, "%label%",
-                    mapping.getLabel() != null ? mapping.getLabel() : "");
+                    mapping.getLabel() != null ? StringEscapeUtils.escapeHtml(mapping.getLabel()) : "");
             if (state.equals(mapping.getCmd())) {
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
                 mappedValue = (mapping.getLabel() != null) ? mapping.getLabel() : mapping.getCmd();

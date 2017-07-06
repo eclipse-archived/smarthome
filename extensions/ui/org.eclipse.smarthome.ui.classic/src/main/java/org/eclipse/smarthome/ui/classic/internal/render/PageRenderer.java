@@ -10,6 +10,7 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -72,7 +73,8 @@ public class PageRenderer extends AbstractWidgetRenderer {
         if (label.contains("[") && label.endsWith("]")) {
             label = label.replace("[", "").replace("]", "");
         }
-        snippet = StringUtils.replace(snippet, "%label%", label);
+        snippet = StringUtils.replace(snippet, "%labelstyle%", "");
+        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(label));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
 

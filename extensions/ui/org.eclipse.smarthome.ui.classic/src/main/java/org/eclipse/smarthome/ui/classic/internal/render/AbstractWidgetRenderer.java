@@ -8,13 +8,14 @@
 package org.eclipse.smarthome.ui.classic.internal.render;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -144,9 +145,10 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return the label to use for the widget
      */
     private String formatLabel(String left, String right) {
-        String label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + left + "</span>";
+        String label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + StringEscapeUtils.escapeHtml(left)
+                + "</span>";
         if (right != null) {
-            label += "<span class=\"iValue\" style=\"%valuestyle%\">" + right + "</span>";
+            label += "<span class=\"iValue\" style=\"%valuestyle%\">" + StringEscapeUtils.escapeHtml(right) + "</span>";
         }
         return label;
     }
@@ -160,9 +162,9 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      */
     protected String escapeURLPath(String path) {
         try {
-            return new URI(null, null, path, null).toString();
-        } catch (URISyntaxException use) {
-            logger.warn("Cannot escape path '{}' in URL. Returning unmodified path.", path);
+            return URLEncoder.encode(path, "UTF-8");
+        } catch (UnsupportedEncodingException use) {
+            logger.warn("Cannot escape string '{}'. Returning unmodified string.", path);
             return path;
         }
     }
