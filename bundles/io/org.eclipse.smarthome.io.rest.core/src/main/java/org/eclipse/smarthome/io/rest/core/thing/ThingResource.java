@@ -587,14 +587,14 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}/firmware/status")
     @ApiOperation(value = "Gets thing's firmware status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Firmware status info not found.") })
+            @ApiResponse(code = 204, message = "No firmware status provided by this Thing.") })
     public Response getFirmwareStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
         ThingUID thingUIDObject = new ThingUID(thingUID);
 
         FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUIDObject);
         if (info == null) {
-            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Firmware status info not found.");
+            return Response.status(Status.NO_CONTENT).build();
         }
 
         return Response.ok().entity(buildFirmwareStatusDTO(info)).build();
