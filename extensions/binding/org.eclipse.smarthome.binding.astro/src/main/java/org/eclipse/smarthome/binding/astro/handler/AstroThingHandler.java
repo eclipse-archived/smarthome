@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -278,6 +279,7 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         long sleepTime;
         monitor.lock();
         try {
+            tidyScheduledFutures();
             sleepTime = eventAt.getTimeInMillis() - new Date().getTime();
             ScheduledFuture<?> future = scheduler.schedule(job, sleepTime, TimeUnit.MILLISECONDS);
             scheduledFutures.add(future);
@@ -287,6 +289,16 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         if (logger.isDebugEnabled()) {
             String formattedDate = DateFormatUtils.ISO_DATETIME_FORMAT.format(eventAt);
             logger.debug("Scheduled {} in {}ms (at {})", job, sleepTime, formattedDate);
+        }
+    }
+
+    private void tidyScheduledFutures() {
+        for (Iterator<ScheduledFuture<?>> iterator = scheduledFutures.iterator(); iterator.hasNext();) {
+            ScheduledFuture<?> future = iterator.next();
+            if (future.isDone()) {
+                logger.trace("Tidying up done future {}", future);
+                iterator.remove();
+            }
         }
     }
 
