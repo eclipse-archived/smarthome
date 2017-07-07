@@ -587,7 +587,7 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}/firmware/status")
     @ApiOperation(value = "Gets thing's firmware status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "Firmware status info not found.") })
+            @ApiResponse(code = 204, message = "No firmware status provided by this Thing.") })
     public Response getFirmwareStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
         ThingUID thingUIDObject = new ThingUID(thingUID);
