@@ -38,10 +38,14 @@ public class StringListType implements Command, State {
     }
 
     public StringListType(StringType... rows) {
-        typeDetails = new ArrayList<String>(rows.length);
+        typeDetails = new ArrayList<>(rows.length);
         for (StringType row : rows) {
             typeDetails.add(row.toString());
         }
+    }
+
+    public StringListType(List<String> rows) {
+        this.typeDetails = new ArrayList<>(rows);
     }
 
     public StringListType(String... rows) {
@@ -54,7 +58,7 @@ public class StringListType implements Command, State {
      */
     public StringListType(String serialized) {
         String[] rows = serialized.split(REGEX_SPLITTER);
-        typeDetails = new ArrayList<String>(rows.length);
+        typeDetails = new ArrayList<>(rows.length);
         for (String row : rows) {
             typeDetails.add(row.replace(ESCAPED_DELIMITER, DELIMITER));
         }
