@@ -47,6 +47,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -82,9 +83,11 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private Map<String, State> channelStates;
     private CurrentLightState currentLightState;
     private LifxLightState pendingLightState;
+
+    private Map<String, State> channelStates;
+    private ThingStatusInfo statusInfo;
 
     private LifxLightCommunicationHandler communicationHandler;
     private LifxLightCurrentStateUpdater currentStateUpdater;
@@ -103,15 +106,15 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         }
 
         public void setOnline() {
-            updateStatus(ThingStatus.ONLINE);
+            updateStatusIfChanged(ThingStatus.ONLINE);
         }
 
         public void setOffline() {
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatusIfChanged(ThingStatus.OFFLINE);
         }
 
         public void setOfflineByCommunicationError() {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+            updateStatusIfChanged(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
         }
 
         @Override
@@ -570,6 +573,18 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         if (oldState == null || !oldState.equals(newState)) {
             updateState(channel, newState);
             channelStates.put(channel, newState);
+        }
+    }
+
+    private void updateStatusIfChanged(ThingStatus status) {
+        updateStatusIfChanged(status, ThingStatusDetail.NONE);
+    }
+
+    private void updateStatusIfChanged(ThingStatus status, ThingStatusDetail statusDetail) {
+        ThingStatusInfo newStatusInfo = new ThingStatusInfo(status, statusDetail, null);
+        if (statusInfo == null || !statusInfo.equals(newStatusInfo)) {
+            statusInfo = newStatusInfo;
+            updateStatus(status, statusDetail);
         }
     }
 
