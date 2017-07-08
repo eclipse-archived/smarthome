@@ -9,6 +9,8 @@ package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.DEFAULT_COLOR;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,7 +35,7 @@ public class LifxLightState {
     private PercentType infrared;
     private SignalStrength signalStrength;
 
-    private long lastChange;
+    private LocalDateTime lastChange = LocalDateTime.MIN;
 
     private List<LifxLightStateListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -184,11 +186,11 @@ public class LifxLightState {
     }
 
     private void updateLastChange() {
-        lastChange = System.currentTimeMillis();
+        lastChange = LocalDateTime.now();
     }
 
-    public long getMillisSinceLastChange() {
-        return System.currentTimeMillis() - lastChange;
+    public Duration getDurationSinceLastChange() {
+        return Duration.between(lastChange, LocalDateTime.now());
     }
 
     public void addListener(LifxLightStateListener listener) {

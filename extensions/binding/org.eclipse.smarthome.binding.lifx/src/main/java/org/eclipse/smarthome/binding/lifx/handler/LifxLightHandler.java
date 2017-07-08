@@ -10,6 +10,9 @@ package org.eclipse.smarthome.binding.lifx.handler;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.increaseDecreasePercentType;
 
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,13 +72,14 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
-    private static final long FADE_TIME_DEFAULT = 300;
-    private static final int MAX_STATE_CHANGE_DURATION = 4000;
+    private static final Duration FADE_TIME_DEFAULT = Duration.ofMillis(300);
+    private static final Duration MIN_STATUS_INFO_UPDATE_INTERVAL = Duration.ofSeconds(1);
+    private static final Duration MAX_STATE_CHANGE_DURATION = Duration.ofSeconds(4);
 
     private final LifxChannelFactory channelFactory;
     private Products product;
 
-    private long fadeTime = FADE_TIME_DEFAULT;
+    private Duration fadeTime = FADE_TIME_DEFAULT;
     private PercentType powerOnBrightness;
 
     private MACAddress macAddress;
@@ -88,6 +92,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     private Map<String, State> channelStates;
     private ThingStatusInfo statusInfo;
+    private LocalDateTime lastStatusInfoUpdate = LocalDateTime.MIN;
 
     private LifxLightCommunicationHandler communicationHandler;
     private LifxLightCurrentStateUpdater currentStateUpdater;
@@ -283,17 +288,9 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         }
     }
 
-    private long getFadeTime() {
-        Object fadeCfg = getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_FADETIME);
-        if (fadeCfg == null) {
-            return FADE_TIME_DEFAULT;
-        }
-        try {
-            return Long.parseLong(fadeCfg.toString());
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid value '{}' for transition time, using default instead.", fadeCfg.toString());
-            return FADE_TIME_DEFAULT;
-        }
+    private Duration getFadeTime() {
+        BigDecimal fadeCfg = (BigDecimal) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_FADETIME);
+        return fadeCfg == null ? FADE_TIME_DEFAULT : Duration.ofMillis(fadeCfg.longValue());
     }
 
     private PercentType getPowerOnBrightness() {
@@ -486,7 +483,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
     }
 
     private boolean isStateChangePending() {
-        return pendingLightState.getMillisSinceLastChange() < MAX_STATE_CHANGE_DURATION;
+        return pendingLightState.getDurationSinceLastChange().minus(MAX_STATE_CHANGE_DURATION).isNegative();
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
@@ -582,8 +579,12 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     private void updateStatusIfChanged(ThingStatus status, ThingStatusDetail statusDetail) {
         ThingStatusInfo newStatusInfo = new ThingStatusInfo(status, statusDetail, null);
-        if (statusInfo == null || !statusInfo.equals(newStatusInfo)) {
+        Duration durationSinceLastUpdate = Duration.between(lastStatusInfoUpdate, LocalDateTime.now());
+        boolean intervalElapsed = MIN_STATUS_INFO_UPDATE_INTERVAL.minus(durationSinceLastUpdate).isNegative();
+
+        if (statusInfo == null || !statusInfo.equals(newStatusInfo) || intervalElapsed) {
             statusInfo = newStatusInfo;
+            lastStatusInfoUpdate = LocalDateTime.now();
             updateStatus(status, statusDetail);
         }
     }
