@@ -8,6 +8,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.module.script,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.factories,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
@@ -27,6 +30,9 @@ Import-Package: org.eclipse.smarthome.automation,
  org.osgi.service.component,
  org.osgi.util.tracker,
  org.slf4j
+Export-Package: org.eclipse.smarthome.automation.module.script.rulesupport.shared,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.factories,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple
 Automation-ResourceType: json
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
