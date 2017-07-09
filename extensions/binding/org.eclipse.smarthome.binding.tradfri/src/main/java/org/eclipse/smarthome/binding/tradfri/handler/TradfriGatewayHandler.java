@@ -54,7 +54,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TradfriGatewayHandler.class);
 
-    public MyCoapCallback devices, groups;
+    public TradfriCoapCallback devices, groups;
     private DTLSConnector dtlsConnector;
     private CoapEndpoint endPoint;
 
@@ -91,38 +91,41 @@ public class TradfriGatewayHandler extends BaseBridgeHandler {
         endPoint = new CoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
 
         // setup DEVICES scanner
-        devices = new MyCoapCallback();
-        devices.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
-        try {
-            URI uri = new URI(devices.gatewayURI);
-            devices.client = new TradfriCoapClient(uri);
-        } catch (URISyntaxException e) {
-            logger.debug("Illegal gateway URI `{}`: {}", devices.gatewayURI, e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
-            return;
+        devices = setupScanner("coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES);
+        if (devices == null) {
+            logger.debug("Unable to scan for Tradfri DEVICES");
         }
-        devices.client.setEndpoint(endPoint);
-
-        // setup GROUPS scanner
-        groups = new MyCoapCallback();
-        groups.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GROUPS;
-        try {
-            URI uri = new URI(groups.gatewayURI);
-            groups.client = new TradfriCoapClient(uri);
-        } catch (URISyntaxException e) {
-            logger.debug("Illegal gateway URI `{}`: {}", groups.gatewayURI, e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
-            return;
+        groups = setupScanner("coaps://" + configuration.host + ":" + configuration.port + "/" + GROUPS);
+        if (groups == null) {
+            logger.debug("Unable to scan for Tradfri GROUPS");
         }
-        groups.client.setEndpoint(endPoint);
 
         updateStatus(ThingStatus.UNKNOWN);
 
         // schedule a new scan every minute
         scanJob = scheduler.scheduleWithFixedDelay(() -> {
-            devices.startScan();
-            groups.startScan();
+            if (devices != null) {
+                devices.startScan();
+            }
+            if (groups != null) {
+                groups.startScan();
+            }
         }, 0, 60, TimeUnit.SECONDS);
+    }
+
+    TradfriCoapCallback setupScanner(String url) {
+        TradfriCoapCallback scanner = new TradfriCoapCallback();
+        scanner.gatewayURI = url;
+        try {
+            URI uri = new URI(scanner.gatewayURI);
+            scanner.client = new TradfriCoapClient(uri);
+        } catch (URISyntaxException e) {
+            logger.debug("Illegal gateway URI `{}`: {}", scanner.gatewayURI, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            return null;
+        }
+        scanner.client.setEndpoint(endPoint);
+        return scanner;
     }
 
     @Override
@@ -131,11 +134,11 @@ public class TradfriGatewayHandler extends BaseBridgeHandler {
             scanJob.cancel(true);
             scanJob = null;
         }
-        if (devices.client != null) {
+        if (devices != null && devices.client != null) {
             devices.client.shutdown();
             devices.client = null;
         }
-        if (groups.client != null) {
+        if (groups != null && groups.client != null) {
             groups.client.shutdown();
             groups.client = null;
         }
@@ -146,13 +149,9 @@ public class TradfriGatewayHandler extends BaseBridgeHandler {
         super.dispose();
     }
 
-    public class MyCoapCallback implements CoapCallback {
+    public class TradfriCoapCallback implements CoapCallback {
         private TradfriCoapClient client;
         private String gatewayURI;
-
-        MyCoapCallback() {
-
-        }
 
         /**
          * Does a request to the gateway to list all available devices/services.

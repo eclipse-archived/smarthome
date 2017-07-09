@@ -59,7 +59,6 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
         } else if (SUPPORTED_LIGHT_TYPES_UIDS.contains(thingTypeUID)) {
             return new TradfriLightHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_GROUP)) {
-            // TODO: Construct Group Handler
             return new TradfriGroupHandler(thing);
         }
         return null;
