@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
 import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +69,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     private final ScheduledExecutorService scheduler;
     private final LifxLightState pendingLightState;
     private final LifxLightCommunicationHandler communicationHandler;
-    private final long fadeTime;
+    private final Duration fadeTime;
     private final Products product;
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -129,7 +130,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
     public LifxLightStateChanger(MACAddress macAddress, ScheduledExecutorService scheduler,
             LifxLightState pendingLightState, LifxLightCommunicationHandler communicationHandler, Products product,
-            long fadeTime) {
+            Duration fadeTime) {
         this.macAsHex = macAddress.getHex();
         this.scheduler = scheduler;
         this.pendingLightState = pendingLightState;
@@ -277,14 +278,15 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     @Override
     public void handleColorsChange(HSBK[] oldColors, HSBK[] newColors) {
         if (sameColors(newColors)) {
-            SetColorRequest packet = new SetColorRequest(pendingLightState.getColors()[0], fadeTime);
+            SetColorRequest packet = new SetColorRequest(pendingLightState.getColors()[0], fadeTime.toMillis());
             removePacketsByType(SetColorZonesRequest.TYPE);
             replacePacketsInMap(packet);
         } else {
             List<SetColorZonesRequest> packets = new ArrayList<>();
             for (int i = 0; i < newColors.length; i++) {
                 if (newColors[i] != null && !newColors[i].equals(oldColors[i])) {
-                    packets.add(new SetColorZonesRequest(i, newColors[i], fadeTime, ApplicationRequest.APPLY));
+                    packets.add(
+                            new SetColorZonesRequest(i, newColors[i], fadeTime.toMillis(), ApplicationRequest.APPLY));
                 }
             }
             if (!packets.isEmpty()) {
