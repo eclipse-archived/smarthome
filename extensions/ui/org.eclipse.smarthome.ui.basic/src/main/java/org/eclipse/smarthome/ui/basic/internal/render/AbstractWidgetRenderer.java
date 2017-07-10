@@ -83,9 +83,11 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         snippet = StringUtils.replace(snippet, "%widget_id%", itemUIRegistry.getWidgetId(w));
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
         snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
-        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
-        snippet = StringUtils.replace(snippet, "%has_value%", new Boolean(hasValue(w)).toString());
+        // Optimization: avoid calling 3 times itemUIRegistry.getLabel(w)
+        String text = itemUIRegistry.getLabel(w);
+        snippet = StringUtils.replace(snippet, "%label%", getLabel(text));
+        snippet = StringUtils.replace(snippet, "%value%", getValue(text));
+        snippet = StringUtils.replace(snippet, "%has_value%", new Boolean(hasValue(text)).toString());
         snippet = StringUtils.replace(snippet, "%visibility_class%",
                 itemUIRegistry.getVisiblity(w) ? "" : "mdl-form__row--hidden");
 
@@ -132,14 +134,23 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return the label to use for the widget
      */
     public String getLabel(Widget w) {
-        String label = itemUIRegistry.getLabel(w);
-        int index = label.indexOf('[');
+        return getLabel(itemUIRegistry.getLabel(w));
+    }
+
+    /**
+     * Retrieves the label for a widget
+     *
+     * @param text the text containing the label and an optional value around []
+     * @return the label extracted from the text
+     */
+    protected String getLabel(String text) {
+        int index = text.indexOf('[');
 
         if (index != -1) {
-            label = label.substring(0, index);
+            text = text.substring(0, index);
         }
 
-        return escapeHtml(label);
+        return escapeHtml(text);
     }
 
     /**
@@ -149,11 +160,20 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return value to use for the widget
      */
     public String getValue(Widget w) {
-        String label = itemUIRegistry.getLabel(w);
-        int index = label.indexOf('[');
+        return getValue(itemUIRegistry.getLabel(w));
+    }
+
+    /**
+     * Returns formatted value of the item associated to widget
+     *
+     * @param text the text containing the label and an optional value around []
+     * @return the value extracted from the text or "" if not present
+     */
+    protected String getValue(String text) {
+        int index = text.indexOf('[');
 
         if (index != -1) {
-            return escapeHtml(label.substring(index + 1, label.length() - 1));
+            return escapeHtml(text.substring(index + 1, text.length() - 1));
         } else {
             return "";
         }
@@ -166,8 +186,17 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return true if the item associated to widget has a value
      */
     public boolean hasValue(Widget w) {
-        String label = itemUIRegistry.getLabel(w);
-        return (label.indexOf('[') != -1);
+        return hasValue(itemUIRegistry.getLabel(w));
+    }
+
+    /**
+     * Returns whether the item associated to widget has a value or not
+     *
+     * @param text the text containing the label and an optional value around []
+     * @return true if the text contains a value
+     */
+    protected boolean hasValue(String text) {
+        return (text.indexOf('[') != -1);
     }
 
     /**
