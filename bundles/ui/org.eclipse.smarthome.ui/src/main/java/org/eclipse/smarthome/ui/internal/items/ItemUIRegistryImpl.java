@@ -48,11 +48,13 @@ import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
@@ -268,6 +270,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     @Override
     public String getLabel(Widget w) {
         String label = getLabelFromWidget(w);
+        String labelMappedOption = null;
 
         // now insert the value, if the state is a string or decimal value and there is some formatting pattern defined
         // in the label
@@ -276,11 +279,21 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             State state = null;
             String formatPattern = getFormatPattern(label);
+            StateDescription stateDescription = null;
 
             try {
                 final Item item = getItem(itemName);
+                // There is a known issue in the implementation of the method getStateDescription() of class Item
+                // in the following case:
+                // - the item provider returns as expected a state description without pattern but with for
+                // example a min value because a min value is set in the item definition but no label with
+                // pattern is set.
+                // - the channel state description provider returns as expected a state description with a pattern
+                // In this case, the result is no display of value by UIs because no pattern is set in the
+                // returned StateDescription. What is expected is the display of a value using the pattern
+                // provided by the channel state description provider.
+                stateDescription = item.getStateDescription();
                 if (formatPattern == null) {
-                    final StateDescription stateDescription = item.getStateDescription();
                     if (stateDescription != null) {
                         final String pattern = stateDescription.getPattern();
                         if (pattern != null) {
@@ -321,6 +334,27 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     if (state == null || state instanceof UnDefType) {
                         formatPattern = formatUndefined(formatPattern);
                     } else if (state instanceof Type) {
+                        // if the channel contains options, we build a label with the mapped option value
+                        if (stateDescription != null && stateDescription.getOptions() != null) {
+                            for (StateOption option : stateDescription.getOptions()) {
+                                if (option.getValue().equals(state.toString()) && option.getLabel() != null) {
+                                    State stateOption = new StringType(option.getLabel());
+                                    try {
+                                        String formatPatternOption = stateOption.format(formatPattern);
+                                        labelMappedOption = label.trim();
+                                        labelMappedOption = labelMappedOption.substring(0,
+                                                labelMappedOption.indexOf("[") + 1) + formatPatternOption + "]";
+                                    } catch (IllegalArgumentException e) {
+                                        logger.warn(
+                                                "Exception while formatting value '{}' of item {} with format '{}': {}",
+                                                stateOption, itemName, formatPattern, e);
+                                        labelMappedOption = null;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
                         // The following exception handling has been added to work around a Java bug with formatting
                         // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
                         // Without this catch, the whole sitemap, or page can not be displayed!
@@ -340,7 +374,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             }
         }
 
-        label = transform(label);
+        label = transform(label, labelMappedOption);
 
         return label;
     }
@@ -401,8 +435,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * label (the right side is signified by being enclosed in square brackets [].
      * If so, check if the value starts with the call to a transformation service
      * (e.g. "[MAP(en.map):%s]") and execute the transformation in this case.
+     * If the value does not start with the call to a transformation service,
+     * we return the label with the mapped option value if provided (not null).
      */
-    private String transform(String label) {
+    private String transform(String label, String labelMappedOption) {
         if (getFormatPattern(label) != null) {
             Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(label);
             if (matcher.find()) {
@@ -426,6 +462,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                             type);
                     label = label.substring(0, label.indexOf("[") + 1) + value + "]";
                 }
+            } else if (labelMappedOption != null) {
+                label = labelMappedOption;
             }
         }
         return label;
