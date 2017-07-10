@@ -21,6 +21,8 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link ChannelStateDescriptionProvider} provides localized {@link StateDescription}s from the type of a
@@ -29,6 +31,8 @@ import org.osgi.framework.Constants;
  * @author Dennis Nobel - Initial contribution
  */
 public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
@@ -57,7 +61,29 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             Channel channel = thingRegistry.getChannel(channelUID);
             if (channel != null) {
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
-                return channelType != null ? channelType.getState() : null;
+                if (channelType != null) {
+                    StateDescription state = channelType.getState();
+                    if ((channelType.getItemType() != null) && ((state == null) || (state.getPattern() == null))) {
+                        String pattern = null;
+                        if (channelType.getItemType().equalsIgnoreCase("String")) {
+                            pattern = "%s";
+                        } else if (channelType.getItemType().equalsIgnoreCase("Number")) {
+                            pattern = "%.0f";
+                        }
+                        if (pattern != null) {
+                            logger.trace("Provide a default pattern {} for item {}", pattern, itemName);
+                            if (state == null) {
+                                state = new StateDescription(null, null, null, pattern, false, null);
+                            } else {
+                                state = new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(),
+                                        pattern, state.isReadOnly(), state.getOptions());
+                            }
+                        }
+                    }
+                    return state;
+                } else {
+                    return null;
+                }
             }
         }
         return null;

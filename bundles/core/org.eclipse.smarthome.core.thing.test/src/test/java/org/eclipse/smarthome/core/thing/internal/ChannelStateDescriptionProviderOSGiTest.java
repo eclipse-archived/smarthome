@@ -7,9 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +20,14 @@ import java.util.Locale;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.ColorItem;
+import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.StringItem;
+import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -46,7 +53,6 @@ import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -78,7 +84,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         registerVolatileStorageService();
 
         itemRegistry = getService(ItemRegistry.class);
-        Assert.assertNotNull(itemRegistry);
+        assertNotNull(itemRegistry);
 
         final TestThingHandlerFactory thingHandlerFactory = new TestThingHandlerFactory();
         thingHandlerFactory.activate(componentContext);
@@ -87,9 +93,29 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         final StateDescription state = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(100), BigDecimal.TEN,
                 "%d Peek", true, Collections.singletonList(new StateOption("SOUND", "My great sound.")));
 
+        final StateDescription state2 = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(256),
+                BigDecimal.valueOf(8), null, false, null);
+
         final ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null,
                 null, state, null);
-        final Collection<ChannelType> channelTypes = Collections.singleton(channelType);
+        final ChannelType channelType2 = new ChannelType(new ChannelTypeUID("hue:num"), false, "Number", " ", "", null,
+                null, state2, null);
+        final ChannelType channelType3 = new ChannelType(new ChannelTypeUID("hue:info"), true, "String", " ", "", null,
+                null, null, null);
+        final ChannelType channelType4 = new ChannelType(new ChannelTypeUID("hue:color"), false, "Color", "Color", "",
+                "ColorLight", null, null, null);
+        final ChannelType channelType5 = new ChannelType(new ChannelTypeUID("hue:brightness"), false, "Dimmer",
+                "Brightness", "", "DimmableLight", null, null, null);
+        final ChannelType channelType6 = new ChannelType(new ChannelTypeUID("hue:switch"), false, "Switch", "Switch",
+                "", "Light", null, null, null);
+
+        List<ChannelType> channelTypes = new ArrayList<>();
+        channelTypes.add(channelType);
+        channelTypes.add(channelType2);
+        channelTypes.add(channelType3);
+        channelTypes.add(channelType4);
+        channelTypes.add(channelType5);
+        channelTypes.add(channelType6);
 
         registerService(new ChannelTypeProvider() {
             @Override
@@ -118,16 +144,30 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
             }
         });
 
-        registerService(new SimpleThingTypeProvider(Collections.singleton(new ThingType(new ThingTypeUID("hue:lamp"),
-                null, " ", null, Collections.singletonList(new ChannelDefinition("1", channelType.getUID())), null,
-                null, null))));
+        List<ChannelDefinition> channelDefinitions = new ArrayList<>();
+        channelDefinitions.add(new ChannelDefinition("1", channelType.getUID()));
+        channelDefinitions.add(new ChannelDefinition("2", channelType2.getUID()));
+        channelDefinitions.add(new ChannelDefinition("3", channelType3.getUID()));
+        channelDefinitions.add(new ChannelDefinition("4", channelType4.getUID()));
+        channelDefinitions.add(new ChannelDefinition("5", channelType5.getUID()));
+        channelDefinitions.add(new ChannelDefinition("6", channelType6.getUID()));
 
-        registerService(new TestItemProvider(Collections.singleton(new NumberItem("TestItem"))));
+        registerService(new SimpleThingTypeProvider(Collections.singleton(
+                new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, channelDefinitions, null, null, null))));
+
+        List<Item> items = new ArrayList<>();
+        items.add(new NumberItem("TestItem"));
+        items.add(new NumberItem("TestItem2"));
+        items.add(new StringItem("TestItem3"));
+        items.add(new ColorItem("TestItem4"));
+        items.add(new DimmerItem("TestItem5"));
+        items.add(new SwitchItem("TestItem6"));
+        registerService(new TestItemProvider(items));
 
         linkRegistry = getService(ItemChannelLinkRegistry.class);
 
         stateDescriptionProvider = getService(StateDescriptionProvider.class);
-        Assert.assertNotNull(stateDescriptionProvider);
+        assertNotNull(stateDescriptionProvider);
     }
 
     @After
@@ -145,42 +185,92 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
      * Assert that item's state description is present.
      */
     @Test
-    public void presentItemStateDescription() {
+    public void presentItemStateDescription() throws ItemNotFoundException {
         ThingRegistry thingRegistry = getService(ThingRegistry.class);
         ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
 
         Thing thing = thingRegistry.createThingOfType(new ThingTypeUID("hue:lamp"), new ThingUID("hue:lamp:lamp1"),
                 null, "test thing", new Configuration());
-        Assert.assertNotNull(thing);
+        assertNotNull(thing);
         managedThingProvider.add(thing);
-        final ItemChannelLink link = new ItemChannelLink("TestItem", thing.getChannels().get(0).getUID());
+        ItemChannelLink link = new ItemChannelLink("TestItem", thing.getChannel("1").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem2", thing.getChannel("2").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem3", thing.getChannel("3").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem4", thing.getChannel("4").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem5", thing.getChannel("5").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem6", thing.getChannel("6").getUID());
         linkRegistry.add(link);
         //
         final Collection<Item> items = itemRegistry.getItems();
-        Assert.assertEquals(false, items.isEmpty());
+        assertEquals(false, items.isEmpty());
 
-        Item numberItem = null;
-        for (final Item item : items) {
-            if (item.getType().equals("Number")) {
-                numberItem = item;
-                break;
-            }
-        }
-        Assert.assertNotNull(numberItem);
+        Item item = itemRegistry.getItem("TestItem");
+        assertEquals("Number", item.getType());
 
-        final StateDescription state = numberItem.getStateDescription();
-        Assert.assertNotNull(state);
+        StateDescription state = item.getStateDescription();
+        assertNotNull(state);
 
-        Assert.assertEquals(BigDecimal.ZERO, state.getMinimum());
-        Assert.assertEquals(BigDecimal.valueOf(100), state.getMaximum());
-        Assert.assertEquals(BigDecimal.TEN, state.getStep());
-        Assert.assertEquals("%d Peek", state.getPattern());
-        Assert.assertEquals(true, state.isReadOnly());
+        assertEquals(BigDecimal.ZERO, state.getMinimum());
+        assertEquals(BigDecimal.valueOf(100), state.getMaximum());
+        assertEquals(BigDecimal.TEN, state.getStep());
+        assertEquals("%d Peek", state.getPattern());
+        assertEquals(true, state.isReadOnly());
         List<StateOption> opts = state.getOptions();
-        Assert.assertEquals(1, opts.size());
+        assertEquals(1, opts.size());
         final StateOption opt = opts.get(0);
-        Assert.assertEquals("SOUND", opt.getValue());
-        Assert.assertEquals("My great sound.", opt.getLabel());
+        assertEquals("SOUND", opt.getValue());
+        assertEquals("My great sound.", opt.getLabel());
+
+        item = itemRegistry.getItem("TestItem2");
+        assertEquals("Number", item.getType());
+
+        state = item.getStateDescription();
+        assertNotNull(state);
+
+        assertEquals(BigDecimal.ZERO, state.getMinimum());
+        assertEquals(BigDecimal.valueOf(256), state.getMaximum());
+        assertEquals(BigDecimal.valueOf(8), state.getStep());
+        assertEquals("%.0f", state.getPattern());
+        assertEquals(false, state.isReadOnly());
+        opts = state.getOptions();
+        assertEquals(0, opts.size());
+
+        item = itemRegistry.getItem("TestItem3");
+        assertEquals("String", item.getType());
+
+        state = item.getStateDescription();
+        assertNotNull(state);
+
+        assertNull(state.getMinimum());
+        assertNull(state.getMaximum());
+        assertNull(state.getStep());
+        assertEquals("%s", state.getPattern());
+        assertEquals(false, state.isReadOnly());
+        opts = state.getOptions();
+        assertEquals(0, opts.size());
+
+        item = itemRegistry.getItem("TestItem4");
+        assertEquals("Color", item.getType());
+
+        state = item.getStateDescription();
+        assertNull(state);
+
+        item = itemRegistry.getItem("TestItem5");
+        assertEquals("Dimmer", item.getType());
+
+        state = item.getStateDescription();
+        assertNull(state);
+
+        item = itemRegistry.getItem("TestItem6");
+        assertEquals("Switch", item.getType());
+
+        state = item.getStateDescription();
+        assertNull(state);
 
     }
 
