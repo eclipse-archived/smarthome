@@ -17,7 +17,7 @@ import org.junit.Test;
  */
 public class StringListTypeTest {
     @Test
-    public void testEquals() {
+    public void testSerializedEquals_simple() {
         final int DEST_IDX = 0;
         final int ORIG_IDX = 1;
 
@@ -26,38 +26,41 @@ public class StringListTypeTest {
 
         assertEquals(call1.getValue(ORIG_IDX), call2.getValue(DEST_IDX));
         assertEquals(call2.toString(), "0699222222,0179999998");
+    }
 
-        String serialized = new String("value1,value2,value=with=foo,value\\,with\\,foo,,\\,\\,foo");
+    @Test
+    public void testSerializedEquals_withEscapedEntries() {
+        String serialized = "value1,value2,value=with=foo,value\\,with\\,foo,,\\,\\,foo";
         StringListType call4 = new StringListType(serialized);
-        assertTrue(call4.getValue(1).toString().equals("value2"));
-        assertTrue(call4.getValue(4).toString().isEmpty());
-        assertTrue(call4.getValue(2).toString().equals("value=with=foo"));
-        assertTrue(call4.getValue(3).toString().equals("value,with,foo"));
-        assertTrue(call4.getValue(5).toString().equals(",,foo"));
-        assertTrue(call4.toString().equals(serialized));
+
+        assertEquals("value2", call4.getValue(1));
+        assertTrue(call4.getValue(4).isEmpty());
+        assertEquals("value=with=foo", call4.getValue(2));
+        assertEquals("value,with,foo", call4.getValue(3));
+        assertEquals(",,foo", call4.getValue(5));
+        assertEquals(serialized, call4.toString());
     }
 
     @Test
     public void testError() {
-        StringListType gct = new StringListType("foo=bar", "electric", "chair");
-        try {
+        StringListType type = new StringListType("foo=bar", "electric", "chair");
 
+        try {
             // Index is between 0 and number of elements -1
             @SuppressWarnings("unused")
-            String value = gct.getValue(-1);
-            fail();
-        } catch (Exception e) {
-            try {
-
-                @SuppressWarnings("unused")
-                String value = gct.getValue(3);
-                fail();
-            } catch (Exception e2) {
-                // That's what we expect.
-            }
-
+            String value = type.getValue(-1);
+            fail("-1 is an invalid index");
+        } catch (IllegalArgumentException e) {
+            // That's what we expect.
         }
 
+        try {
+            @SuppressWarnings("unused")
+            String value = type.getValue(3);
+            fail("3 is an invalid index");
+        } catch (IllegalArgumentException e) {
+            // That's what we expect.
+        }
     }
 
     @Test
@@ -68,12 +71,15 @@ public class StringListTypeTest {
     }
 
     @Test
-    public void testValueOf() {
+    public void testValueOf_simple() {
         StringListType abc = StringListType.valueOf("a,b,c");
         assertEquals("a", abc.getValue(0));
         assertEquals("b", abc.getValue(1));
         assertEquals("c", abc.getValue(2));
+    }
 
+    @Test
+    public void testValueOf_withEscapedEntries() {
         StringListType abC = StringListType.valueOf("a\\,b,c");
         assertEquals("a,b", abC.getValue(0));
         assertEquals("c", abC.getValue(1));
