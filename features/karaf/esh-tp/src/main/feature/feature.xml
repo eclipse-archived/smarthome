@@ -34,7 +34,6 @@
     <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
     <bundle dependency="true">mvn:org.apache.commons/commons-collections4/4.1</bundle>
     <bundle dependency="true">mvn:org.apache.commons/commons-exec/1.1</bundle>
-    <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_7</bundle>
     <bundle dependency="true">mvn:commons-io/commons-io/2.2</bundle>
     <bundle dependency="true">mvn:commons-lang/commons-lang/2.6</bundle>
     <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.4</bundle>
