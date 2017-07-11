@@ -39,4 +39,13 @@
 		</config-description>
 	</thing-type>
 
+	<thing-type id="contact-sensor">
+		<label>Magic Sensor - Door/Window Contact</label>
+		<description>A door/window sensor indicating an open/close status.</description>
+
+		<channels>
+			<channel id="contact" typeId="contact" />
+		</channels>
+	</thing-type>
+
 </thing:thing-descriptions>
