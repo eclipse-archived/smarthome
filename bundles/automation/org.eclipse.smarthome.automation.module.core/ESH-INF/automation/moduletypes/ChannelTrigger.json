@@ -24,8 +24,7 @@
                "type":"TEXT",
                "label":"Event",
                "description":"the event on the channel to react on",
-               "required":false,
-               "defaultValue":""
+               "required":false
             }            
          ],
          "outputs":[
