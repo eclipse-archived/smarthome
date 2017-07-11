@@ -27,4 +27,10 @@
 		</tags>
 	</channel-type>
 
+	<channel-type id="contact">
+		<item-type>Contact</item-type>
+		<label>Contact</label>
+		<state readOnly="true"></state>
+	</channel-type>
+
 </thing:thing-descriptions>
