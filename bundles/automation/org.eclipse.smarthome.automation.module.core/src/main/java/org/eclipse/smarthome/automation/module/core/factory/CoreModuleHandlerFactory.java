@@ -17,7 +17,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
-import org.eclipse.smarthome.automation.module.core.handler.ChannelPayloadTriggerHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ChannelEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
@@ -48,7 +48,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
     private static final Collection<String> types = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
             ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
             ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemCommandActionHandler.ITEM_COMMAND_ACTION,
-            GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelPayloadTriggerHandler.MODULE_TYPE_ID,
+            GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelEventTriggerHandler.MODULE_TYPE_ID,
             GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
             CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID);
 
@@ -151,8 +151,8 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
                 return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
-            } else if (ChannelPayloadTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ChannelPayloadTriggerHandler((Trigger) module, this.bundleContext);
+            } else if (ChannelEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                return new ChannelEventTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
                 return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)

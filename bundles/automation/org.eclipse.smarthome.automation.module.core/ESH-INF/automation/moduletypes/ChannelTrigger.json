@@ -20,25 +20,13 @@
                ]
             },
             {
-               "name":"eventOnChannel",
+               "name":"event",
                "type":"TEXT",
                "label":"Event",
                "description":"the event on the channel to react on",
                "required":false,
                "defaultValue":""
-            }
-         ],
-         "children":[
-            {
-               "id":"channelEventTriggerId",
-               "type":"core.ChannelPayloadTrigger",
-               "configuration":{
-                  "eventSource":"${channelUID}",
-                  "eventTopic":"smarthome/channels/*/triggered",
-                  "eventTypes":"ChannelTriggeredEvent",
-                  "eventOnChannel":"${eventOnChannel}"
-               }
-            }
+            }            
          ],
          "outputs":[
             {
