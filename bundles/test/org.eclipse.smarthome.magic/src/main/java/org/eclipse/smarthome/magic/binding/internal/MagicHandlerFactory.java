@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicColorLightHandler;
+import org.eclipse.smarthome.magic.binding.handler.MagicContactHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicDimmableLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicOnOffLightHandler;
 
@@ -31,7 +32,7 @@ import com.google.common.collect.Sets;
 public class MagicHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.newHashSet(THING_TYPE_ON_OFF_LIGHT,
-            THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_LIGHT);
+            THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_LIGHT, THING_TYPE_CONTACT_SENSOR);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -50,6 +51,9 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_COLOR_LIGHT)) {
             return new MagicColorLightHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_CONTACT_SENSOR)) {
+            return new MagicContactHandler(thing);
         }
 
         return null;
