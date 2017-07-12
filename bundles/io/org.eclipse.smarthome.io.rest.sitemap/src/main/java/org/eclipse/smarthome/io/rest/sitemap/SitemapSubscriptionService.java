@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
@@ -215,7 +216,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     }
 
     private EList<Widget> collectWidgets(String sitemapName, String pageId) {
-        EList<Widget> widgets = null;
+        EList<Widget> widgets = new BasicEList<Widget>();
 
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
