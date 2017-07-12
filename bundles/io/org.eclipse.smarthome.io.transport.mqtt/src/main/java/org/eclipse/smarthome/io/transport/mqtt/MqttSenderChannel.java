@@ -12,17 +12,21 @@ import java.io.IOException;
 /**
  * Callback interface for sending a message to the MqttBrokerConnection.
  *
+ * @deprecated
  * @author Davy Vanherbergen
  */
+@Deprecated
 public interface MqttSenderChannel {
-
     /**
-     * Send a message to the MQTT broker.
+     * Send a message to the MQTT broker. Please do not use this interface anymore, but call
+     * {@see MqttBrokerConnection.publish()} instead. You will not get a notification if your
+     * message arrived the broker.
      *
+     * @deprecated
      * @param topic Topic to publish the message to.
      * @param message message payload.
-     * @throws IOException if an error occurs during sending.
+     * @throws IOException if there is no broker connection
      */
+    @Deprecated
     public void publish(String topic, byte[] message) throws IOException;
-
 }

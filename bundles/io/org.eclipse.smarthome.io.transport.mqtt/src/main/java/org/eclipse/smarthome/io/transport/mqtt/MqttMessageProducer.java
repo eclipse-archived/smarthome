@@ -11,8 +11,12 @@ package org.eclipse.smarthome.io.transport.mqtt;
  * All message producers which want to register as a message producer to a MqttBrokerConnection should implement this
  * interface.
  *
+ * This interface is deprecated. Use the {@see MqttBrokerConnection.publish()} method instead.
+ *
+ * @deprecated
  * @author Davy Vanherbergen
  */
+@Deprecated
 public interface MqttMessageProducer {
 
     /**
