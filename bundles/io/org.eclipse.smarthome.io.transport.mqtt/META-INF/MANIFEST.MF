@@ -19,3 +19,4 @@ Import-Package: javax.net,
  org.slf4j
 Service-Component: OSGI-INF/mqtt-*.xml
 Bundle-ClassPath: .
+Bundle-ActivationPolicy: lazy
