@@ -12,11 +12,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import java.util.stream.Stream;
+import org.eclipse.smarthome.automation.Module;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
@@ -30,7 +32,11 @@ import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigUtil;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -39,6 +45,9 @@ import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * This is the main implementation of the {@link RuleRegistry}, which is registered as a service.
@@ -91,10 +100,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
     private static final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
-    private RuleEngine ruleEngine = new RuleEngine();
+    protected RuleEngine ruleEngine = new RuleEngine();
     private Storage<Boolean> disabledRulesStorage;
     private ModuleTypeRegistry moduleTypeRegistry;
     private RuleTemplateRegistry templateRegistry;
+
+    private Gson gson;
 
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
@@ -237,11 +248,20 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         String rUID = rule.getUID();
         if (rUID == null) {
             rUID = ruleEngine.getUniqueId();
-            super.add(initRuleId(rUID, rule));
-        } else {
-            super.add(rule);
+            rule = initRuleId(rUID, rule);
         }
+
+        super.add(rule);
         return get(rUID);
+    }
+
+    @Override
+    protected void onAddElement(Rule rule) throws IllegalArgumentException {
+        if (rule.getTemplateUID() == null) {
+            // do resolve and normalize, before store in registry
+            resolveConfiguration(rule);
+        }
+        super.onAddElement(rule);
     }
 
     /**
@@ -496,9 +516,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 resolvedRule.setTags(rule.getTags());
                 resolvedRule.setDescription(rule.getDescription());
 
-                // TODO this provide config resolution twice - It must be done only in RuleEngine. Remove it.
-                ruleEngine.resolveConfiguration(resolvedRule);
-
                 return resolvedRule;
             }
         }
@@ -521,6 +538,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             String rUID = ruleEngine.getUniqueId();
             ruleWithUID = initRuleId(rUID, element);
         }
+
         super.added(provider, ruleWithUID);
         updateRuleByTemplate(provider, ruleWithUID);
     }
@@ -532,6 +550,15 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 super.updated(provider, rule, resolvedRule);
             }
         }
+    }
+
+    @Override
+    protected void onUpdateElement(Rule oldRule, Rule rule) throws IllegalArgumentException {
+        if (rule.getTemplateUID() == null) {
+            resolveConfiguration(rule);
+        }
+
+        super.onUpdateElement(oldRule, rule);
     }
 
     @Override
@@ -587,9 +614,112 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.runNow(ruleUID);
     }
 
-	@Override
-	public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-		ruleEngine.runNow(ruleUID, considerConditions, context);
-	}
+    @Override
+    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
+        ruleEngine.runNow(ruleUID, considerConditions, context);
+    }
+
+    protected void resolveConfiguration(Rule rule) {
+        normalizeRuleConfigurations(rule);
+        Map<String, Object> configuration = rule.getConfiguration().getProperties();
+        if (configuration != null) {
+            handleModuleConfigReferences(rule.getTriggers(), configuration);
+            handleModuleConfigReferences(rule.getConditions(), configuration);
+            handleModuleConfigReferences(rule.getActions(), configuration);
+        }
+        normalizeModuleConfigurations(rule);
+    }
+
+    private void handleModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
+        if (modules != null) {
+            for (Module module : modules) {
+                ReferenceResolverUtil.updateModuleConfiguration(module, ruleConfiguration);
+            }
+        }
+    }
+
+    private void normalizeRuleConfigurations(Rule rule) {
+        List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
+        Map<String, ConfigDescriptionParameter> mapConfigDescriptions;
+        if (configDescriptions != null) {
+            mapConfigDescriptions = getConfigDescriptionMap(configDescriptions);
+            normalizeConfiguration(rule.getConfiguration(), mapConfigDescriptions);
+        }
+    }
+
+    private void normalizeModuleConfigurations(Rule rule) {
+        normalizeModuleConfigurations(rule.getTriggers());
+        normalizeModuleConfigurations(rule.getConditions());
+        normalizeModuleConfigurations(rule.getActions());
+
+    }
+
+    private Map<String, ConfigDescriptionParameter> getConfigDescriptionMap(
+            List<ConfigDescriptionParameter> configDesc) {
+        Map<String, ConfigDescriptionParameter> mapConfigDescs = null;
+        if (configDesc != null) {
+            for (ConfigDescriptionParameter configDescriptionParameter : configDesc) {
+                if (mapConfigDescs == null) {
+                    mapConfigDescs = new HashMap<String, ConfigDescriptionParameter>();
+                }
+                mapConfigDescs.put(configDescriptionParameter.getName(), configDescriptionParameter);
+            }
+        }
+        return mapConfigDescs;
+    }
+
+    private <T extends Module> void normalizeModuleConfigurations(List<T> modules) {
+        for (Module module : modules) {
+            Configuration config = module.getConfiguration();
+            if (config != null) {
+                String type = module.getTypeUID();
+                ModuleType mt = moduleTypeRegistry.get(type);
+                if (mt != null) {
+                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
+                    if (configDescriptions != null) {
+                        Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
+                                configDescriptions);
+                        normalizeConfiguration(config, mapConfigDescriptions);
+                    }
+                }
+            }
+        }
+    }
+
+    private void normalizeConfiguration(Configuration config, Map<String, ConfigDescriptionParameter> mapCD) {
+        if (config != null && mapCD != null) {
+            for (String propName : mapCD.keySet()) {
+                ConfigDescriptionParameter cd = mapCD.get(propName);
+                if (cd != null) {
+                    Object tmp = config.get(propName);
+                    Object defaultValue = cd.getDefault();
+                    if (tmp == null && defaultValue != null) {
+                        config.put(propName, defaultValue);
+                    }
+
+                    if (cd.isMultiple()) {
+                        tmp = config.get(propName);
+                        if (tmp != null && tmp instanceof String) {
+                            String sValue = (String) tmp;
+                            if (gson == null) {
+                                gson = new Gson();
+                            }
+                            try {
+                                Object value = gson.fromJson(sValue, List.class);
+                                config.put(propName, value);
+                            } catch (JsonSyntaxException e) {
+                                logger.error("Can't parse {} to list value.", sValue, e);
+                            }
+                            continue;
+                        }
+                    }
+                }
+                Object value = ConfigUtil.normalizeType(config.get(propName), cd);
+                if (value != null) {
+                    config.put(propName, value);
+                }
+            }
+        }
+    }
 
 }

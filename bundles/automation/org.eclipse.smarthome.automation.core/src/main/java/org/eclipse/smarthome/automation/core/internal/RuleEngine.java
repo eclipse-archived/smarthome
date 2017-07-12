@@ -55,16 +55,11 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-import org.eclipse.smarthome.config.core.ConfigUtil;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 /**
  * This class is used to initialized and execute {@link Rule}s added in rule engine. Each Rule has associated
@@ -133,7 +128,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * {@link Map} system module type to corresponding module handler factories.
      */
     private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
-    private Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<>();
+    private Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<ModuleHandlerFactory>();
 
     /**
      * Locker which does not permit rule initialization when the rule engine is stopping.
@@ -160,8 +155,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private Map<String, Future> scheduleTasks = new HashMap<String, Future>(31);
 
     private ScheduledExecutorService executor;
-
-    private Gson gson;
 
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts tracker for {@link ModuleHandlerFactory}
@@ -375,7 +368,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         String errMsgs;
         try {
             validateModuleIDs(modules);
-            resolveConfiguration(runtimeRule);
+            validateConfiguration(runtimeRule.getUID(), runtimeRule.getConfigurationDescriptions(),
+                    runtimeRule.getConfiguration().getProperties());
             autoMapConnections(runtimeRule);
             ConnectionValidator.validateConnections(runtimeRule);
         } catch (RuntimeException e) {
@@ -1319,18 +1313,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
     }
 
-    protected void resolveConfiguration(Rule rule) {
-        List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
-        Map<String, Object> configuration = rule.getConfiguration().getProperties();
-        if (configuration != null) {
-            handleModuleConfigReferences(rule.getTriggers(), configuration);
-            handleModuleConfigReferences(rule.getConditions(), configuration);
-            handleModuleConfigReferences(rule.getActions(), configuration);
-        }
-        normalizeRuleConfigurations(rule);
-        validateConfiguration(rule.getUID(), configDescriptions, new HashMap<String, Object>(configuration));
-    }
-
     private void validateConfiguration(String uid, List<ConfigDescriptionParameter> configDescriptions,
             Map<String, Object> configurations) {
         if (configurations == null || configurations.isEmpty()) {
@@ -1346,14 +1328,15 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 throw new IllegalArgumentException("Missing required configuration properties!");
             }
         } else {
+            Map<String, Object> conf = new HashMap<String, Object>(configurations);
             for (ConfigDescriptionParameter configParameter : configDescriptions) {
                 String configParameterName = configParameter.getName();
-                processValue(configurations.remove(configParameterName), configParameter);
+                processValue(conf.remove(configParameterName), configParameter);
             }
-            for (String name : configurations.keySet()) {
+            for (String name : conf.keySet()) {
                 logger.error("Extra configuration property '{}' for rule with UID '{}'!", name, uid);
             }
-            if (!configurations.isEmpty()) {
+            if (!conf.isEmpty()) {
                 throw new IllegalArgumentException("Extra configuration properties!");
             }
         }
@@ -1419,95 +1402,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 return configValue instanceof BigDecimal || configValue instanceof Double;
         }
         return false;
-    }
-
-    private void handleModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
-        if (modules != null) {
-            for (Module module : modules) {
-                ReferenceResolverUtil.updateModuleConfiguration(module, ruleConfiguration);
-            }
-        }
-    }
-
-    private void normalizeRuleConfigurations(Rule rule) {
-        List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
-        Map<String, ConfigDescriptionParameter> mapConfigDescriptions;
-        if (configDescriptions != null) {
-            mapConfigDescriptions = getConfigDescriptionMap(configDescriptions);
-            normalizeConfiguration(rule.getConfiguration(), mapConfigDescriptions);
-        }
-        normalizeModuleConfigurations(rule.getTriggers());
-        normalizeModuleConfigurations(rule.getConditions());
-        normalizeModuleConfigurations(rule.getActions());
-
-    }
-
-    private <T extends Module> void normalizeModuleConfigurations(List<T> modules) {
-        for (Module module : modules) {
-            Configuration config = module.getConfiguration();
-            if (config != null) {
-                String type = module.getTypeUID();
-                ModuleType mt = mtRegistry.get(type);
-                if (mt != null) {
-                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
-                    if (configDescriptions != null) {
-                        Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
-                                configDescriptions);
-                        normalizeConfiguration(config, mapConfigDescriptions);
-                    }
-                }
-            }
-        }
-    }
-
-    private Map<String, ConfigDescriptionParameter> getConfigDescriptionMap(
-            List<ConfigDescriptionParameter> configDesc) {
-        Map<String, ConfigDescriptionParameter> mapConfigDescs = null;
-        if (configDesc != null) {
-            for (ConfigDescriptionParameter configDescriptionParameter : configDesc) {
-                if (mapConfigDescs == null) {
-                    mapConfigDescs = new HashMap<String, ConfigDescriptionParameter>();
-                }
-                mapConfigDescs.put(configDescriptionParameter.getName(), configDescriptionParameter);
-            }
-        }
-        return mapConfigDescs;
-    }
-
-    private void normalizeConfiguration(Configuration config, Map<String, ConfigDescriptionParameter> mapCD) {
-        if (config != null && mapCD != null) {
-            for (String propName : mapCD.keySet()) {
-                ConfigDescriptionParameter cd = mapCD.get(propName);
-                if (cd != null) {
-                    Object tmp = config.get(propName);
-                    Object defaultValue = cd.getDefault();
-                    if (tmp == null && defaultValue != null) {
-                        config.put(propName, defaultValue);
-                    }
-
-                    if (cd.isMultiple()) {
-                        tmp = config.get(propName);
-                        if (tmp != null && tmp instanceof String) {
-                            String sValue = (String) tmp;
-                            if (gson == null) {
-                                gson = new Gson();
-                            }
-                            try {
-                                Object value = gson.fromJson(sValue, List.class);
-                                config.put(propName, value);
-                            } catch (JsonSyntaxException e) {
-                                logger.error("Can't parse {} to list value.", sValue, e);
-                            }
-                            continue;
-                        }
-                    }
-                }
-                Object value = ConfigUtil.normalizeType(config.get(propName), cd);
-                if (value != null) {
-                    config.put(propName, value);
-                }
-            }
-        }
     }
 
 }
