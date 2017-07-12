@@ -34,8 +34,6 @@
 <unit id="org.apache.commons.codec.source" version="1.6.0.v201305230611"/>
 <unit id="org.apache.commons.collections.source" version="3.2.0.v2013030210310"/>
 <unit id="org.apache.commons.collections" version="3.2.0.v2013030210310"/>
-<unit id="org.apache.commons.httpclient" version="3.1.0.v201012070820"/>
-<unit id="org.apache.commons.httpclient.source" version="3.1.0.v201012070820"/>
 <unit id="org.apache.commons.io" version="2.2.0.v201405211200"/>
 <unit id="org.apache.commons.io.source" version="2.2.0.v201405211200"/>
 <unit id="org.apache.commons.net" version="3.2.0.v201305141515"/>
