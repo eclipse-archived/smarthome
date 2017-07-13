@@ -39,7 +39,7 @@ public class ItemThingLinkRegistry extends AbstractLinkRegistry<ItemThingLink, I
         Set<ThingUID> linkedThings = new LinkedHashSet<>();
         for (ItemThingLink link : getAll()) {
             if (link.getItemName().equals(itemName)) {
-                linkedThings.add(link.getUID());
+                linkedThings.add(link.getLinkedUID());
             }
         }
         return linkedThings;
