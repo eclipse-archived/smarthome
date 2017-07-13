@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +28,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - Refactored to not require a source
+ * @author Christoph Weitkamp - Refactored use of filename extension
  *
  */
-public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream {
+public class URLAudioStream extends AudioStream {
 
-    private static final Pattern plsStreamPattern = Pattern.compile("^File[0-9]=(.+)$");
+    private static final Pattern PLS_STREAM_PATTERN = Pattern.compile("^File[0-9]=(.+)$");
+
+    public static final String M3U_EXTENSION = "m3u";
+    public static final String PLS_EXTENSION = "pls";
 
     private final Logger logger = LoggerFactory.getLogger(URLAudioStream.class);
 
-    private AudioFormat audioFormat;
+    private final AudioFormat audioFormat;
     private final InputStream inputStream;
     private String url;
 
@@ -52,27 +57,34 @@ public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream
 
     private InputStream createInputStream() throws AudioException {
         try {
-            if (url.toLowerCase().endsWith(".m3u")) {
-                InputStream is = new URL(url).openStream();
-                String urls = IOUtils.toString(is);
-                for (String line : urls.split("\n")) {
-                    if (!line.isEmpty() && !line.startsWith("#")) {
-                        url = line;
-                        break;
-                    }
-                }
-            } else if (url.toLowerCase().endsWith(".pls")) {
-                InputStream is = new URL(url).openStream();
-                String urls = IOUtils.toString(is);
-                for (String line : urls.split("\n")) {
-                    if (!line.isEmpty() && line.startsWith("File")) {
-                        Matcher matcher = plsStreamPattern.matcher(line);
-                        if (matcher.find()) {
-                            url = matcher.group(1);
+            final String filename = url.toLowerCase();
+            final String extension = AudioStreamUtils.getExtension(filename);
+            switch (extension) {
+                case M3U_EXTENSION:
+                    InputStream isM3U = new URL(url).openStream();
+                    String urlsM3U = IOUtils.toString(isM3U);
+                    for (String line : urlsM3U.split("\n")) {
+                        if (!line.isEmpty() && !line.startsWith("#")) {
+                            url = line;
                             break;
                         }
                     }
-                }
+                    break;
+                case PLS_EXTENSION:
+                    InputStream isPLS = new URL(url).openStream();
+                    String urlsPLS = IOUtils.toString(isPLS);
+                    for (String line : urlsPLS.split("\n")) {
+                        if (!line.isEmpty() && line.startsWith("File")) {
+                            Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
+                            if (matcher.find()) {
+                                url = matcher.group(1);
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
             URL streamUrl = new URL(url);
             URLConnection connection = streamUrl.openConnection();
