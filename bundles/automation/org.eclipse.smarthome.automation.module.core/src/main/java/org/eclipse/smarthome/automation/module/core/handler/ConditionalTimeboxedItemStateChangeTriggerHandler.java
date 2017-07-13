@@ -99,8 +99,8 @@ public class ConditionalTimeboxedItemStateChangeTriggerHandler extends BaseTrigg
      */
     private void initialize() {
         itemName = (String) module.getConfiguration().get(ITEM_NAME);
-        timeboxValue = (module.getConfiguration().get(TIMEBOX_VALUE) == null) ? null
-                : ((BigDecimal) module.getConfiguration().get(TIMEBOX_VALUE)).longValue();
+        timeboxValue = (module.getConfiguration().get(TIMEBOX_VALUE) == null)||!(module.getConfiguration().get(TIMEBOX_VALUE) instanceof BigDecimal) ? null
+        		: ((BigDecimal) module.getConfiguration().get(TIMEBOX_VALUE)).longValue();
         timeboxUnit = TimeUnit.valueOf((String) module.getConfiguration().get(TIMEBOX_UNIT));
         operator = CompareOperators.valueOf((String) module.getConfiguration().get(OPERATOR));
         compareValue = (String) module.getConfiguration().get(VALUE);
