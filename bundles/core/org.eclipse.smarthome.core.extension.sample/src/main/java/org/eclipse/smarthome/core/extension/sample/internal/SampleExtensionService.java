@@ -87,6 +87,9 @@ public class SampleExtensionService implements ExtensionService {
 
     private String createDescription() {
         int index = StringUtils.indexOf(LOREM_IPSUM, ' ', random.nextInt(LOREM_IPSUM.length()));
+        if (index < 0) {
+            index = LOREM_IPSUM.length();
+        }
         return LOREM_IPSUM.substring(0, index);
     }
 
