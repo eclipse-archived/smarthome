@@ -77,12 +77,8 @@ public class MDNSClientImpl implements MDNSClient {
                 jmdnsInstances.add(jmdns);
                 logger.debug("mDNS service has been started ({} for IP {})", jmdns.getName(), address.getHostAddress());
             } catch (IOException e) {
-                logger.debug("JmDNS instanciation failed ({})!", address.getHostAddress());
+                logger.debug("JmDNS instantiation failed ({})!", address.getHostAddress());
             }
-        }
-        if (jmdnsInstances.isEmpty()) {
-            // we must cancel the activation of this component here
-            throw new IllegalStateException("No mDNS service has been started");
         }
     }
 
