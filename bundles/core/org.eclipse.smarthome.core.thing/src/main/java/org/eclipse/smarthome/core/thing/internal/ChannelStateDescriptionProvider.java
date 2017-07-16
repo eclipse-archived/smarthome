@@ -62,8 +62,9 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             if (channel != null) {
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
                 if (channelType != null) {
-                    StateDescription state = channelType.getState();
-                    if ((channelType.getItemType() != null) && ((state == null) || (state.getPattern() == null))) {
+                    StateDescription stateDescription = channelType.getState();
+                    if ((channelType.getItemType() != null)
+                            && ((stateDescription == null) || (stateDescription.getPattern() == null))) {
                         String pattern = null;
                         if (channelType.getItemType().equalsIgnoreCase("String")) {
                             pattern = "%s";
@@ -72,15 +73,16 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                         }
                         if (pattern != null) {
                             logger.trace("Provide a default pattern {} for item {}", pattern, itemName);
-                            if (state == null) {
-                                state = new StateDescription(null, null, null, pattern, false, null);
+                            if (stateDescription == null) {
+                                stateDescription = new StateDescription(null, null, null, pattern, false, null);
                             } else {
-                                state = new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(),
-                                        pattern, state.isReadOnly(), state.getOptions());
+                                stateDescription = new StateDescription(stateDescription.getMinimum(),
+                                        stateDescription.getMaximum(), stateDescription.getStep(), pattern,
+                                        stateDescription.isReadOnly(), stateDescription.getOptions());
                             }
                         }
                     }
-                    return state;
+                    return stateDescription;
                 } else {
                     return null;
                 }
