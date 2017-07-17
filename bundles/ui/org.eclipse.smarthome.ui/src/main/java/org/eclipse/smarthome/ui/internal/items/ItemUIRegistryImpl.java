@@ -515,7 +515,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     for (int i = 2; i < id.length(); i += 2) {
                         w = ((LinkableWidget) w).getChildren().get(Integer.valueOf(id.substring(i, i + 2)));
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
                     // no valid number, so the requested page id does not exist
                 }
             }
