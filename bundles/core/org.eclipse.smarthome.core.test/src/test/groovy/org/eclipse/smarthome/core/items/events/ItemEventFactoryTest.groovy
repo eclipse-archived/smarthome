@@ -54,15 +54,15 @@ class ItemEventFactoryTest extends OSGiTest {
 
 
     def ITEM_COMMAND = OnOffType.ON
-    def ITEM_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(ITEM_COMMAND), ITEM_COMMAND.toString()))
+    def ITEM_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(ITEM_COMMAND), ITEM_COMMAND.toString(), null))
 
-    def ITEM_REFRESH_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(RefreshType.REFRESH), RefreshType.REFRESH.toString()))
-    def ITEM_UNDEF_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(UnDefType.UNDEF), UnDefType.UNDEF.toString()))
+    def ITEM_REFRESH_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(RefreshType.REFRESH), RefreshType.REFRESH.toString(), null))
+    def ITEM_UNDEF_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(UnDefType.UNDEF), UnDefType.UNDEF.toString(), null))
     def ITEM_STATE = OnOffType.OFF
     def NEW_ITEM_STATE = OnOffType.ON
-    def ITEM_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(ITEM_STATE), ITEM_STATE.toString()))
+    def ITEM_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(createTypeString(ITEM_STATE), ITEM_STATE.toString(), Collections.EMPTY_MAP))
     def ITEM_ADDED_EVENT_PAYLOAD = new Gson().toJson(ItemDTOMapper.map(ITEM))
-    def ITEM_STATE_CHANGED_EVENT_PAYLOAD = new Gson().toJson(new ItemStateChangedEventPayloadBean(createTypeString(NEW_ITEM_STATE), NEW_ITEM_STATE.toString(), createTypeString(ITEM_STATE), ITEM_STATE.toString()))
+    def ITEM_STATE_CHANGED_EVENT_PAYLOAD = new Gson().toJson(new ItemStateChangedEventPayloadBean(createTypeString(NEW_ITEM_STATE), NEW_ITEM_STATE.toString(), null, createTypeString(ITEM_STATE), ITEM_STATE.toString(), null))
 
     private createTypeString(type) {
         StringUtils.removeEnd(type.class.getSimpleName(), "Type")

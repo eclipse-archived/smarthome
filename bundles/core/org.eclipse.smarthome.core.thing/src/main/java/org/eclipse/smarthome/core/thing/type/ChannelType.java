@@ -12,8 +12,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -30,7 +32,7 @@ public class ChannelType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final String itemType;
-    private final ChannelDimension dimension;
+    private final Dimension dimension;
     private final ChannelKind kind;
     private final Set<String> tags;
     private final String category;
@@ -46,7 +48,7 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @param advanced true if this channel type contains advanced features, otherwise false
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem} (must neither be null nor empty)
-     * @param dimension the dimension of this Channel, can be null
+     * @param dimension the dimension of this Channel, may be null
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
      * @param description the human readable description for the according type
@@ -61,12 +63,34 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String dimension, String label,
             String description, String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
-        this(uid, advanced, itemType, ChannelDimension.parse(dimension), ChannelKind.STATE, label, description,
-                category, tags, state, null, configDescriptionURI);
+        this(uid, advanced, itemType, Dimension.parse(dimension), ChannelKind.STATE, label, description, category, tags,
+                state, null, configDescriptionURI);
+    }
 
-        if ((itemType == null) || (itemType.isEmpty())) {
-            throw new IllegalArgumentException("The item type must neither be null nor empty!");
-        }
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this Channel type within
+     *            the overall system (must neither be null, nor empty)
+     *
+     * @param advanced true if this channel type contains advanced features, otherwise false
+     * @param itemType the item type of this Channel type, e.g. {@code ColorItem} (must neither be null nor empty)
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     * @param description the human readable description for the according type
+     *            (could be null or empty)
+     * @param category the category of this Channel type, e.g. {@code TEMPERATURE} (could be null or empty)
+     * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm} (could be null or empty)
+     * @param state the restrictions of an item state which gives information how to interpret it
+     *            (could be null)
+     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     * @throws IllegalArgumentException if the UID or the item type is null or empty,
+     *             or the the meta information is null
+     */
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label, String description,
+            String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
+        this(uid, advanced, itemType, null, ChannelKind.STATE, label, description, category, tags, state, null,
+                configDescriptionURI);
     }
 
     /**
@@ -90,9 +114,9 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelDimension dimension,
-            ChannelKind kind, String label, String description, String category, Set<String> tags,
-            StateDescription state, EventDescription event, URI configDescriptionURI) throws IllegalArgumentException {
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, Dimension dimension, ChannelKind kind,
+            String label, String description, String category, Set<String> tags, StateDescription state,
+            EventDescription event, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -100,7 +124,7 @@ public class ChannelType extends AbstractDescriptionType {
             throw new IllegalArgumentException("Kind must not be null!");
         }
 
-        if (kind == ChannelKind.STATE && (itemType == null || itemType.isEmpty())) {
+        if (kind == ChannelKind.STATE && StringUtils.isBlank(itemType)) {
             throw new IllegalArgumentException("If the kind is 'state', the item type must be set!");
         }
         if (kind == ChannelKind.TRIGGER && itemType != null) {
@@ -144,7 +168,7 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @return the item dimension of this Channel type, e.g. {@code Temperature}. Can be null.
      */
-    public ChannelDimension getDimension() {
+    public Dimension getDimension() {
         return this.dimension;
     }
 

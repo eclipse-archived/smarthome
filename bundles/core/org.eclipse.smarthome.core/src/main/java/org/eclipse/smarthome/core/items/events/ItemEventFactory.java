@@ -7,12 +7,10 @@
  */
 package org.eclipse.smarthome.core.items.events;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
@@ -20,10 +18,8 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
@@ -38,10 +34,6 @@ import com.google.common.collect.Sets;
 @Component(immediate = true, service = EventFactory.class)
 public class ItemEventFactory extends AbstractEventFactory {
 
-    private static final String TYPE_POSTFIX = "Type";
-
-    private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
-
     private static final String ITEM_COMAND_EVENT_TOPIC = "smarthome/items/{itemName}/command";
 
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
@@ -55,6 +47,9 @@ public class ItemEventFactory extends AbstractEventFactory {
     private static final String ITEM_REMOVED_EVENT_TOPIC = "smarthome/items/{itemName}/removed";
 
     private static final String ITEM_UPDATED_EVENT_TOPIC = "smarthome/items/{itemName}/updated";
+
+    private static StateFormatter stateFormatter = new StateFormatter();
+    private static CommandFormatter commandFormatter = new CommandFormatter();
 
     /**
      * Constructs a new ItemEventFactory.
@@ -89,35 +84,31 @@ public class ItemEventFactory extends AbstractEventFactory {
         String itemName = getItemName(topic);
         String memberName = getMemberName(topic);
         ItemStateChangedEventPayloadBean bean = deserializePayload(payload, ItemStateChangedEventPayloadBean.class);
-        State state = getState(bean.getType(), bean.getValue());
-        State oldState = getState(bean.getOldType(), bean.getOldValue());
+        State state = stateFormatter.parse(bean.getType(), bean.getValue(), bean.getStateMap());
+        State oldState = stateFormatter.parse(bean.getOldType(), bean.getOldValue(), bean.getStateMap());
         return new GroupItemStateChangedEvent(topic, payload, itemName, memberName, state, oldState);
     }
 
     private Event createCommandEvent(String topic, String payload, String source) {
         String itemName = getItemName(topic);
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
-        Command command = parseType(bean.getType(), bean.getValue(), Command.class);
+        Command command = commandFormatter.parse(bean.getType(), bean.getValue());
         return new ItemCommandEvent(topic, payload, itemName, command, source);
     }
 
     private Event createStateEvent(String topic, String payload, String source) {
         String itemName = getItemName(topic);
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
-        State state = getState(bean.getType(), bean.getValue());
+        State state = stateFormatter.parse(bean.getType(), bean.getValue(), bean.getStateMap());
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
 
     private Event createStateChangedEvent(String topic, String payload) {
         String itemName = getItemName(topic);
         ItemStateChangedEventPayloadBean bean = deserializePayload(payload, ItemStateChangedEventPayloadBean.class);
-        State state = getState(bean.getType(), bean.getValue());
-        State oldState = getState(bean.getOldType(), bean.getOldValue());
+        State state = stateFormatter.parse(bean.getType(), bean.getValue(), bean.getStateMap());
+        State oldState = stateFormatter.parse(bean.getOldType(), bean.getOldValue(), bean.getOldStateMap());
         return new ItemStateChangedEvent(topic, payload, itemName, state, oldState);
-    }
-
-    private State getState(String type, String value) {
-        return parseType(type, value, State.class);
     }
 
     private String getItemName(String topic) {
@@ -134,46 +125,6 @@ public class ItemEventFactory extends AbstractEventFactory {
             throw new IllegalArgumentException("Event creation failed, invalid topic: " + topic);
         }
         return topicElements[3];
-    }
-
-    private <T> T parseType(String typeName, String valueToParse, Class<T> desiredClass) {
-        Object parsedObject = null;
-        String simpleClassName = typeName + TYPE_POSTFIX;
-        parsedObject = parseSimpleClassName(simpleClassName, valueToParse);
-
-        if (parsedObject == null || !desiredClass.isAssignableFrom(parsedObject.getClass())) {
-            String parsedObjectClassName = parsedObject != null ? parsedObject.getClass().getName() : "<undefined>";
-            throw new IllegalArgumentException("Error parsing simpleClasssName '" + simpleClassName + "' with value '"
-                    + valueToParse + "'. Desired type was '" + desiredClass.getName() + "' but got '"
-                    + parsedObjectClassName + "'.");
-        }
-
-        return desiredClass.cast(parsedObject);
-    }
-
-    private Object parseSimpleClassName(String simpleClassName, String valueToParse) {
-        if (simpleClassName.equals(UnDefType.class.getSimpleName())) {
-            return UnDefType.valueOf(valueToParse);
-        }
-        if (simpleClassName.equals(RefreshType.class.getSimpleName())) {
-            return RefreshType.valueOf(valueToParse);
-        }
-
-        try {
-            Class<?> stateClass = Class.forName(CORE_LIBRARY_PACKAGE + simpleClassName);
-            Method valueOfMethod = stateClass.getMethod("valueOf", String.class);
-            return valueOfMethod.invoke(null, valueToParse);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Error getting class for simple name: '" + simpleClassName
-                    + "' using package name '" + CORE_LIBRARY_PACKAGE + "'.", e);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException(
-                    "Error getting method #valueOf(String) of class '" + CORE_LIBRARY_PACKAGE + simpleClassName + "'.",
-                    e);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new IllegalStateException("Error invoking #valueOf(String) on class '" + CORE_LIBRARY_PACKAGE
-                    + simpleClassName + "' with value '" + valueToParse + "'.", e);
-        }
     }
 
     private Event createAddedEvent(String topic, String payload) {
@@ -208,7 +159,8 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemCommandEvent createCommandEvent(String itemName, Command command, String source) {
         assertValidArguments(itemName, command, "command");
         String topic = buildTopic(ITEM_COMAND_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(getCommandType(command), command.toString());
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(commandFormatter.getType(command), command.toString(),
+                null);
         String payload = serializePayload(bean);
         return new ItemCommandEvent(topic, payload, itemName, command, source);
     }
@@ -241,7 +193,8 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
         assertValidArguments(itemName, state, "state");
         String topic = buildTopic(ITEM_STATE_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(getStateType(state), state.toFullString());
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(stateFormatter.getType(state),
+                stateFormatter.format(state), stateFormatter.getStateMap(state));
         String payload = serializePayload(bean);
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
@@ -274,8 +227,13 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemStateChangedEvent createStateChangedEvent(String itemName, State newState, State oldState) {
         assertValidArguments(itemName, newState, "state");
         String topic = buildTopic(ITEM_STATE_CHANGED_EVENT_TOPIC, itemName);
-        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(getStateType(newState),
-                newState.toFullString(), getStateType(oldState), oldState.toFullString());
+        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean( //
+                stateFormatter.getType(newState), //
+                stateFormatter.format(newState), //
+                stateFormatter.getStateMap(newState), //
+                stateFormatter.getType(oldState), //
+                stateFormatter.format(oldState), //
+                stateFormatter.getStateMap(oldState));
         String payload = serializePayload(bean);
         return new ItemStateChangedEvent(topic, payload, itemName, newState, oldState);
     }
@@ -284,8 +242,13 @@ public class ItemEventFactory extends AbstractEventFactory {
             State newState, State oldState) {
         assertValidArguments(itemName, memberName, newState, "state");
         String topic = buildGroupTopic(GROUPITEM_STATE_CHANGED_EVENT_TOPIC, itemName, memberName);
-        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(getStateType(newState),
-                newState.toFullString(), getStateType(oldState), oldState.toFullString());
+        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean( //
+                stateFormatter.getType(newState), //
+                stateFormatter.format(newState), //
+                stateFormatter.getStateMap(newState), //
+                stateFormatter.getType(oldState), //
+                stateFormatter.format(oldState), //
+                stateFormatter.getStateMap(oldState));
         String payload = serializePayload(bean);
         return new GroupItemStateChangedEvent(topic, payload, itemName, memberName, newState, oldState);
     }
@@ -359,14 +322,6 @@ public class ItemEventFactory extends AbstractEventFactory {
         return ItemDTOMapper.map(item);
     }
 
-    private static String getStateType(State state) {
-        return StringUtils.removeEnd(state.getClass().getSimpleName(), TYPE_POSTFIX);
-    }
-
-    private static String getCommandType(Command command) {
-        return StringUtils.removeEnd(command.getClass().getSimpleName(), TYPE_POSTFIX);
-    }
-
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
         Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
                 "The argument 'itemName' must not be null or empty.");
@@ -391,6 +346,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     private static class ItemEventPayloadBean {
         private String type;
         private String value;
+        private Map<String, String> stateMap;
 
         /**
          * Default constructor for deserialization e.g. by Gson.
@@ -399,9 +355,10 @@ public class ItemEventFactory extends AbstractEventFactory {
         protected ItemEventPayloadBean() {
         }
 
-        public ItemEventPayloadBean(String type, String value) {
+        public ItemEventPayloadBean(String type, String value, Map<String, String> stateMap) {
             this.type = type;
             this.value = value;
+            this.stateMap = stateMap;
         }
 
         public String getType() {
@@ -411,6 +368,11 @@ public class ItemEventFactory extends AbstractEventFactory {
         public String getValue() {
             return value;
         }
+
+        public Map<String, String> getStateMap() {
+            return stateMap;
+        }
+
     }
 
     /**
@@ -419,8 +381,10 @@ public class ItemEventFactory extends AbstractEventFactory {
     private static class ItemStateChangedEventPayloadBean {
         private String type;
         private String value;
+        private Map<String, String> stateMap;
         private String oldType;
         private String oldValue;
+        private Map<String, String> oldStateMap;
 
         /**
          * Default constructor for deserialization e.g. by Gson.
@@ -429,11 +393,14 @@ public class ItemEventFactory extends AbstractEventFactory {
         protected ItemStateChangedEventPayloadBean() {
         }
 
-        public ItemStateChangedEventPayloadBean(String type, String value, String oldType, String oldValue) {
+        public ItemStateChangedEventPayloadBean(String type, String value, Map<String, String> stateMap, String oldType,
+                String oldValue, Map<String, String> oldStateMap) {
             this.type = type;
             this.value = value;
+            this.stateMap = stateMap;
             this.oldType = oldType;
             this.oldValue = oldValue;
+            this.oldStateMap = oldStateMap;
         }
 
         public String getType() {
@@ -444,12 +411,20 @@ public class ItemEventFactory extends AbstractEventFactory {
             return value;
         }
 
+        public Map<String, String> getStateMap() {
+            return stateMap;
+        }
+
         public String getOldType() {
             return oldType;
         }
 
         public String getOldValue() {
             return oldValue;
+        }
+
+        public Map<String, String> getOldStateMap() {
+            return oldStateMap;
         }
     }
 }

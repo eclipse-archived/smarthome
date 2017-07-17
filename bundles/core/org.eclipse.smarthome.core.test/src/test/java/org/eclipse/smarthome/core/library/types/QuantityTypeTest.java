@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -61,7 +62,7 @@ public class QuantityTypeTest {
         // Check that the unit has correctly been identified
         assertEquals(dt2.getDimension(), QuantityDimension.LENGTH);
         assertEquals(dt2.getUnit(), Units.METRE);
-        assertEquals("2 m", dt2.toFullString());
+        assertEquals("2 m", dt2.toString());
 
         QuantityType dt1 = new QuantityType("2.1cm");
         // Check that the unit has correctly been identified
@@ -148,6 +149,11 @@ public class QuantityTypeTest {
         assertEquals(new HSBType("0,0,0"), new QuantityType("0.0").as(HSBType.class));
         assertEquals(new HSBType("0,0,100"), new QuantityType("1.0").as(HSBType.class));
         assertEquals(new HSBType("0,0,50"), new QuantityType("0.5").as(HSBType.class));
+    }
+
+    @Test
+    public void toFullStringShouldOnlyGiveScalarValue() {
+        assertThat(new QuantityType("20 °C").toFullString(), is("20"));
     }
 
 }

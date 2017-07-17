@@ -34,7 +34,8 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                 }
                 return state;
             } else {
-                return sprintf(item.stateDescription.pattern, state);
+                var pattern = item.stateDescription.pattern.replace('%unit%', item.unit)
+                return sprintf(pattern, state);
             }
         }
     }

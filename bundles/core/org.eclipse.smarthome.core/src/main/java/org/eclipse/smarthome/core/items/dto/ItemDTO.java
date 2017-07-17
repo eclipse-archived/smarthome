@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * This is a data transfer object that is used to serialize items.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - added tag support
  *
@@ -23,6 +23,7 @@ public class ItemDTO {
     public String name;
     public String label;
     public String category;
+    public String unit;
     public Set<String> tags;
     public List<String> groupNames;
 

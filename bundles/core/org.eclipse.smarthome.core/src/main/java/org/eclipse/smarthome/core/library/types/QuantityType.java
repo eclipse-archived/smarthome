@@ -73,7 +73,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
 
     @Override
     public String toString() {
-        return toFullString();
+        return quantity.toString();
     }
 
     public static QuantityType valueOf(String value) {
@@ -203,7 +203,11 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
 
     @Override
     public String toFullString() {
-        return quantity.toString();
+        // For backward compatibility we expose only the scalar value here.
+        // For adequate rendering the state´s unit must be retrieved separately.
+        // The REST interface does this by providing a "unit" attribute for "/rest/things"
+        // and a "stateMap" attribute with "unit" and "value" keys for stateUpdateEvents.
+        return toBigDecimal().toPlainString();
     }
 
     @Override

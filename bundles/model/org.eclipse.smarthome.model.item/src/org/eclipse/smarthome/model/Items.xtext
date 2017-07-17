@@ -31,7 +31,7 @@ enum ModelGroupFunction :
 ;
 
 ModelNormalItem :
-	type=ModelItemType (':' function=ModelDimension)?
+	type=ModelItemType (':' dimension=ModelDimension)?
 ;
 
 enum ModelDimension : 
