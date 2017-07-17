@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -21,6 +22,8 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link ChannelStateDescriptionProvider} provides localized {@link StateDescription}s from the type of a
@@ -29,6 +32,8 @@ import org.osgi.framework.Constants;
  * @author Dennis Nobel - Initial contribution
  */
 public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
@@ -57,7 +62,31 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             Channel channel = thingRegistry.getChannel(channelUID);
             if (channel != null) {
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
-                return channelType != null ? channelType.getState() : null;
+                if (channelType != null) {
+                    StateDescription stateDescription = channelType.getState();
+                    if ((channelType.getItemType() != null)
+                            && ((stateDescription == null) || (stateDescription.getPattern() == null))) {
+                        String pattern = null;
+                        if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.STRING)) {
+                            pattern = "%s";
+                        } else if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.NUMBER)) {
+                            pattern = "%.0f";
+                        }
+                        if (pattern != null) {
+                            logger.trace("Provide a default pattern {} for item {}", pattern, itemName);
+                            if (stateDescription == null) {
+                                stateDescription = new StateDescription(null, null, null, pattern, false, null);
+                            } else {
+                                stateDescription = new StateDescription(stateDescription.getMinimum(),
+                                        stateDescription.getMaximum(), stateDescription.getStep(), pattern,
+                                        stateDescription.isReadOnly(), stateDescription.getOptions());
+                            }
+                        }
+                    }
+                    return stateDescription;
+                } else {
+                    return null;
+                }
             }
         }
         return null;
