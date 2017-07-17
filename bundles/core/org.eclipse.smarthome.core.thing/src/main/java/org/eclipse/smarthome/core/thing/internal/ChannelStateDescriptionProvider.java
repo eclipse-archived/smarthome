@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -66,9 +67,9 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                     if ((channelType.getItemType() != null)
                             && ((stateDescription == null) || (stateDescription.getPattern() == null))) {
                         String pattern = null;
-                        if (channelType.getItemType().equalsIgnoreCase("String")) {
+                        if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.STRING)) {
                             pattern = "%s";
-                        } else if (channelType.getItemType().equalsIgnoreCase("Number")) {
+                        } else if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.NUMBER)) {
                             pattern = "%.0f";
                         }
                         if (pattern != null) {
