@@ -11,17 +11,7 @@ package org.eclipse.smarthome.io.rest;
  * This is a marker interface for REST resource implementations
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Stefan Triller - Added default implementation for isSatisfied
  */
 public interface RESTResource {
-
-    /**
-     * Method used to determine availability of a RESTResource
-     *
-     * @return true if this RESTResource is ready to process requests, false otherwise.
-     */
-    default boolean isSatisfied() {
-        return true;
-    }
 
 }

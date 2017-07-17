@@ -10,12 +10,13 @@ package org.eclipse.smarthome.io.rest.core.extensions;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -41,8 +42,7 @@ import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
-public class ExtensionResource implements RESTResource {
+public class ExtensionResource implements SatisfiableRESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
 
@@ -96,10 +96,11 @@ public class ExtensionResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extensions.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public Response getExtensions(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
+    public List<Extension> getExtensions(
+            @HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        return Response.ok(new Stream2JSONInputStream(getAllExtensions(locale))).build();
+        return getAllExtensions(locale);
     }
 
     @GET
@@ -107,11 +108,10 @@ public class ExtensionResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all extension types.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public Response getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
+    public Set<ExtensionType> getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
-        Stream<ExtensionType> extensionTypeStream = getAllExtensionTypes(locale).stream().distinct();
-        return Response.ok(new Stream2JSONInputStream(extensionTypeStream)).build();
+        return getAllExtensionTypes(locale);
     }
 
     @GET
@@ -125,12 +125,12 @@ public class ExtensionResource implements RESTResource {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
         Locale locale = LocaleUtil.getLocale(language);
         ExtensionService extensionService = getExtensionService(extensionId);
-        Extension responseObject = extensionService.getExtension(extensionId, locale);
+        Object responseObject = extensionService.getExtension(extensionId, locale);
         if (responseObject != null) {
             return Response.ok(responseObject).build();
+        } else {
+            return Response.status(404).build();
         }
-
-        return Response.status(404).build();
     }
 
     @POST
@@ -206,8 +206,12 @@ public class ExtensionResource implements RESTResource {
         return !extensionServices.isEmpty();
     }
 
-    private Stream<Extension> getAllExtensions(Locale locale) {
-        return extensionServices.stream().map(s -> s.getExtensions(locale)).flatMap(l -> l.stream());
+    private List<Extension> getAllExtensions(Locale locale) {
+        List<Extension> ret = new ArrayList<>();
+        for (ExtensionService extensionService : extensionServices) {
+            ret.addAll(extensionService.getExtensions(locale));
+        }
+        return ret;
     }
 
     private Set<ExtensionType> getAllExtensionTypes(Locale locale) {

@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.core.binding;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -38,8 +39,7 @@ import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceResource;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = BindingResource.PATH_BINDINGS)
-public class BindingResource implements RESTResource {
+public class BindingResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_BINDINGS = "bindings";
@@ -93,9 +93,11 @@ public class BindingResource implements RESTResource {
             @ApiResponse(code = 200, message = "OK", response = BindingInfoDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
         final Locale locale = LocaleUtil.getLocale(language);
-        Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
 
-        return Response.ok(new Stream2JSONInputStream(bindingInfos.stream().map(b -> map(b, locale)))).build();
+        Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
+        Set<BindingInfoDTO> bindingInfoBeans = map(bindingInfos, locale);
+
+        return Response.ok(bindingInfoBeans).build();
     }
 
     @GET
@@ -183,6 +185,14 @@ public class BindingResource implements RESTResource {
         URI configDescriptionURI = bindingInfo.getConfigDescriptionURI();
         return new BindingInfoDTO(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
                 bindingInfo.getDescription(), configDescriptionURI != null ? configDescriptionURI.toString() : null);
+    }
+
+    private Set<BindingInfoDTO> map(Set<BindingInfo> bindingInfos, Locale locale) {
+        Set<BindingInfoDTO> bindingInfoBeans = new LinkedHashSet<>();
+        for (BindingInfo bindingInfo : bindingInfos) {
+            bindingInfoBeans.add(map(bindingInfo, locale));
+        }
+        return bindingInfoBeans;
     }
 
     protected void setConfigurationService(ConfigurationService configurationService) {

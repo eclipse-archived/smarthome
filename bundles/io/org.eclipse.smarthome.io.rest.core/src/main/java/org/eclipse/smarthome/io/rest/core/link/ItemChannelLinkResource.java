@@ -7,7 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.link;
 
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -31,8 +32,7 @@ import org.eclipse.smarthome.core.thing.link.ThingLinkManager;
 import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,7 +51,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ItemChannelLinkResource.PATH_LINKS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ItemChannelLinkResource.PATH_LINKS)
-public class ItemChannelLinkResource implements RESTResource {
+public class ItemChannelLinkResource implements SatisfiableRESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_LINKS = "links";
@@ -68,8 +68,8 @@ public class ItemChannelLinkResource implements RESTResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ItemChannelLinkDTO.class, responseContainer = "Collection") })
     public Response getAll() {
-        Stream<AbstractLinkDTO> linkStream = itemChannelLinkRegistry.getAll().stream().map(this::toBeans);
-        return Response.ok(new Stream2JSONInputStream(linkStream)).build();
+        Collection<ItemChannelLink> channelLinks = itemChannelLinkRegistry.getAll();
+        return Response.ok(toBeans(channelLinks)).build();
     }
 
     @GET
@@ -132,8 +132,13 @@ public class ItemChannelLinkResource implements RESTResource {
         this.itemChannelLinkRegistry = null;
     }
 
-    private AbstractLinkDTO toBeans(ItemChannelLink link) {
-        return new ItemChannelLinkDTO(link.getItemName(), link.getLinkedUID().toString());
+    private Collection<AbstractLinkDTO> toBeans(Iterable<ItemChannelLink> links) {
+        Collection<AbstractLinkDTO> beans = new ArrayList<>();
+        for (AbstractLink link : links) {
+            ItemChannelLinkDTO bean = new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
+            beans.add(bean);
+        }
+        return beans;
     }
 
     @Override

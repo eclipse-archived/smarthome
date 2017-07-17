@@ -9,9 +9,10 @@ package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -56,8 +57,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,12 +71,15 @@ import io.swagger.annotations.ApiResponses;
  * <p>
  * This class acts as a REST resource for items and provides different methods to interact with them, like retrieving
  * lists of items, sending commands to them or checking a single status.
+ * </p>
  *
  * <p>
  * The typical content types are plain text for status values and XML or JSON(P) for more complex data structures
+ * </p>
  *
  * <p>
  * This resource is registered with the Jersey servlet.
+ * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
@@ -89,7 +92,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
-public class ItemResource implements RESTResource {
+public class ItemResource implements SatisfiableRESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
 
@@ -149,9 +152,8 @@ public class ItemResource implements RESTResource {
         final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
-                .map(item -> EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
-        return Response.ok(new Stream2JSONInputStream(itemStream)).build();
+        Object responseObject = getItemBeans(type, tags, recursive, locale);
+        return Response.ok(responseObject).build();
     }
 
     @GET
@@ -215,7 +217,7 @@ public class ItemResource implements RESTResource {
     @Path("/{itemname: [a-zA-Z_0-9]*}/state")
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Updates the state of an item.")
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found"),
             @ApiResponse(code = 400, message = "Item state null") })
     public Response putItemState(
@@ -544,10 +546,12 @@ public class ItemResource implements RESTResource {
      * @return Item addressed by itemname
      */
     private Item getItem(String itemname) {
-        return itemRegistry.get(itemname);
+        Item item = itemRegistry.get(itemname);
+        return item;
     }
 
-    private Collection<Item> getItems(String type, String tags) {
+    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive, Locale locale) {
+        List<EnrichedItemDTO> beans = new LinkedList<>();
         Collection<Item> items;
         if (tags == null) {
             if (type == null) {
@@ -563,8 +567,12 @@ public class ItemResource implements RESTResource {
                 items = itemRegistry.getItemsByTagAndType(type, tagList);
             }
         }
-
-        return items;
+        if (items != null) {
+            for (Item item : items) {
+                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
+            }
+        }
+        return beans;
     }
 
     @Override
