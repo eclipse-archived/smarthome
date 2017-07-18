@@ -61,9 +61,8 @@ public class URLAudioStream extends AudioStream {
             final String extension = AudioStreamUtils.getExtension(filename);
             switch (extension) {
                 case M3U_EXTENSION:
-                    InputStream isM3U = new URL(url).openStream();
-                    String urlsM3U = IOUtils.toString(isM3U);
-                    for (String line : urlsM3U.split("\n")) {
+                    final InputStream isM3U = new URL(url).openStream();
+                    for (final String line : IOUtils.readLines(isM3U)) {
                         if (!line.isEmpty() && !line.startsWith("#")) {
                             url = line;
                             break;
@@ -71,11 +70,10 @@ public class URLAudioStream extends AudioStream {
                     }
                     break;
                 case PLS_EXTENSION:
-                    InputStream isPLS = new URL(url).openStream();
-                    String urlsPLS = IOUtils.toString(isPLS);
-                    for (String line : urlsPLS.split("\n")) {
+                    final InputStream isPLS = new URL(url).openStream();
+                    for (final String line : IOUtils.readLines(isPLS)) {
                         if (!line.isEmpty() && line.startsWith("File")) {
-                            Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
+                            final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
                             if (matcher.find()) {
                                 url = matcher.group(1);
                                 break;
