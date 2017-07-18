@@ -30,13 +30,19 @@ class ChannelTypesTest extends OSGiTest {
     static final String TEST_BUNDLE_NAME = "ChannelTypesTest.bundle"
 
     ChannelTypeProvider channelTypeProvider
+    ChannelTypeProvider channelGroupTypeProvider
 
     @Before
     void setUp() {
         // get ONLY the XMLChannelTypeProvider
         channelTypeProvider = getService(ChannelTypeProvider, {ServiceReference serviceReference ->
-            serviceReference.getBundle().getSymbolicName().contains("xml")})
+            "core.xml.channels".equals(serviceReference.getProperty("esh.scope"))
+        })
         assertThat channelTypeProvider, is(notNullValue())
+        channelGroupTypeProvider = getService(ChannelTypeProvider, {ServiceReference serviceReference ->
+            "core.xml.channelGroups".equals(serviceReference.getProperty("esh.scope"))
+        })
+        assertThat channelGroupTypeProvider, is(notNullValue())
     }
 
     @After
@@ -48,7 +54,7 @@ class ChannelTypesTest extends OSGiTest {
     void 'assert that ChannelTypes were loaded'() {
         def bundleContext = getBundleContext()
         def initialNumberOfChannelTypes = channelTypeProvider.getChannelTypes(null).size()
-        def initialNumberOfChannelGroupTypes = channelTypeProvider.getChannelGroupTypes(null).size()
+        def initialNumberOfChannelGroupTypes = channelGroupTypeProvider.getChannelGroupTypes(null).size()
 
         // install test bundle
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
@@ -63,7 +69,7 @@ class ChannelTypesTest extends OSGiTest {
         def channelType2 = channelTypes.find( {it.UID.toString().equals("somebinding:channel-without-reference")} )
         assertThat channelType2, is(not(null))
 
-        def channelGroupTypes = channelTypeProvider.getChannelGroupTypes(null)
+        def channelGroupTypes = channelGroupTypeProvider.getChannelGroupTypes(null)
         assertThat channelGroupTypes.size(), is(initialNumberOfChannelGroupTypes + 1)
 
         def channelGroupType = channelGroupTypes.find( {it.UID.toString().equals("somebinding:channelgroup")} )
@@ -72,6 +78,6 @@ class ChannelTypesTest extends OSGiTest {
         SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME)
 
         assertThat channelTypeProvider.getChannelTypes(null).size(), is(initialNumberOfChannelTypes)
-        assertThat channelTypeProvider.getChannelGroupTypes(null).size(), is(initialNumberOfChannelGroupTypes)
+        assertThat channelGroupTypeProvider.getChannelGroupTypes(null).size(), is(initialNumberOfChannelGroupTypes)
     }
 }

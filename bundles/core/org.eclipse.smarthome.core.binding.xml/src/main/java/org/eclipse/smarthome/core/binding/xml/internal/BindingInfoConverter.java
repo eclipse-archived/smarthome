@@ -99,7 +99,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         if (configDescriptionURI == null) {
             configDescription = readConfigDescription(nodeIterator);
             if (configDescription != null) {
-                configDescriptionURI = configDescription.getURI();
+                configDescriptionURI = configDescription.getUID();
             }
         }
 

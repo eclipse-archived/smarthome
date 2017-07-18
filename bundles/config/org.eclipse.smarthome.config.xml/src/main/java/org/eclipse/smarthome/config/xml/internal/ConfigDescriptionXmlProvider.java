@@ -19,7 +19,8 @@ import org.osgi.framework.Bundle;
  * The {@link ConfigDescriptionXmlProvider} is responsible managing any created
  * objects by a {@link ConfigDescriptionReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link ConfigDescription} object at the {@link AbstractXmlConfigDescriptionProvider} which
+ * This implementation registers each {@link ConfigDescription} object at the
+ * {@link AbstractXmlConfigDescriptionProvider} which
  * is itself registered as {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.
  *
  * @author Michael Grammling - Initial Contribution
@@ -48,7 +49,7 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
 
     @Override
     public synchronized void addingObject(List<ConfigDescription> configDescriptions) {
-        this.configDescriptionProvider.addConfigDescriptions(this.bundle, configDescriptions);
+        this.configDescriptionProvider.addAll(this.bundle, configDescriptions);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
 
     @Override
     public synchronized void release() {
-        this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        this.configDescriptionProvider.removeAll(bundle);
     }
 
 }

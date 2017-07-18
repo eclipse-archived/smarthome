@@ -12,13 +12,11 @@ import static org.junit.Assert.*
 
 import java.util.concurrent.TimeUnit
 
-import org.eclipse.smarthome.config.core.BundleProcessor
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -33,6 +31,8 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
+import org.eclipse.smarthome.core.service.ReadyMarker
+import org.eclipse.smarthome.core.service.ReadyUtil
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -68,7 +68,7 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.osgi.framework.Bundle
+import org.osgi.framework.FrameworkUtil
 
 import com.google.common.collect.Sets
 
@@ -111,6 +111,10 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         assertNotNull(itemChannelLinkRegistry)
+
+        waitForAssert {
+            assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
+        }
     }
 
     @After
@@ -1316,10 +1320,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager waits with initialize until bundle processing is finished'() {
-        registerThingTypeProvider()
-
-        ThingHandlerCallback callback;
-        def initializedCalled = false;
+        ThingHandlerCallback callback
+        def initializedCalled = false
         def thing = ThingBuilder.create(new ThingUID("binding:type:thingId")).build()
         def thingHandler = [
             setCallback: { callbackArg -> callback = callbackArg },
@@ -1337,26 +1339,26 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
 
-        boolean finished = false;
-        Bundle bundle = null;
-        BundleProcessorListener listener = null;
-        def bundleProcessor = [
-            "hasFinishedLoading": { object -> bundle = object; return finished },
-            "registerListener": {l -> listener = l},
-            "unregisterListener": {l -> listener = null}
-        ] as BundleProcessor
-        registerService(bundleProcessor)
+        waitForAssert {
+            // wait for the XML processing to be finished, then remove the ready marker again
+            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ThingManager.XML_THING_TYPE + "=" + FrameworkUtil.getBundle(this.getClass()).getSymbolicName() + ")")
+            assertThat ref, is(notNullValue())
+            def registration = ref.registration.getAt(0)
+            assertThat registration, is(notNullValue())
+            registration.unregister()
+        }
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
         assertThat thing.getStatusInfo(), is(statusInfo)
 
         managedThingProvider.add(thing)
 
+        // just wait a little to make sure really nothing happens
+        Thread.sleep(1000)
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
-        finished = true;
-        listener.bundleFinished(bundleProcessor, bundle)
+        ReadyUtil.markAsReady(bundleContext, ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()

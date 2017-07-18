@@ -146,7 +146,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
         if (configDescriptionURI == null) {
             configDescription = readConfigDescription(nodeIterator);
             if (configDescription != null) {
-                configDescriptionURI = configDescription.getURI();
+                configDescriptionURI = configDescription.getUID();
             }
         }
 
