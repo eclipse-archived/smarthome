@@ -214,10 +214,10 @@ public class PageChangeListener implements StateChangeListener {
     }
 
     public void sitemapContentChanged() {
+        SitemapChangedEvent changeEvent = new SitemapChangedEvent();
+        changeEvent.pageId = pageId;
+        changeEvent.sitemapName = sitemapName;
         for (SitemapSubscriptionCallback callback : distinctCallbacks) {
-            SitemapChangedEvent changeEvent = new SitemapChangedEvent();
-            changeEvent.pageId = pageId;
-            changeEvent.sitemapName = sitemapName;
             callback.onEvent(changeEvent);
         }
     }
