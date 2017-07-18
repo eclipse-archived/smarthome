@@ -142,6 +142,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         thing.getConfiguration().put(CFG_IP_ADDRESS_KEY, null);
         managedThingProvider.add thing
+        waitForAssert {
+            assertThat callback, is(notNullValue())
+        }
         callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         final Map<String, Object> discoveryResultProps = new HashMap<>();

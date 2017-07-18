@@ -31,14 +31,20 @@ class ChannelTypesI18nTest extends OSGiTest {
     static final String TEST_BUNDLE_NAME = "ChannelTypesI18nTest.bundle"
 
     ChannelTypeProvider channelTypeProvider
+    ChannelTypeProvider channelGroupTypeProvider
     ThingTypeProvider thingTypeProvider
 
     @Before
     void setUp() {
         // get ONLY the XMLChannelTypeProvider
         channelTypeProvider = getService(ChannelTypeProvider, {ServiceReference serviceReference ->
-            serviceReference.getBundle().getSymbolicName().contains("xml")})
+            "core.xml.channels".equals(serviceReference.getProperty("esh.scope"))
+        })
         assertThat channelTypeProvider, is(notNullValue())
+        channelGroupTypeProvider = getService(ChannelTypeProvider, {ServiceReference serviceReference ->
+            "core.xml.channelGroups".equals(serviceReference.getProperty("esh.scope"))
+        })
+        assertThat channelGroupTypeProvider, is(notNullValue())
         thingTypeProvider = getService(ThingTypeProvider)
         assertThat thingTypeProvider, is(notNullValue())
     }
@@ -60,7 +66,7 @@ class ChannelTypesI18nTest extends OSGiTest {
         assertThat channelType1.getLabel(), is(equalTo("Channel Label"))
         assertThat channelType1.getDescription(), is(equalTo("Channel Description"))
 
-        def channelGroupTypes = channelTypeProvider.getChannelGroupTypes(null)
+        def channelGroupTypes = channelGroupTypeProvider.getChannelGroupTypes(null)
         def channelGroupType = channelGroupTypes.find( {it.UID.toString().equals("somebinding:channelgroup-with-i18n")} )
         assertThat channelGroupType, is(not(null))
         assertThat channelGroupType.getLabel(), is(equalTo("Channel Group Label"))

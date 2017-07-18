@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,15 +21,20 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.smarthome.config.xml.osgi.AbstractAsyncBundleProcessor;
+import org.eclipse.smarthome.core.service.ReadyMarker;
+import org.junit.Assert;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -38,7 +44,7 @@ import com.google.common.collect.ImmutableSet;
  * should be stored into separate sub-directories of {@value #bundlePoolPath}
  * (which itself is situated in the test bundle's source directory). The
  * synthetic bundle is packed as a JAR and installed into the test runtime.
- * 
+ *
  * @author Alex Tugarev - Initial contribution
  * @author Dennis Nobel - Generalized the mechanism for creation of bundles by list of extensions to include
  * @author Simon Kaufmann - Install method returns when the bundle is fully loaded
@@ -51,7 +57,12 @@ import com.google.common.collect.ImmutableSet;
  */
 public class SyntheticBundleInstaller {
 
-    private static String bundlePoolPath = "/test-bundle-pool";
+    private static final int WAIT_TIMOUT = 30; // [seconds]
+    private static final String bundlePoolPath = "/test-bundle-pool";
+
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
+    private static final String XML_BINDING_INFO = "esh.xmlBindingInfo";
+    private static final String XML_CONFIG = "esh.xmlConfig";
 
     /**
      * A list of default extensions to be included in the synthetic bundle.
@@ -62,7 +73,7 @@ public class SyntheticBundleInstaller {
      * Install synthetic bundle, denoted by its name, into the test runtime (by using the given bundle context). Only
      * the default extensions set
      * ({@link #DEFAULT_EXTENSIONS}) will be included into the synthetic bundle
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleName the symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the
      *            files for the synthetic bundle
@@ -75,13 +86,13 @@ public class SyntheticBundleInstaller {
 
     /**
      * Install synthetic bundle, denoted by its name, into the test runtime (by using the given bundle context).
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleNamethe symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the files
      *            for the synthetic bundle
      * @param extensionsToInclude a list of extension to be included into the synthetic bundle. In order to use the list
      *            of default extensions ({@link #DEFAULT_EXTENSIONS})
-     * 
+     *
      * @return the synthetic bundle representation
      * @throws Exception thrown when error occurs while installing or starting the synthetic bundle
      */
@@ -94,18 +105,18 @@ public class SyntheticBundleInstaller {
         Bundle syntheticBundle = bundleContext.installBundle(testBundleName,
                 new ByteArrayInputStream(syntheticBundleBytes));
         syntheticBundle.start(Bundle.ACTIVE);
-        waitUntilLoadingFinished(syntheticBundle);
+        waitUntilLoadingFinished(bundleContext, syntheticBundle);
         return syntheticBundle;
     }
 
     /**
      * Install synthetic bundle, denoted by its name, into the test runtime (by using the given bundle context).
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleName the symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the
      *            files for the synthetic bundle
      * @param extensionsToInclude a list of extension to be included into the synthetic bundle
-     * 
+     *
      * @return the synthetic bundle representation
      * @throws Exception thrown when error occurs while installing or starting the synthetic bundle
      */
@@ -118,7 +129,7 @@ public class SyntheticBundleInstaller {
     /**
      * Updates given bundle into the test runtime (the content is changed, but the symbolic name of the bundles remains
      * the same) with a new content, prepared in another resources directory.
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param bundleToUpdateName the symbolic name of the bundle to be updated
      * @param updateDirName the location of the new content, that the target bundle will be updated with
@@ -133,7 +144,7 @@ public class SyntheticBundleInstaller {
     /**
      * Updates given bundle into the test runtime (the content is changed, but the symbolic name of the bundles remains
      * the same) with a new content, prepared in another resources directory.
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param bundleToUpdateName the symbolic name of the bundle to be updated
      * @param updateDirName the location of the new content, that the target bundle will be updated with
@@ -164,14 +175,14 @@ public class SyntheticBundleInstaller {
 
         // Starting the bundle
         syntheticBundle.start(Bundle.ACTIVE);
-        waitUntilLoadingFinished(syntheticBundle);
+        waitUntilLoadingFinished(bundleContext, syntheticBundle);
         return syntheticBundle;
     }
 
     /**
      * Updates given bundle into the test runtime (the content is changed, but the symbolic name of the bundles remains
      * the same) with a new content, prepared in another resources directory.
-     * 
+     *
      * @param bundleContextthe bundle context of the test runtime
      * @param bundleToUpdateName the symbolic name of the bundle to be updated
      * @param updateDirName the location of the new content, that the target bundle will be updated with
@@ -190,7 +201,7 @@ public class SyntheticBundleInstaller {
      * runtime (by using the given bundle context). Only the default extensions
      * set ({@link #DEFAULT_EXTENSIONS}) will be included into the synthetic
      * bundle fragment.
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleName the name of the sub-directory of {@value #bundlePoolPath}, which contains the files for the
      *            synthetic bundle
@@ -207,7 +218,7 @@ public class SyntheticBundleInstaller {
      * Install synthetic bundle fragment, denoted by its name, into the test runtime (by using the given bundle
      * context). Only the default extensions set ({@link #DEFAULT_EXTENSIONS}) will be included into the synthetic
      * bundle fragment.
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleName the name of the sub-directory of {@value #bundlePoolPath}, which contains the files for the
      *            synthetic bundle
@@ -222,28 +233,73 @@ public class SyntheticBundleInstaller {
 
         Bundle syntheticBundle = bundleContext.installBundle(testBundleName,
                 new ByteArrayInputStream(syntheticBundleBytes));
-        waitUntilLoadingFinished(syntheticBundle);
         return syntheticBundle;
+    }
+
+    private static boolean isBundleAvailable(BundleContext context, String bsn) {
+        for (Bundle bundle : context.getBundles()) {
+            if (bundle.getSymbolicName().equals(bsn) && bundle.getState() == Bundle.ACTIVE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isXmlThingTypeBundleAvailable(BundleContext context) {
+        return isBundleAvailable(context, "org.eclipse.smarthome.core.thing.xml");
+    }
+
+    private static boolean isXmlBindingInfoBundleAvailable(BundleContext context) {
+        return isBundleAvailable(context, "org.eclipse.smarthome.core.binding.xml");
+    }
+
+    private static boolean isXmlConfigBundleAvailable(BundleContext context) {
+        return isBundleAvailable(context, "org.eclipse.smarthome.config.xml");
     }
 
     /**
      * Explicitly wait for the given bundle to finish its loading
-     * 
+     *
      * @param bundle the bundle object representation
      */
-    public static void waitUntilLoadingFinished(Bundle bundle) {
-        while (!AbstractAsyncBundleProcessor.isBundleFinishedLoading(bundle)) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    public static void waitUntilLoadingFinished(BundleContext context, Bundle bundle) {
+        if (isXmlThingTypeBundleAvailable(context)) {
+            waitForReadyMarker(context, XML_THING_TYPE, bundle);
+        }
+        if (isXmlBindingInfoBundleAvailable(context)) {
+            waitForReadyMarker(context, XML_BINDING_INFO, bundle);
+        }
+        if (isXmlConfigBundleAvailable(context)) {
+            waitForReadyMarker(context, XML_CONFIG, bundle);
+        }
+    }
+
+    private static void waitForReadyMarker(BundleContext context, String marker, Bundle bundle) {
+        try {
+            if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null) {
+                return;
             }
+            String filter = "(" + marker + "=" + bundle.getSymbolicName() + ")";
+            long startTime = System.nanoTime();
+            while (context.getServiceReferences(ReadyMarker.class.getName(), filter) == null) {
+                if (System.nanoTime() - startTime > TimeUnit.SECONDS.toNanos(WAIT_TIMOUT)) {
+                    Assert.fail(MessageFormat.format("Timout waiting for marker {0} at bundle {1}", marker,
+                            bundle.getSymbolicName()));
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            LoggerFactory.getLogger(SyntheticBundleInstaller.class).error("Error looking up the ready marker", e);
         }
     }
 
     /**
      * Uninstalls the synthetic bundle (or bundle fragment), denoted by its name, from the test runtime.
-     * 
+     *
      * @param bundleContext the bundle context of the test runtime
      * @param testBundleName the name of the test bundle to be uninstalled
      * @throws BundleException if error is met during the bundle uninstall

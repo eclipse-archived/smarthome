@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
+
 /**
  * The {@link ConfigDescription} class contains a description for a concrete
  * configuration of e.g. a {@code Thing}, a {@code Bridge} or other specific
@@ -36,7 +38,7 @@ import java.util.Map;
  * @author Chris Jackson - Added parameter groups
  * @author Thomas Höfer - Added convenient operation to get config description parameters in a map
  */
-public class ConfigDescription {
+public class ConfigDescription implements Identifiable<URI> {
 
     private URI uri;
     private List<ConfigDescriptionParameter> parameters;
@@ -113,7 +115,8 @@ public class ConfigDescription {
      *
      * @return the URI of this description (not null)
      */
-    public URI getURI() {
+    @Override
+    public URI getUID() {
         return this.uri;
     }
 

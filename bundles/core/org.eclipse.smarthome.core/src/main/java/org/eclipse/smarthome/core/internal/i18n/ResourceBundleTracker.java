@@ -13,11 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.core.common.osgi.ResolvedBundleTracker;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.util.tracker.BundleTracker;
 
 /**
  * The {@link ResourceBundleTracker} class tracks all <i>OSGi</i> bundles which are in the {@link Bundle#RESOLVED} state
@@ -30,16 +31,16 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @author Markus Rathgeb - Add locale provider support
  * @author Ana Dimova - fragments support
  */
-@SuppressWarnings("deprecation")
-public class ResourceBundleTracker extends ResolvedBundleTracker {
+@SuppressWarnings({ "deprecation", "rawtypes" })
+public class ResourceBundleTracker extends BundleTracker {
 
     private LocaleProvider localeProvider;
     private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
     private PackageAdmin pkgAdmin;
 
-    public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider)
-            throws IllegalArgumentException {
-        super(bundleContext); // can throw an IllegalArgumentException
+    @SuppressWarnings("unchecked")
+    public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider) {
+        super(bundleContext, Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null);
         this.localeProvider = localeProvider;
         pkgAdmin = (PackageAdmin) bundleContext
                 .getService(bundleContext.getServiceReference(PackageAdmin.class.getName()));
@@ -58,7 +59,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
     }
 
     @Override
-    public synchronized boolean addingBundle(Bundle bundle) {
+    public synchronized Object addingBundle(Bundle bundle, BundleEvent event) {
         if (isFragmentBundle(bundle)) {
             List<Bundle> hosts = returnHostBundles(bundle);
             for (Bundle host : hosts) {
@@ -67,11 +68,11 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
         } else {
             addResourceBundle(bundle);
         }
-        return true;
+        return bundle;
     }
 
     @Override
-    public synchronized void removedBundle(Bundle bundle) {
+    public synchronized void removedBundle(Bundle bundle, BundleEvent event, Object object) {
         LanguageResourceBundleManager languageResource = this.bundleLanguageResourceMap.remove(bundle);
         if (languageResource != null) {
             languageResource.clearCache();
