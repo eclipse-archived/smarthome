@@ -1709,10 +1709,10 @@
 				value,
 				title;
 
-			if(data.TYPE === "SITEMAP_CHANGED") {
+			if (data.TYPE === "SITEMAP_CHANGED") {
 				var oldLocation = window.location.href;
 				var parts = oldLocation.split("?");
-				if(parts.length > 1) {
+				if (parts.length > 1) {
 					window.location.href = parts[0] + "?sitemap="+data.sitemapName;
 				} else {
 					window.location.href = oldLocation;
