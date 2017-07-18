@@ -511,9 +511,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 w.setItem(id);
             } else {
                 try {
-                    w = sitemap.getChildren().get(Integer.valueOf(id.substring(0, 2)));
-                    for (int i = 2; i < id.length(); i += 2) {
-                        w = ((LinkableWidget) w).getChildren().get(Integer.valueOf(id.substring(i, i + 2)));
+                    int widgetID = Integer.valueOf(id.substring(0, 2));
+                    if (widgetID < sitemap.getChildren().size()) {
+                        w = sitemap.getChildren().get(widgetID);
+                        for (int i = 2; i < id.length(); i += 2) {
+                            int childWidgetID = Integer.valueOf(id.substring(i, i + 2));
+                            if (childWidgetID < ((LinkableWidget) w).getChildren().size()) {
+                                w = ((LinkableWidget) w).getChildren().get(childWidgetID);
+                            }
+                        }
                     }
                 } catch (NumberFormatException e) {
                     // no valid number, so the requested page id does not exist
