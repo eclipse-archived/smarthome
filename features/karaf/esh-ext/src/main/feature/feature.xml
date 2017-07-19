@@ -38,6 +38,11 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lifx/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-lirc" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lirc/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-ntp" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>
