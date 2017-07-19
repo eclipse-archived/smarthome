@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.module.script.internal.handler;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -106,9 +107,13 @@ abstract public class AbstractScriptModuleHandler<T extends Module> extends Base
     protected void setExecutionContext(ScriptEngine engine, Map<String, ?> context) {
         ScriptContext executionContext = engine.getContext();
 
-        // make the whole context available as "ctx"
+        // Add the rule's UID to the context and make it available as "ctx".
         // Note: We don't use "context" here as it doesn't work on all JVM versions!
-        executionContext.setAttribute("ctx", context, ScriptContext.ENGINE_SCOPE);
+        final Map<String, Object> contextNew = new HashMap<>(context);
+        contextNew.put("ruleUID", this.ruleUID);
+        executionContext.setAttribute("ctx", contextNew, ScriptContext.ENGINE_SCOPE);
+
+        // Add the rule's UID to the global namespace.
         executionContext.setAttribute("ruleUID", this.ruleUID, ScriptContext.ENGINE_SCOPE);
 
         // add the single context entries without their prefix to the scope
