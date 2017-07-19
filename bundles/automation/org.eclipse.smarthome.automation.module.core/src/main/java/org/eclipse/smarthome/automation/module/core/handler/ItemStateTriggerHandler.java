@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.module.core.handler;
 
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
@@ -27,8 +28,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
 
 /**
  * This is an ModuleHandler implementation for Triggers which trigger the rule
@@ -93,7 +92,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
         if (ruleEngineCallback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
-            Map<String, Object> values = Maps.newHashMap();
+            Map<String, Object> values = new HashMap<>();
             if (event instanceof ItemStateEvent && UPDATE_MODULE_TYPE_ID.equals(module.getTypeUID())) {
                 State state = ((ItemStateEvent) event).getItemState();
                 if ((this.state == null || this.state.equals(state.toFullString()))) {
