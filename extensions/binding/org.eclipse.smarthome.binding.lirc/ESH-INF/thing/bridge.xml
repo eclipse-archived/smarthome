@@ -11,15 +11,14 @@
 
         <config-description>
             <parameter name="host" type="text">
-                <label>The Host</label>
+                <context>network-address</context>
+                <label>Hostname</label>
                 <description>The host of the LIRC server</description>
-                <required>true</required>
                 <default>localhost</default>
             </parameter>
             <parameter name="portNumber" type="integer" min="0" max="65536" step="1">
-                <label>Port Number</label>
+                <label>Port</label>
                 <description>The port number the LIRC server is listening to.</description>
-                <required>true</required>
                 <default>8765</default>
             </parameter>
         </config-description>
