@@ -38,4 +38,5 @@ public class ThingXmlConfigDescriptionProvider extends AbstractXmlConfigDescript
     protected ConfigI18nLocalizationService getConfigI18nLocalizerService() {
         return configI18nLocalizerService;
     }
+
 }

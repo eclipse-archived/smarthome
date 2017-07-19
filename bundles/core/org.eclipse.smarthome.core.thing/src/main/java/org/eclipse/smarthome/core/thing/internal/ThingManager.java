@@ -28,8 +28,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.smarthome.config.core.BundleProcessor;
-import org.eclipse.smarthome.config.core.BundleProcessorVetoManager;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -45,6 +43,7 @@ import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -69,6 +68,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -100,8 +100,8 @@ import com.google.common.collect.SetMultimap;
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
-
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
@@ -672,16 +672,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private final BundleProcessorVetoManager<Thing> initializationVetoManager = new BundleProcessorVetoManager<>(
-            new BundleProcessorVetoManager.Action<Thing>() {
-                @Override
-                public void apply(final Thing thing) {
-                    final ThingHandlerFactory thingHandlerFactory = getThingHandlerFactory(thing);
-                    registerHandler(thing, thingHandlerFactory);
-                    initializeHandler(thing);
-                }
-            });
-
     private void applyDefaultConfiguration(Thing thing, ThingType thingType) {
         if (thingType != null) {
             ThingFactoryHelper.applyDefaultConfiguration(thing.getConfiguration(), thingType,
@@ -997,25 +987,60 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
-
         thingHandlerFactories.add(thingHandlerFactory);
+        handleThingHandlerFactoryAddition(getBundleName(thingHandlerFactory));
+    }
 
-        for (Thing thing : things) {
-            if (thingHandlerFactory.supportsThingType(thing.getThingTypeUID())) {
-                if (!isHandlerRegistered(thing)) {
-                    registerAndInitializeHandler(thing, thingHandlerFactory);
-                } else {
-                    logger.debug("Thing handler for thing '{}' already registered", thing.getUID());
-                }
-            }
+    private Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
+
+    protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
+        if (properties.containsKey(XML_THING_TYPE)) {
+            String bsn = (String) properties.get(XML_THING_TYPE);
+            loadedXmlThingTypes.add(bsn);
+            handleThingHandlerFactoryAddition(bsn);
         }
+    }
+
+    protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
+        if (properties.containsKey(XML_THING_TYPE)) {
+            String bsn = (String) properties.get(XML_THING_TYPE);
+            loadedXmlThingTypes.remove(bsn);
+        }
+    }
+
+    private void handleThingHandlerFactoryAddition(String bsn) {
+        thingHandlerFactories.stream().filter(it -> {
+            return getBundleName(it).equals(bsn);
+        }).forEach(thingHandlerFactory -> {
+            things.forEach(thing -> {
+                if (thingHandlerFactory.supportsThingType(thing.getThingTypeUID())) {
+                    if (!isHandlerRegistered(thing)) {
+                        registerAndInitializeHandler(thing, thingHandlerFactory);
+                    } else {
+                        logger.debug("Thing handler for thing '{}' already registered", thing.getUID());
+                    }
+                }
+            });
+        });
+    }
+
+    private String getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        return FrameworkUtil.getBundle(thingHandlerFactory.getClass()).getSymbolicName();
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         if (thingHandlerFactory != null) {
-            initializationVetoManager.applyActionFor(thingHandlerFactory.getClass(), thing);
+            String bsn = getBundleName(thingHandlerFactory);
+            if (loadedXmlThingTypes.contains(bsn)) {
+                registerHandler(thing, thingHandlerFactory);
+                initializeHandler(thing);
+            } else {
+                logger.debug(
+                        "Not registering a handler at this point. The thing types of bundle {} are not fully loaded yet.",
+                        bsn);
+            }
         } else {
-            logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
+            logger.debug("Not registering a handler at this point. No handler factory for thing '{}' found.",
                     thing.getUID());
         }
     }
@@ -1120,14 +1145,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
-    }
-
-    protected void setBundleProcessor(BundleProcessor bundleProcessor) {
-        initializationVetoManager.addBundleProcessor(bundleProcessor);
-    }
-
-    protected void unsetBundleProcessor(BundleProcessor bundleProcessor) {
-        initializationVetoManager.removeBundleProcessor(bundleProcessor);
     }
 
     protected void setThingStatusInfoI18nLocalizationService(

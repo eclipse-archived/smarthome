@@ -30,6 +30,7 @@
     <module>org.eclipse.smarthome.binding.sonos</module>
     <module>org.eclipse.smarthome.binding.tradfri</module>
     <module>org.eclipse.smarthome.binding.tradfri.test</module>
+    <module>org.eclipse.smarthome.binding.weatherunderground</module>
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.wemo.test</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>

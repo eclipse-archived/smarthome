@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
  * registered as {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
  * <p>
  * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult} object, it is added to the
- * {@link AbstractXmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service registry.
+ * {@link AbstractXmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service
+ * registry.
  *
  * @author Michael Grammling - Initial Contribution
  *
@@ -67,14 +68,14 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
             if (configDescription != null) {
                 try {
-                    this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
+                    this.configDescriptionProvider.add(this.bundle, configDescription);
                 } catch (Exception ex) {
                     this.logger.error("Could not register ConfigDescription!", ex);
                 }
             }
 
             BindingInfo bindingInfo = bindingInfoXmlResult.getBindingInfo();
-            this.bindingInfoProvider.addBindingInfo(bundle, bindingInfo);
+            this.bindingInfoProvider.add(bundle, bindingInfo);
         }
     }
 
@@ -85,8 +86,8 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
     @Override
     public synchronized void release() {
-        this.bindingInfoProvider.removeAllBindingInfos(this.bundle);
-        this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        this.bindingInfoProvider.removeAll(bundle);
+        this.configDescriptionProvider.removeAll(bundle);
     }
 
 }

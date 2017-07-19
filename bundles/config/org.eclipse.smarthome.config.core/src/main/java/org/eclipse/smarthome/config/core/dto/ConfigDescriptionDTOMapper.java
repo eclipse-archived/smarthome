@@ -36,7 +36,7 @@ public class ConfigDescriptionDTOMapper {
         List<ConfigDescriptionParameterGroupDTO> parameterGroups = mapParameterGroups(
                 configDescription.getParameterGroups());
         List<ConfigDescriptionParameterDTO> parameters = mapParameters(configDescription.getParameters());
-        return new ConfigDescriptionDTO(configDescription.getURI().toString(), parameters, parameterGroups);
+        return new ConfigDescriptionDTO(configDescription.getUID().toString(), parameters, parameterGroups);
     }
 
     /**

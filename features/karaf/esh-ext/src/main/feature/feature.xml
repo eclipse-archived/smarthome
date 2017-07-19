@@ -38,6 +38,11 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lifx/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-lirc" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lirc/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-ntp" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>
@@ -54,6 +59,11 @@
     <feature>esh-io-transport-coap</feature>
     <feature>esh-io-transport-mdns</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.tradfri/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-weatherunderground" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.weatherunderground/${project.version}</bundle>
   </feature>
 
   <feature name="esh-binding-wemo" version="${project.version}">

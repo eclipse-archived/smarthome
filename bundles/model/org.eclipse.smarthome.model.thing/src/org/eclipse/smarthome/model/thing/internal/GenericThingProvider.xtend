@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.model.thing.internal
 
+import java.math.BigDecimal
 import java.util.ArrayList
 import java.util.Collection
 import java.util.HashSet
@@ -15,11 +16,13 @@ import java.util.Map
 import java.util.Set
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import org.eclipse.smarthome.config.core.BundleProcessor
-import org.eclipse.smarthome.config.core.BundleProcessorVetoManager
+import java.util.concurrent.CopyOnWriteArraySet
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
+import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -33,6 +36,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.thing.type.TypeResolver
@@ -47,10 +51,7 @@ import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
-import org.eclipse.smarthome.core.thing.type.ChannelType
-import java.math.BigDecimal
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.osgi.framework.FrameworkUtil
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -67,6 +68,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
  */
 class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
 
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
+
     private LocaleProvider localeProvider
 
     private ModelRepository modelRepository
@@ -82,16 +85,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private val List<QueueContent> queue = new CopyOnWriteArrayList
     private var Thread lazyRetryThread = null
     
-    private val BundleProcessorVetoManager<ThingHandlerFactory> vetoManager = new BundleProcessorVetoManager(new BundleProcessorVetoManager.Action<ThingHandlerFactory>() {
-        override apply(ThingHandlerFactory thingHandlerFactory) {
-            thingsMap.keySet.forEach [
-                // create things for this specific thingHandlerFactory from the model.
-                createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
-            ]
-        }
-    })
-    
     private static final Logger logger = LoggerFactory.getLogger(GenericThingProvider)
+
+    private val Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet
 
     def void activate() {
         modelRepository.getAllModelNamesOfType("things").forEach [
@@ -127,7 +123,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 it != null
             ]?.toSet?.forEach[
                 // Execute for each unique ThingHandlerFactory
-                vetoManager.applyActionFor(it.getClass(), it)
+                createThingsFromModelForThingHandlerFactory(modelName, it)
             ]
         }
     }
@@ -506,12 +502,12 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("ThingHandlerFactory added {}", thingHandlerFactory)
-        this.thingHandlerFactories.add(thingHandlerFactory);
+        thingHandlerFactories.add(thingHandlerFactory);
         thingHandlerFactoryAdded(thingHandlerFactory)
     }
 
     def protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        this.thingHandlerFactories.remove(thingHandlerFactory);
+        thingHandlerFactories.remove(thingHandlerFactory);
         thingHandlerFactoryRemoved()
     }
 
@@ -520,10 +516,43 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
 
     def private thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
-        vetoManager.applyActionFor(thingHandlerFactory.getClass(), thingHandlerFactory)
+        thingsMap.keySet.forEach [
+            //create things for this specific thingHandlerFactory from the model.
+            createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
+        ]
+    }
+    
+    def protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
+        if (properties.containsKey(XML_THING_TYPE)) {
+            val bsn = properties.get(XML_THING_TYPE) as String
+            loadedXmlThingTypes.add(bsn)
+            bsn.handleXmlThingTypesLoaded
+        }
+    }
+    
+    def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        FrameworkUtil.getBundle(thingHandlerFactory.class).symbolicName
+    }
+    
+    def private handleXmlThingTypesLoaded(String bsn) {
+        thingHandlerFactories.filter[
+            getBundleName.equals(bsn)
+        ].forEach[ thingHandlerFactory |
+            thingHandlerFactory.thingHandlerFactoryAdded
+        ]
+    }
+
+    def protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
+        if (properties.containsKey(XML_THING_TYPE)) {
+            val bsn = properties.get(XML_THING_TYPE) as String
+            loadedXmlThingTypes.remove(bsn);
+        }
     }
 
     def private createThingsFromModelForThingHandlerFactory(String modelName, ThingHandlerFactory factory) {
+        if (!loadedXmlThingTypes.contains(factory.bundleName)) {
+            return
+        }
         val oldThings = thingsMap.get(modelName).clone
         val newThings = newArrayList()
         if (modelRepository != null) {
@@ -601,14 +630,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ThingHandlerFactory thingHandlerFactory
     }
 
-    def protected void addBundleProcessor(BundleProcessor bundleProcessor) {
-        vetoManager.addBundleProcessor(bundleProcessor)
-    }
-
-    def protected void removeBundleProcessor(BundleProcessor bundleProcessor) {
-        vetoManager.removeBundleProcessor(bundleProcessor)
-    }
-    
     def protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry
     }
