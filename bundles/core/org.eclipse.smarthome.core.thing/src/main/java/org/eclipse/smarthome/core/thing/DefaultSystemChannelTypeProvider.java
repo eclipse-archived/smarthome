@@ -14,9 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
@@ -41,10 +40,12 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Changed to {@link ChannelTypeProvider}
  * @author Markus Rathgeb - Make battery-low indication read-only
  * @author Moritz Kammerer - Added system trigger types
- * @author Christoph Weitkamp - Added support for translation
+ * @author Christoph Weitkamp - Added support for translation, adapted DefaultSystemChannelTypeProvider to changed ESH
+ *         API
  *
  */
-public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
+public class DefaultSystemChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType>
+        implements ChannelTypeProvider {
 
     /**
      * Signal strength default system wide {@link ChannelType}. Represents signal strength of a device as a number
@@ -100,100 +101,17 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     new EventOption(CommonTriggerEvents.LONG_PRESSED, null))),
             null);
 
-    private static class LocalizedChannelTypeKey {
-        public final String locale;
-        public final UID uid;
-
-        public LocalizedChannelTypeKey(UID uid, String locale) {
-            this.uid = uid;
-            this.locale = locale;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            LocalizedChannelTypeKey other = (LocalizedChannelTypeKey) obj;
-            if (locale == null) {
-                if (other.locale != null) {
-                    return false;
-                }
-            } else if (!locale.equals(other.locale)) {
-                return false;
-            }
-            if (uid == null) {
-                if (other.uid != null) {
-                    return false;
-                }
-            } else if (!uid.equals(other.uid)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((locale == null) ? 0 : locale.hashCode());
-            result = prime * result + ((uid == null) ? 0 : uid.hashCode());
-            return result;
-        }
-
-    }
-
-    private final Collection<ChannelGroupType> channelGroupTypes;
-    private final Collection<ChannelType> channelTypes;
-
-    private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
-
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
     public DefaultSystemChannelTypeProvider() {
-        channelGroupTypes = Collections.emptyList();
-        channelTypes = Collections.unmodifiableCollection(
-                Arrays.asList(new ChannelType[] { SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY,
-                        SYSTEM_CHANNEL_BATTERY_LEVEL, SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON }));
-
-    }
-
-    @Override
-    public Collection<ChannelType> getChannelTypes(Locale locale) {
-        final List<ChannelType> allChannelTypes = new ArrayList<>(10);
         final Bundle bundle = FrameworkUtil.getBundle(DefaultSystemChannelTypeProvider.class);
 
-        for (final ChannelType channelType : channelTypes) {
-            allChannelTypes.add(createLocalizedChannelType(bundle, channelType, locale));
-        }
-
-        return allChannelTypes;
-    }
-
-    @Override
-    public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
-        final Bundle bundle = FrameworkUtil.getBundle(DefaultSystemChannelTypeProvider.class);
-
-        if (channelTypeUID.equals(SYSTEM_CHANNEL_SIGNAL_STRENGTH.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_SIGNAL_STRENGTH, locale);
-        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_LOW_BATTERY.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_LOW_BATTERY, locale);
-        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_BATTERY_LEVEL.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_BATTERY_LEVEL, locale);
-        } else if (channelTypeUID.equals(SYSTEM_TRIGGER.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_TRIGGER, locale);
-        } else if (channelTypeUID.equals(SYSTEM_RAWBUTTON.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_RAWBUTTON, locale);
-        } else if (channelTypeUID.equals(SYSTEM_BUTTON.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
-        }
-        return null;
+        add(bundle, SYSTEM_CHANNEL_SIGNAL_STRENGTH);
+        add(bundle, SYSTEM_CHANNEL_LOW_BATTERY);
+        add(bundle, SYSTEM_CHANNEL_BATTERY_LEVEL);
+        add(bundle, SYSTEM_TRIGGER);
+        add(bundle, SYSTEM_RAWBUTTON);
+        add(bundle, SYSTEM_BUTTON);
     }
 
     @Override
@@ -203,7 +121,17 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-        return channelGroupTypes;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
+        return get(channelTypeUID, locale);
+    }
+
+    @Override
+    public Collection<ChannelType> getChannelTypes(Locale locale) {
+        return getAll(locale);
     }
 
     @Reference
@@ -215,39 +143,11 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         thingTypeI18nUtil = null;
     }
 
-    private ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
-
-        LocalizedChannelTypeKey localizedChannelTypeKey = getLocalizedChannelTypeKey(channelType.getUID(), locale);
-
-        ChannelType cachedEntry = localizedChannelTypeCache.get(localizedChannelTypeKey);
-        if (cachedEntry != null) {
-            return cachedEntry;
-        }
-
-        if (thingTypeI18nUtil != null) {
-
-            ChannelTypeUID channelTypeUID = channelType.getUID();
-
-            String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
-            String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
-                    channelType.getDescription(), locale);
-
-            StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
-
-            ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
-                    channelType.getItemType(), channelType.getKind(), label, description, channelType.getCategory(),
-                    channelType.getTags(), state, channelType.getEvent(), channelType.getConfigDescriptionURI());
-
-            localizedChannelTypeCache.put(localizedChannelTypeKey, localizedChannelType);
-
-            return localizedChannelType;
-        }
-
-        return channelType;
-    }
-
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
+        if (thingTypeI18nUtil == null) {
+            return null;
+        }
 
         StateDescription state = channelType.getState();
 
@@ -269,10 +169,20 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         return null;
     }
 
-    private LocalizedChannelTypeKey getLocalizedChannelTypeKey(UID uid, Locale locale) {
-        String localeString = locale != null ? locale.toLanguageTag() : null;
-        LocalizedChannelTypeKey localizedChannelTypeKey = new LocalizedChannelTypeKey(uid,
-                locale != null ? localeString : null);
-        return localizedChannelTypeKey;
+    @Override
+    protected ChannelType localize(Bundle bundle, ChannelType channelType, Locale locale) {
+        if (thingTypeI18nUtil == null) {
+            return null;
+        }
+
+        ChannelTypeUID channelTypeUID = channelType.getUID();
+        String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
+        String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
+                channelType.getDescription(), locale);
+        StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
+
+        return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
+                channelType.getKind(), label, description, channelType.getCategory(), channelType.getTags(), state,
+                channelType.getEvent(), channelType.getConfigDescriptionURI());
     }
 }

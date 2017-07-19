@@ -71,17 +71,20 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
 
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
+        if (thingTypeI18nUtil == null) {
+            return null;
+        }
 
         StateDescription state = channelType.getState();
 
         if (state != null) {
-            String pattern = this.thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
+            String pattern = thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
                     locale);
 
             List<StateOption> localizedOptions = new ArrayList<>();
             List<StateOption> options = state.getOptions();
             for (StateOption stateOption : options) {
-                String optionLabel = this.thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
+                String optionLabel = thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
                         stateOption.getValue(), stateOption.getLabel(), locale);
                 localizedOptions.add(new StateOption(stateOption.getValue(), optionLabel));
             }
