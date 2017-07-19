@@ -143,6 +143,12 @@
                   <transitive>false</transitive>
                   <source>false</source>
                 </artifact>
+                <!-- https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305 -->
+                <artifact>
+                    <id>com.google.code.findbugs:jsr305:jar:3.0.2</id>
+                    <transitive>false</transitive>
+                    <source>true</source>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
