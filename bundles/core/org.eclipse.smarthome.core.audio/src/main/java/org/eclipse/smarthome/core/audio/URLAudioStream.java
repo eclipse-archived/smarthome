@@ -68,6 +68,7 @@ public class URLAudioStream extends AudioStream {
                             break;
                         }
                     }
+                    IOUtils.closeQuietly(isM3U);
                     break;
                 case PLS_EXTENSION:
                     final InputStream isPLS = new URL(url).openStream();
@@ -80,6 +81,7 @@ public class URLAudioStream extends AudioStream {
                             }
                         }
                     }
+                    IOUtils.closeQuietly(isPLS);
                     break;
                 default:
                     break;
