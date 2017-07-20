@@ -48,7 +48,7 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
- * @author Andre Fuechsel - modified tests after introducing the generic thing types
+ * @author Andre Fuechsel - modified tests after introducing the generic thing types, added test for device id
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
@@ -63,6 +63,9 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220")
     final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
     final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
+
+    def SW_VERSION = "5.23.1.13452"
+    def UNIQUE_ID = "00:17:88:01:00:e1:88:29-0b"
 
     ThingRegistry thingRegistry
     ItemChannelLinkRegistry linkRegistry
@@ -124,9 +127,10 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     @Test
-    void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
+    void 'assert that deviceId is set correctly'() {
         Bridge hueBridge = createBridge()
         simulateBridgeInitialization(hueBridge)
+
         Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
 
         try {
@@ -152,8 +156,38 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                 }
             ] as MockedHttpClient
 
+            installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
+
+            assertBridgeOnline(hueLightHandler.getBridge())
+            hueLightHandler.initialize()
+
+            waitForAssert {
+                assertThat hueLightHandler.getDeviceId(), is(equalTo(UNIQUE_ID))
+            }
+        } finally {
+            thingRegistry.forceRemove(hueLight.getUID())
+            thingRegistry.forceRemove(hueBridge.getUID())
+            waitForAssert({
+                assertThat thingRegistry.get(hueLight.getUID()), is(nullValue())
+                assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
+            }, 10000)
+        }
+    }
+
+    @Test
+    void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
+        Bridge hueBridge = createBridge()
+        simulateBridgeInitialization(hueBridge)
+        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
+
+        try {
+            HueLightHandler hueLightHandler
+            waitForAssert {
+                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
+                assertThat hueLightHandler, is(notNullValue())
+            }
+
             HueBridgeHandler hueBridgeHandler = hueLightHandler.getHueBridgeHandler()
-            installHttpClientMock(hueBridgeHandler, mockedHttpClient)
 
             assertBridgeOnline(hueLightHandler.getBridge())
             hueLightHandler.initialize()
@@ -516,8 +550,8 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
             postCommand(hueLight, channel, command)
 
-            waitForAssert({assertTrue addressWrapper.isSet}, 10000)
-            waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
+            waitForAssert({ assertTrue addressWrapper.isSet }, 10000)
+            waitForAssert({ assertTrue bodyWrapper.isSet }, 10000)
 
             assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
             assertJson(expectedReply, bodyWrapper.wrappedObject)

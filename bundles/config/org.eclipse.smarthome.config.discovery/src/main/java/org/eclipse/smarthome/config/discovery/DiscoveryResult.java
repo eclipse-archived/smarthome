@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * which are fired as an event to registered {@link DiscoveryListener}s.
  *
  * @author Kai Kreuzer - Initial API
- * @author Andre Fuechsel - added support for time to live
+ * @author Andre Fuechsel - added support for time to live, added getRepresentationPropertyValue()
  * @author Thomas Höfer - Added representation
  *
  * @see DiscoveryService
@@ -80,10 +80,18 @@ public interface DiscoveryResult {
      * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
      * identifiers are typically the <code>ipAddress</code>, the <code>macAddress</code> or the
      * <code>serialNumber</code> of the discovered thing.
-     * 
+     *
      * @return the representation property of this result object (could be null)
      */
     public String getRepresentationProperty();
+
+    /**
+     * Returns the actual value of the representation property of the result object.
+     *
+     * @see #getRepresentationProperty()
+     * @return the value of the representation property of this result object (could be null)
+     */
+    public Object getRepresentationPropertyValue();
 
     /**
      * Returns the flag of this result object.<br>
@@ -112,14 +120,14 @@ public interface DiscoveryResult {
 
     /**
      * Get the timestamp of this {@link DiscoveryResult}.
-     * 
+     *
      * @return timestamp as long
      */
     public long getTimestamp();
 
     /**
      * Get the time to live in seconds for this entry.
-     * 
+     *
      * @return time to live in seconds
      */
     public long getTimeToLive();

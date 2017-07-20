@@ -47,6 +47,7 @@ import org.junit.Test
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
+ * @author Andre Fuechsel - Added tests for device id
  */
 class DynamicThingUpdateOSGITest extends OSGiTest {
 
@@ -55,9 +56,12 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final BINDING_ID = 'dynamicUpdateBindingId'
     final THING_TYPE_ID = 'dynamicUpdateThingType'
     final THING_ID = 'dynamicUpdateThingId'
+    final THING_ID2 = 'dynamicUpdateThingId2'
+    final DEVICE_ID = 'deviceId'
 
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
+    final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
@@ -102,7 +106,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
             },
-            setCallback: {callbackArg -> callback = callbackArg },
+            'setCallback' : {callbackArg -> callback = callbackArg },
+            'getDeviceId' : { return DEVICE_ID  }
         ] as ThingHandler )
 
         return thingHandler
@@ -176,6 +181,42 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         assertThat inbox.getAll().size(), is(0)
         assertThat thingUpdated, is(false)
+
+        unregisterService(thingHandlerFactory)
+    }
+
+    @Test
+    void 'assert that an thing with different thing uid as the already existing thing is added'() {
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID2, null, [:], null, "DummyLabel", DEFAULT_TTL)
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(1)
+
+        unregisterService(thingHandlerFactory)
+    }
+
+    @Test
+    void 'assert that an thing with different thing uid but same device id compared to the already existing thing is not added'() {
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID2, null, ['prop1':DEVICE_ID], 'prop1', "DummyLabel", DEFAULT_TTL)
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(0)
 
         unregisterService(thingHandlerFactory)
     }

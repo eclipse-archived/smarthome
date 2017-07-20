@@ -24,7 +24,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
 
 /**
  * This class provides console commands around the inbox functionality
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -80,7 +80,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
                     break;
                 case SUBCMD_CLEAR:
-                    clearInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+                    clearInboxEntries(console, inbox.getAll());
                     break;
                 default:
                     break;

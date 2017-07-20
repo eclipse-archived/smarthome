@@ -47,7 +47,8 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, added
+ *         getDeviceId()
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
@@ -481,5 +482,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
 
         return delay;
+    }
+
+    @Override
+    public String getDeviceId() {
+        try {
+            return getLight().getUniqueID();
+        } catch (Exception e) {
+            return super.getDeviceId();
+        }
     }
 }

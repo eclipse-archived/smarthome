@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
- * @author Andre Fuechsel - implemented getFullLights(), startSearch()
+ * @author Andre Fuechsel - implemented getFullLights(), startSearch(), getDeviceId()
  * @author Thomas Höfer - added thing properties
  * @author Stefan Bußweiler - Added new thing status handling
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
@@ -518,5 +518,14 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         }
 
         return configStatusMessages;
+    }
+
+    @Override
+    public String getDeviceId() {
+        try {
+            return bridge.getFullConfig().getConfig().getMACAddress().replaceAll(":", "").toLowerCase();
+        } catch (Exception e) {
+            return super.getDeviceId();
+        }
     }
 }

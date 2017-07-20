@@ -79,7 +79,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     public DiscoveryResultImpl(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
             Map<String, Object> properties, String representationProperty, String label, long timeToLive)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
@@ -133,6 +133,11 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     @Override
     public String getRepresentationProperty() {
         return this.representationProperty;
+    }
+
+    @Override
+    public Object getRepresentationPropertyValue() {
+        return this.representationProperty != null ? this.properties.get(this.representationProperty) : null;
     }
 
     @Override
@@ -196,18 +201,23 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DiscoveryResultImpl other = (DiscoveryResultImpl) obj;
         if (thingUID == null) {
-            if (other.thingUID != null)
+            if (other.thingUID != null) {
                 return false;
-        } else if (!thingUID.equals(other.thingUID))
+            }
+        } else if (!thingUID.equals(other.thingUID)) {
             return false;
+        }
         return true;
     }
 

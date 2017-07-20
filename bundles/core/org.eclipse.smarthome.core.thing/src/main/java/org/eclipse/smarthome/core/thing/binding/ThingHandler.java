@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
  * @author Stefan Bußweiler - API changes due to bridge/thing life cycle refactoring
+ * @author Andre Fuechsel - added API to get a device id
  */
 public interface ThingHandler {
 
@@ -173,5 +174,19 @@ public interface ThingHandler {
      * Only then it will be removed completely.
      */
     void handleRemoval();
+
+    /**
+     * This method should a unique identifier of the device handled by this {@link ThingHandler}. An implementing
+     * class should try to take some information from the connected device that clearly identify it.
+     * This could be e.g. the serial number, MAC address or something else to make it unique in this
+     * system's context, it does not necessarily need to be globally unique.
+     *
+     * The default implementation of this method returns {@code null}.
+     *
+     * @return an identifier for the device or {@code null}
+     */
+    default String getDeviceId() {
+        return null;
+    }
 
 }

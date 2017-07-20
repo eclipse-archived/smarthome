@@ -50,6 +50,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -70,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added automated removing of entries
  * @author Michael Grammling - Added dynamic configuration updates
  * @author Dennis Nobel - Added persistence support
- * @author Andre Fuechsel - Added removeOlderResults
+ * @author Andre Fuechsel - Added removeOlderResults, added support for deviceId
  * @author Christoph Knauf - Added removeThingsForBridge and getPropsAndConfigParams
  *
  */
@@ -171,7 +172,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
         if (result != null) {
             ThingUID thingUID = result.getThingUID();
-            Thing thing = this.thingRegistry.get(thingUID);
+            Thing thing = checkIfThingAlreadyExists(result);
 
             if (thing == null) {
                 DiscoveryResult inboxResult = get(thingUID);
@@ -209,6 +210,28 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
 
         return false;
+    }
+
+    private Thing checkIfThingAlreadyExists(DiscoveryResult result) {
+        Thing thing = this.thingRegistry.get(result.getThingUID());
+        if (thing != null) {
+            // thing with same UID is already in registry
+            return thing;
+        }
+
+        // check, if there is a thing with the same representation property
+        Object value = result.getRepresentationPropertyValue();
+        if (value != null) {
+            Collection<Thing> things = this.thingRegistry.getAll();
+            for (Thing t : things) {
+                ThingHandler handler = t.getHandler();
+                if (handler != null && value.equals(handler.getDeviceId())) {
+                    return t;
+                }
+            }
+        }
+
+        return null;
     }
 
     private boolean synchronizeConfiguration(ThingTypeUID thingTypeUID, Map<String, Object> properties,
