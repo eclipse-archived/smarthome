@@ -29,6 +29,8 @@ public class TradfriBindingConstants {
     public final static ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
     public final static ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
     public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
+    // Grouped lights (and maybe in the future other devices)
+    public final static ThingTypeUID THING_TYPE_GROUP = new ThingTypeUID(BINDING_ID, "group");
 
     public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMABLE_LIGHT,
             THING_TYPE_COLOR_TEMP_LIGHT);
@@ -39,6 +41,7 @@ public class TradfriBindingConstants {
     // List of all Channel IDs
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR_TEMPERATURE = "color_temperature";
+    public static final String CHANNEL_GROUP_STATE = "group_state";
 
     // IPSO Objects
     public static final String DEVICES = "15001";

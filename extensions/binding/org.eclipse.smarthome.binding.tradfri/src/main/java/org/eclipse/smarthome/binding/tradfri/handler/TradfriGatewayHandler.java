@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.tradfri.handler;
 
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.DEVICES;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -48,13 +48,13 @@ import com.google.gson.JsonSyntaxException;
  * sent to one of the channels.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Mario Smit - Group Handler added
  */
-public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCallback {
+public class TradfriGatewayHandler extends BaseBridgeHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TradfriGatewayHandler.class);
 
-    private TradfriCoapClient deviceClient;
-    private String gatewayURI;
+    public TradfriCoapCallback devices, groups;
     private DTLSConnector dtlsConnector;
     private CoapEndpoint endPoint;
 
@@ -85,27 +85,47 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             return;
         }
 
-        this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
-        try {
-            URI uri = new URI(gatewayURI);
-            deviceClient = new TradfriCoapClient(uri);
-        } catch (URISyntaxException e) {
-            logger.debug("Illegal gateway URI `{}`: {}", gatewayURI, e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
-            return;
-        }
-
         DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder(new InetSocketAddress(0));
         builder.setPskStore(new StaticPskStore("", configuration.code.getBytes()));
         dtlsConnector = new DTLSConnector(builder.build());
         endPoint = new CoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
-        deviceClient.setEndpoint(endPoint);
+
+        // setup DEVICES scanner
+        devices = setupScanner("coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES);
+        if (devices == null) {
+            logger.debug("Unable to scan for Tradfri DEVICES");
+        }
+        groups = setupScanner("coaps://" + configuration.host + ":" + configuration.port + "/" + GROUPS);
+        if (groups == null) {
+            logger.debug("Unable to scan for Tradfri GROUPS");
+        }
+
         updateStatus(ThingStatus.UNKNOWN);
 
         // schedule a new scan every minute
         scanJob = scheduler.scheduleWithFixedDelay(() -> {
-            startScan();
-        }, 0, 1, TimeUnit.MINUTES);
+            if (devices != null) {
+                devices.startScan();
+            }
+            if (groups != null) {
+                groups.startScan();
+            }
+        }, 0, 60, TimeUnit.SECONDS);
+    }
+
+    TradfriCoapCallback setupScanner(String url) {
+        TradfriCoapCallback scanner = new TradfriCoapCallback();
+        scanner.gatewayURI = url;
+        try {
+            URI uri = new URI(scanner.gatewayURI);
+            scanner.client = new TradfriCoapClient(uri);
+        } catch (URISyntaxException e) {
+            logger.debug("Illegal gateway URI `{}`: {}", scanner.gatewayURI, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            return null;
+        }
+        scanner.client.setEndpoint(endPoint);
+        return scanner;
     }
 
     @Override
@@ -114,9 +134,13 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             scanJob.cancel(true);
             scanJob = null;
         }
-        if (deviceClient != null) {
-            deviceClient.shutdown();
-            deviceClient = null;
+        if (devices != null && devices.client != null) {
+            devices.client.shutdown();
+            devices.client = null;
+        }
+        if (groups != null && groups.client != null) {
+            groups.client.shutdown();
+            groups.client = null;
         }
         if (endPoint != null) {
             endPoint.destroy();
@@ -125,74 +149,79 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         super.dispose();
     }
 
-    /**
-     * Does a request to the gateway to list all available devices/services.
-     * The response is received and processed by the method {@link onUpdate(JsonElement data)}.
-     */
-    public void startScan() {
-        if (endPoint != null) {
-            deviceClient.get(new TradfriCoapHandler(this));
-        }
-    }
+    public class TradfriCoapCallback implements CoapCallback {
+        private TradfriCoapClient client;
+        private String gatewayURI;
 
-    /**
-     * Returns the root URI of the gateway.
-     *
-     * @return root URI of the gateway with coaps scheme
-     */
-    public String getGatewayURI() {
-        return gatewayURI;
-    }
-
-    /**
-     * Returns the coap endpoint that can be used within coap clients.
-     *
-     * @return the coap endpoint
-     */
-    public CoapEndpoint getEndpoint() {
-        return endPoint;
-    }
-
-    @Override
-    public void onUpdate(JsonElement data) {
-        logger.trace("Response: {}", data);
-
-        if (endPoint != null) {
-            try {
-                JsonArray array = data.getAsJsonArray();
-                for (int i = 0; i < array.size(); i++) {
-                    requestDeviceDetails(array.get(i).getAsString());
-                }
-            } catch (JsonSyntaxException e) {
-                logger.debug("JSON error: {}", e.getMessage());
-                setStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+        /**
+         * Does a request to the gateway to list all available devices/services.
+         * The response is received and processed by the method {@link onUpdate(JsonElement data)}.
+         */
+        public void startScan() {
+            if (endPoint != null) {
+                client.get(new TradfriCoapHandler(this));
             }
         }
-    }
 
-    private void requestDeviceDetails(String instanceId) {
-        // we are reusing our coap client and merely temporarily set a sub-URI to call
-        deviceClient.setURI(gatewayURI + "/" + instanceId);
-        deviceClient.asyncGet().thenAccept(data -> {
-            logger.debug("Response: {}", data);
-            JsonObject json = new JsonParser().parse(data).getAsJsonObject();
-            deviceUpdateListeners.forEach(listener -> listener.onUpdate(instanceId, json));
-        });
-        // restore root URI
-        deviceClient.setURI(gatewayURI);
-    }
+        /**
+         * Returns the root URI of the gateway.
+         *
+         * @return root URI of the gateway with coaps scheme
+         */
+        public String getGatewayURI() {
+            return gatewayURI;
+        }
 
-    @Override
-    public void setStatus(ThingStatus status, ThingStatusDetail statusDetail) {
-        // are we still connected at all?
-        if (endPoint != null) {
-            updateStatus(status, statusDetail);
-            if (dtlsConnector != null && status == ThingStatus.OFFLINE) {
+        /**
+         * Returns the coap endpoint that can be used within coap clients.
+         *
+         * @return the coap endpoint
+         */
+        public CoapEndpoint getEndpoint() {
+            return endPoint;
+        }
+
+        @Override
+        public void onUpdate(JsonElement data) {
+            logger.debug("Gateway response: {}", data);
+
+            if (endPoint != null) {
                 try {
-                    dtlsConnector.stop();
-                    dtlsConnector.start();
-                } catch (IOException e) {
-                    logger.debug("Error restarting the DTLS connector: {}", e.getMessage());
+                    JsonArray array = data.getAsJsonArray();
+                    for (int i = 0; i < array.size(); i++) {
+                        requestDeviceDetails(array.get(i).getAsString());
+                    }
+                } catch (JsonSyntaxException e) {
+                    logger.debug("JSON error: {}", e.getMessage());
+                    setStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                }
+            }
+        }
+
+        private void requestDeviceDetails(String instanceId) {
+            // we are reusing our coap client and merely temporarily set a sub-URI to call
+            client.setURI(gatewayURI + "/" + instanceId);
+            client.asyncGet().thenAccept(data -> {
+                logger.debug("Response: {}", data);
+                JsonObject json = new JsonParser().parse(data).getAsJsonObject();
+                deviceUpdateListeners.forEach(listener -> listener.onUpdate(instanceId, json));
+            });
+            // restore root URI
+            client.setURI(gatewayURI);
+        }
+
+        @Override
+        public void setStatus(ThingStatus status, ThingStatusDetail statusDetail) {
+            // are we still connected at all?
+            if (endPoint != null) {
+                updateStatus(status, statusDetail);
+                if (dtlsConnector != null && status == ThingStatus.OFFLINE) {
+                    try {
+                        dtlsConnector.stop();
+                        dtlsConnector.start();
+                    } catch (IOException e) {
+                        logger.debug("Error restarting the DTLS connector: {}", e.getMessage());
+                    }
                 }
             }
         }
