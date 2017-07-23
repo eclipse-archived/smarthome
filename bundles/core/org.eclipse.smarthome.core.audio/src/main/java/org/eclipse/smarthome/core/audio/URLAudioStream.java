@@ -56,39 +56,38 @@ public class URLAudioStream extends AudioStream {
     }
 
     private InputStream createInputStream() throws AudioException {
+        final String filename = url.toLowerCase();
+        final String extension = AudioStreamUtils.getExtension(filename);
         try {
-            final String filename = url.toLowerCase();
-            final String extension = AudioStreamUtils.getExtension(filename);
             switch (extension) {
                 case M3U_EXTENSION:
-                    final InputStream isM3U = new URL(url).openStream();
-                    for (final String line : IOUtils.readLines(isM3U)) {
-                        if (!line.isEmpty() && !line.startsWith("#")) {
-                            url = line;
-                            break;
-                        }
-                    }
-                    IOUtils.closeQuietly(isM3U);
-                    break;
-                case PLS_EXTENSION:
-                    final InputStream isPLS = new URL(url).openStream();
-                    for (final String line : IOUtils.readLines(isPLS)) {
-                        if (!line.isEmpty() && line.startsWith("File")) {
-                            final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
-                            if (matcher.find()) {
-                                url = matcher.group(1);
+                    try (final InputStream isM3U = new URL(url).openStream()) {
+                        for (final String line : IOUtils.readLines(isM3U)) {
+                            if (!line.isEmpty() && !line.startsWith("#")) {
+                                url = line;
                                 break;
                             }
                         }
                     }
-                    IOUtils.closeQuietly(isPLS);
+                    break;
+                case PLS_EXTENSION:
+                    try (final InputStream isPLS = new URL(url).openStream()) {
+                        for (final String line : IOUtils.readLines(isPLS)) {
+                            if (!line.isEmpty() && line.startsWith("File")) {
+                                final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
+                                if (matcher.find()) {
+                                    url = matcher.group(1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;
             }
             URL streamUrl = new URL(url);
             URLConnection connection = streamUrl.openConnection();
-            InputStream is = null;
             if (connection.getContentType().equals("unknown/unknown")) {
                 // Java does not parse non-standard headers used by SHOUTCast
                 int port = streamUrl.getPort() > 0 ? streamUrl.getPort() : 80;
@@ -100,19 +99,18 @@ public class URLAudioStream extends AudioStream {
                 String req = "GET / HTTP/1.0\r\nuser-agent: " + user_agent
                         + "\r\nIcy-MetaData: 1\r\nConnection: keep-alive\r\n\r\n";
                 os.write(req.getBytes());
-                is = shoutCastSocket.getInputStream();
+                return shoutCastSocket.getInputStream();
             } else {
                 // getInputStream() method is more error-proof than openStream(),
                 // because openStream() does openConnection().getInputStream(),
                 // which opens a new connection and does not reuse the old one.
-                is = connection.getInputStream();
+                return connection.getInputStream();
             }
-            return is;
         } catch (MalformedURLException e) {
-            logger.error("URL '{}' is not a valid url : '{}'", url, e.getMessage());
+            logger.error("URL '{}' is not a valid url: {}", url, e.getMessage(), e);
             throw new AudioException("URL not valid");
         } catch (IOException e) {
-            logger.error("Cannot set up stream '{}': {}", url, e);
+            logger.error("Cannot set up stream '{}': {}", url, e.getMessage(), e);
             throw new AudioException("IO Error");
         }
     }
