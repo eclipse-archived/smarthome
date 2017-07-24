@@ -66,7 +66,7 @@ public class AudioStreamUtils {
         if (filename == null) {
             return false;
         }
-        if ((extension == null) || extension.isEmpty()) {
+        if (extension == null || extension.isEmpty()) {
             return false;
         }
         return getExtension(filename).equals(extension);
