@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +28,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - Refactored to not require a source
+ * @author Christoph Weitkamp - Refactored use of filename extension
  *
  */
-public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream {
+public class URLAudioStream extends AudioStream {
 
-    private static final Pattern plsStreamPattern = Pattern.compile("^File[0-9]=(.+)$");
+    private static final Pattern PLS_STREAM_PATTERN = Pattern.compile("^File[0-9]=(.+)$");
+
+    public static final String M3U_EXTENSION = "m3u";
+    public static final String PLS_EXTENSION = "pls";
 
     private final Logger logger = LoggerFactory.getLogger(URLAudioStream.class);
 
-    private AudioFormat audioFormat;
+    private final AudioFormat audioFormat;
     private final InputStream inputStream;
     private String url;
 
@@ -51,32 +56,38 @@ public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream
     }
 
     private InputStream createInputStream() throws AudioException {
+        final String filename = url.toLowerCase();
+        final String extension = AudioStreamUtils.getExtension(filename);
         try {
-            if (url.toLowerCase().endsWith(".m3u")) {
-                InputStream is = new URL(url).openStream();
-                String urls = IOUtils.toString(is);
-                for (String line : urls.split("\n")) {
-                    if (!line.isEmpty() && !line.startsWith("#")) {
-                        url = line;
-                        break;
-                    }
-                }
-            } else if (url.toLowerCase().endsWith(".pls")) {
-                InputStream is = new URL(url).openStream();
-                String urls = IOUtils.toString(is);
-                for (String line : urls.split("\n")) {
-                    if (!line.isEmpty() && line.startsWith("File")) {
-                        Matcher matcher = plsStreamPattern.matcher(line);
-                        if (matcher.find()) {
-                            url = matcher.group(1);
-                            break;
+            switch (extension) {
+                case M3U_EXTENSION:
+                    try (final InputStream isM3U = new URL(url).openStream()) {
+                        for (final String line : IOUtils.readLines(isM3U)) {
+                            if (!line.isEmpty() && !line.startsWith("#")) {
+                                url = line;
+                                break;
+                            }
                         }
                     }
-                }
+                    break;
+                case PLS_EXTENSION:
+                    try (final InputStream isPLS = new URL(url).openStream()) {
+                        for (final String line : IOUtils.readLines(isPLS)) {
+                            if (!line.isEmpty() && line.startsWith("File")) {
+                                final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
+                                if (matcher.find()) {
+                                    url = matcher.group(1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
             URL streamUrl = new URL(url);
             URLConnection connection = streamUrl.openConnection();
-            InputStream is = null;
             if (connection.getContentType().equals("unknown/unknown")) {
                 // Java does not parse non-standard headers used by SHOUTCast
                 int port = streamUrl.getPort() > 0 ? streamUrl.getPort() : 80;
@@ -88,19 +99,18 @@ public class URLAudioStream extends org.eclipse.smarthome.core.audio.AudioStream
                 String req = "GET / HTTP/1.0\r\nuser-agent: " + user_agent
                         + "\r\nIcy-MetaData: 1\r\nConnection: keep-alive\r\n\r\n";
                 os.write(req.getBytes());
-                is = shoutCastSocket.getInputStream();
+                return shoutCastSocket.getInputStream();
             } else {
                 // getInputStream() method is more error-proof than openStream(),
                 // because openStream() does openConnection().getInputStream(),
                 // which opens a new connection and does not reuse the old one.
-                is = connection.getInputStream();
+                return connection.getInputStream();
             }
-            return is;
         } catch (MalformedURLException e) {
-            logger.error("URL '{}' is not a valid url : '{}'", url, e.getMessage());
+            logger.error("URL '{}' is not a valid url: {}", url, e.getMessage(), e);
             throw new AudioException("URL not valid");
         } catch (IOException e) {
-            logger.error("Cannot set up stream '{}': {}", url, e);
+            logger.error("Cannot set up stream '{}': {}", url, e.getMessage(), e);
             throw new AudioException("IO Error");
         }
     }
