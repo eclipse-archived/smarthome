@@ -14,19 +14,22 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
 
 /**
  * This is an AudioStream from an audio file
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - Refactored to take a file as input
+ * @author Christoph Weitkamp - Refactored use of filename extension
+ * 
  */
 public class FileAudioStream extends FixedLengthAudioStream {
 
-    public static String WAV_EXTENSION = ".wav";
-    public static String MP3_EXTENSION = ".mp3";
-    public static String OGG_EXTENSION = ".ogg";
-    public static String AAC_EXTENSION = ".aac";
+    public static final String WAV_EXTENSION = "wav";
+    public static final String MP3_EXTENSION = "mp3";
+    public static final String OGG_EXTENSION = "ogg";
+    public static final String AAC_EXTENSION = "aac";
 
     private File file;
     private AudioFormat audioFormat;
@@ -45,16 +48,20 @@ public class FileAudioStream extends FixedLengthAudioStream {
     }
 
     private static AudioFormat getAudioFormat(File file) throws AudioException {
-        if (file.getName().toLowerCase().endsWith(WAV_EXTENSION)) {
-            return new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, false, 16, 705600, 44100L);
-        } else if (file.getName().toLowerCase().endsWith(MP3_EXTENSION)) {
-            return AudioFormat.MP3;
-        } else if (file.getName().toLowerCase().endsWith(OGG_EXTENSION)) {
-            return AudioFormat.OGG;
-        } else if (file.getName().toLowerCase().endsWith(AAC_EXTENSION)) {
-            return AudioFormat.AAC;
-        } else {
-            throw new AudioException("Unsupported file extension!");
+        final String filename = file.getName().toLowerCase();
+        final String extension = AudioStreamUtils.getExtension(filename);
+        switch (extension) {
+            case WAV_EXTENSION:
+                return new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, false, 16, 705600,
+                        44100L);
+            case MP3_EXTENSION:
+                return AudioFormat.MP3;
+            case OGG_EXTENSION:
+                return AudioFormat.OGG;
+            case AAC_EXTENSION:
+                return AudioFormat.AAC;
+            default:
+                throw new AudioException("Unsupported file extension!");
         }
     }
 
