@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="112">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="113">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -147,6 +147,8 @@
 <unit id="tec.uom.se.source" version="0.0.0"/>
 <unit id="org.h2" version="0.0.0"/>
 <unit id="org.h2.source" version="0.0.0"/>
+<unit id="org.jsr-305" version="0.0.0"/>
+<unit id="org.jsr-305.source" version="0.0.0"/>
 <unit id="org.osgi.service.jdbc" version="0.0.0"/>
 <unit id="org.osgi.service.jdbc.source" version="0.0.0"/>
 <unit id="californium-osgi" version="0.0.0"/>
