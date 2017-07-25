@@ -54,7 +54,9 @@ Import-Package: com.google.common.base,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
-Export-Package: org.eclipse.smarthome.io.rest.core.item,
+Export-Package: org.eclipse.smarthome.io.rest.core.config,
+ org.eclipse.smarthome.io.rest.core.service,
+ org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator
