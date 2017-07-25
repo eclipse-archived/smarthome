@@ -9,11 +9,11 @@
 			<description>The UDN identifies the Zone Player.</description>
 			<required>true</required>
 		</parameter>
-		<parameter name="notificationTimeout" type="integer">
+		<parameter name="notificationTimeout" type="integer" unit="s">
 			<label>Notification Timeout</label>
-			<description>Specifies the amount of time for which the notification sound will be played</description>
-			<default>40</default>
-			<required>true</required>
+			<description>Specifies the amount of time in seconds for which the notification sound will be played</description>
+			<unitLabel>second</unitLabel>
+			<default>20</default>
 		</parameter>
 		<parameter name="refresh" type="integer">
 			<label>Refresh interval</label>
