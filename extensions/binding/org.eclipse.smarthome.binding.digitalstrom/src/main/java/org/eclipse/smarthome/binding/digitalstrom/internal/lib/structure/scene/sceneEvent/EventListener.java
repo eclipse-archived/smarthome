@@ -81,7 +81,7 @@ public class EventListener {
      */
     public synchronized void start() {
         if (subscribe() && (pollingScheduler == null || pollingScheduler.isCancelled())) {
-            pollingScheduler = scheduler.scheduleAtFixedRate(runableListener, 0,
+            pollingScheduler = scheduler.scheduleWithFixedDelay(runableListener, 0,
                     config.getEventListenerRefreshinterval(), TimeUnit.MICROSECONDS);
             logger.debug("Start EventListener");
         }

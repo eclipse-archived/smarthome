@@ -235,7 +235,7 @@ public class SceneDiscovery {
             final StructureManager structureManager) {
         if (generateReachableScenesScheduledFuture == null || generateReachableScenesScheduledFuture.isCancelled()) {
             generateReachableScenesScheduledFuture = ThreadPoolManager.getScheduledPool(Config.THREADPOOL_NAME)
-                    .scheduleAtFixedRate(new Runnable() {
+                    .scheduleWithFixedDelay(new Runnable() {
 
                         HashMap<Integer, List<Short>> reachableGroups = getReachableGroups(connectionManager);
                         Iterator<Integer> zoneIdInter = null;
@@ -289,8 +289,8 @@ public class SceneDiscovery {
                                                         if (resultJsonObj
                                                                 .get(JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
                                                                         .getKey()) instanceof JsonArray) {
-                                                            JsonArray scenes = (JsonArray) resultJsonObj
-                                                                    .get(JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
+                                                            JsonArray scenes = (JsonArray) resultJsonObj.get(
+                                                                    JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
                                                                             .getKey());
                                                             if (scenes != null) {
                                                                 for (int i = 0; i < scenes.size(); i++) {

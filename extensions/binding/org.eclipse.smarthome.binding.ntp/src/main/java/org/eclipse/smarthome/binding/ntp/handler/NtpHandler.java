@@ -177,7 +177,7 @@ public class NtpHandler extends BaseThingHandler {
             }
         };
 
-        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
+        refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
     }
 
     private synchronized void refreshTimeDate() {
