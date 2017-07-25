@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
  *
  * <pre>
  * <xmp>
- * 	<fsapiResponse> <status>FS_OK</status> <value><u8>1</u8></value> </fsapiResponse>
+ *   <fsapiResponse> <status>FS_OK</status> <value><u8>1</u8></value> </fsapiResponse>
  * </xmp>
  * </pre>
  *

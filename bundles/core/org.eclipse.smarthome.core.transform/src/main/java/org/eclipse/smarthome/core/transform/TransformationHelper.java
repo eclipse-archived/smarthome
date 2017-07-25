@@ -31,7 +31,7 @@ public class TransformationHelper {
      * @return true, if the pattern contains a transformation
      */
     static public boolean isTransform(String pattern) {
-    	return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
+        return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
     }
 
     
@@ -77,7 +77,7 @@ public class TransformationHelper {
             String value = matcher.group(3);
             TransformationService transformation = TransformationHelper.getTransformationService(context, type);
             if (transformation != null) {
-            	value = String.format(value, state);
+                value = String.format(value, state);
                 try {
                     pattern = transformation.transform(pattern, value);
                 } catch (TransformationException e) {
@@ -93,7 +93,7 @@ public class TransformationHelper {
             }
             return pattern;
         } else {
-        	return state;
+            return state;
         }
     }
 

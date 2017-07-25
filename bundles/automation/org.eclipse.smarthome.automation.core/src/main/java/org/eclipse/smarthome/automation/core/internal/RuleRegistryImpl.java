@@ -587,9 +587,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.runNow(ruleUID);
     }
 
-	@Override
-	public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-		ruleEngine.runNow(ruleUID, considerConditions, context);
-	}
+    @Override
+    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
+        ruleEngine.runNow(ruleUID, considerConditions, context);
+    }
 
 }

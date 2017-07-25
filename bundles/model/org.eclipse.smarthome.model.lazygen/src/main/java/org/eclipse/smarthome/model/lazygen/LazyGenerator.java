@@ -18,23 +18,23 @@ import org.eclipse.xtext.generator.Generator;
  *
  */
 public class LazyGenerator extends Generator {
-	
-	LazyLanguageConfig langConfig = null;
 
-	public void addLazyLanguage(LazyLanguageConfig langConfig) {
-		this.langConfig = langConfig;
-		super.addLanguage(langConfig);
-	}
+    LazyLanguageConfig langConfig = null;
 
-	@Override
-	protected void invokeInternal(WorkflowContext ctx, ProgressMonitor monitor, Issues issues) {
-		super.checkConfigurationInternal(issues);
-		super.invokeInternal(ctx, monitor, issues);
-	}
+    public void addLazyLanguage(LazyLanguageConfig langConfig) {
+        this.langConfig = langConfig;
+        super.addLanguage(langConfig);
+    }
 
-	@Override
-	protected void checkConfigurationInternal(Issues issues) {
+    @Override
+    protected void invokeInternal(WorkflowContext ctx, ProgressMonitor monitor, Issues issues) {
+        super.checkConfigurationInternal(issues);
+        super.invokeInternal(ctx, monitor, issues);
+    }
 
-	}
+    @Override
+    protected void checkConfigurationInternal(Issues issues) {
+
+    }
 
 }
