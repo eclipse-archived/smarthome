@@ -1223,5 +1223,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
         }
+
+        void initialize() {}
     }
 }

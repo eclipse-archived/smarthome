@@ -127,7 +127,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
             logger.debug("Initializing WemoCoffeeHandler for UDN '{}'", configuration.get("udn"));
             onSubscription();
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoCoffeeHandler. UDN not set.");
         }

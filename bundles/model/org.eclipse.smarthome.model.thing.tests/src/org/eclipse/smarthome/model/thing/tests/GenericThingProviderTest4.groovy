@@ -118,6 +118,7 @@ class GenericThingProviderTest4 extends OSGiTest{
                         } else {
                             return new BaseThingHandler(thing) {
                                         void handleCommand(ChannelUID arg0, Command arg1) {};
+                                        void initialize() {}
                                     }
                         }
                     }

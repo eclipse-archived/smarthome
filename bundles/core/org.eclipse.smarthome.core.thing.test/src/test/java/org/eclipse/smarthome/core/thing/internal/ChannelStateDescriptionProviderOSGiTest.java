@@ -296,6 +296,10 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
                 }
+
+                @Override
+                public void initialize() {
+                }
             };
         }
     }

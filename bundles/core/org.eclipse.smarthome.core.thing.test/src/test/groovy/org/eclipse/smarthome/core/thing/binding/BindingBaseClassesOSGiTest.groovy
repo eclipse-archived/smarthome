@@ -116,6 +116,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             // check getBridge works
             assertThat getBridge().getUID().toString(), is("bindingId:type1:bridgeId")
         }
+
+        void initialize() {}
     }
 
     class SimpleBridgeHandler extends BaseBridgeHandler {
@@ -131,6 +133,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         public void updateBridgetatus(ThingStatus status) {
             updateStatus(status)
         }
+
+        void initialize() {}
     }
 
 
@@ -313,6 +317,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         public void handleCommand(ChannelUID channelUID, Command command) {
             // not implemented
         }
+
+        void initialize() {}
 
         @Override
         public Collection<ConfigStatusMessage> getConfigStatus() {

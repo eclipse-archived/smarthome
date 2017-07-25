@@ -175,6 +175,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                         public void handleCommand(ChannelUID channelUID, Command command) { }
+                        public void initialize() {}
 
                         void channelLinked(ChannelUID channelUID) {
                             putContext("linkedChannel", channelUID)

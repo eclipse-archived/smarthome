@@ -37,6 +37,7 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -100,12 +101,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int SOCKET_TIMEOUT = 5000;
 
     /**
-     * Default notification timeout (in seconds)
+     * Default notification timeout
      */
-    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 20;
-
+    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 40000;
+    
     /**
-     * configurable notification timeout (in seconds)
+     * configurable notification timeout
      */
     private Integer notificationTimeout = null;
 
@@ -211,13 +212,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         if (getUDN() != null) {
             onUpdate();
-
-            this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
-            if (this.notificationTimeout == null) {
-                this.notificationTimeout = DEFAULT_NOTIFICATION_TIMEOUT;
+            
+            if (getConfigAs(ZonePlayerConfiguration.class).notificationTimeout == null) {
+                Configuration c = editConfiguration();
+                c.put(ZonePlayerConfiguration.NOTIFICATION_TIMEOUT, DEFAULT_NOTIFICATION_TIMEOUT);
+                updateConfiguration(c);
             }
+            
+            this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
 
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
@@ -2384,7 +2388,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         // check Sonos state events to determine the end of the notification sound
         String notificationTitle = stateMap.get("CurrentTitle");
         long playstart = System.currentTimeMillis();
-        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue() * 1000) {
+        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue()) {
             try {
                 Thread.sleep(50);
                 if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
@@ -2403,7 +2407,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (!stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -2419,7 +2423,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
                         break;
                     }
                 } catch (InterruptedException e) {

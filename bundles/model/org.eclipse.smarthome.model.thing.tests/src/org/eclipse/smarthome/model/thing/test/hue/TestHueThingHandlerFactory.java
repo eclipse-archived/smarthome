@@ -101,11 +101,19 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
                 }
+
+                @Override
+                public void initialize() {
+                }
             };
         } else {
             return new BaseThingHandler(thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
                 }
             };
         }
