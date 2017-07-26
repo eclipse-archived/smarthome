@@ -72,7 +72,7 @@ The weather information that is retrieved is available as these channels:
 | Current | windChill | Number | Wind chill temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | feelingTemperature | Number | Feeling temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | visibility | Number | Visibility | SourceUnit: "km" or "mi"; default is "km" |
-| Current | sorlarRadiation | Number | Solar radiation in W/m2 | |
+| Current | solarRadiation | Number | Solar radiation in W/m2 | |
 | Current | UVIndex | Number | UV Index | |
 | Current | precipitationDay | Number | Rain fall during the day | SourceUnit: "mm" or "in"; default is "mm" |
 | Current | precipitationHour | Number | Rain fall during the last hour | SourceUnit: "mm" or "in"; default is "mm" |
