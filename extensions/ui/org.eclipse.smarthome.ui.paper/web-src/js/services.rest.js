@@ -400,8 +400,8 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             url : restConfig.restPath + '/config-descriptions/:uri'
         },
     });
-}).factory('extensionService', function($resource, restConfig) {
-    return $resource(restConfig.restPath + '/extensions', {}, {
+}).factory('extensionService', function($resource, restConfig, $http) {
+    var extensionService = $resource(restConfig.restPath + '/extensions', {}, {
         getAll : {
             method : 'GET',
             isArray : true,
@@ -448,6 +448,16 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             url : restConfig.restPath + '/extensions/:id/uninstall'
         }
     });
+
+    extensionService.isAvailable = function(callback) {
+        $http.head(restConfig.restPath + '/extensions').then(function() {
+            callback(true);
+        }, function() {
+            callback(false);
+        });
+    }
+
+    return extensionService;
 }).factory('ruleService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/rules', {}, {
         getAll : {

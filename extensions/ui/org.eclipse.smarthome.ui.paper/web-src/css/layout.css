@@ -390,8 +390,7 @@ md-tabs.section-tabs {
 
 .section-header .toolbar {
 	position: absolute;
-	bottom: -50px;
-	left: 15px;
+	left: 7px;
 	z-index: 8;
 }
 
