@@ -181,7 +181,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         } else if (command instanceof OnOffType) {
             setState(((OnOffType) command));
         } else if (command instanceof IncreaseDecreaseType) {
-            if (state != null) {
+            if (state != null && state.getBrightness() != null) {
                 int current = state.getBrightness().intValue();
                 if (IncreaseDecreaseType.INCREASE.equals(command)) {
                     setBrightness(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
@@ -200,7 +200,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         if (command instanceof PercentType) {
             setColorTemperature((PercentType) command);
         } else if (command instanceof IncreaseDecreaseType) {
-            if (state != null) {
+            if (state != null && state.getColorTemperature() != null) {
                 int current = state.getColorTemperature().intValue();
                 if (IncreaseDecreaseType.INCREASE.equals(command)) {
                     setColorTemperature(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
