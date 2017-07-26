@@ -95,6 +95,7 @@ There exist systemwide channels that are available by default:
 | low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
 | battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (eg 4 levels) should convert to a percentage to provide a consistent battery level reading. |
 
+For further information about categories see the [categories page](categories.html).
 
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
@@ -168,10 +169,6 @@ Some channels might have only a limited and countable set of states. These state
 ```
 
 The user interface can use these values to render labels for values or to provide a selection of states, when the channel is writable. The option labels can also be localized.
-
-### Channel Categories
-
-The channel type definition allows to specify a category. For further information about categories see the [categories page](categories.html).
 
 ### Channel Groups
 
