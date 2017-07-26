@@ -32,7 +32,5 @@ Import-Package: groovy.lang,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.model.thing
 Export-Package: org.eclipse.smarthome.model.thing
-Service-Component: OSGI-INF/HueThingHandlerFactory.xml,
- OSGI-INF/HueThingTypeProvider.xml,
- OSGI-INF/DumbThingTypeProvider.xml
+Service-Component: OSGI-INF/*.xml
  

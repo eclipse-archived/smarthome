@@ -12,6 +12,6 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Bundle-SymbolicName: org.eclipse.smarthome.transform.xpath
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Service-Component: OSGI-INF/xpathservice.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ClassPath: .
 
