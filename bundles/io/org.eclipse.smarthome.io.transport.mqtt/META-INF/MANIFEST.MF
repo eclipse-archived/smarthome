@@ -18,6 +18,6 @@ Import-Package: javax.naming,
  org.eclipse.smarthome.io.transport.mqtt,
  org.osgi.service.cm,
  org.slf4j
-Service-Component: OSGI-INF/mqtt-*.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy

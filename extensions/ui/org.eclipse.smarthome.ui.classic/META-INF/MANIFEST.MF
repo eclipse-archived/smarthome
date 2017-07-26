@@ -27,12 +27,5 @@ Import-Package: javax.servlet,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.ui.classic
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Service-Component: OSGI-INF/webappservlet.xml, OSGI-INF/pagerenderer.xml,
- OSGI-INF/cmdservlet.xml, OSGI-INF/grouprenderer.xml, OSGI-INF/framerenderer.xml,
- OSGI-INF/switchrenderer.xml, OSGI-INF/selectionrenderer.xml, 
- OSGI-INF/listrenderer.xml, OSGI-INF/textrenderer.xml,
- OSGI-INF/imagerenderer.xml, OSGI-INF/sliderrenderer.xml,
- OSGI-INF/chartrenderer.xml, OSGI-INF/videorenderer.xml,
- OSGI-INF/webviewrenderer.xml, OSGI-INF/setpointrenderer.xml,
- OSGI-INF/colorpickerrenderer.xml, OSGI-INF/mapviewrenderer.xml
+Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.ui.classic.render
