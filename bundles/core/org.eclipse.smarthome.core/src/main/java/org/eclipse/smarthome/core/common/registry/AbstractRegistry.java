@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Migration to new event mechanism
  * @author Victor Toni - provide elements as {@link Stream}
+ * @author Kai Kreuzer - switched to parameterized logging
  *
  * @param <E>
  *            type of the element
@@ -118,11 +119,17 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         Collection<E> elements = elementMap.get(provider);
         if (elements != null) {
             try {
+                K uid = element.getUID();
+                if (uid != null && get(uid) != null) {
+                    logger.warn("{} with key '{}' already exists! Failed to add a second with the same UID!",
+                            element.getClass().getName(), uid);
+                    return;
+                }
                 onAddElement(element);
                 elements.add(element);
                 notifyListenersAboutAddedElement(element);
             } catch (Exception ex) {
-                logger.warn("Could not add element: " + ex.getMessage(), ex);
+                logger.warn("Could not add element: {}", ex.getMessage(), ex);
             }
         }
     }
@@ -153,7 +160,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 elements.remove(element);
                 notifyListenersAboutRemovedElement(element);
             } catch (Exception ex) {
-                logger.warn("Could not remove element: " + ex.getMessage(), ex);
+                logger.warn("Could not remove element: {}", ex.getMessage(), ex);
             }
         }
     }
@@ -166,14 +173,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     @Override
     public void updated(Provider<E> provider, E oldElement, E element) {
         Collection<E> elements = elementMap.get(provider);
-        if (elements != null) {
+        if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
             try {
                 onUpdateElement(oldElement, element);
                 elements.remove(oldElement);
                 elements.add(element);
                 notifyListenersAboutUpdatedElement(oldElement, element);
             } catch (Exception ex) {
-                logger.warn("Could not update element: " + ex.getMessage(), ex);
+                logger.warn("Could not update element: {}", ex.getMessage(), ex);
             }
         }
     }
@@ -223,8 +230,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                         break;
                 }
             } catch (Throwable throwable) {
-                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + throwable.getMessage(), throwable);
+                logger.error("Could not inform the listener '{}' about the '{}' event: {}", listener, eventType.name(),
+                        throwable.getMessage(), throwable);
             }
         }
     }
@@ -254,11 +261,17 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             elementMap.put(provider, elements);
             for (E element : elementsOfProvider) {
                 try {
+                    K uid = element.getUID();
+                    if (uid != null && get(uid) != null) {
+                        logger.warn("{} with key'{}' already exists! Failed to add a second with the same UID!",
+                                element.getClass().getName(), uid);
+                        continue;
+                    }
                     onAddElement(element);
                     elements.add(element);
                     notifyListenersAboutAddedElement(element);
                 } catch (Exception ex) {
-                    logger.warn("Could not add element: " + ex.getMessage(), ex);
+                    logger.warn("Could not add element: {}", ex.getMessage(), ex);
                 }
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
@@ -327,7 +340,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                     onRemoveElement(element);
                     notifyListenersAboutRemovedElement(element);
                 } catch (Exception ex) {
-                    logger.warn("Could not remove element: " + ex.getMessage(), ex);
+                    logger.warn("Could not remove element: {}", ex.getMessage(), ex);
                 }
             }
 
@@ -362,7 +375,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             try {
                 eventPublisher.post(event);
             } catch (Exception ex) {
-                logger.error("Could not post event of type '" + event.getType() + "'.", ex);
+                logger.error("Could not post event of type '{}'.", event.getType(), ex);
             }
         }
     }

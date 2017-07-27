@@ -52,8 +52,6 @@ import org.osgi.framework.Bundle;
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
         implements ModuleTypeProvider {
 
-    protected ModuleTypeRegistry moduleTypeRegistry;
-
     /**
      * This constructor is responsible for initializing the path to resources and tracking the
      * {@link ModuleTypeRegistry}.
@@ -103,31 +101,6 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             moduleTypesList.add(getPerLocale(mt, locale));
         }
         return moduleTypesList;
-    }
-
-    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = moduleTypeRegistry;
-    }
-
-    protected void removeModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = null;
-    }
-
-    /**
-     * This method is responsible for checking the existence of {@link ModuleType}s with the same UIDs before these
-     * objects to be added in the system.
-     *
-     * @param uid UID of the newly created {@link ModuleType}, which to be checked.
-     * @return {@code true} if {@link ModuleType} with the same UID exists or {@code false} in the opposite case.
-     */
-    @Override
-    protected boolean checkExistence(String uid) {
-        if (moduleTypeRegistry.get(uid) != null) {
-            logger.error("Module Type with UID \"{}\" already exists! Failed to create a second with the same UID!",
-                    uid, new IllegalArgumentException());
-            return true;
-        }
-        return false;
     }
 
     @Override
