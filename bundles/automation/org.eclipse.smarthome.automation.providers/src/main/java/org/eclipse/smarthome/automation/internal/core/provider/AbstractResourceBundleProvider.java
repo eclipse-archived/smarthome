@@ -493,20 +493,19 @@ public abstract class AbstractResourceBundleProvider<E> {
         }
         for (E parsedObject : parsedObjects) {
             String uid = getUID(parsedObject);
-            E oldelement = providedObjectsHolder.get(uid);
-            if (oldelement != null && !previousPortfolio.contains(uid)) {
-                logger.warn(
-                        String.format("%s with UID \"%s\" already exists! Failed to add a second with the same UID!",
-                                parsedObject.getClass().getName(), uid));
+            E oldElement = providedObjectsHolder.get(uid);
+            if (oldElement != null && !previousPortfolio.contains(uid)) {
+                logger.warn("{} with UID '{}' already exists! Failed to add a second with the same UID!",
+                        parsedObject.getClass().getName(), uid);
                 continue;
             } else {
                 newPortfolio.add(uid);
                 providedObjectsHolder.put(uid, parsedObject);
                 for (ProviderChangeListener<E> listener : snapshot) {
-                    if (oldelement == null) {
+                    if (oldElement == null) {
                         listener.added((Provider<E>) this, parsedObject);
                     } else {
-                        listener.updated((Provider<E>) this, oldelement, parsedObject);
+                        listener.updated((Provider<E>) this, oldElement, parsedObject);
                     }
                 }
             }
