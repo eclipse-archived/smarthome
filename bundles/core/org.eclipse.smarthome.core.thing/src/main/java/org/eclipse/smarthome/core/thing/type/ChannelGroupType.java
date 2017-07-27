@@ -48,7 +48,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
-            final String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
+            String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
 
         super(uid, label, description);
 
