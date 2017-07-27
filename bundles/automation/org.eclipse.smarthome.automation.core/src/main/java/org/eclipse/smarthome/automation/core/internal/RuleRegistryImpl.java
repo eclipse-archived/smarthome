@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Rule;
@@ -380,7 +379,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public Stream<Rule> stream() {
         // create copies for consumers
-        return super.stream().map( r -> RuleUtils.getRuleCopy(r) );
+        return super.stream().map(r -> RuleUtils.getRuleCopy(r));
     }
 
     @Override
