@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.smarthome.model.lazygen;resolution:=optional,
  org.eclipse.xtext.xbase.lib
-Import-Package: javax.annotation,
+Import-Package: javax.annotation;resolution:=optional,
  org.apache.log4j,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
