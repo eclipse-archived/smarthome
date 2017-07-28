@@ -74,6 +74,7 @@ class ChannelTypesTest extends OSGiTest {
 
         def channelGroupType = channelGroupTypes.find( {it.UID.toString().equals("somebinding:channelgroup")} )
         assertThat channelGroupType, is(not(null))
+        assertThat channelGroupType.category, is("Temperature")
 
         SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME)
 

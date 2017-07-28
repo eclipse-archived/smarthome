@@ -407,6 +407,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
     <label>String</label>
     <description>String</description>
+    <category>String</category>
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
@@ -483,6 +484,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-group-type.advanced</td><td>The flag indicating if this channel group contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
   <tr><td>label</td><td>A human-readable label for the channel group (mandatory).</td></tr>
   <tr><td>description</td><td>A human-readable description for the channel group (optional).</td></tr>
+  <tr><td>category</td><td>The category for the channel group, e.g. <code>TEMPERATURE</code> (optional).</td></tr>
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>

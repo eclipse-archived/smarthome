@@ -26,6 +26,7 @@
 	
 	<channel-group-type id="channelgroup">
 		<label>Channel group</label>
+		<category>Temperature</category>
 		<channels>
 			<channel id="channel1" typeId="channel1" />
 			<channel id="channel2" typeId="channel1" />
