@@ -67,7 +67,8 @@ public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<UID, C
                 channelGroupType.getDescription(), locale);
 
         ChannelGroupType localizedChannelGroupType = new ChannelGroupType(channelGroupTypeUID,
-                channelGroupType.isAdvanced(), label, description, channelGroupType.getChannelDefinitions());
+                channelGroupType.isAdvanced(), label, description, channelGroupType.getCategory(),
+                channelGroupType.getChannelDefinitions());
         return localizedChannelGroupType;
     }
 
