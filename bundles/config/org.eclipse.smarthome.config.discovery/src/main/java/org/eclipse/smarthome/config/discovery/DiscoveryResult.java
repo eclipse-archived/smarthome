@@ -91,7 +91,7 @@ public interface DiscoveryResult {
      * @see #getRepresentationProperty()
      * @return the value of the representation property of this result object (could be null)
      */
-    public Object getRepresentationPropertyValue();
+    public Object getRepresentationValue();
 
     /**
      * Returns the flag of this result object.<br>

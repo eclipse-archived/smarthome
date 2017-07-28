@@ -142,7 +142,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (thingUID == null) {
             throw new IllegalArgumentException("Thing UID must not be null");
         }
-        List<DiscoveryResult> results = get(new InboxFilterCriteria(thingUID, null));
+        List<DiscoveryResult> results = get(InboxFilterCriteria.thingFilter(thingUID, null));
         if (results.isEmpty()) {
             throw new IllegalArgumentException("No Thing with UID " + thingUID.getAsString() + " in inbox");
         }
@@ -172,7 +172,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
         if (result != null) {
             ThingUID thingUID = result.getThingUID();
-            Thing thing = checkIfThingAlreadyExists(result);
+            Thing thing = getExistingThingForDiscoveryResult(result);
 
             if (thing == null) {
                 DiscoveryResult inboxResult = get(thingUID);
@@ -212,7 +212,19 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         return false;
     }
 
-    private Thing checkIfThingAlreadyExists(DiscoveryResult result) {
+    /**
+     * Returns an already existing thing in the registry, that represents
+     * the {@link DiscoveryResult}. This thing either has the same UID as the
+     * {@link DiscoveryResult} or the device id of the thing's handler is equal
+     * to the value of the representation property of the {@link DiscoveryResult}.
+     *
+     * @see DiscoveryResult#getRepresentationProperty()
+     * @see ThingHandler#getDeviceId()
+     *
+     * @param result the {@link DiscoveryResult} that is to be checked
+     * @return either the thing found or {@code null}
+     */
+    private Thing getExistingThingForDiscoveryResult(DiscoveryResult result) {
         Thing thing = this.thingRegistry.get(result.getThingUID());
         if (thing != null) {
             // thing with same UID is already in registry
@@ -220,15 +232,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
 
         // check, if there is a thing with the same representation property
-        Object value = result.getRepresentationPropertyValue();
+        Object value = result.getRepresentationValue();
         if (value != null) {
-            Collection<Thing> things = this.thingRegistry.getAll();
-            for (Thing t : things) {
-                ThingHandler handler = t.getHandler();
-                if (handler != null && value.equals(handler.getDeviceId())) {
-                    return t;
-                }
-            }
+            return thingRegistry.stream().map(Thing::getHandler)
+                    .filter(handler -> handler != null && value.equals(handler.getDeviceId()))
+                    .map(ThingHandler::getThing).findFirst().orElse(null);
         }
 
         return null;
@@ -431,6 +439,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             ThingUID thingUID = criteria.getThingUID();
             if (thingUID != null) {
                 if (!discoveryResult.getThingUID().equals(thingUID)) {
+                    return false;
+                }
+            }
+
+            String representationValue = criteria.getRepresentationValue();
+            if (representationValue != null) {
+                if (!representationValue.equals(discoveryResult.getRepresentationValue())) {
                     return false;
                 }
             }

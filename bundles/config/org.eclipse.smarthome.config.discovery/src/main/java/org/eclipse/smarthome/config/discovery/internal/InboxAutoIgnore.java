@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -18,8 +19,11 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +45,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andre Fuechsel - Initial Contribution
  */
+@Component(immediate = true, service = EventSubscriber.class, property = {
+        "service.config.description.uri=system:inbox", "service.config.label=Inbox Auto Ignore",
+        "service.config.category=system", "service.pid=org.eclipse.smarthome.inbox" })
 public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ThingRegistry thingRegistry;
-    private boolean autoIgnore = true;
     private Inbox inbox;
+    private boolean autoIgnore = true;
 
     public InboxAutoIgnore() {
         super(ThingStatusInfoChangedEvent.TYPE);
@@ -57,64 +64,65 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
     public void receiveTypedEvent(ThingStatusInfoChangedEvent event) {
         if (autoIgnore) {
             if (ThingStatus.ONLINE.equals(event.getStatusInfo().getStatus())) {
-                checkIfThingShouldBeIgnored(event);
+                checkAndIgnoreInInbox(event);
             } else if (ThingStatus.REMOVING.equals(event.getStatusInfo().getStatus())) {
-                removePossibleIgnoredResultInInbox(event);
+                removePossiblyIgnoredResultInInbox(event);
             }
         }
     }
 
-    private void checkIfThingShouldBeIgnored(ThingStatusInfoChangedEvent event) {
+    private void checkAndIgnoreInInbox(ThingStatusInfoChangedEvent event) {
         Thing thing = thingRegistry.get(event.getThingUID());
         if (thing != null) {
-            String deviceUid = thing.getHandler().getDeviceId();
-            if (deviceUid != null) {
-                ignoreInInbox(deviceUid);
+            ThingHandler handler = thing.getHandler();
+            if (handler != null) {
+                String deviceUid = handler.getDeviceId();
+                if (deviceUid != null) {
+                    ignoreInInbox(deviceUid);
+                }
             }
         }
     }
 
     private void ignoreInInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox.getAll();
-        for (DiscoveryResult result : results) {
-            if (deviceUid.equals(result.getRepresentationPropertyValue())) {
-                logger.debug("Auto-ignoring the inbox entry for the device uid {}", deviceUid);
-                inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
-            }
+        List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.representationFilter(deviceUid, null));
+        if (results.size() == 1) {
+            logger.debug("Auto-ignoring the inbox entry for the device uid {}", deviceUid);
+            inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
         }
     }
 
-    private void removePossibleIgnoredResultInInbox(ThingStatusInfoChangedEvent event) {
+    private void removePossiblyIgnoredResultInInbox(ThingStatusInfoChangedEvent event) {
         Thing thing = thingRegistry.get(event.getThingUID());
         if (thing != null) {
-            String deviceUid = thing.getHandler().getDeviceId();
-            if (deviceUid != null) {
-                removeFromInbox(deviceUid);
+            ThingHandler handler = thing.getHandler();
+            if (handler != null) {
+                String deviceUid = handler.getDeviceId();
+                if (deviceUid != null) {
+                    removeFromInbox(deviceUid);
+                }
             }
         }
     }
 
     private void removeFromInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED));
-        for (DiscoveryResult result : results) {
-            if (deviceUid.equals(result.getRepresentationPropertyValue())) {
-                logger.debug("Removing the ignored result from the inbox for the device uid {}", deviceUid);
-                inbox.remove(result.getThingUID());
-            }
+        List<DiscoveryResult> results = inbox
+                .get(InboxFilterCriteria.representationFilter(deviceUid, DiscoveryResultFlag.IGNORED));
+        if (results.size() == 1) {
+            logger.debug("Removing the ignored result from the inbox for the device uid {}", deviceUid);
+            inbox.remove(results.get(0).getThingUID());
         }
     }
 
-    protected void activate(ComponentContext context) {
-        modified(context);
-    }
-
-    protected void modified(ComponentContext context) {
-        if (context != null) {
-            Object value = context.getProperties().get("autoIgnore");
+    @Activate
+    protected void activate(Map<String, String> properties) {
+        if (properties != null) {
+            String value = properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");
         }
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -123,6 +131,7 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
     }

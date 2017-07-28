@@ -136,7 +136,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     }
 
     @Override
-    public Object getRepresentationPropertyValue() {
+    public Object getRepresentationValue() {
         return this.representationProperty != null ? this.properties.get(this.representationProperty) : null;
     }
 

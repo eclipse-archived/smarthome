@@ -50,7 +50,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         String label = args[2];
                         try {
                             ThingUID thingUID = new ThingUID(args[1]);
-                            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
+                            List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.thingFilter(thingUID, null));
                             if (results.isEmpty()) {
                                 console.println("No matching inbox entry could be found.");
                                 return;
@@ -77,7 +77,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     break;
                 case SUBCMD_LIST_IGNORED:
-                    printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
+                    printInboxEntries(console,
+                            inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.IGNORED)));
                     break;
                 case SUBCMD_CLEAR:
                     clearInboxEntries(console, inbox.getAll());
@@ -86,7 +87,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     break;
             }
         } else {
-            printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+            printInboxEntries(console, inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.NEW)));
         }
     }
 

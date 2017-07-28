@@ -522,9 +522,13 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     @Override
     public String getDeviceId() {
+        if (bridge == null) {
+            return super.getDeviceId();
+        }
+
         try {
             return bridge.getFullConfig().getConfig().getMACAddress().replaceAll(":", "").toLowerCase();
-        } catch (Exception e) {
+        } catch (IOException | ApiException e) {
             return super.getDeviceId();
         }
     }

@@ -147,7 +147,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 return null;
             }
             List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inboxReference.get(new InboxFilterCriteria(thingUID, DiscoveryResultFlag.NEW));
+            ret = inboxReference.get(InboxFilterCriteria.thingFilter(thingUID, DiscoveryResultFlag.NEW));
             if (ret.size() > 0) {
                 return ret.get(0);
             } else {

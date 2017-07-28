@@ -48,7 +48,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
     final String sn2 = "001788141b41";
     final ThingUID BRIDGE_THING_UID_1 = new ThingUID(BRIDGE_THING_TYPE_UID, sn1);
     final ThingUID BRIDGE_THING_UID_2 = new ThingUID(BRIDGE_THING_TYPE_UID, sn2);
-    final InboxFilterCriteria inboxFilter = new InboxFilterCriteria(BRIDGE_THING_TYPE_UID, null);
+    final InboxFilterCriteria inboxFilter = InboxFilterCriteria.thingTypeFilter(BRIDGE_THING_TYPE_UID, null);
     final String validBridgeDiscoveryResult = "[{\"id\":\"001788fffe20057f\",\"internalipaddress\":" + ip1
             + "},{\"id\":\"001788fffe141b41\",\"internalipaddress\":" + ip2 + "}]";
     String discoveryResult;

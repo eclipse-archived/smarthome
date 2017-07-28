@@ -19,7 +19,7 @@ import org.junit.Test
 /**
  * The {@link DiscoveryResultTest} checks if any invalid input parameters
  * and the synchronization of {@link DiscoveryResult}s work in a correct way.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
  */
@@ -81,6 +81,7 @@ class DiscoveryResultImplTest {
 
         assertEquals("127.0.0.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("ipAddress", discoveryResult.getRepresentationProperty())
+        assertEquals("127.0.0.1", discoveryResult.getRepresentationValue())
         assertEquals("TARGET", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
@@ -103,6 +104,7 @@ class DiscoveryResultImplTest {
 
         assertEquals("127.0.0.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("ipAddress", discoveryResult.getRepresentationProperty())
+        assertEquals("127.0.0.1", discoveryResult.getRepresentationValue())
         assertEquals("TARGET", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
@@ -129,6 +131,7 @@ class DiscoveryResultImplTest {
         assertEquals("192.168.178.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("AA:BB:CC:DD:EE:FF", discoveryResult.getProperties().get("macAddress"))
         assertEquals("macAddress", discoveryResult.getRepresentationProperty())
+        assertEquals("AA:BB:CC:DD:EE:FF", discoveryResult.getRepresentationValue())
         assertEquals("SOURCE", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }

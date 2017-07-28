@@ -486,9 +486,10 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public String getDeviceId() {
-        try {
-            return getLight().getUniqueID();
-        } catch (Exception e) {
+        FullLight light = getLight();
+        if (light != null) {
+            return light.getUniqueID();
+        } else {
             return super.getDeviceId();
         }
     }
