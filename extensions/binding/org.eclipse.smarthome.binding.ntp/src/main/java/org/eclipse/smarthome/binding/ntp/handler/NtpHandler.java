@@ -233,7 +233,7 @@ public class NtpHandler extends BaseThingHandler {
             String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
                     + "'] -> returning current sytem time instead.";
             logger.debug(msg);
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         }
 
         return System.currentTimeMillis();
