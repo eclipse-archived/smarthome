@@ -11,25 +11,26 @@
 package ${package};
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import ${package}.handler.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
-* Tests cases for {@link  ${bindingIdCamelCase}Handler}. The tests provide mocks for supporting entities using Mockito.
+* Tests cases for {@link ${bindingIdCamelCase}Handler}. The tests provide mocks for supporting entities using Mockito.
 *
-* @author  ${author} - Initial contribution
+* @author ${author} - Initial contribution
 */
 public class ${bindingIdCamelCase}HandlerTest {
 
@@ -62,7 +63,7 @@ public class ${bindingIdCamelCase}HandlerTest {
         verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
         // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
         ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
-        Assert.assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
+        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
     }
 
 }
