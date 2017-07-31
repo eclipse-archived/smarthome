@@ -216,8 +216,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             if (this.notificationTimeout == null) {
                 this.notificationTimeout = DEFAULT_NOTIFICATION_TIMEOUT;
             }
-
-            updateStatus(ThingStatus.ONLINE);
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
