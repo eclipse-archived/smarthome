@@ -277,7 +277,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 logger.debug("Setting WemoCoffeeHandler refreshInterval to '{}' seconds", refreshInterval);
             }
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 

@@ -70,7 +70,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
      * The default refresh interval in Seconds.
      */
     private int DEFAULT_REFRESH_INTERVAL = 60;
-    
+
     /**
      * The default refresh initial delay in Seconds.
      */
@@ -417,7 +417,8 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
             logger.trace("Start polling job for LightID '{}'", wemoLightID);
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY,
+                    refreshInterval, TimeUnit.SECONDS);
         }
     }
 
