@@ -68,10 +68,12 @@ class HttpClient {
     }
 
     private static String convertStreamToString(InputStream is) {
-        try {
-            return new Scanner(is).useDelimiter("\\A").next();
-        } catch (NoSuchElementException e) {
-            return "";
+        try (final Scanner scanner = new Scanner(is)) {
+            try {
+                return scanner.useDelimiter("\\A").next();
+            } catch (NoSuchElementException ex) {
+                return "";
+            }
         }
     }
 
