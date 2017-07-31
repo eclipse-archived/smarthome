@@ -38,7 +38,6 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -394,9 +393,8 @@ public class NtpOSGiTest extends JavaOSGiTest {
         ntpHandler = waitForAssert(() -> {
             final ThingHandler thingHandler = ntpThing.getHandler();
             assertThat(thingHandler, is(instanceOf(NtpHandler.class)));
-            assertThat(ntpThing.getStatus(), is(equalTo(ThingStatus.ONLINE)));
             return (NtpHandler) thingHandler;
-        }, DFL_TIMEOUT * 3, DFL_SLEEP_TIME);
+        } , DFL_TIMEOUT * 3, DFL_SLEEP_TIME);
 
         if (acceptedItemType.equals(ACCEPTED_ITEM_TYPE_STRING)) {
             testItem = new StringItem(TEST_ITEM_NAME);
@@ -435,7 +433,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
                 assertThat("The item was not of type DateTimeType", testItemState, is(instanceOf(DateTimeType.class)));
             }
             return testItemState;
-        }, 3 * DFL_TIMEOUT, 2 * DFL_SLEEP_TIME);
+        } , 3 * DFL_TIMEOUT, 2 * DFL_SLEEP_TIME);
     }
 
     private String getDateTimeChannelTimeZone(String date) {
