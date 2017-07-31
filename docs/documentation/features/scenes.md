@@ -14,7 +14,7 @@ It can only be activated, either manually or by a common trigger, e.g., time bas
 
 A scene can be handled as a set of actions based on the rule engine. The user can create a rule and define the expected states of the items in the action section. This rule should have a tag like "scene" to express its purpose.
 With the Rest Service `PUT /rest/rules/{ruleUID}/runnow` the scene can be activated manually via any UI. Or it can be activated automatically by defining a second rule with triggers and conditions and using the action section of the rule to trigger the scene rule with a specific actionhandler.
-For this case, an action module to execute rules directly, similiar to **runnow**, is needed. This would only execute the actions of the rule without evaluation of the conditions. And all actions will be executed even if an action before returns an error.
+For this case, an action module to execute rules directly, similar to **runnow**, is needed. This would only execute the actions of the rule without evaluation of the conditions. And all actions will be executed even if an action before returns an error.
 
 Asynchronous execution of actions is maybe needed to fulfil further requirements:
 
