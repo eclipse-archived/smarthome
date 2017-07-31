@@ -128,7 +128,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                         final Config config = fullConfig.getConfig();
                         if (config != null) {
                             Map<String, String> properties = editProperties();
-                            properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
+                            properties.put(Thing.PROPERTY_SERIAL_NUMBER,
+                                    config.getMACAddress().replaceAll(":", "").toLowerCase());
                             properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
                             updateProperties(properties);
                         }
@@ -521,15 +522,21 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     @Override
-    public String getDeviceId() {
+    public String getUniqueIdentifier() {
         if (bridge == null) {
-            return super.getDeviceId();
+            return super.getUniqueIdentifier();
         }
 
         try {
             return bridge.getFullConfig().getConfig().getMACAddress().replaceAll(":", "").toLowerCase();
         } catch (IOException | ApiException e) {
-            return super.getDeviceId();
+            return super.getUniqueIdentifier();
         }
     }
+
+    // @Override
+    // public String getRepresentationProperty() {
+    // return Thing.PROPERTY_SERIAL_NUMBER;
+    // }
+
 }

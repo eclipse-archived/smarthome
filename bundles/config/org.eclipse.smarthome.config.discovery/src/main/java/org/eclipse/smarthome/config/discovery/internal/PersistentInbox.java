@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -116,25 +120,15 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
-
     private DiscoveryServiceRegistry discoveryServiceRegistry;
-
     private ThingRegistry thingRegistry;
-
     private ManagedThingProvider managedThingProvider;
-
     private ThingTypeRegistry thingTypeRegistry;
-
     private ConfigDescriptionRegistry configDescRegistry;
-
     private Storage<DiscoveryResult> discoveryResultStorage;
-
     private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
-
     private ScheduledFuture<?> timeToLiveChecker;
-
     private EventPublisher eventPublisher;
-
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     @Override
@@ -142,7 +136,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (thingUID == null) {
             throw new IllegalArgumentException("Thing UID must not be null");
         }
-        List<DiscoveryResult> results = get(InboxFilterCriteria.thingFilter(thingUID, null));
+        List<DiscoveryResult> results = stream().filter(forThingUID(thingUID)).collect(Collectors.toList());
         if (results.isEmpty()) {
             throw new IllegalArgumentException("No Thing with UID " + thingUID.getAsString() + " in inbox");
         }
@@ -219,7 +213,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      * to the value of the representation property of the {@link DiscoveryResult}.
      *
      * @see DiscoveryResult#getRepresentationProperty()
-     * @see ThingHandler#getDeviceId()
+     * @see ThingHandler#getUniqueIdentifier()
      *
      * @param result the {@link DiscoveryResult} that is to be checked
      * @return either the thing found or {@code null}
@@ -232,10 +226,10 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
 
         // check, if there is a thing with the same representation property
-        Object value = result.getRepresentationValue();
+        String value = getRepresentationValue(result);
         if (value != null) {
             return thingRegistry.stream().map(Thing::getHandler)
-                    .filter(handler -> handler != null && value.equals(handler.getDeviceId()))
+                    .filter(handler -> handler != null && value.equals(handler.getUniqueIdentifier()))
                     .map(ThingHandler::getThing).findFirst().orElse(null);
         }
 
@@ -311,7 +305,12 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public List<DiscoveryResult> getAll() {
-        return get((InboxFilterCriteria) null);
+        return stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DiscoveryResult> stream() {
+        return this.discoveryResultStorage.getValues().stream();
     }
 
     @Override
@@ -439,13 +438,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             ThingUID thingUID = criteria.getThingUID();
             if (thingUID != null) {
                 if (!discoveryResult.getThingUID().equals(thingUID)) {
-                    return false;
-                }
-            }
-
-            String representationValue = criteria.getRepresentationValue();
-            if (representationValue != null) {
-                if (!representationValue.equals(discoveryResult.getRepresentationValue())) {
                     return false;
                 }
             }
@@ -588,6 +580,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             thingRegistry.remove(thingUID);
         }
         thingRegistry.add(thing);
+    }
+
+    private String getRepresentationValue(DiscoveryResult result) {
+        return result.getRepresentationProperty() != null
+                ? (String) result.getProperties().get(result.getRepresentationProperty()) : null;
     }
 
     protected void activate(ComponentContext componentContext) {

@@ -45,8 +45,6 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
     private final static int SEARCH_TIME = 60;
-    private final static String MODEL_ID = "modelId";
-    private final static String UNIQUE_ID = "uniqueId";
 
     // @formatter:off
     private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
@@ -116,10 +114,10 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LIGHT_ID, light.getId());
             properties.put(MODEL_ID, modelId);
-            properties.put(UNIQUE_ID, light.getUniqueID());
+            properties.put(LIGHT_UNIQUE_ID, light.getUniqueID());
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
-                    .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(UNIQUE_ID)
+                    .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(LIGHT_UNIQUE_ID)
                     .withLabel(light.getName()).build();
 
             thingDiscovered(discoveryResult);

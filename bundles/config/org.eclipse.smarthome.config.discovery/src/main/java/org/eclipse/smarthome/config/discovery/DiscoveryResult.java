@@ -86,14 +86,6 @@ public interface DiscoveryResult {
     public String getRepresentationProperty();
 
     /**
-     * Returns the actual value of the representation property of the result object.
-     *
-     * @see #getRepresentationProperty()
-     * @return the value of the representation property of this result object (could be null)
-     */
-    public Object getRepresentationValue();
-
-    /**
      * Returns the flag of this result object.<br>
      * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW} or has been marked as
      * {@link DiscoveryResultFlag#IGNORED}. In the latter

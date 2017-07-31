@@ -107,7 +107,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.updatedThing = updatedThing
             },
             'setCallback' : {callbackArg -> callback = callbackArg },
-            'getDeviceId' : { return DEVICE_ID  }
+            'getUniqueIdentifier' : { return DEVICE_ID  }
         ] as ThingHandler )
 
         return thingHandler

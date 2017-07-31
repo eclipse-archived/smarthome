@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -22,7 +24,6 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -45,7 +46,7 @@ import org.mockito.Mock;
 /**
  * @author Andre Fuechsel - Initial contribution
  */
-public class InboxAutoIgnoreTest {
+public class AutomaticInboxProcessorTest {
 
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
@@ -53,7 +54,7 @@ public class InboxAutoIgnoreTest {
             null);
     private static final String DEVICE_ID = "deviceId";
 
-    private InboxAutoIgnore inboxAutoIgnore;
+    private AutomaticInboxProcessor inboxAutoIgnore;
     private PersistentInbox inbox;
 
     @Mock
@@ -84,7 +85,7 @@ public class InboxAutoIgnoreTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        when(thingHandler.getDeviceId()).thenReturn(DEVICE_ID);
+        when(thingHandler.getUniqueIdentifier()).thenReturn(DEVICE_ID);
         when(thing.getHandler()).thenReturn(thingHandler);
         when(thing.getConfiguration()).thenReturn(new Configuration());
         when(thingRegistry.stream()).thenReturn(Stream.empty());
@@ -106,14 +107,15 @@ public class InboxAutoIgnoreTest {
         inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty("deviceId", DEVICE_ID)
                 .withRepresentationProperty("deviceId").build());
 
-        inboxAutoIgnore = new InboxAutoIgnore();
+        inboxAutoIgnore = new AutomaticInboxProcessor();
         inboxAutoIgnore.setThingRegistry(thingRegistry);
         inboxAutoIgnore.setInbox(inbox);
     }
 
     @Test
     public void testThingWentOnline() {
-        List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.NEW));
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
@@ -122,9 +124,9 @@ public class InboxAutoIgnoreTest {
         when(event.getThingUID()).thenReturn(THING_UID);
         inboxAutoIgnore.receiveTypedEvent(event);
 
-        results = inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.NEW));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
-        results = inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.IGNORED));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
     }
@@ -132,7 +134,8 @@ public class InboxAutoIgnoreTest {
     @Test
     public void testThingIsBeingRemoved() {
         inbox.setFlag(THING_UID, DiscoveryResultFlag.IGNORED);
-        List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.IGNORED));
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 

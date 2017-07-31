@@ -162,7 +162,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
             hueLightHandler.initialize()
 
             waitForAssert {
-                assertThat hueLightHandler.getDeviceId(), is(equalTo(UNIQUE_ID))
+                assertThat hueLightHandler.getUniqueIdentifier(), is(equalTo(UNIQUE_ID))
             }
         } finally {
             thingRegistry.forceRemove(hueLight.getUID())

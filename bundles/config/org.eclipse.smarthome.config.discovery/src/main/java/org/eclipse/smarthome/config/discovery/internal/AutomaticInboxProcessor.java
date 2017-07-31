@@ -7,13 +7,15 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class implements a service to automatically ignore {@link Inbox} entries of newly created things.
  * <p>
- * The {@link InboxAutoIgnore} service implements a {@link EventSubscriber}, that is triggered
+ * The {@link AutomaticInboxProcessor} service implements a {@link EventSubscriber}, that is triggered
  * for each thing when coming ONLINE. {@link Inbox} entries with the same device id like the
  * newly created thing will be automatically set to {@link DiscoveryResultFlag#IGNORED}.
  * </p>
@@ -46,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - Initial Contribution
  */
 @Component(immediate = true, service = EventSubscriber.class, property = {
-        "service.config.description.uri=system:inbox", "service.config.label=Inbox Auto Ignore",
-        "service.config.category=system", "service.pid=org.eclipse.smarthome.inbox" })
-public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
+        "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
+        "service.pid=org.eclipse.smarthome.inbox" })
+public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -56,7 +58,7 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
     private Inbox inbox;
     private boolean autoIgnore = true;
 
-    public InboxAutoIgnore() {
+    public AutomaticInboxProcessor() {
         super(ThingStatusInfoChangedEvent.TYPE);
     }
 
@@ -76,7 +78,7 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
         if (thing != null) {
             ThingHandler handler = thing.getHandler();
             if (handler != null) {
-                String deviceUid = handler.getDeviceId();
+                String deviceUid = handler.getUniqueIdentifier();
                 if (deviceUid != null) {
                     ignoreInInbox(deviceUid);
                 }
@@ -85,7 +87,8 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
     }
 
     private void ignoreInInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.representationFilter(deviceUid, null));
+        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(deviceUid))
+                .collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Auto-ignoring the inbox entry for the device uid {}", deviceUid);
             inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
@@ -97,7 +100,7 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
         if (thing != null) {
             ThingHandler handler = thing.getHandler();
             if (handler != null) {
-                String deviceUid = handler.getDeviceId();
+                String deviceUid = handler.getUniqueIdentifier();
                 if (deviceUid != null) {
                     removeFromInbox(deviceUid);
                 }
@@ -106,8 +109,8 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
     }
 
     private void removeFromInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox
-                .get(InboxFilterCriteria.representationFilter(deviceUid, DiscoveryResultFlag.IGNORED));
+        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(deviceUid))
+                .filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Removing the ignored result from the inbox for the device uid {}", deviceUid);
             inbox.remove(results.get(0).getThingUID());
@@ -115,9 +118,9 @@ public class InboxAutoIgnore extends AbstractTypedEventSubscriber<ThingStatusInf
     }
 
     @Activate
-    protected void activate(Map<String, String> properties) {
+    protected void activate(Map<String, Object> properties) {
         if (properties != null) {
-            String value = properties.get("autoIgnore");
+            String value = (String) properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");
         }
     }

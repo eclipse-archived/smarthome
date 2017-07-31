@@ -76,7 +76,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
                     }
                 }
         hueBridgeHandler.bridge = hueBridge
-        assertThat hueBridgeHandler.getDeviceId(), is(equalTo("001788141f1a"))
+        assertThat hueBridgeHandler.getUniqueIdentifier(), is(equalTo("001788141f1a"))
     }
 
     @Test

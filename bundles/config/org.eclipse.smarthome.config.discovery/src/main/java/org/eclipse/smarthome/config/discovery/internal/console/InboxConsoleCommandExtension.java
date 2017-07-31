@@ -7,10 +7,13 @@
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -50,7 +53,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         String label = args[2];
                         try {
                             ThingUID thingUID = new ThingUID(args[1]);
-                            List<DiscoveryResult> results = inbox.get(InboxFilterCriteria.thingFilter(thingUID, null));
+                            List<DiscoveryResult> results = inbox.stream().filter(forThingUID(thingUID))
+                                    .collect(Collectors.toList());
                             if (results.isEmpty()) {
                                 console.println("No matching inbox entry could be found.");
                                 return;
@@ -77,8 +81,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     break;
                 case SUBCMD_LIST_IGNORED:
-                    printInboxEntries(console,
-                            inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.IGNORED)));
+                    printInboxEntries(console, inbox.stream().filter(withFlag((DiscoveryResultFlag.IGNORED)))
+                            .collect(Collectors.toList()));
                     break;
                 case SUBCMD_CLEAR:
                     clearInboxEntries(console, inbox.getAll());
@@ -87,7 +91,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     break;
             }
         } else {
-            printInboxEntries(console, inbox.get(InboxFilterCriteria.resultFlagFilter(DiscoveryResultFlag.NEW)));
+            printInboxEntries(console, inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW)))
+                    .collect(Collectors.toList()));
         }
     }
 

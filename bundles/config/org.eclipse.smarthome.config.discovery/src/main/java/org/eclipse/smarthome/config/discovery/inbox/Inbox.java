@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.inbox;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -75,7 +76,10 @@ public interface Inbox {
      *
      * @return all discovery results in this inbox which fit to the specified filter criteria
      *         (not null, could be empty)
+     * 
+     * @deprecated use {@link InboxPredicates} to filter on streams of {@link DiscoveryResult}s
      */
+    @Deprecated
     List<DiscoveryResult> get(InboxFilterCriteria criteria);
 
     /**
@@ -84,6 +88,13 @@ public interface Inbox {
      * @return all discovery results in this inbox (not null, could be empty)
      */
     List<DiscoveryResult> getAll();
+
+    /**
+     * Returns a stream of all {@link DiscoveryResult}s in this {@link Inbox}.
+     *
+     * @return stream of all discovery results in this inbox
+     */
+    Stream<DiscoveryResult> stream();
 
     /**
      * Sets the flag for a given thingUID result.<br>
@@ -121,14 +132,14 @@ public interface Inbox {
      * @param listener the listener to be removed (could be null)
      */
     void removeInboxListener(InboxListener listener);
-    
+
     /**
-     * Creates new {@link Thing} and adds it to the {@link ThingRegistry}. 
-     * 
-     * @param thingUID the UID of the Thing 
-     * @param label the label of the Thing 
+     * Creates new {@link Thing} and adds it to the {@link ThingRegistry}.
+     *
+     * @param thingUID the UID of the Thing
+     * @param label the label of the Thing
      * @return the approved Thing
      */
-    Thing approve(ThingUID thingUID, String label); 
+    Thing approve(ThingUID thingUID, String label);
 
 }

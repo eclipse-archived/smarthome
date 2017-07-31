@@ -81,7 +81,6 @@ class DiscoveryResultImplTest {
 
         assertEquals("127.0.0.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("ipAddress", discoveryResult.getRepresentationProperty())
-        assertEquals("127.0.0.1", discoveryResult.getRepresentationValue())
         assertEquals("TARGET", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
@@ -104,7 +103,6 @@ class DiscoveryResultImplTest {
 
         assertEquals("127.0.0.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("ipAddress", discoveryResult.getRepresentationProperty())
-        assertEquals("127.0.0.1", discoveryResult.getRepresentationValue())
         assertEquals("TARGET", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
@@ -131,7 +129,6 @@ class DiscoveryResultImplTest {
         assertEquals("192.168.178.1", discoveryResult.getProperties().get("ipAddress"))
         assertEquals("AA:BB:CC:DD:EE:FF", discoveryResult.getProperties().get("macAddress"))
         assertEquals("macAddress", discoveryResult.getRepresentationProperty())
-        assertEquals("AA:BB:CC:DD:EE:FF", discoveryResult.getRepresentationValue())
         assertEquals("SOURCE", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
