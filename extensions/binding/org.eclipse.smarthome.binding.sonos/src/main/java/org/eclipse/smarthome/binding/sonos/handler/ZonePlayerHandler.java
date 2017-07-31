@@ -37,7 +37,6 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -101,12 +100,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int SOCKET_TIMEOUT = 5000;
 
     /**
-     * Default notification timeout
+     * Default notification timeout (in seconds)
      */
-    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 40000;
-    
+    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 20;
+
     /**
-     * configurable notification timeout
+     * configurable notification timeout (in seconds)
      */
     private Integer notificationTimeout = null;
 
@@ -212,14 +211,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         if (getUDN() != null) {
             onUpdate();
-            
-            if (getConfigAs(ZonePlayerConfiguration.class).notificationTimeout == null) {
-                Configuration c = editConfiguration();
-                c.put(ZonePlayerConfiguration.NOTIFICATION_TIMEOUT, DEFAULT_NOTIFICATION_TIMEOUT);
-                updateConfiguration(c);
-            }
-            
+
             this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
+            if (this.notificationTimeout == null) {
+                this.notificationTimeout = DEFAULT_NOTIFICATION_TIMEOUT;
+            }
 
             updateStatus(ThingStatus.ONLINE);
         } else {
@@ -1710,7 +1706,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {
@@ -2388,7 +2385,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         // check Sonos state events to determine the end of the notification sound
         String notificationTitle = stateMap.get("CurrentTitle");
         long playstart = System.currentTimeMillis();
-        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue()) {
+        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue() * 1000) {
             try {
                 Thread.sleep(50);
                 if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
@@ -2407,7 +2404,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (!stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -2423,7 +2420,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
                         break;
                     }
                 } catch (InterruptedException e) {
