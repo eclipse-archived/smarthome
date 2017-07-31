@@ -13,14 +13,14 @@ It can only be activated, either manually or by a common trigger, e.g., time bas
 
 
 A scene can be handled as a set of actions based on the rule engine. The user can create a rule and define the expected states of the items in the action section. This rule should have a tag like "scene" to express its purpose.
-With the Rest Service `PUT /rest/rules/{ruleUID}/runnow` the scene can be activated manually via any UI. Or it can be activated automatically by definning a second rule with triggers and conditions and using the action section of the rule to trigger the scene rule with a specific actionhandler.
+With the Rest Service `PUT /rest/rules/{ruleUID}/runnow` the scene can be activated manually via any UI. Or it can be activated automatically by defining a second rule with triggers and conditions and using the action section of the rule to trigger the scene rule with a specific actionhandler.
 For this case, an action module to execute rules directly, similiar to **runnow**, is needed. This would only execute the actions of the rule without evaluation of the conditions. And all actions will be executed even if an action before returns an error.
 
-Asynchonous execution of actions is mabye needed to fulfill further requirements:
+Asynchronous execution of actions is maybe needed to fulfil further requirements:
 
-* For now most of the actions are just sending events, which then is kind of asynchronous because the eventHandlers are executed asynchonously.
-* For long-running script actions, e.g., the handler should be aware of asynchonous execution.
-* Best solution for asynchronous action execution is that the ruleEngine itself handles the asynchronous execution. There should be a configuration parameter for actions like "wait", "asynchronous", etc. in general which can be evaluated by the ruleEngine. Then the RuleEngine itself should have a threadpool to also handle stopping/killing of the actions and to set the status of the rule.
+* For now most of the actions are just sending events, which then is kind of asynchronous because the eventHandlers are executed asynchronously.
+* For long-running script actions, e.g., the handler should be aware of asynchronous execution.
+* Best solution for asynchronous action execution is that the ruleEngine itself handles the asynchronous execution. There should be a configuration parameter for actions like "wait", "asynchronous", etc. in general which can be evaluated by the ruleEngine. Then the RuleEngine itself should have a thread-pool to also handle stopping/killing of the actions and to set the status of the rule.
 But that should be a general topic of the rule engine.
 
 
