@@ -83,8 +83,8 @@ angular.module('PaperUI.controllers.control', []) //
         var redraw;
         thingRepository.getAll(function(things) {
             var thingsForTab = things.filter(function(thing) {
-                var location = thing.location ? thing.location.toUpperCase() : 'OTHER'
-                return location === tabName;
+                var thingLocation = thing.location ? thing.location.toUpperCase() : 'OTHER'
+                return thingLocation === tabName;
             })
             channelTypeRepository.getAll(function(channelTypes) {
                 angular.forEach(thingsForTab, function(thing) {
@@ -94,6 +94,9 @@ angular.module('PaperUI.controllers.control', []) //
                         var renderedThing = renderThing(thing, thingType, channelTypes);
                         if (renderedThing) {
                             renderedThings.push(renderedThing);
+                            renderedThings = renderedThings.sort(function(a, b) {
+                                return a.label < b.label ? -1 : a.label > b.label ? 1 : 0
+                            })
                             $timeout.cancel(redraw)
                             redraw = $timeout(function() {
                                 $scope.things.push.apply($scope.things, renderedThings);
