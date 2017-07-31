@@ -112,7 +112,7 @@ A scene can be created by making a POST request to the following endpoint provid
 ```
 
 ## REST API
-You will need the rule rest endpoints provided by the rule-engine to work with scenes. Some important endpoints are given below, the complete list can be found [here](/rules.md#rest-api).
+You will need the rule rest endpoints provided by the rule-engine to work with scenes. Some important endpoints are given below, the complete list can be found [here](rules.md#rest-api).
 
  - GET /rest/rules - returns all registered rule instances.
  - POST /rest/rules - adds new rule instance to the rule registry.
