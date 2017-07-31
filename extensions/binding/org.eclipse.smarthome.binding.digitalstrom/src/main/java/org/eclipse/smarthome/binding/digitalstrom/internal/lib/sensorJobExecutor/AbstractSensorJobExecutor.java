@@ -112,7 +112,7 @@ public abstract class AbstractSensorJobExecutor {
             if (pollingSchedulers.get(circuit.getMeterDSID()) == null
                     || pollingSchedulers.get(circuit.getMeterDSID()).isCancelled()) {
                 pollingSchedulers.put(circuit.getMeterDSID(),
-                        scheduler.scheduleAtFixedRate(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
+                        scheduler.scheduleWithFixedDelay(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
                                 config.getSensorReadingWaitTime(), TimeUnit.MILLISECONDS));
             }
         }

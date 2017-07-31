@@ -254,7 +254,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                     logger.info("Wrong configuration value for polling interval. Using default value: {}s",
                             pollingInterval);
                 }
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
+                pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
         }
     }

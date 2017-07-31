@@ -141,7 +141,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
             WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
             int period = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
-            refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, period, TimeUnit.MINUTES);
+            refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, period, TimeUnit.MINUTES);
         }
     }
 

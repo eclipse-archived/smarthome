@@ -203,7 +203,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
                 if (refreshConfig != null) {
                     refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 }
-                refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+                refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
             }
         }
     }

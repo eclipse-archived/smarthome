@@ -359,7 +359,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
     public synchronized void start() {
         logger.debug("start pollingScheduler");
         if (pollingScheduler == null || pollingScheduler.isCancelled()) {
-            pollingScheduler = scheduler.scheduleAtFixedRate(new PollingRunnable(), 0, config.getPollingFrequency(),
+            pollingScheduler = scheduler.scheduleWithFixedDelay(new PollingRunnable(), 0, config.getPollingFrequency(),
                     TimeUnit.MILLISECONDS);
             sceneMan.start();
         }
@@ -434,7 +434,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
         @Override
         public boolean equals(Object object) {
             return object instanceof TrashDevice
-                    ? this.device.getDSID().equals(((TrashDevice) object).getDevice().getDSID()) : false;
+                    ? this.device.getDSID().equals(((TrashDevice) object).getDevice().getDSID())
+                    : false;
         }
     }
 
