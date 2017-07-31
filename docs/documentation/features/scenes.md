@@ -4,7 +4,7 @@ layout: documentation
 
 {% include base.html %}
 
-# Scene
+# Scenes
 
 A scene is a defined set of states which several items should have when the scene is active.
 It can only be activated, either manually or by a common trigger, e.g., time based.
