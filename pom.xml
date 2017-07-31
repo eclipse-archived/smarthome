@@ -50,6 +50,7 @@
     <xtext-version>2.9.2</xtext-version>
     <karaf.version>4.0.3</karaf.version>
     <ds-annotations.version>1.2.8</ds-annotations.version>
+    <findbugs-jsr305-version>3.0.2</findbugs-jsr305-version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -156,7 +157,16 @@
                 <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
                 <version>${ds-annotations.version}</version>
               </extraClasspathElement>
+                <extraClasspathElement>
+                  <groupId>com.google.code.findbugs</groupId>
+                  <artifactId>jsr305</artifactId>
+                  <version>${findbugs-jsr305-version}</version>
+              </extraClasspathElement>
             </extraClasspathElements>
+            <compilerArgs>
+              <arg>-err:+nullAnnot(javax.annotation.Nullable|javax.annotation.Nonnull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
+              <arg>-warn:+null</arg>
+            </compilerArgs>
           </configuration>          
         </plugin>
         <plugin>
