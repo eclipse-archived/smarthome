@@ -95,7 +95,7 @@ public class ConfigDescriptionParameter {
     private static final Set<String> UNITS = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
                     "Hz", "N", "Pa", "J", "W", "C", "V", "F", "Ω", "S", "Wb", "T", "H", "Cel", "lm", "lx", "Bq", "Gy",
-                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "min", "h", "d", "week", "y")));
+                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "ms", "min", "h", "d", "week", "y")));
 
     /**
      * Default constructor.
