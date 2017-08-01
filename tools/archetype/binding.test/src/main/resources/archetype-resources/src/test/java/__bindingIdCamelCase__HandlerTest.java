@@ -17,6 +17,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import ${package}.handler.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
