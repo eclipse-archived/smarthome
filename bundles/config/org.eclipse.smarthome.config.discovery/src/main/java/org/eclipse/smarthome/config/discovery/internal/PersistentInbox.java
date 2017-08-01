@@ -228,12 +228,16 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         // check, if there is a thing with the same representation property
         String value = getRepresentationValue(result);
         if (value != null) {
-            return thingRegistry.stream().map(Thing::getHandler)
-                    .filter(handler -> handler != null && value.equals(handler.getUniqueIdentifier()))
-                    .map(ThingHandler::getThing).findFirst().orElse(null);
+            return thingRegistry.stream().filter(t -> value.equals(getRepresentationPropertyValueForThing(t)))
+                    .findFirst().orElse(null);
         }
 
         return null;
+    }
+
+    private String getRepresentationPropertyValueForThing(Thing thing) {
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
+        return thing.getProperties().get(thingType.getRepresentationProperty());
     }
 
     private boolean synchronizeConfiguration(ThingTypeUID thingTypeUID, Map<String, Object> properties,

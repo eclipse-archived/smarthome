@@ -16,6 +16,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +33,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
@@ -43,16 +43,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * @author Andre Fuechsel - Initial contribution
  */
 public class AutomaticInboxProcessorTest {
 
+    private static final String DEVICE_ID = "deviceId";
+    private static final String DEVICE_ID_KEY = "deviceIdKey";
+
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
-    private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, null, null, null,
-            null);
-    private static final String DEVICE_ID = "deviceId";
+    private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY,
+            null, null, null, null);
+    private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
+            .put(DEVICE_ID_KEY, DEVICE_ID).build();
 
     private AutomaticInboxProcessor inboxAutoIgnore;
     private PersistentInbox inbox;
@@ -65,9 +71,6 @@ public class AutomaticInboxProcessorTest {
 
     @Mock
     private Thing thing;
-
-    @Mock
-    private ThingHandler thingHandler;
 
     @Mock
     private ThingStatusInfoChangedEvent event;
@@ -85,9 +88,9 @@ public class AutomaticInboxProcessorTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        when(thingHandler.getUniqueIdentifier()).thenReturn(DEVICE_ID);
-        when(thing.getHandler()).thenReturn(thingHandler);
         when(thing.getConfiguration()).thenReturn(new Configuration());
+        when(thing.getThingTypeUID()).thenReturn(THING_TYPE_UID);
+        when(thing.getProperties()).thenReturn(THING_PROPERTIES);
         when(thingRegistry.stream()).thenReturn(Stream.empty());
         when(thingTypeRegistry.getThingType(THING_TYPE_UID)).thenReturn(THING_TYPE);
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
@@ -104,11 +107,12 @@ public class AutomaticInboxProcessorTest {
         inbox.setThingTypeRegistry(thingTypeRegistry);
         inbox.addThingHandlerFactory(thingHandlerFactory);
 
-        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty("deviceId", DEVICE_ID)
-                .withRepresentationProperty("deviceId").build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
 
         inboxAutoIgnore = new AutomaticInboxProcessor();
         inboxAutoIgnore.setThingRegistry(thingRegistry);
+        inboxAutoIgnore.setThingTypeRegistry(thingTypeRegistry);
         inboxAutoIgnore.setInbox(inbox);
     }
 

@@ -19,6 +19,8 @@
 			<channel id="effect" typeId="effect" />
 		</channels>
 
+        <representationProperty>uniqueId</representationProperty>
+
 		<config-description>
 			<parameter name="lightId" type="text">
 				<label>Light ID</label>

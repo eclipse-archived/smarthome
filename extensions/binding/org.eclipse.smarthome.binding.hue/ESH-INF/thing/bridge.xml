@@ -12,6 +12,7 @@
         <properties>
         	<property name="vendor">Philips</property>
         </properties>
+        <representationProperty>serialNumber</representationProperty>
         
         <config-description>
             <parameter name="ipAddress" type="text">

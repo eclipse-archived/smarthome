@@ -520,23 +520,4 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
         return configStatusMessages;
     }
-
-    @Override
-    public String getUniqueIdentifier() {
-        if (bridge == null) {
-            return super.getUniqueIdentifier();
-        }
-
-        try {
-            return bridge.getFullConfig().getConfig().getMACAddress().replaceAll(":", "").toLowerCase();
-        } catch (IOException | ApiException e) {
-            return super.getUniqueIdentifier();
-        }
-    }
-
-    // @Override
-    // public String getRepresentationProperty() {
-    // return Thing.PROPERTY_SERIAL_NUMBER;
-    // }
-
 }

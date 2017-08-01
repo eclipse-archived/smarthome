@@ -485,20 +485,4 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
         return delay;
     }
-
-    @Override
-    public String getUniqueIdentifier() {
-        FullLight light = getLight();
-        if (light != null) {
-            return light.getUniqueID();
-        } else {
-            return super.getUniqueIdentifier();
-        }
-    }
-
-    // @Override
-    // public String getRepresentationProperty() {
-    // return LIGHT_UNIQUE_ID;
-    // }
-
 }

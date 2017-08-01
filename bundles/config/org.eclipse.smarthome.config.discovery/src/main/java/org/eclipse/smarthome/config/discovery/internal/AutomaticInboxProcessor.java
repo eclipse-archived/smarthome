@@ -21,8 +21,9 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -55,6 +56,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ThingRegistry thingRegistry;
+    private ThingTypeRegistry thingTypeRegistry;
     private Inbox inbox;
     private boolean autoIgnore = true;
 
@@ -76,12 +78,9 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     private void checkAndIgnoreInInbox(ThingStatusInfoChangedEvent event) {
         Thing thing = thingRegistry.get(event.getThingUID());
         if (thing != null) {
-            ThingHandler handler = thing.getHandler();
-            if (handler != null) {
-                String deviceUid = handler.getUniqueIdentifier();
-                if (deviceUid != null) {
-                    ignoreInInbox(deviceUid);
-                }
+            String deviceUid = getRepresentationPropertyValueForThing(thing);
+            if (deviceUid != null) {
+                ignoreInInbox(deviceUid);
             }
         }
     }
@@ -98,14 +97,16 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     private void removePossiblyIgnoredResultInInbox(ThingStatusInfoChangedEvent event) {
         Thing thing = thingRegistry.get(event.getThingUID());
         if (thing != null) {
-            ThingHandler handler = thing.getHandler();
-            if (handler != null) {
-                String deviceUid = handler.getUniqueIdentifier();
-                if (deviceUid != null) {
-                    removeFromInbox(deviceUid);
-                }
+            String deviceUid = getRepresentationPropertyValueForThing(thing);
+            if (deviceUid != null) {
+                removeFromInbox(deviceUid);
             }
         }
+    }
+
+    private String getRepresentationPropertyValueForThing(Thing thing) {
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
+        return thing.getProperties().get(thingType.getRepresentationProperty());
     }
 
     private void removeFromInbox(String deviceUid) {
@@ -132,6 +133,15 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    @Reference
+    protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = thingTypeRegistry;
+    }
+
+    protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = null;
     }
 
     @Reference

@@ -25,8 +25,10 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
+import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -58,10 +60,12 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final THING_ID = 'dynamicUpdateThingId'
     final THING_ID2 = 'dynamicUpdateThingId2'
     final DEVICE_ID = 'deviceId'
+    final DEVICE_ID_KEY = 'deviceIdKey'
 
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
     final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
+    final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY, null, null, null, null);
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
@@ -78,6 +82,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     void setUp() {
         registerVolatileStorageService()
 
+        def thingTypeProvider = [ "getThingType" : { uid, locale -> THING_TYPE } ] as ThingTypeProvider
+        registerService(thingTypeProvider)
+
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
         managedThingProvider = getService ManagedThingProvider
@@ -91,6 +98,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         managedThingProvider.all.each {
             managedThingProvider.remove(it.getUID())
         }
+
+        unregisterMocks()
     }
 
     ThingHandler createThingHandler(Thing thing) {
@@ -106,8 +115,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
             },
-            'setCallback' : {callbackArg -> callback = callbackArg },
-            'getUniqueIdentifier' : { return DEVICE_ID  }
+            'setCallback' : { callbackArg -> callback = callbackArg }
         ] as ThingHandler )
 
         return thingHandler
@@ -214,7 +222,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).withProperties([ (DEVICE_ID_KEY) : DEVICE_ID ]).build()
         thing.getConfiguration().put(CFG_IP_ADDRESS_KEY, null);
         managedThingProvider.add thing
         waitForAssert {

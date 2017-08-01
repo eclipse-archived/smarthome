@@ -174,25 +174,4 @@ public interface ThingHandler {
      * Only then it will be removed completely.
      */
     void handleRemoval();
-
-    /**
-     * This method should return a unique identifier of the thing handled by this {@link ThingHandler}.
-     * An implementing class should take some information from the connected hardware that clearly identifies it.
-     * This could be e.g. the serial number, MAC address or something else to make it unique in this
-     * system's context, it does not necessarily need to be globally unique.
-     * <p>
-     * The discovery service that creates things of the same type should set the representation
-     * property's value to the same value like this method would return. The inbox would then be able
-     * to clearly identify results that are created for things for the same hardware.
-     * </p>
-     * <p>
-     * The default implementation of this method returns {@code null}.
-     * </p>
-     *
-     * @return an identifier for the thing or {@code null}
-     */
-    default String getUniqueIdentifier() {
-        return null;
-    }
-
 }
