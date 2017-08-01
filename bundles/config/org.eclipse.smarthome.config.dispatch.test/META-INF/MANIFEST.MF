@@ -16,4 +16,4 @@ Import-Package: groovy.lang,
  org.junit,
  org.osgi.framework,
  org.osgi.service.component
-Service-Component: OSGI-INF/configdispatchertest.xml
+Service-Component: OSGI-INF/*.xml
