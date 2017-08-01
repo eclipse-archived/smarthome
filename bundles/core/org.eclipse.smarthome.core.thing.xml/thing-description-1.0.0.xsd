@@ -29,6 +29,7 @@
                 <xs:element name="channel-groups" type="thing-description:channelGroups"/>
             </xs:choice>
             <xs:element name="properties" type="thing-description:properties" minOccurs="0"/>
+            <xs:element name="representationProperty" type="xs:string" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
