@@ -12,8 +12,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
-import org.eclipse.smarthome.binding.hue.internal.Config
-import org.eclipse.smarthome.binding.hue.internal.FullConfig
 import org.eclipse.smarthome.binding.hue.internal.HueBridge
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException
@@ -53,30 +51,6 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         registerVolatileStorageService()
         thingRegistry = getService(ThingRegistry, ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
-    }
-
-    @Test
-    void 'assert that deviceId is set correctly'() {
-        Configuration configuration = new Configuration().with {
-            put(HOST, DUMMY_HOST)
-            put(SERIAL_NUMBER, "testSerialNumber")
-            it
-        }
-        Bridge bridge = createBridgeThing(configuration)
-
-        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
-        hueBridgeHandler.thingUpdated(bridge)
-
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
-                    FullConfig getFullConfig() throws IOException, ApiException {
-                        def fullConfig = new FullConfig()
-                        fullConfig.config = new Config()
-                        fullConfig.config.mac = "00:17:88:14:1F:1A"
-                        return fullConfig
-                    }
-                }
-        hueBridgeHandler.bridge = hueBridge
-        assertThat hueBridgeHandler.getUniqueIdentifier(), is(equalTo("001788141f1a"))
     }
 
     @Test

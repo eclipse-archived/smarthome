@@ -127,54 +127,6 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     @Test
-    void 'assert that deviceId is set correctly'() {
-        Bridge hueBridge = createBridge()
-        simulateBridgeInitialization(hueBridge)
-
-        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
-
-        try {
-            HueLightHandler hueLightHandler
-            waitForAssert {
-                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
-                assertThat hueLightHandler, is(notNullValue())
-            }
-
-            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
-            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
-
-            MockedHttpClient mockedHttpClient =  [
-                put: { String address, String body ->
-                    addressWrapper.set(address)
-                    bodyWrapper.set(body)
-                    new Result("", 200)
-                },
-                get: { String address ->
-                    if (address.endsWith("testUserName/")) {
-                        new Result(new HueLightState().toString(), 200)
-                    }
-                }
-            ] as MockedHttpClient
-
-            installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
-
-            assertBridgeOnline(hueLightHandler.getBridge())
-            hueLightHandler.initialize()
-
-            waitForAssert {
-                assertThat hueLightHandler.getUniqueIdentifier(), is(equalTo(UNIQUE_ID))
-            }
-        } finally {
-            thingRegistry.forceRemove(hueLight.getUID())
-            thingRegistry.forceRemove(hueBridge.getUID())
-            waitForAssert({
-                assertThat thingRegistry.get(hueLight.getUID()), is(nullValue())
-                assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
-            }, 10000)
-        }
-    }
-
-    @Test
     void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
         Bridge hueBridge = createBridge()
         simulateBridgeInitialization(hueBridge)
