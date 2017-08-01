@@ -7,21 +7,22 @@ layout: documentation
 # Scenes
 
 A scene is a defined set of states which several items should have when the scene is active.
-It can only be activated, either manually or by a common trigger, e.g., time based.
+It can be activated either manually or by a simple trigger, e.g., a time based rule.
 
 ## Concept
 
+A scene is merely a set of actions inside a rule that is executed by the rule engine. Each action yields an item into a target state once the scene is activated. It is advisable to have a tag like "scene" on a rule to express its purpose.
 
-A scene can be handled as a set of actions based on the rule engine. The user can create a rule and define the expected states of the items in the action section. This rule should have a tag like "scene" to express its purpose.
-With the Rest Service `PUT /rest/rules/{ruleUID}/runnow` the scene can be activated manually via any UI. Or it can be activated automatically by defining a second rule with triggers and conditions and using the action section of the rule to trigger the scene rule with a specific actionhandler.
-For this case, an action module to execute rules directly, similar to **runnow**, is needed. This would only execute the actions of the rule without evaluation of the conditions. And all actions will be executed even if an action before returns an error.
+The scene can be activated either manually or automatically. To manually activate the scene you will need to make a call to rest endpoint `PUT /rest/rules/{ruleUID}/runnow`. To automate the scene activation, a secondary rule must be created. The action section of this secondary rule is responsible for executing the scene with the `core.RunRuleAction` actionhandler. 
 
-Asynchronous execution of actions is maybe needed to fulfil further requirements:
+The action module, used for running the scene, must support the direct execution of rules without requiring to evaluate the conditions. This way all actions will be executed even if an action before returns an error.
 
-* For now most of the actions are just sending events, which then is kind of asynchronous because the eventHandlers are executed asynchronously.
+
+
+Asynchronous execution of actions is needed to fulfil further requirements:
+
+* Most of the actions just send events. And as the eventHandlers for these events are executed asynchronously the resulting action execution is also asynchronous.
 * For long-running script actions, e.g., the handler should be aware of asynchronous execution.
-* Best solution for asynchronous action execution is that the ruleEngine itself handles the asynchronous execution. There should be a configuration parameter for actions like "wait", "asynchronous", etc. in general which can be evaluated by the ruleEngine. Then the RuleEngine itself should have a thread-pool to also handle stopping/killing of the actions and to set the status of the rule.
-But that should be a general topic of the rule engine.
 
 
 ## Defining Scene via JSON
@@ -29,12 +30,10 @@ A scene can be created by making a POST request to the following endpoint provid
 
 `POST /rest/rules`
 
-### Sample Scene
 
  * **Sample scene instance created using rule-engine:**
 
 ```
-
 {  
    "uid":"sample.scene1",
    "name":"SampleScene",
@@ -67,7 +66,6 @@ A scene can be created by making a POST request to the following endpoint provid
       }
    ]
 }
-
 ```
 
  * **This scene either can be activated by sending a PUT request to the following endpoint:**
