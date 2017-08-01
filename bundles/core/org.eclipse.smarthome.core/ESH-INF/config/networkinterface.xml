@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+
+	<config-description uri="system:network">
+		<parameter name="primaryAddress" type="text">
+			<label>Primary Address</label>
+			<description><![CDATA[<p>The primary network to be used</p>
+			<p>Alternative: Enter an IP address (XXX.XXX.XXX.XXX) manually</p>]]></description>
+			<limitToOptions>false</limitToOptions>
+		</parameter>
+	</config-description>
+
+</config-description:config-descriptions>

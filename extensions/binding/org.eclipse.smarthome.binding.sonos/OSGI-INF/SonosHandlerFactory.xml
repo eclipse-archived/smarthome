@@ -18,4 +18,5 @@
       <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>
    </service>
    <reference bind="setAudioHTTPServer" cardinality="1..1" interface="org.eclipse.smarthome.core.audio.AudioHTTPServer" name="AudioHTTPServer" policy="static" unbind="unsetAudioHTTPServer"/>
+   <reference bind="setNetworkAddressProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.net.NetworkAddressProvider" name="NetworkAddressProvider" policy="static" unbind="unsetNetworkAddressProvider"/>
 </scr:component>

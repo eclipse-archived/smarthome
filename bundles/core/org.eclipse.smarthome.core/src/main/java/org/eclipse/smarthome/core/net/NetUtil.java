@@ -13,10 +13,16 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.net.util.SubnetUtils;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +31,51 @@ import org.slf4j.LoggerFactory;
  *
  * @author Markus Rathgeb - Initial contribution and API
  * @author Mark Herwege - Added methods to find broadcast address(es)
+ * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
  */
-public class NetUtil {
+@Component(name = "org.eclipse.smarthome.network", property = { "service.config.description.uri=system:network",
+        "service.config.label=Network Settings", "service.config.category=system" })
+public class NetUtil implements NetworkAddressProvider {
 
+    private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
-    private NetUtil() {
+    private String primaryAddress;
+
+    @SuppressWarnings("unchecked")
+    protected void activate(ComponentContext componentContext) {
+        Dictionary<String, Object> props = componentContext.getProperties();
+        modified((Map<String, Object>) props);
+    }
+
+    @Modified
+    public synchronized void modified(Map<String, Object> config) {
+        String defaultInterfaceConfig = (String) config.get(PRIMARY_ADDRESS);
+        if (defaultInterfaceConfig == null || defaultInterfaceConfig.equals("")) {
+            // if none is specified we return the default one for backward compatibility
+            primaryAddress = NetUtil.getLocalIpv4HostAddress();
+        } else {
+            String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
+
+            String[] addrString = primaryAddressConf.split("/");
+            if (addrString.length > 1) {
+                String ip = getIPv4inSubnet(primaryAddressConf);
+                if (ip == null) {
+                    // an error has occurred, used first interface like nothing has been configured
+                    LOGGER.warn("Error in IP configuration, will continue to use first interface");
+                    NetUtil.getLocalIpv4HostAddress();
+                } else {
+                    primaryAddress = ip;
+                }
+            } else {
+                primaryAddress = addrString[0];
+            }
+        }
+    }
+
+    @Override
+    public String getPrimaryIpv4HostAddress() {
+        return primaryAddress;
     }
 
     /**
@@ -102,6 +147,42 @@ public class NetUtil {
         } else {
             return null;
         }
+    }
+
+    private String getIPv4inSubnet(String subnet) {
+        try {
+            final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                final NetworkInterface current = interfaces.nextElement();
+                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                    continue;
+                }
+
+                for (InterfaceAddress ifAddr : current.getInterfaceAddresses()) {
+                    InetAddress addr = ifAddr.getAddress();
+
+                    if (addr.isLoopbackAddress() || (addr instanceof Inet6Address)) {
+                        continue;
+                    }
+
+                    String ipv4Address = addr.getHostAddress();
+
+                    SubnetUtils su = new SubnetUtils(
+                            ipv4Address + "/" + String.valueOf(ifAddr.getNetworkPrefixLength()));
+                    String subNetString = su.getInfo().getNetworkAddress() + "/"
+                            + String.valueOf(ifAddr.getNetworkPrefixLength());
+
+                    // use first IP within this subnet
+                    if (subNetString.equals(subnet)) {
+                        return ipv4Address;
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            LOGGER.error("Could not retrieve network interface: {}", ex.getMessage(), ex);
+            return null;
+        }
+        return null;
     }
 
 }

@@ -21,7 +21,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
-import org.eclipse.smarthome.core.net.NetUtil;
+import org.eclipse.smarthome.core.net.NetworkAddressProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -46,6 +46,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     private UpnpIOService upnpIOService;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private AudioHTTPServer audioHTTPServer;
+    private NetworkAddressProvider networkAddressprovider;
 
     private Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
@@ -110,7 +111,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         if (callbackUrl != null) {
             return callbackUrl;
         } else {
-            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
+            final String ipAddress = networkAddressprovider.getPrimaryIpv4HostAddress();
             if (ipAddress == null) {
                 logger.warn("No network interface could be found.");
                 return null;
@@ -169,6 +170,14 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
         this.audioHTTPServer = null;
+    }
+
+    protected void setNetworkAddressProvider(NetworkAddressProvider networkUtil) {
+        this.networkAddressprovider = networkUtil;
+    }
+
+    protected void unsetNetworkAddressProvider(NetworkAddressProvider networkUtil) {
+        this.networkAddressprovider = null;
     }
 
 }
