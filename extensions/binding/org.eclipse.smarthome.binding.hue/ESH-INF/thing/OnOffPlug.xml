@@ -17,7 +17,7 @@
 			<channel id="switch" typeId="switch" />
 		</channels>
 
-        <representationProperty>uniqueId</representationProperty>
+        <representation-property>uniqueId</representation-property>
 
 		<config-description>
 			<parameter name="lightId" type="text">

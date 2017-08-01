@@ -109,8 +109,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // the bridge
             if (getHueBridgeHandler() != null) {
                 if (bridgeStatus == ThingStatus.ONLINE) {
-                    updateStatus(ThingStatus.ONLINE);
                     initializeProperties();
+                    updateStatus(ThingStatus.ONLINE);
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
                 }
@@ -411,6 +411,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
+            initializeProperties();
             updateStatus(ThingStatus.ONLINE);
             onLightStateChanged(bridge, light);
         }

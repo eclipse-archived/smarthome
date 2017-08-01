@@ -13,7 +13,7 @@
 		<properties>
 			<property name="vendor">Philips</property>
 		</properties>
-        <representationProperty>serialNumber</representationProperty>
+        <representation-property>serialNumber</representation-property>
 
 		<config-description>
 			<parameter name="ip" type="text">
@@ -56,7 +56,7 @@
 			<property name="key1">value1</property>
 			<property name="key2">value2</property>
 		</properties>
-        <representationProperty>uniqueId</representationProperty>
+        <representation-property>uniqueId</representation-property>
 	</thing-type>
 
 	<!-- HUE Lamp with Group -->
