@@ -31,7 +31,6 @@ import org.eclipse.smarthome.core.types.State;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
  * @author Stefan Bußweiler - API changes due to bridge/thing life cycle refactoring
- * @author Andre Fuechsel - added API to get a device id
  */
 public interface ThingHandler {
 

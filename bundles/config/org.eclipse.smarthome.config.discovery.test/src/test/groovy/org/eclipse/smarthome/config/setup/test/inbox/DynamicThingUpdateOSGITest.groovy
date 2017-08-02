@@ -210,38 +210,4 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         unregisterService(thingHandlerFactory)
     }
-
-    @Test
-    void 'assert that an thing with different thing uid but same device id is not added and existing thing is updated'() {
-        assertThat inbox.getAll().size(), is(0)
-
-        final String CFG_IP_ADDRESS_KEY = "ipAddress";
-        final String CFG_IP_ADDRESS_VALUE = "127.0.0.1";
-        final String PROP1 = "prop1"
-
-        ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
-        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-
-        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).withProperties([ (DEVICE_ID_KEY) : DEVICE_ID ]).build()
-        thing.getConfiguration().put(CFG_IP_ADDRESS_KEY, null);
-        managedThingProvider.add thing
-        waitForAssert {
-            assertThat callback, is(notNullValue())
-        }
-        callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
-
-        final Map<String, Object> discoveryResultProps = new HashMap<>();
-        discoveryResultProps.put(CFG_IP_ADDRESS_KEY, CFG_IP_ADDRESS_VALUE);
-        discoveryResultProps.put(PROP1, DEVICE_ID)
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID2, null, discoveryResultProps, PROP1, "DummyLabel", DEFAULT_TTL)
-
-        inbox.add discoveryResult
-
-        assertThat inbox.getAll().size(), is(0)
-        assertThat thingUpdated, is(true)
-        assertThat updatedThing, not(null)
-        assertThat updatedThing.configuration.get(CFG_IP_ADDRESS_KEY), is(CFG_IP_ADDRESS_VALUE)
-
-        unregisterService(thingHandlerFactory)
-    }
 }

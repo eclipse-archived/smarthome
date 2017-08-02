@@ -7,13 +7,13 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.withFlag;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +55,7 @@ public class AutomaticInboxProcessorTest {
 
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
+    private static final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, "test2");
     private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY,
             null, null, null, null);
     private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
@@ -73,7 +74,7 @@ public class AutomaticInboxProcessorTest {
     private Thing thing;
 
     @Mock
-    private ThingStatusInfoChangedEvent event;
+    private ThingStatusInfoChangedEvent thingStatusInfoChangedEvent;
 
     @Mock
     private ConfigDescriptionRegistry configDescriptionRegistry;
@@ -91,6 +92,8 @@ public class AutomaticInboxProcessorTest {
         when(thing.getConfiguration()).thenReturn(new Configuration());
         when(thing.getThingTypeUID()).thenReturn(THING_TYPE_UID);
         when(thing.getProperties()).thenReturn(THING_PROPERTIES);
+        when(thing.getStatus()).thenReturn(ThingStatus.ONLINE);
+        when(thing.getUID()).thenReturn(THING_UID);
         when(thingRegistry.stream()).thenReturn(Stream.empty());
         when(thingTypeRegistry.getThingType(THING_TYPE_UID)).thenReturn(THING_TYPE);
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
@@ -124,15 +127,35 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
         when(thingRegistry.get(THING_UID)).thenReturn(thing);
-        when(event.getStatusInfo()).thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
-        when(event.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receiveTypedEvent(event);
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
 
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+    }
+
+    @Test
+    public void testInboxHasBeenChanged() {
+        inbox.stream().map(DiscoveryResult::getThingUID).forEach(t -> inbox.remove(t));
+        assertThat(inbox.getAll().size(), is(0));
+
+        when(thingRegistry.get(THING_UID)).thenReturn(thing);
+        when(thingRegistry.stream()).thenReturn(Stream.of(thing));
+
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
     }
 
     @Test
@@ -144,9 +167,10 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
         when(thingRegistry.get(THING_UID)).thenReturn(thing);
-        when(event.getStatusInfo()).thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
-        when(event.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receiveTypedEvent(event);
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));

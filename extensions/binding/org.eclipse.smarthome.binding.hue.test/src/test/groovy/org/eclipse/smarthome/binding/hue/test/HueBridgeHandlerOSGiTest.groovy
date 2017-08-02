@@ -35,7 +35,6 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  * @author Denis Dudnik - switched to internally integrated source of Jue library
- * @author Andre Fuechsel - added test for device id
  */
 class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 

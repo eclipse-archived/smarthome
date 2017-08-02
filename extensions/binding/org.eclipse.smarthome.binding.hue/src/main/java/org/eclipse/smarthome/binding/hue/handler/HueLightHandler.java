@@ -47,8 +47,8 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, added
- *         getDeviceId()
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, changed
+ *         the initialization of properties
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50

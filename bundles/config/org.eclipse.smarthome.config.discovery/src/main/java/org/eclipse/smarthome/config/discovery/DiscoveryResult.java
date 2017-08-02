@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * which are fired as an event to registered {@link DiscoveryListener}s.
  *
  * @author Kai Kreuzer - Initial API
- * @author Andre Fuechsel - added support for time to live, added getRepresentationPropertyValue()
+ * @author Andre Fuechsel - added support for time to live
  * @author Thomas Höfer - Added representation
  *
  * @see DiscoveryService

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
+import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -34,11 +35,11 @@ import org.slf4j.LoggerFactory;
  * This class implements a service to automatically ignore {@link Inbox} entries of newly created things.
  * <p>
  * The {@link AutomaticInboxProcessor} service implements a {@link EventSubscriber}, that is triggered
- * for each thing when coming ONLINE. {@link Inbox} entries with the same device id like the
+ * for each thing when coming ONLINE. {@link Inbox} entries with the same representation value like the
  * newly created thing will be automatically set to {@link DiscoveryResultFlag#IGNORED}.
  * </p>
  * <p>
- * If a thing is being removed, possibly existing {@link Inbox} entries with the same device id
+ * If a thing is being removed, possibly existing {@link Inbox} entries with the same representation value
  * are removed from the {@link Inbox} so they could be discovered again afterwards.
  * </p>
  * <p>
@@ -51,7 +52,8 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, service = EventSubscriber.class, property = {
         "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
         "service.pid=org.eclipse.smarthome.inbox" })
-public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
+public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent>
+        implements InboxListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,39 +69,71 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @Override
     public void receiveTypedEvent(ThingStatusInfoChangedEvent event) {
         if (autoIgnore) {
-            if (ThingStatus.ONLINE.equals(event.getStatusInfo().getStatus())) {
-                checkAndIgnoreInInbox(event);
-            } else if (ThingStatus.REMOVING.equals(event.getStatusInfo().getStatus())) {
-                removePossiblyIgnoredResultInInbox(event);
+            Thing thing = thingRegistry.get(event.getThingUID());
+            ThingStatus thingStatus = event.getStatusInfo().getStatus();
+            autoIgnore(thing, thingStatus);
+        }
+    }
+
+    @Override
+    public void thingAdded(Inbox inbox, DiscoveryResult result) {
+        if (autoIgnore) {
+            String value = getRepresentationValue(result);
+            if (value != null) {
+                Thing thing = thingRegistry.stream()
+                        .filter(t -> value.equals(getRepresentationPropertyValueForThing(t))).findFirst().orElse(null);
+                if (thing != null) {
+                    logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
+                    inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
+                }
             }
         }
     }
 
-    private void checkAndIgnoreInInbox(ThingStatusInfoChangedEvent event) {
-        Thing thing = thingRegistry.get(event.getThingUID());
+    private String getRepresentationValue(DiscoveryResult result) {
+        return result.getRepresentationProperty() != null
+                ? (String) result.getProperties().get(result.getRepresentationProperty()) : null;
+    }
+
+    @Override
+    public void thingUpdated(Inbox inbox, DiscoveryResult result) {
+    }
+
+    @Override
+    public void thingRemoved(Inbox inbox, DiscoveryResult result) {
+    }
+
+    private void autoIgnore(Thing thing, ThingStatus thingStatus) {
+        if (ThingStatus.ONLINE.equals(thingStatus)) {
+            checkAndIgnoreInInbox(thing);
+        } else if (ThingStatus.REMOVING.equals(thingStatus)) {
+            removePossiblyIgnoredResultInInbox(thing);
+        }
+    }
+
+    private void checkAndIgnoreInInbox(Thing thing) {
         if (thing != null) {
-            String deviceUid = getRepresentationPropertyValueForThing(thing);
-            if (deviceUid != null) {
-                ignoreInInbox(deviceUid);
+            String representationValue = getRepresentationPropertyValueForThing(thing);
+            if (representationValue != null) {
+                ignoreInInbox(representationValue);
             }
         }
     }
 
-    private void ignoreInInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(deviceUid))
+    private void ignoreInInbox(String representationValue) {
+        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
                 .collect(Collectors.toList());
         if (results.size() == 1) {
-            logger.debug("Auto-ignoring the inbox entry for the device uid {}", deviceUid);
+            logger.debug("Auto-ignoring the inbox entry for the representation value {}", representationValue);
             inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
         }
     }
 
-    private void removePossiblyIgnoredResultInInbox(ThingStatusInfoChangedEvent event) {
-        Thing thing = thingRegistry.get(event.getThingUID());
+    private void removePossiblyIgnoredResultInInbox(Thing thing) {
         if (thing != null) {
-            String deviceUid = getRepresentationPropertyValueForThing(thing);
-            if (deviceUid != null) {
-                removeFromInbox(deviceUid);
+            String representationValue = getRepresentationPropertyValueForThing(thing);
+            if (representationValue != null) {
+                removeFromInbox(representationValue);
             }
         }
     }
@@ -109,11 +143,12 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         return thing.getProperties().get(thingType.getRepresentationProperty());
     }
 
-    private void removeFromInbox(String deviceUid) {
-        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(deviceUid))
+    private void removeFromInbox(String representationValue) {
+        List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
                 .filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         if (results.size() == 1) {
-            logger.debug("Removing the ignored result from the inbox for the device uid {}", deviceUid);
+            logger.debug("Removing the ignored result from the inbox for the representation value {}",
+                    representationValue);
             inbox.remove(results.get(0).getThingUID());
         }
     }
@@ -121,7 +156,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @Activate
     protected void activate(Map<String, Object> properties) {
         if (properties != null) {
-            String value = (String) properties.get("autoIgnore");
+            Object value = properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");
         }
     }
@@ -147,9 +182,11 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @Reference
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
+        inbox.addInboxListener(this);
     }
 
     protected void unsetInbox(Inbox inbox) {
+        inbox.removeInboxListener(this);
         this.inbox = null;
     }
 }

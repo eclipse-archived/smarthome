@@ -7,10 +7,10 @@
 
     <config-description uri="system:inbox">
         <parameter name="autoIgnore" type="boolean" required="true">
-            <label>Auto Ignore Inbox Results</label>
+            <label>Auto Ignore</label>
             <description><![CDATA[
-                <p>If enabled, an inbox result matching a created thing are automatically ignored.</p>
-                <p>If set to false, the inbox may contain results although an identical thing is already created (manually).</p>
+                <p>If enabled, an inbox result matching an existing thing is automatically ignored.</p>
+                <p>If set to false, the inbox may contain results although identical things already exist.</p>
             ]]>
             </description>
             <default>true</default>

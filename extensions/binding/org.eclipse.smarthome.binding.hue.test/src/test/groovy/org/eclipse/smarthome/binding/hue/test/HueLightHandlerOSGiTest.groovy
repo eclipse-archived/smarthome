@@ -48,7 +48,7 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
- * @author Andre Fuechsel - modified tests after introducing the generic thing types, added test for device id
+ * @author Andre Fuechsel - modified tests after introducing the generic thing types
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
@@ -64,7 +64,6 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
     final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
 
-    def SW_VERSION = "5.23.1.13452"
     def UNIQUE_ID = "00:17:88:01:00:e1:88:29-0b"
 
     ThingRegistry thingRegistry

@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.forThingUID;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -54,7 +54,6 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -75,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added automated removing of entries
  * @author Michael Grammling - Added dynamic configuration updates
  * @author Dennis Nobel - Added persistence support
- * @author Andre Fuechsel - Added removeOlderResults, added support for deviceId
+ * @author Andre Fuechsel - Added removeOlderResults
  * @author Christoph Knauf - Added removeThingsForBridge and getPropsAndConfigParams
  *
  */
@@ -166,7 +165,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
         if (result != null) {
             ThingUID thingUID = result.getThingUID();
-            Thing thing = getExistingThingForDiscoveryResult(result);
+            Thing thing = this.thingRegistry.get(thingUID);
 
             if (thing == null) {
                 DiscoveryResult inboxResult = get(thingUID);
@@ -204,40 +203,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
 
         return false;
-    }
-
-    /**
-     * Returns an already existing thing in the registry, that represents
-     * the {@link DiscoveryResult}. This thing either has the same UID as the
-     * {@link DiscoveryResult} or the device id of the thing's handler is equal
-     * to the value of the representation property of the {@link DiscoveryResult}.
-     *
-     * @see DiscoveryResult#getRepresentationProperty()
-     * @see ThingHandler#getUniqueIdentifier()
-     *
-     * @param result the {@link DiscoveryResult} that is to be checked
-     * @return either the thing found or {@code null}
-     */
-    private Thing getExistingThingForDiscoveryResult(DiscoveryResult result) {
-        Thing thing = this.thingRegistry.get(result.getThingUID());
-        if (thing != null) {
-            // thing with same UID is already in registry
-            return thing;
-        }
-
-        // check, if there is a thing with the same representation property
-        String value = getRepresentationValue(result);
-        if (value != null) {
-            return thingRegistry.stream().filter(t -> value.equals(getRepresentationPropertyValueForThing(t)))
-                    .findFirst().orElse(null);
-        }
-
-        return null;
-    }
-
-    private String getRepresentationPropertyValueForThing(Thing thing) {
-        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
-        return thing.getProperties().get(thingType.getRepresentationProperty());
     }
 
     private boolean synchronizeConfiguration(ThingTypeUID thingTypeUID, Map<String, Object> properties,
@@ -584,11 +549,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             thingRegistry.remove(thingUID);
         }
         thingRegistry.add(thing);
-    }
-
-    private String getRepresentationValue(DiscoveryResult result) {
-        return result.getRepresentationProperty() != null
-                ? (String) result.getProperties().get(result.getRepresentationProperty()) : null;
     }
 
     protected void activate(ComponentContext componentContext) {
