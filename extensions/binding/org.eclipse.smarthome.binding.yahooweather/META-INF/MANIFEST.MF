@@ -27,3 +27,5 @@ Import-Package:
  tec.uom.lib.common.function,
  tec.uom.se.unit,
  org.slf4j
+Service-Component: OSGI-INF/*.xml
+
