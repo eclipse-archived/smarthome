@@ -13,8 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -60,20 +60,10 @@ class HttpClient {
             }
 
             InputStream in = new BufferedInputStream(conn.getInputStream());
-            String output = convertStreamToString(in);
+            String output = IOUtils.toString(in);
             return new Result(output, conn.getResponseCode());
         } finally {
             conn.disconnect();
-        }
-    }
-
-    private static String convertStreamToString(InputStream is) {
-        try (final Scanner scanner = new Scanner(is)) {
-            try {
-                return scanner.useDelimiter("\\A").next();
-            } catch (NoSuchElementException ex) {
-                return "";
-            }
         }
     }
 
