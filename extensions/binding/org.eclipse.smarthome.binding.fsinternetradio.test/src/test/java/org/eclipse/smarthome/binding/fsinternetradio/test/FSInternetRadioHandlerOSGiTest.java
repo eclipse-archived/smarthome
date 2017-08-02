@@ -835,7 +835,9 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
                 break;
         }
 
-        itemRegistry.add(item);
+        if (item != null) {
+            itemRegistry.add(item);
+        }
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
         try {
             Thread.sleep(WAIT_ITEM_CHANNEL_LINK_TO_BE_ADDED);

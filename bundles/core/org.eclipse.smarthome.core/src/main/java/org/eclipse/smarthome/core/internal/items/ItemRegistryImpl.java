@@ -69,8 +69,13 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             throw new ItemNotUniqueException(name, items);
         }
 
-        return items.iterator().next();
+        Item item = items.iterator().next();
 
+        if (item == null) {
+            throw new ItemNotFoundException(name);
+        } else {
+            return item;
+        }
     }
 
     @Override
@@ -107,13 +112,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void addToGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
-            try {
-                Item groupItem = getItem(groupName);
-                if (groupItem instanceof GroupItem) {
-                    ((GroupItem) groupItem).addMember(item);
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).addMember(item);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
                 }
-            } catch (ItemNotFoundException e) {
-                // the group might not yet be registered, let's ignore this
             }
         }
     }
@@ -166,13 +173,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void removeFromGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
-            try {
-                Item groupItem = getItem(groupName);
-                if (groupItem instanceof GroupItem) {
-                    ((GroupItem) groupItem).removeMember(item);
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).removeMember(item);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
                 }
-            } catch (ItemNotFoundException e) {
-                // the group might not yet be registered, let's ignore this
             }
         }
     }

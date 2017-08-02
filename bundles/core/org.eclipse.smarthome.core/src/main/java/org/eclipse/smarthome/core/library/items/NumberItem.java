@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -41,7 +42,7 @@ public class NumberItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public NumberItem(String name) {
+    public NumberItem(@NonNull String name) {
         super(CoreItemFactory.NUMBER, name);
     }
 

@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
@@ -1087,7 +1087,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         return statusMap.get(rUID);
     }
 
-    protected synchronized String getUniqueId() {
+    protected synchronized @NonNull String getUniqueId() {
         int result = 0;
         if (rules != null) {
             Set<String> col = rules.keySet();

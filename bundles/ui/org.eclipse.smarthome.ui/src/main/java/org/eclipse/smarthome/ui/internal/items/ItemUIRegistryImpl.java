@@ -23,6 +23,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -612,8 +613,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (!(widget instanceof Default)) {
             return widget;
         } else {
-            if (widget.getItem() != null) {
-                Item item = itemRegistry.get(widget.getItem());
+            String itemName = widget.getItem();
+            if (itemName != null) {
+                Item item = itemRegistry.get(itemName);
                 if (item != null) {
                     Widget defaultWidget = getDefaultWidget(item.getClass(), item.getName());
                     if (defaultWidget != null) {
@@ -648,18 +650,22 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         EList<Widget> children = new BasicEList<Widget>();
         String itemName = group.getItem();
         try {
-            Item item = getItem(itemName);
-            if (item instanceof GroupItem) {
-                GroupItem groupItem = (GroupItem) item;
-                for (Item member : groupItem.getMembers()) {
-                    Widget widget = getDefaultWidget(member.getClass(), member.getName());
-                    if (widget != null) {
-                        widget.setItem(member.getName());
-                        children.add(widget);
+            if (itemName != null) {
+                Item item = getItem(itemName);
+                if (item instanceof GroupItem) {
+                    GroupItem groupItem = (GroupItem) item;
+                    for (Item member : groupItem.getMembers()) {
+                        Widget widget = getDefaultWidget(member.getClass(), member.getName());
+                        if (widget != null) {
+                            widget.setItem(member.getName());
+                            children.add(widget);
+                        }
                     }
+                } else {
+                    logger.warn("Item '{}' is not a group.", item.getName());
                 }
             } else {
-                logger.warn("Item '{}' is not a group.", item.getName());
+                logger.warn("Group does not specify an associated item - ignoring it.");
             }
         } catch (ItemNotFoundException e) {
             logger.warn("Group '{}' could not be found.", group.getLabel(), e);
@@ -668,7 +674,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     }
 
-    private Class<? extends Item> getItemType(String itemName) {
+    private Class<? extends Item> getItemType(@NonNull String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             return item.getClass();
@@ -687,7 +693,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    public String getItemCategory(String itemName) {
+    public String getItemCategory(@NonNull String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             return item.getCategory();
@@ -701,7 +707,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemRegistry != null) {
             return itemRegistry.getItem(name);
         } else {
-            return null;
+            throw new ItemNotFoundException(name);
         }
     }
 
@@ -710,10 +716,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemRegistry != null) {
             return itemRegistry.getItemByPattern(name);
         } else {
-            return null;
+            throw new ItemNotFoundException(name);
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems() {
         if (itemRegistry != null) {
@@ -723,6 +730,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsOfType(String type) {
         if (itemRegistry != null) {
@@ -732,6 +740,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems(String pattern) {
         if (itemRegistry != null) {
@@ -943,13 +952,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     continue;
                 }
 
-                // If there's an item defined here, get it's state
-                if (color.getItem() != null) {
+                // If there's an item defined here, get its state
+                String itemName = color.getItem();
+                if (itemName != null) {
                     // Try and find the item to test.
                     // If it's not found, return visible
                     Item item;
                     try {
-                        item = itemRegistry.getItem(color.getItem());
+                        item = itemRegistry.getItem(itemName);
 
                         // Get the item state
                         cmpState = item.getState();
@@ -1010,7 +1020,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         logger.debug("Checking visiblity for widget '{}'.", w.getLabel());
 
         for (VisibilityRule rule : w.getVisibility()) {
-            if (rule.getItem() == null) {
+            String itemName = rule.getItem();
+            if (itemName == null) {
                 continue;
             }
             if (rule.getState() == null) {
@@ -1021,7 +1032,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             // If it's not found, return visible
             Item item;
             try {
-                item = itemRegistry.getItem(rule.getItem());
+                item = itemRegistry.getItem(itemName);
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(),
                         w.eClass().getInstanceTypeName());
@@ -1085,6 +1096,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
         if (itemRegistry != null) {
@@ -1094,6 +1106,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTagAndType(String type, String... tags) {
         if (itemRegistry != null) {
@@ -1103,6 +1116,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         if (itemRegistry != null) {
