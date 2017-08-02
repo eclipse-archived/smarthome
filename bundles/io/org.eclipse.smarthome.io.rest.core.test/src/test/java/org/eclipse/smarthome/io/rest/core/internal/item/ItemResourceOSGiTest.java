@@ -87,25 +87,25 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         item2.addTag("Tag2");
         item3.addTag("Tag2");
 
-        Response response = itemResource.getItems(null, null, "Tag1", false, null);
+        Response response = itemResource.getItems(null, null, "Tag1", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, null, "Tag2", false, null);
+        response = itemResource.getItems(null, null, "Tag2", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME2, ITEM_NAME3));
 
-        response = itemResource.getItems(null, null, "NotExistingTag", false, null);
+        response = itemResource.getItems(null, null, "NotExistingTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
     @Test
     public void shouldFilterItemsByType() throws Exception {
-        Response response = itemResource.getItems(null, "Switch", null, false, null);
+        Response response = itemResource.getItems(null, "Switch", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, "Dimmer", null, false, null);
+        response = itemResource.getItems(null, "Dimmer", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME3));
 
-        response = itemResource.getItems(null, "Color", null, false, null);
+        response = itemResource.getItems(null, "Color", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
@@ -113,15 +113,15 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     public void shouldAddAndRemoveTags() throws Exception {
         managedItemProvider.add(new SwitchItem("Switch"));
 
-        Response response = itemResource.getItems(null, null, "MyTag", false, null);
+        Response response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
 
         itemResource.addTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false, null);
+        response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(1));
 
         itemResource.removeTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false, null);
+        response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
@@ -130,7 +130,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         JsonParser parser = new JsonParser();
         managedItemProvider.add(new SwitchItem("Switch"));
         itemResource.addTag("Switch", "MyTag");
-        Response response = itemResource.getItems(null, null, "MyTag", false, "type,name");
+        Response response = itemResource.getItems(null, null, "MyTag", null, false, "type,name");
 
         JsonElement result = parser.parse(IOUtils.toString((InputStream) response.getEntity()));
         JsonElement expected = parser.parse("[{type: \"Switch\", name: \"Switch\"}]");
