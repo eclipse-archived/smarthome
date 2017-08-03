@@ -41,12 +41,12 @@ import com.google.gson.JsonParser;
 public class TradfriDiscoveryServiceTest {
 
     @Mock
-    TradfriGatewayHandler handler;
+    private TradfriGatewayHandler handler;
 
-    DiscoveryListener listener;
-    DiscoveryResult discoveryResult;
+    private DiscoveryListener listener;
+    private DiscoveryResult discoveryResult;
 
-    TradfriDiscoveryService discovery;
+    private TradfriDiscoveryService discovery;
 
     @Before
     public void setUp() {
@@ -88,7 +88,6 @@ public class TradfriDiscoveryServiceTest {
 
     @Test
     public void validDiscoveryResult() {
-
         String json = "{\"9054\":0,\"9001\":\"LR\",\"5750\":2,\"9002\":1490983446,\"9020\":1491055861,\"9003\":65537,\"9019\":1,\"3\":{\"1\":\"TRADFRI bulb E27 WS opal 980lm\",\"0\":\"IKEA of Sweden\",\"2\":\"\",\"3\":\"1.1.1.1-5.7.2.0\",\"6\":1},\"3311\":[{\"5850\":1,\"5851\":254,\"5707\":0,\"5708\":0,\"5709\":33135,\"5710\":27211,\"9003\":0,\"5711\":0,\"5706\":\"efd275\"}]}";
         JsonObject data = new JsonParser().parse(json).getAsJsonObject();
 
