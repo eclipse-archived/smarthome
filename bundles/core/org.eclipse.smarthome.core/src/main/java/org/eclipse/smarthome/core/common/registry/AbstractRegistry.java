@@ -186,6 +186,18 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     }
 
     @Override
+    public E get(K key) {
+        for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            for (final E element : entry.getValue()) {
+                if (key.equals(element.getUID())) {
+                    return element;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public E add(E element) {
         if (this.managedProvider != null) {
             this.managedProvider.add(element);
