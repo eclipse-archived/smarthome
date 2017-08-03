@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -295,6 +296,11 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
             return new BaseThingHandler(thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
                 }
             };
         }

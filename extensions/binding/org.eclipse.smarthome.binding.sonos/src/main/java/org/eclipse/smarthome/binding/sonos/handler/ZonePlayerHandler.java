@@ -216,8 +216,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             if (this.notificationTimeout == null) {
                 this.notificationTimeout = DEFAULT_NOTIFICATION_TIMEOUT;
             }
-
-            super.initialize();
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
@@ -1706,7 +1704,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {
