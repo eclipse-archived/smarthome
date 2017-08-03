@@ -13,6 +13,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -101,11 +102,21 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
                 }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
+                }
             };
         } else {
             return new BaseThingHandler(thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
                 }
             };
         }

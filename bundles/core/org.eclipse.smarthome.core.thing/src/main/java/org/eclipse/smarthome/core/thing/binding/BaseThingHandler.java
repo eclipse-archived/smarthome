@@ -178,11 +178,12 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
+    @Deprecated
     public void initialize() {
-        // can be overridden by subclasses
-        // standard behavior is to set the thing to ONLINE,
-        // assuming no further initialization is necessary.
+        // should be overridden by subclasses!
         updateStatus(ThingStatus.ONLINE);
+        logger.warn(
+                "BaseThingHandler.initialize() will be removed soon, ThingStatus can be set manually via updateStatus(ThingStatus.ONLINE)");
     }
 
     @Override
