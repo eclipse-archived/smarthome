@@ -85,6 +85,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private final static String QUEUE_URI = "x-rincon-queue:";
     private final static String GROUP_URI = "x-rincon:";
     private final static String STREAM_URI = "x-sonosapi-stream:";
+    private final static String RADIO_URI = "x-sonosapi-radio:";
     private final static String FILE_URI = "x-file-cifs:";
     private final static String SPDIF = ":spdif";
 
@@ -987,7 +988,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
         }
 
-        else if (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi")) {
+        else if (isPlayingRadio(currentURI)
+                || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
+            // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
             if (currentTrack != null) {
                 artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
                         : currentTrack.getCreator();
@@ -1253,8 +1256,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             if (currentURI != null) {
 
-                if (isPlayingStream(currentURI)) {
-                    // we are streaming music
+                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
+                    // we are streaming music, like tune-in radio or Google Play Music radio
                     SonosMetaData track = getTrackMetadata();
                     SonosMetaData current = getCurrentURIMetadata();
                     if (track != null && current != null) {
@@ -2205,7 +2208,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 String currentURI = coordinator.getCurrentURI();
 
-                if (isPlayingStream(currentURI)) {
+                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
                     handleRadioStream(currentURI, notificationURL, coordinator);
                 } else if (isPlayingLineIn(currentURI)) {
                     handleLineIn(currentURI, notificationURL, coordinator);
@@ -2240,6 +2243,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return false;
         }
         return currentURI.contains(STREAM_URI);
+    }
+
+    private boolean isPlayingRadio(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
+        return currentURI.contains(RADIO_URI);
     }
 
     private boolean isPlayingLineIn(String currentURI) {
