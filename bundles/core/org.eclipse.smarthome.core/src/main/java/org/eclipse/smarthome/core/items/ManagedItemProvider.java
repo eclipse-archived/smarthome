@@ -161,11 +161,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     }
 
     @Override
-    protected String getKey(Item element) {
-        return element.getName();
-    }
-
-    @Override
     protected String getStorageName() {
         return Item.class.getName();
     }
