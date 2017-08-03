@@ -67,7 +67,7 @@ public abstract class AbstractSensorJobExecutor {
                 sensorJob.execute(dSAPI, connectionManager.getSessionToken());
             }
             if (circuit.noMoreJobs()) {
-                logger.debug("no more jobs... stop circuit schedduler with id = " + circuit.getMeterDSID().toString());
+                logger.debug("no more jobs... stop circuit schedduler with id = {}", circuit.getMeterDSID());
                 pollingSchedulers.get(circuit.getMeterDSID()).cancel(true);
             }
         }

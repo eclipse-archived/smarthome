@@ -51,7 +51,7 @@ public class DeviceOutputValueSensorJob implements SensorJob {
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
         int value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, index);
-        logger.debug("Device output value on Demand : " + value + ", dSID: " + this.device.getDSID().getValue());
+        logger.debug("Device output value on Demand : {}, dSID: {}", value, this.device.getDSID().getValue());
 
         if (value != 1) {
             switch (this.index) {
@@ -65,8 +65,8 @@ public class DeviceOutputValueSensorJob implements SensorJob {
                     if (device.isBlind()) {
                         value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null,
                                 DeviceConstants.DEVICE_SENSOR_SLAT_ANGLE_OUTPUT);
-                        logger.debug("Device angle output value on Demand : " + value + ", dSID: "
-                                + this.device.getDSID().getValue());
+                        logger.debug("Device angle output value on Demand : {}, dSID: {}", value,
+                                this.device.getDSID().getValue());
                         if (value != 1) {
                             this.device.updateInternalDeviceState(
                                     new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, value));

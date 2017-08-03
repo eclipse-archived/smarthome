@@ -166,29 +166,29 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
                             NodeList deviceIndex = element.getElementsByTagName("DeviceIndex");
                             Element line = (Element) deviceIndex.item(0);
-                            logger.trace("DeviceIndex: " + getCharacterDataFromElement(line));
+                            logger.trace("DeviceIndex: {}", getCharacterDataFromElement(line));
 
                             NodeList deviceID = element.getElementsByTagName("DeviceID");
                             line = (Element) deviceID.item(0);
                             String endDeviceID = getCharacterDataFromElement(line);
-                            logger.trace("DeviceID: " + endDeviceID);
+                            logger.trace("DeviceID: {}", endDeviceID);
 
                             NodeList friendlyName = element.getElementsByTagName("FriendlyName");
                             line = (Element) friendlyName.item(0);
                             String endDeviceName = getCharacterDataFromElement(line);
-                            logger.trace("FriendlyName: " + endDeviceName);
+                            logger.trace("FriendlyName: {}", endDeviceName);
 
                             NodeList vendor = element.getElementsByTagName("Manufacturer");
                             line = (Element) vendor.item(0);
                             String endDeviceVendor = getCharacterDataFromElement(line);
-                            logger.trace("Manufacturer: " + endDeviceVendor);
+                            logger.trace("Manufacturer: {}", endDeviceVendor);
 
                             NodeList model = element.getElementsByTagName("ModelCode");
                             line = (Element) model.item(0);
                             String endDeviceModelID = getCharacterDataFromElement(line);
                             endDeviceModelID = endDeviceModelID.replaceAll(NORMALIZE_ID_REGEX, "_");
 
-                            logger.trace("ModelCode: " + endDeviceModelID);
+                            logger.trace("ModelCode: {}", endDeviceModelID);
 
                             if (SUPPORTED_THING_TYPES.contains(new ThingTypeUID(BINDING_ID, endDeviceModelID))) {
                                 logger.debug("Discovered a WeMo LED Light thing with ID '{}'", endDeviceID);
@@ -213,11 +213,11 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
                             } else {
                                 logger.debug("Discovered an unsupported device :");
-                                logger.debug("DeviceIndex : " + getCharacterDataFromElement(line));
-                                logger.debug("DeviceID    : " + endDeviceID);
-                                logger.debug("FriendlyName: " + endDeviceName);
-                                logger.debug("Manufacturer: " + endDeviceVendor);
-                                logger.debug("ModelCode   : " + endDeviceModelID);
+                                logger.debug("DeviceIndex : {}", getCharacterDataFromElement(line));
+                                logger.debug("DeviceID    : {}", endDeviceID);
+                                logger.debug("FriendlyName: {}", endDeviceName);
+                                logger.debug("Manufacturer: {}", endDeviceVendor);
+                                logger.debug("ModelCode   : {}", endDeviceModelID);
                             }
 
                         }

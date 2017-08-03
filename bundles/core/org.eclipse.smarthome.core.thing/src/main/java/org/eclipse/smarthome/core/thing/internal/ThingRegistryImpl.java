@@ -224,8 +224,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the ThingTracker '" + thingTracker + "' about the '" + event.name()
-                        + "' event!", ex);
+                logger.error("Could not inform the ThingTracker '{}' about the '{}' event!", thingTracker, event.name(),
+                        ex);
             }
         }
     }

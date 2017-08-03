@@ -60,10 +60,10 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
             Object rightValue = getRightOperandValue(rightOperandString, toCompare);
             if (rightValue == null) {
                 if (leftObj != null) {
-                    logger.info("unsupported type for compare condition: " + leftObj.getClass());
+                    logger.info("unsupported type for compare condition: {}", leftObj.getClass());
                 } else {
-                    logger.info("unsupported type for compare condition: null ("
-                            + module.getInputs().get(INPUT_LEFT_FIELD) + ")");
+                    logger.info("unsupported type for compare condition: null ({})",
+                            module.getInputs().get(INPUT_LEFT_FIELD));
                 }
                 return false;
             }

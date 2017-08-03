@@ -324,12 +324,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     localReader.validateItemType(item.getType(), config);
                     localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config);
                 } catch (BindingConfigParseException e) {
-                    logger.error("Binding configuration of type '" + bindingType + "' of item '" + item.getName()
-                            + "' could not be parsed correctly.", e);
+                    logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
+                            bindingType, item.getName(), e);
                 } catch (Exception e) {
                     // Catch badly behaving binding exceptions and continue processing
-                    logger.error("Binding configuration of type '" + bindingType + "' of item '" + item.getName()
-                            + "' could not be parsed correctly.", e);
+                    logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
+                            bindingType, item.getName(), e);
                 }
             } else {
                 logger.trace("Couldn't find config reader for binding type '{}' > "

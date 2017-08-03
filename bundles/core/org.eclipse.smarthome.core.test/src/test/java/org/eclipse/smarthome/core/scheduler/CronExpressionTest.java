@@ -115,11 +115,11 @@ public class CronExpressionTest {
                 if (nextDate == null) {
                     final String msg = String.format("Cannot find a time after '%s' for expression '%s'",
                             sdf.format(curDate), cronExpression.getExpression());
-                    logger.error(msg);
+                    logger.error("{}", msg);
                     Assert.fail(msg);
                 } else {
                     if (trace) {
-                        logger.info("Got: " + sdf.format(nextDate));
+                        logger.info("Got: {}", sdf.format(nextDate));
                     }
                 }
 

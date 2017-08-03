@@ -337,12 +337,12 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                             NodeList deviceIndex = element.getElementsByTagName("name");
                             Element line = (Element) deviceIndex.item(0);
                             String attributeName = getCharacterDataFromElement(line);
-                            logger.trace("attributeName: " + attributeName);
+                            logger.trace("attributeName: {}", attributeName);
 
                             NodeList deviceID = element.getElementsByTagName("value");
                             line = (Element) deviceID.item(0);
                             String attributeValue = getCharacterDataFromElement(line);
-                            logger.trace("attributeValue: " + attributeValue);
+                            logger.trace("attributeValue: {}", attributeValue);
 
                             switch (attributeName) {
                                 case "Mode":

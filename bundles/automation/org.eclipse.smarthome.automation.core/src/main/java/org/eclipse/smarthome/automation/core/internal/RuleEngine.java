@@ -694,7 +694,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             if (status == RuleStatus.DISABLED) {
                 setRule(runtimeRule);
             } else {
-                logger.debug("The rule rId = " + rUID + " is already enabled.");
+                logger.debug("The rule rId = {} is already enabled.", rUID);
             }
         } else {
             unregister(runtimeRule);
@@ -1133,7 +1133,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 if (value instanceof Number) {
                     scheduleReinitializationDelay = ((Number) value).longValue();
                 } else {
-                    logger.error("Invalid configuration value: " + value + "It MUST be Number.");
+                    logger.error("Invalid configuration value: {}. It MUST be Number.", value);
                 }
             } else {
                 scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;

@@ -289,8 +289,8 @@ public class SceneDiscovery {
                                                         if (resultJsonObj
                                                                 .get(JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
                                                                         .getKey()) instanceof JsonArray) {
-                                                            JsonArray scenes = (JsonArray) resultJsonObj.get(
-                                                                    JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
+                                                            JsonArray scenes = (JsonArray) resultJsonObj
+                                                                    .get(JSONApiResponseKeysEnum.ZONE_GET_REACHABLE_SCENES
                                                                             .getKey());
                                                             if (scenes != null) {
                                                                 for (int i = 0; i < scenes.size(); i++) {
@@ -391,15 +391,16 @@ public class SceneDiscovery {
                 if (!isStandardScene(scene.getSceneID())) {
                     if (this.discovery != null) {
                         this.discovery.onSceneAdded(scene);
-                        logger.debug("Inform scene discovery about added scene with id: " + scene.getID());
+                        logger.debug("Inform scene discovery about added scene with id: {}", scene.getID());
                     } else {
-                        logger.debug("Can't inform scene discovery about added scene with id: " + scene.getID()
-                                + " because scene discovery is disabled");
+                        logger.debug(
+                                "Can't inform scene discovery about added scene with id: {} because scene discovery is disabled",
+                                scene.getID());
                     }
                 }
                 this.sceneManager.addInternalScene(scene);
             } else {
-                logger.error("Added scene with id: " + scene.getID() + " is a not usage scene!");
+                logger.error("Added scene with id: {} is a not usage scene!", scene.getID());
             }
         }
     }

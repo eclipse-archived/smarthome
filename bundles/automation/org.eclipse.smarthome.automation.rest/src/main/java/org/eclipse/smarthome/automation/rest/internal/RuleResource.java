@@ -133,12 +133,12 @@ public class RuleResource implements RESTResource {
 
         } catch (IllegalArgumentException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
-            logger.warn(errMessage);
+            logger.warn("{}", errMessage);
             return JSONResponse.createErrorResponse(Status.CONFLICT, errMessage);
 
         } catch (RuntimeException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
-            logger.warn(errMessage);
+            logger.warn("{}", errMessage);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, errMessage);
         }
     }

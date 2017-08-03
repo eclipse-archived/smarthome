@@ -50,8 +50,8 @@ public class SceneConfigReadingJob implements SensorJob {
 
         if (sceneConfig != null) {
             device.addSceneConfig(sceneID, sceneConfig);
-            logger.debug("UPDATED scene configuration for dSID: " + this.device.getDSID() + ", sceneID: " + sceneID
-                    + ", configuration: " + sceneConfig.toString());
+            logger.debug("UPDATED scene configuration for dSID: {}, sceneID: {}, configuration: {}",
+                    this.device.getDSID(), sceneID, sceneConfig);
         }
     }
 

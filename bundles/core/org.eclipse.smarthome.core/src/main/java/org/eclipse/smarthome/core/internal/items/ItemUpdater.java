@@ -69,8 +69,8 @@ public class ItemUpdater extends AbstractItemEventSubscriber {
                 if (isAccepted) {
                     item.setState(newState);
                 } else {
-                    logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
-                            + ") for item " + itemName);
+                    logger.debug("Received update of a not accepted type ({}) for item {}",
+                            newState.getClass().getSimpleName(), itemName);
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("Received update for non-existing item: {}", e.getMessage());

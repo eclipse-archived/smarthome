@@ -416,8 +416,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         label = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
                                 + "]";
                     } catch (TransformationException e) {
-                        logger.error("transformation throws exception [transformation=" + transformation + ", value="
-                                + value + "]", e);
+                        logger.error("transformation throws exception [transformation={}, value={}]", transformation,
+                                value, e);
                         label = label.substring(0, label.indexOf("[") + 1) + value + "]";
                     }
                 } else {
@@ -814,7 +814,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         break;
                 }
             } catch (NumberFormatException e) {
-                logger.debug("matchStateToValue: Decimal format exception: " + e);
+                logger.debug("matchStateToValue: Decimal format exception: ", e);
             }
         } else if (state instanceof DateTimeType) {
             Calendar val = ((DateTimeType) state).getCalendar();
@@ -856,7 +856,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         break;
                 }
             } catch (NumberFormatException e) {
-                logger.debug("matchStateToValue: Decimal format exception: " + e);
+                logger.debug("matchStateToValue: Decimal format exception: ", e);
             }
         } else {
             // Strings only allow = and !=
