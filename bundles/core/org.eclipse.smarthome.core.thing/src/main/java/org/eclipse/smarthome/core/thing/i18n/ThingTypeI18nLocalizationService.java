@@ -68,12 +68,12 @@ public class ThingTypeI18nLocalizationService {
         if (thingType instanceof BridgeType) {
             final BridgeType bridgeType = (BridgeType) thingType;
             return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                    thingType.getProperties(), bridgeType.getConfigDescriptionURI());
+                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    localizedChannelGroupDefinitions, thingType.getProperties(), bridgeType.getConfigDescriptionURI());
         } else {
             return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                    thingType.getProperties(), thingType.getConfigDescriptionURI());
+                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    localizedChannelGroupDefinitions, thingType.getProperties(), thingType.getConfigDescriptionURI());
         }
     }
 

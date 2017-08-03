@@ -80,6 +80,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private boolean lastBridgeConnectionState = false;
 
+    private boolean propertiesInitializedSuccessfully = false;
+
     private List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
 
     private ScheduledFuture<?> pollingJob;
@@ -123,14 +125,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                                     logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
                                 }
                             }
-                        }
-
-                        final Config config = fullConfig.getConfig();
-                        if (config != null) {
-                            Map<String, String> properties = editProperties();
-                            properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
-                            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
-                            updateProperties(properties);
                         }
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
@@ -273,9 +267,24 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      * This method is called whenever the connection to the given {@link HueBridge} is resumed.
      *
      * @param bridge the hue bridge the connection is resumed to
+     * @throws ApiException if the physical device does not support this API call
+     * @throws IOException if the physical device could not be reached
      */
-    public void onConnectionResumed(HueBridge bridge) {
+    private void onConnectionResumed(HueBridge bridge) throws IOException, ApiException {
         logger.debug("Bridge connection resumed. Updating thing status to ONLINE.");
+
+        if (!propertiesInitializedSuccessfully) {
+            FullConfig fullConfig = bridge.getFullConfig();
+            Config config = fullConfig.getConfig();
+            if (config != null) {
+                Map<String, String> properties = editProperties();
+                properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress().replaceAll(":", "").toLowerCase());
+                properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                updateProperties(properties);
+                propertiesInitializedSuccessfully = true;
+            }
+        }
+
         updateStatus(ThingStatus.ONLINE);
     }
 
@@ -283,8 +292,10 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      * Check USER_NAME config for null. Call onConnectionResumed() otherwise.
      *
      * @return True if USER_NAME was not null.
+     * @throws ApiException if the physical device does not support this API call
+     * @throws IOException if the physical device could not be reached
      */
-    private boolean tryResumeBridgeConnection() {
+    private boolean tryResumeBridgeConnection() throws IOException, ApiException {
         logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
         if (getConfig().get(USER_NAME) == null) {
             logger.warn("User name for Hue bridge authentication not available in configuration. "

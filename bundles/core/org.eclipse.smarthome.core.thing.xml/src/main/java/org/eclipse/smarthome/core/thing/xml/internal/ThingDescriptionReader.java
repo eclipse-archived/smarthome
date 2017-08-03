@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.List;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
+
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -101,6 +103,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("criteria", FilterCriteria.class);
         xstream.alias("properties", NodeList.class);
         xstream.alias("property", NodeValue.class);
+        xstream.alias("representation-property", NodeValue.class);
     }
 
 }

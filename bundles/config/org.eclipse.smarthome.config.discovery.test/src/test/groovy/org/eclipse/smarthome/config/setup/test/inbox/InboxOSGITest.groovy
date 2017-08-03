@@ -98,10 +98,26 @@ class InboxOSGITest extends OSGiTest {
     ]
     final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).withLabel(discoveryResultLabel).build()
     final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
-    final ConfigDescriptionParameter[] configDescriptionParameter = [[discoveryResultProperties.keySet().getAt(0), Type.TEXT], [discoveryResultProperties.keySet().getAt(1), Type.INTEGER]]
+    final ConfigDescriptionParameter[] configDescriptionParameter = [
+        [
+            discoveryResultProperties.keySet().getAt(0),
+            Type.TEXT
+        ],
+        [
+            discoveryResultProperties.keySet().getAt(1),
+            Type.INTEGER
+        ]
+    ]
     final ConfigDescription testConfigDescription  = new ConfigDescription(testURI, Arrays.asList(configDescriptionParameter))
-    final String[] keysInConfigDescription = [discoveryResultProperties.keySet().getAt(0), discoveryResultProperties.keySet().getAt(1)]
-    final String[] keysNotInConfigDescription = [discoveryResultProperties.keySet().getAt(2), discoveryResultProperties.keySet().getAt(3), discoveryResultProperties.keySet().getAt(4)]
+    final String[] keysInConfigDescription = [
+        discoveryResultProperties.keySet().getAt(0),
+        discoveryResultProperties.keySet().getAt(1)
+    ]
+    final String[] keysNotInConfigDescription = [
+        discoveryResultProperties.keySet().getAt(2),
+        discoveryResultProperties.keySet().getAt(3),
+        discoveryResultProperties.keySet().getAt(4)
+    ]
     final Map<ThingUID, DiscoveryResult> discoveryResults = [:]
     final List<InboxListener> inboxListeners = new ArrayList<>()
 
@@ -354,23 +370,46 @@ class InboxOSGITest extends OSGiTest {
         assertThat allDiscoveryResults.size(), is(4)
 
         List<DiscoveryResult> discoveryResults = inbox.get(null)
-        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult2,
+            discoveryResult3,
+            discoveryResult4
+        ], discoveryResults)
 
         // Filter by nothing
         discoveryResults = inbox.get(new InboxFilterCriteria(null, null))
-        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult2,
+            discoveryResult3,
+            discoveryResult4
+        ], discoveryResults)
 
         // Filter by thingType
         discoveryResults = inbox.get(new InboxFilterCriteria(thingTypeUID, null))
-        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult2,
+            discoveryResult4
+        ], discoveryResults)
 
         // Filter by bindingId
         discoveryResults = inbox.get(new InboxFilterCriteria("dummyBindingId", null))
-        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult2,
+            discoveryResult3,
+            discoveryResult4
+        ], discoveryResults)
 
         // Filter by DiscoveryResultFlag
         discoveryResults = inbox.get(new InboxFilterCriteria((String)null, DiscoveryResultFlag.NEW))
-        assertIncludesAll([discoveryResult1, discoveryResult3, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult3,
+            discoveryResult4
+        ], discoveryResults)
 
         // Filter by thingId
         discoveryResults = inbox.get(new InboxFilterCriteria(new ThingUID(thingTypeUID, "dummyThingId4"), null))
@@ -382,7 +421,11 @@ class InboxOSGITest extends OSGiTest {
 
         // Filter by bindingId and DiscoveryResultFlag
         discoveryResults = inbox.get(new InboxFilterCriteria("dummyBindingId", DiscoveryResultFlag.NEW))
-        assertIncludesAll([discoveryResult1, discoveryResult3, discoveryResult4], discoveryResults)
+        assertIncludesAll([
+            discoveryResult1,
+            discoveryResult3,
+            discoveryResult4
+        ], discoveryResults)
     }
 
     @Test
@@ -594,6 +637,26 @@ class InboxOSGITest extends OSGiTest {
         assertThat inbox.getAll().size(), is(0)
 
         ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
+        ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
+
+        managedThingProvider.add ThingBuilder.create(thingTypeUID, "dummyThingId").build()
+
+        Map<String, Object> props = new HashMap<>()
+        props.put("property1", "property1value1")
+        props.put("property2", "property2value1")
+
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID, null, null, null, "DummyLabel1", DEFAULT_TTL)
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(0)
+    }
+
+    @Test
+    void 'assert that DiscoveryResult is added to Inbox when thing with different UID exists'() {
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId2", "dummyThingType")
         ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
 
         managedThingProvider.add ThingBuilder.create(thingTypeUID, "dummyThingId").build()

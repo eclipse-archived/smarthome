@@ -35,6 +35,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Chris Jackson - Added channel properties
  * @author Simon Kaufmann - Added listed field
+ * @author Andre Fuechsel - Added representationProperty field
  */
 public class ThingTypeXmlResult {
 
@@ -43,6 +44,7 @@ public class ThingTypeXmlResult {
     protected String label;
     protected String description;
     protected boolean listed;
+    protected String representationProperty;
     protected List<ChannelXmlResult> channelTypeReferences;
     protected List<ChannelXmlResult> channelGroupTypeReferences;
     protected List<NodeValue> properties;
@@ -51,13 +53,14 @@ public class ThingTypeXmlResult {
 
     public ThingTypeXmlResult(ThingTypeUID thingTypeUID, List<String> supportedBridgeTypeUIDs, String label,
             String description, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
-            List<NodeValue> properties, Object[] configDescriptionObjects) {
+            List<NodeValue> properties, String representationProperty, Object[] configDescriptionObjects) {
 
         this.thingTypeUID = thingTypeUID;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
         this.label = label;
         this.description = description;
         this.listed = listed;
+        this.representationProperty = representationProperty;
         this.channelTypeReferences = channelTypeReferenceObjects[0];
         this.channelGroupTypeReferences = channelTypeReferenceObjects[1];
         this.properties = properties;
@@ -126,7 +129,8 @@ public class ThingTypeXmlResult {
     public ThingType toThingType() throws ConversionException {
 
         ThingType thingType = new ThingType(this.thingTypeUID, this.supportedBridgeTypeUIDs, this.label,
-                this.description, this.listed, toChannelDefinitions(this.channelTypeReferences),
+                this.description, this.listed, this.representationProperty,
+                toChannelDefinitions(this.channelTypeReferences),
                 toChannelGroupDefinitions(this.channelGroupTypeReferences), toPropertiesMap(),
                 this.configDescriptionURI);
 
@@ -137,9 +141,10 @@ public class ThingTypeXmlResult {
     public String toString() {
         return "ThingTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", listed=" + listed
-                + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
-                + configDescriptionURI + ", configDescription=" + configDescription + "]";
+                + ", representationProperty=" + representationProperty + ", channelTypeReferences="
+                + channelTypeReferences + ", channelGroupTypeReferences=" + channelGroupTypeReferences + ", properties="
+                + properties + ", configDescriptionURI=" + configDescriptionURI + ", configDescription="
+                + configDescription + "]";
     }
 
 }
