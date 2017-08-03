@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Andre Fuechsel - Added representationProperty
  */
 public class BridgeTypeConverter extends ThingTypeConverter {
 
@@ -43,7 +44,7 @@ public class BridgeTypeConverter extends ThingTypeConverter {
                 super.readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
                 super.readDescription(nodeIterator), super.getListed(attributes),
                 super.getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
-                super.getConfigDescriptionObjects(nodeIterator));
+                super.getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return bridgeTypeXmlResult;
     }

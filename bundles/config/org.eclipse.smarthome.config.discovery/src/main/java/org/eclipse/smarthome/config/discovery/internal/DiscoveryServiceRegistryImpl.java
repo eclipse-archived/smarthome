@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -29,7 +32,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -147,7 +149,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 return null;
             }
             List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inboxReference.get(new InboxFilterCriteria(thingUID, DiscoveryResultFlag.NEW));
+            ret = inboxReference.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList());
             if (ret.size() > 0) {
                 return ret.get(0);
             } else {

@@ -544,7 +544,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
             }
 
-            if (oldThing != thing) {
+            if (oldThing != thing && oldThing != null) {
                 oldThing.setHandler(null);
             }
         } finally {

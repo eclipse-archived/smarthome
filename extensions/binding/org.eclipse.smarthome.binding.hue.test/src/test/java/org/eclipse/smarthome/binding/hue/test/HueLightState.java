@@ -92,6 +92,7 @@ public class HueLightState {
                 "      \"name\": \"Hue Light 1\"," + //
                 "      \"modelid\": \"" + model + "\"," + //
                 "      \"swversion\": \"65003148\"," + //
+                "      \"uniqueid\": \"00:17:88:01:00:e1:88:29-0b\"," + //
                 "      \"pointsymbol\": {" + //
                 "        \"1\": \"none\"," + //
                 "        \"2\": \"none\"," + //

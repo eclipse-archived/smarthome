@@ -47,7 +47,8 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, changed
+ *         the initialization of properties
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
@@ -108,8 +109,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // the bridge
             if (getHueBridgeHandler() != null) {
                 if (bridgeStatus == ThingStatus.ONLINE) {
-                    updateStatus(ThingStatus.ONLINE);
                     initializeProperties();
+                    updateStatus(ThingStatus.ONLINE);
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
                 }
@@ -132,6 +133,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (vendor != null) {
                     updateProperty(Thing.PROPERTY_VENDOR, vendor);
                 }
+                updateProperty(LIGHT_ID, fullLight.getId());
+                updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
                 propertiesInitializedSuccessfully = true;
             }
@@ -408,6 +411,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
+            initializeProperties();
             updateStatus(ThingStatus.ONLINE);
             onLightStateChanged(bridge, light);
         }

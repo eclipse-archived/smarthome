@@ -323,6 +323,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       ...
     </channel-groups>
 
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representationProperty>propertyName</representationProperty>
+
     <config-description>
       ...
     </config-description>
@@ -358,6 +364,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       </channel-group>
       ...
     </channel-groups>
+
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representationProperty>propertyName</representationProperty>
 
     <config-description>
       ...
@@ -442,6 +454,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>properties</td><td>Name/value pairs for properties to be set to the thing (optional).</td></tr>
+  <tr><td>representation-property</td><td>The name of the property that contains a unique identifier of the thing (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>

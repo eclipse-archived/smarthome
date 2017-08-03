@@ -173,5 +173,4 @@ public interface ThingHandler {
      * Only then it will be removed completely.
      */
     void handleRemoval();
-
 }
