@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext
-Import-Package: 
+Import-Package: javax.naming,
+ javax.net,
  javax.net.ssl,
  org.apache.commons.lang,
  org.eclipse.paho.client.mqttv3,
