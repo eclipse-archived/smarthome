@@ -19,8 +19,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @author Dennis Nobel - Initial contribution
  *
  */
-public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String> implements
-        ItemChannelLinkProvider {
+public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String>
+        implements ItemChannelLinkProvider {
 
     @Override
     protected String getStorageName() {
@@ -30,11 +30,6 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
     @Override
     protected String keyToString(String key) {
         return key;
-    }
-
-    @Override
-    protected String getKey(ItemChannelLink element) {
-        return element.getUID();
     }
 
     public void removeLinksForThing(ThingUID thingUID) {

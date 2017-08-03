@@ -22,11 +22,6 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
 public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, ThingUID> implements ThingProvider {
 
     @Override
-    protected ThingUID getKey(Thing thing) {
-        return thing.getUID();
-    }
-
-    @Override
     protected String getStorageName() {
         return Thing.class.getName();
     }

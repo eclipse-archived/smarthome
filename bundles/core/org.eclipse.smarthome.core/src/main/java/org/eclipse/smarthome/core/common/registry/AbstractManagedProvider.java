@@ -143,17 +143,8 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
     }
 
     private String getKeyAsString(E element) {
-        return keyToString(getKey(element));
+        return keyToString(element.getUID());
     }
-
-    /**
-     * Returns the key for a given element
-     *
-     * @param element
-     *            element
-     * @return key (must not be null)
-     */
-    protected abstract K getKey(E element);
 
     /**
      * Returns the name of storage, that is used to persist the elements.

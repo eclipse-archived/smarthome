@@ -21,11 +21,11 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.And
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.Avg
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction.Sum
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -216,7 +216,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 
         Storage storage = storageService.getStorage(Item.class.getName())
         StrangeItem item = new StrangeItem('SomeStrangeItem')
-        String key = itemProvider.keyToString(itemProvider.getKey(item))
+        String key = itemProvider.keyToString(item.getUID())
 
         // put an item into the storage that cannot be handled (yet)
         PersistedItem persistableElement = storage.put(key, itemProvider.toPersistableElement(item))
@@ -256,8 +256,8 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         GroupItem groupItem = new GroupItem('SomeGroupItem')
         item.addGroupName(groupItem.getName())
         groupItem.addMember(item)
-        String itemKey = itemProvider.keyToString(itemProvider.getKey(item))
-        String groupKey = itemProvider.keyToString(itemProvider.getKey(groupItem))
+        String itemKey = itemProvider.keyToString(item.getUID())
+        String groupKey = itemProvider.keyToString(groupItem.getUID())
 
         // put items into the storage that cannot be handled (yet)
         PersistedItem persistableElement1 = storage.put(itemKey, itemProvider.toPersistableElement(item))
@@ -316,7 +316,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 
 
     @Test
-	void 'assert group functions are stored and retrieved as well'() {
+    void 'assert group functions are stored and retrieved as well'() {
 
         assertThat itemProvider.getAll().size(), is(0)
 
