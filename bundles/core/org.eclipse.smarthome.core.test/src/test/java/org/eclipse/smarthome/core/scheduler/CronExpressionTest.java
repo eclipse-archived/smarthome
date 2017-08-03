@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,8 @@ public class CronExpressionTest {
     }
 
     @Test
+    @Ignore
+    // FIXME: see issue #3912
     public void findNext() throws ParseException {
         boolean trace = false;
 
