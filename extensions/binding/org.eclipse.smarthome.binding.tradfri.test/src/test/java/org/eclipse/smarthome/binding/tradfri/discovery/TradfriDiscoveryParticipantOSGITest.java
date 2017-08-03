@@ -22,7 +22,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,19 +33,18 @@ import org.mockito.Mock;
  */
 public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
 
-    MDNSDiscoveryParticipant discoveryParticipant;
+    private MDNSDiscoveryParticipant discoveryParticipant;
 
     @Mock
-    ServiceInfo tradfriGateway;
+    private ServiceInfo tradfriGateway;
 
     @Mock
-    ServiceInfo otherDevice;
+    private ServiceInfo otherDevice;
 
     @Before
     public void setUp() {
         initMocks(this);
         discoveryParticipant = getService(MDNSDiscoveryParticipant.class, TradfriDiscoveryParticipant.class);
-        assertThat(discoveryParticipant, is(notNullValue()));
 
         when(tradfriGateway.getType()).thenReturn("_coap._udp.local.");
         when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab");
@@ -59,10 +57,6 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
         when(otherDevice.getHostAddresses()).thenReturn(new String[] { "192.168.0.5" });
         when(otherDevice.getPort()).thenReturn(1234);
         when(otherDevice.getPropertyString("version")).thenReturn("1.1");
-    }
-
-    @After
-    public void cleanUp() {
     }
 
     @Test
