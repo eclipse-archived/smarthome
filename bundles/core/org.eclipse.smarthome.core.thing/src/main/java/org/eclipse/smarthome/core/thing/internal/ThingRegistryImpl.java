@@ -63,18 +63,6 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     @Override
-    public Thing get(final ThingUID uid) {
-        for (final Map.Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
-            for (final Thing thing : entry.getValue()) {
-                if (uid.equals(thing.getUID())) {
-                    return thing;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
     public Channel getChannel(ChannelUID channelUID) {
         ThingUID thingUID = channelUID.getThingUID();
         Thing thing = get(thingUID);
