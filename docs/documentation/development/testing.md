@@ -6,12 +6,12 @@ layout: documentation
 
 Testing Eclipse SmartHome
 ===
-There are two different kinds of approaches for testing Eclipse SmartHome. One is to use plain JUnit tests for testing simple classes. The other is to execute JUnit tests within the OSGi environment to test OSGi services and dynamic behaviour. Both approaches are supported through a simple infrastructure, which allows to easily write and execute tests.
+There are two different kinds of approaches for testing Eclipse SmartHome. One is to use JUnit Plug-in tests with simple JUnit test classes. The other is to extend the test class from the `JavaOSGiTest` class and have the full OSGi environment available to test OSGi services and dynamic behaviour. Both approaches are supported through a simple infrastructure, which allows to easily write and execute tests.
 
 Test fragment
 ---
 
-In OSGi tests are implemented in a separate fragment bundle, which host is the bundle, that should be tested. The name of the test fragment bundle should be the same as the bundle to test with a ".test" suffix. The MANIFEST.MF file must contain a `Fragment-Host` entry. Fragment bundles inherit all imported packages from the host bundle. In addition the fragment bundle must import the `org.junit` package with a minimum version of 4.0.0 specified. The following code snippet shows a manifest file of the test fragment for the `org.eclipse.smarthome.core` bundle.
+In general tests are implemented in a separate fragment bundle, which host is the bundle that should be tested. The name of the test fragment bundle should be the same as the bundle to test with a ".test" suffix. The MANIFEST.MF file must contain a `Fragment-Host` entry pointing to the bundle under test. Fragment bundles inherit all imported packages from the host bundle. In addition the fragment bundle must import the `org.junit` package with a minimum version of 4.0.0 specified. The following code snippet shows the MANIFEST.MF file of the test fragment for the `org.eclipse.smarthome.core` bundle. This way all test dependencies are available in the test classes (JUnit, hamcrest, mockito).
 
     Manifest-Version: 1.0
     Bundle-ManifestVersion: 2
@@ -20,8 +20,23 @@ In OSGi tests are implemented in a separate fragment bundle, which host is the b
     Bundle-Version: 0.9.0.qualifier
     Bundle-Vendor: Eclipse.org/SmartHome
     Fragment-Host: org.eclipse.smarthome.core
-    Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-    Import-Package: org.junit;version="4.0.0"
+    Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+    Import-Package: groovy.lang,
+     org.codehaus.groovy.reflection,
+     org.codehaus.groovy.runtime,
+     org.codehaus.groovy.runtime.callsite,
+     org.codehaus.groovy.runtime.typehandling,
+     org.eclipse.smarthome.core.library.items,
+     org.eclipse.smarthome.core.library.types,
+     org.eclipse.smarthome.test,
+     org.eclipse.smarthome.test.java,
+     org.hamcrest;core=split,
+     org.junit;version="4.0.0",
+     org.junit.runner,
+     org.junit.runners,
+     org.mockito,
+     org.osgi.service.cm
+    Require-Bundle: org.junit,org.mockito,org.hamcrest
 
 Tests are typically placed inside the folder `src/test/java`. 
 
@@ -43,11 +58,19 @@ Using the the [https://code.google.com/p/hamcrest/ hamcrest] matcher library is 
     PercentType pt = new PercentType("0.0001");
     assertThat(pt.toString(), is(equalTo("0.0001")));
 
-To use the hamcrest library in your test project, you just have to add the following entry to the list of imported packages:
 
-    org.hamcrest;core=split
+In the OSGi context of Eclipse SmartHome test execution must always be run inside an OSGi runtime. Eclipse PDE Plugin allows to run the JUnit test classes as `Plug-in test` but the required bundles have to be selected first:
+The most easy way to execute tests in a test fragment is to use the provided launch configuration from the binding test archetype. This may be modified in the `Run Configurations...` menu to match the required bundles/plug-ins.
+Another way is to create a test/package/bundle specific lanuch configuration with the following steps:
+- Select the test class/package or bundle
+- In context menu select `Run as -> JUnit Plug-in Test`
+- after test run (which might fail due to unmet dependencies) select the configuration in `Run Configurations...`
+- select `plug-ins selected below only` in the `Plug-ins` tab then `Deselect all`
+- search for your test fragment bundle and enable it, then clear the search field (important to enable the action buttons again)
+- select `Add Required Plug-ins`, then `Apply`, then `Run`
+- since the `Add Required Plug-ins` action is a little overeager it will also select other `.test` fragments which you may be required to deselect manually.
 
-Tests can be executed from Eclipse by right-clicking the test file and clicking on `Run As => JUnit Test`. From maven one can execute the test with `mvn test` command in the folder of the test fragment bundle.    
+From maven one can execute the test with `mvn install` command from the folder of the test fragment bundle.
 
 Mockito
 ---
