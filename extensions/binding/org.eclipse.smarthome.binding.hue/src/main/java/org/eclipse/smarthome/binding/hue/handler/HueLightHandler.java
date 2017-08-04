@@ -260,7 +260,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (lightState != null) {
             hueBridge.updateLightState(light, lightState);
         } else {
-            logger.warn("Command send to an unknown channel id: " + channelUID);
+            logger.warn("Command send to an unknown channel id: {}", channelUID);
         }
     }
 

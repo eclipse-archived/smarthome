@@ -80,9 +80,9 @@ public final class FirmwareRegistry {
                     return firmware;
                 }
             } catch (Exception e) {
-                logger.warn(String.format(
-                        "Unexpected exception occurred for firmware provider %s while getting firmware for firmware UID %s.",
-                        firmwareProvider.getClass().getSimpleName(), firmwareUID), e);
+                logger.warn(
+                        "Unexpected exception occurred for firmware provider {} while getting firmware for firmware UID {}.",
+                        firmwareProvider.getClass().getSimpleName(), firmwareUID, e);
             }
         }
 
@@ -156,9 +156,9 @@ public final class FirmwareRegistry {
                     firmwares.addAll(result);
                 }
             } catch (Exception e) {
-                logger.warn(String.format(
-                        "Unexpected exception occurred for firmware provider %s while getting firmwares for thing type UID %s.",
-                        firmwareProvider.getClass().getSimpleName(), thingTypeUID), e);
+                logger.warn(
+                        "Unexpected exception occurred for firmware provider {} while getting firmwares for thing type UID {}.",
+                        firmwareProvider.getClass().getSimpleName(), thingTypeUID, e);
             }
         }
 

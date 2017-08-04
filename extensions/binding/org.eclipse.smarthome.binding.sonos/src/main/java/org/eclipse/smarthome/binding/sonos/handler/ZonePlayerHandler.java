@@ -1227,8 +1227,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         try {
             result = Long.valueOf(resultInput.get(requestedKey));
         } catch (NumberFormatException ex) {
-            logger.warn("Could not fetch " + requestedKey + " result for type: " + entriesType + " and filter: "
-                    + entriesFilter + ". Using default value '0': " + ex.getMessage(), ex);
+            logger.warn("Could not fetch {} result for type: {} and filter: {}. Using default value '0': {}",
+                    requestedKey, entriesType, entriesFilter, ex.getMessage(), ex);
         }
 
         return result;

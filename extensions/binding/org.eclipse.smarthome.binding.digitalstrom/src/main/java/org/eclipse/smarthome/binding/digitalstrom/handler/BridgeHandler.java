@@ -137,7 +137,7 @@ public class BridgeHandler extends BaseBridgeHandler
             if (connMan.getApplicationToken() != null) {
                 configuration.remove(USER_NAME);
                 configuration.remove(PASSWORD);
-                logger.debug("Application-Token is: " + connMan.getApplicationToken());
+                logger.debug("Application-Token is: {}", connMan.getApplicationToken());
                 configuration.put(APPLICATION_TOKEN, connMan.getApplicationToken());
                 configChanged = true;
             }
@@ -172,7 +172,7 @@ public class BridgeHandler extends BaseBridgeHandler
         Config config = loadAndCheckConfig();
 
         if (config != null) {
-            logger.debug(config.toString());
+            logger.debug("{}", config.toString());
             scheduler.execute(new Initializer(this, config));
         }
     }
@@ -654,7 +654,8 @@ public class BridgeHandler extends BaseBridgeHandler
                     break;
                 case STOPPED:
                     if (!getThing().getStatusInfo().getStatusDetail().equals(ThingStatusDetail.COMMUNICATION_ERROR)
-                            && !getThing().getStatusInfo().getStatusDetail().equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
+                            && !getThing().getStatusInfo().getStatusDetail()
+                                    .equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "DeviceStatusManager is stopped.");
                     }
                     break;

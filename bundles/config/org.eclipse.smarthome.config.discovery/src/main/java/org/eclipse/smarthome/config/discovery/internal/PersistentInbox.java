@@ -462,7 +462,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not post event of type '" + eventType.name() + "'.", ex);
+                logger.error("Could not post event of type '{}'.", eventType.name(), ex);
             }
         }
     }

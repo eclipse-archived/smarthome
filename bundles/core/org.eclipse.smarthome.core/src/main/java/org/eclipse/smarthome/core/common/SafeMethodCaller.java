@@ -119,14 +119,14 @@ public class SafeMethodCaller {
                 String className = stackTraceElement.getClassName();
                 String methodName = stackTraceElement.getMethodName();
 
-                getLogger().error("Exception occurred while calling '" + methodName + "' at '" + className + "'", ex);
+                getLogger().error("Exception occurred while calling '{}' at '{}'", methodName, className, ex);
             } else {
                 getLogger().error("Exception occurred while calling action", ex);
             }
             return null;
         } catch (TimeoutException ex) {
             getLogger().error(
-                    "Timeout occurred while calling method. Execution took longer than " + timeout + " milliseconds.",
+                    "Timeout occurred while calling method. Execution took longer than {} milliseconds.", timeout, 
                     ex);
             return null;
         } catch (Throwable throwable) {

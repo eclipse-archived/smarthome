@@ -463,7 +463,7 @@ public abstract class AbstractResourceBundleProvider<E> {
             reader = new InputStreamReader(is, StandardCharsets.UTF_8);
             return parser.parse(reader);
         } catch (ParsingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            logger.error("{}", e.getLocalizedMessage(), e);
         } catch (IOException e) {
             logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);

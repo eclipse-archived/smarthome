@@ -653,7 +653,7 @@ public class JSONDeviceImpl implements Device {
                 activeScene.activateSceneByDevice();
             } else {
                 internalUndoScene();
-                logger.debug("internalUndo Scene dSID " + dsid.getValue());
+                logger.debug("internalUndo Scene dSID {}", dsid.getValue());
                 this.activeScene = null;
             }
             lastCallWasUndo = true;
@@ -1319,8 +1319,8 @@ public class JSONDeviceImpl implements Device {
      */
     private void informListenerAboutStateUpdate(DeviceStateUpdate deviceStateUpdate) {
         if (listener != null) {
-            logger.debug("Inform listener about device state changed: type: " + deviceStateUpdate.getType()
-                    + ", value: " + deviceStateUpdate.getValue());
+            logger.debug("Inform listener about device state changed: type: {}, value: {}", deviceStateUpdate.getType(),
+                    deviceStateUpdate.getValue());
             listener.onDeviceStateChanged(deviceStateUpdate);
         }
     }

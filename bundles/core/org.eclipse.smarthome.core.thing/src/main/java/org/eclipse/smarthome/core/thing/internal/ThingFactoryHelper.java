@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -28,6 +29,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -157,8 +159,8 @@ public class ThingFactoryHelper {
                     return null;
             }
         } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '" + defaultValue
-                    + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
+            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '{}' as type '{}': {}",
+                    defaultValue, parameterType, ex.getMessage(), ex);
             return null;
         }
     }

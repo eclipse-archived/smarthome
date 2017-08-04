@@ -213,8 +213,8 @@ public class ReferenceResolverUtil {
             end = reference.indexOf('}', start + 2);
             if (end == -1) {
                 previous = start;
-                logger.warn("Couldn't parse referenced key: " + reference.substring(start)
-                        + ": expected reference syntax-> ${referencedKey}");
+                logger.warn("Couldn't parse referenced key: {}: expected reference syntax-> ${referencedKey}",
+                        reference.substring(start));
                 break;
             }
             final String referencedKey = reference.substring(start + 2, end);

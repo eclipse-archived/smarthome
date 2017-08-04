@@ -198,8 +198,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                         if (trashDevices.isEmpty()) {
                             currentDevice.setConfig(config);
                             strucMan.addDeviceToStructure(currentDevice);
-                            logger.debug("trashDevices are empty, add Device with dSID "
-                                    + currentDevice.getDSID().toString() + " to the deviceMap!");
+                            logger.debug("trashDevices are empty, add Device with dSID {} to the deviceMap!",
+                                    currentDevice.getDSID());
                         } else {
                             logger.debug("Search device in trashDevices.");
                             TrashDevice foundTrashDevice = null;
@@ -246,7 +246,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
 
                 if (!sceneMan.scenesGenerated()
                         && !sceneMan.getManagerState().equals(ManagerStates.GENERATING_SCENES)) {
-                    logger.debug(sceneMan.getManagerState().toString());
+                    logger.debug("{}", sceneMan.getManagerState());
                     sceneMan.generateScenes();
                 }
 
@@ -276,7 +276,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                         if (trashDevice.isTimeToDelete(Calendar.getInstance().get(Calendar.DAY_OF_YEAR))) {
                             logger.debug("Found trashDevice that have to delete!");
                             trashDevices.remove(trashDevice);
-                            logger.debug("Delete trashDevice: " + trashDevice.getDevice().getDSID().getValue());
+                            logger.debug("Delete trashDevice: {}", trashDevice.getDevice().getDSID().getValue());
                         }
                     }
                     lastBinCheck = System.currentTimeMillis();
@@ -434,8 +434,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
         @Override
         public boolean equals(Object object) {
             return object instanceof TrashDevice
-                    ? this.device.getDSID().equals(((TrashDevice) object).getDevice().getDSID())
-                    : false;
+                    ? this.device.getDSID().equals(((TrashDevice) object).getDevice().getDSID()) : false;
         }
     }
 
@@ -486,8 +485,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                 boolean requestSuccsessfull = false;
                 if (scene.getZoneID() == 0) {
                     if (call_undo) {
-                        logger.debug(scene.getGroupID() + " " + scene.getSceneID() + " "
-                                + ApartmentSceneEnum.getApartmentScene(scene.getSceneID()));
+                        logger.debug("{} {} {}", scene.getGroupID(), scene.getSceneID(),
+                                ApartmentSceneEnum.getApartmentScene(scene.getSceneID()));
                         requestSuccsessfull = this.digitalSTROMClient.callApartmentScene(connMan.getSessionToken(),
                                 scene.getGroupID(), null, ApartmentSceneEnum.getApartmentScene(scene.getSceneID()),
                                 false);
@@ -507,7 +506,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                     }
                 }
 
-                logger.debug("Was the scene call succsessful?: " + requestSuccsessfull);
+                logger.debug("Was the scene call succsessful?: {}", requestSuccsessfull);
                 if (requestSuccsessfull) {
                     this.sceneMan.addEcho(scene.getID());
                     if (call_undo) {
@@ -923,7 +922,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
     public void registerDeviceListener(DeviceStatusListener deviceListener) {
         if (deviceListener != null) {
             String id = deviceListener.getDeviceStatusListenerID();
-            logger.debug("register DeviceListener with id: " + id);
+            logger.debug("register DeviceListener with id: {}", id);
             if (id.equals(DeviceStatusListener.DEVICE_DISCOVERY)) {
                 this.deviceDiscovery = deviceListener;
                 for (Device device : strucMan.getDeviceMap().values()) {

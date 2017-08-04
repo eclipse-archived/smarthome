@@ -79,7 +79,7 @@ public class ProxyFilter implements ContainerRequestFilter {
         try {
             newBaseUri = new URI(uriString);
         } catch (URISyntaxException e) {
-            logger.error("Invalid X-Forwarded-Proto + X-Forwarded-Host header combination: " + uriString, e);
+            logger.error("Invalid X-Forwarded-Proto + X-Forwarded-Host header combination: {}", uriString, e);
             return;
         }
 
