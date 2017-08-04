@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -401,15 +402,32 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
+        StateDescription result = null;
+        List<StateOption> stateOptions = Collections.emptyList();
         if (stateDescriptionProviders != null) {
             for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
                 StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
-                if (stateDescription != null) {
-                    return stateDescription;
+
+                // as long as no valid StateDescription is provided we reassign here:
+                if (result == null) {
+                    result = stateDescription;
+                }
+
+                // if the current StateDescription does provide options and we don't already have some, we pick them up
+                // here
+                if (stateDescription != null && !stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
+                    stateOptions = stateDescription.getOptions();
                 }
             }
         }
-        return null;
+
+        // we recreate the StateDescription if we found a valid one and state options are given:
+        if (result != null && !stateOptions.isEmpty()) {
+            result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
+                    result.getPattern(), result.isReadOnly(), stateOptions);
+        }
+
+        return result;
     }
 
     /**
