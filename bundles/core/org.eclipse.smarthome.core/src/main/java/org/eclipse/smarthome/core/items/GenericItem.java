@@ -19,6 +19,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -61,8 +62,10 @@ abstract public class GenericItem implements ActiveItem {
 
     protected Set<String> tags = new HashSet<String>();
 
+    @NonNull
     final protected String name;
 
+    @NonNull
     final protected String type;
 
     protected State state = UnDefType.NULL;
@@ -73,7 +76,7 @@ abstract public class GenericItem implements ActiveItem {
 
     private List<StateDescriptionProvider> stateDescriptionProviders;
 
-    public GenericItem(String type, String name) {
+    public GenericItem(@NonNull String type, @NonNull String name) {
         this.name = name;
         this.type = type;
     }
@@ -316,11 +319,7 @@ abstract public class GenericItem implements ActiveItem {
         } else if (!label.equals(other.label)) {
             return false;
         }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
+        if (!name.equals(other.name)) {
             return false;
         }
         if (tags == null) {
@@ -330,11 +329,7 @@ abstract public class GenericItem implements ActiveItem {
         } else if (!tags.equals(other.tags)) {
             return false;
         }
-        if (type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        } else if (!type.equals(other.type)) {
+        if (!type.equals(other.type)) {
             return false;
         }
         return true;
