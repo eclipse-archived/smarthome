@@ -60,7 +60,7 @@ public class Configuration {
             try {
                 configuration = configurationClass.newInstance();
             } catch (InstantiationException | IllegalAccessException ex) {
-                logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
+                logger.error("Could not create configuration instance: {}", ex.getMessage(), ex);
                 return null;
             }
 
@@ -96,7 +96,7 @@ public class Configuration {
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }
                 } catch (Exception ex) {
-                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
+                    logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
                 }
             }
 

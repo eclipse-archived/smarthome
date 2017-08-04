@@ -90,7 +90,7 @@ public class ScriptBusEvent {
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
@@ -150,7 +150,7 @@ public class ScriptBusEvent {
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
                 eventPublisher.post(ItemEventFactory.createStateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;

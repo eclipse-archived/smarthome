@@ -1135,7 +1135,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), newStatusInfo, oldStatusInfo));
             }
         } catch (Exception ex) {
-            logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
+            logger.error("Could not post 'ThingStatusInfoEvent' event: {}", ex.getMessage(), ex);
         }
     }
 

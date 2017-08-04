@@ -278,8 +278,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                 });
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener " + listener.getClass().getName()
-                        + " on Thing discovered event!", ex);
+                logger.error("Cannot notify the DiscoveryListener {} on Thing discovered event!",
+                        listener.getClass().getName(), ex);
             }
         }
     }
@@ -304,8 +304,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                 });
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
-                        + "' on Thing removed event!", ex);
+                logger.error("Cannot notify the DiscoveryListener '{}' on Thing removed event!",
+                        listener.getClass().getName(), ex);
             }
         }
     }
@@ -327,8 +327,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     removedResults.addAll(olderResults);
                 }
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
-                        + "' on all things removed event!", ex);
+                logger.error("Cannot notify the DiscoveryListener '{}' on all things removed event!",
+                        listener.getClass().getName(), ex);
             }
         }
 
@@ -349,8 +349,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 logger.debug("Scan for thing types '{}' aborted on '{}'.", supportedThingTypes,
                         discoveryService.getClass().getName());
             } catch (Exception ex) {
-                logger.error("Cannot abort scan for thing types '" + supportedThingTypes + "' on '"
-                        + discoveryService.getClass().getName() + "'!", ex);
+                logger.error("Cannot abort scan for thing types '{}' on '{}'!", supportedThingTypes,
+                        discoveryService.getClass().getName(), ex);
                 allServicesAborted = false;
             }
         }
@@ -394,8 +394,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
             discoveryService.startScan(listener);
             return true;
         } catch (Exception ex) {
-            logger.error("Cannot trigger scan for thing types '" + supportedThingTypes + "' on '"
-                    + discoveryService.getClass().getSimpleName() + "'!", ex);
+            logger.error("Cannot trigger scan for thing types '{}' on '{}'!", supportedThingTypes,
+                    discoveryService.getClass().getSimpleName(), ex);
             return false;
         }
     }

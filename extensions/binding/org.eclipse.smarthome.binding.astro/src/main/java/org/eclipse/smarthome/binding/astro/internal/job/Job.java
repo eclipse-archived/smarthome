@@ -197,7 +197,7 @@ public interface Job extends Runnable {
      */
     public static <T> boolean checkNull(T obj, String message) {
         if (isNull(obj)) {
-            logger.trace(message);
+            logger.trace("{}", message);
             return true;
         }
         return false;
