@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -230,9 +231,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      */
     @Override
     public Rule add(Rule rule) {
-        if (rule == null) {
-            throw new IllegalArgumentException("The added rule must not be null!");
-        }
         String rUID = rule.getUID();
         if (rUID == null) {
             rUID = ruleEngine.getUniqueId();
@@ -240,7 +238,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         } else {
             super.add(rule);
         }
-        return get(rUID);
+        Rule ruleCopy = get(rUID);
+        if (ruleCopy != null) {
+            return ruleCopy;
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     /**
@@ -251,7 +254,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * @param rule candidate for unique ID
      * @return a rule with UID
      */
-    protected Rule initRuleId(String rUID, Rule rule) {
+    protected @NonNull Rule initRuleId(String rUID, Rule rule) {
         Rule ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
                 rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
                 rule.getVisibility());

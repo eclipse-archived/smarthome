@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.framework.BundleContext;
@@ -139,8 +140,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         listeners.add(listener);
     }
 
+    @SuppressWarnings("null")
     @Override
-    public Collection<E> getAll() {
+    public Collection<@NonNull E> getAll() {
         return stream().collect(Collectors.toList());
     }
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -39,7 +40,7 @@ public class DateTimeItem extends GenericItem {
         acceptedCommandTypes.add(DateTimeType.class);
     }
 
-    public DateTimeItem(String name) {
+    public DateTimeItem(@NonNull String name) {
         super(CoreItemFactory.DATETIME, name);
     }
 
