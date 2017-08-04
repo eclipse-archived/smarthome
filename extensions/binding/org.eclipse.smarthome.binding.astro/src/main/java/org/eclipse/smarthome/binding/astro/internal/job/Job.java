@@ -94,11 +94,13 @@ public interface Job extends Runnable {
         if (thingNull || astroHandlerNull || eventAtNull || eventsNull || channelIdNull || events.isEmpty()) {
             return;
         }
-        Calendar instant = eventAt;
+        final Calendar instant;
         if (!configAlreadyApplied) {
             AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
                     .as(AstroChannelConfig.class);
             instant = applyConfig(eventAt, config);
+        } else {
+            instant = eventAt;
         }
         List<Job> jobs = events.stream().map(e -> new EventJob(thingUID, channelId, e)).collect(toList());
         schedule(thingUID, astroHandler, new CompositeJob(thingUID, jobs), instant);
