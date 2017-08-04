@@ -128,14 +128,16 @@ public interface Item extends Identifiable<String> {
     public String getCategory();
 
     /**
-     * Returns the state description (uses the default locale).
+     * Returns the first provided state description (uses the default locale).
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @return state description (can be null)
      */
     public StateDescription getStateDescription();
 
     /**
-     * Returns the state description for a given locale.
+     * Returns the first provided state description for a given locale.
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @param locale
      *            locale (can be null)
