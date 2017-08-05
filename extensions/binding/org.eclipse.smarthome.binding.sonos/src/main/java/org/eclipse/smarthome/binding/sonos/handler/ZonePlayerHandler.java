@@ -1095,7 +1095,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public String getMACAddress() {
-        updateZoneInfo();
+        if (StringUtils.isEmpty(stateMap.get("MACAddress"))) {
+            updateZoneInfo();
+        }
         return stateMap.get("MACAddress");
     }
 
