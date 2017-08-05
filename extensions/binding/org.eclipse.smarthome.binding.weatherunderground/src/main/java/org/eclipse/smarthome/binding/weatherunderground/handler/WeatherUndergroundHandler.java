@@ -298,6 +298,9 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             } else if (result.getResponse() == null) {
                 errorDetail = "missing response sub-object";
             } else if (result.getResponse().getErrorDescription() != null) {
+                if ("keynotfound".equals(result.getResponse().getErrorType())) {
+                    error = "API key has to be fixed";
+                }
                 errorDetail = result.getResponse().getErrorDescription();
             } else {
                 resultOk = true;
@@ -314,7 +317,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                     }
                 }
             }
-            if (!resultOk) {
+            if (!resultOk && error == null) {
                 error = "Error in Weather Underground response";
             }
         } catch (IOException e) {
