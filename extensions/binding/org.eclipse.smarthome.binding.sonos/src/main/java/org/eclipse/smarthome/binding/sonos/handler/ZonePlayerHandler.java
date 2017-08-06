@@ -871,6 +871,37 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "DeviceProperties");
         }
+
+        Map<String, String> properties = editProperties();
+        boolean update = false;
+        if (StringUtils.isNotEmpty(this.stateMap.get("HardwareVersion"))
+                && !this.stateMap.get("HardwareVersion").equals(properties.get(Thing.PROPERTY_HARDWARE_VERSION))) {
+            update = true;
+            properties.put(Thing.PROPERTY_HARDWARE_VERSION, this.stateMap.get("HardwareVersion"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("DisplaySoftwareVersion")) && !this.stateMap
+                .get("DisplaySoftwareVersion").equals(properties.get(Thing.PROPERTY_FIRMWARE_VERSION))) {
+            update = true;
+            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, this.stateMap.get("DisplaySoftwareVersion"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("SerialNumber"))
+                && !this.stateMap.get("SerialNumber").equals(properties.get(Thing.PROPERTY_SERIAL_NUMBER))) {
+            update = true;
+            properties.put(Thing.PROPERTY_SERIAL_NUMBER, this.stateMap.get("SerialNumber"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("MACAddress"))
+                && !this.stateMap.get("MACAddress").equals(properties.get(MAC_ADDRESS))) {
+            update = true;
+            properties.put(MAC_ADDRESS, this.stateMap.get("MACAddress"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("IPAddress"))
+                && !this.stateMap.get("IPAddress").equals(properties.get(IP_ADDRESS))) {
+            update = true;
+            properties.put(IP_ADDRESS, this.stateMap.get("IPAddress"));
+        }
+        if (update) {
+            updateProperties(properties);
+        }
     }
 
     public String getCoordinator() {
@@ -1064,7 +1095,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public String getMACAddress() {
-        updateZoneInfo();
+        if (StringUtils.isEmpty(stateMap.get("MACAddress"))) {
+            updateZoneInfo();
+        }
         return stateMap.get("MACAddress");
     }
 
@@ -1704,8 +1737,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true
-                : false;
+                ? true : false;
     }
 
     public String getRepeatMode() {
