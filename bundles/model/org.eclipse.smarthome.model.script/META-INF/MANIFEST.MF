@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: com.google.common.base,
  com.google.common.collect,
- javax.annotation;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.logging,
