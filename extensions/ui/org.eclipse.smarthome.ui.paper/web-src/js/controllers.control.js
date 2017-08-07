@@ -99,7 +99,7 @@ angular.module('PaperUI.controllers.control', []) //
                             })
                             $timeout.cancel(redraw)
                             redraw = $timeout(function() {
-                                $scope.things.push.apply($scope.things, renderedThings);
+                                $scope.things = renderedThings;
                                 masonry()
                             }, 0, true)
                         }
