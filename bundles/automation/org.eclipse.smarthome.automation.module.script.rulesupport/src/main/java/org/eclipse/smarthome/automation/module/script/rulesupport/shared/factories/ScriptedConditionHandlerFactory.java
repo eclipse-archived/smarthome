@@ -11,6 +11,10 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface ScriptedConditionHandlerFactory extends ScriptedHandler {
     public ConditionHandler get(Condition module);
 }

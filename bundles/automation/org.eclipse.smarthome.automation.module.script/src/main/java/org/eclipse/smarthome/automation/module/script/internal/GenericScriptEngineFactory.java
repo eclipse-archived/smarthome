@@ -19,6 +19,10 @@ import org.eclipse.smarthome.automation.module.script.ScriptEngineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public class GenericScriptEngineFactory implements ScriptEngineFactory {
     private ScriptEngineManager engineManager = new ScriptEngineManager();
     private final Logger logger = LoggerFactory.getLogger(getClass());

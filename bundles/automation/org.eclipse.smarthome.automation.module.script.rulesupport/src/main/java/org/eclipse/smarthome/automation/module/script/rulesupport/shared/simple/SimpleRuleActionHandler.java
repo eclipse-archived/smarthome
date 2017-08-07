@@ -11,6 +11,10 @@ import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface SimpleRuleActionHandler {
     Object execute(Action module, Map<String, ?> inputs);
 }

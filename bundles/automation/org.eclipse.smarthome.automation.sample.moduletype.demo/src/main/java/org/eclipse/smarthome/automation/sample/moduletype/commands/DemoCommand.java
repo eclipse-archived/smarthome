@@ -19,6 +19,8 @@ package org.eclipse.smarthome.automation.sample.moduletype.commands;
 /**
  * This class is base for the commands in this demo automation commands. It defines common functionality for the
  * commands.
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public abstract class DemoCommand {
 

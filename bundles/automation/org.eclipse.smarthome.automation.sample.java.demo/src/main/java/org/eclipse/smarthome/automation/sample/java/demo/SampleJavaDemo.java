@@ -29,6 +29,8 @@ import org.osgi.service.component.ComponentContext;
 /**
  * This class shows how to create a rule, using the Java API.It also shows how to add it to the rule engine via
  * RuleRegistry interface.
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class SampleJavaDemo {
 

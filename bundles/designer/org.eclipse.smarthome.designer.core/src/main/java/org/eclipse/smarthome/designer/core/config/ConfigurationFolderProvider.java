@@ -28,6 +28,10 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class ConfigurationFolderProvider {
 
     private static IFolder folder;
