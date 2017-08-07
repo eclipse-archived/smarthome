@@ -19,6 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class EventLogger implements EventSubscriber {
 
     private final Map<String, Logger> eventLoggers = Maps.newHashMap();

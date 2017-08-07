@@ -10,6 +10,10 @@ package org.eclipse.smarthome.core.library.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class CoreLibraryActivator implements BundleActivator {
 
     @Override

@@ -12,6 +12,10 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
+/**
+ *
+ * @author Oliver Libutzki - Initial contribution
+ */
 public class GeneralProjectCreator implements IProjectCreator {
 
     @Override

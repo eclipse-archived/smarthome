@@ -17,6 +17,10 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class TransformationHelper {
 
     private final static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
