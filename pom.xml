@@ -158,8 +158,8 @@
               </extraClasspathElement>
             </extraClasspathElements>
             <compilerArgs>
-              <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot,-nullUncheckedConversion,-nullAnnotRedundant</arg>
-              <arg>-warn:+null,+nullUncheckedConversion,+nullAnnotRedundant</arg>
+              <arg>-err:-nullAnnot,-null,-syntacticAnalysis</arg>
+              <!--<arg>-warn:+null,+inheritNullAnnot,+nullUncheckedConversion,+nullAnnotRedundant</arg>-->
             </compilerArgs>
           </configuration>          
         </plugin>
