@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class GroupItem extends GenericItem implements StateChangeListener {
 
     @NonNull

@@ -15,6 +15,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 /**
  * The {@link DiscoveryResultDTOMapper} is an utility class to map discovery results into discovery result transfer
  * objects.
+ *
+ * @author Stefan Bussweiler - Initial contribution
  */
 public class DiscoveryResultDTOMapper {
 

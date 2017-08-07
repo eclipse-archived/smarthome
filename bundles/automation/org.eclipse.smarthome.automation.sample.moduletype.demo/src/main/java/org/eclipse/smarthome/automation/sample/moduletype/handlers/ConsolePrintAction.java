@@ -38,6 +38,8 @@ import org.eclipse.smarthome.automation.sample.moduletype.factory.HandlerFactory
  * </pre>
  *
  * This handler prints to standard output {@link Action}'s typeUID + the UID of the rule for which is created.
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class ConsolePrintAction extends BaseModuleHandler<Action> implements ActionHandler {
 

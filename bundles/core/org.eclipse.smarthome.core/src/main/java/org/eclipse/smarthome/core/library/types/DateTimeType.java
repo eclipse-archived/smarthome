@@ -17,6 +17,10 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class DateTimeType implements PrimitiveType, State, Command {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";

@@ -17,6 +17,10 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
+/**
+ *
+ * @author Kei Kreuzer - Initial contribution
+ */
 public class DiscoveryResultImpl implements DiscoveryResult {
 
     private ThingUID bridgeUID;

@@ -15,6 +15,10 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttSenderChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author David Gräff - Initial contribution
+ */
 @Deprecated
 public class MqttSenderChannelImpl implements MqttSenderChannel {
     private final MqttBrokerConnection connection;

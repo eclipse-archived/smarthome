@@ -12,6 +12,10 @@ import java.util.List;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineContainer;
 import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public class ScriptExtensionManagerWrapper {
     private ScriptEngineContainer container;
 
