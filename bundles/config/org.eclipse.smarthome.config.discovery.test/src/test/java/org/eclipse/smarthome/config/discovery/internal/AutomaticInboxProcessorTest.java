@@ -52,14 +52,21 @@ public class AutomaticInboxProcessorTest {
 
     private static final String DEVICE_ID = "deviceId";
     private static final String DEVICE_ID_KEY = "deviceIdKey";
+    private static final String CONFIG_KEY = "configKey";
+    private static final String CONFIG_VALUE = "configValue";
 
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test");
+    private static final ThingTypeUID THING_TYPE_UID2 = new ThingTypeUID("test2", "test2");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
     private static final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, "test2");
     private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY,
             null, null, null, null);
+    private static final ThingType THING_TYPE2 = new ThingType(THING_TYPE_UID2, null, "label", null, true, CONFIG_KEY,
+            null, null, null, null);
     private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
             .put(DEVICE_ID_KEY, DEVICE_ID).build();
+    private final static Configuration CONFIG = new Configuration(
+            new ImmutableMap.Builder<String, Object>().put(CONFIG_KEY, CONFIG_VALUE).build());
 
     private AutomaticInboxProcessor inboxAutoIgnore;
     private PersistentInbox inbox;
@@ -72,6 +79,9 @@ public class AutomaticInboxProcessorTest {
 
     @Mock
     private Thing thing;
+
+    @Mock
+    private Thing thing2;
 
     @Mock
     private ThingStatusInfoChangedEvent thingStatusInfoChangedEvent;
@@ -89,13 +99,23 @@ public class AutomaticInboxProcessorTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        when(thing.getConfiguration()).thenReturn(new Configuration());
+        when(thing.getConfiguration()).thenReturn(CONFIG);
         when(thing.getThingTypeUID()).thenReturn(THING_TYPE_UID);
         when(thing.getProperties()).thenReturn(THING_PROPERTIES);
         when(thing.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(thing.getUID()).thenReturn(THING_UID);
+
+        when(thing2.getConfiguration()).thenReturn(CONFIG);
+        when(thing2.getThingTypeUID()).thenReturn(THING_TYPE_UID2);
+        when(thing2.getProperties()).thenReturn(THING_PROPERTIES);
+        when(thing2.getStatus()).thenReturn(ThingStatus.ONLINE);
+        when(thing2.getUID()).thenReturn(THING_UID2);
+
         when(thingRegistry.stream()).thenReturn(Stream.empty());
+
         when(thingTypeRegistry.getThingType(THING_TYPE_UID)).thenReturn(THING_TYPE);
+        when(thingTypeRegistry.getThingType(THING_TYPE_UID2)).thenReturn(THING_TYPE2);
+
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
         when(thingHandlerFactory.createThing(eq(THING_TYPE_UID), any(Configuration.class), eq(THING_UID),
                 any(ThingUID.class)))
@@ -110,9 +130,6 @@ public class AutomaticInboxProcessorTest {
         inbox.setThingTypeRegistry(thingTypeRegistry);
         inbox.addThingHandlerFactory(thingHandlerFactory);
 
-        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
-                .withRepresentationProperty(DEVICE_ID_KEY).build());
-
         inboxAutoIgnore = new AutomaticInboxProcessor();
         inboxAutoIgnore.setThingRegistry(thingRegistry);
         inboxAutoIgnore.setThingTypeRegistry(thingTypeRegistry);
@@ -121,6 +138,9 @@ public class AutomaticInboxProcessorTest {
 
     @Test
     public void testThingWentOnline() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
         assertThat(results.size(), is(1));
@@ -160,6 +180,9 @@ public class AutomaticInboxProcessorTest {
 
     @Test
     public void testThingIsBeingRemoved() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
         inbox.setFlag(THING_UID, DiscoveryResultFlag.IGNORED);
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
                 .collect(Collectors.toList());
@@ -170,6 +193,69 @@ public class AutomaticInboxProcessorTest {
         when(thingStatusInfoChangedEvent.getStatusInfo())
                 .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
         when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+
+        results = inbox.getAll();
+        assertThat(results.size(), is(0));
+    }
+
+    @Test
+    public void testThingWithConfigWentOnline() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
+                .withRepresentationProperty(CONFIG_KEY).build());
+
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
+
+        when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID2);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
+    }
+
+    @Test
+    public void testInboxWithConfigHasBeenChanged() {
+        inbox.stream().map(DiscoveryResult::getThingUID).forEach(t -> inbox.remove(t));
+        assertThat(inbox.getAll().size(), is(0));
+
+        when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
+        when(thingRegistry.stream()).thenReturn(Stream.of(thing2));
+
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(CONFIG_KEY, CONFIG_VALUE)
+                .withRepresentationProperty(CONFIG_KEY).build());
+
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+    }
+
+    @Test
+    public void testThingWithConfigIsBeingRemoved() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
+                .withRepresentationProperty(CONFIG_KEY).build());
+
+        inbox.setFlag(THING_UID2, DiscoveryResultFlag.IGNORED);
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
+
+        when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID2);
         inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
 
         results = inbox.getAll();
