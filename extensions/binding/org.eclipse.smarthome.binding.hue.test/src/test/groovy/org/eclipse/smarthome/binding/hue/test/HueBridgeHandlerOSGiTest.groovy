@@ -65,13 +65,13 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         return TEST_USER_NAME;
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo(TEST_USER_NAME))
     }
@@ -90,11 +90,11 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     void authenticate(String userName) throws IOException, ApiException {};
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo(TEST_USER_NAME))
     }
@@ -113,13 +113,13 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     void authenticate(String userName) throws IOException, ApiException {
                         throw new UnauthorizedException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo("notAuthenticatedUser"))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -139,13 +139,13 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         throw new LinkButtonException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), is(nullValue()))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -165,13 +165,13 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         throw new ApiException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), is(nullValue()))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -190,7 +190,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+        hueBridgeHandler.onConnectionLost()
 
         assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
         assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
