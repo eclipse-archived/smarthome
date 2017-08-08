@@ -194,7 +194,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
         waitForAssert(() -> {
             try {
                 // mock HttpClient
-                final Field hueBridgeField = HueBridgeHandler.class.getDeclaredField("bridge");
+                final Field hueBridgeField = HueBridgeHandler.class.getDeclaredField("hueBridge");
                 hueBridgeField.setAccessible(true);
                 final Object hueBridgeValue = hueBridgeField.get(hueBridgeHandler);
                 assertThat(hueBridgeValue, is(notNullValue()));

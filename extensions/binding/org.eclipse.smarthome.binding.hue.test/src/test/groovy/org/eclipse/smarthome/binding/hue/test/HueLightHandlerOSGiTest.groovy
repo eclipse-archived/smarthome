@@ -147,7 +147,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                 assertThat(hueLight.getStatus(), is(ThingStatus.ONLINE))
             }, 10000)
 
-            hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+            hueBridgeHandler.onConnectionLost()
 
             assertThat(hueBridge.getStatus(), is(ThingStatus.OFFLINE))
             assertThat(hueBridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
@@ -560,7 +560,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
             MockedHttpClient mockedHttpClient) {
 
         // mock HttpClient
-        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
+        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("hueBridge")
         hueBridgeField.accessible = true
         def hueBridgeValue = null
 
