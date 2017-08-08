@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
@@ -320,7 +321,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     public void ifThePropertyValuePairIsPrefixedWithLocalPIDInTheSameFileTheGlobalPIDIsIgnored() {
         String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "ignored_global_pid_conf";
         String servicesDirectory = "ignored_global_pid_services";
-        String defaultConfigFilePath = configDirectory + SEP + "ignored.global.pid.default.file.cfg";
+        String defaultConfigFilePath = configDirectory + SEP + "ignored.global.default.pid.cfg";
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath);
 
@@ -343,7 +344,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     public void ifThePropertyIsNotPrefixedWithLocalPIDTheLastPIDBecomesPIDForThatProperty() {
         String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "last_pid_conf";
         String servicesDirectory = "last_pid_services";
-        String defaultConfigFilePath = configDirectory + SEP + "last.pid.default.file.cfg";
+        String defaultConfigFilePath = configDirectory + SEP + "first.global.default.pid.cfg";
 
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath);
 
@@ -407,12 +408,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     public void whenGlobalPIDIsEmptyStringItRemainsAnEmptyString() {
         String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "global_pid_empty_conf";
         String servicesDirectory = "global_pid_empty_services";
-        String defaultConfigFilePath = configDirectory + SEP + "global.pid.empty.default.file.cfg";
 
-        initialize(configDirectory, servicesDirectory, defaultConfigFilePath);
-
-        // Assert that an empty-string pid from a file in the root directory is processed.
-        verifyValueOfConfigurationProperty("", "global.default.property", "global.default.value");
+        initialize(configDirectory, servicesDirectory, null);
 
         // Assert that an empty-string pid from a file in the services directory is processed.
         verifyValueOfConfigurationProperty("", "global.service.property", "global.service.value");
@@ -469,21 +466,139 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void whenPropertyValuePairsForAGlobalPIDAreInDifferentFilesTheyAreStillAssociatedWithThatPID() {
-        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "global_pid_different_files_no_conflict_conf";
-        String servicesDirectory = "global_pid_different_files_no_conflict_services";
-        String defaultConfigFilePath = configDirectory + SEP + "global.pid.default.file.cfg";
+    public void whenPropertyValuePairsForAGlobalPIDAreInDifferentFilesPropertiesWillNotBeMerged() {
+        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "global_pid_different_files_no_merge_conf";
+        String servicesDirectory = "global_pid_different_files_no_merge_services";
 
-        initialize(configDirectory, servicesDirectory, defaultConfigFilePath);
+        initialize(configDirectory, servicesDirectory, null);
 
         /*
-         * Assert that the configuration is updated with all the property=value
-         * pairs for the same global pid from all the processed files.
+         * Assert that the configuration is updated only with the property=value
+         * pairs which are parsed last:
          */
-        verifyValueOfConfigurationProperty("different.files.global.pid", "first.property", "first.value");
-        verifyValueOfConfigurationProperty("different.files.global.pid", "second.property", "second.value");
+        verifyNotExistingConfigurationProperty("different.files.global.pid", "first.property");
+        verifyNotExistingConfigurationProperty("different.files.global.pid", "second.property");
         verifyValueOfConfigurationProperty("different.files.global.pid", "third.property", "third.value");
-        verifyValueOfConfigurationProperty("different.files.global.pid", "fourth.property", "fourth.value");
+    }
+
+    @Test
+    public void whenLocalPIDIsDefinedForGlobalPIDFile_AbortParsing() {
+        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "global_pid_with_local_pid_line_error";
+        String servicesDirectory = "global_pid_with_local_pid_line_services_error";
+
+        initialize(configDirectory, servicesDirectory, null);
+
+        /*
+         * Assert that the configuration is updated only with the property=value
+         * pairs which are parsed last:
+         */
+        verifyNotExistingConfigurationProperty("global.service.pid", "property1");
+    }
+
+    @Test
+    public void whenExclusivePIDFileIsDeleted_DeleteTheConfiguration() throws IOException {
+        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP + "exclusive_pid_file_removed_during_runtime";
+        String servicesDirectory = "exclusive_pid_file_removed_during_runtime_services";
+
+        initialize(configDirectory, servicesDirectory, null);
+        verifyValueOfConfigurationProperty("global.service.pid", "property1", "value1");
+
+        String pid = "service.pid.cfg";
+        File serviceConfigFile = new File(configDirectory + SEP + servicesDirectory, pid);
+
+        // remember the file content and truncate the last line:
+        List<String> fileContent = IOUtils.readLines(new FileInputStream(serviceConfigFile));
+        serviceConfigFile.delete();
+
+        waitForAssert(() -> {
+            try {
+                configuration = configAdmin.getConfiguration(pid);
+            } catch (IOException e) {
+                fail("IOException occured while retrieving configuration for pid " + pid);
+            }
+            assertThat("The configuration with properties for the given pid was found but should have been removed.",
+                    configuration.getProperties(), is(nullValue()));
+        }, null, () -> {
+            try {
+                IOUtils.writeLines(fileContent, "\n", new FileOutputStream(serviceConfigFile));
+            } catch (IOException e) {
+                fail("IOException occured while writing content for file " + serviceConfigFile.getAbsolutePath());
+            }
+        }, DFL_TIMEOUT, DFL_SLEEP_TIME);
+    }
+
+    @Test
+    public void whenExclusiveConfigIsTruncated_OverrideReducedConfig() throws IOException {
+        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP
+                + "exclusive_pid_overrides_configuration_on_update";
+        String servicesDirectory = "exclusive_pid_overrides_configuration_on_update_services";
+
+        File serviceConfigFile = new File(configDirectory + SEP + servicesDirectory, "service.pid.cfg");
+
+        initialize(configDirectory, servicesDirectory, null);
+
+        /*
+         * Assert that the configuration is updated with all properties:
+         */
+        verifyValueOfConfigurationProperty("global.service.pid", "property1", "value1");
+        verifyValueOfConfigurationProperty("global.service.pid", "property2", "value2");
+
+        // remember the file content and truncate the last line:
+        List<String> fileContent = IOUtils.readLines(new FileInputStream(serviceConfigFile));
+        truncateLastLine(serviceConfigFile);
+
+        /*
+         * Assert that the configuration is updated without the truncated property/value pair:
+         */
+        verifyValueOfConfigurationProperty("global.service.pid", "property1", "value1");
+        verifyNotExistingConfigurationProperty("global.service.pid", "property2");
+
+        // reset the file content:
+        IOUtils.writeLines(fileContent, "\n", new FileOutputStream(serviceConfigFile));
+    }
+
+    @Test
+    public void whenExclusiveConfigFileIsDeleted_shouldRemoveConfigFromConfigAdmin() throws IOException {
+        String configDirectory = CONFIGURATION_WATCH_DIRECTORY + SEP
+                + "exclusive_pid_configuration_removed_after_file_delete";
+        String servicesDirectory = "exclusive_pid_configuration_removed_after_file_delete_services";
+
+        File serviceConfigFile = new File(configDirectory + SEP + servicesDirectory, "service.pid.cfg");
+
+        initialize(configDirectory, servicesDirectory, null);
+
+        /*
+         * Assert that the configuration is updated with all properties:
+         */
+        String pid = "global.service.pid";
+        verifyValueOfConfigurationProperty(pid, "property1", "value1");
+        verifyValueOfConfigurationProperty(pid, "property2", "value2");
+
+        context.disableComponent(CONFIG_DISPATCHER_COMPONENT_ID);
+
+        // remember the file content and delete the file:
+        List<String> fileContent = IOUtils.readLines(new FileInputStream(serviceConfigFile));
+        serviceConfigFile.delete();
+
+        context.enableComponent(CONFIG_DISPATCHER_COMPONENT_ID);
+        /*
+         * Assert that the configuration was deleted from configAdmin
+         */
+        waitForAssert(() -> {
+            try {
+                configuration = configAdmin.getConfiguration(pid);
+            } catch (IOException e) {
+                fail("IOException occured while retrieving configuration for pid " + pid);
+            }
+            assertThat("The configuration with properties for the given pid was found but should have been removed.",
+                    configuration.getProperties(), is(nullValue()));
+        }, null, () -> {
+            try {
+                IOUtils.writeLines(fileContent, "\n", new FileOutputStream(serviceConfigFile));
+            } catch (IOException e) {
+                fail("IOException occured while writing content for file " + serviceConfigFile.getAbsolutePath());
+            }
+        }, DFL_TIMEOUT, DFL_SLEEP_TIME);
     }
 
     @Test
@@ -654,10 +769,11 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
             assertThat("The configuration for the given pid cannot be found", configuration, is(notNullValue()));
+            assertThat("There are no properties for the configuration", configuration.getProperties(),
+                    is(notNullValue()));
+            assertThat("There should not be such " + property + " in the configuration properties",
+                    configuration.getProperties().get(property), is(nullValue()));
         });
-        assertThat("There are no properties for the configuration", configuration.getProperties(), is(notNullValue()));
-        assertThat("There should not be such '$property' in the configuration properties",
-                configuration.getProperties().get(property), is(nullValue()));
     }
 
     private void verifyNoPropertiesForConfiguration(String pid) {
@@ -684,6 +800,11 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         } catch (IOException e) {
             fail("IOException occured while modifying file " + file);
         }
+    }
+
+    private void truncateLastLine(File file) throws IOException {
+        List<String> lines = IOUtils.readLines(new FileInputStream(file));
+        IOUtils.writeLines(lines.subList(0, lines.size() - 1), "\n", new FileOutputStream(file));
     }
 
     private String getLastModifiedValueForPoperty(String path, String property) {
