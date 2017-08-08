@@ -19,6 +19,8 @@ Import-Package: javax.naming,
  org.eclipse.paho.client.mqttv3.util,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.io.transport.mqtt,
+ org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
