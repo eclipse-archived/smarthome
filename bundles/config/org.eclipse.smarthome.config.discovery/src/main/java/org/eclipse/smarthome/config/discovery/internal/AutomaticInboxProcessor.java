@@ -92,7 +92,8 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
 
     private String getRepresentationValue(DiscoveryResult result) {
         return result.getRepresentationProperty() != null
-                ? (String) result.getProperties().get(result.getRepresentationProperty()) : null;
+                ? (String) result.getProperties().get(result.getRepresentationProperty())
+                : null;
     }
 
     @Override
@@ -140,7 +141,8 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
 
     private String getRepresentationPropertyValueForThing(Thing thing) {
         ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
-        return thing.getProperties().get(thingType.getRepresentationProperty());
+        String value = thing.getProperties().get(thingType.getRepresentationProperty());
+        return value != null ? value : (String) thing.getConfiguration().get(thingType.getRepresentationProperty());
     }
 
     private void removeFromInbox(String representationValue) {
