@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -73,7 +74,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     @Override
-    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters) {
+    public void updateConfiguration(ThingUID thingUID, Map<@NonNull String, Object> configurationParameters) {
         Thing thing = get(thingUID);
         if (thing != null) {
             ThingHandler thingHandler = thing.getHandler();

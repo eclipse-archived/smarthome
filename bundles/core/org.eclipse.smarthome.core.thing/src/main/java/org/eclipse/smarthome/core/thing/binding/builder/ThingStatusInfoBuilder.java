@@ -7,13 +7,14 @@
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 
 /**
  * {@link ThingStatusInfoBuilder} is responsible for creating {@link ThingStatusInfo}s.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  * @author Dennis Nobel - Added null checks
  */
@@ -33,42 +34,39 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Creates a status info builder for the given status and detail.
-     * 
+     *
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public static ThingStatusInfoBuilder create(ThingStatus status, ThingStatusDetail statusDetail)
+    @NonNull
+    public static ThingStatusInfoBuilder create(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail)
             throws IllegalArgumentException {
-        if (status == null) {
-            throw new IllegalArgumentException("Thing status must not be null");
-        }
-        if (statusDetail == null) {
-            throw new IllegalArgumentException("Thing status detail must not be null");
-        }
         return new ThingStatusInfoBuilder(status, statusDetail, null);
     }
 
     /**
      * Creates a status info builder for the given status.
-     * 
+     *
      * @param status the status (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status is null
      */
-    public static ThingStatusInfoBuilder create(ThingStatus status) throws IllegalArgumentException {
+    @NonNull
+    public static ThingStatusInfoBuilder create(@NonNull ThingStatus status) throws IllegalArgumentException {
         return create(status, ThingStatusDetail.NONE);
     }
 
     /**
      * Appends a description to the status to build.
-     * 
+     *
      * @param description the description
      * @return status info builder
      */
+    @NonNull
     public ThingStatusInfoBuilder withDescription(String description) throws IllegalArgumentException {
         this.description = description;
         return this;
@@ -76,16 +74,15 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Appends a status detail to the status to build.
-     * 
+     *
      * @param statusDetail the status detail (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status detail is null
      */
-    public ThingStatusInfoBuilder withStatusDetail(ThingStatusDetail statusDetail) throws IllegalArgumentException {
-        if (statusDetail == null) {
-            throw new IllegalArgumentException("Thing status detail must not be null");
-        }
+    @NonNull
+    public ThingStatusInfoBuilder withStatusDetail(@NonNull ThingStatusDetail statusDetail)
+            throws IllegalArgumentException {
         this.statusDetail = statusDetail;
         return this;
     }
@@ -95,6 +92,7 @@ public class ThingStatusInfoBuilder {
      *
      * @return status info
      */
+    @NonNull
     public ThingStatusInfo build() {
         return new ThingStatusInfo(status, statusDetail, description);
     }

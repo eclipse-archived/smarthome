@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
@@ -38,7 +39,7 @@ public abstract class ConfigStatusThingHandler extends BaseThingHandler implemen
      *
      * @param thing the thing for this handler
      */
-    public ConfigStatusThingHandler(Thing thing) {
+    public ConfigStatusThingHandler(@NonNull Thing thing) {
         super(thing);
     }
 
@@ -53,7 +54,7 @@ public abstract class ConfigStatusThingHandler extends BaseThingHandler implemen
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+    public void handleConfigurationUpdate(Map<@NonNull String, Object> configurationParameters) {
         super.handleConfigurationUpdate(configurationParameters);
         if (configStatusCallback != null) {
             configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));

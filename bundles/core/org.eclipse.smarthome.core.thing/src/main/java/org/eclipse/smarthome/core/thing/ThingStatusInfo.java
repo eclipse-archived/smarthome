@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A {@link ThingStatusInfo} represents status information of a thing which consists of
@@ -22,8 +23,10 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ThingStatusInfo {
 
+    @NonNull
     private ThingStatus status;
 
+    @NonNull
     private ThingStatusDetail statusDetail;
 
     private String description;
@@ -32,6 +35,8 @@ public class ThingStatusInfo {
      * Default constructor for deserialization e.g. by Gson.
      */
     protected ThingStatusInfo() {
+        status = ThingStatus.UNKNOWN;
+        statusDetail = ThingStatusDetail.NONE;
     }
 
     /**
@@ -43,14 +48,8 @@ public class ThingStatusInfo {
      *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description)
+    public ThingStatusInfo(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail, String description)
             throws IllegalArgumentException {
-        if (status == null) {
-            throw new IllegalArgumentException("Thing status must not be null");
-        }
-        if (statusDetail == null) {
-            throw new IllegalArgumentException("Thing status detail must not be null");
-        }
         this.status = status;
         this.statusDetail = statusDetail;
         this.description = description;
@@ -61,6 +60,7 @@ public class ThingStatusInfo {
      *
      * @return the status (not null)
      */
+    @NonNull
     public ThingStatus getStatus() {
         return status;
     }
@@ -70,6 +70,7 @@ public class ThingStatusInfo {
      *
      * @return the status detail (not null)
      */
+    @NonNull
     public ThingStatusDetail getStatusDetail() {
         return statusDetail;
     }

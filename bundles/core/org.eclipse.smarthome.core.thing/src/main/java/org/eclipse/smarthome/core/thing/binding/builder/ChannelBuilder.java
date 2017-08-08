@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.thing.binding.builder;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -31,7 +33,7 @@ public class ChannelBuilder {
     private ChannelKind kind;
     private Configuration configuration;
     private Set<String> defaultTags;
-    private Map<String, String> properties;
+    private Map<@NonNull String, String> properties;
     private String label;
     private String description;
     private ChannelTypeUID channelTypeUID;
@@ -52,7 +54,8 @@ public class ChannelBuilder {
      *            item type that is accepted by this channel
      * @return channel builder
      */
-    public static ChannelBuilder create(ChannelUID channelUID, String acceptedItemType) {
+    @NonNull
+    public static ChannelBuilder create(@NonNull ChannelUID channelUID, @NonNull String acceptedItemType) {
         return new ChannelBuilder(channelUID, acceptedItemType, new HashSet<String>());
     }
 
@@ -62,7 +65,8 @@ public class ChannelBuilder {
      * @param channelTypeUID channel type UID
      * @return channel builder
      */
-    public ChannelBuilder withType(ChannelTypeUID channelTypeUID) {
+    @NonNull
+    public ChannelBuilder withType(@NonNull ChannelTypeUID channelTypeUID) {
         this.channelTypeUID = channelTypeUID;
         return this;
     }
@@ -74,6 +78,7 @@ public class ChannelBuilder {
      *            configuration
      * @return channel builder
      */
+    @NonNull
     public ChannelBuilder withConfiguration(Configuration configuration) {
         this.configuration = configuration;
         return this;
@@ -85,7 +90,8 @@ public class ChannelBuilder {
      * @param properties properties to add
      * @return channel builder
      */
-    public ChannelBuilder withProperties(Map<String, String> properties) {
+    @NonNull
+    public ChannelBuilder withProperties(Map<@NonNull String, String> properties) {
         this.properties = properties;
         return this;
     }
@@ -96,6 +102,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
+    @NonNull
     public ChannelBuilder withLabel(String label) {
         this.label = label;
         return this;
@@ -107,6 +114,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
+    @NonNull
     public ChannelBuilder withDescription(String description) {
         this.description = description;
         return this;
@@ -119,6 +127,7 @@ public class ChannelBuilder {
      *            default tags
      * @return channel builder
      */
+    @NonNull
     public ChannelBuilder withDefaultTags(Set<String> defaultTags) {
         this.defaultTags = defaultTags;
         return this;
@@ -130,6 +139,7 @@ public class ChannelBuilder {
      * @param kind kind.
      * @return channel builder
      */
+    @NonNull
     public ChannelBuilder withKind(ChannelKind kind) {
         if (kind == null) {
             throw new IllegalArgumentException("kind must not be null");
@@ -144,6 +154,7 @@ public class ChannelBuilder {
      *
      * @return channel
      */
+    @NonNull
     public Channel build() {
         return new Channel(channelUID, channelTypeUID, acceptedItemType, kind, configuration, defaultTags, properties,
                 label, description);
