@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="ntp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="ntp"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -30,6 +31,11 @@
 					Number of updates before querying the NTP server.
 				</description>
 				<default>30</default>
+			</parameter>
+			<parameter name="serverPort" type="integer">
+				<label>Server port</label>
+				<description>The port that the NTP server could use.</description>
+				<default>123</default>
 			</parameter>
 			<parameter name="timeZone" type="text" required="false">
 				<label>Timezone</label>

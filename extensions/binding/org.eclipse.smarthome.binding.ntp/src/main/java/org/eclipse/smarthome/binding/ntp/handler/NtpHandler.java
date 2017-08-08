@@ -72,6 +72,8 @@ public class NtpHandler extends BaseThingHandler {
 
     /** NTP host */
     private String hostname;
+    /** NTP server port */
+    private BigDecimal port;
     /** refresh interval */
     private BigDecimal refreshInterval;
     /** NTP refresh frequency */
@@ -108,7 +110,8 @@ public class NtpHandler extends BaseThingHandler {
             logger.debug("Initializing NTP handler for '{}'.", getThing().getUID().toString());
 
             Configuration config = getThing().getConfiguration();
-            hostname = (String) config.get(PROPERTY_NTP_SERVER);
+            hostname = (String) config.get(PROPERTY_NTP_SERVER_HOST);
+            port = (BigDecimal) config.get(PROPERTY_NTP_SERVER_PORT);
             refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
             refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
             refreshNtpCount = 0;
@@ -207,8 +210,7 @@ public class NtpHandler extends BaseThingHandler {
      * Queries the given timeserver <code>hostname</code> and returns the time
      * in milliseconds.
      *
-     * @param hostname
-     *            the timeserver to query
+     * @param hostname - the timeserver to query
      * @return the time in milliseconds or the current time of the system if an
      *         error occurs.
      */
@@ -218,7 +220,7 @@ public class NtpHandler extends BaseThingHandler {
             NTPUDPClient timeClient = new NTPUDPClient();
             timeClient.setDefaultTimeout(NTP_TIMEOUT);
             InetAddress inetAddress = InetAddress.getByName(hostname);
-            TimeInfo timeInfo = timeClient.getTime(inetAddress);
+            TimeInfo timeInfo = timeClient.getTime(inetAddress, port.intValue());
 
             logger.debug("{} Got time update from: {} : {}", getThing().getUID().toString(), hostname,
                     SDF.format(new Date(timeInfo.getReturnTime())));
