@@ -222,8 +222,9 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
     @Override
     public String toString() {
-        return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", flag=" + flag + ", label="
-                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp + "]";
+        return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", representationProperty="
+                + representationProperty + ", flag=" + flag + ", label=" + label + ", bridgeUID=" + bridgeUID + ", ttl="
+                + timeToLive + ", timestamp=" + timestamp + "]";
     }
 
     @Override

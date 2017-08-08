@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -91,8 +90,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     break;
             }
         } else {
-            printInboxEntries(console, inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW)))
-                    .collect(Collectors.toList()));
+            printInboxEntries(console,
+                    inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList()));
         }
     }
 
@@ -109,12 +108,14 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
+            String representationProperty = discoveryResult.getRepresentationProperty();
             String timestamp = new Date(discoveryResult.getTimestamp()).toString();
             String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED"
                     : "" + discoveryResult.getTimeToLive();
-            console.println(
-                    String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]",
-                            flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
+            console.println(String.format(
+                    "%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, representationProperty=%s, timestamp=%s, timeToLive=%s]",
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, representationProperty, timestamp,
+                    timeToLive));
 
         }
     }
