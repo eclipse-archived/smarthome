@@ -5,7 +5,8 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <bridge-type id="gateway">
-        <label>Trådfri Gateway</label>
+        <label>TRÅDFRI Gateway</label>
+        <description>IKEA TRÅDFRI IP Gateway</description>
 
         <config-description>
             <parameter name="host" type="text" required="true">
@@ -93,10 +94,7 @@
     <channel-type id="brightness">
         <item-type>Dimmer</item-type>
         <label>Brightness</label>
-        <description>
-            The brightness channel allows to control the brightness of a light.
-            It is also possible to switch the light on and off.
-        </description>
+        <description>Control the brightness and switch the light on and off.</description>
         <category>DimmableLight</category>
         <tags>
             <tag>Lighting</tag>
@@ -106,7 +104,7 @@
     <channel-type id="color_temperature">
         <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
-        <description>Allows to control the color temperature of light.</description>
+        <description>Control the color temperature of the light.</description>
         <category>ColorLight</category>
     </channel-type>
 
