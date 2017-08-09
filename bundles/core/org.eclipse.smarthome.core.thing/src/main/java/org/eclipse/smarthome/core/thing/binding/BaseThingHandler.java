@@ -70,8 +70,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ItemChannelLinkRegistry linkRegistry;
     protected BundleContext bundleContext;
 
-    @NonNull
-    protected Thing thing;
+    protected @NonNull Thing thing;
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
@@ -165,8 +164,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    @NonNull
-    public Thing getThing() {
+    public @NonNull Thing getThing() {
         return this.thing;
     }
 

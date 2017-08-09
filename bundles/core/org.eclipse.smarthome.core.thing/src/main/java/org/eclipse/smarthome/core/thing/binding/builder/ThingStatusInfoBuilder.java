@@ -41,9 +41,8 @@ public class ThingStatusInfoBuilder {
      *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    @NonNull
-    public static ThingStatusInfoBuilder create(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail)
-            throws IllegalArgumentException {
+    public static @NonNull ThingStatusInfoBuilder create(@NonNull ThingStatus status,
+            @NonNull ThingStatusDetail statusDetail) throws IllegalArgumentException {
         return new ThingStatusInfoBuilder(status, statusDetail, null);
     }
 
@@ -55,8 +54,7 @@ public class ThingStatusInfoBuilder {
      *
      * @throws IllegalArgumentException if thing status is null
      */
-    @NonNull
-    public static ThingStatusInfoBuilder create(@NonNull ThingStatus status) throws IllegalArgumentException {
+    public static @NonNull ThingStatusInfoBuilder create(@NonNull ThingStatus status) throws IllegalArgumentException {
         return create(status, ThingStatusDetail.NONE);
     }
 
@@ -66,8 +64,7 @@ public class ThingStatusInfoBuilder {
      * @param description the description
      * @return status info builder
      */
-    @NonNull
-    public ThingStatusInfoBuilder withDescription(String description) throws IllegalArgumentException {
+    public @NonNull ThingStatusInfoBuilder withDescription(String description) throws IllegalArgumentException {
         this.description = description;
         return this;
     }
@@ -80,8 +77,7 @@ public class ThingStatusInfoBuilder {
      *
      * @throws IllegalArgumentException if thing status detail is null
      */
-    @NonNull
-    public ThingStatusInfoBuilder withStatusDetail(@NonNull ThingStatusDetail statusDetail)
+    public @NonNull ThingStatusInfoBuilder withStatusDetail(@NonNull ThingStatusDetail statusDetail)
             throws IllegalArgumentException {
         this.statusDetail = statusDetail;
         return this;
@@ -92,8 +88,7 @@ public class ThingStatusInfoBuilder {
      *
      * @return status info
      */
-    @NonNull
-    public ThingStatusInfo build() {
+    public @NonNull ThingStatusInfo build() {
         return new ThingStatusInfo(status, statusDetail, description);
     }
 }

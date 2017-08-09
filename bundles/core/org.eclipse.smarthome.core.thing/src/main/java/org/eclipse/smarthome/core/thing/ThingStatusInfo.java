@@ -23,11 +23,9 @@ import org.eclipse.jdt.annotation.NonNull;
  */
 public class ThingStatusInfo {
 
-    @NonNull
-    private ThingStatus status;
+    private @NonNull ThingStatus status;
 
-    @NonNull
-    private ThingStatusDetail statusDetail;
+    private @NonNull ThingStatusDetail statusDetail;
 
     private String description;
 
@@ -60,8 +58,7 @@ public class ThingStatusInfo {
      *
      * @return the status (not null)
      */
-    @NonNull
-    public ThingStatus getStatus() {
+    public @NonNull ThingStatus getStatus() {
         return status;
     }
 
@@ -70,8 +67,7 @@ public class ThingStatusInfo {
      *
      * @return the status detail (not null)
      */
-    @NonNull
-    public ThingStatusDetail getStatusDetail() {
+    public @NonNull ThingStatusDetail getStatusDetail() {
         return statusDetail;
     }
 

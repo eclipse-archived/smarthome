@@ -33,62 +33,53 @@ import com.google.common.collect.Lists;
  */
 public class ThingBuilder {
 
-    @NonNull
-    private ThingImpl thing;
+    private @NonNull ThingImpl thing;
 
     protected ThingBuilder(@NonNull ThingImpl thing) {
         this.thing = thing;
     }
 
-    @NonNull
-    public static ThingBuilder create(@NonNull ThingTypeUID thingTypeUID, @NonNull String thingId) {
+    public static @NonNull ThingBuilder create(@NonNull ThingTypeUID thingTypeUID, @NonNull String thingId) {
         ThingImpl thing = new ThingImpl(thingTypeUID, thingId);
         return new ThingBuilder(thing);
     }
 
     @Deprecated
-    @NonNull
-    public static ThingBuilder create(@NonNull ThingUID thingUID) {
+    public static @NonNull ThingBuilder create(@NonNull ThingUID thingUID) {
         ThingImpl thing = new ThingImpl(thingUID);
         return new ThingBuilder(thing);
     }
 
-    @NonNull
-    public static ThingBuilder create(ThingTypeUID thingTypeUID, ThingUID thingUID) {
+    public static @NonNull ThingBuilder create(ThingTypeUID thingTypeUID, ThingUID thingUID) {
         ThingImpl thing = new ThingImpl(thingTypeUID, thingUID);
         return new ThingBuilder(thing);
     }
 
-    @NonNull
-    public ThingBuilder withLabel(String label) {
+    public @NonNull ThingBuilder withLabel(String label) {
         this.thing.setLabel(label);
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withChannel(Channel channel) {
+    public @NonNull ThingBuilder withChannel(Channel channel) {
         final Collection<Channel> mutableThingChannels = this.thing.getChannelsMutable();
         ThingHelper.ensureUniqueChannels(mutableThingChannels, channel);
         mutableThingChannels.add(channel);
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withChannels(Channel... channels) {
+    public @NonNull ThingBuilder withChannels(Channel... channels) {
         ThingHelper.ensureUniqueChannels(channels);
         this.thing.setChannels(Lists.newArrayList(channels));
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withChannels(List<Channel> channels) {
+    public @NonNull ThingBuilder withChannels(List<Channel> channels) {
         ThingHelper.ensureUniqueChannels(channels);
         this.thing.setChannels(Lists.newArrayList(channels));
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withoutChannel(ChannelUID channelUID) {
+    public @NonNull ThingBuilder withoutChannel(ChannelUID channelUID) {
         Iterator<Channel> iterator = this.thing.getChannelsMutable().iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getUID().equals(channelUID)) {
@@ -98,22 +89,19 @@ public class ThingBuilder {
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withConfiguration(Configuration thingConfiguration) {
+    public @NonNull ThingBuilder withConfiguration(Configuration thingConfiguration) {
         this.thing.setConfiguration(thingConfiguration);
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withBridge(ThingUID bridgeUID) {
+    public @NonNull ThingBuilder withBridge(ThingUID bridgeUID) {
         if (bridgeUID != null) {
             this.thing.setBridgeUID(bridgeUID);
         }
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withProperties(Map<@NonNull String, String> properties) {
+    public @NonNull ThingBuilder withProperties(Map<@NonNull String, String> properties) {
         if (properties != null) {
             for (String key : properties.keySet()) {
                 this.thing.setProperty(key, properties.get(key));
@@ -122,14 +110,12 @@ public class ThingBuilder {
         return this;
     }
 
-    @NonNull
-    public ThingBuilder withLocation(String location) {
+    public @NonNull ThingBuilder withLocation(String location) {
         this.thing.setLocation(location);
         return this;
     }
 
-    @NonNull
-    public Thing build() {
+    public @NonNull Thing build() {
         return this.thing;
     }
 

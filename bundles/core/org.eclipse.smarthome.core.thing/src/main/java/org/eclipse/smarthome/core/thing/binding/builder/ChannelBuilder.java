@@ -54,8 +54,7 @@ public class ChannelBuilder {
      *            item type that is accepted by this channel
      * @return channel builder
      */
-    @NonNull
-    public static ChannelBuilder create(@NonNull ChannelUID channelUID, @NonNull String acceptedItemType) {
+    public @NonNull static ChannelBuilder create(@NonNull ChannelUID channelUID, @NonNull String acceptedItemType) {
         return new ChannelBuilder(channelUID, acceptedItemType, new HashSet<String>());
     }
 
@@ -65,8 +64,7 @@ public class ChannelBuilder {
      * @param channelTypeUID channel type UID
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withType(@NonNull ChannelTypeUID channelTypeUID) {
+    public @NonNull ChannelBuilder withType(@NonNull ChannelTypeUID channelTypeUID) {
         this.channelTypeUID = channelTypeUID;
         return this;
     }
@@ -78,8 +76,7 @@ public class ChannelBuilder {
      *            configuration
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withConfiguration(Configuration configuration) {
+    public @NonNull ChannelBuilder withConfiguration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
@@ -90,8 +87,7 @@ public class ChannelBuilder {
      * @param properties properties to add
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withProperties(Map<@NonNull String, String> properties) {
+    public @NonNull ChannelBuilder withProperties(Map<@NonNull String, String> properties) {
         this.properties = properties;
         return this;
     }
@@ -102,8 +98,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withLabel(String label) {
+    public @NonNull ChannelBuilder withLabel(String label) {
         this.label = label;
         return this;
     }
@@ -114,8 +109,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withDescription(String description) {
+    public @NonNull ChannelBuilder withDescription(String description) {
         this.description = description;
         return this;
     }
@@ -127,8 +121,7 @@ public class ChannelBuilder {
      *            default tags
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withDefaultTags(Set<String> defaultTags) {
+    public @NonNull ChannelBuilder withDefaultTags(Set<String> defaultTags) {
         this.defaultTags = defaultTags;
         return this;
     }
@@ -139,8 +132,7 @@ public class ChannelBuilder {
      * @param kind kind.
      * @return channel builder
      */
-    @NonNull
-    public ChannelBuilder withKind(ChannelKind kind) {
+    public @NonNull ChannelBuilder withKind(ChannelKind kind) {
         if (kind == null) {
             throw new IllegalArgumentException("kind must not be null");
         }
@@ -154,8 +146,7 @@ public class ChannelBuilder {
      *
      * @return channel
      */
-    @NonNull
-    public Channel build() {
+    public @NonNull Channel build() {
         return new Channel(channelUID, channelTypeUID, acceptedItemType, kind, configuration, defaultTags, properties,
                 label, description);
     }

@@ -205,8 +205,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @param thingTypeUID the unique id of the thing type
      * @return the thing type represented by the given unique id
      */
-    @Nullable
-    protected ThingType getThingTypeByUID(@NonNull ThingTypeUID thingTypeUID) {
+    protected @Nullable ThingType getThingTypeByUID(@NonNull ThingTypeUID thingTypeUID) {
         if (thingTypeRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Base thing handler factory has not been properly initialized. Did you forget to call super.activate()?");
@@ -229,8 +228,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      *            thingUID (can not be null)
      * @return thing (can be null, if thing type is unknown)
      */
-    @Nullable
-    protected Thing createThing(@NonNull ThingTypeUID thingTypeUID, @NonNull Configuration configuration,
+    protected @Nullable Thing createThing(@NonNull ThingTypeUID thingTypeUID, @NonNull Configuration configuration,
             @NonNull ThingUID thingUID) {
         return createThing(thingTypeUID, configuration, thingUID, null);
     }

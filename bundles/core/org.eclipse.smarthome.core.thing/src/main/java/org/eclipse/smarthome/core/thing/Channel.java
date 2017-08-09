@@ -47,11 +47,9 @@ public class Channel {
 
     private String description;
 
-    @NonNull
-    private Configuration configuration;
+    private @NonNull Configuration configuration;
 
-    @NonNull
-    private Map<@NonNull String, String> properties;
+    private @NonNull Map<@NonNull String, String> properties;
 
     private Set<String> defaultTags = new LinkedHashSet<>();
 
@@ -149,8 +147,7 @@ public class Channel {
      *
      * @return channel type UID or null if no channel type is specified
      */
-    @Nullable
-    public ChannelTypeUID getChannelTypeUID() {
+    public @Nullable ChannelTypeUID getChannelTypeUID() {
         return channelTypeUID;
     }
 
@@ -160,8 +157,7 @@ public class Channel {
      *
      * @return the label for the channel. Can be null.
      */
-    @Nullable
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return this.label;
     }
 
@@ -172,8 +168,7 @@ public class Channel {
      *
      * @return the description for the channel. Can be null.
      */
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return this.description;
     }
 
@@ -182,8 +177,7 @@ public class Channel {
      *
      * @return channel configuration (not null)
      */
-    @NonNull
-    public Configuration getConfiguration() {
+    public @NonNull Configuration getConfiguration() {
         return configuration;
     }
 
@@ -192,8 +186,7 @@ public class Channel {
      *
      * @return channel properties (not null)
      */
-    @NonNull
-    public Map<@NonNull String, String> getProperties() {
+    public @NonNull Map<@NonNull String, String> getProperties() {
         return properties;
     }
 
