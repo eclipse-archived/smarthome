@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -37,7 +38,7 @@ public class ThingType extends AbstractDescriptionType {
     private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
     private final List<String> supportedBridgeTypeUIDs;
-    private final Map<String, String> properties;
+    private final Map<@NonNull String, String> properties;
     private final String representationProperty;
     private final URI configDescriptionURI;
     private final boolean listed;
@@ -258,7 +259,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @return the properties for this {@link ThingType} (not null)
      */
-    public Map<String, String> getProperties() {
+    public @NonNull Map<@NonNull String, String> getProperties() {
         return properties;
     }
 
