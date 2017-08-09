@@ -22,7 +22,7 @@ Import-Package: ${package},
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
- Require-Bundle: org.junit,org.mockito,org.hamcrest
+Require-Bundle: org.junit,org.mockito,org.hamcrest
 Export-Package: ${package}.internal;x-internal:=true,
  ${package};uses:="org.eclipse.smarthome.test"
 
