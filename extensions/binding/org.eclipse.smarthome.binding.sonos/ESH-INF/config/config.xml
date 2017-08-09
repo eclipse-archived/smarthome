@@ -12,10 +12,9 @@
 		<parameter name="notificationTimeout" type="integer" unit="s">
 			<label>Notification Timeout</label>
 			<description>Specifies the amount of time in seconds for which the notification sound will be played</description>
-			<unitLabel>second</unitLabel>
 			<default>20</default>
 		</parameter>
-		<parameter name="refresh" type="integer">
+		<parameter name="refresh" type="integer" unit="s">
 			<label>Refresh interval</label>
 			<description>Specifies the refresh interval in seconds</description>
 			<default>60</default>
