@@ -1,24 +1,9 @@
 angular.module('PaperUI.controllers.control', []) //
 .controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
-    $scope.selectedIndex = 0;
     $scope.tabs = [];
 
     $scope.navigateTo = function(path) {
         $location.path(path);
-    }
-    $scope.next = function() {
-        var newIndex = $scope.selectedIndex + 1;
-        if (newIndex > ($scope.tabs.length - 1)) {
-            newIndex = 0;
-        }
-        $scope.selectedIndex = newIndex;
-    }
-    $scope.prev = function() {
-        var newIndex = $scope.selectedIndex - 1;
-        if (newIndex < 0) {
-            newIndex = $scope.tabs.length - 1;
-        }
-        $scope.selectedIndex = newIndex;
     }
 
     $scope.refresh = function() {
