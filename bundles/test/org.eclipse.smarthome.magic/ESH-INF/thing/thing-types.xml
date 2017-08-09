@@ -33,6 +33,7 @@
 
 		<channels>
 			<channel id="color" typeId="color" />
+			<channel id="alert" typeId="alert" />
 		</channels>
 
 		<config-description>
