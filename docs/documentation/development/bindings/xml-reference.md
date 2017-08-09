@@ -327,7 +327,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
         <property name="propertyName">propertyValue</property>
         ...
     </properties>
-    <representationProperty>propertyName</representationProperty>
+    <representation-property>propertyName</representation-property>
 
     <config-description>
       ...
@@ -369,7 +369,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
         <property name="propertyName">propertyValue</property>
         ...
     </properties>
-    <representationProperty>propertyName</representationProperty>
+    <representation-property>propertyName</representation-property>
 
     <config-description>
       ...
