@@ -60,6 +60,6 @@
 			<property name="modelId">PLAY:3</property>
 		</properties>
 
-		<config-description-ref uri="config:sonos:zoneplayer" />
+		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>

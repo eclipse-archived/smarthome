@@ -7,13 +7,13 @@
 	<channel-type id="add" advanced="true">
 		<item-type>String</item-type>
 		<label>Add</label>
-		<description>Add a Zone Player to the group of the given Zone Player</description>
+		<description>Add the given Zone Player to the group of this Zone Player</description>
 	</channel-type>
 
 	<channel-type id="alarm" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Set Alarm</label>
-		<description>Set the first occurring alarm either ON or OFF. Alarms have first have to be defined through the Sonos Controller app</description>
+		<description>Set the first occurring alarm either ON or OFF. Alarms first have to be defined through the Sonos Controller app</description>
 	</channel-type>
 
 	<channel-type id="alarmproperties" advanced="true">
@@ -280,7 +280,7 @@
 	<channel-type id="zonename">
 		<item-type>String</item-type>
 		<label>Zone Name</label>
-		<description>Name of the Zone Group the Zone Player belongs to</description>
+		<description>Name of the Zone associated to the Zone Player</description>
 		<state readOnly="true" />
 	</channel-type>
 
