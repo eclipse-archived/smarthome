@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.config.core.status;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The {@link ConfigStatusSource} represents a source which would like to propagate its new configuration status. It is
@@ -24,12 +24,9 @@ public abstract class ConfigStatusSource {
      * Creates a new config status source object.
      *
      * @param entityId the id of the entity whose new configuration status is to be propagated
-     *
-     * @throws NullPointerException if given entity id is null
      */
-    public ConfigStatusSource(String entityId) {
+    public ConfigStatusSource(@NonNull String entityId) {
         super();
-        Preconditions.checkNotNull(entityId);
         this.entityId = entityId;
     }
 

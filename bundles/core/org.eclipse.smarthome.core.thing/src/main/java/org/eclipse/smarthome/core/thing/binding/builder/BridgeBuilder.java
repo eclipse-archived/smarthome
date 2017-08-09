@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -29,7 +30,7 @@ import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
  */
 public class BridgeBuilder extends ThingBuilder {
 
-    private BridgeBuilder(BridgeImpl thing) {
+    private BridgeBuilder(@NonNull BridgeImpl thing) {
         super(thing);
     }
 
@@ -91,7 +92,7 @@ public class BridgeBuilder extends ThingBuilder {
     }
 
     @Override
-    public BridgeBuilder withProperties(Map<String, String> properties) {
+    public BridgeBuilder withProperties(Map<@NonNull String, String> properties) {
         return (BridgeBuilder) super.withProperties(properties);
     }
 
