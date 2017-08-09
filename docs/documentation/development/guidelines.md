@@ -22,6 +22,7 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Generics must be used where applicable.
 1. Code should not show any warnings. Warnings that cannot be circumvented should be suppressed by using the @SuppressWarnings annotation. 
 1. For dependency injection, OSGi Declarative Services should be used.
+1. OSGi Declarative Services should be declared using annotations. The IDE will take care of the service *.xml file creation. See the official OSGi documentation for an [example here](http://enroute.osgi.org/services/org.osgi.service.component.html).
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
 
 ## B. OSGi Bundles
