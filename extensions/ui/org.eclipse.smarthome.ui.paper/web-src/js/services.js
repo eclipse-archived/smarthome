@@ -192,13 +192,20 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             insertEmptyOption(parameter);
         }
 
-        if (type === 'INTEGER' || type === 'DECIMAL') {
-            angular.forEach(parameter.options, function(option) {
-                option.value = parseInt(option.value);
-            })
-            if (parameter.defaultValue) {
-                parameter.defaultValue = parseInt(parameter.defaultValue);
-            }
+        if (type === 'INTEGER') {
+            adjustNumberValue(parameter, parseInt);
+        }
+        if (type === 'DECIMAL') {
+            adjustNumberValue(parameter, parseFloat);
+        }
+    }
+
+    var adjustNumberValue = function(parameter, parseNumberFunction) {
+        angular.forEach(parameter.options, function(option) {
+            option.value = parseNumberFunction(option.value);
+        })
+        if (parameter.defaultValue) {
+            parameter.defaultValue = parseNumberFunction(parameter.defaultValue);
         }
     }
 
@@ -428,8 +435,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                             if (String(value).length > 0) {
                                 thing.configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                             }
-                        } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                        } else if (parameter.type === 'INTEGER') {
                             thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : "";
+                        } else if (parameter.type === 'DECIMAL') {
+                            thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : "";
                         } else {
                             thing.configuration[parameter.name] = parameter.defaultValue;
                         }
@@ -480,8 +489,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                         if (String(value).length > 0) {
                             configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                         }
-                    } else if (!hasValue && (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL')) {
+                    } else if (!hasValue && parameter.type === 'INTEGER') {
                         configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : null;
+                    } else if (!hasValue && parameter.type === 'DECIMAL') {
+                        configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : null;
                     } else if (!hasValue) {
                         configuration[parameter.name] = parameter.defaultValue;
                     }
