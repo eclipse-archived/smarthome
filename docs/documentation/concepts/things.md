@@ -4,21 +4,39 @@ layout: documentation
 
 # Things
 
-Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.
+Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one.
+It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.
 From a user perspective, they are relevant for the setup and configuration process, but not for the operation.
 
-Things can have configuration properties, which can be optional or mandatory. Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.
+Things can have configuration properties, which can be optional or mandatory.
+Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.
 
-Things provide "channels", which represent the different functions they provide. Channels are linked to items, where such links are the glue between the virtual and the physical layer. Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels. Likewise, it actively sends out events for items linked to its channels.
+### Channels
 
-A special type of thing is a "bridge". Bridges are things that need to be added to the system in order to gain access to other things. A typical example of a bridge is an IP gateway for some non-IP based home automation system. 
+Things provide "channels", which represent the different functions the thing provides.
+Where the thing is the physical entity or source of information, the channel is a concrete function from this thing.
+A physical light bulb might have a dimmer channel and a color channel, both providing functionality of the one light bulb thing to the system.
+For sources of information the thing might be the local weather with information from a web service with different channels like temperature, pressure and humidity.
+
+Channels are linked to items, where such links are the glue between the virtual and the physical layer.
+Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels.
+Likewise, it actively sends out events for items linked to its channels.
+
+### Bridges
+
+A special type of thing is a "bridge".
+Bridges are things that need to be added to the system in order to gain access to other things.
+A typical example of a bridge is an IP gateway for some non-IP based home automation system or a web service configuration with authentication information which every thing from this web service might need.
+
+### Discovery
 
 As many things can be automatically discovered, there are special mechanisms available that deal with the handling of [automatically discovered things](discovery.html).
 
 
 ## Thing Status
 
-Each thing has a status object, which helps to identify possible problems with the device or service. The following table provides an overview of the different statuses:
+Each thing has a status object, which helps to identify possible problems with the device or service.
+The following table provides an overview of the different statuses:
 
 | Status        | Description |
 |---------------|-------------|
@@ -30,7 +48,7 @@ Each thing has a status object, which helps to identify possible problems with t
 | REMOVING      | The device/service represented by a thing should be removed, but the binding did not confirm the deletion yet. Some bindings need to communicate with the device to unpair it from the system. Thing is probably not working and commands can not be processed. |
 | REMOVED       | This status indicates that the device/service represented by a thing was removed from the external system after the REMOVING was initiated by the framework. Usually this status is an intermediate status because the thing gets removed from the database after this status was assigned. |
 
-The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE and OFFLINE are assigned from a binding. 
+The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses UNKNOWN, ONLINE and OFFLINE are assigned from a binding.
 
 Additionally, the REMOVED state is set by the binding to indicate that the removal process has been completed, i.e. the thing must have been in REMOVING state before.
 
@@ -40,11 +58,17 @@ The following diagram shows the allowed status transitions:
 
 ![Status Transitions](diagrams/status_transitions.png)
 
-The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes into INITIALIZING. If the initialization fails, the thing goes back to UNINITIALIZED. If the initialization succeeds, the binding sets the status of the thing to UNKNOWN, ONLINE or OFFLINE, which all mean that the thing handler is fully initialized. From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED. The statuses REMOVING and REMOVED can also be reached from any of the other states. 
+The initial state of a thing is UNINITIALIZED.
+From UNINITIALIZED the thing goes into INITIALIZING.
+If the initialization fails, the thing goes back to UNINITIALIZED.
+If the initialization succeeds, the binding sets the status of the thing to UNKNOWN, ONLINE or OFFLINE, which all mean that the thing handler is fully initialized.
+From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED.
+The statuses REMOVING and REMOVED can also be reached from any of the other states.
 
 ## Status Details
 
-A status is detailed further with a status detail object. The following table lists the different status details for each status:
+A status is detailed further with a status detail object.
+The following table lists the different status details for each status:
 
 <table>
 <tr valign="top"><td rowspan="6">UNINITIALIZED</td><td>NONE</td><td>No further status details available.</td></tr>
@@ -69,11 +93,14 @@ A status is detailed further with a status detail object. The following table li
 
 ### Status Description 
 
-To provide additional information about the current status a description is used. The status description is to be specified by the binding. This description can be used for debugging purposes and should not be presented to the user, as it might contain unreadable technical information (e.g. an HTTP status code, or any other protocol specific information, which helps to identify the current problem).
+To provide additional information about the current status a description is used.
+The status description is to be specified by the binding.
+This description can be used for debugging purposes and should not be presented to the user, as it might contain unreadable technical information (e.g. an HTTP status code, or any other protocol specific information, which helps to identify the current problem).
 
 ### Thing Status API
 
-The Thing interface defines a method `getStatusInfo()` to retrieve the current status of the thing. The following code shows how to print the status of each thing into the console:
+The Thing interface defines a method `getStatusInfo()` to retrieve the current status of the thing.
+The following code shows how to print the status of each thing into the console:
 
 ```java
 Collection<Thing> things = thingRegistry.getAll();
