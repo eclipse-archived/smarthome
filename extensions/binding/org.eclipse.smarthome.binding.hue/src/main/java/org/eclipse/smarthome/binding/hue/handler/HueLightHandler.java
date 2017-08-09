@@ -133,7 +133,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (vendor != null) {
                     updateProperty(Thing.PROPERTY_VENDOR, vendor);
                 }
-                updateProperty(LIGHT_ID, fullLight.getId());
                 updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
                 propertiesInitializedSuccessfully = true;
