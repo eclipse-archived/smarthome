@@ -197,7 +197,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     @Test
-    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is null)'() {
+    void 'assert that a status configuration message for missing bridge IP is properly returned - IP is null'() {
         Configuration configuration = new Configuration().with {
             put(HOST, null)
             put(SERIAL_NUMBER, "testSerialNumber")
@@ -218,7 +218,7 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     @Test
-    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is an empty string)'() {
+    void 'assert that a status configuration message for missing bridge IP is properly returned - IP is an empty string'() {
         Configuration configuration = new Configuration().with {
             put(HOST, "")
             put(SERIAL_NUMBER, "testSerialNumber")
