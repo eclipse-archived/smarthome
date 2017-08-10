@@ -21,6 +21,5 @@ Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.service.device,
  org.slf4j
 Require-Bundle: org.junit,org.mockito,org.hamcrest
-Export-Package: org.eclipse.smarthome.binding.tradfri.internal;x-internal:=true,
- org.eclipse.smarthome.binding.tradfri;uses:="org.eclipse.smarthome.test"
+Export-Package: org.eclipse.smarthome.binding.tradfri;uses:="org.eclipse.smarthome.test"
 
