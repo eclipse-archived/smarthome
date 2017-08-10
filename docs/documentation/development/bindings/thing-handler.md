@@ -180,27 +180,6 @@ Furthermore bindings can specify a localized description of the thing status by 
 rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of {1} configuration changes per {2} has been exceeded. For further info please refer to device vendor.
 ```
 
-## Offering a callback URL
-
-Some things might require a `callback` URL which should be bound to a certain network interface. A user can configure his default network address via Paper UI under `Configuration -> System -> Network Settings`. To obtain this configured address the `ThingHandlerFactory` needs a `service reference` to the `NetworkInterfaceService` in its `OSGI-INF/MyHandlerFactory.xml`:
-
-```
-<reference bind="setNetworkAddressprovider" cardinality="1..1" interface="org.eclipse.smarthome.core.net.NetworkAddressProvider" name="NetworkAddressprovider" policy="static" unbind="unsetNetworkAddressprovider"/>
-```
-
-Inside `MyHandlerFactory.java` two methods are required:
-
-```java
-protected void setNetworkAddressprovider(NetworkAddressprovider networkAddressprovider) {
-	this.networkAddressprovider = networkInterfaceService;
-	}
-protected void unsetNetworkAddressprovider(NetworkAddressprovider networkAddressprovider) {
-	this.networkAddressprovider = null;
-}
-```
-
-Now the `MyHandlerFactory` can obtain the configured IP address via `networkAddressprovider.getPrimaryIpv4HostAddress()`. This IP address can be used in callback URL offered to a device.
-
 ## Channel Links
 
 Some bindings might want to start specific functionality for a channel only if an item is linked to the channel. The `ThingHandler` has two callback methods `channelLinked(ChannelUID channelUID)` and `channelUnlinked(ChannelUID channelUID)`, which are called for every link that is added or removed to/from a channel. So please be aware of the fact that both methods can be called multiple times.

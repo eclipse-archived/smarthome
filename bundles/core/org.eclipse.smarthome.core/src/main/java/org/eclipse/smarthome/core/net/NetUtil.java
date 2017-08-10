@@ -18,8 +18,8 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import org.apache.commons.net.util.SubnetUtils;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -40,6 +40,9 @@ public class NetUtil implements NetworkAddressProvider {
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
+    private static final Pattern IPV4_PATTERN = Pattern
+            .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+
     private String primaryAddress;
 
     @SuppressWarnings("unchecked")
@@ -50,13 +53,12 @@ public class NetUtil implements NetworkAddressProvider {
 
     @Modified
     public synchronized void modified(Map<String, Object> config) {
-        String defaultInterfaceConfig = (String) config.get(PRIMARY_ADDRESS);
-        if (defaultInterfaceConfig == null || defaultInterfaceConfig.equals("")) {
+        String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
+        if (primaryAddressConf == null || primaryAddressConf.isEmpty() || !isValidIPConfig(primaryAddressConf)) {
             // if none is specified we return the default one for backward compatibility
+            LOGGER.warn("Non valid IP configuration found, will continue to use first interface");
             primaryAddress = NetUtil.getLocalIpv4HostAddress();
         } else {
-            String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
-
             String[] addrString = primaryAddressConf.split("/");
             if (addrString.length > 1) {
                 String ip = getIPv4inSubnet(primaryAddressConf);
@@ -81,6 +83,7 @@ public class NetUtil implements NetworkAddressProvider {
     /**
      * Get the first candidate for a local IPv4 host address (non loopback, non localhost).
      */
+    @Deprecated
     public static String getLocalIpv4HostAddress() {
         try {
             String hostAddress = null;
@@ -149,6 +152,56 @@ public class NetUtil implements NetworkAddressProvider {
         }
     }
 
+    /**
+     * Converts a netmask in bits into a string representation
+     * i.e. 24 bits -> 255.255.255.0
+     *
+     * @param prefixLength bits of the netmask
+     * @return string representation of netmask (i.e. 255.255.255.0)
+     */
+    public static String networkPrefixLengthToNetmask(int prefixLength) {
+        if (prefixLength > 31 || prefixLength < 1) {
+            throw new IllegalArgumentException("Network prefix length is not within bounds");
+        }
+
+        int ipv4Netmask = 0xFFFFFFFF;
+        ipv4Netmask <<= (32 - prefixLength);
+
+        byte[] octets = new byte[] { (byte) (ipv4Netmask >>> 24), (byte) (ipv4Netmask >>> 16),
+                (byte) (ipv4Netmask >>> 8), (byte) ipv4Netmask };
+
+        String result = "";
+        for (int i = 0; i < 4; i++) {
+            result += octets[i] & 0xff;
+            if (i < 3) {
+                result += ".";
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get the network address a specific ip address is in
+     *
+     * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
+     * @param netMask netmask in bits (i.e. 24)
+     * @return network a device is in (i.e. 192.168.5.0)
+     */
+    public static String getIpv4NetAddress(String ipAddressString, short netMask) {
+        String subnetMaskString = networkPrefixLengthToNetmask(netMask);
+
+        String[] netMaskOctets = subnetMaskString.split("\\.");
+        String[] ipv4AddressOctets = ipAddressString.split("\\.");
+        String netAddress = "";
+        for (int i = 0; i < 4; i++) {
+            netAddress += Integer.parseInt(ipv4AddressOctets[i]) & Integer.parseInt(netMaskOctets[i]);
+            if (i < 3) {
+                netAddress += ".";
+            }
+        }
+        return netAddress;
+    }
+
     private String getIPv4inSubnet(String subnet) {
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -166,10 +219,7 @@ public class NetUtil implements NetworkAddressProvider {
                     }
 
                     String ipv4Address = addr.getHostAddress();
-
-                    SubnetUtils su = new SubnetUtils(
-                            ipv4Address + "/" + String.valueOf(ifAddr.getNetworkPrefixLength()));
-                    String subNetString = su.getInfo().getNetworkAddress() + "/"
+                    String subNetString = getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
                             + String.valueOf(ifAddr.getNetworkPrefixLength());
 
                     // use first IP within this subnet
@@ -183,6 +233,27 @@ public class NetUtil implements NetworkAddressProvider {
             return null;
         }
         return null;
+    }
+
+    private boolean isValidIPConfig(String ipConfig) {
+
+        if (ipConfig.contains("/")) {
+            String parts[] = ipConfig.split("/");
+            boolean ipMatches = IPV4_PATTERN.matcher(parts[0]).matches();
+
+            int netMask = Integer.parseInt(parts[1]);
+            boolean netMaskMatches = false;
+            if (netMask > 0 || netMask < 32) {
+                netMaskMatches = true;
+            }
+
+            if (ipMatches && netMaskMatches) {
+                return true;
+            }
+        } else {
+            return IPV4_PATTERN.matcher(ipConfig).matches();
+        }
+        return false;
     }
 
 }

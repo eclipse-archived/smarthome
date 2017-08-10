@@ -27,9 +27,13 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.sonos", configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
@@ -148,6 +153,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         return thingUID;
     }
 
+    @Reference
     protected void setUpnpIOService(UpnpIOService upnpIOService) {
         this.upnpIOService = upnpIOService;
     }
@@ -156,6 +162,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         this.upnpIOService = null;
     }
 
+    @Reference
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
@@ -164,6 +171,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         this.discoveryServiceRegistry = null;
     }
 
+    @Reference
     protected void setAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
         this.audioHTTPServer = audioHTTPServer;
     }
@@ -172,11 +180,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         this.audioHTTPServer = null;
     }
 
-    protected void setNetworkAddressProvider(NetworkAddressProvider networkUtil) {
-        this.networkAddressprovider = networkUtil;
+    @Reference
+    protected void setNetworkAddressProvider(NetworkAddressProvider networkAddressprovider) {
+        this.networkAddressprovider = networkAddressprovider;
     }
 
-    protected void unsetNetworkAddressProvider(NetworkAddressProvider networkUtil) {
+    protected void unsetNetworkAddressProvider(NetworkAddressProvider networkAddressprovider) {
         this.networkAddressprovider = null;
     }
 

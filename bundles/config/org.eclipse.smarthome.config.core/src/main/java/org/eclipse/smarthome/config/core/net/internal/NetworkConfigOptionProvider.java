@@ -20,9 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.core.net.NetUtil;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,10 +74,7 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
                     }
 
                     String ipv4Address = addr.getHostAddress();
-
-                    SubnetUtils su = new SubnetUtils(
-                            ipv4Address + "/" + String.valueOf(ifAddr.getNetworkPrefixLength()));
-                    String subNetString = su.getInfo().getNetworkAddress() + "/"
+                    String subNetString = NetUtil.getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
                             + String.valueOf(ifAddr.getNetworkPrefixLength());
 
                     subnets.add(subNetString);
