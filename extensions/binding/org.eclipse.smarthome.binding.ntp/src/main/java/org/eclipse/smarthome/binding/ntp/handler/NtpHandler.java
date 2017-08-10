@@ -156,7 +156,7 @@ public class NtpHandler extends BaseThingHandler {
 
         } catch (Exception ex) {
             String msg = "Error occurred while initializing NTP handler: " + ex.getMessage();
-            logger.error(msg, ex);
+            logger.error("{}", msg, ex);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
         }
     }
@@ -229,12 +229,12 @@ public class NtpHandler extends BaseThingHandler {
         } catch (UnknownHostException uhe) {
             String msg = getThing().getUID().toString() + " the given hostname '" + hostname
                     + "' of the timeserver is unknown -> returning current sytem time instead.";
-            logger.debug(msg);
+            logger.debug("{}", msg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         } catch (IOException ioe) {
             String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
                     + "'] -> returning current sytem time instead.";
-            logger.debug(msg);
+            logger.debug("{}", msg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         }
 
