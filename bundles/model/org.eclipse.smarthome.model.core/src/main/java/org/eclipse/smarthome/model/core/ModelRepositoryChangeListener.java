@@ -9,7 +9,7 @@ package org.eclipse.smarthome.model.core;
 
 /**
  *
- * @author Kei Kreuzer - Initial implementation
+ * @author Kai Kreuzer - Initial contribution
  */
 public interface ModelRepositoryChangeListener {
 
