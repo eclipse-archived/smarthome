@@ -12,12 +12,12 @@ Some things might require a `callback` URL which should be bound to a certain ne
 
 ```java
 @Reference
-protected void setNetworkAddressprovider(NetworkAddressprovider networkAddressprovider) {
-	this.networkAddressprovider = networkAddressprovider;
+protected void setNetworkAddressprovider(NetworkAddressprovider networkAddressProvider) {
+	this.networkAddressProvider = networkAddressProvider;
 	}
-protected void unsetNetworkAddressprovider(NetworkAddressprovider networkAddressprovider) {
-	this.networkAddressprovider = null;
+protected void unsetNetworkAddressprovider(NetworkAddressprovider networkAddressProvider) {
+	this.networkAddressProvider = null;
 }
 ```
 
-Now the `MyHandlerFactory` can obtain the configured IP address via `networkAddressprovider.getPrimaryIpv4HostAddress()`. This IP address can for example be used in callback URLs offered to a device.
+Now the `MyHandlerFactory` can obtain the configured IP address via `networkAddressProvider.getPrimaryIpv4HostAddress()`. This IP address can for example be used in callback URLs offered to a device.
