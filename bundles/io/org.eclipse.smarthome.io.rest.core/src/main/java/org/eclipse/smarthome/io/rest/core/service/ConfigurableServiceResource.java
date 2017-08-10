@@ -121,7 +121,7 @@ public class ConfigurableServiceResource implements RESTResource {
             return configuration != null ? Response.ok(configuration.getProperties()).build()
                     : Response.ok(Collections.emptyMap()).build();
         } catch (IOException ex) {
-            logger.error("Cannot get configuration for service {}: " + ex.getMessage(), serviceId, ex);
+            logger.error("Cannot get configuration for service {}: {}", serviceId, ex.getMessage(), serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -143,7 +143,7 @@ public class ConfigurableServiceResource implements RESTResource {
             return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
                     : Response.noContent().build();
         } catch (IOException ex) {
-            logger.error("Cannot update configuration for service {}: " + ex.getMessage(), serviceId, ex);
+            logger.error("Cannot update configuration for service {}: {}", serviceId, ex.getMessage(), ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -188,7 +188,7 @@ public class ConfigurableServiceResource implements RESTResource {
             configurationService.delete(serviceId);
             return oldConfiguration != null ? Response.ok(oldConfiguration).build() : Response.noContent().build();
         } catch (IOException ex) {
-            logger.error("Cannot delete configuration for service {}: " + ex.getMessage(), serviceId, ex);
+            logger.error("Cannot delete configuration for service {}: {}", serviceId, ex.getMessage(), ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -210,7 +210,7 @@ public class ConfigurableServiceResource implements RESTResource {
                 }
             }
         } catch (InvalidSyntaxException ex) {
-            logger.error("Cannot get service references, because syntax is invalid: " + ex.getMessage(), ex);
+            logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
         }
         return services;
     }

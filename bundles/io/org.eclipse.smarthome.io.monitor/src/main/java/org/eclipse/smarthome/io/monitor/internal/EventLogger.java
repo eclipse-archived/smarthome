@@ -44,7 +44,7 @@ public class EventLogger implements EventSubscriber {
         Logger logger = getLogger(event.getType());
         logger.trace("Received event of type '{}' under the topic '{}' with payload: '{}'", event.getType(),
                 event.getTopic(), event.getPayload());
-        logger.info(event.toString());
+        logger.info("{}", event);
     }
 
     private Logger getLogger(String eventType) {
