@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
+import org.quartz.utils.FindbugsSuppressWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +24,14 @@ public class LogAction {
     /**
      * Creates the Log-Entry <code>format</code> with level <code>DEBUG</code> and logs under the loggers name
      * <code>org.eclipse.smarthome.model.script.&lt;loggerName&gt;</code>
-     * 
+     *
      * @param loggerName the name of the Logger which is prefixed with <code>org.eclipse.smarthome.model.script.</code>
      * @param format the Log-Statement which can contain placeholders '<code>{}</code>'
      * @param args the arguments to replace the placeholders contained in <code>format</code>
-     * 
+     *
      * @see Logger
      */
+    @FindbugsSuppressWarnings("SLF4J_FORMAT_SHOULD_BE_CONST")
     static public void logDebug(String loggerName, String format, Object... args) {
         LoggerFactory.getLogger(LOGGER_NAME_PREFIX.concat(loggerName)).debug(format, args);
     }
@@ -37,13 +39,14 @@ public class LogAction {
     /**
      * Creates the Log-Entry <code>format</code> with level <code>INFO</code> and logs under the loggers name
      * <code>org.eclipse.smarthome.model.script.&lt;loggerName&gt;</code>
-     * 
+     *
      * @param loggerName the name of the Logger which is prefixed with <code>org.eclipse.smarthome.model.script.</code>
      * @param format the Log-Statement which can contain placeholders '<code>{}</code>'
      * @param args the arguments to replace the placeholders contained in <code>format</code>
-     * 
+     *
      * @see Logger
      */
+    @FindbugsSuppressWarnings("SLF4J_FORMAT_SHOULD_BE_CONST")
     static public void logInfo(String loggerName, String format, Object... args) {
         LoggerFactory.getLogger(LOGGER_NAME_PREFIX.concat(loggerName)).info(format, args);
     }
@@ -51,13 +54,14 @@ public class LogAction {
     /**
      * Creates the Log-Entry <code>format</code> with level <code>WARN</code> and logs under the loggers name
      * <code>org.eclipse.smarthome.model.script.&lt;loggerName&gt;</code>
-     * 
+     *
      * @param loggerName the name of the Logger which is prefixed with <code>org.eclipse.smarthome.model.script.</code>
      * @param format the Log-Statement which can contain placeholders '<code>{}</code>'
      * @param args the arguments to replace the placeholders contained in <code>format</code>
-     * 
+     *
      * @see Logger
      */
+    @FindbugsSuppressWarnings("SLF4J_FORMAT_SHOULD_BE_CONST")
     static public void logWarn(String loggerName, String format, Object... args) {
         LoggerFactory.getLogger(LOGGER_NAME_PREFIX.concat(loggerName)).warn(format, args);
     }
@@ -65,13 +69,14 @@ public class LogAction {
     /**
      * Creates the Log-Entry <code>format</code> with level <code>ERROR</code> and logs under the loggers name
      * <code>org.eclipse.smarthome.model.script.&lt;loggerName&gt;</code>
-     * 
+     *
      * @param loggerName the name of the Logger which is prefixed with <code>org.eclipse.smarthome.model.script.</code>
      * @param format the Log-Statement which can contain placeholders '<code>{}</code>'
      * @param args the arguments to replace the placeholders contained in <code>format</code>
-     * 
+     *
      * @see Logger
      */
+    @FindbugsSuppressWarnings("SLF4J_FORMAT_SHOULD_BE_CONST")
     static public void logError(String loggerName, String format, Object... args) {
         LoggerFactory.getLogger(LOGGER_NAME_PREFIX.concat(loggerName)).error(format, args);
     }
