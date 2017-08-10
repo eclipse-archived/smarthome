@@ -132,6 +132,179 @@ channel-type.yahooweather.temperature.option.OPTION2 = Option Nummer 2
 
 So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` and the group parameter is `thing-type.config.<binding-id>.group.<thing-type-id>.<parameter-name>.label`.
 
+The following snippet shows an excerpt of the thing type definition XML file of the Weather Underground Binding and its language file that localizes labels and descriptions for the French language.
+
+XML file (thing-types.xml):
+
+```xml
+<thing:thing-descriptions bindingId="weatherunderground">
+
+    <thing-type id="weather">
+        <label>Weather Information</label>
+        <description>Provides various weather data from the Weather Underground service</description>
+
+        <channel-groups>
+            <channel-group id="current" typeId="current" />
+            <channel-group id="forecastTomorrow" typeId="forecast">
+                <label>Weather Forecast Tomorrow</label>
+                <description>This is the weather forecast for tomorrow</description>
+            </channel-group>
+            <channel-group id="forecastDay2" typeId="forecast">
+                <label>Weather Forecast Day 2</label>
+                <description>This is the weather forecast in two days</description>
+            </channel-group>
+        </channel-groups>
+        
+        <config-description>
+            <parameter name="apikey" type="text" required="true">
+                <context>password</context>
+                <label>API Key</label>
+                <description>API key to access the Weather Underground service</description>
+            </parameter>
+            <parameter name="location" type="text" required="true">
+                <label>Location of Weather Information</label>
+                <description>Multiple syntaxes are supported. Please read the binding documentation for more information</description>
+            </parameter>
+            <parameter name="language" type="text" required="false">
+                <label>Language</label>
+                <description>Language to be used by the Weather Underground service</description>
+                <options>
+                    <option value="EN">English</option>
+                    <option value="FR">French</option>
+                    <option value="DL">German</option>
+                </options>
+            </parameter>
+            <parameter name="refresh" type="integer" min="5" required="false" unit="min">
+                <label>Refresh interval</label>
+                <description>Specifies the refresh interval in minutes.</description>
+                <default>30</default>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <channel-group-type id="current">
+        <label>Current Weather</label>
+        <description>This is the current weather</description>
+        <channels>
+            <channel id="conditions" typeId="currentConditions" />
+            <channel id="temperature" typeId="temperature" />
+        </channels>
+    </channel-group-type>
+
+    <channel-group-type id="forecast">
+        <label>Weather Forecast</label>
+        <description>This is the weather forecast</description>
+        <channels>
+            <channel id="maxTemperature" typeId="maxTemperature" />
+        </channels>
+    </channel-group-type>
+
+    <channel-type id="currentConditions">
+        <item-type>String</item-type>
+        <label>Current Conditions</label>
+        <description>Weather current conditions</description>
+        <state readOnly="true" pattern="%s"></state>
+    </channel-type>
+
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Current temperature</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f" />
+        <config-description>
+            <parameter name="SourceUnit" type="text" required="true">
+                <label>Temperature Source Unit</label>
+                <description>Select the temperature unit provided by the Weather Underground service</description>
+                <options>
+                    <option value="C">Degree Celsius</option>
+                    <option value="F">Degree Fahrenheit</option>
+                </options>
+                <default>C</default>
+            </parameter>
+        </config-description>
+    </channel-type>
+
+    <channel-type id="maxTemperature">
+        <item-type>Number</item-type>
+        <label>Maximum Temperature</label>
+        <description>Maximum temperature</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f" />
+        <config-description>
+            <parameter name="SourceUnit" type="text" required="true">
+                <label>Maximum Temperature Source Unit</label>
+                <description>Select the maximum temperature unit provided by the Weather Underground service</description>
+                <options>
+                    <option value="C">Degree Celsius</option>
+                    <option value="F">Degree Fahrenheit</option>
+                </options>
+                <default>C</default>
+            </parameter>
+        </config-description>
+    </channel-type>
+
+</thing:thing-descriptions>
+```
+
+Language file (weatherunderground_fr.properties):
+
+```ini
+# binding
+binding.weatherunderground.name = Extension WeatherUnderground
+binding.weatherunderground.description = L'extension Weather Underground interroge le service Weather Underground pour récupérer des données météo.
+
+# thing types
+thing-type.weatherunderground.weather.label = Informations météo
+thing-type.weatherunderground.weather.description = Présente diverses données météo fournies par le service Weather Underground.
+
+# thing type configuration
+thing-type.config.weatherunderground.weather.apikey.label = Clé d'accès
+thing-type.config.weatherunderground.weather.apikey.description = La clé d'accès au service Weather Underground.
+thing-type.config.weatherunderground.weather.location.label = Emplacement des données météo
+thing-type.config.weatherunderground.weather.location.description = Plusieurs syntaxes sont possibles. Merci de consulter la documentation de l'extension pour plus d'information.
+thing-type.config.weatherunderground.weather.language.label = Langue
+thing-type.config.weatherunderground.weather.language.description = La langue à utiliser par le service Weather Underground.
+thing-type.config.weatherunderground.weather.language.option.EN = Anglais
+thing-type.config.weatherunderground.weather.language.option.FR = Français
+thing-type.config.weatherunderground.weather.language.option.DL = Allemand
+thing-type.config.weatherunderground.weather.refresh.label = Fréquence de rafraîchissement
+thing-type.config.weatherunderground.weather.refresh.description = La fréquence de rafraîchissement des données en minutes.
+
+# channel group types
+channel-group-type.weatherunderground.current.label = Météo actuelle
+channel-group-type.weatherunderground.current.description = La météo actuelle.
+channel-group-type.weatherunderground.forecast.label = Météo prévue
+channel-group-type.weatherunderground.forecast.description = La météo prévue.
+
+# channel groups
+thing-type.weatherunderground.weather.group.forecastTomorrow.label = Météo de demain
+thing-type.weatherunderground.weather.group.forecastTomorrow.description = La météo prévue demain.
+thing-type.weatherunderground.weather.group.forecastDay2.label = Météo dans 2 jours
+thing-type.weatherunderground.weather.group.forecastDay2.description = La météo prévue dans 2 jours.
+
+# channel types
+channel-type.weatherunderground.currentConditions.label = Conditions actuelles
+channel-type.weatherunderground.currentConditions.description = Les conditions météo actuelles.
+channel-type.weatherunderground.temperature.label = Température
+channel-type.weatherunderground.temperature.description = La température actuelle.
+channel-type.weatherunderground.maxTemperature.label = Température maximale
+channel-type.weatherunderground.maxTemperature.description = La température maximale.
+
+# channel type configuration
+channel-type.config.weatherunderground.temperature.SourceUnit.label = Unité de température
+channel-type.config.weatherunderground.temperature.SourceUnit.description = Choix de l'unité de température fournie par le service Weather Underground pour la température actuelle.
+channel-type.config.weatherunderground.temperature.SourceUnit.option.C = Degrés Celsius
+channel-type.config.weatherunderground.temperature.SourceUnit.option.F = Degrés Fahrenheit
+channel-type.config.weatherunderground.maxTemperature.SourceUnit.label = Unité de température maximale
+channel-type.config.weatherunderground.maxTemperature.SourceUnit.description = Choix de l'unité de température fournie par le service Weather Undergroundde pour la température maximale.
+channel-type.config.weatherunderground.maxTemperature.SourceUnit.option.C = Degrés Celsius
+channel-type.config.weatherunderground.maxTemperature.SourceUnit.option.F = Degrés Fahrenheit
+
+```
+
+So the label of a channel group type can be referenced with  `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
+
 ### Using custom Keys
 
 In addition to the default keys the developer can also specify custom keys inside the XML file. But with this approach the XML file cannot longer contain the English texts. So it is mandatory to define a language file for the English language. The syntax for custom keys is `@text/<key>`. The keys are unique across the whole bundle, so a constant can reference any key in all files inside the `ESH-INF/i18n` folder.
