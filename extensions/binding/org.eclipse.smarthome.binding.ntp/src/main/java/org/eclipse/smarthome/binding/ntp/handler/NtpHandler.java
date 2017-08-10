@@ -138,8 +138,9 @@ public class NtpHandler extends BaseThingHandler {
                 String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
                 if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
                     dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
-                    logger.debug("Could not format {} with DateFormat '{}', using default format.",
-                            getThing().getUID().toString(), dateTimeFormatString);
+                } else {
+                    logger.debug("No format set in channel config for {}. Using default format.", stringChannelUID);
+                    dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
                 }
             } catch (Exception ex) {
                 logger.debug("No channel config or invalid format for {}. Using default format. ({})", stringChannelUID,
