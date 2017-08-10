@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  *
- * @author Kei Kreuzer - Initial contribution
+ * @author Kai Kreuzer - Initial contribution
  */
 public class DiscoveryResultImpl implements DiscoveryResult {
 
