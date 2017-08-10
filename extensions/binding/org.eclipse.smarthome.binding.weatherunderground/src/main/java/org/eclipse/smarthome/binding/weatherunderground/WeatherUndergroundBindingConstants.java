@@ -19,6 +19,8 @@ public class WeatherUndergroundBindingConstants {
 
     public static final String BINDING_ID = "weatherunderground";
 
+    public static final String LOCAL = "local";
+
     // List all Thing Type UIDs, related to the WeatherUnderground Binding
     public final static ThingTypeUID THING_TYPE_WEATHER = new ThingTypeUID(BINDING_ID, "weather");
 
