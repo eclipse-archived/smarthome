@@ -180,7 +180,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     @Override
     public void updated(Provider<E> provider, E oldElement, E element) {
         Collection<E> elements = elementMap.get(provider);
-        if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
+        if (elements != null) {
             try {
                 onUpdateElement(oldElement, element);
                 elements.remove(oldElement);
