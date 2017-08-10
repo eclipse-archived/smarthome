@@ -42,7 +42,7 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
                     new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false,
                             channelDefinitions, null, null, new URI("dumb:DUMB")));
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         }
     }
 
