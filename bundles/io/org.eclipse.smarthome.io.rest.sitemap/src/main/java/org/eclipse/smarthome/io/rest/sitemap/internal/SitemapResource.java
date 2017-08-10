@@ -399,7 +399,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
                     bean.item = EnrichedItemDTOMapper.map(item, false, UriBuilder.fromUri(uri).build(), locale);
                 }
             } catch (ItemNotFoundException e) {
-                logger.debug(e.getMessage());
+                logger.debug("{}", e.getMessage());
             }
         }
         bean.widgetId = widgetId;

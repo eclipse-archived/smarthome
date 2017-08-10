@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a simple NTP server which provides timestamps to the {@link NtpOSGiTest} tests.
  * Its main purpose is to remove the dependence on a remote ntp server because it is hosted locally.
- * 
+ *
  * @author Erdoan Hadzhiyusein - Initial Contribution
  *
  */
@@ -38,7 +38,7 @@ public class SimpleNTPServer {
     /**
      * The server must use an available port to be able to start.
      * According to RFC 793, the port is a 16 bit unsigned int.
-     * 
+     *
      * @param port
      */
     public SimpleNTPServer(int port) {
@@ -57,18 +57,19 @@ public class SimpleNTPServer {
         isRunning = true;
 
         new Thread() {
+            @Override
             public void run() {
                 try {
                     socket = new DatagramSocket(port);
                 } catch (SocketException e) {
-                    logger.error("Occured an error {}. Couldn't open a socket on this port:" + port, e);
+                    logger.error("Occured an error {}. Couldn't open a socket on this port:", port, e);
                 }
                 while (isRunning) {
-                    try {                    	
+                    try {
                         socket.receive(request);
                         handleRequest(request);
                     } catch (IOException e) {
-                        logger.error("There was an error {} while processing the request!" + request.toString(), e);
+                        logger.error("There was an error {} while processing the request!", request, e);
                     }
                 }
             }
