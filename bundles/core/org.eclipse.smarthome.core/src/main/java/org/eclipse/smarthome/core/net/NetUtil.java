@@ -59,25 +59,29 @@ public class NetUtil implements NetworkAddressProvider {
             LOGGER.warn("Non valid IP configuration found, will continue to use first interface");
             primaryAddress = NetUtil.getLocalIpv4HostAddress();
         } else {
-            String[] addrString = primaryAddressConf.split("/");
-            if (addrString.length > 1) {
-                String ip = getIPv4inSubnet(primaryAddressConf);
-                if (ip == null) {
-                    // an error has occurred, used first interface like nothing has been configured
-                    LOGGER.warn("Error in IP configuration, will continue to use first interface");
-                    NetUtil.getLocalIpv4HostAddress();
-                } else {
-                    primaryAddress = ip;
-                }
-            } else {
-                primaryAddress = addrString[0];
-            }
+            primaryAddress = primaryAddressConf;
         }
     }
 
     @Override
     public String getPrimaryIpv4HostAddress() {
-        return primaryAddress;
+        String primaryIP;
+
+        String[] addrString = primaryAddress.split("/");
+        if (addrString.length > 1) {
+            String ip = getIPv4inSubnet(primaryAddress);
+            if (ip == null) {
+                // an error has occurred, using first interface like nothing has been configured
+                LOGGER.warn("Error in IP configuration, will continue to use first interface");
+                primaryIP = NetUtil.getLocalIpv4HostAddress();
+            } else {
+                primaryIP = ip;
+            }
+        } else {
+            primaryIP = addrString[0];
+        }
+
+        return primaryIP;
     }
 
     /**

@@ -7,8 +7,8 @@
 	<config-description uri="system:network">
 		<parameter name="primaryAddress" type="text">
 			<label>Primary Address</label>
-			<description>A subnet (e.g. 192.168.1.0/24) or an IP address (e.g. 192.168.1.5)</description>
-			<limitToOptions>false</limitToOptions>
+			<description>A subnet (e.g. 192.168.1.0/24) <!-- or an IP address (e.g. 192.168.1.5) --></description>
+			<limitToOptions>true</limitToOptions>
 		</parameter>
 	</config-description>
 
