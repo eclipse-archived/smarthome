@@ -3,7 +3,7 @@
 	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd"
 >
-	<config-description uri="config:sonos:zoneplayer">
+	<config-description uri="thing-type:sonos:zoneplayer">
 		<parameter name="udn" type="text">
 			<label>Unique Device Name</label>
 			<description>The UDN identifies the Zone Player.</description>
