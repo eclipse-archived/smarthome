@@ -18,6 +18,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link WeatherUndergroundHandlerFactory} is responsible for creating things and thing
@@ -25,10 +28,12 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  *
  * @author Laurent Garnier - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, immediate = true)
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

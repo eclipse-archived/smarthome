@@ -20,7 +20,11 @@ There is exactly one supported thing type, which represents the weather informat
 
 ## Discovery
 
-There is no discovery implemented. You have to create your things manually.
+If a system location is set, "Local Weather" will be automatically discovered for this location.
+
+If the system location is changed, the background discovery updates the configuration of "Local Weather" automatically.
+
+After adding this discovered thing, you will have to set the correct API key. 
 
 ## Binding Configuration
  
