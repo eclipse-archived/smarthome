@@ -106,14 +106,14 @@
                   <source>true</source>
                 </artifact>
                 <artifact>
-                  <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=12610 -->
-                  <id>tec.uom:uom-se:1.0.3</id>
+                  <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=13966 -->
+                  <id>tec.uom:uom-se:1.0.8</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
-                  <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=12518 -->
-                  <id>tec.uom.lib:uom-lib-common:1.0.1</id>
+                  <!-- http://dev.eclipse.org/ipzilla/show_bug.cgi?id=13961 -->
+                  <id>tec.uom.lib:uom-lib-common:1.0.2</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
