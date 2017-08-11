@@ -43,7 +43,7 @@ import com.google.common.collect.Lists;
  */
 public class ThingFactoryHelper {
 
-    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
+    private static Logger logger = LoggerFactory.getLogger(ThingFactoryHelper.class);
 
     /**
      * Create {@link Channel} instances for the given Thing.
