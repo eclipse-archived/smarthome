@@ -15,6 +15,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -157,6 +158,31 @@ public class AutomaticInboxProcessorTest {
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+    }
+    
+    @Test
+    public void testNoDiscoveryResultIfNoRepresentationPropertySet() {
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+    }
+    
+    @Test
+    public void testThingWhenNoRepresentationPropertySet() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID).build());
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+
+        when(thing.getProperties()).thenReturn(Collections.emptyMap());
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+        assertThat(results.size(), is(0));
     }
 
     @Test
