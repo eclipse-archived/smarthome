@@ -94,7 +94,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
                 if (deviceInfo.get(DEVICE_VENDOR) != null) {
-                    properties.put("vendor", deviceInfo.get(DEVICE_VENDOR));
+                    properties.put("vendor", deviceInfo.get(DEVICE_VENDOR).getAsString());
                 }
                 logger.debug("Adding device {} to inbox", thingId);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingId).withBridge(bridge)
