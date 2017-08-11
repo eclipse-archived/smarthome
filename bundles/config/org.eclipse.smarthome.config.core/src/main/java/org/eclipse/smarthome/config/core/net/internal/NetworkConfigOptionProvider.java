@@ -55,7 +55,7 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
     }
 
     private List<ParameterOption> getIPv4Addresses() {
-        ArrayList<ParameterOption> interfaceOptions = new ArrayList<>();
+        List<ParameterOption> interfaceOptions = new ArrayList<>();
 
         Set<String> subnets = new HashSet<>();
 
