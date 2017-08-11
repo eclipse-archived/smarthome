@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
-@Component(name = "org.eclipse.smarthome.binding.sonos.discovery.zoneplayer", immediate = true)
+@Component(immediate = true)
 public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     private Logger logger = LoggerFactory.getLogger(ZonePlayerDiscoveryParticipant.class);

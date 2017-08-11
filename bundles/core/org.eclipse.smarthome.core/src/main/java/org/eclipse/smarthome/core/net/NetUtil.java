@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(name = "org.eclipse.smarthome.network", property = { "service.config.description.uri=system:network",
         "service.config.label=Network Settings", "service.config.category=system" })
-public class NetUtil implements NetworkAddressProvider {
+public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
@@ -72,7 +73,7 @@ public class NetUtil implements NetworkAddressProvider {
             String ip = getIPv4inSubnet(primaryAddress);
             if (ip == null) {
                 // an error has occurred, using first interface like nothing has been configured
-                LOGGER.warn("Error in IP configuration, will continue to use first interface");
+                LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
                 primaryIP = NetUtil.getLocalIpv4HostAddress();
             } else {
                 primaryIP = ip;
@@ -85,6 +86,8 @@ public class NetUtil implements NetworkAddressProvider {
     }
 
     /**
+     * Deprecated: Please use the NetworkAddressService with getPrimaryIpv4HostAddress()
+     *
      * Get the first candidate for a local IPv4 host address (non loopback, non localhost).
      */
     @Deprecated
@@ -163,7 +166,7 @@ public class NetUtil implements NetworkAddressProvider {
      * @param prefixLength bits of the netmask
      * @return string representation of netmask (i.e. 255.255.255.0)
      */
-    public static String networkPrefixLengthToNetmask(int prefixLength) {
+    public static @NonNull String networkPrefixLengthToNetmask(int prefixLength) {
         if (prefixLength > 31 || prefixLength < 1) {
             throw new IllegalArgumentException("Network prefix length is not within bounds");
         }
@@ -191,7 +194,7 @@ public class NetUtil implements NetworkAddressProvider {
      * @param netMask netmask in bits (i.e. 24)
      * @return network a device is in (i.e. 192.168.5.0)
      */
-    public static String getIpv4NetAddress(String ipAddressString, short netMask) {
+    public static @NonNull String getIpv4NetAddress(@NonNull String ipAddressString, short netMask) {
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
 
         String[] netMaskOctets = subnetMaskString.split("\\.");
@@ -234,7 +237,6 @@ public class NetUtil implements NetworkAddressProvider {
             }
         } catch (SocketException ex) {
             LOGGER.error("Could not retrieve network interface: {}", ex.getMessage(), ex);
-            return null;
         }
         return null;
     }

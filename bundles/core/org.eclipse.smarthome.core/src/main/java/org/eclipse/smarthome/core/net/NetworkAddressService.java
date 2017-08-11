@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.net;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Interface that provides access to configured network addresses
@@ -15,8 +15,8 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author Stefan Triller - initial contribution
  *
  */
-public interface NetworkAddressProvider {
+public interface NetworkAddressService {
 
-    @NonNull
+    @Nullable
     String getPrimaryIpv4HostAddress();
 }

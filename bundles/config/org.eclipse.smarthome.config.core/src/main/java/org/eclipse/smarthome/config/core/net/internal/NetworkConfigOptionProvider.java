@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -56,7 +57,7 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
     private List<ParameterOption> getIPv4Addresses() {
         ArrayList<ParameterOption> interfaceOptions = new ArrayList<>();
 
-        HashSet<String> subnets = new HashSet<>();
+        Set<String> subnets = new HashSet<>();
 
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();

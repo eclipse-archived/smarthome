@@ -21,7 +21,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
-import org.eclipse.smarthome.core.net.NetworkAddressProvider;
+import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -51,7 +51,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     private UpnpIOService upnpIOService;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private AudioHTTPServer audioHTTPServer;
-    private NetworkAddressProvider networkAddressProvider;
+    private NetworkAddressService networkAddressService;
 
     private Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
@@ -116,7 +116,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         if (callbackUrl != null) {
             return callbackUrl;
         } else {
-            final String ipAddress = networkAddressProvider.getPrimaryIpv4HostAddress();
+            final String ipAddress = networkAddressService.getPrimaryIpv4HostAddress();
             if (ipAddress == null) {
                 logger.warn("No network interface could be found.");
                 return null;
@@ -181,12 +181,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Reference
-    protected void setNetworkAddressProvider(NetworkAddressProvider networkAddressProvider) {
-        this.networkAddressProvider = networkAddressProvider;
+    protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = networkAddressService;
     }
 
-    protected void unsetNetworkAddressProvider(NetworkAddressProvider networkAddressProvider) {
-        this.networkAddressProvider = null;
+    protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = null;
     }
 
 }
