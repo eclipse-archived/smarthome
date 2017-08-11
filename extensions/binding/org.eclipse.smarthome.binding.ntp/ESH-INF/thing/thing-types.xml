@@ -18,7 +18,7 @@
 				<description>The NTP server hostname.</description>
 				<default>0.pool.ntp.org</default>
 			</parameter>
-			<parameter name="refreshInterval" type="integer" required="true">
+			<parameter name="refreshInterval" type="integer" required="true" unit="s">
 				<label>Refresh interval</label>
 				<description>
 					Interval that new time updates are posted to the event bus in seconds.
