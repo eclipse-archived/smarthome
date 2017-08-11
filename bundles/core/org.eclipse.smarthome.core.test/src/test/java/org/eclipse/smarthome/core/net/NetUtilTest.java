@@ -42,6 +42,27 @@ public class NetUtilTest {
 
         network = NetUtil.getIpv4NetAddress("192.168.5.8", (short) 29);
         assertThat(network, is("192.168.5.8"));
+
+        try {
+            network = NetUtil.getIpv4NetAddress("192.168.5.8", (short) 32);
+            ;
+        } catch (IllegalArgumentException iae) {
+            assertThat(iae.getMessage(),
+                    is("IP '192.168.5.8' not a valid IPv4 address or netmask '32' out of bounds (1-31)"));
+        }
+        try {
+            network = NetUtil.getIpv4NetAddress("192.168.58", (short) 24);
+        } catch (IllegalArgumentException iae) {
+            assertThat(iae.getMessage(),
+                    is("IP '192.168.58' not a valid IPv4 address or netmask '24' out of bounds (1-31)"));
+        }
+
+        try {
+            network = NetUtil.getIpv4NetAddress("SOME_TEXT", (short) 24);
+        } catch (IllegalArgumentException iae) {
+            assertThat(iae.getMessage(),
+                    is("IP 'SOME_TEXT' not a valid IPv4 address or netmask '24' out of bounds (1-31)"));
+        }
     }
 
 }

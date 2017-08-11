@@ -75,10 +75,16 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
                     }
 
                     String ipv4Address = addr.getHostAddress();
-                    String subNetString = NetUtil.getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
-                            + String.valueOf(ifAddr.getNetworkPrefixLength());
-
-                    subnets.add(subNetString);
+                    try {
+                        // InetAddress.getHostAddress() is missing a @NonNull annotation
+                        @SuppressWarnings("null")
+                        String subNetString = NetUtil.getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength())
+                                + "/" + String.valueOf(ifAddr.getNetworkPrefixLength());
+                        subnets.add(subNetString);
+                    } catch (IllegalArgumentException ex) {
+                        logger.error("Could not calculate network address: {} Ignoring IP {}", ex.getMessage(),
+                                ipv4Address, ex);
+                    }
                 }
             }
         } catch (SocketException ex) {

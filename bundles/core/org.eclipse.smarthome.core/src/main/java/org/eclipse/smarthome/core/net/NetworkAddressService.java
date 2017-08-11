@@ -19,8 +19,9 @@ public interface NetworkAddressService {
 
     /**
      * Returns the user configured primary IPv4 address of the system
-     * 
-     * @return IPv4 address as a String in format xxx.xxx.xxx.xxx
+     *
+     * @return IPv4 address as a String in format xxx.xxx.xxx.xxx or
+     *         <code>null</code> if there is no interface or an error occurred
      */
     @Nullable
     String getPrimaryIpv4HostAddress();

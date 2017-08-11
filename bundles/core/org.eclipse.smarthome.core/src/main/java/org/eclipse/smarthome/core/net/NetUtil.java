@@ -55,7 +55,6 @@ public class NetUtil implements NetworkAddressService {
         String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
         if (primaryAddressConf == null || primaryAddressConf.isEmpty() || !isValidIPConfig(primaryAddressConf)) {
             // if none is specified we return the default one for backward compatibility
-            LOGGER.warn("Non valid IP configuration found, will continue to use first interface");
             primaryAddress = getFirstLocalIPv4Address();
         } else {
             primaryAddress = primaryAddressConf;
@@ -220,6 +219,8 @@ public class NetUtil implements NetworkAddressService {
      * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
      * @param netMask netmask in bits (i.e. 24)
      * @return network a device is in (i.e. 192.168.5.0)
+     *
+     * @throws IllegalArgumentException if parameters are wrong
      */
     public static @NonNull String getIpv4NetAddress(@NonNull String ipAddressString, short netMask) {
 
