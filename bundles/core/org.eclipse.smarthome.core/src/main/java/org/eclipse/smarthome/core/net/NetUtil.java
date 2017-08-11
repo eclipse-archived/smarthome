@@ -13,7 +13,6 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
@@ -46,10 +45,9 @@ public class NetUtil implements NetworkAddressService {
 
     private String primaryAddress;
 
-    @SuppressWarnings("unchecked")
-    protected void activate(ComponentContext componentContext) {
-        Dictionary<String, Object> props = componentContext.getProperties();
-        modified((Map<String, Object>) props);
+    @Activate
+    protected void activate(Map<String, Object> props) {
+        modified(props);
     }
 
     @Modified
@@ -58,7 +56,7 @@ public class NetUtil implements NetworkAddressService {
         if (primaryAddressConf == null || primaryAddressConf.isEmpty() || !isValidIPConfig(primaryAddressConf)) {
             // if none is specified we return the default one for backward compatibility
             LOGGER.warn("Non valid IP configuration found, will continue to use first interface");
-            primaryAddress = NetUtil.getLocalIpv4HostAddress();
+            primaryAddress = getFirstLocalIPv4Address();
         } else {
             primaryAddress = primaryAddressConf;
         }
@@ -74,7 +72,7 @@ public class NetUtil implements NetworkAddressService {
             if (ip == null) {
                 // an error has occurred, using first interface like nothing has been configured
                 LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
-                primaryIP = NetUtil.getLocalIpv4HostAddress();
+                primaryIP = getFirstLocalIPv4Address();
             } else {
                 primaryIP = ip;
             }
@@ -92,6 +90,35 @@ public class NetUtil implements NetworkAddressService {
      */
     @Deprecated
     public static String getLocalIpv4HostAddress() {
+        try {
+            String hostAddress = null;
+            final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                final NetworkInterface current = interfaces.nextElement();
+                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                    continue;
+                }
+                final Enumeration<InetAddress> addresses = current.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    final InetAddress current_addr = addresses.nextElement();
+                    if (current_addr.isLoopbackAddress() || (current_addr instanceof Inet6Address)) {
+                        continue;
+                    }
+                    if (hostAddress != null) {
+                        LOGGER.warn("Found multiple local interfaces - ignoring {}", current_addr.getHostAddress());
+                    } else {
+                        hostAddress = current_addr.getHostAddress();
+                    }
+                }
+            }
+            return hostAddress;
+        } catch (SocketException ex) {
+            LOGGER.error("Could not retrieve network interface: {}", ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    private String getFirstLocalIPv4Address() {
         try {
             String hostAddress = null;
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -195,17 +222,30 @@ public class NetUtil implements NetworkAddressService {
      * @return network a device is in (i.e. 192.168.5.0)
      */
     public static @NonNull String getIpv4NetAddress(@NonNull String ipAddressString, short netMask) {
+
+        String errorString = "IP '" + ipAddressString + "' not a valid IPv4 address or netmask '" + netMask
+                + "' out of bounds (1-31)";
+
+        if (!isValidIPConfig(ipAddressString) || netMask < 1 || netMask > 31) {
+            throw new IllegalArgumentException(errorString);
+        }
+
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
 
         String[] netMaskOctets = subnetMaskString.split("\\.");
         String[] ipv4AddressOctets = ipAddressString.split("\\.");
         String netAddress = "";
-        for (int i = 0; i < 4; i++) {
-            netAddress += Integer.parseInt(ipv4AddressOctets[i]) & Integer.parseInt(netMaskOctets[i]);
-            if (i < 3) {
-                netAddress += ".";
+        try {
+            for (int i = 0; i < 4; i++) {
+                netAddress += Integer.parseInt(ipv4AddressOctets[i]) & Integer.parseInt(netMaskOctets[i]);
+                if (i < 3) {
+                    netAddress += ".";
+                }
             }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(errorString);
         }
+
         return netAddress;
     }
 
@@ -241,10 +281,17 @@ public class NetUtil implements NetworkAddressService {
         return null;
     }
 
-    private boolean isValidIPConfig(String ipConfig) {
+    /**
+     * Checks if the given String is a valid IPv4 Address
+     * or IPv4 address in CIDR notation
+     *
+     * @param ipAddress in format xxx.xxx.xxx.xxx or xxx.xxx.xxx.xxx/xx
+     * @return true if it is a valid address
+     */
+    public static boolean isValidIPConfig(String ipAddress) {
 
-        if (ipConfig.contains("/")) {
-            String parts[] = ipConfig.split("/");
+        if (ipAddress.contains("/")) {
+            String parts[] = ipAddress.split("/");
             boolean ipMatches = IPV4_PATTERN.matcher(parts[0]).matches();
 
             int netMask = Integer.parseInt(parts[1]);
@@ -257,7 +304,7 @@ public class NetUtil implements NetworkAddressService {
                 return true;
             }
         } else {
-            return IPV4_PATTERN.matcher(ipConfig).matches();
+            return IPV4_PATTERN.matcher(ipAddress).matches();
         }
         return false;
     }

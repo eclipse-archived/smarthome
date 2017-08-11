@@ -2,24 +2,13 @@
 layout: documentation
 ---
 
-# Provided Services
+# Framework Utilities
 
-In this chapter useful services of the Eclipse SmartHome project are described. 
+In this chapter useful services/utilities of the Eclipse SmartHome project are described. 
 
 ## Network Address Service
 
 A user can configure his default network address via Paper UI under `Configuration -> System -> Network Settings`.
-To obtain this configured address the `ThingHandlerFactory` needs a `service reference` to the `NetworkAddressService` in its `MyHandlerFactory.java`:
-
-```java
-@Reference
-protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
-	this.networkAddressService = networkAddressService;
-	}
-protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
-	this.networkAddressService = null;
-}
-```
-
-Now the `MyHandlerFactory` can obtain the configured IP address via `networkAddressService.getPrimaryIpv4HostAddress()`.
-This IP address can for example be used for things (i.e. AudioSinks) that require a callback URL which they can offer to a device.
+The `NetworkAddressService` is an OSGi service that can be used like any other OSGi service by adding a service reference to it.
+One can obtain the configured address via the `getPrimaryIpv4HostAddress()` method on the service.
+This service is useful for example in the `ThingHandlerFactory` or an `AudioSink` where one needs a specific IP address of the host system to provide something like a `callback` URL.
