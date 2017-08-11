@@ -60,6 +60,8 @@
 			<property name="modelId">ZonePlayer</property>
 		</properties>
 
+		<representation-property>udn</representation-property>
+
 		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>
