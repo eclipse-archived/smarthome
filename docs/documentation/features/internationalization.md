@@ -84,7 +84,7 @@ XML file (thing-types.xml):
         <label>Weather Information</label>
         <description>Provides various weather data from the Yahoo service</description>
         <channels>
-            <channel id="unit-system" typeId="unit-system" />
+            <channel id="precipitation" typeId="precipitation" />
             <channel id="temperature" typeId="temperature" />
         </channels>
         <config-description>
@@ -96,14 +96,15 @@ XML file (thing-types.xml):
             </parameter>
         </config-description>
     </thing-type>
-    <channel-type id="unit-system">
+    <channel-type id="precipitation">
         <item-type>String</item-type>
-        <label>Unit system</label>
-        <description>Select the unit system.</description>
-        <state pattern="%d">
+        <label>Precipitation</label>
+        <description>Current precipitation (dry, rain, snow).</description>
+        <state readOnly="true" pattern="%s">
             <options>
-                <option value="metric">metric</option>
-                <option value="imperial">imperial</option>
+                <option value="dry">dry</option>
+                <option value="rain">rain</option>
+                <option value="snow">snow</option>
             </options>
         </state>
     </channel-type>
@@ -111,7 +112,7 @@ XML file (thing-types.xml):
         <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Current temperature in degrees celsius (metric) or fahrenheit (imperial).</description>
-        <state pattern="%d Value" />
+        <state readOnly="true" pattern="%d Value" />
         <config-description>
             <parameter name="unit" type="text" required="true">
                 <label>Temperature unit</label>
@@ -137,10 +138,11 @@ thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vo
 thing-type.config.yahooweather.weather.location.label = Ort
 thing-type.config.yahooweather.weather.location.description = Ort der Wetterinformation. Syntax ist WOEID, siehe https://en.wikipedia.org/wiki/WOEID.
 
-channel-type.yahooweather.unit-system.label = Einheitensystem
-channel-type.yahooweather.unit-system.description = Auswahl des gewünschten Einheitensystems.
-channel-type.yahooweather.unit-system.state.option.metric = Metrisches Maßsysten
-channel-type.yahooweather.unit-system.state.option.imperial = US-Maßsystem
+channel-type.yahooweather.precipitation.label = Niederschlag
+channel-type.yahooweather.precipitation.description = Aktueller Niederschlag (Trocken, Regen, Schnee).
+channel-type.yahooweather.precipitation.state.option.dry = Trocken
+channel-type.yahooweather.precipitation.state.option.rain = Regen
+channel-type.yahooweather.precipitation.state.option.snow = Schnee
 
 channel-type.yahooweather.temperature.label = Temperatur
 channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (Metrisch) oder Grad Fahrenheit (US).
@@ -152,8 +154,9 @@ channel-type.config.yahooweather.temperature.unit.option.C = Grad Celsius
 channel-type.config.yahooweather.temperature.unit.option.F = Grad Fahrenheit
 ```
 
-So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` or `channel-type.config.<binding-id>.<channel-type-id>.<parameter-name>.label`.
-
+So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`.
+A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`.
+And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` or `channel-type.config.<binding-id>.<channel-type-id>.<parameter-name>.label`.
 
 The following snippet shows an excerpt of the thing type definition XML file of the Weather Underground Binding and its language file that localizes labels and descriptions for the French language.
 
@@ -326,7 +329,7 @@ channel-type.config.weatherunderground.maxTemperature.SourceUnit.option.F = Degr
 
 ```
 
-So the label of a channel group type can be referenced with  `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
+So the label of a channel group type can be referenced with `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
 
 ### Using custom Keys
 
