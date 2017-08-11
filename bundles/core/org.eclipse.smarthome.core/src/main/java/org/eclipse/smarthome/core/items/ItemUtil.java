@@ -78,7 +78,7 @@ public class ItemUtil {
 
     public static State convertToAcceptedState(State state, Item item) {
         if (state == null) {
-            LOGGER.error("A conversion of null was requested", new NullPointerException("state should not be null"));
+            LOGGER.error("A conversion of null was requested", new NullPointerException("state should not be null")); // NOPMD
             return UnDefType.NULL;
         }
 
