@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -309,7 +310,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @return representation property name or {@code null}
      */
-    public String getRepresentationProperty() {
+    public @Nullable String getRepresentationProperty() {
         return representationProperty;
     }
 

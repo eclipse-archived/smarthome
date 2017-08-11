@@ -11,8 +11,10 @@ import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
@@ -79,13 +81,13 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     public void thingAdded(Inbox inbox, DiscoveryResult result) {
         if (autoIgnore) {
             String value = getRepresentationValue(result);
-            if (value != null) {
-                Thing thing = thingRegistry.stream()
-                        .filter(t -> value.equals(getRepresentationPropertyValueForThing(t))).findFirst().orElse(null);
-                if (thing != null) {
-                    logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
-                    inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
-                }
+            Thing thing = thingRegistry.stream()
+                                   .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t)))
+                                   .findFirst()
+                                   .orElse(null);
+            if (thing != null) {
+                logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
+                inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
             }
         }
     }
@@ -141,8 +143,16 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
 
     private String getRepresentationPropertyValueForThing(Thing thing) {
         ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
-        String value = thing.getProperties().get(thingType.getRepresentationProperty());
-        return value != null ? value : (String) thing.getConfiguration().get(thingType.getRepresentationProperty());
+        String representationProperty = thingType.getRepresentationProperty();
+        Map<String, String> properties = thing.getProperties();
+        if (properties.containsKey(representationProperty)) {
+            return properties.get(representationProperty);
+        }
+        Configuration configuration = thing.getConfiguration();
+        if (configuration.containsKey(representationProperty)) {
+            return String.valueOf(configuration.get(representationProperty));
+        }
+        return null;
     }
 
     private void removeFromInbox(String representationValue) {
