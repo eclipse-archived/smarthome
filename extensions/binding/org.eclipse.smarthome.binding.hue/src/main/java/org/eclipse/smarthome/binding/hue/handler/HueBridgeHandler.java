@@ -449,19 +449,26 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     /**
-     * Iterate through lightStatusListeners and notify them about a changed ot added light state.
+     * Iterate through lightStatusListeners and notify them about a changed or added light state.
      *
      * @param fullLight
      * @param type Can be "changed" if just a state has changed or "added" if this is a new light on the bridge.
      */
     private void notifyLightStatusListeners(final FullLight fullLight, final String type) {
+        if (lightStatusListeners.isEmpty()) {
+            logger.debug("No light status listeners to notify of light change for light {}", fullLight.getId());
+            return;
+        }
+
         for (LightStatusListener lightStatusListener : lightStatusListeners) {
             try {
                 switch (type) {
                     case LIGHT_STATE_ADDED:
                         lightStatusListener.onLightAdded(hueBridge, fullLight);
+                        logger.debug("Sending lightAdded for light {}", fullLight.getId());
                         break;
                     case LIGHT_STATE_CHANGED:
+                        logger.debug("Sending lightStateChanged for light {}", fullLight.getId());
                         lightStatusListener.onLightStateChanged(hueBridge, fullLight);
                         break;
                     default:
