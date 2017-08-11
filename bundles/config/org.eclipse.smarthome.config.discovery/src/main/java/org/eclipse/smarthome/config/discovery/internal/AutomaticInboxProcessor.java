@@ -94,7 +94,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
 
     private String getRepresentationValue(DiscoveryResult result) {
         return result.getRepresentationProperty() != null
-                ? (String) result.getProperties().get(result.getRepresentationProperty())
+                ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null)
                 : null;
     }
 
