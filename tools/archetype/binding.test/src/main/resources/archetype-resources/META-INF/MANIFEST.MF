@@ -14,8 +14,8 @@ Import-Package: ${package},
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.util,
- org.eclipse.smarthome.test.storage,
  org.eclipse.smarthome.test.java,
+ org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
@@ -23,6 +23,5 @@ Import-Package: ${package},
  org.osgi.service.device,
  org.slf4j
 Require-Bundle: org.junit,org.mockito,org.hamcrest
-Export-Package: ${package}.internal;x-internal:=true,
- ${package};uses:="org.eclipse.smarthome.test"
+Export-Package: ${package};uses:="org.eclipse.smarthome.test"
 
