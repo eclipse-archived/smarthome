@@ -53,11 +53,12 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
                 } catch (Exception e) {
                     // ignore and use default label
                 }
+                label += " (" + roomName + ")";
                 properties.put(ZonePlayerConfiguration.UDN, device.getIdentity().getUdn().getIdentifierString());
                 properties.put(SonosBindingConstants.IDENTIFICATION, roomName);
 
                 DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label)
-                        .withRepresentationProperty(SonosBindingConstants.IDENTIFICATION).build();
+                        .withRepresentationProperty(ZonePlayerConfiguration.UDN).build();
 
                 logger.debug("Created a DiscoveryResult for device '{}' with UDN '{}'",
                         device.getDetails().getFriendlyName(), device.getIdentity().getUdn().getIdentifierString());
