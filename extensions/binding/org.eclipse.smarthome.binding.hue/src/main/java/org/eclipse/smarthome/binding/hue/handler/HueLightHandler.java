@@ -118,7 +118,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 updateStatus(ThingStatus.OFFLINE);
             }
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-no-light-id");
         }
     }
 
@@ -365,7 +366,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             } else {
                 // we assume OFFLINE without any error (NONE), as this is an
                 // expected state (when bulb powered off)
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge reports light as not reachable");
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
             }
 
             HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
@@ -403,7 +404,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "offline.light-removed");
         }
     }
 
