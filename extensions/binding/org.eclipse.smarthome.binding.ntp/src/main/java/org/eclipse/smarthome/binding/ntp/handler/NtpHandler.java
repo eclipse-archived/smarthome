@@ -158,7 +158,8 @@ public class NtpHandler extends BaseThingHandler {
         } catch (Exception ex) {
             String msg = "Error occurred while initializing NTP handler: " + ex.getMessage();
             logger.error("{}", msg, ex);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-init-handler");
         }
     }
 
@@ -231,12 +232,14 @@ public class NtpHandler extends BaseThingHandler {
             String msg = getThing().getUID().toString() + " the given hostname '" + hostname
                     + "' of the timeserver is unknown -> returning current sytem time instead.";
             logger.debug("{}", msg);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "@text/offline.comm-error-unknown-host [\"" + (hostname == null ? "null" : hostname) + "\"]");
         } catch (IOException ioe) {
             String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
                     + "'] -> returning current sytem time instead.";
             logger.debug("{}", msg);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "@text/offline.comm-error-connection [\"" + (hostname == null ? "null" : hostname) + "\"]");
         }
 
         return System.currentTimeMillis();
