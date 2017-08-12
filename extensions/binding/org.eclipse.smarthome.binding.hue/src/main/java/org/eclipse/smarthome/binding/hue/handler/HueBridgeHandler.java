@@ -228,7 +228,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
             onUpdate();
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to hue bridge. IP address not set.");
+                    "@text/offline.conf-error-no-ip-address");
         }
     }
 
@@ -258,7 +258,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      */
     public void onConnectionLost() {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.bridge-connection-lost");
     }
 
     /**
@@ -298,7 +298,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
             logger.warn("User name for Hue bridge authentication not available in configuration. "
                     + "Setting ThingStatus to offline.");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "User name is not properly configured - please check log files");
+                    "@text/offline.conf-error-no-username");
             return false;
         } else {
             onConnectionResumed();
@@ -367,19 +367,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         logger.warn("User {} is not authenticated on Hue bridge {}", userName, getConfig().get(HOST));
         logger.warn("Please configure a valid user or remove user from configuration to generate a new one.");
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Authentication failed - remove user name from configuration to generate a new one.");
+                "@text/offline.conf-error-invalid-username");
     }
 
     private void handleLinkButtonNotPressed(LinkButtonException ex) {
         logger.debug("Failed creating new user on Hue bridge: {}", ex.getMessage());
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Not authenticated - press pairing button on the bridge.");
+                "@text/offline.conf-error-press-pairing-button");
     }
 
     private void handleExceptionWhileCreatingUser(Exception ex) {
         logger.warn("Failed creating new user on Hue bridge", ex);
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Failed to create new user on bridge: " + ex.getMessage());
+                "@text/offline.conf-error-creation-username");
     }
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
