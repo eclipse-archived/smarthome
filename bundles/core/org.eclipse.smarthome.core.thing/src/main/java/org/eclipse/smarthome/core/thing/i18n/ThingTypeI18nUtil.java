@@ -12,6 +12,8 @@ import java.util.Locale;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.osgi.framework.Bundle;
@@ -39,6 +41,13 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
+    public String getChannelDescription(Bundle bundle, ThingTypeUID thingTypeUID, ChannelDefinition channel,
+            String defaultDescription, Locale locale) {
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferThingTypeKey(thingTypeUID, channel, "description");
+        return i18nProvider.getText(bundle, key, defaultDescription, locale);
+    }
+
     public String getChannelGroupDescription(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
             String defaultDescription, Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
@@ -46,16 +55,23 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
-    public String getChannelGroupDescription(Bundle bundle, ThingTypeUID thingTypeUID, String channelGroupId,
-            String defaultDescription, Locale locale) {
+    public String getChannelGroupDescription(Bundle bundle, ThingTypeUID thingTypeUID,
+            ChannelGroupDefinition channelGroup, String defaultDescription, Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
-                : inferThingTypeKey(thingTypeUID, channelGroupId, "description");
+                : inferThingTypeKey(thingTypeUID, channelGroup, "description");
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getChannelLabel(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultLabel, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
                 : inferChannelKey(channelTypeUID, "label");
+        return i18nProvider.getText(bundle, key, defaultLabel, locale);
+    }
+
+    public String getChannelLabel(Bundle bundle, ThingTypeUID thingTypeUID, ChannelDefinition channel,
+            String defaultLabel, Locale locale) {
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
+                : inferThingTypeKey(thingTypeUID, channel, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
@@ -66,10 +82,10 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    public String getChannelGroupLabel(Bundle bundle, ThingTypeUID thingTypeUID, String channelGroupId,
+    public String getChannelGroupLabel(Bundle bundle, ThingTypeUID thingTypeUID, ChannelGroupDefinition channelGroup,
             String defaultLabel, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                : inferThingTypeKey(thingTypeUID, channelGroupId, "label");
+                : inferThingTypeKey(thingTypeUID, channelGroup, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
@@ -112,9 +128,15 @@ public class ThingTypeI18nUtil {
         return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + "." + lastSegment;
     }
 
-    private String inferThingTypeKey(ThingTypeUID thingTypeUID, String channelGroupId, String lastSegment) {
-        return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + ".group." + channelGroupId
-                + "." + lastSegment;
+    private String inferThingTypeKey(ThingTypeUID thingTypeUID, ChannelGroupDefinition channelGroup,
+            String lastSegment) {
+        return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + ".group."
+                + channelGroup.getId() + "." + lastSegment;
+    }
+
+    private String inferThingTypeKey(ThingTypeUID thingTypeUID, ChannelDefinition channel, String lastSegment) {
+        return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + "." + channel.getId() + "."
+                + lastSegment;
     }
 
 }
