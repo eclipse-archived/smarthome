@@ -224,11 +224,12 @@ public class NetUtil implements NetworkAddressService {
      */
     public static @NonNull String getIpv4NetAddress(@NonNull String ipAddressString, short netMask) {
 
-        String errorString = "IP '" + ipAddressString + "' not a valid IPv4 address or netmask '" + netMask
-                + "' out of bounds (1-31)";
-
-        if (!isValidIPConfig(ipAddressString) || netMask < 1 || netMask > 31) {
+        String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
+        if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
+        }
+        if (netMask < 1 || netMask > 31) {
+            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-31)");
         }
 
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
