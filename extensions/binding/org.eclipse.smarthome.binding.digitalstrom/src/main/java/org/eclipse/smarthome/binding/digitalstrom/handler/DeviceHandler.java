@@ -18,7 +18,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
@@ -142,7 +141,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<@NonNull String, Object> configurationParmeters) {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParmeters) {
         Configuration configuration = editConfiguration();
         for (Entry<String, Object> configurationParmeter : configurationParmeters.entrySet()) {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());

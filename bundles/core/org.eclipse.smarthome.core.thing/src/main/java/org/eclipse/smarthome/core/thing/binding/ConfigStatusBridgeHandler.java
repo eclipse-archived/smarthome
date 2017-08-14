@@ -53,7 +53,7 @@ public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implem
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<@NonNull String, Object> configurationParameters) {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
         super.handleConfigurationUpdate(configurationParameters);
         if (configStatusCallback != null) {
             configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));
