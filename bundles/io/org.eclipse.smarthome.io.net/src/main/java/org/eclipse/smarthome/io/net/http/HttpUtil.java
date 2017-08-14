@@ -25,6 +25,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.ProxyConfiguration.Proxy;
+import org.eclipse.jetty.client.api.Authentication;
 import org.eclipse.jetty.client.api.AuthenticationStore;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -193,18 +194,8 @@ public class HttpUtil {
             proxy = new HttpProxy(proxyHost, proxyPort);
             proxies.add(proxy);
 
-            // This value is a replacement for any realm
-            final String anyRealm = "*";
-            authStore.addAuthentication(new BasicAuthentication(proxy.getURI(), anyRealm, proxyUser, proxyPassword) {
-
-                // In version 9.2.12 Jetty HttpClient does not support adding an authentication for any realm. This is a
-                // workaround until this issue is solved
-                @Override
-                public boolean matches(String type, URI uri, String realm) {
-                    realm = anyRealm;
-                    return super.matches(type, uri, realm);
-                }
-            });
+            authStore.addAuthentication(
+                    new BasicAuthentication(proxy.getURI(), Authentication.ANY_REALM, proxyUser, proxyPassword));
         }
 
         HttpMethod method = HttpUtil.createHttpMethod(httpMethod);
