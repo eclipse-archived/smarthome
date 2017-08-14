@@ -6,18 +6,15 @@ layout: documentation
 
 # Scenes
 
-A scene is a defined set of states which several items should have when the scene is active.
-It can be activated either manually or by a simple trigger, e.g., a time based rule.
+In the general context of home automation, a scene is a defined set of states of one or more home devices. For example, a **night scene**, which turns on the indoor lights after sunset. The notion of scenes is not directly available in Eclipse Smarthome but scenes can be created by the means of using rules.
 
 ## Concept
 
-A scene is merely a set of actions inside a rule that is executed by the rule engine. Each action yields an item into a target state once the scene is activated. It is advisable to have a tag like "scene" on a rule to express its purpose.
+In Eclipse Smarthome, a scene is created by defining states for different items inside action section of a rule. The triggers and conditions of the rule are left empty. Once the rule is activated, the actions set the state of the items thereby activating a specific scene.
 
-The scene can be activated either manually or automatically. To manually activate the scene you will need to make a call to rest endpoint `PUT /rest/rules/{ruleUID}/runnow`. To automate the scene activation, a secondary rule must be created. The action section of this secondary rule is responsible for executing the scene with the `core.RunRuleAction` actionhandler. 
+The scene can only be activated and no deactivation is possible. It can be activated either manually or automatically. To manually activate the scene you will need to make a call to rest endpoint `PUT /rest/rules/{ruleUID}/runnow`. To automate the scene activation, a second rule must be created. The action section of this second rule is responsible for executing the scene with the `core.RunRuleAction` actionhandler. 
 
 The action module, used for running the scene, must support the direct execution of rules without requiring to evaluate the conditions. This way all actions will be executed even if an action before returns an error.
-
-
 
 Asynchronous execution of actions is needed to fulfil further requirements:
 
@@ -34,83 +31,79 @@ A scene can be created by making a POST request to the following endpoint provid
  * **Sample scene instance created using rule-engine:**
 
 ```
-{  
-   "uid":"sample.scene1",
-   "name":"SampleScene",
-   "tags":[  
-      "sample",
-      "scene"
-   ],
-   "description":"A Sample for a Scene.",
-   "triggers":[  
-
-   ],
-   "conditions":[  
-
-   ],
-   "actions":[  
-      {  
-         "id":"SampleActionID",
-         "type":"SampleAction",
-         "configuration":{  
-            "message":">>> Hello World!!!"
-         }
-      },
-      {  
-         "id":"ItemPostCommandActionID",
-         "type":"core.ItemCommandAction",
-         "configuration":{  
-            "itemName":"myLampItem",
-            "command":"ON"
-         }
+{
+  "uid": "light.scene1",
+  "name": "IndoorLightScene",
+  "tags": [
+    "night",
+    "scene"
+  ],
+  "description": "A night scene for indoor lights.",
+  "triggers": [],
+  "conditions": [],
+  "actions": [
+    {
+      "id": "ItemPostCommandActionID1",
+      "type": "core.ItemCommandAction",
+      "configuration": {
+        "itemName": "corridorLightItem",
+        "command": "ON"
       }
-   ]
+    },
+    {
+      "id": "ItemPostCommandActionID2",
+      "type": "core.ItemCommandAction",
+      "configuration": {
+        "itemName": "roomLampItem",
+        "command": "ON"
+      }
+    }
+  ]
 }
 ```
 
- * **This scene either can be activated by sending a PUT request to the following endpoint:**
+The sample scene shown above turns on the `corridorLightItem` and `roomLampItem` by sending the ON command to both of these items. Notice that this rule contains a tag called **scene**. It is advisable to use such a tag on a rule-scene to express its purpose.
+
+* **The above scene can be activated by sending a PUT request to the following endpoint:**
  `/rest/rules/sample.scene1/runnow`
 
-* **Or by defining an action within another rule as shown in the code block below:**
+* **It can also be activated by defining an action within another rule as shown in the code block below:**
 
 ```
-[  
-  {  
-    "name": "SceneActivationSampleRule",
-    "uid": "SceneActivationSampleRule_1",
-    "tags": [  
-      "sample",
-      "item",
-      "rule"
-    ],
-    "configuration": {},
-    "description": "Sample Rule for activating scenes.",
-    "triggers": [  
-      {  
-        "id": "ItemStateChangeTriggerID",
-        "type": "core.GenericEventTrigger",
-        "configuration":{
-            "eventSource":"myMotionItem",
-            "eventTopic":"smarthome/items/*",
-            "eventTypes":"ItemStateEvent"
-        }
+{
+  "name": "SceneActivationSampleRule",
+  "uid": "SceneActivationSampleRule_1",
+  "tags": [
+    "sample",
+    "item",
+    "rule"
+  ],
+  "configuration": {},
+  "description": "Sample Rule for activating scenes.",
+  "triggers": [
+    {
+      "id": "ItemStateChangeTriggerID",
+      "type": "core.GenericEventTrigger",
+      "configuration": {
+        "eventSource": "myAstroItem",
+        "eventTopic": "smarthome/items/*",
+        "eventTypes": "ItemStateEvent"
       }
-    ],
-    "actions": [
-      {  
-        "id": "enableSceneAction",
-        "type": "core.RunRuleAction",
-        "configuration": {  
-          "ruleUIDs": "sample.scene1"
-		 }
+    }
+  ],
+  "actions": [
+    {
+      "id": "enableSceneAction",
+      "type": "core.RunRuleAction",
+      "configuration": {
+        "ruleUIDs": "light.scene1"
       }
-    ]
-  }
-]
+    }
+  ]
+}
 ```
-
 ## REST API
-You will need the rule rest endpoints provided by the rule-engine to work with scenes. Some important endpoints are given below, the complete list can be found [here](rules.md#rest-api).
+You will need the rule rest endpoints provided by the rule-engine to work with the scenes. Some important endpoints are given below, the complete list can be found [here](rules.html#rest-api).
 
  - GET /rest/rules - returns all registered rule instances.
  - POST /rest/rules - adds new rule instance to the rule registry.
@@ -118,5 +111,3 @@ You will need the rule rest endpoints provided by the rule-engine to work with s
  - PUT /rest/rules/{ruleUID} - updates the specified rule instance.
  - PUT /rest/rules/{ruleUID}/runnow - executes actions of specified rule instance.
  - GET /rest/rules/{ruleUID}/actions - returns the actions defined for the specified rule instance.
-
- 
