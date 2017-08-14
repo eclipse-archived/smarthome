@@ -10,6 +10,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
  org.hamcrest;core=split,
- org.mockito
+ org.mockito,
+ org.objenesis
 Require-Bundle: org.junit,
  org.mockito,org.hamcrest
