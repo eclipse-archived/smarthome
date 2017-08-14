@@ -278,7 +278,7 @@ public class ProxyServletService extends HttpServlet {
     }
 
     /**
-     * If the URI contains user info in the form <code>user:pass</code>, attempt to preempt the server
+     * If the URI contains user info in the form <code>user[:pass]@</code>, attempt to preempt the server
      * returning a 401 by providing Basic Authentication support in the initial request to the server.
      *
      * @param uri the URI which may contain user info
@@ -288,11 +288,12 @@ public class ProxyServletService extends HttpServlet {
         if (uri != null && uri.getUserInfo() != null) {
             String[] userInfo = uri.getUserInfo().split(":");
 
-            if (userInfo.length >= 2) {
+            if (userInfo.length >= 1) {
                 String user = userInfo[0];
-                String password = userInfo[1];
+                String password = userInfo.length >= 2 ? userInfo[1] : null;
+                String authString = password != null ? user + ":" + password : user + ":";
 
-                String basicAuthentication = "Basic " + B64Code.encode(user + ":" + password, StringUtil.__ISO_8859_1);
+                String basicAuthentication = "Basic " + B64Code.encode(authString, StringUtil.__ISO_8859_1);
                 request.header(HttpHeader.AUTHORIZATION, basicAuthentication);
             }
         }
