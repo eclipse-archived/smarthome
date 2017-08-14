@@ -138,13 +138,25 @@ In the following sections the declaration and semantics of tags, state descripti
 
 ### Default Tags
 
-The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a weather tag definition:
+The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a 'Lighting' tag definition:
 
 ```xml
 <tags>
-    <tag>weather</tag>
+    <tag>Lighting</tag>
 </tags>
 ```
+
+Please note that only tags from a pre-defined tag library should be used.
+This library is still t.b.d., and only a very small set of tags are defined so far:
+
+| Tag                | Item Types            | Description                                                                           |
+|--------------------|-----------------------|---------------------------------------------------------------------------------------|
+| Lighting           | Switch, Dimmer, Color | A light source, either switchable, dimmable or color                                  |
+| Switchable         | Switch, Dimmer, Color | An accessory that can be turned off and on.                                           |
+| CurrentTemperature | Number                | An accessory that provides a single read-only temperature value.                      |
+| TargetTemperature  | Number                | A target temperature that should engage a thermostats heating and cooling actions.    |
+| CurrentHumidity    | Number                | An accessory that provides a single read-only value indicating the relative humidity. |
+
 
 ### State Description
 
