@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.net.NetUtil;
@@ -74,10 +75,10 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
                         continue;
                     }
 
+                    @SuppressWarnings("null")
+                    @NonNull
                     String ipv4Address = addr.getHostAddress();
                     try {
-                        // InetAddress.getHostAddress() is missing a @NonNull annotation
-                        @SuppressWarnings("null")
                         String subNetString = NetUtil.getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength())
                                 + "/" + String.valueOf(ifAddr.getNetworkPrefixLength());
                         subnets.add(subNetString);
