@@ -137,7 +137,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<@NonNull String, Object> configurationParameters) {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
         validateConfigurationParameters(configurationParameters);
 
         // can be overridden by subclasses
@@ -506,9 +506,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @param properties
      *            properties map, that was updated
      */
-    protected void updateProperties(Map<@NonNull String, String> properties) {
-        for (Entry<@NonNull String, String> property : properties.entrySet()) {
-            @SuppressWarnings("null")
+    protected void updateProperties(Map<String, String> properties) {
+        for (Entry<String, String> property : properties.entrySet()) {
             String propertyName = property.getKey();
             String propertyValue = property.getValue();
             String existingPropertyValue = thing.getProperties().get(propertyName);

@@ -113,7 +113,7 @@ public interface ThingHandler {
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
-    void handleConfigurationUpdate(Map<@NonNull String, Object> configurationParameters);
+    void handleConfigurationUpdate(Map<String, Object> configurationParameters);
 
     /**
      * Notifies the handler about an updated {@link Thing}.
