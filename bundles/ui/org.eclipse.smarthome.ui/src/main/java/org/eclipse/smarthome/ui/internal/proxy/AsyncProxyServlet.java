@@ -48,13 +48,10 @@ public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet
 
     /**
      * Add Basic Authentication header to request if user and password are specified in URI.
-     *
-     * After Jetty is upgraded past 9.2.9, change to <code>copyRequestHeaders</code> to avoid deprecation warning.
      */
-    @SuppressWarnings("deprecation")
     @Override
-    protected void copyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
-        super.copyHeaders(clientRequest, proxyRequest);
+    protected void copyRequestHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
+        super.copyRequestHeaders(clientRequest, proxyRequest);
 
         service.maybeAppendAuthHeader(service.uriFromRequest(clientRequest), proxyRequest);
     }

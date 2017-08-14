@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="115">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="116">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -160,17 +160,21 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.jetty.client" version="0.0.0"/>
+<unit id="org.eclipse.jetty.websocket.api" version="0.0.0"/>
+<unit id="org.eclipse.jetty.websocket.common" version="0.0.0"/>
+<unit id="org.eclipse.jetty.websocket.client" version="0.0.0"/>
 <unit id="org.eclipse.jetty.continuation" version="0.0.0"/>
 <unit id="org.eclipse.jetty.deploy" version="0.0.0"/>
 <unit id="org.eclipse.jetty.osgi.boot" version="0.0.0"/>
 <unit id="org.eclipse.jetty.osgi.httpservice" version="0.0.0"/>
+<unit id="org.eclipse.jetty.osgi.alpn.fragment" version="0.0.0"/>
 <unit id="org.eclipse.jetty.proxy" version="0.0.0"/>
 <unit id="org.eclipse.jetty.security" version="0.0.0"/>
 <unit id="org.eclipse.jetty.server" version="0.0.0"/>
 <unit id="org.eclipse.jetty.servlet" version="0.0.0"/>
 <unit id="org.eclipse.jetty.webapp" version="0.0.0"/>
 <unit id="org.eclipse.jetty.xml" version="0.0.0"/>
-<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.2.12.v20150709"/>
+<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.3.14.v20161028"/>
 </location>
 <location path="${project_loc:targetplatform}/third-party" type="Directory"/>
 </locations>
