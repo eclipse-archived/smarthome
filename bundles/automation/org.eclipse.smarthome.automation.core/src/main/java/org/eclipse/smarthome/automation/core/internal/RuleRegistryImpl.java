@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*/
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Arrays;
@@ -411,19 +411,19 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     public Collection<Rule> getByTags(String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<Rule> result = new LinkedList<Rule>();
-        if (tagSet != null) {
+        if (tagSet == null || tagSet.isEmpty()) {
+            for (Collection<Rule> rules : elementMap.values()) {
+                for (Rule rule : rules) {
+                    result.add(RuleUtils.getRuleCopy(rule));
+                }
+            }
+        } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
                     Set<String> rTags = rule.getTags();
                     if (rTags != null && rTags.containsAll(tagSet)) {
                         result.add(RuleUtils.getRuleCopy(rule));
                     }
-                }
-            }
-        } else {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
-                    result.add(RuleUtils.getRuleCopy(rule));
                 }
             }
         }
