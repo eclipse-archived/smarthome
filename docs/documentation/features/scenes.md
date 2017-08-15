@@ -22,7 +22,7 @@ Asynchronous execution of actions is needed to fulfil further requirements:
 * For long-running script actions, e.g., the handler should be aware of asynchronous execution.
 
 
-## Defining Scene via JSON
+## Scene creation and activation
 A scene can be created by making a POST request to the following endpoint provided by the rule-engine:
 
 `POST /rest/rules`
@@ -103,7 +103,7 @@ The sample scene shown above turns on the `corridorLightItem` and `roomLampItem`
 }
 ```
 ## REST API
-You will need the rule rest endpoints provided by the rule-engine to work with the scenes. Some important endpoints are given below, the complete list can be found [here](rules.html#rest-api).
+You will need the rule REST endpoints provided by the rule-engine to work with the scenes. Some important endpoints are given below, the complete list can be found [here](rules.html#rest-api).
 
  - GET /rest/rules - returns all registered rule instances.
  - POST /rest/rules - adds new rule instance to the rule registry.
