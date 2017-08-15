@@ -654,13 +654,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerThingTypeProvider()
 
         def itemName = "name"
-        def handleUpdateWasCalled = false
+        def handleCommandWasCalled = false
         def callback
 
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            handleUpdate: { ChannelUID channelUID, State newState -> handleUpdateWasCalled = true },
+            handleCommand: { ChannelUID channelUID, State newState -> handleCommandWasCalled = true },
             setCallback: { callbackArg -> callback = callbackArg },
             initialize: {},
             dispose: {},
@@ -680,15 +680,15 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
-        waitForAssert { assertThat handleUpdateWasCalled, is(true) }
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10)))
+        waitForAssert { assertThat handleCommandWasCalled, is(true) }
 
-        handleUpdateWasCalled = false
+        handleCommandWasCalled = false
 
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
-        waitFor({handleUpdateWasCalled == true}, 1000)
-        assertThat handleUpdateWasCalled, is(false)
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        waitFor({handleCommandWasCalled == true}, 1000)
+        assertThat handleCommandWasCalled, is(false)
     }
 
     @Test
