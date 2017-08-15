@@ -6,15 +6,15 @@ layout: documentation
 
 # Scenes
 
-In the general context of home automation, a scene is a defined set of states of one or more home devices. For example, a **night scene**, which turns on the indoor lights after sunset. The notion of scenes is not directly available in Eclipse Smarthome but scenes can be created by the means of using rules.
+In the general context of home automation, a scene is a defined set of states of one or more home devices. For example, a **night scene**, which turns on all the indoor lights. The notion of scenes is not directly available in Eclipse SmartHome but scenes can be created by the means of using rules.
 
 ## Concept
 
-In Eclipse Smarthome, a scene is created by defining states for different items inside action section of a rule. The triggers and conditions of the rule are left empty. Once the rule is activated, the actions set the state of the items thereby activating a specific scene.
+In Eclipse SmartHome, a scene is created by defining states for different items inside the action section of a rule. The triggers and conditions of the rule are left empty. Once the rule is activated, the actions set the state of the items thereby activating a specific scene.
 
-The scene can only be activated and no deactivation is possible. It can be activated either manually or automatically. To manually activate the scene you will need to make a call to rest endpoint `PUT /rest/rules/{ruleUID}/runnow`. To automate the scene activation, a second rule must be created. The action section of this second rule is responsible for executing the scene with the `core.RunRuleAction` actionhandler. 
+A scene can only be activated and no deactivation is possible. It can be activated either manually or automatically. To manually activate a scene, a runnow request must be sent to the rest endpoint. To automate the scene activation, a second rule must be created. The action section of this second rule is responsible for executing the scene with the `core.RunRuleAction` module type. 
 
-The action module, used for running the scene, must support the direct execution of rules without requiring to evaluate the conditions. This way all actions will be executed even if an action before returns an error.
+The `core.RunRuleAction` module type, used for running the scenes, supports the direct execution of the actions without requiring to evaluate the conditions. This way all actions are executed even if an action before returns an error.
 
 Asynchronous execution of actions is needed to fulfil further requirements:
 
