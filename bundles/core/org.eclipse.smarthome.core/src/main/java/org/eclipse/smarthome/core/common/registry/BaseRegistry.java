@@ -1,15 +1,3 @@
-/**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
- */
 package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
@@ -19,16 +7,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * The {@link Registry} interface represents a registry for elements of the type
- * E. The concrete sub interfaces are registered as OSGi services.
- *
- * @author Dennis Nobel - Initial contribution
- * @author Victor Toni - provide elements as {@link Stream}
- * @author Kai Kreuzer - added null annotations
- *
- * @param <E> type of the elements in the registry
+ * This interface is needed to provide binary compatibility with the former {@Link Registry} interface.
+ * It's completely the same interface as {@Link Registry} with the type restriction E extends Identifiable.
  */
-public interface Registry<E extends Identifiable<K>, K> extends BaseRegistry<E, K> {
+public interface BaseRegistry<E, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
