@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
@@ -70,6 +71,12 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +104,7 @@ import com.google.common.collect.SetMultimap;
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
  */
+@Component(immediate = true, service = { EventSubscriber.class, ThingTypeMigrationService.class })
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
@@ -1000,10 +1008,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         });
     }
 
+    @Activate
     protected void activate(ComponentContext componentContext) {
         this.thingRegistry.addThingTracker(this);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
         thingHandlerFactories.add(thingHandlerFactory);
@@ -1012,6 +1022,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
         if (properties.containsKey(XML_THING_TYPE)) {
             String bsn = (String) properties.get(XML_THING_TYPE);
@@ -1074,6 +1085,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         return null;
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.thingRegistry.removeThingTracker(this);
     }
@@ -1100,14 +1112,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         return thingLocks.get(thingUID);
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
+    @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = (ThingRegistryImpl) thingRegistry;
     }
@@ -1124,6 +1139,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry;
     }
@@ -1158,6 +1174,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
+    @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -1166,6 +1183,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         this.thingTypeRegistry = null;
     }
 
+    @Reference
     protected void setThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;

@@ -19,6 +19,10 @@ import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,7 @@ import com.google.common.collect.Iterables;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = FirmwareRegistry.class)
 public final class FirmwareRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(FirmwareRegistry.class);
@@ -165,6 +170,7 @@ public final class FirmwareRegistry {
         return Collections.unmodifiableCollection(firmwares);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addFirmwareProvider(FirmwareProvider firmwareProvider) {
         firmwareProviders.add(firmwareProvider);
     }
@@ -173,6 +179,7 @@ public final class FirmwareRegistry {
         firmwareProviders.remove(firmwareProvider);
     }
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

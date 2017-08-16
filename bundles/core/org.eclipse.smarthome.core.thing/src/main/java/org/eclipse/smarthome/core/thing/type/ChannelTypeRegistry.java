@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 /**
  * The {@link ChannelTypeRegistry} tracks all {@link ChannelType}s and {@link ChannelGroupType}s provided by registered
  * {@link ChannelTypeProvider}s.
@@ -20,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Dennis Nobel - Initial contribution
  *
  */
+@Component(immediate = true, service = ChannelTypeRegistry.class)
 public class ChannelTypeRegistry {
 
     private List<ChannelTypeProvider> channelTypeProviders = new CopyOnWriteArrayList<>();
@@ -120,6 +126,7 @@ public class ChannelTypeRegistry {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addChannelTypeProvider(ChannelTypeProvider channelTypeProviders) {
         this.channelTypeProviders.add(channelTypeProviders);
     }

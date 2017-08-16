@@ -17,6 +17,10 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.google.common.collect.Lists;
 
@@ -26,6 +30,7 @@ import com.google.common.collect.Lists;
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Added locale support
  */
+@Component(immediate = true, service = ThingTypeRegistry.class)
 public class ThingTypeRegistry {
 
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
@@ -156,6 +161,7 @@ public class ThingTypeRegistry {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
         if (thingTypeProvider != null) {
             this.thingTypeProviders.add(thingTypeProvider);
