@@ -48,7 +48,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
       <advanced>{true|false}</advanced>
     </parameter-group>
 
-    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String" unit="A|cd|K|kgv|m|mol|s|g|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|Cel|lm|lx|Bq|Gy|Sv|kat|m/s2|m2v|m3|kph|%|l|min|h|d|week|y">
+    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String" unit="A|cd|K|kg|m|mol|s|g|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|Cel|lm|lx|Bq|Gy|Sv|kat|m/s2|m2v|m3|kph|%|l|ms|min|h|d|week|y">
       <context>{network-address|password|password-create|color|date|datetime|email|month|week|dayOfWeek|time|tel|url|item|thing|group|tag|service|channel|rule|location}</context>
       <required>{true|false}</required>
       <default>String</default>
@@ -323,6 +323,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       ...
     </channel-groups>
 
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representation-property>propertyName</representation-property>
+
     <config-description>
       ...
     </config-description>
@@ -358,6 +364,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       </channel-group>
       ...
     </channel-groups>
+
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representation-property>propertyName</representation-property>
 
     <config-description>
       ...
@@ -407,6 +419,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
     <label>String</label>
     <description>String</description>
+    <category>String</category>
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
@@ -441,6 +454,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>properties</td><td>Name/value pairs for properties to be set to the thing (optional).</td></tr>
+  <tr><td>representation-property</td><td>The name of the property that contains a unique identifier of the thing (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>
@@ -483,6 +498,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-group-type.advanced</td><td>The flag indicating if this channel group contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
   <tr><td>label</td><td>A human-readable label for the channel group (mandatory).</td></tr>
   <tr><td>description</td><td>A human-readable description for the channel group (optional).</td></tr>
+  <tr><td>category</td><td>The category for the channel group, e.g. <code>TEMPERATURE</code> (optional).</td></tr>
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>

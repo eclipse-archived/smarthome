@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -44,11 +45,11 @@ public class DimmerItem extends SwitchItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public DimmerItem(String name) {
+    public DimmerItem(@NonNull String name) {
         super(CoreItemFactory.DIMMER, name);
     }
 
-    /* package */ DimmerItem(String type, String name) {
+    /* package */ DimmerItem(@NonNull String type, @NonNull String name) {
         super(type, name);
     }
 

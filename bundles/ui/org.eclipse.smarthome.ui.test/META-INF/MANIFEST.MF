@@ -8,7 +8,9 @@ Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.ui.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
-Import-Package: org.hamcrest;core=split,
- org.mockito
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.hamcrest;core=split,
+ org.mockito,
+ org.objenesis
 Require-Bundle: org.junit,
  org.mockito,org.hamcrest

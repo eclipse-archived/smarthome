@@ -19,6 +19,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -27,6 +28,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +62,10 @@ abstract public class GenericItem implements ActiveItem {
 
     protected Set<String> tags = new HashSet<String>();
 
+    @NonNull
     final protected String name;
 
+    @NonNull
     final protected String type;
 
     protected State state = UnDefType.NULL;
@@ -72,7 +76,7 @@ abstract public class GenericItem implements ActiveItem {
 
     private List<StateDescriptionProvider> stateDescriptionProviders;
 
-    public GenericItem(String type, String name) {
+    public GenericItem(@NonNull String type, @NonNull String name) {
         this.name = name;
         this.type = type;
     }
@@ -315,11 +319,7 @@ abstract public class GenericItem implements ActiveItem {
         } else if (!label.equals(other.label)) {
             return false;
         }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
+        if (!name.equals(other.name)) {
             return false;
         }
         if (tags == null) {
@@ -329,11 +329,7 @@ abstract public class GenericItem implements ActiveItem {
         } else if (!tags.equals(other.tags)) {
             return false;
         }
-        if (type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        } else if (!type.equals(other.type)) {
+        if (!type.equals(other.type)) {
             return false;
         }
         return true;
@@ -401,15 +397,32 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
+        StateDescription result = null;
+        List<StateOption> stateOptions = Collections.emptyList();
         if (stateDescriptionProviders != null) {
             for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
                 StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
-                if (stateDescription != null) {
-                    return stateDescription;
+
+                // as long as no valid StateDescription is provided we reassign here:
+                if (result == null) {
+                    result = stateDescription;
+                }
+
+                // if the current StateDescription does provide options and we don't already have some, we pick them up
+                // here
+                if (stateDescription != null && !stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
+                    stateOptions = stateDescription.getOptions();
                 }
             }
         }
-        return null;
+
+        // we recreate the StateDescription if we found a valid one and state options are given:
+        if (result != null && !stateOptions.isEmpty()) {
+            result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
+                    result.getPattern(), result.isReadOnly(), stateOptions);
+        }
+
+        return result;
     }
 
     /**

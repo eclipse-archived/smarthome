@@ -19,9 +19,11 @@ The binding does not need any special configuration
 
 For manual Thing configuration, one needs to know the UUID of a certain WeMo device.
 In the thing file, this looks e.g. like
+
 ```
 wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
 ```
+
 For a WeMo Link bridge and paired LED Lights, please use the following Thing definition
 
 ```

@@ -25,7 +25,7 @@ public class Transformation {
 
     /**
      * Applies a transformation of a given type with some function to a value.
-     * 
+     *
      * @param type the transformation type, e.g. REGEX or MAP
      * @param function the function to call, this value depends on the transformation type
      * @param value the value to apply the transformation to
@@ -35,18 +35,18 @@ public class Transformation {
      */
     public static String transform(String type, String function, String value) {
         String result;
-        TransformationService service = TransformationHelper.getTransformationService(
-                TransformationActivator.getContext(), type);
+        TransformationService service = TransformationHelper
+                .getTransformationService(TransformationActivator.getContext(), type);
         Logger logger = LoggerFactory.getLogger(Transformation.class);
         if (service != null) {
             try {
                 result = service.transform(function, value);
             } catch (TransformationException e) {
-                logger.error("Error executing the transformation '" + type + "': " + e.getMessage());
+                logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
                 result = value;
             }
         } else {
-            logger.warn("No transformation service '" + type + "' could be found.");
+            logger.warn("No transformation service '{}' could be found.", type);
             result = value;
         }
         return result;

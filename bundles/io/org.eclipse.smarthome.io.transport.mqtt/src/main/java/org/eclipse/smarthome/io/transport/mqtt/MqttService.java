@@ -20,7 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.naming.ConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -150,7 +149,7 @@ public class MqttService implements ManagedService {
     /**
      * Return true if a broker listener has been added via addBrokersListener().
      */
-    public boolean isBrokerObservers() {
+    public boolean hasBrokerObservers() {
         return !brokersObservers.isEmpty();
     }
 

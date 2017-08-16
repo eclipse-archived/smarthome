@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.slf4j.Logger;
@@ -46,11 +47,6 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
 
     @Override
     public void add(E element) {
-
-        if (element == null) {
-            throw new IllegalArgumentException("Cannot add null element");
-        }
-
         String keyAsString = getKeyAsString(element);
         if (storage.get(keyAsString) != null) {
             throw new IllegalArgumentException(
@@ -67,9 +63,13 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
         final Function<String, E> toElementList = new Function<String, E>() {
             @Override
             public E apply(String elementKey) {
-                PE persistableElement = storage.get(elementKey);
-                if (persistableElement != null) {
-                    return toElement(elementKey, persistableElement);
+                if (elementKey != null) {
+                    PE persistableElement = storage.get(elementKey);
+                    if (persistableElement != null) {
+                        return toElement(elementKey, persistableElement);
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }
@@ -101,11 +101,6 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
 
     @Override
     public E remove(K key) {
-
-        if (key == null) {
-            throw new IllegalArgumentException("Cannot remove null element");
-        }
-
         String keyAsString = keyToString(key);
         PE persistableElement = storage.remove(keyAsString);
         if (persistableElement != null) {
@@ -122,11 +117,6 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
 
     @Override
     public E update(E element) {
-
-        if (element == null) {
-            throw new IllegalArgumentException("Cannot update null element");
-        }
-
         String key = getKeyAsString(element);
         if (storage.get(key) != null) {
             PE persistableElement = storage.put(key, toPersistableElement(element));
@@ -142,18 +132,9 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
         return null;
     }
 
-    private String getKeyAsString(E element) {
-        return keyToString(getKey(element));
+    private @NonNull String getKeyAsString(@NonNull E element) {
+        return keyToString(element.getUID());
     }
-
-    /**
-     * Returns the key for a given element
-     *
-     * @param element
-     *            element
-     * @return key (must not be null)
-     */
-    protected abstract K getKey(E element);
 
     /**
      * Returns the name of storage, that is used to persist the elements.
@@ -169,7 +150,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
      *            key
      * @return string representation of the key
      */
-    protected abstract String keyToString(K key);
+    protected abstract @NonNull String keyToString(@NonNull K key);
 
     protected void setStorageService(StorageService storageService) {
         this.storage = storageService.getStorage(getStorageName(), this.getClass().getClassLoader());
@@ -183,7 +164,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
      *            persistable element
      * @return original element
      */
-    protected abstract E toElement(String key, PE persistableElement);
+    protected abstract E toElement(@NonNull String key, @NonNull PE persistableElement);
 
     /**
      * Converts the original element into an element that can be persisted.

@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.binding.BindingInfo
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -108,6 +109,12 @@ class BindingInfoI18nTest extends OSGiTest {
         localeCfg.put("language", "de");
         localeCfg.put("country", "DE");
         config.update(localeCfg);
+
+        //before running the test with a default locale make sure the locale has been set
+        LocaleProvider localeProvider = getService(LocaleProvider.class);
+        waitForAssert {
+            assertThat localeProvider.getLocale().toString(), is("de")
+        }
 
         def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()

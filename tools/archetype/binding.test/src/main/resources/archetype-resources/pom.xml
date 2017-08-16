@@ -6,12 +6,12 @@
   <parent>
     <groupId>${namespace}.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>${version}</version>
+    <version>@${version}</version>
   </parent>
 
-  <groupId>${groupId}</groupId>
+  <groupId>@${groupId}</groupId>
   <artifactId>${rootArtifactId}</artifactId>
-  <version>${version}</version>
+  <version>@${version}</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <name>${bindingIdCamelCase} Binding Tests</name>

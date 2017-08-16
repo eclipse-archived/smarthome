@@ -67,6 +67,14 @@
           value="enabled"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nonnull"
+          value="org.eclipse.jdt.annotation.NonNull"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nullable"
+          value="org.eclipse.jdt.annotation.Nullable"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nullanalysis"
           value="enabled"/>
       <setupTask
@@ -2350,7 +2358,7 @@
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/milestones/"/>
       <repository
-          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6/"/>
+          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.7/"/>
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsImportTask">

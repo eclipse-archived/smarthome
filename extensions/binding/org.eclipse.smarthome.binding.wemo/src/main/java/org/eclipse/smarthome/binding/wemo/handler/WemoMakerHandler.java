@@ -105,7 +105,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
         if (configuration.get("udn") != null) {
             logger.debug("Initializing WemoMakerHandler for UDN '{}'", configuration.get("udn"));
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoMakerHandler. UDN not set.");
         }
@@ -203,7 +203,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
                 if (refreshConfig != null) {
                     refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 }
-                refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+                refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
             }
         }
     }
@@ -259,12 +259,12 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
                             NodeList deviceIndex = element.getElementsByTagName("name");
                             Element line = (Element) deviceIndex.item(0);
                             String attributeName = getCharacterDataFromElement(line);
-                            logger.trace("attributeName: " + attributeName);
+                            logger.trace("attributeName: {}", attributeName);
 
                             NodeList deviceID = element.getElementsByTagName("value");
                             line = (Element) deviceID.item(0);
                             String attributeValue = getCharacterDataFromElement(line);
-                            logger.trace("attributeValue: " + attributeValue);
+                            logger.trace("attributeValue: {}", attributeValue);
 
                             switch (attributeName) {
                                 case "Switch":

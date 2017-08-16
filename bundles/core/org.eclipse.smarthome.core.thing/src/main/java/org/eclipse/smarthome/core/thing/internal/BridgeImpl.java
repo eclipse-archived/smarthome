@@ -21,6 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ *
+ * @author Denis Nobel - Initial contribution
+ */
 public class BridgeImpl extends ThingImpl implements Bridge {
 
     private transient List<Thing> things = new CopyOnWriteArrayList<>();

@@ -11,6 +11,10 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface ScriptedTriggerHandlerFactory extends ScriptedHandler {
     public TriggerHandler get(Trigger module);
 }

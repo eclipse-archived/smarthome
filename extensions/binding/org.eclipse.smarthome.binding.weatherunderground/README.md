@@ -20,7 +20,11 @@ There is exactly one supported thing type, which represents the weather informat
 
 ## Discovery
 
-There is no discovery implemented. You have to create your things manually.
+If a system location is set, "Local Weather" will be automatically discovered for this location.
+
+If the system location is changed, the background discovery updates the configuration of "Local Weather" automatically.
+
+After adding this discovered thing, you will have to set the correct API key. 
 
 ## Binding Configuration
  
@@ -35,7 +39,7 @@ The thing has a few configuration parameters:
 | apikey    | API key to access the Weather Underground service. Mandatory.            |
 | location  | Location to be considered by the Weather Underground service. Mandatory. |
 | language  | Language to be used by the Weather Underground service. Optional, the default is to use the language from the system locale. |
-| refresh   | Refresh interval in minutes. Optional, the default value is 30 minutes.  |
+| refresh   | Refresh interval in minutes. Optional, the default value is 30 minutes and the minimum value is 5 minutes.  |
 
 For the location parameter, different syntaxes are possible:
 
@@ -72,7 +76,7 @@ The weather information that is retrieved is available as these channels:
 | Current | windChill | Number | Wind chill temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | feelingTemperature | Number | Feeling temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | visibility | Number | Visibility | SourceUnit: "km" or "mi"; default is "km" |
-| Current | sorlarRadiation | Number | Solar radiation in W/m2 | |
+| Current | solarRadiation | Number | Solar radiation in W/m2 | |
 | Current | UVIndex | Number | UV Index | |
 | Current | precipitationDay | Number | Rain fall during the day | SourceUnit: "mm" or "in"; default is "mm" |
 | Current | precipitationHour | Number | Rain fall during the last hour | SourceUnit: "mm" or "in"; default is "mm" |
@@ -99,7 +103,7 @@ The weather information that is retrieved is available as these channels:
 demo.things:
 
 ```
-Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX", location="CDG", language="FR" ] {
+Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX", location="CDG", language="FR", refresh=15 ] {
     Channels:
         Type temperature : current#temperature [ SourceUnit="C" ]
         Type windSpeed : current#windSpeed [ SourceUnit="kmh" ]

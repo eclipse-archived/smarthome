@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
+import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -95,9 +96,11 @@ public class SonosAudioSink implements AudioSink {
                     logger.warn("Sonos speaker '{}' is not initialized - status is {}", handler.getThing().getUID(),
                             handler.getThing().getStatus());
                 } else if (AudioFormat.WAV.isCompatible(format)) {
-                    handler.playNotificationSoundURI(new StringType(url + FileAudioStream.WAV_EXTENSION));
+                    handler.playNotificationSoundURI(
+                            new StringType(url + AudioStreamUtils.EXTENSION_SEPARATOR + FileAudioStream.WAV_EXTENSION));
                 } else if (AudioFormat.MP3.isCompatible(format)) {
-                    handler.playNotificationSoundURI(new StringType(url + FileAudioStream.MP3_EXTENSION));
+                    handler.playNotificationSoundURI(
+                            new StringType(url + AudioStreamUtils.EXTENSION_SEPARATOR + FileAudioStream.MP3_EXTENSION));
                 } else {
                     throw new UnsupportedAudioFormatException("Sonos only supports MP3 or WAV.", format);
                 }

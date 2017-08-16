@@ -18,6 +18,7 @@ Import-Package:
  org.eclipse.californium.scandium,
  org.eclipse.californium.scandium.config,
  org.eclipse.californium.scandium.dtls.pskstore,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.tradfri,
  org.eclipse.smarthome.binding.tradfri.handler,
  org.eclipse.smarthome.config.core,

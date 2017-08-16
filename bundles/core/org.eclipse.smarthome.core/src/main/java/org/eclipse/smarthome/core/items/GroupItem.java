@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -25,8 +26,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class GroupItem extends GenericItem implements StateChangeListener {
 
+    @NonNull
     public static final String TYPE = "Group";
 
     private final Logger logger = LoggerFactory.getLogger(GroupItem.class);
@@ -42,11 +48,11 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      *
      * @param name name of the group
      */
-    public GroupItem(String name) {
+    public GroupItem(@NonNull String name) {
         this(name, null, null);
     }
 
-    public GroupItem(String name, GenericItem baseItem) {
+    public GroupItem(@NonNull String name, GenericItem baseItem) {
         // only baseItem but no function set -> use Equality
         this(name, baseItem, new GroupFunction.Equality());
     }
@@ -58,7 +64,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @param baseItem type of items in the group
      * @param function function to calculate group status out of member status
      */
-    public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
+    public GroupItem(@NonNull String name, GenericItem baseItem, GroupFunction function) {
         super(TYPE, name);
 
         // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set

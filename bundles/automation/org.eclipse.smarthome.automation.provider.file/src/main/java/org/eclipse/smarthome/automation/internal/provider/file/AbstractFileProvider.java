@@ -225,9 +225,9 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
                 Set<E> providedObjects = parser.parse(inputStreamReader);
                 updateProvidedObjectsHolder(url, providedObjects);
             } catch (ParsingException e) {
-                logger.debug(e.getMessage(), e);
+                logger.debug("{}", e.getMessage(), e);
             } catch (IOException e) {
-                logger.debug(e.getMessage(), e);
+                logger.debug("{}", e.getMessage(), e);
             } finally {
                 if (inputStreamReader != null) {
                     try {

@@ -98,7 +98,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
                                 updateState(channel.getUID(), StringType.valueOf(radio.getPlayInfoText()));
                                 break;
                             default:
-                                logger.warn("Ignoring unknown channel during update: " + channel.getLabel());
+                                logger.warn("Ignoring unknown channel during update: {}", channel.getLabel());
                         }
                     }
                 }
@@ -176,7 +176,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
     public void handleCommand(final ChannelUID channelUID, final Command command) {
         if (!radio.isLoggedIn()) {
             // connection to radio is not initialized, log ignored command and set status, if it is not already offline
-            logger.debug("Ignoring command " + channelUID.getId() + " = " + command + " because device is offline.");
+            logger.debug("Ignoring command {} = {} because device is offline.", channelUID.getId(), command);
             if (ThingStatus.ONLINE.equals(getThing().getStatus())) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
             }
@@ -231,7 +231,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
                     }
                     break;
                 default:
-                    logger.warn("Ignoring unknown command: " + command);
+                    logger.warn("Ignoring unknown command: {}", command);
             }
             // make sure that device state is online
             updateStatus(ThingStatus.ONLINE);

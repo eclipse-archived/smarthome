@@ -62,8 +62,8 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for scene type " + sceneType + " remove thing tyspes "
-                + super.getSupportedThingTypes().toString());
+        logger.debug("deactivate discovery service for scene type {} remove thing tyspes {}", sceneType,
+                super.getSupportedThingTypes());
         removeOlderResults(new Date().getTime());
     }
 

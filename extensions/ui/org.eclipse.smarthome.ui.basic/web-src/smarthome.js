@@ -1742,22 +1742,29 @@
 						widget: widget,
 						visibility: data.visibility
 					});
-				} else {
-					widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
-					if (data.label !== undefined) {
-						widget.setLabel(data.label);
-					}
-					if (data.labelcolor !== undefined) {
-						widget.setLabelColor(data.labelcolor);
-					} else {
-						widget.setLabelColor("");
-					}
-					if (data.valuecolor !== undefined) {
-						widget.setValueColor(data.valuecolor);
-					} else {
-						widget.setValueColor("");
-					}
 				}
+
+				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
+
+				[{
+					apply: widget.setLabel,
+					data: data.label,
+					fallback: null
+				}, {
+					apply: widget.setLabelColor,
+					data: data.labelcolor,
+					fallback: ""
+				}, {
+					apply: widget.setValueColor,
+					data: data.valuecolor,
+					fallback: ""
+				}].forEach(function(e) {
+					if (e.data !== undefined) {
+						e.apply(e.data);
+					} else if (e.fallback !== null) {
+						e.apply(e.fallback);
+					}
+				});
 			}
 		});
 

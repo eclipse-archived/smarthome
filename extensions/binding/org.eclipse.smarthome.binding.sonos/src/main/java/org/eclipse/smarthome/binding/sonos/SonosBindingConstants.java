@@ -52,13 +52,17 @@ public class SonosBindingConstants {
     public final static String ALARM = "alarm";
     public final static String ALARMPROPERTIES = "alarmproperties";
     public final static String ALARMRUNNING = "alarmrunning";
+    public final static String CLEARQUEUE = "clearqueue";
     public final static String CONTROL = "control";
+    public final static String COORDINATOR = "coordinator";
     public final static String CURRENTALBUM = "currentalbum";
     public final static String CURRENTALBUMART = "currentalbumart";
     public final static String CURRENTALBUMARTURL = "currentalbumarturl";
     public final static String CURRENTARTIST = "currentartist";
     public final static String CURRENTTITLE = "currenttitle";
     public final static String CURRENTTRACK = "currenttrack";
+    public final static String CURRENTTRACKURI = "currenttrackuri";
+    public final static String CURRENTTRANSPORTURI = "currenttransporturi";
     public final static String FAVORITE = "favorite";
     public final static String LED = "led";
     public final static String LINEIN = "linein";
@@ -68,17 +72,19 @@ public class SonosBindingConstants {
     public final static String NOTIFICATIONVOLUME = "notificationvolume";
     public final static String PLAYLINEIN = "playlinein";
     public final static String PLAYLIST = "playlist";
-    public final static String CLEARQUEUE = "clearqueue";
     public final static String PLAYQUEUE = "playqueue";
     public final static String PLAYTRACK = "playtrack";
     public final static String PLAYURI = "playuri";
     public final static String PUBLICADDRESS = "publicaddress";
     public final static String RADIO = "radio";
     public final static String REMOVE = "remove";
+    public final static String REPEAT = "repeat";
     public final static String RESTORE = "restore";
     public final static String RESTOREALL = "restoreall";
     public final static String SAVE = "save";
     public final static String SAVEALL = "saveall";
+    public final static String SHUFFLE = "shuffle";
+    public final static String SLEEPTIMER = "sleeptimer";
     public final static String SNOOZE = "snooze";
     public final static String STANDALONE = "standalone";
     public final static String STATE = "state";
@@ -87,15 +93,11 @@ public class SonosBindingConstants {
     public final static String ZONEGROUP = "zonegroup";
     public final static String ZONEGROUPID = "zonegroupid";
     public final static String ZONENAME = "zonename";
-    public final static String COORDINATOR = "coordinator";
     public final static String MODELID = "modelId";
-    public final static String SLEEPTIMER = "sleeptimer";
-    public final static String SHUFFLE = "shuffle";
-    public final static String REPEAT = "repeat";
-    public final static String CURRENTTRANSPORTURI = "currenttransporturi";
-    public final static String CURRENTTRACKURI = "currenttrackuri";
 
     // List of properties
     public static final String IDENTIFICATION = "identification";
+    public static final String MAC_ADDRESS = "macAddress";
+    public static final String IP_ADDRESS = "ipAddress";
 
 }

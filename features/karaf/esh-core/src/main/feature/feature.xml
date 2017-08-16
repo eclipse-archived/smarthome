@@ -18,36 +18,87 @@
 
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.core.status.ConfigStatusService
     </capability>
 
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.discovery.inbox.Inbox
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
     <bundle start-level="75">mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.xml/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core/${project.version}</bundle>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.binding.BindingInfoRegistry
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.i18n.TranslationProvider
     </capability>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemFactory
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.items.ManagedItemProvider
     </capability>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.autoupdate/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.binding.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.id/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.persistence/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.scheduler/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.ManagedThingProvider
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.ThingRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ThingLinkManager
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
     </capability>
 
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
@@ -63,7 +114,12 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.io.rest.core.config.ConfigurationService
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sse/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
   </feature>

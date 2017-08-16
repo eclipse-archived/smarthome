@@ -15,6 +15,8 @@ package org.eclipse.smarthome.binding.weatherunderground.internal.config;
  */
 public class WeatherUndergroundConfiguration {
 
+    public static final String LOCATION = "location";
+
     public String apikey;
     public String location;
     public String language;

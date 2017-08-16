@@ -81,7 +81,7 @@ public class EventListener {
      */
     public synchronized void start() {
         if (subscribe() && (pollingScheduler == null || pollingScheduler.isCancelled())) {
-            pollingScheduler = scheduler.scheduleAtFixedRate(runableListener, 0,
+            pollingScheduler = scheduler.scheduleWithFixedDelay(runableListener, 0,
                     config.getEventListenerRefreshinterval(), TimeUnit.MICROSECONDS);
             logger.debug("Start EventListener");
         }
@@ -137,7 +137,7 @@ public class EventListener {
                         subscribe();
                     } else if (errorStr != null) {
                         pollingScheduler.cancel(true);
-                        logger.error("Unknown error message at event response: " + errorStr);
+                        logger.error("Unknown error message at event response: {}", errorStr);
                     }
                 }
             }
@@ -169,7 +169,7 @@ public class EventListener {
         if (array.size() > 0) {
             Event event = new JSONEventImpl(array);
             for (EventItem item : event.getEventItems()) {
-                logger.info(item.getProperties().toString());
+                logger.info("{}", item.getProperties());
                 this.sceneManager.handleEvent(item);
             }
         }

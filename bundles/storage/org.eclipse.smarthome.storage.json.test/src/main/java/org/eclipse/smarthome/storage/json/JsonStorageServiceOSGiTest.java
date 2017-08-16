@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2017 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.storage.json;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -18,6 +25,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ *
+ * @author Simon Kaufmann - Initial implementation
+ */
 public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
 
     private StorageService storageService;

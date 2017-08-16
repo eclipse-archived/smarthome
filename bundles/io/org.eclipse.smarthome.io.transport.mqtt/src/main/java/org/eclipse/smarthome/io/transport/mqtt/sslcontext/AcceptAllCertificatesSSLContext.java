@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.transport.sslcontext;
+package org.eclipse.smarthome.io.transport.mqtt.sslcontext;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -16,33 +16,38 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.eclipse.smarthome.io.transport.mqtt.reconnect.PeriodicReconnectPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AcceptAllCertifcatesSSLContext implements SSLContextProvider {
-    private final Logger logger = LoggerFactory.getLogger(PeriodicReconnectPolicy.class);
+/**
+ * This SSLContextProvider returns an {@link SSLContext} that accepts all connections and doesn't perform any
+ * certificate validations. This implementation forces a TLS v1.2 {@link SSLContext} instance.
+ *
+ * @author David Graeff - Initial contribution
+ */
+public class AcceptAllCertificatesSSLContext implements SSLContextProvider {
+    private final Logger logger = LoggerFactory.getLogger(AcceptAllCertificatesSSLContext.class);
+
+    TrustManager trustManager = new X509TrustManager() {
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+        }
+    };
 
     @Override
     public SSLContext getContext() throws ConfigurationException {
-        // use standard JSSE available in the runtime and
-        // use TLSv1.2 which is the default for a secured mosquitto
         try {
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(null, new TrustManager[] { new X509TrustManager() {
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-
-                @Override
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                }
-            } }, new java.security.SecureRandom());
+            sslContext.init(null, new TrustManager[] { trustManager }, null);
             return sslContext;
         } catch (KeyManagementException | NoSuchAlgorithmException e) {
             logger.warn("SSL configuration failed", e);

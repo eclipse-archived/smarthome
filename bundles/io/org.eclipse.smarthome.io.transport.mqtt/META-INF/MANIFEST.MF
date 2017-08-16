@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mqtt;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.smarthome.io.transport.mqtt
+Export-Package: org.eclipse.smarthome.io.transport.mqtt,
+ org.eclipse.smarthome.io.transport.mqtt.reconnect,
+ org.eclipse.smarthome.io.transport.mqtt.sslcontext
 Import-Package: javax.naming,
  javax.net,
  javax.net.ssl,
@@ -18,6 +20,6 @@ Import-Package: javax.naming,
  org.eclipse.smarthome.io.transport.mqtt,
  org.osgi.service.cm,
  org.slf4j
-Service-Component: OSGI-INF/mqtt-*.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy

@@ -307,8 +307,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     // Register the new Handler - ThingManager.updateThing() is going to take care of that
                     thingRegistry.update(thing);
 
+                    ThingHandler handler = thing.getHandler();
+                    String handlerString = "NO HANDLER";
+                    if (handler != null) {
+                        handlerString = handler.toString();
+                    }
                     logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
-                            thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
+                            thing.getUID().toString(), thing.getThingTypeUID(), handlerString);
                 } finally {
                     lock.unlock();
                 }
@@ -385,9 +390,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.debug(
-                                    "Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                            logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
+                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     command, itemName, channelUID);
                         }
                     } else {
@@ -424,7 +428,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                                     @Override
                                     public Void call() throws Exception {
-                                        handler.handleUpdate(channelUID, newState);
+                                        if (newState != null) {
+                                            handler.handleUpdate(channelUID, newState);
+                                        } else {
+                                            throw new IllegalStateException(
+                                                    "Trying to set state to null on channel " + channelUID);
+                                        }
                                         return null;
                                     }
                                 });
@@ -435,9 +444,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.debug(
-                                    "Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                            logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
+                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     newState, itemName, channelUID);
                         }
                     } else {
@@ -544,7 +552,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
             }
 
-            if (oldThing != thing) {
+            if (oldThing != thing && oldThing != null) {
                 oldThing.setHandler(null);
             }
         } finally {
@@ -653,9 +661,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         thing.getUID());
                 return;
             }
-            if (thing.getHandler().getThing() != thing) {
-                logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
-                        thing.getUID());
+            ThingHandler handler = thing.getHandler();
+            if (handler == null) {
+                throw new IllegalStateException("Handler should not be null here");
+            } else {
+                if (handler.getThing() != thing) {
+                    logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
+                            thing.getUID());
+                }
             }
             ThingType thingType = getThingType(thing);
             applyDefaultConfiguration(thing, thingType);
@@ -708,7 +721,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         return configDescriptionRegistry != null
-                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale) : null;
+                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale)
+                : null;
     }
 
     private List<String> getRequiredParameters(ConfigDescription description) {
@@ -787,7 +801,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 public Void call() throws Exception {
                     ThingHandler thingHandler = thing.getHandler();
                     thingHandlerFactory.unregisterHandler(thing);
-                    thingHandler.setCallback(null);
+                    if (thingHandler != null) {
+                        thingHandler.setCallback(null);
+                    }
                     thing.setHandler(null);
                     setThingStatus(thing,
                             buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
@@ -899,7 +915,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     try {
                         BridgeHandler bridgeHandler = bridge.getHandler();
                         if (bridgeHandler != null) {
-                            bridgeHandler.childHandlerInitialized(thing.getHandler(), thing);
+                            ThingHandler thingHandler = thing.getHandler();
+                            if (thingHandler != null) {
+                                bridgeHandler.childHandlerInitialized(thingHandler, thing);
+                            }
                         }
                     } catch (Exception e) {
                         logger.error(
@@ -1135,7 +1154,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), newStatusInfo, oldStatusInfo));
             }
         } catch (Exception ex) {
-            logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
+            logger.error("Could not post 'ThingStatusInfoEvent' event: {}", ex.getMessage(), ex);
         }
     }
 

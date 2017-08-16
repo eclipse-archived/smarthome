@@ -5,11 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.transport.sslcontext;
+package org.eclipse.smarthome.io.transport.mqtt;
 
-import javax.naming.ConfigurationException;
-import javax.net.ssl.SSLContext;
-
-public interface SSLContextProvider {
-    SSLContext getContext() throws ConfigurationException;
+/**
+ * The connection state of a {@link MqttBrokerConnection}.
+ *
+ * @author David Graeff
+ */
+public enum MqttConnectionState {
+    DISCONNECTED,
+    CONNECTED
 }

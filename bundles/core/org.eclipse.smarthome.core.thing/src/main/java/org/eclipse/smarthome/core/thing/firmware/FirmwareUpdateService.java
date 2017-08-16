@@ -7,10 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUnknownInfo;
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpToDateInfo;
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateAvailableInfo;
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateExecutableInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +31,8 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -233,14 +230,13 @@ public final class FirmwareUpdateService implements EventSubscriber {
                         }
                     }, timeout);
                 } catch (ExecutionException e) {
-                    logger.error(String.format(
-                            "Unexpected exception occurred for firmware update of thing with UID %s and firmware with UID %s.",
-                            thingUID, firmwareUID), e.getCause());
+                    logger.error(
+                            "Unexpected exception occurred for firmware update of thing with UID {} and firmware with UID {}.",
+                            thingUID, firmwareUID, e.getCause());
                     progressCallback.failedInternal("unexpected-handler-error");
                 } catch (TimeoutException e) {
-                    logger.error(String.format(
-                            "Timeout occurred for firmware update of thing with UID %s and firmware with UID %s.",
-                            thingUID, firmwareUID), e);
+                    logger.error("Timeout occurred for firmware update of thing with UID {} and firmware with UID {}.",
+                            thingUID, firmwareUID, e);
                     progressCallback.failedInternal("timeout-error");
                 }
             }
@@ -250,7 +246,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     /**
      * Cancels the firmware update of the thing having the given thing UID by invoking the operation
      * {@link FirmwareUpdateHandler#cancel()} of the thing´s firmware update handler.
-     * 
+     *
      * @param thingUID the thing UID (must not be null)
      */
     public void cancelFirmwareUpdate(final ThingUID thingUID) {
@@ -274,13 +270,11 @@ public final class FirmwareUpdateService implements EventSubscriber {
                         }
                     });
                 } catch (ExecutionException e) {
-                    logger.error(String.format(
-                            "Unexpected exception occurred while canceling firmware update of thing with UID %s.",
-                            thingUID), e.getCause());
+                    logger.error("Unexpected exception occurred while canceling firmware update of thing with UID {}.",
+                            thingUID, e.getCause());
                     progressCallback.failedInternal("unexpected-handler-error-during-cancel");
                 } catch (TimeoutException e) {
-                    logger.error(String.format("Timeout occurred while canceling firmware update of thing with UID %s.",
-                            thingUID), e);
+                    logger.error("Timeout occurred while canceling firmware update of thing with UID {}.", thingUID, e);
                     progressCallback.failedInternal("timeout-error-during-cancel");
                 }
             }

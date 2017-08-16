@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -29,7 +32,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -147,7 +149,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 return null;
             }
             List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inboxReference.get(new InboxFilterCriteria(thingUID, DiscoveryResultFlag.NEW));
+            ret = inboxReference.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList());
             if (ret.size() > 0) {
                 return ret.get(0);
             } else {
@@ -276,8 +278,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                 });
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener " + listener.getClass().getName()
-                        + " on Thing discovered event!", ex);
+                logger.error("Cannot notify the DiscoveryListener {} on Thing discovered event!",
+                        listener.getClass().getName(), ex);
             }
         }
     }
@@ -302,8 +304,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                 });
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
-                        + "' on Thing removed event!", ex);
+                logger.error("Cannot notify the DiscoveryListener '{}' on Thing removed event!",
+                        listener.getClass().getName(), ex);
             }
         }
     }
@@ -325,8 +327,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     removedResults.addAll(olderResults);
                 }
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
-                        + "' on all things removed event!", ex);
+                logger.error("Cannot notify the DiscoveryListener '{}' on all things removed event!",
+                        listener.getClass().getName(), ex);
             }
         }
 
@@ -347,8 +349,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 logger.debug("Scan for thing types '{}' aborted on '{}'.", supportedThingTypes,
                         discoveryService.getClass().getName());
             } catch (Exception ex) {
-                logger.error("Cannot abort scan for thing types '" + supportedThingTypes + "' on '"
-                        + discoveryService.getClass().getName() + "'!", ex);
+                logger.error("Cannot abort scan for thing types '{}' on '{}'!", supportedThingTypes,
+                        discoveryService.getClass().getName(), ex);
                 allServicesAborted = false;
             }
         }
@@ -392,8 +394,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
             discoveryService.startScan(listener);
             return true;
         } catch (Exception ex) {
-            logger.error("Cannot trigger scan for thing types '" + supportedThingTypes + "' on '"
-                    + discoveryService.getClass().getSimpleName() + "'!", ex);
+            logger.error("Cannot trigger scan for thing types '{}' on '{}'!", supportedThingTypes,
+                    discoveryService.getClass().getSimpleName(), ex);
             return false;
         }
     }

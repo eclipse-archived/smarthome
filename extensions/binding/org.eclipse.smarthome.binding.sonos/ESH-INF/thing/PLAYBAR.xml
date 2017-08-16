@@ -62,6 +62,8 @@
 			<property name="modelId">PLAYBAR</property>
 		</properties>
 
-		<config-description-ref uri="config:sonos:zoneplayer" />
+		<representation-property>udn</representation-property>
+
+		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>

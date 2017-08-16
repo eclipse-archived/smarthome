@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -42,7 +43,7 @@ public class StringItem extends GenericItem {
         acceptedCommandTypes.add(StringType.class);
     }
 
-    public StringItem(String name) {
+    public StringItem(@NonNull String name) {
         super(CoreItemFactory.STRING, name);
     }
 

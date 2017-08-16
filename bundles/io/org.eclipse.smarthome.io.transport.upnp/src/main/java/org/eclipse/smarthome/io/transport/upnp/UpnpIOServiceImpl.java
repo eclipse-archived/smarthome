@@ -303,7 +303,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 
                             ActionException anException = invocation.getFailure();
                             if (anException != null && anException.getMessage() != null) {
-                                logger.debug(anException.getMessage());
+                                logger.debug("{}", anException.getMessage());
                             }
 
                             Map<String, ActionArgumentValue> result = invocation.getOutputMap();

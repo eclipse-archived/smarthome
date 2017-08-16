@@ -53,8 +53,8 @@ public class SceneOutputValueReadingJob implements SensorJob {
             } else {
                 device.setSceneOutputValue(this.sceneID, sceneValue[0]);
             }
-            logger.debug("UPDATED sceneOutputValue for dsid: " + this.device.getDSID() + ", sceneID: " + sceneID
-                    + ", value: " + sceneValue[0] + ", angle: " + sceneValue[1]);
+            logger.debug("UPDATED sceneOutputValue for dsid: {}, sceneID: {}, value: {}, angle: {}",
+                    this.device.getDSID(), sceneID, sceneValue[0], sceneValue[1]);
         }
     }
 

@@ -102,7 +102,7 @@ public class MacTTSService implements TTSService {
                 voices.add(new MacTTSVoice(nextLine));
             }
         } catch (IOException e) {
-            logger.error("Error while executing the 'say -v ?' command: " + e.getMessage());
+            logger.error("Error while executing the 'say -v ?' command: {}", e.getMessage());
         } finally {
             IOUtils.closeQuietly(bufferedReader);
         }

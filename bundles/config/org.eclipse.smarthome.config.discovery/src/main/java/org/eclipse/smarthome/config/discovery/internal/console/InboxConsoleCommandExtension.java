@@ -7,15 +7,17 @@
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -24,7 +26,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
 
 /**
  * This class provides console commands around the inbox functionality
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -50,7 +52,8 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         String label = args[2];
                         try {
                             ThingUID thingUID = new ThingUID(args[1]);
-                            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
+                            List<DiscoveryResult> results = inbox.stream().filter(forThingUID(thingUID))
+                                    .collect(Collectors.toList());
                             if (results.isEmpty()) {
                                 console.println("No matching inbox entry could be found.");
                                 return;
@@ -77,16 +80,18 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     break;
                 case SUBCMD_LIST_IGNORED:
-                    printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
+                    printInboxEntries(console, inbox.stream().filter(withFlag((DiscoveryResultFlag.IGNORED)))
+                            .collect(Collectors.toList()));
                     break;
                 case SUBCMD_CLEAR:
-                    clearInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+                    clearInboxEntries(console, inbox.getAll());
                     break;
                 default:
                     break;
             }
         } else {
-            printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+            printInboxEntries(console,
+                    inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList()));
         }
     }
 
@@ -103,12 +108,14 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
+            String representationProperty = discoveryResult.getRepresentationProperty();
             String timestamp = new Date(discoveryResult.getTimestamp()).toString();
             String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED"
                     : "" + discoveryResult.getTimeToLive();
-            console.println(
-                    String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]",
-                            flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
+            console.println(String.format(
+                    "%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, representationProperty=%s, timestamp=%s, timeToLive=%s]",
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, representationProperty, timestamp,
+                    timeToLive));
 
         }
     }

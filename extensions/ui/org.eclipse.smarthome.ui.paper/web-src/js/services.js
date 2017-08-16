@@ -192,13 +192,20 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             insertEmptyOption(parameter);
         }
 
-        if (type === 'INTEGER' || type === 'DECIMAL') {
-            angular.forEach(parameter.options, function(option) {
-                option.value = parseInt(option.value);
-            })
-            if (parameter.defaultValue) {
-                parameter.defaultValue = parseInt(parameter.defaultValue);
-            }
+        if (type === 'INTEGER') {
+            adjustNumberValue(parameter, parseInt);
+        }
+        if (type === 'DECIMAL') {
+            adjustNumberValue(parameter, parseFloat);
+        }
+    }
+
+    var adjustNumberValue = function(parameter, parseNumberFunction) {
+        angular.forEach(parameter.options, function(option) {
+            option.value = parseNumberFunction(option.value);
+        })
+        if (parameter.defaultValue) {
+            parameter.defaultValue = parseNumberFunction(parameter.defaultValue);
         }
     }
 
@@ -428,8 +435,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                             if (String(value).length > 0) {
                                 thing.configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                             }
-                        } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                        } else if (parameter.type === 'INTEGER') {
                             thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : "";
+                        } else if (parameter.type === 'DECIMAL') {
+                            thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : "";
                         } else {
                             thing.configuration[parameter.name] = parameter.defaultValue;
                         }
@@ -480,8 +489,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                         if (String(value).length > 0) {
                             configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                         }
-                    } else if (!hasValue && (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL')) {
+                    } else if (!hasValue && parameter.type === 'INTEGER') {
                         configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : null;
+                    } else if (!hasValue && parameter.type === 'DECIMAL') {
+                        configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : null;
                     } else if (!hasValue) {
                         configuration[parameter.name] = parameter.defaultValue;
                     }
@@ -524,25 +535,26 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             var thingChannels = [];
             var includedChannels = [];
             if (thingType && thingType.channelGroups && thingType.channelGroups.length > 0) {
-                for (var i = 0; i < thingType.channelGroups.length; i++) {
+                angular.forEach(thingType.channelGroups, function(channelGroup) {
                     var group = {};
-                    group.name = thingType.channelGroups[i].label;
-                    group.description = thingType.channelGroups[i].description;
-                    group.channels = this.matchGroup(thing.channels, thingType.channelGroups[i].id);
+                    group.name = channelGroup.label;
+                    group.description = channelGroup.description;
+                    group.channels = this.matchGroup(thing.channels, channelGroup.id);
                     includedChannels = includedChannels.concat(group.channels);
                     group.channels = advanced ? group.channels : this.filterAdvance(thingType, channelTypes, group.channels, false);
                     thingChannels.push(group);
-                }
+                }, this)
+
                 var group = {
                     "name" : "Others",
                     "description" : "Other channels",
                     "channels" : []
                 };
-                for (var i = 0; i < thing.channels.length; i++) {
-                    if (includedChannels.indexOf(thing.channels[i]) == -1) {
-                        group.channels.push(thing.channels[i]);
+                angular.forEach(thing.channels, function(channel) {
+                    if (includedChannels.indexOf(channel) == -1) {
+                        group.channels.push(channel);
                     }
-                }
+                })
                 if (group.channels && group.channels.length > 0) {
                     thingChannels.push(group);
                 }
@@ -557,62 +569,43 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         },
 
         filterAdvance : function(thingType, channelTypes, channels, advanced) {
-            var self = this;
-            self.thingType = thingType, self.channelTypes = channelTypes, self.channels = channels;
-            return $.grep(channels, function(channel, i) {
-                var channelType = self.getChannelTypeByUID(self.thingType, self.channelTypes, channel.channelTypeUID);
+            return channels.filter(function(channel) {
+                var channelType = this.getChannelTypeByUID(thingType, channelTypes, channel.channelTypeUID);
                 return channelType ? advanced == channelType.advanced : true;
-            });
+            }, this);
         },
         getChannelTypeByUID : function(thingType, channelTypes, channelUID) {
             if (thingType) {
                 if (thingType.channels && thingType.channels.length > 0) {
-                    var c, c_i, c_l;
-                    for (c_i = 0, c_l = thingType.channels.length; c_i < c_l; ++c_i) {
-                        c = thingType.channels[c_i];
-                        if (c.typeUID == channelUID) {
-                            return c;
-                        }
+                    var result = thingType.channels.filter(function(channel) {
+                        return channel.typeUID === channelUID;
+                    })
+                    if (result.length > 0) {
+                        return result[0];
                     }
                 }
                 if (thingType.channelGroups && thingType.channelGroups.length > 0) {
-                    var c, c_i, c_l;
-                    var cg, cg_i, cg_l;
-                    for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
-                        cg = thingType.channelGroups[cg_i];
-                        if (cg && cg.channels) {
-                            for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
-                                c = cg.channels[c_i];
-                                if (c.typeUID == channelUID) {
-                                    return c;
-                                }
+                    angular.forEach(thingType.channelGroups, function(channelGroup) {
+                        if (channelGroup && channelGroup.channels) {
+                            var result = channelGroup.channels.filter(function(channel) {
+                                return channel.typeUID === channelUID;
+                            })
+                            if (result.length > 0) {
+                                return result[0];
                             }
                         }
-                    }
+                    })
                 }
             }
             if (channelTypes) {
-                var c = {}, c_i, c_l;
-                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
-                    c = channelTypes[c_i];
-                    if (c.UID == channelUID) {
-                        return c;
-                    }
-                }
+                return this.getChannelFromChannelTypes(channelTypes, channelUID);
             }
-            return;
         },
         getChannelFromChannelTypes : function(channelTypes, channelUID) {
-            if (channelTypes) {
-                var c = {}, c_i, c_l;
-                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
-                    c = channelTypes[c_i];
-                    if (c.UID == channelUID) {
-                        return c;
-                    }
-                }
-            }
-            return;
+            var result = channelTypes.filter(function(channelType) {
+                return channelType.UID === channelUID;
+            })
+            return result.length > 0 ? result[0] : null;
         },
         matchGroup : function(arr, id) {
             var matched = [];
@@ -627,11 +620,11 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             return matched;
         },
         addTypeToChannels : function(groups, channelTypes) {
-            for (var g_i = 0; g_i < groups.length; g_i++) {
-                for (var c_i = 0; c_i < groups[g_i].channels.length; c_i++) {
-                    groups[g_i].channels[c_i].channelType = this.getChannelFromChannelTypes(channelTypes, groups[g_i].channels[c_i].channelTypeUID);
-                }
-            }
+            angular.forEach(groups, function(group) {
+                angular.forEach(group.channels, function(channel) {
+                    channel.channelType = this.getChannelFromChannelTypes(channelTypes, channel.channelTypeUID);
+                }, this)
+            }, this)
             return groups;
         }
     }

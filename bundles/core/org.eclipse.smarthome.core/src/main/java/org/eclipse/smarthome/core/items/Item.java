@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -51,14 +52,14 @@ public interface Item extends Identifiable<String> {
      *
      * @return the name of the item
      */
-    public String getName();
+    public @NonNull String getName();
 
     /**
      * returns the item type as defined by {@link ItemFactory}s
      *
      * @return the item type
      */
-    public String getType();
+    public @NonNull String getType();
 
     /**
      * <p>
@@ -128,14 +129,16 @@ public interface Item extends Identifiable<String> {
     public String getCategory();
 
     /**
-     * Returns the state description (uses the default locale).
+     * Returns the first provided state description (uses the default locale).
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @return state description (can be null)
      */
     public StateDescription getStateDescription();
 
     /**
-     * Returns the state description for a given locale.
+     * Returns the first provided state description for a given locale.
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @param locale
      *            locale (can be null)

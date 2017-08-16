@@ -127,7 +127,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
             logger.debug("Initializing WemoCoffeeHandler for UDN '{}'", configuration.get("udn"));
             onSubscription();
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoCoffeeHandler. UDN not set.");
         }
@@ -277,7 +277,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 logger.debug("Setting WemoCoffeeHandler refreshInterval to '{}' seconds", refreshInterval);
             }
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 
@@ -337,12 +337,12 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                             NodeList deviceIndex = element.getElementsByTagName("name");
                             Element line = (Element) deviceIndex.item(0);
                             String attributeName = getCharacterDataFromElement(line);
-                            logger.trace("attributeName: " + attributeName);
+                            logger.trace("attributeName: {}", attributeName);
 
                             NodeList deviceID = element.getElementsByTagName("value");
                             line = (Element) deviceID.item(0);
                             String attributeValue = getCharacterDataFromElement(line);
-                            logger.trace("attributeValue: " + attributeValue);
+                            logger.trace("attributeValue: {}", attributeValue);
 
                             switch (attributeName) {
                                 case "Mode":

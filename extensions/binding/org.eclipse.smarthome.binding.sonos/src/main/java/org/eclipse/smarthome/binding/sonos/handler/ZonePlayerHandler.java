@@ -37,7 +37,6 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -86,6 +85,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private final static String QUEUE_URI = "x-rincon-queue:";
     private final static String GROUP_URI = "x-rincon:";
     private final static String STREAM_URI = "x-sonosapi-stream:";
+    private final static String RADIO_URI = "x-sonosapi-radio:";
     private final static String FILE_URI = "x-file-cifs:";
     private final static String SPDIF = ":spdif";
 
@@ -101,12 +101,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int SOCKET_TIMEOUT = 5000;
 
     /**
-     * Default notification timeout
+     * Default notification timeout (in seconds)
      */
-    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 40000;
-    
+    private static final Integer DEFAULT_NOTIFICATION_TIMEOUT = 20;
+
     /**
-     * configurable notification timeout
+     * configurable notification timeout (in seconds)
      */
     private Integer notificationTimeout = null;
 
@@ -147,7 +147,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 // If not, set the thing state to OFFLINE and wait for the next poll
                 if (!isUpnpDeviceRegistered()) {
                     logger.debug("UPnP device {} not yet registered", getUDN());
-                    updateStatus(ThingStatus.OFFLINE);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            "@text/offline.upnp-device-not-registered [\"" + getUDN() + "\"]");
                     synchronized (upnpLock) {
                         subscriptionState = new HashMap<String, Boolean>();
                     }
@@ -212,19 +213,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         if (getUDN() != null) {
             onUpdate();
-            
-            if (getConfigAs(ZonePlayerConfiguration.class).notificationTimeout == null) {
-                Configuration c = editConfiguration();
-                c.put(ZonePlayerConfiguration.NOTIFICATION_TIMEOUT, DEFAULT_NOTIFICATION_TIMEOUT);
-                updateConfiguration(c);
-            }
-            
+
             this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
-            
-            super.initialize();
+            if (this.notificationTimeout == null) {
+                this.notificationTimeout = DEFAULT_NOTIFICATION_TIMEOUT;
+            }
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
-            logger.warn("Cannot initalize the zoneplayer. UDN not set.");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-missing-udn");
+            logger.debug("Cannot initalize the zoneplayer. UDN not set.");
         }
     }
 
@@ -795,7 +792,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (result.isEmpty()) {
             if (!ThingStatus.OFFLINE.equals(getThing().getStatus())) {
                 logger.debug("Sonos player {} is not available in local network", getUDN());
-                updateStatus(ThingStatus.OFFLINE);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "@text/offline.not-available-on-network [\"" + getUDN() + "\"]");
                 synchronized (upnpLock) {
                     subscriptionState = new HashMap<String, Boolean>();
                 }
@@ -876,6 +874,37 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "DeviceProperties");
+        }
+
+        Map<String, String> properties = editProperties();
+        boolean update = false;
+        if (StringUtils.isNotEmpty(this.stateMap.get("HardwareVersion"))
+                && !this.stateMap.get("HardwareVersion").equals(properties.get(Thing.PROPERTY_HARDWARE_VERSION))) {
+            update = true;
+            properties.put(Thing.PROPERTY_HARDWARE_VERSION, this.stateMap.get("HardwareVersion"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("DisplaySoftwareVersion")) && !this.stateMap
+                .get("DisplaySoftwareVersion").equals(properties.get(Thing.PROPERTY_FIRMWARE_VERSION))) {
+            update = true;
+            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, this.stateMap.get("DisplaySoftwareVersion"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("SerialNumber"))
+                && !this.stateMap.get("SerialNumber").equals(properties.get(Thing.PROPERTY_SERIAL_NUMBER))) {
+            update = true;
+            properties.put(Thing.PROPERTY_SERIAL_NUMBER, this.stateMap.get("SerialNumber"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("MACAddress"))
+                && !this.stateMap.get("MACAddress").equals(properties.get(MAC_ADDRESS))) {
+            update = true;
+            properties.put(MAC_ADDRESS, this.stateMap.get("MACAddress"));
+        }
+        if (StringUtils.isNotEmpty(this.stateMap.get("IPAddress"))
+                && !this.stateMap.get("IPAddress").equals(properties.get(IP_ADDRESS))) {
+            update = true;
+            properties.put(IP_ADDRESS, this.stateMap.get("IPAddress"));
+        }
+        if (update) {
+            updateProperties(properties);
         }
     }
 
@@ -991,7 +1020,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
         }
 
-        else if (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi")) {
+        else if (isPlayingRadio(currentURI)
+                || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
+            // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
             if (currentTrack != null) {
                 artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
                         : currentTrack.getCreator();
@@ -1070,7 +1101,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public String getMACAddress() {
-        updateZoneInfo();
+        if (StringUtils.isEmpty(stateMap.get("MACAddress"))) {
+            updateZoneInfo();
+        }
         return stateMap.get("MACAddress");
     }
 
@@ -1233,8 +1266,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         try {
             result = Long.valueOf(resultInput.get(requestedKey));
         } catch (NumberFormatException ex) {
-            logger.warn("Could not fetch " + requestedKey + " result for type: " + entriesType + " and filter: "
-                    + entriesFilter + ". Using default value '0': " + ex.getMessage(), ex);
+            logger.warn("Could not fetch {} result for type: {} and filter: {}. Using default value '0': {}",
+                    requestedKey, entriesType, entriesFilter, ex.getMessage(), ex);
         }
 
         return result;
@@ -1257,8 +1290,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             if (currentURI != null) {
 
-                if (isPlayingStream(currentURI)) {
-                    // we are streaming music
+                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
+                    // we are streaming music, like tune-in radio or Google Play Music radio
                     SonosMetaData track = getTrackMetadata();
                     SonosMetaData current = getCurrentURIMetadata();
                     if (track != null && current != null) {
@@ -2209,7 +2242,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 String currentURI = coordinator.getCurrentURI();
 
-                if (isPlayingStream(currentURI)) {
+                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
                     handleRadioStream(currentURI, notificationURL, coordinator);
                 } else if (isPlayingLineIn(currentURI)) {
                     handleLineIn(currentURI, notificationURL, coordinator);
@@ -2244,6 +2277,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return false;
         }
         return currentURI.contains(STREAM_URI);
+    }
+
+    private boolean isPlayingRadio(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
+        return currentURI.contains(RADIO_URI);
     }
 
     private boolean isPlayingLineIn(String currentURI) {
@@ -2388,7 +2428,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         // check Sonos state events to determine the end of the notification sound
         String notificationTitle = stateMap.get("CurrentTitle");
         long playstart = System.currentTimeMillis();
-        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue()) {
+        while (System.currentTimeMillis() - playstart < this.notificationTimeout.longValue() * 1000) {
             try {
                 Thread.sleep(50);
                 if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
@@ -2407,7 +2447,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (!stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -2423,7 +2463,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             while (stateMap.get("TransportState").equals(state)) {
                 try {
                     Thread.sleep(50);
-                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue()) {
+                    if (System.currentTimeMillis() - start > this.notificationTimeout.longValue() * 1000) {
                         break;
                     }
                 } catch (InterruptedException e) {

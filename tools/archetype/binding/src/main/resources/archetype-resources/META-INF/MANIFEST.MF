@@ -6,7 +6,7 @@ Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
-Import-Package: 
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
  ${package},
  ${package}.handler,
  org.eclipse.smarthome.config.core,
@@ -16,7 +16,9 @@ Import-Package:
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: ${package},
  ${package}.handler
+Bundle-ActivationPolicy: lazy

@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,8 @@ public class CronExpressionTest {
     }
 
     @Test
+    @Ignore
+    // FIXME: see issue #3912
     public void findNext() throws ParseException {
         boolean trace = false;
 
@@ -115,11 +118,11 @@ public class CronExpressionTest {
                 if (nextDate == null) {
                     final String msg = String.format("Cannot find a time after '%s' for expression '%s'",
                             sdf.format(curDate), cronExpression.getExpression());
-                    logger.error(msg);
+                    logger.error("{}", msg);
                     Assert.fail(msg);
                 } else {
                     if (trace) {
-                        logger.info("Got: " + sdf.format(nextDate));
+                        logger.info("Got: {}", sdf.format(nextDate));
                     }
                 }
 

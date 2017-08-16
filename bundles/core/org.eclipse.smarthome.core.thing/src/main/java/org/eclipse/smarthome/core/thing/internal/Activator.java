@@ -15,6 +15,10 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+/**
+ *
+ * @author Denis Nobel - Initial contribution
+ */
 public class Activator implements BundleActivator {
 
     public static class ChannelTypeRegistryBinder {

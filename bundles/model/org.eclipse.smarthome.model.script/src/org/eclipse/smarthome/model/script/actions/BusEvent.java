@@ -79,7 +79,7 @@ public class BusEvent {
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
                 publisher.post(ItemEventFactory.createCommandEvent(itemName, command));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(BusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
@@ -142,7 +142,7 @@ public class BusEvent {
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
                 publisher.post(ItemEventFactory.createStateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(BusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;

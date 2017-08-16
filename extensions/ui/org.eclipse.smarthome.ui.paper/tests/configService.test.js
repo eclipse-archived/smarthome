@@ -213,6 +213,21 @@ describe('factory configService', function() {
             expect(paramsDecimal[0].parameters[0].element).toEqual("select");
             expect(paramsDecimal[0].parameters[0].options[0].value).toEqual(1);
         });
+        it('should return parse floats type DECIMAL with options', function() {
+            var inputParams = [ {
+                type : 'decimal',
+                options : [ {
+                    value : "1.1"
+                }, {
+                    value : "2.2"
+                } ],
+                limitToOptions : true
+            } ];
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("select");
+            expect(params[0].parameters[0].options[0].value).toEqual(1.1);
+            expect(params[0].parameters[0].options[1].value).toEqual(2.2);
+        });
         it('should return text widget for type INTEGER/DECIMAL', function() {
             var inputParams = [ {
                 type : 'integer'
@@ -224,6 +239,36 @@ describe('factory configService', function() {
             var paramsDecimal = configService.getRenderingModel(inputParams);
             expect(paramsDecimal[0].parameters[0].element).toEqual("input");
             expect(paramsDecimal[0].parameters[0].inputType).toEqual("number");
+        });
+        it('should set defaults type DECIMAL', function() {
+            var thing = {
+                    configuration: {}
+            }
+            
+            var thingType = {
+                configParameters : [ {
+                    name: 'test',
+                    type : 'DECIMAL',
+                    defaultValue : '1.1'
+                } ]
+            }
+
+            configService.setDefaults(thing, thingType);
+            expect(thing.configuration['test']).toEqual(1.1);
+        });
+        it('should set config values from type DECIMAL', function() {
+            var originalConfiguration = {};
+            
+            var groups = [{
+                parameters : [ {
+                    name : 'test',
+                    type : 'DECIMAL',
+                    defaultValue : '1.1'
+                } ]
+            }]
+
+            var config = configService.setConfigDefaults(originalConfiguration, groups, false);
+            expect(config['test']).toEqual(1.1);
         });
         it('should rertieve rules and add options for context RULE', function() {
             var inputParams = [ {

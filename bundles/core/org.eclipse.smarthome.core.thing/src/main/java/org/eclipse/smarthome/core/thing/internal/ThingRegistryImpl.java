@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -63,18 +64,6 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     @Override
-    public Thing get(final ThingUID uid) {
-        for (final Map.Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
-            for (final Thing thing : entry.getValue()) {
-                if (uid.equals(thing.getUID())) {
-                    return thing;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
     public Channel getChannel(ChannelUID channelUID) {
         ThingUID thingUID = channelUID.getThingUID();
         Thing thing = get(thingUID);
@@ -85,7 +74,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     @Override
-    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters) {
+    public void updateConfiguration(ThingUID thingUID, Map<@NonNull String, Object> configurationParameters) {
         Thing thing = get(thingUID);
         if (thing != null) {
             ThingHandler thingHandler = thing.getHandler();
@@ -224,8 +213,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the ThingTracker '" + thingTracker + "' about the '" + event.name()
-                        + "' event!", ex);
+                logger.error("Could not inform the ThingTracker '{}' about the '{}' event!", thingTracker, event.name(),
+                        ex);
             }
         }
     }

@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.designer.core;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public interface DesignerCoreConstants {
 
     public static final String CONFIG_FOLDER_PREFERENCE = "CONFIG_FOLDER_PREFERENCE"; //$NON-NLS-1$

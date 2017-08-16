@@ -27,6 +27,8 @@ import org.osgi.service.event.EventAdmin;
 /**
  * This class provides functionality for defining and executing automation commands for importing, exporting, removing
  * and listing the automation objects.
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class DemoCommandsPluggable extends AbstractConsoleCommandExtension {
 

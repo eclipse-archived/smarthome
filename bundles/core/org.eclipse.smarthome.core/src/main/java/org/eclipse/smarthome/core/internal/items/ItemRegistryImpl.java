@@ -12,10 +12,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
-import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -29,8 +27,6 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.service.component.ComponentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface. It
@@ -43,8 +39,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
-
-    private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
     private List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
@@ -64,18 +58,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
-    public Item get(final String itemName) {
-        for (final Map.Entry<Provider<Item>, Collection<Item>> entry : elementMap.entrySet()) {
-            for (final Item item : entry.getValue()) {
-                if (itemName.equals(item.getName())) {
-                    return item;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
     public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException {
         Collection<Item> items = getItems(name);
 
@@ -87,8 +69,13 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             throw new ItemNotUniqueException(name, items);
         }
 
-        return items.iterator().next();
+        Item item = items.iterator().next();
 
+        if (item == null) {
+            throw new ItemNotFoundException(name);
+        } else {
+            return item;
+        }
     }
 
     @Override
@@ -125,13 +112,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void addToGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
-            try {
-                Item groupItem = getItem(groupName);
-                if (groupItem instanceof GroupItem) {
-                    ((GroupItem) groupItem).addMember(item);
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).addMember(item);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
                 }
-            } catch (ItemNotFoundException e) {
-                // the group might not yet be registered, let's ignore this
             }
         }
     }
@@ -184,13 +173,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void removeFromGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
-            try {
-                Item groupItem = getItem(groupName);
-                if (groupItem instanceof GroupItem) {
-                    ((GroupItem) groupItem).removeMember(item);
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).removeMember(item);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
                 }
-            } catch (ItemNotFoundException e) {
-                // the group might not yet be registered, let's ignore this
             }
         }
     }

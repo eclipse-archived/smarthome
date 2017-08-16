@@ -118,7 +118,7 @@ public class BindingResource implements RESTResource {
             return configuration != null ? Response.ok(configuration.getProperties()).build()
                     : Response.ok(Collections.emptyMap()).build();
         } catch (IOException ex) {
-            logger.error("Cannot get configuration for service {}: " + ex.getMessage(), bindingId, ex);
+            logger.error("Cannot get configuration for service {}: {}", bindingId, ex.getMessage(), ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -147,7 +147,7 @@ public class BindingResource implements RESTResource {
             return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
                     : Response.noContent().build();
         } catch (IOException ex) {
-            logger.error("Cannot update configuration for service {}: " + ex.getMessage(), bindingId, ex);
+            logger.error("Cannot update configuration for service {}: {}", bindingId, ex.getMessage(), ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }

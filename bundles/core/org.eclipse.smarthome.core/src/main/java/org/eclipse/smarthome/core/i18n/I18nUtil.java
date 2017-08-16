@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.core.i18n;
 
+/**
+ *
+ * @author Denis Nobel - Initial contribution
+ */
 public class I18nUtil {
 
     /** The 'text' pattern (prefix) which marks constants. */

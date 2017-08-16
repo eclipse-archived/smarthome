@@ -95,6 +95,7 @@ There exist systemwide channels that are available by default:
 | low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
 | battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (eg 4 levels) should convert to a percentage to provide a consistent battery level reading. |
 
+For further information about categories see the [categories page](categories.html).
 
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
@@ -137,13 +138,25 @@ In the following sections the declaration and semantics of tags, state descripti
 
 ### Default Tags
 
-The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a weather tag definition:
+The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a 'Lighting' tag definition:
 
 ```xml
 <tags>
-    <tag>weather</tag>
+    <tag>Lighting</tag>
 </tags>
 ```
+
+Please note that only tags from a pre-defined tag library should be used.
+This library is still t.b.d., and only a very small set of tags are defined so far:
+
+| Tag                | Item Types            | Description                                                                           |
+|--------------------|-----------------------|---------------------------------------------------------------------------------------|
+| Lighting           | Switch, Dimmer, Color | A light source, either switchable, dimmable or color                                  |
+| Switchable         | Switch, Dimmer, Color | An accessory that can be turned off and on.                                           |
+| CurrentTemperature | Number                | An accessory that provides a single read-only temperature value.                      |
+| TargetTemperature  | Number                | A target temperature that should engage a thermostats heating and cooling actions.    |
+| CurrentHumidity    | Number                | An accessory that provides a single read-only value indicating the relative humidity. |
+
 
 ### State Description
 
@@ -169,51 +182,6 @@ Some channels might have only a limited and countable set of states. These state
 
 The user interface can use these values to render labels for values or to provide a selection of states, when the channel is writable. The option labels can also be localized.
 
-### Channel Categories
-
-The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accessible mode and the according item type:
-
-| Category      | Accessible Mode | Item Type              |
-|---------------|-----------------|------------------------|
-| Alarm         | R, RW           | Switch                 |
-| Battery       | R               | Switch, Number         |
-| Blinds        | RW              | Rollershutter          |
-| ColorLight    | RW              | Color                  |
-| Contact       | R               | Contact                |
-| DimmableLight | RW              | Dimmer                 |
-| CarbonDioxide | R               | Switch, Number         |
-| Door          | R, RW           | Switch                 |
-| Energy        | R               | Number                 |
-| Fan           | RW              | Switch, Number, String |
-| Fire          | R               | Switch                 |
-| Flow          | R               | Number                 |
-| GarageDoor    | RW              | String                 |
-| Gas           | R               | Switch, Number         |
-| Humidity      | R               | Number                 |
-| Light         | R, RW           | Switch, Number         |
-| Motion        | R               | Switch                 |
-| MoveControl   | RW              | String                 |
-| Player        | RW              | Player                 |
-| PowerOutlet   | RW              | Switch                 |
-| Pressure      | R               | Number                 |
-| QualityOfService      | R       | Number                 |
-| Rain          | R               | Switch, Number         |
-| Recorder      | RW              | String                 |
-| Smoke         | R               | Switch                 |
-| SoundVolume   | R, RW           | Number                 |
-| Switch        | RW              | Switch                 |
-| Temperature   | R, RW           | Number                 |
-| Water         | R               | Switch, Number         |
-| Wind          | R               | Number                 |
-| Window        | R, RW           | String, Switch         |
-| Zoom          | RW              | String                 |
-
-R=Read, RW=Read/Write
-
-The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the `Motion` category can be used for sensors only, so `read only` can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be `true` or `false`. In addition categories are related to specific item types. For example the 'Energy' category can only be used for `Number` items. But `Rain` could be either expressed as Switch item, where it only indicates if it rains or not, or as `Number`, which gives information about the rain intensity.
-
-The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover, not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
-
 ### Channel Groups
 
 Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside the switchboard, but controls switches in other rooms. Therefore channel groups can be used to group a set of channels together into one logical block. A thing can only have direct channels or channel groups, but not both.
@@ -231,12 +199,13 @@ Inside the thing types XML file channel groups can be defined like this:
 </thing-type>    
 ```
 
-The channel group type is defined on the same level as the thing types and channel types. The group type must have a label and an optional description. Moreover the list of contained channels must be specified:
+The channel group type is defined on the same level as the thing types and channel types. The group type must have a label, an optional description, and an optional [category](categories.html). Moreover the list of contained channels must be specified:
 
 ```xml
 <channel-group-type id="switchActor">
     <label>Switch Actor</label>
     <description>This is a single switch actor with a switch channel</description>
+    <category>Light</category>
     <channels>
         <channel id="switch" typeId="switch" />
     </channels>

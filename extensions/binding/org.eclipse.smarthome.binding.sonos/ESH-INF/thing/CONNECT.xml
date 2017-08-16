@@ -59,9 +59,11 @@
 
 		<properties>
 			<property name="vendor">SONOS</property>
-			<property name="modelId"></property>
+			<property name="modelId">CONNECT</property>
 		</properties>
 
-		<config-description-ref uri="config:sonos:zoneplayer" />
+		<representation-property>udn</representation-property>
+
+		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>

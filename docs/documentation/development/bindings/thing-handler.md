@@ -119,7 +119,7 @@ public void initialize() {
             // execute some binding specific polling code
         }
     };
-    pollingJob = scheduler.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+    pollingJob = scheduler.scheduleAtFixedDelay(runnable, 0, 30, TimeUnit.SECONDS);
 }
 ```
 

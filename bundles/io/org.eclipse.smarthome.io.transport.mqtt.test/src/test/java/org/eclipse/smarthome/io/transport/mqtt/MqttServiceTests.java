@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.transport.mqtt.test;
+package org.eclipse.smarthome.io.transport.mqtt;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
@@ -17,10 +17,6 @@ import java.util.Map;
 
 import javax.naming.ConfigurationException;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttBrokersObserver;
-import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.junit.Test;
 
 /**
@@ -33,11 +29,11 @@ public class MqttServiceTests {
     @Test
     public void brokerConnectionListenerTests() throws ConfigurationException {
         MqttService service = new MqttService();
-        assertFalse(service.isBrokerObservers());
+        assertFalse(service.hasBrokerObservers());
         MqttBrokersObserver observer = mock(MqttBrokersObserver.class);
 
         service.addBrokersListener(observer);
-        assertTrue(service.isBrokerObservers());
+        assertTrue(service.hasBrokerObservers());
 
         MqttBrokerConnection connection = new MqttBrokerConnection("name", "tcp://123.123.123.123", false);
         assertTrue(service.addBrokerConnection(connection));
@@ -47,7 +43,7 @@ public class MqttServiceTests {
         verify(observer).brokerRemoved(connection);
 
         service.removeBrokersListener(observer);
-        assertFalse(service.isBrokerObservers());
+        assertFalse(service.hasBrokerObservers());
     }
 
     // Tests extractBrokerConfigurations() and addBrokerConnection(map)

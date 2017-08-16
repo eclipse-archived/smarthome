@@ -136,9 +136,9 @@ section#main.header-tabs {
 
 /* Inbox */
 .scan .fab-item md-progress-circular {
-	position: absolute;
-	left: 0px;
-	right: 0px;
+    float: left;
+    margin: 0px;
+    width: 56px !important;
 }
 
 .thing-type-choose {

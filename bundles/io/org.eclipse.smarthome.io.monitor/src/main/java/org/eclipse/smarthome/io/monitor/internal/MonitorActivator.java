@@ -12,6 +12,8 @@ import org.osgi.framework.BundleContext;
 
 /**
  * Extension of the default OSGi bundle activator
+ *
+ * @author Kai Kreuzer - Intial contribution
  */
 public final class MonitorActivator implements BundleActivator {
 

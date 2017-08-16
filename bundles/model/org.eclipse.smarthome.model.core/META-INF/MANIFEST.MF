@@ -20,12 +20,13 @@ Import-Package: com.google.common.base,
  org.eclipse.emf.ecore.util,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.service,
+ org.eclipse.smarthome.model.core,
  org.eclipse.xtext.common.types.impl,
  org.eclipse.xtext.resource,
  org.eclipse.xtext.resource.impl,
  org.osgi.framework,
  org.osgi.service.component,
  org.slf4j
-Service-Component: OSGI-INF/folderobserver.xml, OSGI-INF/modelrepository.xml
+Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.model.core
 Bundle-ActivationPolicy: lazy

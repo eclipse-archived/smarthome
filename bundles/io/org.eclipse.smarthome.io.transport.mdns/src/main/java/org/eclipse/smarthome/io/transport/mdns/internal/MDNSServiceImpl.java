@@ -52,7 +52,7 @@ public class MDNSServiceImpl implements MDNSService {
                                 break;
                             }
                         } catch (IOException e) {
-                            logger.error(e.getMessage());
+                            logger.error("{}", e.getMessage());
                         } catch (IllegalStateException e) {
                             logger.debug("Not registering service {}, because service is already deactivated!",
                                     description.serviceType);
@@ -83,7 +83,7 @@ public class MDNSServiceImpl implements MDNSService {
                     try {
                         mdnsClient.registerService(description);
                     } catch (IOException e) {
-                        logger.error(e.getMessage());
+                        logger.error("{}", e.getMessage());
                     } catch (IllegalStateException e) {
                         logger.debug("Not registering service {}, because service is already deactivated!",
                                 description.serviceType);

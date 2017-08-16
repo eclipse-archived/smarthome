@@ -10,7 +10,6 @@ package org.eclipse.smarthome.automation.sample.extension.java.type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class WelcomeHomeModuleTypeProvider implements ModuleTypeProvider {
 
     @Override
     public void removeProviderChangeListener(ProviderChangeListener<ModuleType> listener) {
-     // does nothing because this provider does not change
+        // does nothing because this provider does not change
     }
 
 }

@@ -119,7 +119,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             logger.debug("Initializing WemoHandler for UDN '{}'", configuration.get("udn"));
             onSubscription();
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoHandler. UDN not set.");
         }
@@ -409,7 +409,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             if (refreshConfig != null) {
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 

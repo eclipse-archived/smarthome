@@ -33,7 +33,7 @@ The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installe
 ![Step 7](images/ide7.png)
 10. Your workspace should now fully compile and you can start the runtime by launching the "SmartHome Runtime" launch configuration:
 ![Step 8](images/ide8.png)
-11. Access the PaperUI at [http://localhost:8080/paperui/index.html](http://localhost:8080/paperui/index.html). For more information about PaperUI see [PaperIU Development](notes.html#paperui-development-jshtml). 
+11. Access the Paper UI at [http://localhost:8080/paperui/index.html](http://localhost:8080/paperui/index.html). For more information about Paper UI see [Paper UI Development](notes.html#paperui-development-jshtml). 
 
 Note that you will find the sources in a subfolder called "git" within your selected installation folder. You can use any kind of git client here, if you do not want to use the git support from within the Eclipse IDE.
 If you want to push changes, you need to do so to [your personal fork of the Eclipse SmartHome repository](https://github.com/eclipse/smarthome/fork) in order to create a pull request. You will find more details in the ["How to contribute"](../community/contributing.html) documentation.

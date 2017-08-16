@@ -15,7 +15,9 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.framework.Bundle;
 
 /**
@@ -23,6 +25,7 @@ import org.osgi.framework.Bundle;
  * framework.
  *
  * @author Markus Rathgeb - Move code from XML thing type provider to separate service
+ * @author Laurent Garnier - fix localized label and description for channel group definition
  */
 public class ThingTypeI18nLocalizationService {
 
@@ -57,10 +60,17 @@ public class ThingTypeI18nLocalizationService {
         final List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
                 thingType.getChannelGroupDefinitions().size());
         for (final ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
-            final String channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle,
-                    channelGroupDefinition.getTypeUID(), channelGroupDefinition.getLabel(), locale);
-            final String channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
-                    channelGroupDefinition.getTypeUID(), channelGroupDefinition.getDescription(), locale);
+            ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
+            final String channelGroupLabel = channelGroupDefinition.getLabel() == null
+                    ? this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupType.getUID(),
+                            channelGroupType.getLabel(), locale)
+                    : this.thingTypeI18nUtil.getChannelGroupLabel(bundle, thingType.getUID(),
+                            channelGroupDefinition.getId(), channelGroupDefinition.getLabel(), locale);
+            final String channelGroupDescription = channelGroupDefinition.getDescription() == null
+                    ? this.thingTypeI18nUtil.getChannelGroupDescription(bundle, channelGroupType.getUID(),
+                            channelGroupType.getDescription(), locale)
+                    : this.thingTypeI18nUtil.getChannelGroupDescription(bundle, thingType.getUID(),
+                            channelGroupDefinition.getId(), channelGroupDefinition.getDescription(), locale);
             localizedChannelGroupDefinitions.add(new ChannelGroupDefinition(channelGroupDefinition.getId(),
                     channelGroupDefinition.getTypeUID(), channelGroupLabel, channelGroupDescription));
         }
@@ -68,12 +78,12 @@ public class ThingTypeI18nLocalizationService {
         if (thingType instanceof BridgeType) {
             final BridgeType bridgeType = (BridgeType) thingType;
             return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                    thingType.getProperties(), bridgeType.getConfigDescriptionURI());
+                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    localizedChannelGroupDefinitions, thingType.getProperties(), bridgeType.getConfigDescriptionURI());
         } else {
             return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                    thingType.getProperties(), thingType.getConfigDescriptionURI());
+                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
+                    localizedChannelGroupDefinitions, thingType.getProperties(), thingType.getConfigDescriptionURI());
         }
     }
 
