@@ -138,10 +138,10 @@ public interface Job extends Runnable {
         Calendar configEnd = applyConfig(end, config);
 
         if (truncatedEquals(configStart, configEnd, SECOND)) {
-            scheduleEvent(thingUID, astroHandler, start, asList(EVENT_START, EVENT_END), channelId, true);
+            scheduleEvent(thingUID, astroHandler, configStart, asList(EVENT_START, EVENT_END), channelId, true);
         } else {
-            scheduleEvent(thingUID, astroHandler, start, EVENT_START, channelId, true);
-            scheduleEvent(thingUID, astroHandler, end, EVENT_END, channelId, true);
+            scheduleEvent(thingUID, astroHandler, configStart, EVENT_START, channelId, true);
+            scheduleEvent(thingUID, astroHandler, configEnd, EVENT_END, channelId, true);
         }
     }
 
