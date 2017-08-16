@@ -34,6 +34,8 @@
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.wemo.test</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>
+    <module>org.eclipse.smarthome.binding.lwm2m</module>
+    <module>org.eclipse.smarthome.binding.lwm2m.test</module>
   </modules>
 
 </project>
