@@ -6,7 +6,7 @@ layout: documentation
 
 # Scenes
 
-In the general context of home automation, a scene is a defined set of states of one or more home devices. For example, a **night scene**, which turns on all the indoor lights. The notion of scenes is not directly available in Eclipse SmartHome but scenes can be created by the means of using rules.
+In the general context of home automation, a scene is a defined set of states of one or more home devices. An example of such a scene could be a **night scene**, which turns on all the indoor lights. The notion of scenes is not directly available in Eclipse SmartHome, but scenes can be created by the means of using rules.
 
 ## Concept
 
@@ -15,11 +15,6 @@ In Eclipse SmartHome, a scene is created by defining states for different items 
 A scene can only be activated and no deactivation is possible. It can be activated either manually or automatically. To manually activate a scene, a runnow request must be sent to the rest endpoint. To automate the scene activation, a second rule must be created. The action section of this second rule is responsible for executing the scene with the `core.RunRuleAction` module type. 
 
 The `core.RunRuleAction` module type, used for running the scenes, supports the direct execution of the actions without requiring to evaluate the conditions. This way all actions are executed even if an action before returns an error.
-
-Asynchronous execution of actions is needed to fulfil further requirements:
-
-* Most of the actions just send events. And as the eventHandlers for these events are executed asynchronously the resulting action execution is also asynchronous.
-* For long-running script actions, e.g., the handler should be aware of asynchronous execution.
 
 
 ## Scene creation and activation
