@@ -52,75 +52,77 @@ public class BridgeDiscovery {
     public static List<HueBridge> searchUPnP(int timeout, BridgeDiscoveryCallback callback) throws IOException {
         // Send out SSDP discovery broadcast
         String ssdpBroadcast = "M-SEARCH * HTTP/1.1\nHOST: 239.255.255.250:1900\nMAN: ssdp:discover\nMX: 8\nST:SsdpSearch:all";
-        DatagramSocket upnpSock = new DatagramSocket();
-        upnpSock.setSoTimeout(100);
-        upnpSock.send(new DatagramPacket(ssdpBroadcast.getBytes(), ssdpBroadcast.length(),
-                new InetSocketAddress("239.255.255.250", 1900)));
+        try (DatagramSocket upnpSock = new DatagramSocket()) {
+            upnpSock.setSoTimeout(100);
+            upnpSock.send(new DatagramPacket(ssdpBroadcast.getBytes(), ssdpBroadcast.length(),
+                    new InetSocketAddress("239.255.255.250", 1900)));
 
-        // Start waiting
-        HashSet<String> ips = new HashSet<>();
-        ArrayList<HueBridge> bridges = new ArrayList<>();
+            // Start waiting
+            HashSet<String> ips = new HashSet<>();
+            ArrayList<HueBridge> bridges = new ArrayList<>();
 
-        long start = System.currentTimeMillis();
-        long nextBroadcast = start + 5000;
+            long start = System.currentTimeMillis();
+            long nextBroadcast = start + 5000;
 
-        while (System.currentTimeMillis() - start < timeout) {
-            // Send a new discovery broadcast every 5 seconds just in case
-            if (System.currentTimeMillis() > nextBroadcast) {
-                upnpSock.send(new DatagramPacket(ssdpBroadcast.getBytes(), ssdpBroadcast.length(),
-                        new InetSocketAddress("239.255.255.250", 1900)));
-                nextBroadcast = System.currentTimeMillis() + 5000;
-            }
-
-            byte[] responseBuffer = new byte[1024];
-
-            DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
-
-            try {
-                upnpSock.receive(responsePacket);
-            } catch (SocketTimeoutException e) {
-                if (System.currentTimeMillis() - start > timeout) {
-                    break;
-                } else {
-                    continue;
+            while (System.currentTimeMillis() - start < timeout) {
+                // Send a new discovery broadcast every 5 seconds just in case
+                if (System.currentTimeMillis() > nextBroadcast) {
+                    upnpSock.send(new DatagramPacket(ssdpBroadcast.getBytes(), ssdpBroadcast.length(),
+                            new InetSocketAddress("239.255.255.250", 1900)));
+                    nextBroadcast = System.currentTimeMillis() + 5000;
                 }
-            }
 
-            final String ip = responsePacket.getAddress().getHostAddress();
-            final String response = new String(responsePacket.getData());
+                byte[] responseBuffer = new byte[1024];
 
-            if (!ips.contains(ip)) {
-                Matcher m = Pattern.compile("LOCATION: (.*)", Pattern.CASE_INSENSITIVE).matcher(response);
+                DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
 
-                if (m.find()) {
-                    final String description = new HttpClient().get(m.group(1)).getBody();
-
-                    // Parsing with RegEx allowed here because the output format is fairly strict
-                    final String modelName = Util.quickMatch("<modelName>(.*?)</modelName>", description);
-
-                    // Check from description if we're dealing with a hue bridge or some other device
-                    if (modelName.toLowerCase().contains("philips hue bridge")) {
-                        try {
-                            final HueBridge bridgeToBe = new HueBridge(ip);
-                            bridgeToBe.getConfig();
-
-                            bridges.add(bridgeToBe);
-
-                            if (callback != null) {
-                                callback.onBridgeDiscovered(bridgeToBe);
-                            }
-                        } catch (ApiException e) {
-                            // Do nothing, this basically serves as an extra check to see if it's really a hue bridge
-                        }
+                try {
+                    upnpSock.receive(responsePacket);
+                } catch (SocketTimeoutException e) {
+                    if (System.currentTimeMillis() - start > timeout) {
+                        break;
+                    } else {
+                        continue;
                     }
                 }
 
-                // Ignore subsequent packets
-                ips.add(ip);
-            }
-        }
+                final String ip = responsePacket.getAddress().getHostAddress();
+                final String response = new String(responsePacket.getData());
 
-        return bridges;
+                if (!ips.contains(ip)) {
+                    Matcher m = Pattern.compile("LOCATION: (.*)", Pattern.CASE_INSENSITIVE).matcher(response);
+
+                    if (m.find()) {
+                        final String description = new HttpClient().get(m.group(1)).getBody();
+
+                        // Parsing with RegEx allowed here because the output format is fairly strict
+                        final String modelName = Util.quickMatch("<modelName>(.*?)</modelName>", description);
+
+                        // Check from description if we're dealing with a hue bridge or some other device
+                        if (modelName.toLowerCase().contains("philips hue bridge")) {
+                            try {
+                                final HueBridge bridgeToBe = new HueBridge(ip);
+                                bridgeToBe.getConfig();
+
+                                bridges.add(bridgeToBe);
+
+                                if (callback != null) {
+                                    callback.onBridgeDiscovered(bridgeToBe);
+                                }
+                            } catch (ApiException e) {
+                                // Do nothing, this basically serves as an extra check to see if it's really a hue
+                                // bridge
+                            }
+                        }
+                    }
+
+                    // Ignore subsequent packets
+                    ips.add(ip);
+                }
+            }
+
+            return bridges;
+        }
     }
 
     /**
