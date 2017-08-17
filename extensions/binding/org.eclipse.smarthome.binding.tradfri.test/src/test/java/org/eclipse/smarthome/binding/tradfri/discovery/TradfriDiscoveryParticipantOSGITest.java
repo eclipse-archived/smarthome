@@ -20,6 +20,7 @@ import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscovery
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
@@ -77,12 +78,12 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
         DiscoveryResult result = discoveryParticipant.createResult(tradfriGateway);
 
         assertNotNull(result);
-        assertThat(result.getProperties().get("firmware"), is("1.1"));
+        assertThat(result.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION), is("1.1"));
         assertThat(result.getFlag(), is(DiscoveryResultFlag.NEW));
         assertThat(result.getThingUID(), is(new ThingUID("tradfri:gateway:gw1234567890ab")));
         assertThat(result.getThingTypeUID(), is(TradfriBindingConstants.GATEWAY_TYPE_UID));
         assertThat(result.getBridgeUID(), is(nullValue()));
-        assertThat(result.getProperties().get("vendor"), is("IKEA"));
+        assertThat(result.getProperties().get(Thing.PROPERTY_VENDOR), is("IKEA of Sweden"));
         assertThat(result.getProperties().get(GatewayConfig.HOST), is("192.168.0.5"));
         assertThat(result.getProperties().get(GatewayConfig.PORT), is(1234));
         assertThat(result.getRepresentationProperty(), is(GatewayConfig.HOST));
