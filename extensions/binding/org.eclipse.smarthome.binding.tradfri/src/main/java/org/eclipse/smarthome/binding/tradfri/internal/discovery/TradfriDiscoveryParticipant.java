@@ -18,6 +18,7 @@ import org.eclipse.smarthome.binding.tradfri.GatewayConfig;
 import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
@@ -68,12 +69,12 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
             if (thingUID != null) {
                 logger.debug("Discovered Tradfri gateway: {}", service);
                 Map<String, Object> properties = new HashMap<>(4);
-                properties.put("vendor", "IKEA");
+                properties.put(Thing.PROPERTY_VENDOR, "IKEA of Sweden");
                 properties.put(GatewayConfig.HOST, ip);
                 properties.put(GatewayConfig.PORT, service.getPort());
                 String fwVersion = service.getPropertyString("version");
                 if (fwVersion != null) {
-                    properties.put("firmware", fwVersion);
+                    properties.put(Thing.PROPERTY_FIRMWARE_VERSION, fwVersion);
                 }
                 return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("Trådfri Gateway")
                         .withRepresentationProperty(GatewayConfig.HOST).build();
