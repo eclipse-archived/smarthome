@@ -19,6 +19,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This OSGi service could be used to localize a thing type using the I18N mechanism of the Eclipse SmartHome
@@ -27,10 +29,12 @@ import org.osgi.framework.Bundle;
  * @author Markus Rathgeb - Move code from XML thing type provider to separate service
  * @author Laurent Garnier - fix localized label and description for channel group definition
  */
+@Component(immediate = true, service = ThingTypeI18nLocalizationService.class)
 public class ThingTypeI18nLocalizationService {
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
+    @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
     }

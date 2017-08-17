@@ -42,6 +42,13 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroun
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +62,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = { EventSubscriber.class, FirmwareUpdateService.class })
 public final class FirmwareUpdateService implements EventSubscriber {
 
     private static final String THREAD_POOL_NAME = FirmwareUpdateService.class.getSimpleName();
@@ -109,10 +117,12 @@ public final class FirmwareUpdateService implements EventSubscriber {
         }
     };
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         modified(config);
     }
 
+    @Modified
     protected synchronized void modified(Map<String, Object> config) {
         logger.debug("Modifying the configuration of the firmware update service.");
 
@@ -127,13 +137,15 @@ public final class FirmwareUpdateService implements EventSubscriber {
         firmwareStatusInfoJobDelay = config.containsKey(DELAY_CONFIG_KEY) ? (Integer) config.get(DELAY_CONFIG_KEY)
                 : firmwareStatusInfoJobDelay;
         firmwareStatusInfoJobTimeUnit = config.containsKey(TIME_UNIT_CONFIG_KEY)
-                ? TimeUnit.valueOf((String) config.get(TIME_UNIT_CONFIG_KEY)) : firmwareStatusInfoJobTimeUnit;
+                ? TimeUnit.valueOf((String) config.get(TIME_UNIT_CONFIG_KEY))
+                : firmwareStatusInfoJobTimeUnit;
 
         if (!firmwareUpdateHandlers.isEmpty()) {
             createFirmwareUpdateStatusInfoJob();
         }
     }
 
+    @Deactivate
     protected void deactivate() {
         cancelFirmwareUpdateStatusInfoJob();
         firmwareStatusInfoMap.clear();
@@ -466,6 +478,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         return ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected synchronized void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
         if (firmwareUpdateHandlers.isEmpty()) {
             createFirmwareUpdateStatusInfoJob();
@@ -482,6 +495,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         progressCallbackMap.remove(firmwareUpdateHandler.getThing().getUID());
     }
 
+    @Reference
     protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
         this.firmwareRegistry = firmwareRegistry;
     }
@@ -490,6 +504,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         this.firmwareRegistry = null;
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -498,6 +513,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         this.eventPublisher = null;
     }
 
+    @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
@@ -506,6 +522,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         this.i18nProvider = null;
     }
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -20,6 +21,10 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * {@link ItemChannelLinkRegistry} tracks all {@link ItemChannelLinkProvider}s
@@ -29,6 +34,7 @@ import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
  * @author Markus Rathgeb - Linked items returns only existing items
  *
  */
+@Component(immediate = true, service = ItemChannelLinkRegistry.class)
 public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink, ItemChannelLinkProvider> {
 
     private ThingRegistry thingRegistry;
@@ -109,6 +115,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         return things;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -117,12 +124,33 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setItemRegistry(final ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
 
     protected void unsetItemRegistry(final ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, name = "ManagedItemChannelLinkProvider")
+    protected void setManagedProvider(ManagedItemChannelLinkProvider provider) {
+        super.setManagedProvider(provider);
+    }
+
+    protected void unsetManagedProvider(ManagedItemChannelLinkProvider provider) {
+        super.removeManagedProvider(provider);
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        super.setEventPublisher(eventPublisher);
+    }
+
+    @Override
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        super.unsetEventPublisher(eventPublisher);
     }
 
     public void removeLinksForThing(ThingUID thingUID) {

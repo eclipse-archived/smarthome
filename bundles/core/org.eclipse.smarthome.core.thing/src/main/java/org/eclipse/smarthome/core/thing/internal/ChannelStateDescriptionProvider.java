@@ -22,6 +22,9 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  */
+@Component(immediate = true, property = { "service.ranking:Integer=-1" })
 public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
@@ -40,6 +44,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
     private ThingRegistry thingRegistry;
     private Integer rank;
 
+    @Activate
     protected void activate(Map<String, Object> properties) {
         Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
         if (serviceRanking instanceof Integer) {
@@ -92,6 +97,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
         return null;
     }
 
+    @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -100,6 +106,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
         this.thingTypeRegistry = null;
     }
 
+    @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
@@ -108,6 +115,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
         this.itemChannelLinkRegistry = null;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }

@@ -9,7 +9,9 @@ package org.eclipse.smarthome.core.thing.firmware;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -25,6 +27,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = EventFactory.class)
 public final class FirmwareEventFactory extends AbstractEventFactory {
 
     private static final int THING_UID_TOPIC_IDX = 2;
