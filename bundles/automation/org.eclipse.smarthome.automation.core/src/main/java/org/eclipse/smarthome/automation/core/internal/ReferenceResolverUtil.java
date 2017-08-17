@@ -292,7 +292,7 @@ public class ReferenceResolverUtil {
                 return null;
             }
             String key = ref.substring(1, idx++);
-            Map map = (Map) object;
+            Map<?, ?> map = (Map<?, ?>) object;
             result = map.get(key);
         } else {
             String key = null;
