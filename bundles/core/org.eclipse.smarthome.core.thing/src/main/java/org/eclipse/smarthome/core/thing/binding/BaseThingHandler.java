@@ -644,10 +644,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE
-                && getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
-        } else if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
+        if (ThingStatus.OFFLINE.equals(bridgeStatusInfo.getStatus())) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
