@@ -31,6 +31,7 @@ Import-Package: com.google.common.collect,
  org.jupnp.model.types,
  org.osgi.framework,
  org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j,
  org.xml.sax,
  org.xml.sax.helpers
