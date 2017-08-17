@@ -353,7 +353,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     @Override
-    public void onLightStateChanged(HueBridge bridge, @NonNull FullLight fullLight) {
+    public void onLightStateChanged(HueBridge bridge, FullLight fullLight) {
         logger.trace("onLightStateChanged() was called");
 
         if (!fullLight.getId().equals(lightId)) {
@@ -408,7 +408,10 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     public void channelLinked(ChannelUID channelUID) {
         HueBridgeHandler handler = getHueBridgeHandler();
         if (handler != null) {
-            onLightStateChanged(null, handler.getLightById(lightId));
+            FullLight light = handler.getLightById(lightId);
+            if (light != null) {
+                onLightStateChanged(null, light);
+            }
         }
     }
 
