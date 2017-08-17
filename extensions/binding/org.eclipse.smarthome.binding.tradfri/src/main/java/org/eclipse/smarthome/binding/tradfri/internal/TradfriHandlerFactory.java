@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
+import org.eclipse.smarthome.binding.tradfri.handler.TradfriGroupHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriLightHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -36,8 +37,9 @@ import com.google.common.collect.Sets;
  */
 public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets
-            .union(Collections.singleton(GATEWAY_TYPE_UID), SUPPORTED_LIGHT_TYPES_UIDS);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.union(
+            Collections.singleton(GATEWAY_TYPE_UID),
+            Sets.union(SUPPORTED_LIGHT_TYPES_UIDS, Collections.singleton(THING_TYPE_GROUP)));
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -56,6 +58,8 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
             return handler;
         } else if (SUPPORTED_LIGHT_TYPES_UIDS.contains(thingTypeUID)) {
             return new TradfriLightHandler(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_GROUP)) {
+            return new TradfriGroupHandler(thing);
         }
         return null;
     }

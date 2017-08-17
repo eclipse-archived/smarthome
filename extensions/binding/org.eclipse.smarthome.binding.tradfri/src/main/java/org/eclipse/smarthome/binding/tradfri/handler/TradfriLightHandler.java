@@ -67,11 +67,11 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
     public synchronized void initialize() {
         this.id = getConfigAs(DeviceConfig.class).id;
         TradfriGatewayHandler handler = (TradfriGatewayHandler) getBridge().getHandler();
-        String uriString = handler.getGatewayURI() + "/" + id;
+        String uriString = handler.devices.getGatewayURI() + "/" + id;
         try {
             URI uri = new URI(uriString);
             coapClient = new TradfriCoapClient(uri);
-            coapClient.setEndpoint(handler.getEndpoint());
+            coapClient.setEndpoint(handler.devices.getEndpoint());
         } catch (URISyntaxException e) {
             logger.debug("Illegal device URI `{}`: {}", uriString, e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());

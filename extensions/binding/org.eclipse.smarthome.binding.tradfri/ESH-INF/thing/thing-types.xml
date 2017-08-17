@@ -70,6 +70,26 @@
             </parameter>
         </config-description>
     </thing-type>
+    <thing-type id="group">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="gateway"/>
+        </supported-bridge-type-refs>
+
+        <label>Tradfri Group</label>
+        <description>A group of Tradfri lamps</description>
+        
+        <channels>
+            <channel id="group_state" typeId="group_state"/>
+        </channels>
+        
+        <config-description>
+            <parameter name="id" type="integer" required="true">
+                <label>ID</label>
+                <description>The identifier of the group on the gateway</description>
+            </parameter>
+        </config-description>        
+    
+    </thing-type>
 
     <!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
     <thing-type id="0820" listed="false">
@@ -107,5 +127,11 @@
         <description>Control the color temperature of the light.</description>
         <category>ColorLight</category>
     </channel-type>
-
+    
+    <channel-type id="group_state">
+        <item-type>Switch</item-type>
+        <label>Group State</label>
+        <description>Allows to switch on or off all lamps in a group.</description>
+    </channel-type>
+    
 </thing:thing-descriptions>
