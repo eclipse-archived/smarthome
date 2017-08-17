@@ -116,7 +116,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     }
 
     @Override
-    public void added(Provider<E> provider, E element) {
+    public void added(Provider<E> provider, @NonNull E element) {
         Collection<E> elements = elementMap.get(provider);
         if (elements != null) {
             try {

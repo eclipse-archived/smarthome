@@ -114,7 +114,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @param thing the thing
      * @return thing the created handler
      */
-    protected abstract ThingHandler createHandler(Thing thing);
+    protected abstract @Nullable ThingHandler createHandler(@NonNull Thing thing);
 
     private void setHandlerContext(ThingHandler thingHandler) {
         if (thingHandler instanceof BaseThingHandler) {

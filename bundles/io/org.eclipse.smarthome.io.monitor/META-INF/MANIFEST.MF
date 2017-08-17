@@ -9,6 +9,7 @@ Bundle-Activator: org.eclipse.smarthome.io.monitor.internal.MonitorActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.collect,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,

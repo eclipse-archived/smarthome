@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.common.registry;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * {@link ProviderChangeListener} can be added to {@link Provider} services, to
  * listen for changes. The {@link AbstractRegistry} implements a {@link ProviderChangeListener} and subscribes itself to
@@ -25,7 +27,7 @@ public interface ProviderChangeListener<E> {
      * @param provider the provider that provides the element
      * @param element the element that has been added
      */
-    void added(Provider<E> provider, E element);
+    void added(Provider<E> provider, @NonNull E element);
 
     /**
      * Notifies the listener that a single element has been removed.
@@ -33,7 +35,7 @@ public interface ProviderChangeListener<E> {
      * @param provider the provider that provides the element
      * @param element the element that has been removed
      */
-    void removed(Provider<E> provider, E element);
+    void removed(Provider<E> provider, @NonNull E element);
 
     /**
      * Notifies the listener that a single element has been updated.

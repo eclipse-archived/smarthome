@@ -11,6 +11,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -63,9 +65,10 @@ public class BridgeType extends ThingType {
      * @throws IllegalArgumentException if the UID is null or empty,
      *             or the the meta information is null
      */
-    public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
+    public BridgeType(@NonNull ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, @NonNull String label,
+            @Nullable String description, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI) throws IllegalArgumentException {
 
         this(uid, supportedBridgeTypeUIDs, label, description, true, null, channelDefinitions, channelGroupDefinitions,
                 properties, configDescriptionURI);
@@ -100,10 +103,10 @@ public class BridgeType extends ThingType {
      * @throws IllegalArgumentException if the UID is null or empty,
      *             or the the meta information is null
      */
-    public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            boolean listed, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public BridgeType(@NonNull ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, @NonNull String label,
+            @Nullable String description, boolean listed, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI) throws IllegalArgumentException {
 
         this(uid, supportedBridgeTypeUIDs, label, description, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
@@ -140,10 +143,11 @@ public class BridgeType extends ThingType {
      * @throws IllegalArgumentException if the UID is null or empty,
      *             or the the meta information is null
      */
-    public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public BridgeType(@NonNull ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, @NonNull String label,
+            @Nullable String description, boolean listed, @Nullable String representationProperty,
+            @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, supportedBridgeTypeUIDs, label, description, listed, representationProperty, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);

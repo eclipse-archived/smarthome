@@ -25,23 +25,21 @@ public interface ThingTypeProvider {
     /**
      * Provides a collection of thing types
      *
-     * @param locale
-     *            locale (can be null)
-     *
+     * @param locale locale (can be null)
      * @return the thing types provided by the {@link ThingTypeProvider}
      */
-    Collection<ThingType> getThingTypes(Locale locale);
+    Collection<ThingType> getThingTypes(@Nullable Locale locale);
 
     /**
      * Provides a thing type for the given UID or null if no type for the
      * given UID exists.
      *
-     * @param locale
-     *            locale (can be null)
+     * @param thingTypeUID the thing type UID
+     * @param locale locale (can be null)
      * @return thing type for the given UID or null if no type for the given
      *         UID exists
      */
     @Nullable
-    ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale);
+    ThingType getThingType(ThingTypeUID thingTypeUID, @Nullable Locale locale);
 
 }

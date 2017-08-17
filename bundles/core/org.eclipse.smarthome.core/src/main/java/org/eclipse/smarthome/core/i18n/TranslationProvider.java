@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.i18n;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.osgi.framework.Bundle;
 
 /**
@@ -37,7 +38,9 @@ public interface TranslationProvider {
      *
      * @return the translated text or the default text (could be null or empty)
      */
-    String getText(Bundle bundle, String key, String defaultText, Locale locale);
+    @Nullable
+    String getText(@Nullable Bundle bundle, @Nullable String key, @Nullable String defaultText,
+            @Nullable Locale locale);
 
     /**
      * Returns a translation for the specified key in the specified locale (language) by only
@@ -55,6 +58,8 @@ public interface TranslationProvider {
      *
      * @return the translated text or the default text (could be null or empty)
      */
-    String getText(Bundle bundle, String key, String defaultText, Locale locale, Object... arguments);
+    @Nullable
+    String getText(@Nullable Bundle bundle, @Nullable String key, @Nullable String defaultText, @Nullable Locale locale,
+            @Nullable Object... arguments);
 
 }

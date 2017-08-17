@@ -9,6 +9,7 @@ Bundle-ClassPath: .
 Import-Package: javax.sound.sampled,
  org.apache.commons.collections,
  org.apache.commons.io,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.audio,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.library.types,

@@ -11,6 +11,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link ConfigDescriptionProvider} can be implemented and registered as an <i>OSGi</i>
  * service to provide {@link ConfigDescription}s. The {@link ConfigDescriptionRegistry} tracks
@@ -42,6 +44,7 @@ public interface ConfigDescriptionProvider {
      * @return config description or null if no config description could be
      *         found
      */
+    @Nullable
     ConfigDescription getConfigDescription(URI uri, Locale locale);
 
 }

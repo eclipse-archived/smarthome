@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
@@ -43,7 +44,7 @@ public class ThingTypeI18nLocalizationService {
         this.thingTypeI18nUtil = null;
     }
 
-    public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
+    public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, @Nullable Locale locale) {
         final String label = this.thingTypeI18nUtil.getLabel(bundle, thingType.getUID(), thingType.getLabel(), locale);
         final String description = this.thingTypeI18nUtil.getDescription(bundle, thingType.getUID(),
                 thingType.getDescription(), locale);

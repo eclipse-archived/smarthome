@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -56,14 +58,11 @@ public class ChannelDefinition {
      *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
-            String description) throws IllegalArgumentException {
-        if ((id == null) || (id.isEmpty())) {
+    public ChannelDefinition(@NonNull String id, @NonNull ChannelTypeUID channelTypeUID,
+            @Nullable Map<String, String> properties, @Nullable String label, @Nullable String description)
+            throws IllegalArgumentException {
+        if (id.isEmpty()) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
-        }
-
-        if (channelTypeUID == null) {
-            throw new IllegalArgumentException("The channel type must not be null");
         }
 
         if (properties != null) {

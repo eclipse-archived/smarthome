@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -20,7 +21,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Harald Kuhn - Initial API
  * @author Kelly Davis - Modified to match discussion in #584
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
- * 
+ *
  */
 public interface AudioSink {
 
@@ -65,7 +66,7 @@ public interface AudioSink {
 
     /**
      * Gets a set containing all supported audio stream formats
-     * 
+     *
      * @return A Set containing all supported audio stream formats
      */
     public Set<Class<? extends AudioStream>> getSupportedStreams();
@@ -84,5 +85,5 @@ public interface AudioSink {
      * @param volume a PercentType value between 0 and 100 representing the desired volume
      * @throws IOException if the volume can not be set
      */
-    public void setVolume(PercentType volume) throws IOException;
+    public void setVolume(@NonNull PercentType volume) throws IOException;
 }

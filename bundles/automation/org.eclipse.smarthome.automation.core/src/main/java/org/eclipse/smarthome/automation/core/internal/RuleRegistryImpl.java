@@ -517,7 +517,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
-    public void added(Provider<Rule> provider, Rule element) {
+    public void added(Provider<Rule> provider, @NonNull Rule element) {
         Rule ruleWithUID = element;
         if (element.getUID() == null) {
             String rUID = ruleEngine.getUniqueId();
