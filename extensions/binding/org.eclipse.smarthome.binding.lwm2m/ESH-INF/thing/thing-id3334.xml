@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3334">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Gyrometer</label>
+      <description><![CDATA[This IPSO Object is used to report the current reading of a gyrometer sensor in 3 axes. It provides tracking of the minimum and maximum angular rate in all 3 axes. An example unit of measure is radians per second (ucum:rad/s).]]></description>
+      <!--Optional channel "Y Value" (5703) will be added dynamically-->
+      <!--Optional channel "Z Value" (5704) will be added dynamically-->
+      <!--Optional channel "Sensor Units" (5701) will be added dynamically-->
+      <!--Optional channel "Min X Value" (5508) will be added dynamically-->
+      <!--Optional channel "Max X Value" (5509) will be added dynamically-->
+      <!--Optional channel "Min Y Value" (5510) will be added dynamically-->
+      <!--Optional channel "Max Y Value" (5511) will be added dynamically-->
+      <!--Optional channel "Min Z Value" (5512) will be added dynamically-->
+      <!--Optional channel "Max Z Value" (5513) will be added dynamically-->
+      <!--Optional channel "Reset Min and Max Measured Values" (5605) will be added dynamically-->
+      <!--Optional channel "Min Range Value" (5603) will be added dynamically-->
+      <!--Optional channel "Max Range Value" (5604) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5702" typeId="5702"><!--Channel "X Value" (5702)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3334</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3334</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5702"><!--MultiInstances: Single-->
+      <label>X Value</label>
+      <channels>
+         <channel id="0" typeId="5702"><!--Channel "X Value", ID: 5702, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5703"><!--MultiInstances: Single-->
+      <label>Y Value</label>
+      <channels>
+         <channel id="0" typeId="5703"><!--Channel "Y Value", ID: 5703, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5704"><!--MultiInstances: Single-->
+      <label>Z Value</label>
+      <channels>
+         <channel id="0" typeId="5704"><!--Channel "Z Value", ID: 5704, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5701"><!--MultiInstances: Single-->
+      <label>Sensor Units</label>
+      <channels>
+         <channel id="0" typeId="5701"><!--Channel "Sensor Units", ID: 5701, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5508"><!--MultiInstances: Single-->
+      <label>Min X Value</label>
+      <channels>
+         <channel id="0" typeId="5508"><!--Channel "Min X Value", ID: 5508, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5509"><!--MultiInstances: Single-->
+      <label>Max X Value</label>
+      <channels>
+         <channel id="0" typeId="5509"><!--Channel "Max X Value", ID: 5509, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5510"><!--MultiInstances: Single-->
+      <label>Min Y Value</label>
+      <channels>
+         <channel id="0" typeId="5510"><!--Channel "Min Y Value", ID: 5510, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5511"><!--MultiInstances: Single-->
+      <label>Max Y Value</label>
+      <channels>
+         <channel id="0" typeId="5511"><!--Channel "Max Y Value", ID: 5511, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5512"><!--MultiInstances: Single-->
+      <label>Min Z Value</label>
+      <channels>
+         <channel id="0" typeId="5512"><!--Channel "Min Z Value", ID: 5512, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5513"><!--MultiInstances: Single-->
+      <label>Max Z Value</label>
+      <channels>
+         <channel id="0" typeId="5513"><!--Channel "Max Z Value", ID: 5513, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5605"><!--MultiInstances: Single-->
+      <label>Reset Min and Max Measured Values</label>
+      <channels>
+         <channel id="0" typeId="5605"><!--Channel "Reset Min and Max Measured Values", ID: 5605, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5603"><!--MultiInstances: Single-->
+      <label>Min Range Value</label>
+      <channels>
+         <channel id="0" typeId="5603"><!--Channel "Min Range Value", ID: 5603, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5604"><!--MultiInstances: Single-->
+      <label>Max Range Value</label>
+      <channels>
+         <channel id="0" typeId="5604"><!--Channel "Max Range Value", ID: 5604, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

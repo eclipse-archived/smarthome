@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3341">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Addressable Text Display</label>
+      <description><![CDATA[This IPSO object is used to send text to a text-only or text mode graphics display. POSTing a string of text to the text resource causes it to be displayed at the selected X and Y locations on the display. If X or Y are set to a value greater than the size of the display, the position “wraps around” to the modulus of the setting and the display size. Likewise, if the text string overflows the display size, the text “wraps around” and displays on the next line down or, if the last line has been written, wraps around to the top of the display. Brightness and Contrast controls are provided to allow control of various display types including STN and DSTN type LCD character displays. POSTing an empty payload to the Clear Display resource causes the display to be erased.]]></description>
+      <!--Optional channel "X Coordinate" (5528) will be added dynamically-->
+      <!--Optional channel "Y Coordinate" (5529) will be added dynamically-->
+      <!--Optional channel "Max X Coordinate" (5545) will be added dynamically-->
+      <!--Optional channel "Max Y Coordinate" (5546) will be added dynamically-->
+      <!--Optional channel "Clear Display" (5530) will be added dynamically-->
+      <!--Optional channel "Dimmer" (5851) will be added dynamically-->
+      <!--Optional channel "Contrast" (5531) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5527" typeId="5527"><!--Channel "Text" (5527)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3341</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3341</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5527"><!--MultiInstances: Single-->
+      <label>Text</label>
+      <channels>
+         <channel id="0" typeId="5527"><!--Channel "Text", ID: 5527, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5528"><!--MultiInstances: Single-->
+      <label>X Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5528"><!--Channel "X Coordinate", ID: 5528, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5529"><!--MultiInstances: Single-->
+      <label>Y Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5529"><!--Channel "Y Coordinate", ID: 5529, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5545"><!--MultiInstances: Single-->
+      <label>Max X Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5545"><!--Channel "Max X Coordinate", ID: 5545, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5546"><!--MultiInstances: Single-->
+      <label>Max Y Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5546"><!--Channel "Max Y Coordinate", ID: 5546, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5530"><!--MultiInstances: Single-->
+      <label>Clear Display</label>
+      <channels>
+         <channel id="0" typeId="5530"><!--Channel "Clear Display", ID: 5530, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5851"><!--MultiInstances: Single-->
+      <label>Dimmer</label>
+      <channels>
+         <channel id="0" typeId="5851"><!--Channel "Dimmer", ID: 5851, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5531"><!--MultiInstances: Single-->
+      <label>Contrast</label>
+      <channels>
+         <channel id="0" typeId="5531"><!--Channel "Contrast", ID: 5531, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

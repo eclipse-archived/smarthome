@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3310">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Load Control</label>
+      <description><![CDATA[Description: This Object is used for demand-response load control and other load control in automation application (not limited to power).]]></description>
+      <!--Optional channel "Criticality Level" (5826) will be added dynamically-->
+      <!--Optional channel "Avg Load Adj Pct" (5827) will be added dynamically-->
+      <!--Optional channel "Duty Cycle" (5828) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5823" typeId="5823"><!--Channel "Event Identifier" (5823)--></channel-group>
+         <channel-group id="5824" typeId="5824"><!--Channel "Start Time" (5824)--></channel-group>
+         <channel-group id="5825" typeId="5825"><!--Channel "Duration In Min" (5825)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3310</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3310</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5823"><!--MultiInstances: Single-->
+      <label>Event Identifier</label>
+      <channels>
+         <channel id="0" typeId="5823"><!--Channel "Event Identifier", ID: 5823, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5824"><!--MultiInstances: Single-->
+      <label>Start Time</label>
+      <channels>
+         <channel id="0" typeId="5824"><!--Channel "Start Time", ID: 5824, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5825"><!--MultiInstances: Single-->
+      <label>Duration In Min</label>
+      <channels>
+         <channel id="0" typeId="5825"><!--Channel "Duration In Min", ID: 5825, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5826"><!--MultiInstances: Single-->
+      <label>Criticality Level</label>
+      <channels>
+         <channel id="0" typeId="5826"><!--Channel "Criticality Level", ID: 5826, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5827"><!--MultiInstances: Single-->
+      <label>Avg Load Adj Pct</label>
+      <channels>
+         <channel id="0" typeId="5827"><!--Channel "Avg Load Adj Pct", ID: 5827, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5828"><!--MultiInstances: Single-->
+      <label>Duty Cycle</label>
+      <channels>
+         <channel id="0" typeId="5828"><!--Channel "Duty Cycle", ID: 5828, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

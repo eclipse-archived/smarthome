@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5850" advanced="true">
+      <item-type>Switch</item-type>
+      <label>On/Off</label>
+      <description><![CDATA[On/off control for the timer input, 0=OFF, 1=ON.]]></description>
+      <category>Switch</category>
+   </channel-type>
+</thing:thing-descriptions>

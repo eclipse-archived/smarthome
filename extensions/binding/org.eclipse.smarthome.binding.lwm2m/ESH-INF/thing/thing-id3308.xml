@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3308">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Set Point</label>
+      <description><![CDATA[Description: This IPSO object should be used to set a desired value to a controller, such as a thermostat. This object enables a setpoint to be expressed units defined in the UCUM specification, to match an associated sensor or measurement value. A special resource is added to set the colour of an object.]]></description>
+      <!--Optional channel "Units" (5701) will be added dynamically-->
+      <!--Optional channel "Colour" (5706) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5900" typeId="5900"><!--Channel "Set Point Value" (5900)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3308</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3308</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5900"><!--MultiInstances: Single-->
+      <label>Set Point Value</label>
+      <channels>
+         <channel id="0" typeId="5900"><!--Channel "Set Point Value", ID: 5900, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5701"><!--MultiInstances: Single-->
+      <label>Units</label>
+      <channels>
+         <channel id="0" typeId="5701"><!--Channel "Units", ID: 5701, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5706"><!--MultiInstances: Single-->
+      <label>Colour</label>
+      <channels>
+         <channel id="0" typeId="5706"><!--Channel "Colour", ID: 5706, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5551" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Digital Output Polarity</label>
+      <description><![CDATA[The polarity of a digital ouput as a Boolean (0 = Normal, 1= Reversed).]]></description>
+      <category>Switch</category>
+   </channel-type>
+</thing:thing-descriptions>

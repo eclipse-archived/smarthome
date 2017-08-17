@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5517" advanced="true">
+      <item-type>String</item-type>
+      <label>Velocity</label>
+      <description><![CDATA[The velocity of the device as defined in 3GPP 23.032 GAD specification. This set of values may not be available if the device is static.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

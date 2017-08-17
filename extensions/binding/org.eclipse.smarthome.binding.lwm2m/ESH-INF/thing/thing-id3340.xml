@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3340">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Timer</label>
+      <description><![CDATA[This IPSO object is used to time events and actions, using patterns common to industrial timers. A POST to the trigger resource or On/Off input state change starts the timing operation, and the timer remaining time shows zero when the operation is complete. The patterns supported are One-Shot (mode 1), On-Time or Interval (mode 2), Time delay on pick-up or TDPU (tmode 3), and Time Delay on Drop-Out or TDDO (mode 4). Mode 0 disables the timer, so the output follows the input with no delay. A counter is provided to count occurrences of the timer output changing from 0 to 1. Writing a value of zero resets the counter. The Digital Input State resource reports the state of the timer output.]]></description>
+      <!--Optional channel "Remaining Time" (5538) will be added dynamically-->
+      <!--Optional channel "Minimum Off-time" (5525) will be added dynamically-->
+      <!--Optional channel "Trigger" (5523) will be added dynamically-->
+      <!--Optional channel "On/Off" (5850) will be added dynamically-->
+      <!--Optional channel "Digital Input Counter" (5501) will be added dynamically-->
+      <!--Optional channel "Cumulative Time" (5544) will be added dynamically-->
+      <!--Optional channel "Digital State" (5543) will be added dynamically-->
+      <!--Optional channel "Counter" (5534) will be added dynamically-->
+      <!--Optional channel "Mode" (5526) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5521" typeId="5521"><!--Channel "Duration" (5521)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3340</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3340</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5521"><!--MultiInstances: Single-->
+      <label>Duration</label>
+      <channels>
+         <channel id="0" typeId="5521"><!--Channel "Duration", ID: 5521, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5538"><!--MultiInstances: Single-->
+      <label>Remaining Time</label>
+      <channels>
+         <channel id="0" typeId="5538"><!--Channel "Remaining Time", ID: 5538, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5525"><!--MultiInstances: Single-->
+      <label>Minimum Off-time</label>
+      <channels>
+         <channel id="0" typeId="5525"><!--Channel "Minimum Off-time", ID: 5525, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5523"><!--MultiInstances: Single-->
+      <label>Trigger</label>
+      <channels>
+         <channel id="0" typeId="5523"><!--Channel "Trigger", ID: 5523, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5850"><!--MultiInstances: Single-->
+      <label>On/Off</label>
+      <channels>
+         <channel id="0" typeId="5850"><!--Channel "On/Off", ID: 5850, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5501"><!--MultiInstances: Single-->
+      <label>Digital Input Counter</label>
+      <channels>
+         <channel id="0" typeId="5501"><!--Channel "Digital Input Counter", ID: 5501, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5544"><!--MultiInstances: Single-->
+      <label>Cumulative Time</label>
+      <channels>
+         <channel id="0" typeId="5544"><!--Channel "Cumulative Time", ID: 5544, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5543"><!--MultiInstances: Single-->
+      <label>Digital State</label>
+      <channels>
+         <channel id="0" typeId="5543"><!--Channel "Digital State", ID: 5543, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5534"><!--MultiInstances: Single-->
+      <label>Counter</label>
+      <channels>
+         <channel id="0" typeId="5534"><!--Channel "Counter", ID: 5534, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5526"><!--MultiInstances: Single-->
+      <label>Mode</label>
+      <channels>
+         <channel id="0" typeId="5526"><!--Channel "Mode", ID: 5526, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

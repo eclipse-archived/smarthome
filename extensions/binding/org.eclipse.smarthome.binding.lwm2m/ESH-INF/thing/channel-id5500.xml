@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5500">
+      <item-type>Contact</item-type>
+      <label>Digital Input State</label>
+      <description><![CDATA[The current state of a digital input.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

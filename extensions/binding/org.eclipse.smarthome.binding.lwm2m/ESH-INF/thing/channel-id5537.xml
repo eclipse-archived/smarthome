@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5537" advanced="true">
+      <item-type>Number</item-type>
+      <label>Transition Time</label>
+      <description><![CDATA[The time expected to move the actuator to the new position.]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

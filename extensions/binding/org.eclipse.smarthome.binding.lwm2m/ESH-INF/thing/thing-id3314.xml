@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3314">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Magnetometer</label>
+      <description><![CDATA[Description: This IPSO object can be used to represent a 1-3 axis magnetometer with optional compass direction.]]></description>
+      <!--Optional channel "Y Value" (5703) will be added dynamically-->
+      <!--Optional channel "Z Value" (5704) will be added dynamically-->
+      <!--Optional channel "Compass Direction" (5705) will be added dynamically-->
+      <!--Optional channel "Sensor Units" (5701) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5702" typeId="5702"><!--Channel "X Value" (5702)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3314</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3314</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5702"><!--MultiInstances: Single-->
+      <label>X Value</label>
+      <channels>
+         <channel id="0" typeId="5702"><!--Channel "X Value", ID: 5702, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5703"><!--MultiInstances: Single-->
+      <label>Y Value</label>
+      <channels>
+         <channel id="0" typeId="5703"><!--Channel "Y Value", ID: 5703, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5704"><!--MultiInstances: Single-->
+      <label>Z Value</label>
+      <channels>
+         <channel id="0" typeId="5704"><!--Channel "Z Value", ID: 5704, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5705"><!--MultiInstances: Single-->
+      <label>Compass Direction</label>
+      <channels>
+         <channel id="0" typeId="5705"><!--Channel "Compass Direction", ID: 5705, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5701"><!--MultiInstances: Single-->
+      <label>Sensor Units</label>
+      <channels>
+         <channel id="0" typeId="5701"><!--Channel "Sensor Units", ID: 5701, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

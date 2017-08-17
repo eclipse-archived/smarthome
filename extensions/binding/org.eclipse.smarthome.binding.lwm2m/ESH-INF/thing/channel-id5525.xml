@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5525" advanced="true">
+      <item-type>Number</item-type>
+      <label>Minimum Off-time</label>
+      <description><![CDATA[The duration of the rearm delay (i.e. the delay from the end of one cycle until the beginning of the next, the inhibit time).]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

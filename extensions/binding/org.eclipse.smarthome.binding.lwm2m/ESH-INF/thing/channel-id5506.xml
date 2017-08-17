@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5506">
+      <item-type>DateTime</item-type>
+      <label>Current Time</label>
+      <description><![CDATA[Unix Time. A signed integer representing the number of seconds since Jan 1st, 1970 in the UTC time zone.]]></description>
+   </channel-type>
+</thing:thing-descriptions>

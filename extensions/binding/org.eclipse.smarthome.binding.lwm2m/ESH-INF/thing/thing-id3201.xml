@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3201">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Digital Output</label>
+      <description><![CDATA[Generic digital output for non-specific actuators]]></description>
+      <!--Optional channel "Digital Output Polarity" (5551) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5550" typeId="5550"><!--Channel "Digital Output State" (5550)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3201</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3201</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5550"><!--MultiInstances: Single-->
+      <label>Digital Output State</label>
+      <channels>
+         <channel id="0" typeId="5550"><!--Channel "Digital Output State", ID: 5550, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5551"><!--MultiInstances: Single-->
+      <label>Digital Output Polarity</label>
+      <channels>
+         <channel id="0" typeId="5551"><!--Channel "Digital Output Polarity", ID: 5551, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

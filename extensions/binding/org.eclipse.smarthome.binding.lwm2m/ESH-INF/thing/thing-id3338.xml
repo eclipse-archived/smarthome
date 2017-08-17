@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3338">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Buzzer</label>
+      <description><![CDATA[This IPSO object should be used to actuate an audible alarm such as a buzzer, beeper, or vibration alarm. There is a dimmer control for setting the relative loudness of the alarm, and an optional duration control to limit the length of time the alarm sounds when turned on. Each time a “1” is written to the On/Off resource, the alarm will sound again for the configured duration. If no duration is programmed or the setting is zero, writing a “1” to the On/Off resource will result in the alarm sounding continuously until a “0” is written to the On/Off resource.]]></description>
+      <!--Optional channel "Dimmer" (5851) will be added dynamically-->
+      <!--Optional channel "Duration" (5521) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5850" typeId="5850"><!--Channel "On/Off" (5850)--></channel-group>
+         <channel-group id="5525" typeId="5525"><!--Channel "Minimum Off-time" (5525)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3338</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3338</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5850"><!--MultiInstances: Single-->
+      <label>On/Off</label>
+      <channels>
+         <channel id="0" typeId="5850"><!--Channel "On/Off", ID: 5850, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5851"><!--MultiInstances: Single-->
+      <label>Dimmer</label>
+      <channels>
+         <channel id="0" typeId="5851"><!--Channel "Dimmer", ID: 5851, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5521"><!--MultiInstances: Single-->
+      <label>Duration</label>
+      <channels>
+         <channel id="0" typeId="5521"><!--Channel "Duration", ID: 5521, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5525"><!--MultiInstances: Single-->
+      <label>Minimum Off-time</label>
+      <channels>
+         <channel id="0" typeId="5525"><!--Channel "Minimum Off-time", ID: 5525, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

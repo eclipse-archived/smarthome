@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2" listed="false">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>LWM2M Access Control</label>
+      <description><![CDATA[Access Control Object is used to check whether the LWM2M Server has access right for performing a operation.==E.3.1 Object Instance Configurations==If a new LWM2M Server Account is added when LWM2M Client has only one LWM2M Server Account, Client MUST ensure that Access Control Object Instances for every Object Instance except Security Object Instance exist. The LWM2M Client MUST create the missing Access Control Object Instances as follows:− Access Control Owner MUST be the previously existing LWM2M Server− Previously existing LWM2M Server MUST have full access right.]]></description>
+      <!--Optional channel "ACL" (2) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Object ID" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Object Instance ID" (1)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "Access Control Owner" (3)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2</property>
+         <property name="ObjectURN">TBD</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Object ID</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Object ID", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Object ID</label>
+      <description><![CDATA[The Object ID and The Object Instance ID are applied for.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Object Instance ID</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Object Instance ID", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>Object Instance ID</label>
+      <description><![CDATA[See Table 14: LWM2M Identifiers.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Multiple-->
+      <label>ACL</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "ACL", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>ACL</label>
+      <description><![CDATA[Resource Instance ID MUST be the Short Server ID of a certain LWM2M Server which has an access right.Resource Instance ID 0 is for default Short Server ID.The Value of the Resource Instance contains the access rights.Setting each bit means the LWM2M Server has the access right for that operation. The bit order is specified as below.1st lsb: R(Read, Observe, Discover, Write Attributes)2nd lsb: W(Write)3rd lsb: E(Execute)4th lsb: D(Delete)5th lsb: C(Create)Other bits are reserved for future use]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Access Control Owner</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Access Control Owner", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>Access Control Owner</label>
+      <description><![CDATA[Short Server ID of a certain LWM2M Server. Only this LWM2M Server can manage these Resources of the Object Instance.Value MAX_ID=65535 is reserved for the Access Control Object Instances created during Bootstrap procedure.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

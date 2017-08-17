@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3203">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Analog Output</label>
+      <description><![CDATA[This IPSO object is a generic object that can be used with any kind of analog output interface.]]></description>
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <!--Optional channel "Min Range Value" (5603) will be added dynamically-->
+      <!--Optional channel "Max Range Value" (5604) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5650" typeId="5650"><!--Channel "Analog Output Current Value" (5650)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3203</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3203</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5650"><!--MultiInstances: Single-->
+      <label>Analog Output Current Value</label>
+      <channels>
+         <channel id="0" typeId="5650"><!--Channel "Analog Output Current Value", ID: 5650, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5603"><!--MultiInstances: Single-->
+      <label>Min Range Value</label>
+      <channels>
+         <channel id="0" typeId="5603"><!--Channel "Min Range Value", ID: 5603, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5604"><!--MultiInstances: Single-->
+      <label>Max Range Value</label>
+      <channels>
+         <channel id="0" typeId="5604"><!--Channel "Max Range Value", ID: 5604, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

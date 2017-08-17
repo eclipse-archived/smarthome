@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10242">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>3-Phase Power Meter</label>
+      <description><![CDATA[This Object provides the information to represent a generic 3-Phase Power Meter.]]></description>
+      <!--Optional channel "Manufacturer" (0) will be added dynamically-->
+      <!--Optional channel "Model Number" (1) will be added dynamically-->
+      <!--Optional channel "Serial Number" (2) will be added dynamically-->
+      <!--Optional channel "Description" (3) will be added dynamically-->
+      <!--Optional channel "Active Power R" (6) will be added dynamically-->
+      <!--Optional channel "Reactive Power R" (7) will be added dynamically-->
+      <!--Optional channel "Inductive Reactive Power R" (8) will be added dynamically-->
+      <!--Optional channel "Capacitive Reactive Power R" (9) will be added dynamically-->
+      <!--Optional channel "Apparent Power R" (10) will be added dynamically-->
+      <!--Optional channel "Power Factor R" (11) will be added dynamically-->
+      <!--Optional channel "THD-V R" (12) will be added dynamically-->
+      <!--Optional channel "THD-A R" (13) will be added dynamically-->
+      <!--Optional channel "Active Power S" (16) will be added dynamically-->
+      <!--Optional channel "Reactive Power S" (17) will be added dynamically-->
+      <!--Optional channel "Inductive Reactive Power S" (18) will be added dynamically-->
+      <!--Optional channel "Capacitive Reactive Power S" (19) will be added dynamically-->
+      <!--Optional channel "Apparent Power S" (20) will be added dynamically-->
+      <!--Optional channel "Power Factor S" (21) will be added dynamically-->
+      <!--Optional channel "THD-V S" (22) will be added dynamically-->
+      <!--Optional channel "THD-A S" (23) will be added dynamically-->
+      <!--Optional channel "Active Power T" (26) will be added dynamically-->
+      <!--Optional channel "Reactive Power T" (27) will be added dynamically-->
+      <!--Optional channel "Inductive Reactive Power T" (28) will be added dynamically-->
+      <!--Optional channel "Capacitive Reactive Power T" (29) will be added dynamically-->
+      <!--Optional channel "Apparent Power T" (30) will be added dynamically-->
+      <!--Optional channel "Power Factor T" (31) will be added dynamically-->
+      <!--Optional channel "THD-V T" (32) will be added dynamically-->
+      <!--Optional channel "THD-A T" (33) will be added dynamically-->
+      <!--Optional channel "3-Phase Active Power" (34) will be added dynamically-->
+      <!--Optional channel "3-Phase Reactive Power" (35) will be added dynamically-->
+      <!--Optional channel "3-Phase Inductive Reactive Power" (36) will be added dynamically-->
+      <!--Optional channel "3-Phase Capacitive Reactive Power" (37) will be added dynamically-->
+      <!--Optional channel "3-Phase Apparent Power" (38) will be added dynamically-->
+      <!--Optional channel "3-Phase Power Factor" (39) will be added dynamically-->
+      <!--Optional channel "3-Phase phi cosine" (40) will be added dynamically-->
+      <!--Optional channel "Active Energy" (41) will be added dynamically-->
+      <!--Optional channel "Reactive Energy" (42) will be added dynamically-->
+      <!--Optional channel "Inductive Reactive Energy" (43) will be added dynamically-->
+      <!--Optional channel "Capacitive Reactive Energy" (44) will be added dynamically-->
+      <!--Optional channel "Apparent Energy" (45) will be added dynamically-->
+      <!--Optional channel "Tension R-S" (46) will be added dynamically-->
+      <!--Optional channel "Tension S-T" (47) will be added dynamically-->
+      <!--Optional channel "Tension T-R" (48) will be added dynamically-->
+      <!--Optional channel "Frequency" (49) will be added dynamically-->
+      <!--Optional channel "Neutral Current" (50) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="4" typeId="4"><!--Channel "Tension R" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Current R" (5)--></channel-group>
+         <channel-group id="14" typeId="14"><!--Channel "Tension S" (14)--></channel-group>
+         <channel-group id="15" typeId="15"><!--Channel "Current S" (15)--></channel-group>
+         <channel-group id="24" typeId="24"><!--Channel "Tension T" (24)--></channel-group>
+         <channel-group id="25" typeId="25"><!--Channel "Current T" (25)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10242</property>
+         <property name="ObjectURN">urn:oma:lwm2m:x:10242</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Manufacturer</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Manufacturer", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>String</item-type>
+      <label>Manufacturer</label>
+      <description><![CDATA[Human readable manufacturer name]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Model Number</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Model Number", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>String</item-type>
+      <label>Model Number</label>
+      <description><![CDATA[A model identifier (manufacturer specified string)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Serial Number</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Serial Number", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Serial Number</label>
+      <description><![CDATA[Serial number of the meter]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Description</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Description", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>String</item-type>
+      <label>Description</label>
+      <description><![CDATA[Description of the meter]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Tension R</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Tension R", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Number</item-type>
+      <label>Tension R</label>
+      <description><![CDATA[Voltage phase 1 (phase to neutral)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Current R</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Current R", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>Current R</label>
+      <description><![CDATA[Current phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Active Power R</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Active Power R", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Number</item-type>
+      <label>Active Power R</label>
+      <description><![CDATA[Active Power phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Reactive Power R</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Reactive Power R", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Number</item-type>
+      <label>Reactive Power R</label>
+      <description><![CDATA[Reactive Power phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>Inductive Reactive Power R</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Inductive Reactive Power R", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Number</item-type>
+      <label>Inductive Reactive Power R</label>
+      <description><![CDATA[Inductive Reactive Power phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>Capacitive Reactive Power R</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "Capacitive Reactive Power R", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9" advanced="true">
+      <item-type>Number</item-type>
+      <label>Capacitive Reactive Power R</label>
+      <description><![CDATA[Capacitive Reactive Power phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Apparent Power R</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Apparent Power R", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Number</item-type>
+      <label>Apparent Power R</label>
+      <description><![CDATA[Apparent Power phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>Power Factor R</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Power Factor R", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11" advanced="true">
+      <item-type>Number</item-type>
+      <label>Power Factor R</label>
+      <description><![CDATA[Power Factor phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Single-->
+      <label>THD-V R</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "THD-V R", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-V R</label>
+      <description><![CDATA[Total Harmonic Distortion phase 1 (Tension)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="13"><!--MultiInstances: Single-->
+      <label>THD-A R</label>
+      <channels>
+         <channel id="0" typeId="13"><!--Channel "THD-A R", ID: 13, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="13" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-A R</label>
+      <description><![CDATA[Total Harmonig Distortion phase 1 (Current)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="14"><!--MultiInstances: Single-->
+      <label>Tension S</label>
+      <channels>
+         <channel id="0" typeId="14"><!--Channel "Tension S", ID: 14, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="14">
+      <item-type>Number</item-type>
+      <label>Tension S</label>
+      <description><![CDATA[Voltage phase 2 (phase to neutral)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="15"><!--MultiInstances: Single-->
+      <label>Current S</label>
+      <channels>
+         <channel id="0" typeId="15"><!--Channel "Current S", ID: 15, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="15">
+      <item-type>Number</item-type>
+      <label>Current S</label>
+      <description><![CDATA[Current phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="16"><!--MultiInstances: Single-->
+      <label>Active Power S</label>
+      <channels>
+         <channel id="0" typeId="16"><!--Channel "Active Power S", ID: 16, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="16" advanced="true">
+      <item-type>Number</item-type>
+      <label>Active Power S</label>
+      <description><![CDATA[Active Power phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="17"><!--MultiInstances: Single-->
+      <label>Reactive Power S</label>
+      <channels>
+         <channel id="0" typeId="17"><!--Channel "Reactive Power S", ID: 17, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="17" advanced="true">
+      <item-type>Number</item-type>
+      <label>Reactive Power S</label>
+      <description><![CDATA[Reactive Power phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="18"><!--MultiInstances: Single-->
+      <label>Inductive Reactive Power S</label>
+      <channels>
+         <channel id="0" typeId="18"><!--Channel "Inductive Reactive Power S", ID: 18, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="18" advanced="true">
+      <item-type>Number</item-type>
+      <label>Inductive Reactive Power S</label>
+      <description><![CDATA[Inductive Reactive Power phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="19"><!--MultiInstances: Single-->
+      <label>Capacitive Reactive Power S</label>
+      <channels>
+         <channel id="0" typeId="19"><!--Channel "Capacitive Reactive Power S", ID: 19, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="19" advanced="true">
+      <item-type>Number</item-type>
+      <label>Capacitive Reactive Power S</label>
+      <description><![CDATA[Capacitive Reactive Power phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="20"><!--MultiInstances: Single-->
+      <label>Apparent Power S</label>
+      <channels>
+         <channel id="0" typeId="20"><!--Channel "Apparent Power S", ID: 20, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="20" advanced="true">
+      <item-type>Number</item-type>
+      <label>Apparent Power S</label>
+      <description><![CDATA[Apparent Power phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="21"><!--MultiInstances: Single-->
+      <label>Power Factor S</label>
+      <channels>
+         <channel id="0" typeId="21"><!--Channel "Power Factor S", ID: 21, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="21" advanced="true">
+      <item-type>Number</item-type>
+      <label>Power Factor S</label>
+      <description><![CDATA[Power Factor phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="22"><!--MultiInstances: Single-->
+      <label>THD-V S</label>
+      <channels>
+         <channel id="0" typeId="22"><!--Channel "THD-V S", ID: 22, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="22" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-V S</label>
+      <description><![CDATA[Total Harmonic Distortion phase 2 (Tension)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="23"><!--MultiInstances: Single-->
+      <label>THD-A S</label>
+      <channels>
+         <channel id="0" typeId="23"><!--Channel "THD-A S", ID: 23, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="23" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-A S</label>
+      <description><![CDATA[Total Harmonic Distortion phase 2 (Current)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="24"><!--MultiInstances: Single-->
+      <label>Tension T</label>
+      <channels>
+         <channel id="0" typeId="24"><!--Channel "Tension T", ID: 24, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="24">
+      <item-type>Number</item-type>
+      <label>Tension T</label>
+      <description><![CDATA[Voltage phase 3 (phase to neutral)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="25"><!--MultiInstances: Single-->
+      <label>Current T</label>
+      <channels>
+         <channel id="0" typeId="25"><!--Channel "Current T", ID: 25, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="25">
+      <item-type>Number</item-type>
+      <label>Current T</label>
+      <description><![CDATA[Current phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="26"><!--MultiInstances: Single-->
+      <label>Active Power T</label>
+      <channels>
+         <channel id="0" typeId="26"><!--Channel "Active Power T", ID: 26, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="26" advanced="true">
+      <item-type>Number</item-type>
+      <label>Active Power T</label>
+      <description><![CDATA[Active Power phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="27"><!--MultiInstances: Single-->
+      <label>Reactive Power T</label>
+      <channels>
+         <channel id="0" typeId="27"><!--Channel "Reactive Power T", ID: 27, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="27" advanced="true">
+      <item-type>Number</item-type>
+      <label>Reactive Power T</label>
+      <description><![CDATA[Reactive Power phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="28"><!--MultiInstances: Single-->
+      <label>Inductive Reactive Power T</label>
+      <channels>
+         <channel id="0" typeId="28"><!--Channel "Inductive Reactive Power T", ID: 28, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="28" advanced="true">
+      <item-type>Number</item-type>
+      <label>Inductive Reactive Power T</label>
+      <description><![CDATA[Inductive Reactive Power phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="29"><!--MultiInstances: Single-->
+      <label>Capacitive Reactive Power T</label>
+      <channels>
+         <channel id="0" typeId="29"><!--Channel "Capacitive Reactive Power T", ID: 29, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="29" advanced="true">
+      <item-type>Number</item-type>
+      <label>Capacitive Reactive Power T</label>
+      <description><![CDATA[Capacitive Reactive Power phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="30"><!--MultiInstances: Single-->
+      <label>Apparent Power T</label>
+      <channels>
+         <channel id="0" typeId="30"><!--Channel "Apparent Power T", ID: 30, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="30" advanced="true">
+      <item-type>Number</item-type>
+      <label>Apparent Power T</label>
+      <description><![CDATA[Apparent Power phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="31"><!--MultiInstances: Single-->
+      <label>Power Factor T</label>
+      <channels>
+         <channel id="0" typeId="31"><!--Channel "Power Factor T", ID: 31, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="31" advanced="true">
+      <item-type>Number</item-type>
+      <label>Power Factor T</label>
+      <description><![CDATA[Power Factor phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="32"><!--MultiInstances: Single-->
+      <label>THD-V T</label>
+      <channels>
+         <channel id="0" typeId="32"><!--Channel "THD-V T", ID: 32, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="32" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-V T</label>
+      <description><![CDATA[Total Harmonic Distortion phase 3 (Tension)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="33"><!--MultiInstances: Single-->
+      <label>THD-A T</label>
+      <channels>
+         <channel id="0" typeId="33"><!--Channel "THD-A T", ID: 33, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="33" advanced="true">
+      <item-type>Number</item-type>
+      <label>THD-A T</label>
+      <description><![CDATA[Total Harmonic Distortion phase 3 (Current)]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="34"><!--MultiInstances: Single-->
+      <label>3-Phase Active Power</label>
+      <channels>
+         <channel id="0" typeId="34"><!--Channel "3-Phase Active Power", ID: 34, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="34" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Active Power</label>
+      <description><![CDATA[3-Phase Active Power]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="35"><!--MultiInstances: Single-->
+      <label>3-Phase Reactive Power</label>
+      <channels>
+         <channel id="0" typeId="35"><!--Channel "3-Phase Reactive Power", ID: 35, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="35" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Reactive Power</label>
+      <description><![CDATA[3-Phase Reactive Power]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="36"><!--MultiInstances: Single-->
+      <label>3-Phase Inductive Reactive Power</label>
+      <channels>
+         <channel id="0" typeId="36"><!--Channel "3-Phase Inductive Reactive Power", ID: 36, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="36" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Inductive Reactive Power</label>
+      <description><![CDATA[3-Phase Inductive Reactive Power]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="37"><!--MultiInstances: Single-->
+      <label>3-Phase Capacitive Reactive Power</label>
+      <channels>
+         <channel id="0" typeId="37"><!--Channel "3-Phase Capacitive Reactive Power", ID: 37, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="37" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Capacitive Reactive Power</label>
+      <description><![CDATA[3-Phase Capacitive Reactive Power]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="38"><!--MultiInstances: Single-->
+      <label>3-Phase Apparent Power</label>
+      <channels>
+         <channel id="0" typeId="38"><!--Channel "3-Phase Apparent Power", ID: 38, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="38" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Apparent Power</label>
+      <description><![CDATA[3-Phase Apparent Power]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="39"><!--MultiInstances: Single-->
+      <label>3-Phase Power Factor</label>
+      <channels>
+         <channel id="0" typeId="39"><!--Channel "3-Phase Power Factor", ID: 39, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="39" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase Power Factor</label>
+      <description><![CDATA[3-Phase Power Factor]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="40"><!--MultiInstances: Single-->
+      <label>3-Phase phi cosine</label>
+      <channels>
+         <channel id="0" typeId="40"><!--Channel "3-Phase phi cosine", ID: 40, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="40" advanced="true">
+      <item-type>Number</item-type>
+      <label>3-Phase phi cosine</label>
+      <description><![CDATA[3-Phase phi cosine]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="41"><!--MultiInstances: Single-->
+      <label>Active Energy</label>
+      <channels>
+         <channel id="0" typeId="41"><!--Channel "Active Energy", ID: 41, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="41" advanced="true">
+      <item-type>Number</item-type>
+      <label>Active Energy</label>
+      <description><![CDATA[Active Energy]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="42"><!--MultiInstances: Single-->
+      <label>Reactive Energy</label>
+      <channels>
+         <channel id="0" typeId="42"><!--Channel "Reactive Energy", ID: 42, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="42" advanced="true">
+      <item-type>Number</item-type>
+      <label>Reactive Energy</label>
+      <description><![CDATA[Reactive Energy]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="43"><!--MultiInstances: Single-->
+      <label>Inductive Reactive Energy</label>
+      <channels>
+         <channel id="0" typeId="43"><!--Channel "Inductive Reactive Energy", ID: 43, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="43" advanced="true">
+      <item-type>Number</item-type>
+      <label>Inductive Reactive Energy</label>
+      <description><![CDATA[Inductive Reactive Energy]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="44"><!--MultiInstances: Single-->
+      <label>Capacitive Reactive Energy</label>
+      <channels>
+         <channel id="0" typeId="44"><!--Channel "Capacitive Reactive Energy", ID: 44, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="44" advanced="true">
+      <item-type>Number</item-type>
+      <label>Capacitive Reactive Energy</label>
+      <description><![CDATA[Capacitive Reactive Energy]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="45"><!--MultiInstances: Single-->
+      <label>Apparent Energy</label>
+      <channels>
+         <channel id="0" typeId="45"><!--Channel "Apparent Energy", ID: 45, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="45" advanced="true">
+      <item-type>Number</item-type>
+      <label>Apparent Energy</label>
+      <description><![CDATA[Apparent Energy]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="46"><!--MultiInstances: Single-->
+      <label>Tension R-S</label>
+      <channels>
+         <channel id="0" typeId="46"><!--Channel "Tension R-S", ID: 46, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="46" advanced="true">
+      <item-type>Number</item-type>
+      <label>Tension R-S</label>
+      <description><![CDATA[Voltage phase 1 to phase 2]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="47"><!--MultiInstances: Single-->
+      <label>Tension S-T</label>
+      <channels>
+         <channel id="0" typeId="47"><!--Channel "Tension S-T", ID: 47, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="47" advanced="true">
+      <item-type>Number</item-type>
+      <label>Tension S-T</label>
+      <description><![CDATA[Voltage phase 2 to phase 3]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="48"><!--MultiInstances: Single-->
+      <label>Tension T-R</label>
+      <channels>
+         <channel id="0" typeId="48"><!--Channel "Tension T-R", ID: 48, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="48" advanced="true">
+      <item-type>Number</item-type>
+      <label>Tension T-R</label>
+      <description><![CDATA[Voltage phase 3 to phase 1]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="49"><!--MultiInstances: Single-->
+      <label>Frequency</label>
+      <channels>
+         <channel id="0" typeId="49"><!--Channel "Frequency", ID: 49, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="49" advanced="true">
+      <item-type>Number</item-type>
+      <label>Frequency</label>
+      <description><![CDATA[Frequency]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="50"><!--MultiInstances: Single-->
+      <label>Neutral Current</label>
+      <channels>
+         <channel id="0" typeId="50"><!--Channel "Neutral Current", ID: 50, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="50" advanced="true">
+      <item-type>Number</item-type>
+      <label>Neutral Current</label>
+      <description><![CDATA[Neutral Current]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

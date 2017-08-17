@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="4" listed="false">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Connectivity Monitoring</label>
+      <description><![CDATA[This LWM2M Object enables monitoring of parameters related to network connectivity.In this general connectivity Object, the Resources are limited to the most general cases common to most network bearers. It is recommended to read the description, which refers to relevant standard development organizations (e.g. 3GPP, IEEE).The goal of the Connectivity Monitoring Object is to carry information reflecting the more up to date values of the current connection for monitoring purposes. Resources such as Link Quality, Radio Signal Strenght, Cell ID are retrieved during connected mode at least for cellular networks.]]></description>
+      <!--Optional channel "Link Quality" (3) will be added dynamically-->
+      <!--Optional channel "Router IP Addresse" (5) will be added dynamically-->
+      <!--Optional channel "Link Utilization" (6) will be added dynamically-->
+      <!--Optional channel "APN" (7) will be added dynamically-->
+      <!--Optional channel "Cell ID" (8) will be added dynamically-->
+      <!--Optional channel "SMNC" (9) will be added dynamically-->
+      <!--Optional channel "SMCC" (10) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Network Bearer" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Available Network Bearer" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "Radio Signal Strength" (2)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "IP Addresses" (4)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">4</property>
+         <property name="ObjectURN">TBD</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Network Bearer</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Network Bearer", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Network Bearer</label>
+      <description><![CDATA[Indicates the network bearer used for the current LWM2M communication session from the below network bearer list.0~20 are Cellular Bearers0: GSM cellular network1: TD-SCDMA cellular network2: WCDMA cellular network3: CDMA2000 cellular network4: WiMAX cellular network5: LTE-TDD cellular network6: LTE-FDD cellular network7~20: Reserved for other type cellular network21~40 are Wireless Bearers21: WLAN network22: Bluetooth network23: IEEE 802.15.4 network24~40: Reserved for other type local wireless network41~50 are Wireline Bearers41: Ethernet42: DSL43: PLC44~50: reserved for others type wireline networks.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Multiple-->
+      <label>Available Network Bearer</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Available Network Bearer", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>Available Network Bearer</label>
+      <description><![CDATA[Indicates list of current available network bearer. Each Resource Instance has a value from the network bearer list.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Radio Signal Strength</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Radio Signal Strength", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>Radio Signal Strength</label>
+      <description><![CDATA[This node contains the average value of the received signal strength indication used in the current network bearer in case Network Bearer Resource indicates a Cellular Network (RXLEV range 0…64) 0 is &lt; 110dBm, 64 is >-48 dBm).Refer to [3GPP 44.018] for more details on Network Measurement Report encoding and [3GPP 45.008] or for Wireless Networks refer to the appropriate wireless standard.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Link Quality</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Link Quality", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Number</item-type>
+      <label>Link Quality</label>
+      <description><![CDATA[This contains received link quality e.g., LQI for IEEE 802.15.4, (Range (0..255)), RxQual Downlink (for GSM range is 0…7).Refer to [3GPP 44.018] for more details on Network Measurement Report encoding.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Multiple-->
+      <label>IP Addresses</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "IP Addresses", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>IP Addresses</label>
+      <description><![CDATA[The IP addresses assigned to the connectivity interface. (e.g. IPv4, IPv6, etc.)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Multiple-->
+      <label>Router IP Addresse</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Router IP Addresse", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>String</item-type>
+      <label>Router IP Addresse</label>
+      <description><![CDATA[The IP address of the next-hop IP router.Note: This IP Address doesn’t indicate the Server IP address.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Link Utilization</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Link Utilization", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Number</item-type>
+      <label>Link Utilization</label>
+      <description><![CDATA[The average utilization of the link to the next-hop IP router in %.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Multiple-->
+      <label>APN</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "APN", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>String</item-type>
+      <label>APN</label>
+      <description><![CDATA[Access Point Name in case Network Bearer Resource is a Cellular Network.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>Cell ID</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Cell ID", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Number</item-type>
+      <label>Cell ID</label>
+      <description><![CDATA[Serving Cell ID in case Network Bearer Resource is a Cellular Network.As specified in TS [3GPP 23.003] and in [3GPP. 24.008]. Range (0…65535) in GSM/EDGEUTRAN Cell ID has a length of 28 bits.Cell Identity in WCDMA/TD-SCDMA. Range: (0..268435455).LTE Cell ID has a length of 28 bits.Parameter definitions in [3GPP 25.331].]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>SMNC</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "SMNC", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9" advanced="true">
+      <item-type>Number</item-type>
+      <label>SMNC</label>
+      <description><![CDATA[Serving Mobile Network Code. In case Network Bearer Resource has 0(cellular network). Range (0…999).As specified in TS [3GPP 23.003].]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>SMCC</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "SMCC", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Number</item-type>
+      <label>SMCC</label>
+      <description><![CDATA[Serving Mobile Country Code. In case Network Bearer Resource has 0 (cellular network). Range (0…999).As specified in TS [3GPP 23.003].]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

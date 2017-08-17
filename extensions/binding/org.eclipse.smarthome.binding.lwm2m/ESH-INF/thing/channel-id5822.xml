@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5822" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Reset Cumulative Energy</label>
+      <description><![CDATA[Reset both cumulative active/reactive power.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="5" listed="false">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Firmware Update</label>
+      <description><![CDATA[This LWM2M Object enables management of firmware which is to be updated. This Object includes installing firmware package, updating firmware, and performing actions after updating firmware.==E.6.1 Firmware Update Consideration==If some Objects are not supported after firmware update, the LWM2M Client MUST delete all the Object Instances of the Objects that are not supported.]]></description>
+      <!--Optional channel "Update Supported Objects" (4) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Package" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Package URI" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "Update" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "State" (3)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Update Result" (5)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">5</property>
+         <property name="ObjectURN">TBD</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Package</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Package", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>Package</label>
+      <description><![CDATA[Firmware package]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Package URI</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Package URI", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>Package URI</label>
+      <description><![CDATA[URI from where the device can download the firmware package by an alternative mechanism. As soon the device has received the Package URI it performs the download at the next practical opportunity.]]></description>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Update</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Update", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Switch</item-type>
+      <label>Update</label>
+      <description><![CDATA[Updates firmware by using the firmware package stored in Package, or, by using the firmware downloaded from the Package URI.This Resource is only executable when the value of the State Resource is Downloaded.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>State</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "State", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>State</label>
+      <description><![CDATA[Indicates current state with respect to this firmware update. This value is set by the LWM2M Client.1: Idle (before downloading or after updating)2: Downloading (The data sequence is on the way)3: DownloadedIf writing the firmware package to Package Resource is done, or, if the device has downloaded the firmware package from the Package URI the state changes to Downloaded.If writing an empty string to Package Resource is done or writing an empty string to Package URI is done, the state changes to Idle.If performing the Update Resource failed, the state remains at Downloaded.If performing the Update Resource was successful, the state changes from Downloaded to Idle.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Update Supported Objects</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Update Supported Objects", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Update Supported Objects</label>
+      <description><![CDATA[If this value is true, the LWM2M Client MUST inform the registered LWM2M Servers of Objects and Object Instances parameter by sending an Update or Registration message after the firmware update operation at the next practical opportunity if supported Objects in the LWM2M Client have changed, in order for the LWM2M Servers to promptly manage newly installed Objects.If false, Objects and Object Instances parameter MUST be reported at the next periodic Update message.The default value is false.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Update Result</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Update Result", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>Update Result</label>
+      <description><![CDATA[Contains the result of downloading or updating the firmware0: Default value. Once the updating process is initiated, this Resource SHOULD be reset to default value.1: Firmware updated successfully,2: Not enough storage for the new firmware package.3. Out of memory during downloading process.4: Connection lost during downloading process.5: CRC check failure for new downloaded package.6: Unsupported package type.7: Invalid URIThis Resource MAY be reported by sending Observe operation.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

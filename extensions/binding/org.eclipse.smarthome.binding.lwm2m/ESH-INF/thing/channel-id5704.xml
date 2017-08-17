@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="5704" advanced="true">
+      <item-type>Number</item-type>
+      <label>Z Value</label>
+      <description><![CDATA[The measured value along the Z axis.]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

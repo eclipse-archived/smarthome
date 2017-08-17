@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3342">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>On/Off switch</label>
+      <description><![CDATA[This IPSO object should be used with an On/Off switch to report the state of the switch.]]></description>
+      <!--Optional channel "Digital Input State" (5501) will be added dynamically-->
+      <!--Optional channel "On Time" (5852) will be added dynamically-->
+      <!--Optional channel "Off Time" (5853) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5500" typeId="5500"><!--Channel "Digital Input State" (5500)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3342</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3342</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5500"><!--MultiInstances: Single-->
+      <label>Digital Input State</label>
+      <channels>
+         <channel id="0" typeId="5500"><!--Channel "Digital Input State", ID: 5500, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5501"><!--MultiInstances: Single-->
+      <label>Digital Input State</label>
+      <channels>
+         <channel id="0" typeId="5501"><!--Channel "Digital Input State", ID: 5501, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5852"><!--MultiInstances: Single-->
+      <label>On Time</label>
+      <channels>
+         <channel id="0" typeId="5852"><!--Channel "On Time", ID: 5852, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5853"><!--MultiInstances: Single-->
+      <label>Off Time</label>
+      <channels>
+         <channel id="0" typeId="5853"><!--Channel "Off Time", ID: 5853, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3312">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Power Control</label>
+      <description><![CDATA[Description: This Object is used to control a power source, such as a Smart Plug. It allows a power relay to be turned on or off and its dimmer setting to be control as a % between 0 and 100.]]></description>
+      <!--Optional channel "Dimmer" (5851) will be added dynamically-->
+      <!--Optional channel "On Time" (5852) will be added dynamically-->
+      <!--Optional channel "Cumulative active power" (5805) will be added dynamically-->
+      <!--Optional channel "Power factor" (5820) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5850" typeId="5850"><!--Channel "On/Off" (5850)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3312</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3312</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5850"><!--MultiInstances: Single-->
+      <label>On/Off</label>
+      <channels>
+         <channel id="0" typeId="5850"><!--Channel "On/Off", ID: 5850, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5851"><!--MultiInstances: Single-->
+      <label>Dimmer</label>
+      <channels>
+         <channel id="0" typeId="5851"><!--Channel "Dimmer", ID: 5851, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5852"><!--MultiInstances: Single-->
+      <label>On Time</label>
+      <channels>
+         <channel id="0" typeId="5852"><!--Channel "On Time", ID: 5852, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5805"><!--MultiInstances: Single-->
+      <label>Cumulative active power</label>
+      <channels>
+         <channel id="0" typeId="5805"><!--Channel "Cumulative active power", ID: 5805, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5820"><!--MultiInstances: Single-->
+      <label>Power factor</label>
+      <channels>
+         <channel id="0" typeId="5820"><!--Channel "Power factor", ID: 5820, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

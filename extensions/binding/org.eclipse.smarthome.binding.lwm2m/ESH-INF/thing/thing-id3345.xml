@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3345">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Multiple Axis Joystick</label>
+      <description><![CDATA[This IPSO object can be used to report the position of a shuttle or joystick control. A digital input is provided to report the state of an associated push button.]]></description>
+      <!--Optional channel "Digital Input State" (5500) will be added dynamically-->
+      <!--Optional channel "Digital Input Counter" (5501) will be added dynamically-->
+      <!--Optional channel "X Value" (5702) will be added dynamically-->
+      <!--Optional channel "Y Value" (5703) will be added dynamically-->
+      <!--Optional channel "Z Value" (5704) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <properties>
+         <property name="ObjectID">3345</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3345</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5500"><!--MultiInstances: Single-->
+      <label>Digital Input State</label>
+      <channels>
+         <channel id="0" typeId="5500"><!--Channel "Digital Input State", ID: 5500, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5501"><!--MultiInstances: Single-->
+      <label>Digital Input Counter</label>
+      <channels>
+         <channel id="0" typeId="5501"><!--Channel "Digital Input Counter", ID: 5501, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5702"><!--MultiInstances: Single-->
+      <label>X Value</label>
+      <channels>
+         <channel id="0" typeId="5702"><!--Channel "X Value", ID: 5702, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5703"><!--MultiInstances: Single-->
+      <label>Y Value</label>
+      <channels>
+         <channel id="0" typeId="5703"><!--Channel "Y Value", ID: 5703, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5704"><!--MultiInstances: Single-->
+      <label>Z Value</label>
+      <channels>
+         <channel id="0" typeId="5704"><!--Channel "Z Value", ID: 5704, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

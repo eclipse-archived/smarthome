@@ -8,7 +8,7 @@
  */
 package org.eclipse.smarthome.binding.lwm2m.internal;
 
-import static org.eclipse.smarthome.binding.lwm2m.Lwm2mBindingConstants.*;
+import static org.eclipse.smarthome.binding.lwm2m.Lwm2mBindingConstants.THING_TYPE_SAMPLE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 
 /**
  * The {@link Lwm2mHandlerFactory} is responsible for creating things and thing

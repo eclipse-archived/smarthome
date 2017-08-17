@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3300">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Generic Sensor</label>
+      <description><![CDATA[This IPSO object allow the description of a generic sensor. It is based on the description of a value and a unit according to the UCUM specification. Thus, any type of value defined within this specification can be reporting using this object. Specific object for a given range of sensors is described later in the document, enabling to identify the type of sensors directly from its Object ID. This object may be used as a generic object if a dedicated one does not exist.]]></description>
+      <!--Optional channel "Sensor Units" (5701) will be added dynamically-->
+      <!--Optional channel "Min Measured Value" (5601) will be added dynamically-->
+      <!--Optional channel "Max Measured Value" (5602) will be added dynamically-->
+      <!--Optional channel "Min Range Value" (5603) will be added dynamically-->
+      <!--Optional channel "Max Range Value" (5604) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <!--Optional channel "Sensor Type" (5751) will be added dynamically-->
+      <!--Optional channel "Reset Min and Max Measured Values" (5605) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5700" typeId="5700"><!--Channel "Sensor Value" (5700)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3300</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3300</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5700"><!--MultiInstances: Single-->
+      <label>Sensor Value</label>
+      <channels>
+         <channel id="0" typeId="5700"><!--Channel "Sensor Value", ID: 5700, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5701"><!--MultiInstances: Single-->
+      <label>Sensor Units</label>
+      <channels>
+         <channel id="0" typeId="5701"><!--Channel "Sensor Units", ID: 5701, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5601"><!--MultiInstances: Single-->
+      <label>Min Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5601"><!--Channel "Min Measured Value", ID: 5601, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5602"><!--MultiInstances: Single-->
+      <label>Max Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5602"><!--Channel "Max Measured Value", ID: 5602, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5603"><!--MultiInstances: Single-->
+      <label>Min Range Value</label>
+      <channels>
+         <channel id="0" typeId="5603"><!--Channel "Min Range Value", ID: 5603, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5604"><!--MultiInstances: Single-->
+      <label>Max Range Value</label>
+      <channels>
+         <channel id="0" typeId="5604"><!--Channel "Max Range Value", ID: 5604, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5751"><!--MultiInstances: Single-->
+      <label>Sensor Type</label>
+      <channels>
+         <channel id="0" typeId="5751"><!--Channel "Sensor Type", ID: 5751, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5605"><!--MultiInstances: Single-->
+      <label>Reset Min and Max Measured Values</label>
+      <channels>
+         <channel id="0" typeId="5605"><!--Channel "Reset Min and Max Measured Values", ID: 5605, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

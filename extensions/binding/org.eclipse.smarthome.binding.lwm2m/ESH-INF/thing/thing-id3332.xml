@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3332">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Direction</label>
+      <description><![CDATA[This IPSO object is used to report the direction indicated by a compass, wind vane, or other directional indicator. The units of measure is plane angle degrees (ucum:deg).]]></description>
+      <!--Optional channel "Min Measured Value" (5601) will be added dynamically-->
+      <!--Optional channel "Max Measured Value" (5602) will be added dynamically-->
+      <!--Optional channel "Reset Min and Max Measured Values" (5605) will be added dynamically-->
+      <!--Optional channel "Application Type" (5750) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5705" typeId="5705"><!--Channel "Compass Direction" (5705)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3332</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3332</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5705"><!--MultiInstances: Single-->
+      <label>Compass Direction</label>
+      <channels>
+         <channel id="0" typeId="5705"><!--Channel "Compass Direction", ID: 5705, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5601"><!--MultiInstances: Single-->
+      <label>Min Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5601"><!--Channel "Min Measured Value", ID: 5601, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5602"><!--MultiInstances: Single-->
+      <label>Max Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5602"><!--Channel "Max Measured Value", ID: 5602, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5605"><!--MultiInstances: Single-->
+      <label>Reset Min and Max Measured Values</label>
+      <channels>
+         <channel id="0" typeId="5605"><!--Channel "Reset Min and Max Measured Values", ID: 5605, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: Single-->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>

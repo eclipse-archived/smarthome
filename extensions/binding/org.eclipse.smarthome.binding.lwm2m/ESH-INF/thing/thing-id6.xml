@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="6">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Location</label>
+      <description><![CDATA[This LWM2M Objects provide a range of device related information which can be queried by the LWM2M Server, and a device reboot and factory reset function.]]></description>
+      <!--Optional channel "Altitude" (2) will be added dynamically-->
+      <!--Optional channel "Uncertainty" (3) will be added dynamically-->
+      <!--Optional channel "Velocity" (4) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Latitude" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Longitude" (1)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Timestamp" (5)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">6</property>
+         <property name="ObjectURN">TBD</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Latitude</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Latitude", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>Latitude</label>
+      <description><![CDATA[The decimal notation of latitude, e.g. -43.5723 [World Geodetic System 1984].]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Longitude</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Longitude", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>Longitude</label>
+      <description><![CDATA[The decimal notation of longitude, e.g. 153.21760 [World Geodetic System 1984].]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Altitude</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Altitude", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Altitude</label>
+      <description><![CDATA[The decimal notation of altitude in meters above sea level.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Uncertainty</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Uncertainty", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>String</item-type>
+      <label>Uncertainty</label>
+      <description><![CDATA[The accuracy of the position in meters.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Velocity</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Velocity", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>String</item-type>
+      <label>Velocity</label>
+      <description><![CDATA[The velocity of the device as defined in 3GPP 23.032 GAD specification. This set of values may not be available if the device is static.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Timestamp</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Timestamp", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>DateTime</item-type>
+      <label>Timestamp</label>
+      <description><![CDATA[The timestamp of when the location measurement was performed.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

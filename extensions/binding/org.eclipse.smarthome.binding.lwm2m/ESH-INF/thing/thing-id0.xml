@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="0" listed="false">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>LWM2M Security</label>
+      <description><![CDATA[This LWM2M Object provides the keying material of a LWM2M Client appropriate to access a specified LWM2M Server. One Object Instance SHOULD address a LWM2M Bootstrap Server. These LWM2M Object Resources MUST only be changed by a LWM2M Bootstrap Server or Bootstrap from Smartcardand MUST NOT be accessible by any other LWM2M Server.==E.1.1 UDP Channel Security: Security Key Resource Format==This section defines the format of the Secret Key and Public Key and Identity Resources of the LWM2M Server and LWM2M Bootstrap Objects when using UDP Channel security. These Resources are used to configure the security mode and keying material that a Client uses with a particular Server. The Objects are configured on the Client using one of the Bootstrap mechanisms described in Section 5.1. The use of this keying material for each security mode is defined in Section 7.1.==E.1.1.1 Pre-Shared Key (PSK) Mode==The PSK is a binary shared secret key between the Client and Server of the appropriate length for the Cipher Suite used [RFC4279]. This key is composed of a sequence of binary bytes in the Secret Key Resource. The default PSK Cipher Suites defined in this specification use a 128-bit AES key. Thus this key would be represented in 16 bytes in the Secret Key Resource.The corresponding PSK Identity for this PSK is stored in the Public Key or Identity Resource. The PSK Identity is simply stored as a UTF-8 String as per [RFC4279]. Clients and Servers MUST support a PSK Identity of at least 128 bytes in length as required by [RFC4279].==E.1.1.2 Raw-Public Key (RPK) Mode==The raw-public key mode requires a public key and a private key of the appropriate type and length for the Cipher Suite used. These keys are carried as a sequence of binary bytes with the public key stored in the Public Key or Identity Resource, and the private key stored in the Secret Key Resource. The default RPK Cipher Suites defines in this specification use a 256-bit ECC key. Thus the Certificate Resource would contain a 32 byte public key and the Secret Key Resource a 32 byte private key.==E.1.1.3 Certificate Mode==The Certificate mode requires an X.509v3 Certificate along with a matching private key. The private key is stored in the Secret Key Resource as in RPK mode. The Certificate is simply represented as binary X.509v3 in the value of the Public Key or Identity Resource.==E.1.2 SMS Payload Security: Security Key Resource Format==This section defines the format of the Secret Key and Public Key and Identity resources of the LWM2M Server and LWM2M Bootstrap Objects when using SMS Payload security. These resources are used to configure keying material that a Client uses with a particular Server. The Objects are configured on the Client using one of the Bootstrap mechanisms described in Section 5.1. The use of this keying material is defined in Section 7.2.The SMS key parameters are stored in the order KIc, KID, SPI, TAR (KIc is byte 0).Ordering of bits within bytes SHALL follow ETSI TS 102 221, section 3.4 “Coding Conventions” (b8 MSB, b1 LSB).==E.1.3 Unbootstrapping==Unbootstrapping is the process of deleting a Security Object Instance. If a Security Object Instance is to be deleted, certain related resources and configurations need to be deleted or modified. Therefore, when the Delete operation is sent via the Bootstrap Interface, the Client MUST execute the following procedure.#If there is an Object Instance that can be accessed only by a Server of the Server Object Instance (i.e., the Server is Access Control Owner and the LWM2M Server can access the Object Instance only in an Access Control Object Instance), the Object Instance and the corresponding Access Control Object Instance MUST be deleted#If an Object Instance can be accessed by multiple Servers including the Server which Security Object Instance is to be deleted, then:- The ACL Resource Instance for the Server in the Access Control Object Instance for the Object Instance MUST be deleted- If the Server is the Access Control Owner of the Access Control Object Instance, then the Access Control Owner MUST be changed to another Server according to the rules below:The Client MUST choose the Server who has highest sum of each number assigned to an access right (Write: 1, Delete: 1) for the Access Control Owner. If two or more Servers have the same sum, the Client MUST choose one of them as the new Access Control Owner.#Observation operations from the Server MUST be deleted#Server Object Instance MUST be deleted#Client MAY send “De-register” operation to the ServerNote: To monitor the change of the Access Control Owner, the Server MAY observe Access Control Owner Resource.]]></description>
+      <!--Optional channel "Short Server ID" (10) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "LWM2M  Server URI" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Bootstrap Server" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "Security Mode" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "Public Key or Identity" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "Server Public Key or Identity" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Secret Key" (5)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "SMS Security Mode" (6)--></channel-group>
+         <channel-group id="7" typeId="7"><!--Channel "SMS Binding Key Parameters" (7)--></channel-group>
+         <channel-group id="8" typeId="8"><!--Channel "SMS Binding Secret Keys" (8)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "LWM2M Server SMS Number" (9)--></channel-group>
+         <channel-group id="11" typeId="11"><!--Channel "Client Hold Off Time" (11)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">0</property>
+         <property name="ObjectURN">TBD</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Mandatory</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>LWM2M  Server URI</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "LWM2M  Server URI", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>LWM2M  Server URI</label>
+      <description><![CDATA[Uniquely identifies the LWM2M Server or LWM2M Bootstrap Server, and is in the form:"coaps://host:port", where host is an IP address or FQDN, and port is the UDP port of the Server.]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Bootstrap Server</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Bootstrap Server", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Switch</item-type>
+      <label>Bootstrap Server</label>
+      <description><![CDATA[Determines if the current instance concerns a LWM2M Bootstrap Server (true) or a standard LWM2M Server (false)]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Security Mode</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Security Mode", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>Security Mode</label>
+      <description><![CDATA[Determines which UDP payload security mode is used0: Pre-Shared Key mode1: Raw Public Key mode2: Certificate mode3: NoSec mode]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Public Key or Identity</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Public Key or Identity", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>String</item-type>
+      <label>Public Key or Identity</label>
+      <description><![CDATA[Stores the LWM2M Client’s Certificate (Certificate mode), public key (RPK mode) or PSK Identity (PSK mode). The format is defined in Section E.1.1.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Server Public Key or Identity</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Server Public Key or Identity", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>Server Public Key or Identity</label>
+      <description><![CDATA[Stores the LWM2M Server’s or LWM2M Bootstrap Server’s Certificate (Certificate mode), public key (RPK mode) or PSK Identity (PSK mode). The format is defined in Section E.1.1.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Secret Key</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Secret Key", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>String</item-type>
+      <label>Secret Key</label>
+      <description><![CDATA[Stores the secret key or private key of the security mode. The format of the keying material is defined by the security mode in Section E.1.1. This Resource MUST only be changed by a bootstrap server and MUST NOT be readable by any server.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>SMS Security Mode</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "SMS Security Mode", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6">
+      <item-type>Number</item-type>
+      <label>SMS Security Mode</label>
+      <description><![CDATA[Determines which SMS payload security mode is used (see section 7.2)0: Reserved for future use1: Secure Packet Structure mode device terminated2: Secure Packet Structure mode smartcard terminated3: NoSec mode255: Proprietary modes]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>SMS Binding Key Parameters</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "SMS Binding Key Parameters", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7">
+      <item-type>String</item-type>
+      <label>SMS Binding Key Parameters</label>
+      <description><![CDATA[Stores the KIc, KID, SPI and TAR. The format is defined in Section D.1.2.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>SMS Binding Secret Keys</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "SMS Binding Secret Keys", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8">
+      <item-type>String</item-type>
+      <label>SMS Binding Secret Keys</label>
+      <description><![CDATA[Stores the values of the keys for the SMS binding. This resource MUST only be changed by a bootstrap server and MUST NOT be readable by any server.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>LWM2M Server SMS Number</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "LWM2M Server SMS Number", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Number</item-type>
+      <label>LWM2M Server SMS Number</label>
+      <description><![CDATA[MSISDN used by the LWM2M Client to send messages to the LWM2M Server via the SMS binding. The LWM2M Client SHALL silently ignore any SMS not originated from unknown MSISDN]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Short Server ID</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Short Server ID", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Number</item-type>
+      <label>Short Server ID</label>
+      <description><![CDATA[This identifier uniquely identifies each LWM2M Server configured for the LWM2M Client.This Resource MUST be set when the Bootstrap Server Resource has false value.Default Short Server ID (i.e. 0) MUST NOT be used for identifying the LWM2M Server.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>Client Hold Off Time</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Client Hold Off Time", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11">
+      <item-type>Number</item-type>
+      <label>Client Hold Off Time</label>
+      <description><![CDATA[Relevant information for a Bootstrap Server only.The number of seconds to wait before initiating a Client Initiated Bootstrap once the LWM2M Client has determined it should initiate this bootstrap mode]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

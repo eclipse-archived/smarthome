@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+LWM2M XML Schema - LWM2M Editor Schema
+   version - 1.0
+   date    - 25 May 2016
+
+FILE INFORMATION
+
+  Public Reachable Information
+    Path: http://www.openmobilealliance.org/tech/profiles
+    Name: LWM2M.xsd
+
+NORMATIVE INFORMATION
+
+  Information about this file can be found in the LW M2M online editor
+
+  This is available at http://www.openmobilealliance.org/
+
+  Send comments to technical-comments@mail.openmobilealliance.org
+
+CHANGE HISTORY
+
+21112013 First version
+06082015 Bug Fix to correct mismatch
+18022016 Legal Disclaimer updated from template OMA-TEMPLATE-SUP_XSD_example-20160218-I
+24032016 Changed "xs:unsignedshort" to "xs:unsignedShort"
+25052016 Incorporated OMA-DM-LightweightM2M-2016-0066R01-INP_CR_Update_LWM2M_xsd
+
+LEGAL DISCLAIMER
+
+  Copyright 2016 Open Mobile Alliance Ltd.  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  3. Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived
+  from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+  The above license is used as a license under copyright only.  Please
+  reference the OMA IPR Policy for patent licensing terms:
+  http://www.openmobilealliance.org/ipr.html
+
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="LWM2M">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Object">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Name" type="xs:string" />
+              <xs:element name="Description1" type="xs:string" />
+              <xs:element name="ObjectID" type="xs:unsignedShort" />
+              <xs:element name="ObjectURN" type="xs:string" />
+              <xs:element name="MultipleInstances" >
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="Multiple"/>
+                    <xs:enumeration value="Single"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Mandatory" >
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="Mandatory"/>
+                    <xs:enumeration value="Optional"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Resources">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element maxOccurs="unbounded" name="Item">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Name" type="xs:string" />
+                          <xs:element name="Operations" >
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="R"/>
+                                <xs:enumeration value="W"/>
+                                <xs:enumeration value="RW"/>
+                                <xs:enumeration value="E"/>
+                                <xs:enumeration value=""/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="MultipleInstances" >
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="Multiple"/>
+                                <xs:enumeration value="Single"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="Mandatory" >
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="Mandatory"/>
+                                <xs:enumeration value="Optional"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="Type" >
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="String"/>
+                                <xs:enumeration value="Integer"/>
+                                <xs:enumeration value="Float"/>
+                                <xs:enumeration value="Boolean"/>
+                                <xs:enumeration value="Opaque"/>
+                                <xs:enumeration value="Time"/>
+                                <xs:enumeration value="Objlnk"/>
+                                <xs:enumeration value=""/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="RangeEnumeration" type="xs:string" />
+                          <xs:element name="Units" type="xs:string" />
+                          <xs:element name="Description" type="xs:string" />
+                        </xs:sequence>
+                        <xs:attribute name="ID" type="xs:unsignedShort" use="required" />
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Description2" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ObjectType" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

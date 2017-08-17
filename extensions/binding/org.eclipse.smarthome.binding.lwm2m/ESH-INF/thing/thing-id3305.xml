@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="3305">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="lwm2mBridgeThing"/>
+      </supported-bridge-type-refs>
+      <label>Power Measurement</label>
+      <description><![CDATA[This IPSO object should be used over a power measurement sensor to report a remote power measurement. It also provides resources for minimum/maximum measured values and the minimum/maximum range for both active and reactive power. Il also provides resources for cumulative energy, calibration, and the power factor.]]></description>
+      <!--Optional channel "Min Measured active power" (5801) will be added dynamically-->
+      <!--Optional channel "Max Measured  active power" (5802) will be added dynamically-->
+      <!--Optional channel "Min  Range  active power" (5803) will be added dynamically-->
+      <!--Optional channel "Max Range active power" (5804) will be added dynamically-->
+      <!--Optional channel "Cumulative active power" (5805) will be added dynamically-->
+      <!--Optional channel "Active Power Calibration" (5806) will be added dynamically-->
+      <!--Optional channel "Instantaneous reactive power" (5810) will be added dynamically-->
+      <!--Optional channel "Min Measured reactive power" (5811) will be added dynamically-->
+      <!--Optional channel "Max Measured  reactive power" (5812) will be added dynamically-->
+      <!--Optional channel "Min  Range  reactive power" (5813) will be added dynamically-->
+      <!--Optional channel "Max Range reactive power" (5814) will be added dynamically-->
+      <!--Optional channel "Cumulative reactive power" (5815) will be added dynamically-->
+      <!--Optional channel "Reactive Power Calibration" (5816) will be added dynamically-->
+      <!--Optional channel "Power factor" (5820) will be added dynamically-->
+      <!--Optional channel "Current Calibration" (5821) will be added dynamically-->
+      <!--Optional channel "Reset Cumulative energy" (5822) will be added dynamically-->
+      <!--Optional channel "Reset Min and Max Measured Values" (5605) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="5800" typeId="5800"><!--Channel "Instantaneous active power" (5800)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">3305</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:3305</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="5800"><!--MultiInstances: Single-->
+      <label>Instantaneous active power</label>
+      <channels>
+         <channel id="0" typeId="5800"><!--Channel "Instantaneous active power", ID: 5800, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5801"><!--MultiInstances: Single-->
+      <label>Min Measured active power</label>
+      <channels>
+         <channel id="0" typeId="5801"><!--Channel "Min Measured active power", ID: 5801, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5802"><!--MultiInstances: Single-->
+      <label>Max Measured  active power</label>
+      <channels>
+         <channel id="0" typeId="5802"><!--Channel "Max Measured  active power", ID: 5802, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5803"><!--MultiInstances: Single-->
+      <label>Min  Range  active power</label>
+      <channels>
+         <channel id="0" typeId="5803"><!--Channel "Min  Range  active power", ID: 5803, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5804"><!--MultiInstances: Single-->
+      <label>Max Range active power</label>
+      <channels>
+         <channel id="0" typeId="5804"><!--Channel "Max Range active power", ID: 5804, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5805"><!--MultiInstances: Single-->
+      <label>Cumulative active power</label>
+      <channels>
+         <channel id="0" typeId="5805"><!--Channel "Cumulative active power", ID: 5805, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5806"><!--MultiInstances: Single-->
+      <label>Active Power Calibration</label>
+      <channels>
+         <channel id="0" typeId="5806"><!--Channel "Active Power Calibration", ID: 5806, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5810"><!--MultiInstances: Single-->
+      <label>Instantaneous reactive power</label>
+      <channels>
+         <channel id="0" typeId="5810"><!--Channel "Instantaneous reactive power", ID: 5810, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5811"><!--MultiInstances: Single-->
+      <label>Min Measured reactive power</label>
+      <channels>
+         <channel id="0" typeId="5811"><!--Channel "Min Measured reactive power", ID: 5811, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5812"><!--MultiInstances: Single-->
+      <label>Max Measured  reactive power</label>
+      <channels>
+         <channel id="0" typeId="5812"><!--Channel "Max Measured  reactive power", ID: 5812, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5813"><!--MultiInstances: Single-->
+      <label>Min  Range  reactive power</label>
+      <channels>
+         <channel id="0" typeId="5813"><!--Channel "Min  Range  reactive power", ID: 5813, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5814"><!--MultiInstances: Single-->
+      <label>Max Range reactive power</label>
+      <channels>
+         <channel id="0" typeId="5814"><!--Channel "Max Range reactive power", ID: 5814, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5815"><!--MultiInstances: Single-->
+      <label>Cumulative reactive power</label>
+      <channels>
+         <channel id="0" typeId="5815"><!--Channel "Cumulative reactive power", ID: 5815, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5816"><!--MultiInstances: Single-->
+      <label>Reactive Power Calibration</label>
+      <channels>
+         <channel id="0" typeId="5816"><!--Channel "Reactive Power Calibration", ID: 5816, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5820"><!--MultiInstances: Single-->
+      <label>Power factor</label>
+      <channels>
+         <channel id="0" typeId="5820"><!--Channel "Power factor", ID: 5820, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5821"><!--MultiInstances: Single-->
+      <label>Current Calibration</label>
+      <channels>
+         <channel id="0" typeId="5821"><!--Channel "Current Calibration", ID: 5821, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5822"><!--MultiInstances: Single-->
+      <label>Reset Cumulative energy</label>
+      <channels>
+         <channel id="0" typeId="5822"><!--Channel "Reset Cumulative energy", ID: 5822, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5605"><!--MultiInstances: Single-->
+      <label>Reset Min and Max Measured Values</label>
+      <channels>
+         <channel id="0" typeId="5605"><!--Channel "Reset Min and Max Measured Values", ID: 5605, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+</thing:thing-descriptions>
