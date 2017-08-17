@@ -20,10 +20,11 @@ import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
-import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
-import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
@@ -60,7 +61,6 @@ class RuntimeRuleTest extends OSGiTest{
             ruleRegistry = getService(RuleRegistry) as RuleRegistry
             assertThat ruleRegistry, is(notNullValue())
         }, 3000, 100)
-        enableItemAutoUpdate()
     }
 
     @Test
@@ -126,25 +126,21 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'assert that timerTrigger works'(){
         def testItemName = "myLampItem"
 
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        def SwitchItem lampItem = itemRegistry.getItem(testItemName)
+        List<ItemCommandEvent> itemEvents = new LinkedList<>()
+        def itemEventHandler = [
+            receive: {  Event e ->
+                if (e.topic.contains(testItemName)){
+                    itemEvents.add(e)
+                }
+            },
 
-        /*
-         * Check if auto update is working and
-         * ensure that the lamp item state if OFF after this check
-         */
-        logger.info("Check auto update");
-        for (state in [
-            OnOffType.OFF,
-            OnOffType.ON,
-            OnOffType.OFF
-        ]) {
-            lampItem.send(state);
-            waitForAssert({
-                assertThat lampItem.state,is(state);
-            })
-        }
-        logger.info("Auto update works");
+            getSubscribedEventTypes: {
+                Collections.singleton(ItemCommandEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(itemEventHandler)
 
         /*
          * Create Rule
@@ -181,29 +177,8 @@ class RuntimeRuleTest extends OSGiTest{
         })
         logger.info("Rule is enabled and idle")
 
-        def numberOfTests = 3
-        for (int i=0; i < numberOfTests;i++) {
-            logger.info("Disable rule");
-            ruleRegistry.setEnabled(rule.UID, false)
-            waitForAssert({
-                final RuleStatusInfo ruleStatus = ruleRegistry.getStatusInfo(rule.UID)
-                assertThat ruleStatus.status, is(RuleStatus.DISABLED)
-            })
-            logger.info("Rule is disabled");
-
-            logger.info("Try to set lamp item state to OFF")
-            lampItem.send(OnOffType.OFF);
-            waitForAssert({
-                assertThat lampItem.state,is(OnOffType.OFF)
-            })
-            logger.info("Lamp item state is OFF")
-
-            logger.info("Enable rule and wait for lamp item state is ON")
-            ruleRegistry.setEnabled(rule.UID, true)
-            waitForAssert({
-                assertThat lampItem.state,is(OnOffType.ON)
-            })
-            logger.info("lamp item state is ON")
+        waitForAssert {
+            assertThat itemEvents.size(), is(3)
         }
     }
 }
