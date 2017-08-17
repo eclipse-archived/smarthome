@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Laurent Garnier - Initial Contribution
  */
-@Component(service = DiscoveryService.class, immediate = true)
+@Component(service = DiscoveryService.class, immediate = true, name = "discovery.weatherunderground")
 public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundDiscoveryService.class);
@@ -53,6 +54,17 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
      */
     public WeatherUndergroundDiscoveryService() {
         super(SUPPORTED_THING_TYPES, DISCOVER_TIMEOUT_SECONDS, true);
+    }
+
+    @Override
+    protected void activate(Map<String, Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    @Modified
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
     }
 
     @Override
