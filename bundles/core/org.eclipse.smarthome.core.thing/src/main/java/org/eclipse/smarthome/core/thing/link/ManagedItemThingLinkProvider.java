@@ -8,6 +8,9 @@
 package org.eclipse.smarthome.core.thing.link;
 
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
+import org.eclipse.smarthome.core.storage.StorageService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  *
@@ -16,6 +19,7 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
  * @author Dennis Nobel - Initial contribution
  *
  */
+@Component(immediate = true, service = { ItemThingLinkProvider.class, ManagedItemThingLinkProvider.class })
 public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider<ItemThingLink, String>
         implements ItemThingLinkProvider {
 
@@ -29,4 +33,14 @@ public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider
         return key;
     }
 
+    @Reference
+    @Override
+    protected void setStorageService(StorageService storageService) {
+        super.setStorageService(storageService);
+    }
+
+    @Override
+    protected void unsetStorageService(StorageService storageService) {
+        super.unsetStorageService(storageService);
+    }
 }

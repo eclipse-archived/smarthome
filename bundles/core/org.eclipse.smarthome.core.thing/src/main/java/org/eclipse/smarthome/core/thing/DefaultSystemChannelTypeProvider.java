@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -44,6 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Christoph Weitkamp - Added support for translation
  *
  */
+@Component(immediate = true)
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     /**
