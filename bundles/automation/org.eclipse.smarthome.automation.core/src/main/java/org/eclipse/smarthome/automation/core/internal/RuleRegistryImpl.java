@@ -230,7 +230,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *             when a module id contains dot or when the rule with the same UID already exists.
      */
     @Override
-    public Rule add(Rule rule) {
+    public @NonNull Rule add(@NonNull Rule rule) {
         String rUID = rule.getUID();
         if (rUID == null) {
             rUID = ruleEngine.getUniqueId();

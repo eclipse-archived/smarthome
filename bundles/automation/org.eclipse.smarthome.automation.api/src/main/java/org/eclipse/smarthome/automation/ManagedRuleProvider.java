@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 
 /**
@@ -24,7 +25,7 @@ public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, St
     }
 
     @Override
-    protected String keyToString(String key) {
+    protected @NonNull String keyToString(@NonNull String key) {
         return key;
     }
 

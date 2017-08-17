@@ -200,7 +200,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     }
 
     @Override
-    public E add(E element) {
+    public @NonNull E add(@NonNull E element) {
         if (this.managedProvider != null) {
             this.managedProvider.add(element);
             return element;
