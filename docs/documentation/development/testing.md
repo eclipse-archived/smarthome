@@ -43,7 +43,7 @@ Tests are typically placed inside the folder `src/test/java`.
 Unit tests
 ---
 
-Each class inside the test folder, which has a public method with a `@Test` annotation will automatically be executed as a test. Inside the class one can refer to all classes from the host bundle and all imported classes. The following code snippet shows a simple JUnit test which tests the `toString` conversation of a PercentType.
+Each class with a name which ends with `Test`, inside the *test* folder will have all public methods with a `@Test` annotation  automatically executed as a test. Inside the class one can refer to all classes from the host bundle and all imported classes. The following code snippet shows a simple JUnit test which tests the `toString` conversation of a PercentType.
 
     public class PercentTypeTest {
         @Test
@@ -122,7 +122,7 @@ OSGi-Tests
 ---
 Some components of Eclipse SmartHome are heavily bound to the OSGi runtime, because they use OSGi core services like the EventAdmin or the ConfigurationAdmin. That makes it hard to test those components outside of the OSGi container. Equinox provides a possibility to execute a JUnit test inside the OSGi environment, where the test has access to OSGi services.
 
-Eclipse SmartHome comes with an abstract base class `JavaOSGiTest` for OSGi tests. The base class sets up a bundle context and has convenience methods for registering mocks as OSGi services and the retrieval of registered OSGi services. The following JUnit/Mockito test class shows how to test the `ItemRegistry` by providing a mocked `ItemProvider`.
+Eclipse SmartHome comes with an abstract base class `JavaOSGiTest` for OSGi tests. The base class sets up a bundle context and has convenience methods for registering mocks as OSGi services and the retrieval of registered OSGi services. Public methods with a @Test annotation will automatically be executed as OSGi tests, as long as the class-name ends with `Test`. The following JUnit/Mockito test class shows how to test the `ItemRegistry` by providing a mocked `ItemProvider`.
 
     import static org.hamcrest.CoreMatchers.*;
     import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -227,3 +227,13 @@ From maven the test can be executed by calling `mvn integration-test`. For execu
     ...
     
 In the dependency definition the `artifactId` is the name of the required bundle, where the version can always be `0.0.0`. Within the `bundleStartLevel` definition the start level and auto start of the depended bundles can be configured. The `org.eclipse.equinox.ds` bundle must have level 1 and must be started automatically.
+
+Common errors
+---
+
+### Failed to execute goal org.eclipse.tycho:tycho-surefire-plugin:XXX:test (default-test) on project XXX: No tests found.
+
+Maven might report this error when building your project, it means that the surefire plugin cannot find any tests to execute, please check the following details:
+
+* Did you add any test classes with a class-name which ends with `Test` (singular)
+* Did you annotate any methods with `@Test`
