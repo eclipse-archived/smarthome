@@ -29,13 +29,10 @@ import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
-import org.eclipse.smarthome.core.items.events.ItemStateEvent
-import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
-import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
@@ -74,7 +71,6 @@ class RuleEventTest extends OSGiTest{
             allItemsChanged: {}] as ItemProvider
         registerService(itemProvider)
         registerVolatileStorageService()
-        enableItemAutoUpdate()
     }
 
     @Test
@@ -128,21 +124,20 @@ class RuleEventTest extends OSGiTest{
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
+        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem2", OnOffType.ON))
 
         Event itemEvent = null
 
         def itemEventHandler = [
             receive: {  Event e ->
                 logger.info("Event: " + e.topic)
-                if (e.topic.contains("myLampItem2")){
+                if (e instanceof ItemCommandEvent && e.topic.contains("myLampItem2")){
                     itemEvent=e
                 }
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+                Collections.singleton(ItemCommandEvent.TYPE)
             },
 
             getEventFilter:{ null }
@@ -150,15 +145,10 @@ class RuleEventTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem2").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem2", commandObj))
-        waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
-        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem2/state"))
-        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
-        def myLampItem2 = itemRegistry.getItem("myLampItem2")
-        assertThat myLampItem2, is(notNullValue())
-        logger.info("myLampItem2 State: " + myLampItem2.state)
-        assertThat myLampItem2.state, is(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem2", OnOffType.ON))
+        waitForAssert ({ assertThat itemEvent, is(notNullValue())})
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem2/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
         assertThat ruleEvents.size(), is(not(0))
         assertThat ruleEvents.find{it.topic =="smarthome/rules/myRule21/added"}, is(notNullValue())
         assertThat ruleEvents.find{it.topic =="smarthome/rules/myRule21/state"}, is(notNullValue())
