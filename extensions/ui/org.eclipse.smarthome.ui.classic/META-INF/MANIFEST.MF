@@ -29,3 +29,4 @@ Bundle-SymbolicName: org.eclipse.smarthome.ui.classic
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.ui.classic.render
+Bundle-ClassPath: patch/,.
