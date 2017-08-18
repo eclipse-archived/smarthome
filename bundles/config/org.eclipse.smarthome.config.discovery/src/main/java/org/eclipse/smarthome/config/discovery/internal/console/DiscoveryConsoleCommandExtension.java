@@ -101,7 +101,7 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
             if (properties == null) {
                 properties = new Hashtable<>();
             }
-            properties.put(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED, enabled);
+            properties.put(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY, enabled);
             configuration.update(properties);
             console.println("Background discovery for discovery service '" + discoveryServicePID + "' was set to "
                     + enabled + ".");
