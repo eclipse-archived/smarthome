@@ -104,7 +104,7 @@ class BindingInfoI18nTest extends OSGiTest {
     void 'assert using default locale'() {
         // Set german locale
         ConfigurationAdmin configAdmin = getService(ConfigurationAdmin.class);
-        Configuration config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider");
+        Configuration config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider", null);
         Dictionary<String, String> localeCfg = new Hashtable<String, String>();
         localeCfg.put("language", "de");
         localeCfg.put("country", "DE");
