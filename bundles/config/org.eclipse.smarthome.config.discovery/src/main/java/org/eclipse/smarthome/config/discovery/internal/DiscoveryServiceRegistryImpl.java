@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.withFlag;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -37,6 +37,10 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +63,7 @@ import com.google.common.collect.HashMultimap;
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
  */
+@Component(immediate = true, service = org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry.class)
 public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
 
     private HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
@@ -433,6 +438,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return discoveryServices;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addDiscoveryService(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
@@ -483,6 +489,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return getMaxScanTimeout(getDiscoveryServices(bindingId));
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
     }
@@ -491,6 +498,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         this.inbox = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }

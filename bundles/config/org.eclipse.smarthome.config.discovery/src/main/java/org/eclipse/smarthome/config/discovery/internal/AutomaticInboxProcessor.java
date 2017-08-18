@@ -27,7 +27,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -50,8 +49,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author Andre Fuechsel - Initial Contribution
+ * @author Kai Kreuzer - added auto-approve functionality
  */
-@Component(immediate = true, service = EventSubscriber.class, property = {
+@Component(immediate = true, name = "org.eclipse.smarthome.inbox", service = EventSubscriber.class, property = {
         "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
         "service.pid=org.eclipse.smarthome.inbox" })
 public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent>
@@ -63,6 +63,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     private ThingTypeRegistry thingTypeRegistry;
     private Inbox inbox;
     private boolean autoIgnore = true;
+    private boolean autoApprove = false;
 
     public AutomaticInboxProcessor() {
         super(ThingStatusInfoChangedEvent.TYPE);
@@ -82,20 +83,21 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         if (autoIgnore) {
             String value = getRepresentationValue(result);
             Thing thing = thingRegistry.stream()
-                                   .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t)))
-                                   .findFirst()
-                                   .orElse(null);
+                    .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
+                    .orElse(null);
             if (thing != null) {
                 logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
                 inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
             }
         }
+        if (autoApprove) {
+            inbox.approve(result.getThingUID(), result.getLabel());
+        }
     }
 
     private String getRepresentationValue(DiscoveryResult result) {
         return result.getRepresentationProperty() != null
-                ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null)
-                : null;
+                ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null) : null;
     }
 
     @Override
@@ -165,11 +167,23 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    @Activate
+    private void approveAllInboxEntries() {
+        for (DiscoveryResult result : inbox.getAll()) {
+            if (result.getFlag().equals(DiscoveryResultFlag.NEW)) {
+                inbox.approve(result.getThingUID(), result.getLabel());
+            }
+        }
+    }
+
     protected void activate(Map<String, Object> properties) {
         if (properties != null) {
             Object value = properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");
+            value = properties.get("autoApprove");
+            autoApprove = value != null && value.toString().equals("true");
+            if (autoApprove) {
+                approveAllInboxEntries();
+            }
         }
     }
 

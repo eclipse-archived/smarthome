@@ -23,12 +23,16 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class provides console commands around the inbox functionality
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(immediate = true, service = ConsoleCommandExtension.class)
 public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_APPROVE = "approve";
@@ -148,6 +152,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 buildCommandUsage(SUBCMD_IGNORE + " <thingUID>", "ignores an inbox entry permanently") });
     }
 
+    @Reference
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
     }
