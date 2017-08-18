@@ -54,7 +54,10 @@ class ThingTypesTest extends OSGiTest {
 
         def bridgeType = thingTypes.find { it.toString().equals("hue:bridge") } as BridgeType
         assertThat bridgeType, is(notNullValue())
-        assertThat bridgeType.listed, is(false)
+        //wait until bundle has been installed properly and propagated its config to bridge properties
+        waitForAssert {
+            assertThat bridgeType.listed, is(false)
+        }
         assertThat bridgeType.label, is("HUE Bridge")
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
         assertThat bridgeType.properties.size(), is(1)
