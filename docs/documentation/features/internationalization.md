@@ -83,29 +83,47 @@ XML file (thing-types.xml):
     <thing-type id="weather">
         <label>Weather Information</label>
         <description>Provides various weather data from the Yahoo service</description>
-		<channels>
-			<channel id="temperature" typeId="temperature" />
-		</channels>
+        <channels>
+            <channel id="precipitation" typeId="precipitation" />
+            <channel id="temperature" typeId="temperature" />
+        </channels>
         <config-description>
             <parameter name="location" type="text">
                 <label>Location</label>
-                <description>Location for the weather information.
-                    Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
+                <description>Location for the weather information. Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
                 </description>
-				<required>true</required>
+                <required>true</required>
             </parameter>
         </config-description>
     </thing-type>
+    <channel-type id="precipitation">
+        <item-type>String</item-type>
+        <label>Precipitation</label>
+        <description>Current precipitation (dry, rain, snow).</description>
+        <state readOnly="true" pattern="%s">
+            <options>
+                <option value="dry">dry</option>
+                <option value="rain">rain</option>
+                <option value="snow">snow</option>
+            </options>
+        </state>
+    </channel-type>
     <channel-type id="temperature">
         <item-type>Number</item-type>
         <label>Temperature</label>
-        <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
-        <state pattern="%s Value">
-              <options>
-                  <option value="OPTION1">Option 1</option>
-                  <option value="OPTION2">Option 2</option>
-              </options>
-        </state>
+        <description>Current temperature in degrees celsius (metric) or fahrenheit (imperial).</description>
+        <state readOnly="true" pattern="%d Value" />
+        <config-description>
+            <parameter name="unit" type="text" required="true">
+                <label>Temperature unit</label>
+                <description>Select the temperature unit.</description>
+                <options>
+                    <option value="C">Degree Celsius</option>
+                    <option value="F">Degree Fahrenheit</option>
+                </options>
+                <default>C</default>
+            </parameter>
+        </config-description>
     </channel-type>
 </thing:thing-descriptions>
 
@@ -115,22 +133,30 @@ Language file (yahooweather_de.properties):
 
 ```ini
 thing-type.yahooweather.weather.label = Wetterinformation
-thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit.
+thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vom Yahoo Wetterdienst bereit.
+
 thing-type.config.yahooweather.weather.location.label = Ort
-thing-type.config.yahooweather.weather.location.description = Ort der Wetterinformation.
+thing-type.config.yahooweather.weather.location.description = Ort der Wetterinformation. Syntax ist WOEID, siehe https://en.wikipedia.org/wiki/WOEID.
 
-thing-type.config.yahooweather.weather.group.group1.label = a label
-thing-type.config.yahooweather.weather.group.group1.description = a description
-
+channel-type.yahooweather.precipitation.label = Niederschlag
+channel-type.yahooweather.precipitation.description = Aktueller Niederschlag (Trocken, Regen, Schnee).
+channel-type.yahooweather.precipitation.state.option.dry = Trocken
+channel-type.yahooweather.precipitation.state.option.rain = Regen
+channel-type.yahooweather.precipitation.state.option.snow = Schnee
 
 channel-type.yahooweather.temperature.label = Temperatur
-channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (metrisch) oder Grad Fahrenheit (us)
-channel-type.yahooweather.temperature.pattern = %s Wert
-channel-type.yahooweather.temperature.option.OPTION1 = Option Nummer 1
-channel-type.yahooweather.temperature.option.OPTION2 = Option Nummer 2
+channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (Metrisch) oder Grad Fahrenheit (US).
+channel-type.yahooweather.temperature.state.pattern = %d Wert
+
+channel-type.config.yahooweather.temperature.unit.label = Temperatur Einheit
+channel-type.config.yahooweather.temperature.unit.description = Auswahl der gewünschten Temperatur Einheit.
+channel-type.config.yahooweather.temperature.unit.option.C = Grad Celsius
+channel-type.config.yahooweather.temperature.unit.option.F = Grad Fahrenheit
 ```
 
-So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` and the group parameter is `thing-type.config.<binding-id>.group.<thing-type-id>.<parameter-name>.label`.
+So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`.
+A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`.
+And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` or `channel-type.config.<binding-id>.<channel-type-id>.<parameter-name>.label`.
 
 The following snippet shows an excerpt of the thing type definition XML file of the Weather Underground Binding and its language file that localizes labels and descriptions for the French language.
 
@@ -303,7 +329,7 @@ channel-type.config.weatherunderground.maxTemperature.SourceUnit.option.F = Degr
 
 ```
 
-So the label of a channel group type can be referenced with  `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
+So the label of a channel group type can be referenced with `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
 
 ### Using custom Keys
 
@@ -325,12 +351,22 @@ Language file (yahooweather_en.properties):
 
 ```ini
 bindingName = Yahoo Weather Binding
+
+offline.communication-error=The Yahoo Weather API is currently not available.
 ```
 
 Language file (yahooweather_de.properties):
 
 ```ini
 bindingName = Yahoo Wetter Binding
+
+offline.communication-error=Die Yahoo Wetter API ist zur Zeit nicht verfügbar.
+```
+
+The custom keys are a very good practice to translate bundle dependent error messages.
+
+```java
+updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "@text/offline.communication-error");
 ```
 
 ## I18n Text Provider API
