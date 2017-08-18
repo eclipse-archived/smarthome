@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+ * Copyright (c) 2015, 2017 by Bosch Software Innovations GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,11 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -58,8 +61,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,23 +117,23 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
      * only one rule callback.
      */
-    private Map<String, RuleEngineCallbackImpl> reCallbacks = new HashMap<String, RuleEngineCallbackImpl>();
+    private Map<String, RuleEngineCallbackImpl> reCallbacks = new ConcurrentHashMap<String, RuleEngineCallbackImpl>();
 
     /**
      * {@link Map} of module type UIDs to rules where these module types participated.
      */
-    private Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> rulesPerModuleType = new ConcurrentHashMap<String, Set<String>>();
 
     /**
      * {@link Map} of created rules. It contains all rules added to rule engine independent if they are initialized or
      * not. The relation is rule's id to {@link Rule} object.
      */
-    private Map<String, RuntimeRule> rules;
+    private Map<String, RuntimeRule> rules = new ConcurrentHashMap<String, RuntimeRule>();
 
     /**
      * {@link Map} system module type to corresponding module handler factories.
      */
-    private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
+    private Map<String, ModuleHandlerFactory> moduleHandlerFactories = new ConcurrentHashMap<>();
     private Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<>();
 
     /**
@@ -140,16 +141,11 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     private boolean isDisposed = false;
 
-    /**
-     * {@link Map} of {@link Rule}'s id to current {@link RuleStatus} object.
-     */
-    private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
-
     protected Logger logger = LoggerFactory.getLogger(RuleEngine.class.getName());
 
     private StatusInfoCallback statusInfoCallback;
 
-    private Map<String, Map<String, Object>> contextMap;
+    private Map<String, Map<String, Object>> contextMap = new ConcurrentHashMap<String, Map<String, Object>>();
 
     private ModuleTypeRegistry mtRegistry;
 
@@ -162,19 +158,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private ScheduledExecutorService executor;
 
     private Gson gson;
-
-    /**
-     * Constructor of {@link RuleEngine}. It initializes the logger and starts tracker for {@link ModuleHandlerFactory}
-     * services.
-     *
-     * @param bc {@link BundleContext} used for tracker registration and rule engine logger creation.
-     * @throws InvalidSyntaxException
-     */
-    public RuleEngine() {
-        this.rules = new HashMap<String, RuntimeRule>(20);
-        this.contextMap = new HashMap<String, Map<String, Object>>();
-        this.moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
-    }
 
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
         if (moduleTypeRegistry == null) {
@@ -197,28 +180,20 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         for (ModuleHandlerFactory moduleHandlerFactory : allModuleHandlerFactories) {
             Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
             if (moduleTypes.contains(moduleTypeName)) {
-                synchronized (this) {
-                    this.moduleHandlerFactories.put(moduleTypeName, moduleHandlerFactory);
-                }
+                this.moduleHandlerFactories.put(moduleTypeName, moduleHandlerFactory);
                 break;
             }
         }
-        Set<String> rules = null;
-        synchronized (this) {
-            Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
-            if (rulesPerModule != null) {
-                rules = new HashSet<String>();
-                rules.addAll(rulesPerModule);
-            }
-        }
-        if (rules != null) {
-            for (String rUID : rules) {
+        Set<String> rulesPerModule = rulesPerModuleType.get(moduleTypeName);
+        if (rulesPerModule != null) {
+            for (String rUID : rulesPerModule) {
                 RuleStatus ruleStatus = getRuleStatus(rUID);
                 if (ruleStatus == RuleStatus.UNINITIALIZED) {
                     scheduleRuleInitialization(rUID);
                 }
             }
         }
+
     }
 
     @Override
@@ -232,23 +207,23 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return;
         }
         String moduleTypeName = moduleType.getUID();
-        Set<String> rules = null;
-        synchronized (this) {
-            Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
-            if (rulesPerModule != null) {
-                rules = new HashSet<String>();
-                rules.addAll(rulesPerModule);
-            }
-        }
-        if (rules != null) {
-            for (String rUID : rules) {
-                if (getRuleStatus(rUID).equals(RuleStatus.IDLE) || getRuleStatus(rUID).equals(RuleStatus.RUNNING)) {
-                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED), true);
+        Set<String> rulesPerModule = rulesPerModuleType.get(moduleTypeName);
+        if (rulesPerModule != null) {
+            for (String rUID : rulesPerModule) {
+                RuleStatusInfo ruleStatusInfo;
+                boolean isStatusUpdated = false;
+                RuntimeRule rr = rules.get(rUID);
+                if (rr == null) { // rule is missing
+                    continue;
+                }
+                if (rr.getStatusInfo().getStatus().equals(RuleStatus.DISABLED)) {
+                    scheduleRuleInitialization(rUID);
+                } else {
+                    changeRuleStatus(rr, RuleStatusInfo.create(RuleStatus.UNINITIALIZED), RuleStatus.IDLE,
+                            RuleStatus.TRIGGERED, RuleStatus.RUNNING);
                     unregister(getRuntimeRule(rUID));
                 }
-                if (!getRuleStatus(rUID).equals(RuleStatus.DISABLED)) {
-                    scheduleRuleInitialization(rUID);
-                }
+
             }
         }
     }
@@ -271,7 +246,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         updateModuleHandlerFactoryMap(moduleTypes);
     }
 
-    private synchronized void updateModuleHandlerFactoryMap(Collection<String> removedTypes) {
+    private void updateModuleHandlerFactoryMap(Collection<String> removedTypes) {
         for (Iterator<String> it = removedTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             moduleHandlerFactories.remove(moduleTypeName);
@@ -287,15 +262,18 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     protected void addRule(Rule rule, boolean isEnabled) {
         String rUID = rule.getUID();
         RuntimeRule runtimeRule = new RuntimeRule(rule);
-        synchronized (this) {
+        RuleStatusInfo status = RuleStatusInfo.create(isEnabled ? RuleStatus.UNINITIALIZED : RuleStatus.DISABLED);
+        synchronized (runtimeRule) {
             rules.put(rUID, runtimeRule);
-            if (isEnabled) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED), false);
-                setRule(runtimeRule);
-            } else {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED), true);
-            }
+            runtimeRule.setStatusInfo(status);
         }
+
+        if (isEnabled) {
+            setRule(runtimeRule);
+        } else {
+            notifyStatusInfoCallback(rUID, status);
+        }
+
     }
 
     /**
@@ -328,16 +306,20 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return;
         }
         RuntimeRule runtimeRule = new RuntimeRule(rule);
-        synchronized (this) {
-            RuntimeRule oldRule = rules.get(rUID);
+        RuleStatusInfo ruleStatusInfo = RuleStatusInfo
+                .create(isEnabled ? RuleStatus.UNINITIALIZED : RuleStatus.DISABLED);
+
+        RuntimeRule oldRule = rules.get(rUID);
+        synchronized (oldRule) {
             unregister(oldRule);
             rules.put(rUID, runtimeRule);
-            if (isEnabled) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED), false);
-                setRule(runtimeRule);
-            } else {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED), true);
-            }
+            runtimeRule.setStatusInfo(ruleStatusInfo);
+        }
+
+        if (isEnabled) {
+            setRule(runtimeRule);
+        } else {
+            notifyStatusInfoCallback(rUID, ruleStatusInfo);
         }
         logger.debug("Rule with UID '{}' is updated.", rUID);
     }
@@ -356,11 +338,12 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return;
         }
         String rUID = runtimeRule.getUID();
-        setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING), true);
+        RuleStatusInfo ruleStatusInfo = RuleStatusInfo.create(RuleStatus.INITIALIZING);
+        changeRuleStatus(runtimeRule, ruleStatusInfo, RuleStatus.DISABLED, RuleStatus.UNINITIALIZED);
 
         if (runtimeRule.getTemplateUID() != null) {
-            setRuleStatusInfo(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR), true);
+            ruleStatusInfo = RuleStatusInfo.create(RuleStatus.UNINITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR);
+            changeRuleStatus(runtimeRule, ruleStatusInfo, RuleStatus.INITIALIZING);
             return; // Template is not available (when a template is resolved it removes tempalteUID configuration
                     // property). The rule must stay NOT_INITIALISED.
         }
@@ -380,10 +363,9 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             ConnectionValidator.validateConnections(runtimeRule);
         } catch (RuntimeException e) {
             errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage();
-            // change state to NOTINITIALIZED
-            setRuleStatusInfo(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()),
-                    true);
+            ruleStatusInfo = RuleStatusInfo.create(RuleStatus.UNINITIALIZED, RuleStatusDetail.CONFIGURATION_ERROR,
+                    errMsgs.trim());
+            changeRuleStatus(runtimeRule, ruleStatusInfo, RuleStatus.INITIALIZING);
             return;
         }
 
@@ -391,7 +373,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         if (errMsgs == null) {
             register(runtimeRule);
             // change state to IDLE
-            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE), true);
+            ruleStatusInfo = RuleStatusInfo.create(RuleStatus.IDLE);
+            changeRuleStatus(runtimeRule, ruleStatusInfo, RuleStatus.INITIALIZING);
 
             Future f = scheduleTasks.remove(rUID);
             if (f != null) {
@@ -409,25 +392,13 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
         } else {
             // change state to NOTINITIALIZED
-            setRuleStatusInfo(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMsgs),
-                    true);
-            unregister(runtimeRule);
-        }
-    }
-
-    /**
-     * This method is used to update {@link RuleStatusInfo} of the rule. It also notifies the registry about the change.
-     *
-     * @param rUID UID of the rule which has changed status info.
-     * @param status new rule status info
-     */
-    private void setRuleStatusInfo(String rUID, RuleStatusInfo status, boolean isSendEvent) {
-        synchronized (this) {
-            statusMap.put(rUID, status);
-        }
-        if (isSendEvent) {
-            notifyStatusInfoCallback(rUID, status);
+            ruleStatusInfo = RuleStatusInfo.create(RuleStatus.UNINITIALIZED,
+                    RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMsgs);
+            synchronized (ruleStatusInfo) {
+                runtimeRule.setStatusInfo(ruleStatusInfo);
+                unregister(runtimeRule);
+            }
+            notifyStatusInfoCallback(rUID, ruleStatusInfo);
         }
     }
 
@@ -492,11 +463,14 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * @param rule rule object for which the callback is looking for.
      * @return a {@link RuleEngineCallback} corresponding to the passed {@link Rule} object.
      */
-    private synchronized RuleEngineCallbackImpl getRuleEngineCallback(RuntimeRule rule) {
+    private RuleEngineCallbackImpl getRuleEngineCallback(RuntimeRule rule) {
         RuleEngineCallbackImpl result = reCallbacks.get(rule.getUID());
         if (result == null) {
             result = new RuleEngineCallbackImpl(this, rule);
-            reCallbacks.put(rule.getUID(), result);
+            RuleEngineCallbackImpl callback = reCallbacks.putIfAbsent(rule.getUID(), result);
+            if (callback != null) { // callback contains old value if it is available.
+                result = callback;
+            }
         }
         return result;
     }
@@ -561,11 +535,9 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     private void unregister(RuntimeRule r) {
         if (r != null) {
-            synchronized (this) {
-                RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
-                if (reCallback != null) {
-                    reCallback.dispose();
-                }
+            RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
+            if (reCallback != null) {
+                reCallback.dispose();
             }
             removeModuleHandlers(r.getTriggers(), r.getUID());
             removeModuleHandlers(r.getActions(), r.getUID());
@@ -590,9 +562,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
         ModuleHandlerFactory mhf = null;
-        synchronized (this) {
-            mhf = moduleHandlerFactories.get(moduleTypeId);
-        }
+        mhf = moduleHandlerFactories.get(moduleTypeId);
         if (mhf == null) {
             ModuleType mt = mtRegistry.get(moduleTypeId);
             if (mt instanceof CompositeTriggerType || //
@@ -605,13 +575,13 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         return mhf;
     }
 
-    public synchronized void updateMapModuleTypeToRule(String rUID, String moduleTypeId) {
-        Set<String> rules = mapModuleTypeToRules.get(moduleTypeId);
+    public void updateMapModuleTypeToRule(String rUID, String moduleTypeId) {
+        Set<String> rules = rulesPerModuleType.get(moduleTypeId);
         if (rules == null) {
             rules = new HashSet<String>(11);
         }
         rules.add(rUID);
-        mapModuleTypeToRules.put(moduleTypeId, rules);
+        rulesPerModuleType.put(moduleTypeId, rules);
     }
 
     /**
@@ -620,7 +590,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * @param rUID id of removed {@link Rule}
      * @return true when a rule is deleted, false when there is no rule with such id.
      */
-    protected synchronized boolean removeRule(String rUID) {
+    protected boolean removeRule(String rUID) {
         RuntimeRule r = rules.remove(rUID);
         if (r != null) {
             removeRuleEntry(r);
@@ -636,21 +606,17 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * @return removed rule
      */
     private RuntimeRule removeRuleEntry(RuntimeRule r) {
+        changeRuleStatus(r, RuleStatusInfo.create(RuleStatus.UNINITIALIZED), (RuleStatus) null);
         unregister(r);
-        synchronized (this) {
-            for (Iterator<Map.Entry<String, Set<String>>> it = mapModuleTypeToRules.entrySet().iterator(); it
-                    .hasNext();) {
-                Map.Entry<String, Set<String>> e = it.next();
-                Set<String> rules = e.getValue();
-                if (rules != null && rules.contains(r.getUID())) {
-                    rules.remove(r.getUID());
-                    if (rules.size() < 1) {
-                        it.remove();
-                    }
+        for (Iterator<Map.Entry<String, Set<String>>> it = rulesPerModuleType.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Set<String>> e = it.next();
+            Set<String> rules = e.getValue();
+            if (rules != null && rules.contains(r.getUID())) {
+                rules.remove(r.getUID());
+                if (rules.size() < 1) {
+                    it.remove();
                 }
             }
-
-            statusMap.remove(r.getUID());
         }
         return r;
     }
@@ -662,7 +628,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * @param rUID unieque id of the {@link Rule}
      * @return internal {@link RuntimeRule} object
      */
-    protected synchronized RuntimeRule getRuntimeRule(String rUID) {
+    protected RuntimeRule getRuntimeRule(String rUID) {
         return rules.get(rUID);
     }
 
@@ -671,7 +637,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      *
      * @return collection of all added rules.
      */
-    protected synchronized Collection<RuntimeRule> getRuntimeRules() {
+    protected Collection<RuntimeRule> getRuntimeRules() {
         return Collections.unmodifiableCollection(rules.values());
     }
 
@@ -697,8 +663,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 logger.debug("The rule rId = {} is already enabled.", rUID);
             }
         } else {
+            changeRuleStatus(runtimeRule, RuleStatusInfo.create(RuleStatus.DISABLED), (RuleStatus) null);
             unregister(runtimeRule);
-            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED), true);
         }
     }
 
@@ -707,13 +673,11 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
-            synchronized (this) {
-                moduleHandlerFactories.put(moduleTypeName, mhf);
-                Set<String> rulesPerModule = mapModuleTypeToRules.get(moduleTypeName);
-                if (rulesPerModule != null) {
-                    rules = new HashSet<String>();
-                    rules.addAll(rulesPerModule);
-                }
+            moduleHandlerFactories.put(moduleTypeName, mhf);
+            Set<String> rulesPerModule = rulesPerModuleType.get(moduleTypeName);
+            if (rulesPerModule != null) {
+                rules = new HashSet<String>();
+                rules.addAll(rulesPerModule);
             }
             if (rules != null) {
                 for (String rUID : rules) {
@@ -754,13 +718,12 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
-            synchronized (this) {
-                rules = mapModuleTypeToRules.get(moduleTypeName);
-            }
+            rules = rulesPerModuleType.get(moduleTypeName);
             if (rules != null) {
                 for (String rUID : rules) {
                     RuleStatus ruleStatus = getRuleStatus(rUID);
                     switch (ruleStatus) {
+                        case TRIGGERED:
                         case RUNNING:
                         case IDLE:
                             mapMissingHandlers = mapMissingHandlers != null ? mapMissingHandlers
@@ -788,10 +751,15 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 for (String typeUID : missingTypes) {
                     sb.append(typeUID).append(", ");
                 }
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED,
-                        RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2)), true);
-                unregister(getRuntimeRule(rUID));
+                RuleStatusInfo ruleStatusInfo = RuleStatusInfo.create(RuleStatus.UNINITIALIZED,
+                        RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2));
+                RuntimeRule rr = getRuntimeRule(rUID);
+                if (rr != null) {
+                    changeRuleStatus(rr, ruleStatusInfo, (RuleStatus) null);
+                    unregister(getRuntimeRule(rUID));
+                }
             }
+
         }
     }
 
@@ -808,38 +776,31 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             // the rule was unregistered
             return;
         }
-
-        synchronized (this) {
-            final RuleStatus ruleStatus = getRuleStatus(rUID);
-            if (ruleStatus != RuleStatus.IDLE) {
-                logger.error("Failed to execute rule ‘{}' with status '{}'", rUID, ruleStatus.name());
-                return;
-            }
-            // change state to RUNNING
-            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.RUNNING), true);
-        }
-
         try {
+            changeRuleStatus(rule, RuleStatusInfo.createTriggeredStatusInfo(td.getOutputs()), RuleStatus.IDLE);
+
             clearContext(rule);
 
             setTriggerOutputs(rUID, td);
             boolean isSatisfied = calculateConditions(rule);
             if (isSatisfied) {
+                changeRuleStatus(rule, RuleStatusInfo.create(RuleStatus.RUNNING), RuleStatus.TRIGGERED);
                 executeActions(rule, true);
                 logger.debug("The rule '{}' is executed.", rUID);
             } else {
                 logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rUID);
             }
+
+            if (getRuleStatus(rUID) != RuleStatus.DISABLED) { // if it is not disabled during rule execution.
+                changeRuleStatus(rule, RuleStatusInfo.create(RuleStatus.IDLE), RuleStatus.TRIGGERED,
+                        RuleStatus.RUNNING);
+            }
+
         } catch (Throwable t) {
             logger.error("Failed to execute rule '{}': {}", rUID, t.getMessage());
             logger.debug("", t);
         }
-        // change state to IDLE only if the rule has not been DISABLED.
-        synchronized (this) {
-            if (getRuleStatus(rUID) == RuleStatus.RUNNING) {
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.IDLE), true);
-            }
-        }
+
     }
 
     protected void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
@@ -849,37 +810,28 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             return;
         }
 
-        synchronized (this) {
-            final RuleStatus ruleStatus = getRuleStatus(ruleUID);
-            if (ruleStatus != RuleStatus.IDLE) {
-                logger.error("Failed to execute rule ‘{}' with status '{}'", ruleUID, ruleStatus.name());
-                return;
-            }
-            // change state to RUNNING
-            setRuleStatusInfo(ruleUID, new RuleStatusInfo(RuleStatus.RUNNING), true);
-        }
-
         try {
+            changeRuleStatus(rule, RuleStatusInfo.createTriggeredStatusInfo(context), RuleStatus.IDLE);
             clearContext(rule);
             if (context != null && !context.isEmpty()) {
                 getContext(ruleUID).putAll(context);
             }
             if (considerConditions) {
                 if (calculateConditions(rule)) {
+                    changeRuleStatus(rule, RuleStatusInfo.create(RuleStatus.RUNNING), RuleStatus.TRIGGERED);
                     executeActions(rule, false);
                 }
             } else {
+                changeRuleStatus(rule, RuleStatusInfo.create(RuleStatus.RUNNING), RuleStatus.TRIGGERED);
                 executeActions(rule, false);
             }
             logger.debug("The rule '{}' is executed.", ruleUID);
+            if (getRuleStatus(ruleUID) != RuleStatus.DISABLED) { // if it is not disabled during rule execution.
+                changeRuleStatus(rule, RuleStatusInfo.create(RuleStatus.IDLE), RuleStatus.TRIGGERED,
+                        RuleStatus.RUNNING);
+            }
         } catch (Throwable t) {
             logger.error("Fail to execute rule '{}': {}", new Object[] { ruleUID, t.getMessage() }, t);
-        }
-        // change state to IDLE only if the rule has not been DISABLED.
-        synchronized (this) {
-            if (getRuleStatus(ruleUID) == RuleStatus.RUNNING) {
-                setRuleStatusInfo(ruleUID, new RuleStatusInfo(RuleStatus.IDLE), true);
-            }
         }
     }
 
@@ -971,7 +923,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         RuleStatus ruleStatus = null;
         for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(rule.getUID());
-            if (ruleStatus != RuleStatus.RUNNING) {
+            if (ruleStatus != RuleStatus.TRIGGERED) {
                 return false;
             }
             RuntimeCondition c = (RuntimeCondition) it.next();
@@ -1030,7 +982,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     /**
      * The method clean used resource by rule engine when it is stopped.
      */
-    public synchronized void dispose() {
+    public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
             for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
@@ -1083,11 +1035,62 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * @param rUID rule uid
      * @return status of the rule or null when such rule does not exists.
      */
-    protected synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
-        return statusMap.get(rUID);
+    protected RuleStatusInfo getRuleStatusInfo(String rUID) {
+        if (rUID != null) {
+            RuntimeRule rr = rules.get(rUID);
+            if (rr != null) {
+                return rr.getStatusInfo();
+            }
+        }
+        return null;
     }
 
-    protected synchronized @NonNull String getUniqueId() {
+    /**
+     * Chanhes the status of the rule.
+     *
+     * @param rr the rule
+     * @param newStatusInfo the new status of the rule
+     * @param oldStatus expected old status or null in case when the old status does not have sense.
+     * @throws IllegalStateException when current status is not same as expected one.
+     */
+    private void changeRuleStatus(RuntimeRule rr, RuleStatusInfo newStatusInfo, RuleStatus oldStatus) {
+        synchronized (rr) {
+            RuleStatus currentStatus = rr.getStatusInfo().getStatus();
+            if (oldStatus != null && oldStatus != currentStatus) {
+                throw new IllegalStateException(
+                        String.format("Failed to execute rule %s. Current state: %s. Expected status: ", rr.getUID(),
+                                currentStatus.name(), oldStatus.name()));
+            }
+            rr.setStatusInfo(newStatusInfo);
+        }
+        if (newStatusInfo.getStatus() != RuleStatus.INITIALIZING) {
+            notifyStatusInfoCallback(rr.getUID(), newStatusInfo);
+        }
+    }
+
+    /**
+     * Chanhes the status of the rule.
+     *
+     * @param rr the rule
+     * @param newStatusInfo the new status of the rule
+     * @param oldStatuses list of expected old statuses.
+     * @throws IllegalStateException when current status is not one of expected list.
+     */
+    private void changeRuleStatus(RuntimeRule rr, RuleStatusInfo newStatusInfo, RuleStatus... oldStatuses) {
+        synchronized (rr) {
+            RuleStatus currentStatus = rr.getStatusInfo().getStatus();
+            if (oldStatuses == null || !Arrays.asList(oldStatuses).contains(currentStatus)) {
+                throw new IllegalStateException(String.format("Failed to execute rule %s. Current status: %s.",
+                        rr.getUID(), currentStatus.name()));
+            }
+            rr.setStatusInfo(newStatusInfo);
+        }
+        if (newStatusInfo.getStatus() != RuleStatus.INITIALIZING) {
+            notifyStatusInfoCallback(rr.getUID(), newStatusInfo);
+        }
+    }
+
+    protected @NonNull String getUniqueId() {
         int result = 0;
         if (rules != null) {
             Set<String> col = rules.keySet();

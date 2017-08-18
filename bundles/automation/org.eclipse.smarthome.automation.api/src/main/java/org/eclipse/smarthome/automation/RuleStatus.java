@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+ * Copyright (c) 2015, 2017 by Bosch Software Innovations GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,8 @@ public enum RuleStatus {
     UNINITIALIZED(1),
     INITIALIZING(2),
     IDLE(3),
-    RUNNING(4);
+    TRIGGERED(4),
+    RUNNING(5);
 
     private final int value;
 

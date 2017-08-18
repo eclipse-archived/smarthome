@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+ * Copyright (c) 2015, 2017 by Bosch Software Innovations GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 
 /**
@@ -28,6 +29,7 @@ import org.eclipse.smarthome.automation.Trigger;
 public class RuntimeRule extends Rule {
 
     private Map<String, Module> moduleMap;
+    private RuleStatusInfo statusInfo;
 
     /**
      * Utility constructor creating copy of the Rule or create a new empty instance.
@@ -101,4 +103,11 @@ public class RuntimeRule extends Rule {
         return res;
     }
 
+    protected void setStatusInfo(RuleStatusInfo statusInfo) {
+        this.statusInfo = statusInfo;
+    }
+
+    protected RuleStatusInfo getStatusInfo() {
+        return statusInfo;
+    }
 }
