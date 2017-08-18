@@ -26,7 +26,7 @@ import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSili
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
@@ -54,7 +54,6 @@ import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -97,8 +96,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
     private ManagedThingProvider managedThingProvider;
     private ManagedItemChannelLinkProvider itemChannelLinkProvider;
+    private ManagedItemProvider managedItemProvider;
     private ThingRegistry thingRegistry;
-    private ItemRegistry itemRegistry;
 
     /** An instance of the mock HttpServlet which is used for the tests */
     private RadioServiceDummy servlet;
@@ -141,8 +140,9 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         channels.clear();
         unregisterRadioTestServlet();
-        clearTheThingProvider();
-        clearTheItemRegistry();
+        clearThings();
+        clearItems();
+        clearLinks();
     }
 
     /**
@@ -758,20 +758,19 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     }
 
     private void setUpServices() {
-        // ManagedItemChannelLinkProvider needs a StorageService to persist the elements
-        VolatileStorageService volatileStorageService = new VolatileStorageService();
-        registerService(volatileStorageService);
+        registerVolatileStorageService();
 
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
+        assertNotNull(managedThingProvider);
 
         thingRegistry = getService(ThingRegistry.class);
         assertNotNull(thingRegistry);
 
-        itemRegistry = getService(ItemRegistry.class);
-        assertNotNull(itemRegistry);
-
         itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
         assertNotNull(itemChannelLinkProvider);
+
+        managedItemProvider = getService(ManagedItemProvider.class);
+        assertNotNull(managedItemProvider);
     }
 
     private void registerRadioTestServlet() throws ServletException, NamespaceException {
@@ -797,7 +796,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         servlet = null;
     }
 
-    private void clearTheThingProvider() {
+    private void clearThings() {
         final Collection<Thing> things = managedThingProvider.getAll();
         for (final Thing thing : things) {
             managedThingProvider.remove(thing.getUID());
@@ -805,12 +804,24 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         assertTrue(managedThingProvider.getAll().isEmpty());
     }
 
-    private void clearTheItemRegistry() {
-        final Collection<Item> items = itemRegistry.getItems();
+    private void clearItems() {
+        final Collection<Item> items = managedItemProvider.getAll();
         for (final Item item : items) {
-            itemRegistry.remove(item.getName());
+            managedItemProvider.remove(item.getName());
         }
-        assertTrue(itemRegistry.getItems().isEmpty());
+        waitForAssert(() -> {
+            assertTrue(managedItemProvider.getAll().isEmpty());
+        });
+    }
+
+    private void clearLinks() {
+        final Collection<ItemChannelLink> links = itemChannelLinkProvider.getAll();
+        for (final ItemChannelLink link : links) {
+            itemChannelLinkProvider.remove(link.getUID());
+        }
+        waitForAssert(() -> {
+            assertTrue(itemChannelLinkProvider.getAll().isEmpty());
+        });
     }
 
     private Item initializeItem(ChannelUID channelUID, String itemName, String acceptedItemType) {
@@ -836,7 +847,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         }
 
         if (item != null) {
-            itemRegistry.add(item);
+            managedItemProvider.add(item);
         }
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
         try {
