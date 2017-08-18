@@ -5,7 +5,7 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <channel-type id="5532">
       <item-type>Contact</item-type>
-      <label>Increase input State</label>
+      <label>Increase Input State</label>
       <description><![CDATA[Indicates an increase control action.]]></description>
       <category>Sensor</category>
       <state readOnly="true"/>

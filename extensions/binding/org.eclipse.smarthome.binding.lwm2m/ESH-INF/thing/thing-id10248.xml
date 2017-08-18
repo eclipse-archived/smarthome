@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10248">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Connected UE Measurements</label>
+      <description><![CDATA[This LWM2M Object provides a range of measurements of connected UEs and provides an Object link to the Connected UE report.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Number of Connected Users" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Cumulative Number of Unique Users" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "Connected UE Report" (2)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10248</property>
+         <property name="ObjectURN">urn:oma:lwm2m:x:10248</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Mandatory</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Number of Connected Users</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Number of Connected Users", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Number of Connected Users</label>
+      <description><![CDATA[The number of different UEs currently connected to the eNB (i.e. in RRC_CONNECTED state).]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Cumulative Number of Unique Users</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Cumulative Number of Unique Users", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>Cumulative Number of Unique Users</label>
+      <description><![CDATA[The number of different UEs that have connected to the eNB over the immediately preceding period specified by the "Cumulative Measurement Window" field.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Multiple-->
+      <label>Connected UE Report</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Connected UE Report", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>String</item-type>
+      <label>Connected UE Report</label>
+      <description><![CDATA[Provides an Object link to the Connected UE Report which provides a range of information related to the connected UEs.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

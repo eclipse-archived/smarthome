@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="13">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Bearer selection</label>
+      <description><![CDATA[This object specifies resources to enable a device to choose a PLMN/network on which to attach/register and what type of bearer to then connect. This object allows via remote bearer and network configuration to overwrite automatic network and bearer selection e.g. as supported by the UICC. An equivalent example for overwriting automatic selection is a user doing manual network and bearer selection on a smart phone.Notes:(1) Remote management of this communications bearer via LWM2M is currently not supported.(2) See [3GPP-TS_23.401, section 4.3.5.10] for the Preferred Network Behaviour indication used by the UE to inform the network about its capabilities and preferences.]]></description>
+      <!--Optional channel "Preferred Communications Bearer" (0) will be added dynamically-->
+      <!--Optional channel "Acceptable RSSI (GSM)" (1) will be added dynamically-->
+      <!--Optional channel "Acceptable RSCP (UMTS)" (2) will be added dynamically-->
+      <!--Optional channel "Acceptable RSRP (LTE)" (3) will be added dynamically-->
+      <!--Optional channel "Acceptable RSSI (1xEV-DO)" (4) will be added dynamically-->
+      <!--Optional channel "Cell lock list" (5) will be added dynamically-->
+      <!--Optional channel "Operator list" (6) will be added dynamically-->
+      <!--Optional channel "Operator list mode" (7) will be added dynamically-->
+      <!--Optional channel "List of available PLMNs" (8) will be added dynamically-->
+      <!--Optional channel "Vendor specific extensions" (9) will be added dynamically-->
+      <!--Optional channel "Acceptable RSRP (NB-IoT)" (10) will be added dynamically-->
+      <!--Optional channel "Higher Priority PLMN Search Timer" (11) will be added dynamically-->
+      <!--Optional channel "Attach without PDN connection" (12) will be added dynamically-->
+      <properties>
+         <property name="ObjectID">13</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:13</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>Preferred Communications Bearer</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Preferred Communications Bearer", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>Number</item-type>
+      <label>Preferred Communications Bearer</label>
+      <description><![CDATA[Used in network selection and, if applicable, in subsequent mobility management procedures:0: auto connect1: 3GPP PS preferred2: 3GPP PS GSM (GPRS) preferred (including EC-GSM-IoT)3: 3GPP PS UMTS preferred4: 3GPP PS LTE preferred5: 1xEV-DO preferred (1)6: 3GPP CS preferred (1)7: WLAN preferred8: Ethernet preferred (1)9: DSL preferred (1)10: Bluetooth preferred (1)11: WIMAX preferred (1)12: 3GPP PS LTE with CIoT EPS optimisations, User Plane preferred (2)13: 3GPP PS LTE with CIoT EPS optimisations, Control Plane preferred (2)14: 3GPP PS NB-IoT Control Plane optimisations preferred (2)15: 3GPP PS NB-IoT User Plane optimisations preferred (2) 16-100: Reserved for future useThe Preferred Communications Bearer resource specifies the preferred communications bearer that the LWM2M Client is requested to use for connecting to the LWM2M Server. If multiple preferred communications bearers are specified, the priority order is reflected by the resource instance order. E.g. the bearer which appears first in the list of resource instances is to have higher priority over the rest of available bearers. The LWM2M Client SHOULD use the preferred bearers with higher priority first if they are available. If none of indicated preferred bearers is available, the LWM2M Client SHOULD wait until one of them becomes available.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Acceptable RSSI (GSM)</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Acceptable RSSI (GSM)", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>Number</item-type>
+      <label>Acceptable RSSI (GSM)</label>
+      <description><![CDATA[Provides guide to the application when performing manual network selection.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Acceptable RSCP (UMTS)</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Acceptable RSCP (UMTS)", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>Acceptable RSCP (UMTS)</label>
+      <description><![CDATA[Provides guide to the application when performing manual network selection.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Acceptable RSRP (LTE)</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Acceptable RSRP (LTE)", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Number</item-type>
+      <label>Acceptable RSRP (LTE)</label>
+      <description><![CDATA[Provides guide to the application when performing manual network selection.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Acceptable RSSI (1xEV-DO)</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Acceptable RSSI (1xEV-DO)", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Number</item-type>
+      <label>Acceptable RSSI (1xEV-DO)</label>
+      <description><![CDATA[Provides guide to the application when performing manual network selection.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Cell lock list</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Cell lock list", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>String</item-type>
+      <label>Cell lock list</label>
+      <description><![CDATA[Comma separated list of allowed Global Cell Identities.]]></description>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Operator list</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Operator list", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>String</item-type>
+      <label>Operator list</label>
+      <description><![CDATA[Comma separated list of MCC+MNC of operators, in priority order.Resource “operator list mode” indicates how to process this list.]]></description>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Operator list mode</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Operator list mode", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Operator list mode</label>
+      <description><![CDATA[Indicates whether resource “operator list” represents the allowed operator list (white list), or, the preferred operator list.0=preferred1=allowed]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>List of available PLMNs</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "List of available PLMNs", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>String</item-type>
+      <label>List of available PLMNs</label>
+      <description><![CDATA[Allows server to see results of network scan (e.g. result of AT+COPS=?)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>Vendor specific extensions</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "Vendor specific extensions", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9" advanced="true">
+      <item-type>String</item-type>
+      <label>Vendor specific extensions</label>
+      <description><![CDATA[Links to a vendor specific object.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Acceptable RSRP (NB-IoT)</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Acceptable RSRP (NB-IoT)", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Number</item-type>
+      <label>Acceptable RSRP (NB-IoT)</label>
+      <description><![CDATA[Provides guide to the application when performing manual network selection.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>Higher Priority PLMN Search Timer</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Higher Priority PLMN Search Timer", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11" advanced="true">
+      <item-type>Number</item-type>
+      <label>Higher Priority PLMN Search Timer</label>
+      <description><![CDATA[Interval between periodic searches for higher priority PLMNs of the same country when camped on a visited PLMN, i.e. roaming scenario; based on SIM configuration, EFHPPLMN [3GPP-TS_31.102, section 4.2.6]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Single-->
+      <label>Attach without PDN connection</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "Attach without PDN connection", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Attach without PDN connection</label>
+      <description><![CDATA[0=attach with PDN connection1=attach without PDN connection]]></description>
+      <category>Switch</category>
+   </channel-type>
+</thing:thing-descriptions>

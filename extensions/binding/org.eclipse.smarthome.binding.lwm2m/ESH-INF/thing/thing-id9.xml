@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="9">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>LWM2M Software Management</label>
+      <description><![CDATA[This LwM2M objects provides the resources needed to perform software management on the device. Each software component is managed via a dedicated Software Management Object instance.]]></description>
+      <!--Optional channel "Package" (2) will be added dynamically-->
+      <!--Optional channel "Package URI" (3) will be added dynamically-->
+      <!--Optional channel "Checkpoint" (5) will be added dynamically-->
+      <!--Optional channel "Update Supported Objects" (8) will be added dynamically-->
+      <!--Optional channel "Package Settings" (13) will be added dynamically-->
+      <!--Optional channel "User Name" (14) will be added dynamically-->
+      <!--Optional channel "Password" (15) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "PkgName" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "PkgVersion" (1)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "Install" (4)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "Uninstall" (6)--></channel-group>
+         <channel-group id="7" typeId="7"><!--Channel "Update State" (7)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "Update Result" (9)--></channel-group>
+         <channel-group id="10" typeId="10"><!--Channel "Activate" (10)--></channel-group>
+         <channel-group id="11" typeId="11"><!--Channel "Deactivate" (11)--></channel-group>
+         <channel-group id="12" typeId="12"><!--Channel "Activation State" (12)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">9</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:9</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>PkgName</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "PkgName", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>PkgName</label>
+      <description><![CDATA[Name of the software package]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>PkgVersion</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "PkgVersion", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>PkgVersion</label>
+      <description><![CDATA[Version of the software package]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Package</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Package", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Package</label>
+      <description><![CDATA[Software packageThe package can be in one single software component, or any delivery material used by the Device to determine the software component(s) and proceed to their installation.Can be archive file, executable, manifest. This resource to be used when it is single block of delivery.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Package URI</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Package URI", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>String</item-type>
+      <label>Package URI</label>
+      <description><![CDATA[URI from where the device can download the software package by an alternative mechanism. As soon the device has received the Package URI it performs the download at the next practical opportunity.Can be direct link to a single software component or link to archive file, executable, or manifest, used by the Device to determine, then access to the software component(s). This resource to be used when it is single block of delivery.]]></description>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Install</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Install", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Switch</item-type>
+      <label>Install</label>
+      <description><![CDATA[Installs software from the package either stored in Package resource, or, downloaded from the Package URI. This Resource is only executable when the value of the State Resource is DELIVERED.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Checkpoint</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Checkpoint", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>String</item-type>
+      <label>Checkpoint</label>
+      <description><![CDATA[Link to a Checkpoint“ object which allows to specify conditions/dependencies for a software update. E.g. power connected, sufficient memory, target system.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Uninstall</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Uninstall", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6">
+      <item-type>Switch</item-type>
+      <label>Uninstall</label>
+      <description><![CDATA[Uninstalls the software package.This executable resource may have one argument.If used with no argument or argument is 0, the Package is removed i from the Device. If the argument is 1 (“ForUpdate”), the Client MUST prepare itself for receiving a Package used to upgrade the Software already in place. Update State is set back to INITIAL state.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Update State</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Update State", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7">
+      <item-type>Number</item-type>
+      <label>Update State</label>
+      <description><![CDATA[Indicates current state with respect to this software update. This value is set by the LwM2M Client.0: INITIALBefore downloading.(see 5.1.2.1)1: DOWNLOAD STARTEDThe downloading process has started and is on-going.(see 5.1.2.2)2: DOWNLOADEDThe package has been completely downloaded (see 5.1.2.3)3: DELIVEREDIn that state, the package has been correctly downloaded and is ready to be installed. (see 5.1.2.4)If executing the Install Resource failed, the state remains at DELIVERED.If executing the Install Resource was successful, the state changes from DELIVERED to INSTALLED.After executing the UnInstall Resource, the state changes to INITIAL.4: INSTALLEDIn that state the software is correctly installed and can be activated or deactivated according to the Activation State Machine.(see 5.1.2.5)]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>Update Supported Objects</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Update Supported Objects", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Update Supported Objects</label>
+      <description><![CDATA[If this value is true, the LwM2M Client MUST inform the registered LwM2M Servers of Objects and Object Instances parameter by sending an Update or Registration message after the software update operation at the next practical opportunity if supported Objects in the LwM2M Client have changed, in order for the LwM2M Servers to promptly manage newly installed Objects. If false, Objects and Object Instances parameter MUST be reported at the next periodic Update message.The default value is false.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>Update Result</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "Update Result", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Number</item-type>
+      <label>Update Result</label>
+      <description><![CDATA[Contains the result of downloading or installing/uninstalling the software0: Initial value. Prior to download any new package in the Device, Update Result MUST be reset to this initial value. One side effect of executing the Uninstall resource is to reset Update Result to this initial value “0”.1: Downloading. The package downloading process is on-going.2: Software successfully installed.3: Successfully Downloaded and package integrity verified(( 4-49, for expansion, of other scenarios))50: Not enough storage for the new software package.51: Out of memory during downloading process.52: Connection lost during downloading process.53: Package integrity check failure.54: Unsupported package type.56: Invalid URI57: Device defined update error58: Software installation failure59: Uninstallation Failure during forUpdate(arg=0)60-200 : (for expansion, selection to be in blocks depending on new introduction of features)This Resource MAY be reported by sending Observe operation.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Activate</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Activate", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10">
+      <item-type>Switch</item-type>
+      <label>Activate</label>
+      <description><![CDATA[This action activates the software previously successfully installed (the Package Installation State Machine is currently in the INSTALLED state)]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>Deactivate</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Deactivate", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11">
+      <item-type>Switch</item-type>
+      <label>Deactivate</label>
+      <description><![CDATA[This action deactivates softwareif the Package Installation State Machine is currently in the INSTALLED state.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Single-->
+      <label>Activation State</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "Activation State", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12">
+      <item-type>Contact</item-type>
+      <label>Activation State</label>
+      <description><![CDATA[Indicates the current activation state of this software:0: DISABLEDActivation State is DISABLED if the Software Activation State Machine is in the INACTIVE state or not alive.1: ENABLEDActivation State is ENABLED only if the Software Activation State Machine is in the ACTIVE state]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="13"><!--MultiInstances: Single-->
+      <label>Package Settings</label>
+      <channels>
+         <channel id="0" typeId="13"><!--Channel "Package Settings", ID: 13, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="13" advanced="true">
+      <item-type>String</item-type>
+      <label>Package Settings</label>
+      <description><![CDATA[Link to “Package Settings” object which allows to modify at any time software configuration settings. This is an application specific object. Note: OMA might provide a template for a Package Settings object in a future release of this specification.]]></description>
+   </channel-type>
+   <channel-group-type id="14"><!--MultiInstances: Single-->
+      <label>User Name</label>
+      <channels>
+         <channel id="0" typeId="14"><!--Channel "User Name", ID: 14, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="14" advanced="true">
+      <item-type>String</item-type>
+      <label>User Name</label>
+      <description><![CDATA[User Name for access to SW Update Package in pull mode.Key based mechanism can alternatively use for talking to the component server instead of user name and password combination.]]></description>
+   </channel-type>
+   <channel-group-type id="15"><!--MultiInstances: Single-->
+      <label>Password</label>
+      <channels>
+         <channel id="0" typeId="15"><!--Channel "Password", ID: 15, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="15" advanced="true">
+      <item-type>String</item-type>
+      <label>Password</label>
+      <description><![CDATA[Password for access to SW Update Package in pull mode.]]></description>
+   </channel-type>
+</thing:thing-descriptions>

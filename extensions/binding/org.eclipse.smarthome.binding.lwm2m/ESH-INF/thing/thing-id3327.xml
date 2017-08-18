@@ -5,7 +5,7 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3327">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Conductivity</label>
       <description><![CDATA[This IPSO object should be used to report a measurement of the electric conductivity of a medium or sample. It also provides resources for minimum and maximum measured values, as well as the minimum and maximum range that can be measured by the sensor. An example measurement unit is Siemens (ucum: S).]]></description>

@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="12">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>WLAN connectivity</label>
+      <description><![CDATA[This object specifies resources to enable a device to connect to a WLAN bearer.]]></description>
+      <!--Optional channel "Radio Enabled" (2) will be added dynamically-->
+      <!--Optional channel "Broadcast SSID" (6) will be added dynamically-->
+      <!--Optional channel "Beacon Enabled" (7) will be added dynamically-->
+      <!--Optional channel "Auto Channel" (10) will be added dynamically-->
+      <!--Optional channel "Supported Channels" (11) will be added dynamically-->
+      <!--Optional channel "Channels In Use" (12) will be added dynamically-->
+      <!--Optional channel "Regulatory Domain" (13) will be added dynamically-->
+      <!--Optional channel "Encryption Mode" (16) will be added dynamically-->
+      <!--Optional channel "WPA Pre Shared Key" (17) will be added dynamically-->
+      <!--Optional channel "WPA Key Phrase" (18) will be added dynamically-->
+      <!--Optional channel "WEP Encryption Type" (19) will be added dynamically-->
+      <!--Optional channel "WEP Key Index" (20) will be added dynamically-->
+      <!--Optional channel "WEP Key Phrase" (21) will be added dynamically-->
+      <!--Optional channel "WEP Key 1" (22) will be added dynamically-->
+      <!--Optional channel "WEP Key 2" (23) will be added dynamically-->
+      <!--Optional channel "WEP Key 3" (24) will be added dynamically-->
+      <!--Optional channel "WEP Key 4" (25) will be added dynamically-->
+      <!--Optional channel "RADIUS Server" (26) will be added dynamically-->
+      <!--Optional channel "RADIUS Server Port" (27) will be added dynamically-->
+      <!--Optional channel "RADIUS Secret" (28) will be added dynamically-->
+      <!--Optional channel "WMM Supported" (29) will be added dynamically-->
+      <!--Optional channel "WMM Enabled" (30) will be added dynamically-->
+      <!--Optional channel "MAC Control Enabled" (31) will be added dynamically-->
+      <!--Optional channel "MAC Address List" (32) will be added dynamically-->
+      <!--Optional channel "Total Bytes Sent" (33) will be added dynamically-->
+      <!--Optional channel "Total Bytes Received" (34) will be added dynamically-->
+      <!--Optional channel "Total Packets Sent" (35) will be added dynamically-->
+      <!--Optional channel "Total Packets Received" (36) will be added dynamically-->
+      <!--Optional channel "Transmit Errors" (37) will be added dynamically-->
+      <!--Optional channel "Receive Errors" (38) will be added dynamically-->
+      <!--Optional channel "Unicast Packets Sent" (39) will be added dynamically-->
+      <!--Optional channel "Unicast Packets Received" (40) will be added dynamically-->
+      <!--Optional channel "Multicast Packets  Received" (41) will be added dynamically-->
+      <!--Optional channel "Multicast Packets  Received" (42) will be added dynamically-->
+      <!--Optional channel "Broadcast Packets Sent" (43) will be added dynamically-->
+      <!--Optional channel "44 Broadcast Packets Received" (44) will be added dynamically-->
+      <!--Optional channel "Discard Packets Sent" (45) will be added dynamically-->
+      <!--Optional channel "Discard Packets Received" (46) will be added dynamically-->
+      <!--Optional channel "Unknown Packets Received" (47) will be added dynamically-->
+      <!--Optional channel "Vendor specific extensions" (48) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Interface name" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Enable" (1)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "Status" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "BSSID" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "SSID" (5)--></channel-group>
+         <channel-group id="8" typeId="8"><!--Channel "Mode" (8)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "Channel" (9)--></channel-group>
+         <channel-group id="14" typeId="14"><!--Channel "Standard" (14)--></channel-group>
+         <channel-group id="15" typeId="15"><!--Channel "Authentication Mode" (15)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">12</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:12</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Interface name</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Interface name", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>Interface name</label>
+      <description><![CDATA[Human-readable identifiereg. wlan0]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Enable</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Enable", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Switch</item-type>
+      <label>Enable</label>
+      <description><![CDATA[0: Disabled1: EnabledEnable / Disable interfaceWhen disabled radio must also be disabled]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Radio Enabled</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Radio Enabled", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>Radio Enabled</label>
+      <description><![CDATA[0: Disabled1: 2.4 GHz2: 5 GHz3: 0.9 GHz4: 3.7 GHz5: 45 GHz6: 60 GHz]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Status</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Status", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>Status</label>
+      <description><![CDATA[0: Disabled1: UP (OK)2: Error]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>BSSID</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "BSSID", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>BSSID</label>
+      <description><![CDATA[The MAC address of the interface, in hexadecimal form.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>SSID</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "SSID", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>String</item-type>
+      <label>SSID</label>
+      <description><![CDATA[The Service Set Identifier for this interface.]]></description>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Broadcast SSID</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Broadcast SSID", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Broadcast SSID</label>
+      <description><![CDATA[0: Do not broadcast SSID1: Broadcast SSID]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Beacon Enabled</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Beacon Enabled", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Beacon Enabled</label>
+      <description><![CDATA[0: Do not broadcast beacons1: Broadcast beacons]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>Mode</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Mode", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8">
+      <item-type>Number</item-type>
+      <label>Mode</label>
+      <description><![CDATA[0: Access Point1: Client (Station)2: Bridge3: Repeater]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>Channel</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "Channel", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Number</item-type>
+      <label>Channel</label>
+      <description><![CDATA[The current radio channel in use by this interface.0: Disabled1: Enabled]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Auto Channel</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Auto Channel", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Auto Channel</label>
+      <description><![CDATA[0: Disabled1: Enabled]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Multiple-->
+      <label>Supported Channels</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Supported Channels", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11" advanced="true">
+      <item-type>Number</item-type>
+      <label>Supported Channels</label>
+      <description><![CDATA[Array of supported radio channels.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Multiple-->
+      <label>Channels In Use</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "Channels In Use", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12" advanced="true">
+      <item-type>Number</item-type>
+      <label>Channels In Use</label>
+      <description><![CDATA[Array of channels which the access point has determined are ‘in use’.Including any channels in-use by access point itself.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="13"><!--MultiInstances: Single-->
+      <label>Regulatory Domain</label>
+      <channels>
+         <channel id="0" typeId="13"><!--Channel "Regulatory Domain", ID: 13, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="13" advanced="true">
+      <item-type>String</item-type>
+      <label>Regulatory Domain</label>
+      <description><![CDATA[802.11d Regulatory Domain String. First two octets are ISO/IEC 3166-1 two-character country code. The third octet is either “ ” (all environments), “O” (outside) or “I” (inside).]]></description>
+   </channel-type>
+   <channel-group-type id="14"><!--MultiInstances: Single-->
+      <label>Standard</label>
+      <channels>
+         <channel id="0" typeId="14"><!--Channel "Standard", ID: 14, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="14">
+      <item-type>Number</item-type>
+      <label>Standard</label>
+      <description><![CDATA[0: 802.11a1: 802.11b2: 802.11bg 3: 802.11g4: 802.11n5: 802.11bgn6: 802.11ac7: 802.11ah]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="15"><!--MultiInstances: Single-->
+      <label>Authentication Mode</label>
+      <channels>
+         <channel id="0" typeId="15"><!--Channel "Authentication Mode", ID: 15, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="15">
+      <item-type>Number</item-type>
+      <label>Authentication Mode</label>
+      <description><![CDATA[0: None (Open)1: PSK2: EAP3: EAP+PSK4: EAPSIM]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="16"><!--MultiInstances: Single-->
+      <label>Encryption Mode</label>
+      <channels>
+         <channel id="0" typeId="16"><!--Channel "Encryption Mode", ID: 16, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="16" advanced="true">
+      <item-type>Number</item-type>
+      <label>Encryption Mode</label>
+      <description><![CDATA[0: AES (WPA2)1: TKIP (WPA)2: WEP (1)]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="17"><!--MultiInstances: Single-->
+      <label>WPA Pre Shared Key</label>
+      <channels>
+         <channel id="0" typeId="17"><!--Channel "WPA Pre Shared Key", ID: 17, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="17" advanced="true">
+      <item-type>String</item-type>
+      <label>WPA Pre Shared Key</label>
+      <description><![CDATA[WPA/WPA2 Key expressed as a hex string.Write – Only.]]></description>
+   </channel-type>
+   <channel-group-type id="18"><!--MultiInstances: Single-->
+      <label>WPA Key Phrase</label>
+      <channels>
+         <channel id="0" typeId="18"><!--Channel "WPA Key Phrase", ID: 18, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="18" advanced="true">
+      <item-type>String</item-type>
+      <label>WPA Key Phrase</label>
+      <description><![CDATA[WPA/WPA2 Key Phrase.Write Only.]]></description>
+   </channel-type>
+   <channel-group-type id="19"><!--MultiInstances: Single-->
+      <label>WEP Encryption Type</label>
+      <channels>
+         <channel id="0" typeId="19"><!--Channel "WEP Encryption Type", ID: 19, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="19" advanced="true">
+      <item-type>Number</item-type>
+      <label>WEP Encryption Type</label>
+      <description><![CDATA[Description.0: None1: 40-bit2: 104-bit]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="20"><!--MultiInstances: Single-->
+      <label>WEP Key Index</label>
+      <channels>
+         <channel id="0" typeId="20"><!--Channel "WEP Key Index", ID: 20, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="20" advanced="true">
+      <item-type>Number</item-type>
+      <label>WEP Key Index</label>
+      <description><![CDATA[Index of the default WEP key.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="21"><!--MultiInstances: Single-->
+      <label>WEP Key Phrase</label>
+      <channels>
+         <channel id="0" typeId="21"><!--Channel "WEP Key Phrase", ID: 21, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="21" advanced="true">
+      <item-type>String</item-type>
+      <label>WEP Key Phrase</label>
+      <description><![CDATA[WPA/WPA2 Key Phrase.Write Only.]]></description>
+   </channel-type>
+   <channel-group-type id="22"><!--MultiInstances: Single-->
+      <label>WEP Key 1</label>
+      <channels>
+         <channel id="0" typeId="22"><!--Channel "WEP Key 1", ID: 22, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="22" advanced="true">
+      <item-type>String</item-type>
+      <label>WEP Key 1</label>
+      <description><![CDATA[WEP Key 1 expressed as a hexadecimal string.10 Bytes for a 40 Bit key26 Bytes for a 104 Bit key]]></description>
+   </channel-type>
+   <channel-group-type id="23"><!--MultiInstances: Single-->
+      <label>WEP Key 2</label>
+      <channels>
+         <channel id="0" typeId="23"><!--Channel "WEP Key 2", ID: 23, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="23" advanced="true">
+      <item-type>String</item-type>
+      <label>WEP Key 2</label>
+      <description><![CDATA[WEP Key 2 expressed as a hexadecimal string.10 Bytes for a 40 Bit key26 Bytes for a 104 Bit key]]></description>
+   </channel-type>
+   <channel-group-type id="24"><!--MultiInstances: Single-->
+      <label>WEP Key 3</label>
+      <channels>
+         <channel id="0" typeId="24"><!--Channel "WEP Key 3", ID: 24, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="24" advanced="true">
+      <item-type>String</item-type>
+      <label>WEP Key 3</label>
+      <description><![CDATA[WEP Key 3 expressed as a hexadecimal string.10 Bytes for a 40 Bit key26 Bytes for a 104 Bit key]]></description>
+   </channel-type>
+   <channel-group-type id="25"><!--MultiInstances: Single-->
+      <label>WEP Key 4</label>
+      <channels>
+         <channel id="0" typeId="25"><!--Channel "WEP Key 4", ID: 25, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="25" advanced="true">
+      <item-type>String</item-type>
+      <label>WEP Key 4</label>
+      <description><![CDATA[WEP Key 4 expressed as a hexadecimal string.10 Bytes for a 40 Bit key26 Bytes for a 104 Bit key]]></description>
+   </channel-type>
+   <channel-group-type id="26"><!--MultiInstances: Single-->
+      <label>RADIUS Server</label>
+      <channels>
+         <channel id="0" typeId="26"><!--Channel "RADIUS Server", ID: 26, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="26" advanced="true">
+      <item-type>String</item-type>
+      <label>RADIUS Server</label>
+      <description><![CDATA[RADIUS Authentication Server Address]]></description>
+   </channel-type>
+   <channel-group-type id="27"><!--MultiInstances: Single-->
+      <label>RADIUS Server Port</label>
+      <channels>
+         <channel id="0" typeId="27"><!--Channel "RADIUS Server Port", ID: 27, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="27" advanced="true">
+      <item-type>Number</item-type>
+      <label>RADIUS Server Port</label>
+      <description><![CDATA[RADIUS Authentication Server Port Number]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="28"><!--MultiInstances: Single-->
+      <label>RADIUS Secret</label>
+      <channels>
+         <channel id="0" typeId="28"><!--Channel "RADIUS Secret", ID: 28, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="28" advanced="true">
+      <item-type>String</item-type>
+      <label>RADIUS Secret</label>
+      <description><![CDATA[RADIUS Shared Secret]]></description>
+   </channel-type>
+   <channel-group-type id="29"><!--MultiInstances: Single-->
+      <label>WMM Supported</label>
+      <channels>
+         <channel id="0" typeId="29"><!--Channel "WMM Supported", ID: 29, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="29" advanced="true">
+      <item-type>Contact</item-type>
+      <label>WMM Supported</label>
+      <description><![CDATA[0: WMM NOT Supported1: WMM Wupported]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="30"><!--MultiInstances: Single-->
+      <label>WMM Enabled</label>
+      <channels>
+         <channel id="0" typeId="30"><!--Channel "WMM Enabled", ID: 30, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="30" advanced="true">
+      <item-type>Switch</item-type>
+      <label>WMM Enabled</label>
+      <description><![CDATA[0: Disabled1: Enabled]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="31"><!--MultiInstances: Single-->
+      <label>MAC Control Enabled</label>
+      <channels>
+         <channel id="0" typeId="31"><!--Channel "MAC Control Enabled", ID: 31, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="31" advanced="true">
+      <item-type>Switch</item-type>
+      <label>MAC Control Enabled</label>
+      <description><![CDATA[0: Any Client MAC Address accepted1: Client MAC address must exist in MACAddressList]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="32"><!--MultiInstances: Multiple-->
+      <label>MAC Address List</label>
+      <channels>
+         <channel id="0" typeId="32"><!--Channel "MAC Address List", ID: 32, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="32" advanced="true">
+      <item-type>String</item-type>
+      <label>MAC Address List</label>
+      <description><![CDATA[Array of allowed client MAC addresses, in hexadecimal form.]]></description>
+   </channel-type>
+   <channel-group-type id="33"><!--MultiInstances: Single-->
+      <label>Total Bytes Sent</label>
+      <channels>
+         <channel id="0" typeId="33"><!--Channel "Total Bytes Sent", ID: 33, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="33" advanced="true">
+      <item-type>Number</item-type>
+      <label>Total Bytes Sent</label>
+      <description><![CDATA[Total number of bytes sent via this interface]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="34"><!--MultiInstances: Single-->
+      <label>Total Bytes Received</label>
+      <channels>
+         <channel id="0" typeId="34"><!--Channel "Total Bytes Received", ID: 34, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="34" advanced="true">
+      <item-type>Number</item-type>
+      <label>Total Bytes Received</label>
+      <description><![CDATA[Total number of bytes received via this interface]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="35"><!--MultiInstances: Single-->
+      <label>Total Packets Sent</label>
+      <channels>
+         <channel id="0" typeId="35"><!--Channel "Total Packets Sent", ID: 35, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="35" advanced="true">
+      <item-type>Number</item-type>
+      <label>Total Packets Sent</label>
+      <description><![CDATA[Total packets sent via this interface]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="36"><!--MultiInstances: Single-->
+      <label>Total Packets Received</label>
+      <channels>
+         <channel id="0" typeId="36"><!--Channel "Total Packets Received", ID: 36, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="36" advanced="true">
+      <item-type>Number</item-type>
+      <label>Total Packets Received</label>
+      <description><![CDATA[Total packets received via this interface]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="37"><!--MultiInstances: Single-->
+      <label>Transmit Errors</label>
+      <channels>
+         <channel id="0" typeId="37"><!--Channel "Transmit Errors", ID: 37, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="37" advanced="true">
+      <item-type>Number</item-type>
+      <label>Transmit Errors</label>
+      <description><![CDATA[Total number of packets which could not be transmitted because of errors.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="38"><!--MultiInstances: Single-->
+      <label>Receive Errors</label>
+      <channels>
+         <channel id="0" typeId="38"><!--Channel "Receive Errors", ID: 38, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="38" advanced="true">
+      <item-type>Number</item-type>
+      <label>Receive Errors</label>
+      <description><![CDATA[Total number of packets received with errors which prevented those packets from being delivered.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="39"><!--MultiInstances: Single-->
+      <label>Unicast Packets Sent</label>
+      <channels>
+         <channel id="0" typeId="39"><!--Channel "Unicast Packets Sent", ID: 39, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="39" advanced="true">
+      <item-type>Number</item-type>
+      <label>Unicast Packets Sent</label>
+      <description><![CDATA[Count of Unicast Packets Sent]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="40"><!--MultiInstances: Single-->
+      <label>Unicast Packets Received</label>
+      <channels>
+         <channel id="0" typeId="40"><!--Channel "Unicast Packets Received", ID: 40, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="40" advanced="true">
+      <item-type>Number</item-type>
+      <label>Unicast Packets Received</label>
+      <description><![CDATA[Count of Unicast Packets Received]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="41"><!--MultiInstances: Single-->
+      <label>Multicast Packets  Received</label>
+      <channels>
+         <channel id="0" typeId="41"><!--Channel "Multicast Packets  Received", ID: 41, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="41" advanced="true">
+      <item-type>Number</item-type>
+      <label>Multicast Packets  Received</label>
+      <description><![CDATA[Count of Multicast Packets Sent]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="42"><!--MultiInstances: Single-->
+      <label>Multicast Packets  Received</label>
+      <channels>
+         <channel id="0" typeId="42"><!--Channel "Multicast Packets  Received", ID: 42, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="42" advanced="true">
+      <item-type>Number</item-type>
+      <label>Multicast Packets  Received</label>
+      <description><![CDATA[Count of Multicast Packets Received]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="43"><!--MultiInstances: Single-->
+      <label>Broadcast Packets Sent</label>
+      <channels>
+         <channel id="0" typeId="43"><!--Channel "Broadcast Packets Sent", ID: 43, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="43" advanced="true">
+      <item-type>Number</item-type>
+      <label>Broadcast Packets Sent</label>
+      <description><![CDATA[Count of Broadcast Packets Sent]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="44"><!--MultiInstances: Single-->
+      <label>44 Broadcast Packets Received</label>
+      <channels>
+         <channel id="0" typeId="44"><!--Channel "44 Broadcast Packets Received", ID: 44, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="44" advanced="true">
+      <item-type>Number</item-type>
+      <label>44 Broadcast Packets Received</label>
+      <description><![CDATA[Count of Broadcast Packets Received]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="45"><!--MultiInstances: Single-->
+      <label>Discard Packets Sent</label>
+      <channels>
+         <channel id="0" typeId="45"><!--Channel "Discard Packets Sent", ID: 45, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="45" advanced="true">
+      <item-type>Number</item-type>
+      <label>Discard Packets Sent</label>
+      <description><![CDATA[Count of valid outbound packets intentionally discarded without transmission, for example a packet may be discarded to manage buffer space.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="46"><!--MultiInstances: Single-->
+      <label>Discard Packets Received</label>
+      <channels>
+         <channel id="0" typeId="46"><!--Channel "Discard Packets Received", ID: 46, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="46" advanced="true">
+      <item-type>Number</item-type>
+      <label>Discard Packets Received</label>
+      <description><![CDATA[Count of valid packets received and intentionally discarded without delivery to the system, for example a packet may be discarded to manage buffer space.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="47"><!--MultiInstances: Single-->
+      <label>Unknown Packets Received</label>
+      <channels>
+         <channel id="0" typeId="47"><!--Channel "Unknown Packets Received", ID: 47, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="47" advanced="true">
+      <item-type>Number</item-type>
+      <label>Unknown Packets Received</label>
+      <description><![CDATA[Count of Unknown Packets Received]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="48"><!--MultiInstances: Single-->
+      <label>Vendor specific extensions</label>
+      <channels>
+         <channel id="0" typeId="48"><!--Channel "Vendor specific extensions", ID: 48, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="48" advanced="true">
+      <item-type>String</item-type>
+      <label>Vendor specific extensions</label>
+      <description><![CDATA[Links to a vendor specific object.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

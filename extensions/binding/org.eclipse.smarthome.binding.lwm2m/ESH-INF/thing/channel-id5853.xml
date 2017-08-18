@@ -4,11 +4,8 @@
                           bindingId="lwm2mleshan"
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <channel-type id="5853" advanced="true">
-      <item-type>Number</item-type>
-      <label>Off Time</label>
-      <description><![CDATA[The time in seconds that the dimmer has been off (dimmer value less or equal to 0) Writing a value of 0 resets the counter.]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
+      <item-type>String</item-type>
+      <label>Muti-state Output</label>
+      <description><![CDATA[A string describing a state for multiple level output such as Pilot Wire]]></description>
    </channel-type>
 </thing:thing-descriptions>

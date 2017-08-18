@@ -6,7 +6,7 @@
    <channel-type id="5550">
       <item-type>Switch</item-type>
       <label>Digital Output State</label>
-      <description><![CDATA[The current state of a digital output.]]></description>
+      <description><![CDATA[The current state of a digital output]]></description>
       <category>Switch</category>
    </channel-type>
 </thing:thing-descriptions>

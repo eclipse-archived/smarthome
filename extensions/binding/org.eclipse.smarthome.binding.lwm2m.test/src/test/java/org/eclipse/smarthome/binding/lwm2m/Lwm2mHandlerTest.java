@@ -14,7 +14,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import org.eclipse.smarthome.binding.lwm2m.handler.Lwm2mHandler;
+import org.eclipse.smarthome.binding.lwm2m.handler.Lwm2mObjectInstanceHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
-* Tests cases for {@link Lwm2mHandler}. The tests provide mocks for supporting entities using Mockito.
+* Tests cases for {@link Lwm2mObjectInstanceHandler}. The tests provide mocks for supporting entities using Mockito.
 *
 * @author David Graeff - Initial contribution
 */
@@ -43,7 +43,7 @@ public class Lwm2mHandlerTest {
     @Before
     public void setUp() {
         initMocks(this);
-        handler = new Lwm2mHandler(thing);
+        handler = new Lwm2mObjectInstanceHandler(thing);
         handler.setCallback(callback);
     }
 

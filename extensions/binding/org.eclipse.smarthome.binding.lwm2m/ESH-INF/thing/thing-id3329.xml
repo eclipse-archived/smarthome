@@ -5,7 +5,7 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3329">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Power Factor</label>
       <description><![CDATA[This IPSO object should be used to report a measurement or calculation of the power factor of a reactive electrical load. Power Factor is normally the ratio of non-reactive power to total power. This object also provides resources for minimum and maximum measured values, as well as the minimum and maximum range that can be measured by the sensor.]]></description>

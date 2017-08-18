@@ -5,12 +5,12 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3343">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Dimmer</label>
       <description><![CDATA[This IPSO object should be used with a dimmer or level control to report the state of the control.]]></description>
       <!--Optional channel "On Time" (5852) will be added dynamically-->
-      <!--Optional channel "Off Time" (5853) will be added dynamically-->
+      <!--Optional channel "Off Time" (5854) will be added dynamically-->
       <!--Optional channel "Application Type" (5750) will be added dynamically-->
       <channel-groups>
          <channel-group id="5851" typeId="5851"><!--Channel "Dimmer" (5851)--></channel-group>
@@ -34,10 +34,10 @@
          <channel id="0" typeId="5852"><!--Channel "On Time", ID: 5852, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-group-type id="5853"><!--MultiInstances: Single-->
+   <channel-group-type id="5854"><!--MultiInstances: Single-->
       <label>Off Time</label>
       <channels>
-         <channel id="0" typeId="5853"><!--Channel "Off Time", ID: 5853, InstanceID: 0--></channel>
+         <channel id="0" typeId="5854"><!--Channel "Off Time", ID: 5854, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5750"><!--MultiInstances: Single-->

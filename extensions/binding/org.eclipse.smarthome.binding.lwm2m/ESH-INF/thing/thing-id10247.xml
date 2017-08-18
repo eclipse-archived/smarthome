@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10247">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Neighbour Cell Report</label>
+      <description><![CDATA[This LWM2M Object provides the neighbour cell report. The CrowdBox Measurements Object and the Connected UE Report Object have both Objlnk Resources pointing to this Object.]]></description>
+      <!--Optional channel "Neighbour Cell ID" (1) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Neighbour PCI" (0)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "Neighbour Cell Rank" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "Neighbour Cell RSRP" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "Neighbour Cell RSRQ" (4)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10247</property>
+         <property name="ObjectURN">urn:oma:lwm2m:x:10247</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Mandatory</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Neighbour PCI</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Neighbour PCI", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Neighbour PCI</label>
+      <description><![CDATA[Physical Cell ID of neighbouring LTE cell, as defined in TS 36.211]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Neighbour Cell ID</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Neighbour Cell ID", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>Number</item-type>
+      <label>Neighbour Cell ID</label>
+      <description><![CDATA[Neighbour cell ID as specified by the cellIdentity field broadcast in SIB1 of the neighbour cell (see TS 36.331).]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Neighbour Cell Rank</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Neighbour Cell Rank", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>Neighbour Cell Rank</label>
+      <description><![CDATA[Current neighbour cell rank. Neighbour cells should be ordered (ranked) by the CrowdBox according to neighbour cell RSRP, with a higher RSRP corresponding to a lower index. Hence the neighbouring cell with the highest RSRP should be neighbour cell 0, the second neighbour cell 1, and so on.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Neighbour Cell RSRP</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Neighbour Cell RSRP", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>Neighbour Cell RSRP</label>
+      <description><![CDATA[Neighbour cell RSRP, as defined in TS 36.133, Section 9.1.4. Range: RSRP_00; RSRP_01 .. RSRP_97]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Neighbour Cell RSRQ</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Neighbour Cell RSRQ", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Number</item-type>
+      <label>Neighbour Cell RSRQ</label>
+      <description><![CDATA[Neighbour cell RSRQ, as defined in TS 36.133, Section 9.1.7. Range: RSRQ_-30; RSRQ_-29 .. RSRQ_46]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Cellular connectivity</label>
+      <description><![CDATA[This object specifies resources to enable a device to connect to a 3GPP or 3GPP2 bearer, including GPRS/EDGE, UMTS, LTE, NB-IoT, SMS. For cellular connectivity, this object focuses on Packet Switched (PS) connectivity and doesn’t aim to provide comprehensive Circuit Switched (CS) connectivity management.Notes:(1) This parameter is controlled by the 3GPP network. A LWM2M server may write a suggested value to this resource. As soon a LWM2M server changes the current value the device then suggests the new value to the network upon the next practical opportunity e.g. by inclusion of the requested value in an Attach or TAU request. In case the network confirms the suggested value then the device shall apply that value. In case the network provides a different value then the value provided by the network shall be applied by the device and the resource value shall be set to that value. The LWM2M server may use the observe function to be notified upon any changes of PSM or Active timer. By using the observe function the LWM2M server will get notified in case the value suggested by the LWM2M server is not accepted by the network, or, if the value is changed by the network for any reason (e.g. if the device moves into new tracking areas there is no guarantee that the above values remain the same and are not altered by the network).]]></description>
+      <!--Optional channel "SMSC address" (0) will be added dynamically-->
+      <!--Optional channel "Disable radio period" (1) will be added dynamically-->
+      <!--Optional channel "Module activation code" (2) will be added dynamically-->
+      <!--Optional channel "Vendor specific extensions" (3) will be added dynamically-->
+      <!--Optional channel "PSM Timer (1)" (4) will be added dynamically-->
+      <!--Optional channel "Active Timer (1)" (5) will be added dynamically-->
+      <!--Optional channel "Serving PLMN Rate control" (6) will be added dynamically-->
+      <!--Optional channel "eDRX parameters for Iu mode (1)" (7) will be added dynamically-->
+      <!--Optional channel "eDRX parameters for WB-S1 mode (1)" (8) will be added dynamically-->
+      <!--Optional channel "eDRX parameters for NB-S1 mode (1)" (9) will be added dynamically-->
+      <!--Optional channel "eDRX parameters for A/Gb mode (1)" (10) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="11" typeId="11"><!--Channel "Activated Profile Names" (11)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:10</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="11"><!--MultiInstances: Multiple-->
+      <label>Activated Profile Names</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "Activated Profile Names", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11">
+      <item-type>String</item-type>
+      <label>Activated Profile Names</label>
+      <description><![CDATA[Links to instances of the “APN connection profile” object representing every APN connection profile that has an activated connection to a PDN.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>SMSC address</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "SMSC address", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>String</item-type>
+      <label>SMSC address</label>
+      <description><![CDATA[E.164 address of SMSC. Applicable for 3GPP2 networks where SMSC is not available from a smart card, or for 3GPP/3GPP2 networks to provide the application with a customer specific SMSC. The application decides how to use this parameter, e.g. precedence over UICC based SMSC address.]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Disable radio period</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Disable radio period", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>Number</item-type>
+      <label>Disable radio period</label>
+      <description><![CDATA[Time period for which the device shall disconnect from cellular radio (PS detach, CS detach if applicable).Can be used to handle network overload situations. The value is a positive integer (0 to 65535), duration can be from 1 minute to 65535 minutes (approximately 45 days).As soon the server writes a value which is >0 the device SHALL disconnect. When the period has elapsed the device MAY reconnect.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Module activation code</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Module activation code", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Module activation code</label>
+      <description><![CDATA[Configurable in case the application needs to issue a code (e.g. via AT command) to activate the module. e.g. “*98”.]]></description>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Vendor specific extensions</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Vendor specific extensions", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>String</item-type>
+      <label>Vendor specific extensions</label>
+      <description><![CDATA[Links to a vendor specific object.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>PSM Timer (1)</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "PSM Timer (1)", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Number</item-type>
+      <label>PSM Timer (1)</label>
+      <description><![CDATA[Power saving mode (PSM) timer as defined in [3GPP-TS_23.682].PSM Timer = Extended T3412.Max interval between periodic TAU if there is no other transmission from the device. During most of this time the device is considered as unreachable and can therefore go into a deep sleep mode while keeping the PDN connection(s) active.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Active Timer (1)</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Active Timer (1)", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>Number</item-type>
+      <label>Active Timer (1)</label>
+      <description><![CDATA[Active timer = T3324 as defined in [3GPP-TS_24.008].The time the UE has to remain reachable after transitioning to idle state in case there is pending data from the NW to send out. At the end of T3324 UE can go into a deep sleep mode while keeping the PDN connection(s) active.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Serving PLMN Rate control</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Serving PLMN Rate control", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Number</item-type>
+      <label>Serving PLMN Rate control</label>
+      <description><![CDATA[Only for when using Signalling Radio Bearers (c.f. Data over NAS), it indicates the maximum the number of allowed uplink PDU transmissions per 6 minute interval aggregated across all PDN connections. See [3GPP-TS_23.401], octet 3 to 4 of the Serving PLMN rate control IE.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>eDRX parameters for Iu mode (1)</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "eDRX parameters for Iu mode (1)", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>String</item-type>
+      <label>eDRX parameters for Iu mode (1)</label>
+      <description><![CDATA[Extended DRX parameters (Paging Time Window and eDRX value) for Iu mode which the UE can request from the network. This resource is encoded as octet 3 in [3GPP-TS_24.008, clause 10.5.5.32].]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>eDRX parameters for WB-S1 mode (1)</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "eDRX parameters for WB-S1 mode (1)", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>String</item-type>
+      <label>eDRX parameters for WB-S1 mode (1)</label>
+      <description><![CDATA[Extended DRX parameters (Paging Time Window and eDRX value) for WB-S1 mode which the UE can request from the network. This resource is encoded as octet 3 in [3GPP-TS_24.008, clause 10.5.5.32].]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>eDRX parameters for NB-S1 mode (1)</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "eDRX parameters for NB-S1 mode (1)", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9" advanced="true">
+      <item-type>String</item-type>
+      <label>eDRX parameters for NB-S1 mode (1)</label>
+      <description><![CDATA[Extended DRX parameters (Paging Time Window and eDRX value) for NB-S1 mode which the UE can request from the network. This resource is encoded as octet 3 in [3GPP-TS_24.008, clause 10.5.5.32].]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>eDRX parameters for A/Gb mode (1)</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "eDRX parameters for A/Gb mode (1)", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>String</item-type>
+      <label>eDRX parameters for A/Gb mode (1)</label>
+      <description><![CDATA[Extended DRX parameters (Paging Time Window and eDRX value) for A/Gb mode which the UE can request from the network. This resource is encoded as octet 3 in [3GPP-TS_24.008, clause 10.5.5.32].]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

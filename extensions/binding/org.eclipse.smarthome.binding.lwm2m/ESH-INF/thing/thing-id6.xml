@@ -5,13 +5,14 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="6">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Location</label>
-      <description><![CDATA[This LWM2M Objects provide a range of device related information which can be queried by the LWM2M Server, and a device reboot and factory reset function.]]></description>
+      <description><![CDATA[This LwM2M Objects provide a range of device related information which can be queried by the LwM2M Server, and a device reboot and factory reset function.]]></description>
       <!--Optional channel "Altitude" (2) will be added dynamically-->
-      <!--Optional channel "Uncertainty" (3) will be added dynamically-->
+      <!--Optional channel "Radius" (3) will be added dynamically-->
       <!--Optional channel "Velocity" (4) will be added dynamically-->
+      <!--Optional channel "Speed" (6) will be added dynamically-->
       <channel-groups>
          <channel-group id="0" typeId="0"><!--Channel "Latitude" (0)--></channel-group>
          <channel-group id="1" typeId="1"><!--Channel "Longitude" (1)--></channel-group>
@@ -19,7 +20,7 @@
       </channel-groups>
       <properties>
          <property name="ObjectID">6</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:6</property>
          <property name="MultipleInstances">Single</property>
          <property name="Mandatory">Optional</property>
       </properties>
@@ -31,9 +32,12 @@
       </channels>
    </channel-group-type>
    <channel-type id="0">
-      <item-type>String</item-type>
+      <item-type>Number</item-type>
       <label>Latitude</label>
-      <description><![CDATA[The decimal notation of latitude, e.g. -43.5723 [World Geodetic System 1984].]]></description>
+      <description><![CDATA[The decimal notation of latitude, e.g., -43.5723 [World Geodetic System 1984].]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="1"><!--MultiInstances: Single-->
@@ -43,9 +47,12 @@
       </channels>
    </channel-group-type>
    <channel-type id="1">
-      <item-type>String</item-type>
+      <item-type>Number</item-type>
       <label>Longitude</label>
-      <description><![CDATA[The decimal notation of longitude, e.g. 153.21760 [World Geodetic System 1984].]]></description>
+      <description><![CDATA[The decimal notation of longitude, e.g., 153.21760 [World Geodetic System 1984].]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="2"><!--MultiInstances: Single-->
@@ -55,21 +62,27 @@
       </channels>
    </channel-group-type>
    <channel-type id="2" advanced="true">
-      <item-type>String</item-type>
+      <item-type>Number</item-type>
       <label>Altitude</label>
       <description><![CDATA[The decimal notation of altitude in meters above sea level.]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="3"><!--MultiInstances: Single-->
-      <label>Uncertainty</label>
+      <label>Radius</label>
       <channels>
-         <channel id="0" typeId="3"><!--Channel "Uncertainty", ID: 3, InstanceID: 0--></channel>
+         <channel id="0" typeId="3"><!--Channel "Radius", ID: 3, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-type id="3" advanced="true">
-      <item-type>String</item-type>
-      <label>Uncertainty</label>
-      <description><![CDATA[The accuracy of the position in meters.]]></description>
+      <item-type>Number</item-type>
+      <label>Radius</label>
+      <description><![CDATA[The value in the Radius Resource indicates the size in meters of a circular area around a point of geometry.]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="4"><!--MultiInstances: Single-->
@@ -81,7 +94,7 @@
    <channel-type id="4" advanced="true">
       <item-type>String</item-type>
       <label>Velocity</label>
-      <description><![CDATA[The velocity of the device as defined in 3GPP 23.032 GAD specification. This set of values may not be available if the device is static.]]></description>
+      <description><![CDATA[The velocity in the LwM2M Client is defined in [3GPP-TS_23.032].]]></description>
       <tags>
          <tag>Opaque</tag>
       </tags>
@@ -97,6 +110,21 @@
       <item-type>DateTime</item-type>
       <label>Timestamp</label>
       <description><![CDATA[The timestamp of when the location measurement was performed.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Speed</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Speed", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Number</item-type>
+      <label>Speed</label>
+      <description><![CDATA[Speed is the time rate of change in position of a LwM2M Client without regard for direction: the scalar component of velocity.]]></description>
+      <tags>
+         <tag>Float</tag>
+      </tags>
       <state readOnly="true"/>
    </channel-type>
 </thing:thing-descriptions>

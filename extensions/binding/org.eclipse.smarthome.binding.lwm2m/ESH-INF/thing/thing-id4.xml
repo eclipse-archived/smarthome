@@ -5,12 +5,12 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="4" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Connectivity Monitoring</label>
-      <description><![CDATA[This LWM2M Object enables monitoring of parameters related to network connectivity.In this general connectivity Object, the Resources are limited to the most general cases common to most network bearers. It is recommended to read the description, which refers to relevant standard development organizations (e.g. 3GPP, IEEE).The goal of the Connectivity Monitoring Object is to carry information reflecting the more up to date values of the current connection for monitoring purposes. Resources such as Link Quality, Radio Signal Strenght, Cell ID are retrieved during connected mode at least for cellular networks.]]></description>
+      <description><![CDATA[This LwM2M Object enables monitoring of parameters related to network connectivity.In this general connectivity Object, the Resources are limited to the most general cases common to most network bearers. It is recommended to read the description, which refers to relevant standard development organizations (e.g., 3GPP, IEEE).The goal of the Connectivity Monitoring Object is to carry information reflecting the more up to date values of the current connection for monitoring purposes. Resources such as Link Quality, Radio Signal Strength, Cell ID are retrieved during connected mode at least for cellular networks.]]></description>
       <!--Optional channel "Link Quality" (3) will be added dynamically-->
-      <!--Optional channel "Router IP Addresse" (5) will be added dynamically-->
+      <!--Optional channel "Router IP Addresses" (5) will be added dynamically-->
       <!--Optional channel "Link Utilization" (6) will be added dynamically-->
       <!--Optional channel "APN" (7) will be added dynamically-->
       <!--Optional channel "Cell ID" (8) will be added dynamically-->
@@ -24,7 +24,7 @@
       </channel-groups>
       <properties>
          <property name="ObjectID">4</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:4</property>
          <property name="MultipleInstances">Single</property>
          <property name="Mandatory">Optional</property>
       </properties>
@@ -38,7 +38,7 @@
    <channel-type id="0">
       <item-type>Number</item-type>
       <label>Network Bearer</label>
-      <description><![CDATA[Indicates the network bearer used for the current LWM2M communication session from the below network bearer list.0~20 are Cellular Bearers0: GSM cellular network1: TD-SCDMA cellular network2: WCDMA cellular network3: CDMA2000 cellular network4: WiMAX cellular network5: LTE-TDD cellular network6: LTE-FDD cellular network7~20: Reserved for other type cellular network21~40 are Wireless Bearers21: WLAN network22: Bluetooth network23: IEEE 802.15.4 network24~40: Reserved for other type local wireless network41~50 are Wireline Bearers41: Ethernet42: DSL43: PLC44~50: reserved for others type wireline networks.]]></description>
+      <description><![CDATA[Indicates the network bearer used for the current LwM2M communication session from the below network bearer list.0~20 are Cellular Bearers0: GSM cellular network1: TD-SCDMA cellular network2: WCDMA cellular network3: CDMA2000 cellular network4: WiMAX cellular network5: LTE-TDD cellular network6: LTE-FDD cellular network7~20: Reserved for other type cellular network21~40 are Wireless Bearers21: WLAN network22: Bluetooth network23: IEEE 802.15.4 network24~40: Reserved for other type local wireless network41~50 are Wireline Bearers41: Ethernet42: DSL43: PLC44~50: reserved for others type wireline networks.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -68,7 +68,7 @@
    <channel-type id="2">
       <item-type>Number</item-type>
       <label>Radio Signal Strength</label>
-      <description><![CDATA[This node contains the average value of the received signal strength indication used in the current network bearer in case Network Bearer Resource indicates a Cellular Network (RXLEV range 0…64) 0 is &lt; 110dBm, 64 is >-48 dBm).Refer to [3GPP 44.018] for more details on Network Measurement Report encoding and [3GPP 45.008] or for Wireless Networks refer to the appropriate wireless standard.]]></description>
+      <description><![CDATA[This node contains the average value of thereceived signal strength indication used in thecurrent network bearer (as indicated byResource 0 of this Object). For more detailson Network Measurement Report, refer to theappropriate Cellular or Wireless Networkstandards. (e.g., for LTE Cellular Networkrefer to ETSI TS 36.133 specification).]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -98,19 +98,19 @@
    <channel-type id="4">
       <item-type>String</item-type>
       <label>IP Addresses</label>
-      <description><![CDATA[The IP addresses assigned to the connectivity interface. (e.g. IPv4, IPv6, etc.)]]></description>
+      <description><![CDATA[The IP addresses assigned to the connectivity interface. (e.g., IPv4, IPv6, etc.)]]></description>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="5"><!--MultiInstances: Multiple-->
-      <label>Router IP Addresse</label>
+      <label>Router IP Addresses</label>
       <channels>
-         <channel id="0" typeId="5"><!--Channel "Router IP Addresse", ID: 5, InstanceID: 0--></channel>
+         <channel id="0" typeId="5"><!--Channel "Router IP Addresses", ID: 5, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-type id="5" advanced="true">
       <item-type>String</item-type>
-      <label>Router IP Addresse</label>
-      <description><![CDATA[The IP address of the next-hop IP router.Note: This IP Address doesn’t indicate the Server IP address.]]></description>
+      <label>Router IP Addresses</label>
+      <description><![CDATA[The IP address of the next-hop IP router, on each of the interfaces specified in resource 4 (IP Addresses).Note: This IP Address doesn’t indicate the Server IP address.]]></description>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="6"><!--MultiInstances: Single-->

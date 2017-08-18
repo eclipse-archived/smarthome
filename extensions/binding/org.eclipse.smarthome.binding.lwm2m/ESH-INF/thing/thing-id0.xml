@@ -5,192 +5,667 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="0" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
-      <label>LWM2M Security</label>
-      <description><![CDATA[This LWM2M Object provides the keying material of a LWM2M Client appropriate to access a specified LWM2M Server. One Object Instance SHOULD address a LWM2M Bootstrap Server. These LWM2M Object Resources MUST only be changed by a LWM2M Bootstrap Server or Bootstrap from Smartcardand MUST NOT be accessible by any other LWM2M Server.==E.1.1 UDP Channel Security: Security Key Resource Format==This section defines the format of the Secret Key and Public Key and Identity Resources of the LWM2M Server and LWM2M Bootstrap Objects when using UDP Channel security. These Resources are used to configure the security mode and keying material that a Client uses with a particular Server. The Objects are configured on the Client using one of the Bootstrap mechanisms described in Section 5.1. The use of this keying material for each security mode is defined in Section 7.1.==E.1.1.1 Pre-Shared Key (PSK) Mode==The PSK is a binary shared secret key between the Client and Server of the appropriate length for the Cipher Suite used [RFC4279]. This key is composed of a sequence of binary bytes in the Secret Key Resource. The default PSK Cipher Suites defined in this specification use a 128-bit AES key. Thus this key would be represented in 16 bytes in the Secret Key Resource.The corresponding PSK Identity for this PSK is stored in the Public Key or Identity Resource. The PSK Identity is simply stored as a UTF-8 String as per [RFC4279]. Clients and Servers MUST support a PSK Identity of at least 128 bytes in length as required by [RFC4279].==E.1.1.2 Raw-Public Key (RPK) Mode==The raw-public key mode requires a public key and a private key of the appropriate type and length for the Cipher Suite used. These keys are carried as a sequence of binary bytes with the public key stored in the Public Key or Identity Resource, and the private key stored in the Secret Key Resource. The default RPK Cipher Suites defines in this specification use a 256-bit ECC key. Thus the Certificate Resource would contain a 32 byte public key and the Secret Key Resource a 32 byte private key.==E.1.1.3 Certificate Mode==The Certificate mode requires an X.509v3 Certificate along with a matching private key. The private key is stored in the Secret Key Resource as in RPK mode. The Certificate is simply represented as binary X.509v3 in the value of the Public Key or Identity Resource.==E.1.2 SMS Payload Security: Security Key Resource Format==This section defines the format of the Secret Key and Public Key and Identity resources of the LWM2M Server and LWM2M Bootstrap Objects when using SMS Payload security. These resources are used to configure keying material that a Client uses with a particular Server. The Objects are configured on the Client using one of the Bootstrap mechanisms described in Section 5.1. The use of this keying material is defined in Section 7.2.The SMS key parameters are stored in the order KIc, KID, SPI, TAR (KIc is byte 0).Ordering of bits within bytes SHALL follow ETSI TS 102 221, section 3.4 “Coding Conventions” (b8 MSB, b1 LSB).==E.1.3 Unbootstrapping==Unbootstrapping is the process of deleting a Security Object Instance. If a Security Object Instance is to be deleted, certain related resources and configurations need to be deleted or modified. Therefore, when the Delete operation is sent via the Bootstrap Interface, the Client MUST execute the following procedure.#If there is an Object Instance that can be accessed only by a Server of the Server Object Instance (i.e., the Server is Access Control Owner and the LWM2M Server can access the Object Instance only in an Access Control Object Instance), the Object Instance and the corresponding Access Control Object Instance MUST be deleted#If an Object Instance can be accessed by multiple Servers including the Server which Security Object Instance is to be deleted, then:- The ACL Resource Instance for the Server in the Access Control Object Instance for the Object Instance MUST be deleted- If the Server is the Access Control Owner of the Access Control Object Instance, then the Access Control Owner MUST be changed to another Server according to the rules below:The Client MUST choose the Server who has highest sum of each number assigned to an access right (Write: 1, Delete: 1) for the Access Control Owner. If two or more Servers have the same sum, the Client MUST choose one of them as the new Access Control Owner.#Observation operations from the Server MUST be deleted#Server Object Instance MUST be deleted#Client MAY send “De-register” operation to the ServerNote: To monitor the change of the Access Control Owner, the Server MAY observe Access Control Owner Resource.]]></description>
-      <!--Optional channel "Short Server ID" (10) will be added dynamically-->
+      <label>IPSO Alliance Common Resources</label>
+      <!--Optional channel "ObjectVersion" (4001) will be added dynamically-->
+      <!--Optional channel "LogClass" (4010) will be added dynamically-->
+      <!--Optional channel "LogStart" (4011) will be added dynamically-->
+      <!--Optional channel "LogStop" (4012) will be added dynamically-->
+      <!--Optional channel "LogStatus" (4013) will be added dynamically-->
+      <!--Optional channel "LogData" (4014) will be added dynamically-->
+      <!--Optional channel "Fractional Time" (5507) will be added dynamically-->
+      <!--Optional channel "Min X Value" (5508) will be added dynamically-->
+      <!--Optional channel "Max X Value" (5509) will be added dynamically-->
+      <!--Optional channel "Min Y Value" (5510) will be added dynamically-->
+      <!--Optional channel "Max Y Value" (5511) will be added dynamically-->
+      <!--Optional channel "Min Z Value" (5512) will be added dynamically-->
+      <!--Optional channel "Max Z Value" (5513) will be added dynamically-->
+      <!--Optional channel "Uncertainty" (5516) will be added dynamically-->
+      <!--Optional channel "Volocity" (5517) will be added dynamically-->
+      <!--Optional channel "Timestamp" (5518) will be added dynamically-->
+      <!--Optional channel "Min Limit" (5519) will be added dynamically-->
+      <!--Optional channel "Max Limit" (5520) will be added dynamically-->
+      <!--Optional channel "Delay Duration" (5521) will be added dynamically-->
+      <!--Optional channel "Trigger" (5523) will be added dynamically-->
+      <!--Optional channel "Duration" (5524) will be added dynamically-->
+      <!--Optional channel "Mode" (5526) will be added dynamically-->
+      <!--Optional channel "X Coordinate" (5528) will be added dynamically-->
+      <!--Optional channel "Y Coordinate" (5529) will be added dynamically-->
+      <!--Optional channel "Clear Display" (5530) will be added dynamically-->
+      <!--Optional channel "Contrast" (5531) will be added dynamically-->
+      <!--Optional channel "Counter" (5534) will be added dynamically-->
+      <!--Optional channel "Transition Time" (5537) will be added dynamically-->
+      <!--Optional channel "Remaining Time" (5538) will be added dynamically-->
+      <!--Optional channel "Up Counter" (5541) will be added dynamically-->
+      <!--Optional channel "Down Counter" (5542) will be added dynamically-->
+      <!--Optional channel "Digital State" (5543) will be added dynamically-->
+      <!--Optional channel "Cumulative Time" (5544) will be added dynamically-->
+      <!--Optional channel "Max X Coordinate" (5545) will be added dynamically-->
+      <!--Optional channel "Max Y Coordinate" (5546) will be added dynamically-->
+      <!--Optional channel "Off Time" (5854) will be added dynamically-->
       <channel-groups>
-         <channel-group id="0" typeId="0"><!--Channel "LWM2M  Server URI" (0)--></channel-group>
-         <channel-group id="1" typeId="1"><!--Channel "Bootstrap Server" (1)--></channel-group>
-         <channel-group id="2" typeId="2"><!--Channel "Security Mode" (2)--></channel-group>
-         <channel-group id="3" typeId="3"><!--Channel "Public Key or Identity" (3)--></channel-group>
-         <channel-group id="4" typeId="4"><!--Channel "Server Public Key or Identity" (4)--></channel-group>
-         <channel-group id="5" typeId="5"><!--Channel "Secret Key" (5)--></channel-group>
-         <channel-group id="6" typeId="6"><!--Channel "SMS Security Mode" (6)--></channel-group>
-         <channel-group id="7" typeId="7"><!--Channel "SMS Binding Key Parameters" (7)--></channel-group>
-         <channel-group id="8" typeId="8"><!--Channel "SMS Binding Secret Keys" (8)--></channel-group>
-         <channel-group id="9" typeId="9"><!--Channel "LWM2M Server SMS Number" (9)--></channel-group>
-         <channel-group id="11" typeId="11"><!--Channel "Client Hold Off Time" (11)--></channel-group>
+         <channel-group id="5514" typeId="5514"><!--Channel "Latitude" (5514)--></channel-group>
+         <channel-group id="5515" typeId="5515"><!--Channel "Longitude" (5515)--></channel-group>
+         <channel-group id="5522" typeId="5522"><!--Channel "Clip" (5522)--></channel-group>
+         <channel-group id="5525" typeId="5525"><!--Channel "Minimum Off-time" (5525)--></channel-group>
+         <channel-group id="5527" typeId="5527"><!--Channel "Text" (5527)--></channel-group>
+         <channel-group id="5532" typeId="5532"><!--Channel "Increase Input State" (5532)--></channel-group>
+         <channel-group id="5533" typeId="5533"><!--Channel "Decrease Input State" (5533)--></channel-group>
+         <channel-group id="5536" typeId="5536"><!--Channel "Current Position" (5536)--></channel-group>
+         <channel-group id="5547" typeId="5547"><!--Channel "Multi-state Input" (5547)--></channel-group>
       </channel-groups>
       <properties>
          <property name="ObjectID">0</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN"/>
          <property name="MultipleInstances">Multiple</property>
-         <property name="Mandatory">Mandatory</property>
+         <property name="Mandatory">Optional</property>
       </properties>
    </thing-type>
-   <channel-group-type id="0"><!--MultiInstances: Single-->
-      <label>LWM2M  Server URI</label>
+   <channel-group-type id="4000"><!--MultiInstances: Single-->
+      <label>ObjectInstanceHandle</label>
       <channels>
-         <channel id="0" typeId="0"><!--Channel "LWM2M  Server URI", ID: 0, InstanceID: 0--></channel>
+         <channel id="0" typeId="4000"><!--Channel "ObjectInstanceHandle", ID: 4000, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="0">
-      <item-type>String</item-type>
-      <label>LWM2M  Server URI</label>
-      <description><![CDATA[Uniquely identifies the LWM2M Server or LWM2M Bootstrap Server, and is in the form:"coaps://host:port", where host is an IP address or FQDN, and port is the UDP port of the Server.]]></description>
-   </channel-type>
-   <channel-group-type id="1"><!--MultiInstances: Single-->
-      <label>Bootstrap Server</label>
+   <channel-group-type id="4001"><!--MultiInstances: Single-->
+      <label>ObjectVersion</label>
       <channels>
-         <channel id="0" typeId="1"><!--Channel "Bootstrap Server", ID: 1, InstanceID: 0--></channel>
+         <channel id="0" typeId="4001"><!--Channel "ObjectVersion", ID: 4001, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="1">
-      <item-type>Switch</item-type>
-      <label>Bootstrap Server</label>
-      <description><![CDATA[Determines if the current instance concerns a LWM2M Bootstrap Server (true) or a standard LWM2M Server (false)]]></description>
-      <category>Switch</category>
-   </channel-type>
-   <channel-group-type id="2"><!--MultiInstances: Single-->
-      <label>Security Mode</label>
+   <channel-group-type id="4010"><!--MultiInstances: Single-->
+      <label>LogClass</label>
       <channels>
-         <channel id="0" typeId="2"><!--Channel "Security Mode", ID: 2, InstanceID: 0--></channel>
+         <channel id="0" typeId="4010"><!--Channel "LogClass", ID: 4010, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="2">
-      <item-type>Number</item-type>
-      <label>Security Mode</label>
-      <description><![CDATA[Determines which UDP payload security mode is used0: Pre-Shared Key mode1: Raw Public Key mode2: Certificate mode3: NoSec mode]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="3"><!--MultiInstances: Single-->
-      <label>Public Key or Identity</label>
+   <channel-group-type id="4011"><!--MultiInstances: Single-->
+      <label>LogStart</label>
       <channels>
-         <channel id="0" typeId="3"><!--Channel "Public Key or Identity", ID: 3, InstanceID: 0--></channel>
+         <channel id="0" typeId="4011"><!--Channel "LogStart", ID: 4011, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="3">
-      <item-type>String</item-type>
-      <label>Public Key or Identity</label>
-      <description><![CDATA[Stores the LWM2M Client’s Certificate (Certificate mode), public key (RPK mode) or PSK Identity (PSK mode). The format is defined in Section E.1.1.]]></description>
-      <tags>
-         <tag>Opaque</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="4"><!--MultiInstances: Single-->
-      <label>Server Public Key or Identity</label>
+   <channel-group-type id="4012"><!--MultiInstances: Single-->
+      <label>LogStop</label>
       <channels>
-         <channel id="0" typeId="4"><!--Channel "Server Public Key or Identity", ID: 4, InstanceID: 0--></channel>
+         <channel id="0" typeId="4012"><!--Channel "LogStop", ID: 4012, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="4">
-      <item-type>String</item-type>
-      <label>Server Public Key or Identity</label>
-      <description><![CDATA[Stores the LWM2M Server’s or LWM2M Bootstrap Server’s Certificate (Certificate mode), public key (RPK mode) or PSK Identity (PSK mode). The format is defined in Section E.1.1.]]></description>
-      <tags>
-         <tag>Opaque</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="5"><!--MultiInstances: Single-->
-      <label>Secret Key</label>
+   <channel-group-type id="4013"><!--MultiInstances: Single-->
+      <label>LogStatus</label>
       <channels>
-         <channel id="0" typeId="5"><!--Channel "Secret Key", ID: 5, InstanceID: 0--></channel>
+         <channel id="0" typeId="4013"><!--Channel "LogStatus", ID: 4013, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="5">
-      <item-type>String</item-type>
-      <label>Secret Key</label>
-      <description><![CDATA[Stores the secret key or private key of the security mode. The format of the keying material is defined by the security mode in Section E.1.1. This Resource MUST only be changed by a bootstrap server and MUST NOT be readable by any server.]]></description>
-      <tags>
-         <tag>Opaque</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="6"><!--MultiInstances: Single-->
-      <label>SMS Security Mode</label>
+   <channel-group-type id="4014"><!--MultiInstances: Multiple-->
+      <label>LogData</label>
       <channels>
-         <channel id="0" typeId="6"><!--Channel "SMS Security Mode", ID: 6, InstanceID: 0--></channel>
+         <channel id="0" typeId="4014"><!--Channel "LogData", ID: 4014, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="6">
-      <item-type>Number</item-type>
-      <label>SMS Security Mode</label>
-      <description><![CDATA[Determines which SMS payload security mode is used (see section 7.2)0: Reserved for future use1: Secure Packet Structure mode device terminated2: Secure Packet Structure mode smartcard terminated3: NoSec mode255: Proprietary modes]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="7"><!--MultiInstances: Single-->
-      <label>SMS Binding Key Parameters</label>
+   <channel-group-type id="5500"><!--MultiInstances: -->
+      <label>Digital Input State</label>
       <channels>
-         <channel id="0" typeId="7"><!--Channel "SMS Binding Key Parameters", ID: 7, InstanceID: 0--></channel>
+         <channel id="0" typeId="5500"><!--Channel "Digital Input State", ID: 5500, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="7">
-      <item-type>String</item-type>
-      <label>SMS Binding Key Parameters</label>
-      <description><![CDATA[Stores the KIc, KID, SPI and TAR. The format is defined in Section D.1.2.]]></description>
-      <tags>
-         <tag>Opaque</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="8"><!--MultiInstances: Single-->
-      <label>SMS Binding Secret Keys</label>
+   <channel-group-type id="5501"><!--MultiInstances: -->
+      <label>Digital Input Counter</label>
       <channels>
-         <channel id="0" typeId="8"><!--Channel "SMS Binding Secret Keys", ID: 8, InstanceID: 0--></channel>
+         <channel id="0" typeId="5501"><!--Channel "Digital Input Counter", ID: 5501, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="8">
-      <item-type>String</item-type>
-      <label>SMS Binding Secret Keys</label>
-      <description><![CDATA[Stores the values of the keys for the SMS binding. This resource MUST only be changed by a bootstrap server and MUST NOT be readable by any server.]]></description>
-      <tags>
-         <tag>Opaque</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="9"><!--MultiInstances: Single-->
-      <label>LWM2M Server SMS Number</label>
+   <channel-group-type id="5502"><!--MultiInstances: -->
+      <label>Digital Input Polarity</label>
       <channels>
-         <channel id="0" typeId="9"><!--Channel "LWM2M Server SMS Number", ID: 9, InstanceID: 0--></channel>
+         <channel id="0" typeId="5502"><!--Channel "Digital Input Polarity", ID: 5502, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="9">
-      <item-type>Number</item-type>
-      <label>LWM2M Server SMS Number</label>
-      <description><![CDATA[MSISDN used by the LWM2M Client to send messages to the LWM2M Server via the SMS binding. The LWM2M Client SHALL silently ignore any SMS not originated from unknown MSISDN]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="10"><!--MultiInstances: Single-->
-      <label>Short Server ID</label>
+   <channel-group-type id="5503"><!--MultiInstances: -->
+      <label>Digital Input Debounce</label>
       <channels>
-         <channel id="0" typeId="10"><!--Channel "Short Server ID", ID: 10, InstanceID: 0--></channel>
+         <channel id="0" typeId="5503"><!--Channel "Digital Input Debounce", ID: 5503, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="10" advanced="true">
-      <item-type>Number</item-type>
-      <label>Short Server ID</label>
-      <description><![CDATA[This identifier uniquely identifies each LWM2M Server configured for the LWM2M Client.This Resource MUST be set when the Bootstrap Server Resource has false value.Default Short Server ID (i.e. 0) MUST NOT be used for identifying the LWM2M Server.]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
-   </channel-type>
-   <channel-group-type id="11"><!--MultiInstances: Single-->
-      <label>Client Hold Off Time</label>
+   <channel-group-type id="5504"><!--MultiInstances: -->
+      <label>Digital Input Edge Selection</label>
       <channels>
-         <channel id="0" typeId="11"><!--Channel "Client Hold Off Time", ID: 11, InstanceID: 0--></channel>
+         <channel id="0" typeId="5504"><!--Channel "Digital Input Edge Selection", ID: 5504, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-type id="11">
-      <item-type>Number</item-type>
-      <label>Client Hold Off Time</label>
-      <description><![CDATA[Relevant information for a Bootstrap Server only.The number of seconds to wait before initiating a Client Initiated Bootstrap once the LWM2M Client has determined it should initiate this bootstrap mode]]></description>
-      <tags>
-         <tag>Integer</tag>
-      </tags>
-   </channel-type>
+   <channel-group-type id="5505"><!--MultiInstances: -->
+      <label>Digital Input Counter Reset</label>
+      <channels>
+         <channel id="0" typeId="5505"><!--Channel "Digital Input Counter Reset", ID: 5505, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5506"><!--MultiInstances: -->
+      <label>Current Time</label>
+      <channels>
+         <channel id="0" typeId="5506"><!--Channel "Current Time", ID: 5506, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5507"><!--MultiInstances: Single-->
+      <label>Fractional Time</label>
+      <channels>
+         <channel id="0" typeId="5507"><!--Channel "Fractional Time", ID: 5507, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5508"><!--MultiInstances: Single-->
+      <label>Min X Value</label>
+      <channels>
+         <channel id="0" typeId="5508"><!--Channel "Min X Value", ID: 5508, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5509"><!--MultiInstances: Single-->
+      <label>Max X Value</label>
+      <channels>
+         <channel id="0" typeId="5509"><!--Channel "Max X Value", ID: 5509, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5510"><!--MultiInstances: Single-->
+      <label>Min Y Value</label>
+      <channels>
+         <channel id="0" typeId="5510"><!--Channel "Min Y Value", ID: 5510, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5511"><!--MultiInstances: Single-->
+      <label>Max Y Value</label>
+      <channels>
+         <channel id="0" typeId="5511"><!--Channel "Max Y Value", ID: 5511, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5512"><!--MultiInstances: Single-->
+      <label>Min Z Value</label>
+      <channels>
+         <channel id="0" typeId="5512"><!--Channel "Min Z Value", ID: 5512, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5513"><!--MultiInstances: Single-->
+      <label>Max Z Value</label>
+      <channels>
+         <channel id="0" typeId="5513"><!--Channel "Max Z Value", ID: 5513, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5514"><!--MultiInstances: Single-->
+      <label>Latitude</label>
+      <channels>
+         <channel id="0" typeId="5514"><!--Channel "Latitude", ID: 5514, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5515"><!--MultiInstances: Single-->
+      <label>Longitude</label>
+      <channels>
+         <channel id="0" typeId="5515"><!--Channel "Longitude", ID: 5515, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5516"><!--MultiInstances: Single-->
+      <label>Uncertainty</label>
+      <channels>
+         <channel id="0" typeId="5516"><!--Channel "Uncertainty", ID: 5516, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5517"><!--MultiInstances: Single-->
+      <label>Volocity</label>
+      <channels>
+         <channel id="0" typeId="5517"><!--Channel "Volocity", ID: 5517, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5518"><!--MultiInstances: Single-->
+      <label>Timestamp</label>
+      <channels>
+         <channel id="0" typeId="5518"><!--Channel "Timestamp", ID: 5518, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5519"><!--MultiInstances: Single-->
+      <label>Min Limit</label>
+      <channels>
+         <channel id="0" typeId="5519"><!--Channel "Min Limit", ID: 5519, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5520"><!--MultiInstances: Single-->
+      <label>Max Limit</label>
+      <channels>
+         <channel id="0" typeId="5520"><!--Channel "Max Limit", ID: 5520, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5521"><!--MultiInstances: Single-->
+      <label>Delay Duration</label>
+      <channels>
+         <channel id="0" typeId="5521"><!--Channel "Delay Duration", ID: 5521, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5522"><!--MultiInstances: Single-->
+      <label>Clip</label>
+      <channels>
+         <channel id="0" typeId="5522"><!--Channel "Clip", ID: 5522, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5523"><!--MultiInstances: Single-->
+      <label>Trigger</label>
+      <channels>
+         <channel id="0" typeId="5523"><!--Channel "Trigger", ID: 5523, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5524"><!--MultiInstances: Single-->
+      <label>Duration</label>
+      <channels>
+         <channel id="0" typeId="5524"><!--Channel "Duration", ID: 5524, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5525"><!--MultiInstances: Single-->
+      <label>Minimum Off-time</label>
+      <channels>
+         <channel id="0" typeId="5525"><!--Channel "Minimum Off-time", ID: 5525, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5526"><!--MultiInstances: Single-->
+      <label>Mode</label>
+      <channels>
+         <channel id="0" typeId="5526"><!--Channel "Mode", ID: 5526, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5527"><!--MultiInstances: Single-->
+      <label>Text</label>
+      <channels>
+         <channel id="0" typeId="5527"><!--Channel "Text", ID: 5527, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5528"><!--MultiInstances: Single-->
+      <label>X Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5528"><!--Channel "X Coordinate", ID: 5528, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5529"><!--MultiInstances: Single-->
+      <label>Y Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5529"><!--Channel "Y Coordinate", ID: 5529, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5530"><!--MultiInstances: Single-->
+      <label>Clear Display</label>
+      <channels>
+         <channel id="0" typeId="5530"><!--Channel "Clear Display", ID: 5530, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5531"><!--MultiInstances: Single-->
+      <label>Contrast</label>
+      <channels>
+         <channel id="0" typeId="5531"><!--Channel "Contrast", ID: 5531, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5532"><!--MultiInstances: Single-->
+      <label>Increase Input State</label>
+      <channels>
+         <channel id="0" typeId="5532"><!--Channel "Increase Input State", ID: 5532, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5533"><!--MultiInstances: Single-->
+      <label>Decrease Input State</label>
+      <channels>
+         <channel id="0" typeId="5533"><!--Channel "Decrease Input State", ID: 5533, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5534"><!--MultiInstances: Single-->
+      <label>Counter</label>
+      <channels>
+         <channel id="0" typeId="5534"><!--Channel "Counter", ID: 5534, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5536"><!--MultiInstances: Single-->
+      <label>Current Position</label>
+      <channels>
+         <channel id="0" typeId="5536"><!--Channel "Current Position", ID: 5536, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5537"><!--MultiInstances: Single-->
+      <label>Transition Time</label>
+      <channels>
+         <channel id="0" typeId="5537"><!--Channel "Transition Time", ID: 5537, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5538"><!--MultiInstances: Single-->
+      <label>Remaining Time</label>
+      <channels>
+         <channel id="0" typeId="5538"><!--Channel "Remaining Time", ID: 5538, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5541"><!--MultiInstances: Single-->
+      <label>Up Counter</label>
+      <channels>
+         <channel id="0" typeId="5541"><!--Channel "Up Counter", ID: 5541, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5542"><!--MultiInstances: Single-->
+      <label>Down Counter</label>
+      <channels>
+         <channel id="0" typeId="5542"><!--Channel "Down Counter", ID: 5542, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5543"><!--MultiInstances: Single-->
+      <label>Digital State</label>
+      <channels>
+         <channel id="0" typeId="5543"><!--Channel "Digital State", ID: 5543, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5544"><!--MultiInstances: Single-->
+      <label>Cumulative Time</label>
+      <channels>
+         <channel id="0" typeId="5544"><!--Channel "Cumulative Time", ID: 5544, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5545"><!--MultiInstances: Single-->
+      <label>Max X Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5545"><!--Channel "Max X Coordinate", ID: 5545, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5546"><!--MultiInstances: Single-->
+      <label>Max Y Coordinate</label>
+      <channels>
+         <channel id="0" typeId="5546"><!--Channel "Max Y Coordinate", ID: 5546, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5547"><!--MultiInstances: Single-->
+      <label>Multi-state Input</label>
+      <channels>
+         <channel id="0" typeId="5547"><!--Channel "Multi-state Input", ID: 5547, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5550"><!--MultiInstances: -->
+      <label>Digital Output State</label>
+      <channels>
+         <channel id="0" typeId="5550"><!--Channel "Digital Output State", ID: 5550, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5551"><!--MultiInstances: -->
+      <label>Digital Output Polarity</label>
+      <channels>
+         <channel id="0" typeId="5551"><!--Channel "Digital Output Polarity", ID: 5551, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5600"><!--MultiInstances: -->
+      <label>Analog Input Current Value</label>
+      <channels>
+         <channel id="0" typeId="5600"><!--Channel "Analog Input Current Value", ID: 5600, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5601"><!--MultiInstances: -->
+      <label>Min Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5601"><!--Channel "Min Measured Value", ID: 5601, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5602"><!--MultiInstances: -->
+      <label>Max Measured Value</label>
+      <channels>
+         <channel id="0" typeId="5602"><!--Channel "Max Measured Value", ID: 5602, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5603"><!--MultiInstances: -->
+      <label>Min Range Value</label>
+      <channels>
+         <channel id="0" typeId="5603"><!--Channel "Min Range Value", ID: 5603, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5604"><!--MultiInstances: -->
+      <label>Max Range Value</label>
+      <channels>
+         <channel id="0" typeId="5604"><!--Channel "Max Range Value", ID: 5604, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5605"><!--MultiInstances: -->
+      <label>Reset Min and Max Measured Values</label>
+      <channels>
+         <channel id="0" typeId="5605"><!--Channel "Reset Min and Max Measured Values", ID: 5605, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5650"><!--MultiInstances: -->
+      <label>Analog Output Current Value</label>
+      <channels>
+         <channel id="0" typeId="5650"><!--Channel "Analog Output Current Value", ID: 5650, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5700"><!--MultiInstances: -->
+      <label>Sensor Value</label>
+      <channels>
+         <channel id="0" typeId="5700"><!--Channel "Sensor Value", ID: 5700, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5701"><!--MultiInstances: -->
+      <label>Sensor Units</label>
+      <channels>
+         <channel id="0" typeId="5701"><!--Channel "Sensor Units", ID: 5701, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5702"><!--MultiInstances: -->
+      <label>X Value</label>
+      <channels>
+         <channel id="0" typeId="5702"><!--Channel "X Value", ID: 5702, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5703"><!--MultiInstances: -->
+      <label>Y Value</label>
+      <channels>
+         <channel id="0" typeId="5703"><!--Channel "Y Value", ID: 5703, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5704"><!--MultiInstances: -->
+      <label>Z Value</label>
+      <channels>
+         <channel id="0" typeId="5704"><!--Channel "Z Value", ID: 5704, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5705"><!--MultiInstances: -->
+      <label>Compass Direction</label>
+      <channels>
+         <channel id="0" typeId="5705"><!--Channel "Compass Direction", ID: 5705, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5706"><!--MultiInstances: -->
+      <label>Colour</label>
+      <channels>
+         <channel id="0" typeId="5706"><!--Channel "Colour", ID: 5706, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5750"><!--MultiInstances: -->
+      <label>Application Type</label>
+      <channels>
+         <channel id="0" typeId="5750"><!--Channel "Application Type", ID: 5750, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5751"><!--MultiInstances: -->
+      <label>Sensor Type</label>
+      <channels>
+         <channel id="0" typeId="5751"><!--Channel "Sensor Type", ID: 5751, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5800"><!--MultiInstances: -->
+      <label>Instantaneous active power</label>
+      <channels>
+         <channel id="0" typeId="5800"><!--Channel "Instantaneous active power", ID: 5800, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5801"><!--MultiInstances: -->
+      <label>Min Measured active power</label>
+      <channels>
+         <channel id="0" typeId="5801"><!--Channel "Min Measured active power", ID: 5801, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5802"><!--MultiInstances: -->
+      <label>Max Measured active power</label>
+      <channels>
+         <channel id="0" typeId="5802"><!--Channel "Max Measured active power", ID: 5802, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5803"><!--MultiInstances: -->
+      <label>Min Range active power</label>
+      <channels>
+         <channel id="0" typeId="5803"><!--Channel "Min Range active power", ID: 5803, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5804"><!--MultiInstances: -->
+      <label>Max Range active power</label>
+      <channels>
+         <channel id="0" typeId="5804"><!--Channel "Max Range active power", ID: 5804, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5805"><!--MultiInstances: -->
+      <label>Cumulative active power</label>
+      <channels>
+         <channel id="0" typeId="5805"><!--Channel "Cumulative active power", ID: 5805, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5806"><!--MultiInstances: -->
+      <label>Active Power Calibration</label>
+      <channels>
+         <channel id="0" typeId="5806"><!--Channel "Active Power Calibration", ID: 5806, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5810"><!--MultiInstances: -->
+      <label>Instantaneous reactive power</label>
+      <channels>
+         <channel id="0" typeId="5810"><!--Channel "Instantaneous reactive power", ID: 5810, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5811"><!--MultiInstances: -->
+      <label>Min Measured reactive power</label>
+      <channels>
+         <channel id="0" typeId="5811"><!--Channel "Min Measured reactive power", ID: 5811, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5812"><!--MultiInstances: -->
+      <label>Max Measured reactive power</label>
+      <channels>
+         <channel id="0" typeId="5812"><!--Channel "Max Measured reactive power", ID: 5812, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5813"><!--MultiInstances: -->
+      <label>Min Range reactive power</label>
+      <channels>
+         <channel id="0" typeId="5813"><!--Channel "Min Range reactive power", ID: 5813, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5814"><!--MultiInstances: -->
+      <label>Max Range reactive power</label>
+      <channels>
+         <channel id="0" typeId="5814"><!--Channel "Max Range reactive power", ID: 5814, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5815"><!--MultiInstances: -->
+      <label>Cumulative reactive power</label>
+      <channels>
+         <channel id="0" typeId="5815"><!--Channel "Cumulative reactive power", ID: 5815, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5816"><!--MultiInstances: -->
+      <label>Reactive Power Calibration</label>
+      <channels>
+         <channel id="0" typeId="5816"><!--Channel "Reactive Power Calibration", ID: 5816, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5820"><!--MultiInstances: -->
+      <label>Power factor</label>
+      <channels>
+         <channel id="0" typeId="5820"><!--Channel "Power factor", ID: 5820, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5821"><!--MultiInstances: -->
+      <label>Current Calibration</label>
+      <channels>
+         <channel id="0" typeId="5821"><!--Channel "Current Calibration", ID: 5821, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5822"><!--MultiInstances: -->
+      <label>Reset Cumulative energy</label>
+      <channels>
+         <channel id="0" typeId="5822"><!--Channel "Reset Cumulative energy", ID: 5822, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5823"><!--MultiInstances: -->
+      <label>Event Identifier</label>
+      <channels>
+         <channel id="0" typeId="5823"><!--Channel "Event Identifier", ID: 5823, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5824"><!--MultiInstances: -->
+      <label>Start Time</label>
+      <channels>
+         <channel id="0" typeId="5824"><!--Channel "Start Time", ID: 5824, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5825"><!--MultiInstances: -->
+      <label>Duration In Min</label>
+      <channels>
+         <channel id="0" typeId="5825"><!--Channel "Duration In Min", ID: 5825, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5826"><!--MultiInstances: -->
+      <label>Critical Level</label>
+      <channels>
+         <channel id="0" typeId="5826"><!--Channel "Critical Level", ID: 5826, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5827"><!--MultiInstances: -->
+      <label>Avg Load AdjPct</label>
+      <channels>
+         <channel id="0" typeId="5827"><!--Channel "Avg Load AdjPct", ID: 5827, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5828"><!--MultiInstances: -->
+      <label>Duty Cycle</label>
+      <channels>
+         <channel id="0" typeId="5828"><!--Channel "Duty Cycle", ID: 5828, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5850"><!--MultiInstances: -->
+      <label>On/Off</label>
+      <channels>
+         <channel id="0" typeId="5850"><!--Channel "On/Off", ID: 5850, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5851"><!--MultiInstances: -->
+      <label>Dimmer</label>
+      <channels>
+         <channel id="0" typeId="5851"><!--Channel "Dimmer", ID: 5851, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5852"><!--MultiInstances: -->
+      <label>On time</label>
+      <channels>
+         <channel id="0" typeId="5852"><!--Channel "On time", ID: 5852, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5853"><!--MultiInstances: -->
+      <label>Muti-state Output</label>
+      <channels>
+         <channel id="0" typeId="5853"><!--Channel "Muti-state Output", ID: 5853, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5854"><!--MultiInstances: Single-->
+      <label>Off Time</label>
+      <channels>
+         <channel id="0" typeId="5854"><!--Channel "Off Time", ID: 5854, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5900"><!--MultiInstances: -->
+      <label>Set Point Value</label>
+      <channels>
+         <channel id="0" typeId="5900"><!--Channel "Set Point Value", ID: 5900, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5903"><!--MultiInstances: -->
+      <label>Busy to Clear delay</label>
+      <channels>
+         <channel id="0" typeId="5903"><!--Channel "Busy to Clear delay", ID: 5903, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-group-type id="5904"><!--MultiInstances: -->
+      <label>Clear to Busy delay</label>
+      <channels>
+         <channel id="0" typeId="5904"><!--Channel "Clear to Busy delay", ID: 5904, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
 </thing:thing-descriptions>

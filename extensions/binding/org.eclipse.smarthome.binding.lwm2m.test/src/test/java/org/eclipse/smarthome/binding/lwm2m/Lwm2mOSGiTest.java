@@ -12,7 +12,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
-import org.eclipse.smarthome.binding.lwm2m.handler.Lwm2mHandler;
+import org.eclipse.smarthome.binding.lwm2m.handler.Lwm2mObjectInstanceHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingProvider;
@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
-* Tests cases for {@link Lwm2mHandler}.
+* Tests cases for {@link Lwm2mObjectInstanceHandler}.
 *
 * @author David Graeff - Initial contribution
 */

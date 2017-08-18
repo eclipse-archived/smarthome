@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2053">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhLimits</label>
+      <description><![CDATA[This Object represents limits for CMDH related parameter values.]]></description>
+      <!--Optional channel "RequestContext" (2) will be added dynamically-->
+      <!--Optional channel "RequestContextNotificatio" (3) will be added dynamically-->
+      <!--Optional channel "RequestCharacteristics" (4) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Order" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "RequestOrigin" (1)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "LimitsEventCategory" (5)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "LimitsRequestExpTime " (6)--></channel-group>
+         <channel-group id="7" typeId="7"><!--Channel "LimitsResultExpTime" (7)--></channel-group>
+         <channel-group id="8" typeId="8"><!--Channel "LimitsOptExpTime" (8)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "LimitsRespPersistence" (9)--></channel-group>
+         <channel-group id="10" typeId="10"><!--Channel "LimitsDelAggregation" (10)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2053</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2053</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Order</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Order", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Order</label>
+      <description><![CDATA[Contains index indicating in which order the concerned CmdhLimits Object Instance will be treated by the CSE to determine a value for the limit parameters.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Multiple-->
+      <label>RequestOrigin</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "RequestOrigin", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>RequestOrigin</label>
+      <description><![CDATA[List of zero or more Local AE-IDs, App-IDs, or the strings “localAE” or “thisCSE”]]></description>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>RequestContext</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "RequestContext", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>RequestContext</label>
+      <description><![CDATA[Represents the Dynamic Context condition under which CMDH parameter limits defined inside the concerned CmdhLimits Object Instance is applicable.]]></description>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>RequestContextNotificatio</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "RequestContextNotificatio", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Switch</item-type>
+      <label>RequestContextNotificatio</label>
+      <description><![CDATA[Contains true/false flag indicating whether or not notification procedures apply.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>RequestCharacteristics</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "RequestCharacteristics", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>String</item-type>
+      <label>RequestCharacteristics</label>
+      <description><![CDATA[Represents conditions pertaining to the request itself, (e.g. the requested Response Type ) than needs to be matched]]></description>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Multiple-->
+      <label>LimitsEventCategory</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "LimitsEventCategory", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>LimitsEventCategory</label>
+      <description><![CDATA[Allowed values for the Event Category parameter in a request of any of the Originators indicated in the requestOrigin attribute.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Multiple-->
+      <label>LimitsRequestExpTime </label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "LimitsRequestExpTime ", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6">
+      <item-type>Number</item-type>
+      <label>LimitsRequestExpTime </label>
+      <description><![CDATA[Defines a range of values for the Request Expiration Time parameter for a request of any Originator indicated in the requestOrigin ResourceInst 0 : minTimeInst 1: maxTime]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Multiple-->
+      <label>LimitsResultExpTime</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "LimitsResultExpTime", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7">
+      <item-type>Number</item-type>
+      <label>LimitsResultExpTime</label>
+      <description><![CDATA[Defines a range of values for the Result Expiration Time parameter for a request of any Originator indicated in the requestOrigin ResourceInst 0 : minTimeInst 1: maxTime]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Multiple-->
+      <label>LimitsOptExpTime</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "LimitsOptExpTime", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8">
+      <item-type>Number</item-type>
+      <label>LimitsOptExpTime</label>
+      <description><![CDATA[Defines a range of values for the Operation Expiration Time parameter for a request of any Originator indicated in the requestOrigin ResourceInst 0 : minTimeInst 1: maxTime]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Multiple-->
+      <label>LimitsRespPersistence</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "LimitsRespPersistence", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Number</item-type>
+      <label>LimitsRespPersistence</label>
+      <description><![CDATA[Defines a range of values for the Result Persistence parameter for a request of any Originator indicated in the requestOrigin ResourceInst 0 : minTimeInst 1: maxTime]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Multiple-->
+      <label>LimitsDelAggregation</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "LimitsDelAggregation", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10">
+      <item-type>String</item-type>
+      <label>LimitsDelAggregation</label>
+      <description><![CDATA[Contains the permitted settings of the DeliveryAggregation parameter of request primitives. '0' means 'False' '1' means 'True' '0 1' means 'False' or 'True']]></description>
+   </channel-type>
+</thing:thing-descriptions>

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10245">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Relay Management</label>
+      <description><![CDATA[This LWM2M Object provides a range of eNB related measurements and parameters of which several are changeable. Furthermore, it includes Resources to enable/disable the eNB.]]></description>
+      <!--Optional channel "Orientation" (2) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "eNB Availability" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "GPS Status" (1)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "eNB EARFCN" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "eNB Bandwidth" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Backhaul Primary EARFCN" (5)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "Backhaul Secondary EARFCN" (6)--></channel-group>
+         <channel-group id="7" typeId="7"><!--Channel "Cumulative Measurement Window" (7)--></channel-group>
+         <channel-group id="8" typeId="8"><!--Channel "eNB ECI" (8)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "eNB Status" (9)--></channel-group>
+         <channel-group id="10" typeId="10"><!--Channel "Enable eNB" (10)--></channel-group>
+         <channel-group id="11" typeId="11"><!--Channel "eNB Maximum Power" (11)--></channel-group>
+         <channel-group id="12" typeId="12"><!--Channel "Backhaul Primary q-OffsetFreq" (12)--></channel-group>
+         <channel-group id="13" typeId="13"><!--Channel "Backhaul Secondary q-OffsetFreq" (13)--></channel-group>
+         <channel-group id="14" typeId="14"><!--Channel "Neighbour CrowdBox EARFCN" (14)--></channel-group>
+         <channel-group id="15" typeId="15"><!--Channel "Neighbour CrowdBox q-OffsetFreq" (15)--></channel-group>
+         <channel-group id="16" typeId="16"><!--Channel "Serving Macro eNB cellIndividualOffset" (16)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10245</property>
+         <property name="ObjectURN">urn:oma:lwm2m:x:10245</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Mandatory</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>eNB Availability</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "eNB Availability", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Contact</item-type>
+      <label>eNB Availability</label>
+      <description><![CDATA[This field indicates to the CCC whether or not the eNB of the CrowdBox is available for activation: AVAILABLE = TRUE; UNAVAILABLE = FALSE This is set by the CrowdBox itself using an algorithm specific to the use case and based on parameters known to the CrowdBox which may not necessarily be signalled to the network. In the absence of a more specific algorithm, this parameter should be set to AVAILABLE, unless a fault is detected which would prevent activation of the eNB, in which case it should be set to UNAVAILABLE.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>GPS Status</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "GPS Status", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Contact</item-type>
+      <label>GPS Status</label>
+      <description><![CDATA[States whether the CrowdBox GPS receiver is synchronised to GPS time or not: UNSYCHRONISED = FALSE; SYNCHRONISED = TRUE If more than one GPS receiver is used by the CrowdBox, then SYNCHRONISED should be reported only if all receivers are synchronised.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Orientation</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Orientation", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>Orientation</label>
+      <description><![CDATA[Orientation of CrowdBox with respect to magnetic north. The reference orientation of the CrowdBox shall be the pointing direction of the eNB antenna(s) or, in the case of an omni-directional CrowdBox antenna, as defined in the accompanying product documentation.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>eNB EARFCN</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "eNB EARFCN", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>eNB EARFCN</label>
+      <description><![CDATA[EARFCN currently used by the eNB. Highest valid value in 3GPP is currently 46589. If the requested EARFCN is not supported by the eNB, the response should be "Bad Request". The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>eNB Bandwidth</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "eNB Bandwidth", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Number</item-type>
+      <label>eNB Bandwidth</label>
+      <description><![CDATA[Bandwidth of the currently used eNB carrier. If the requested bandwidth is not supported by the eNB, the response should be "Bad Request". The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Backhaul Primary EARFCN</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Backhaul Primary EARFCN", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>Backhaul Primary EARFCN</label>
+      <description><![CDATA[EARFCN of primary cell used for the backhaul. If the requested EARFCN is not supported by the CrowdBox UE, the response should be "Bad Request". The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Multiple-->
+      <label>Backhaul Secondary EARFCN</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Backhaul Secondary EARFCN", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6">
+      <item-type>Number</item-type>
+      <label>Backhaul Secondary EARFCN</label>
+      <description><![CDATA[EARFCN of any secondary cells used for the backhaul, in the event that carrier aggregation is being used. If the requested EARFCN is not supported by the CrowdBox UE, the response should be "Bad Request". The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Cumulative Measurement Window</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Cumulative Measurement Window", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7">
+      <item-type>Number</item-type>
+      <label>Cumulative Measurement Window</label>
+      <description><![CDATA[The current measurement interval over which cumulative statistics are collected for the following resources: Cumulative Number of Unique Users, Cumulative Downlink Throughput per Connected User, Cumulative Uplink Throughput per Connected User. Note that this measurement period is a sliding window rather than a granularity period. Measurements should never be reset, but rather old measurements should be removed from the cumulative total as they fall outside of the window. A value of 0 shall be interpreted as meaning only the current value should be reported. A value of 65535 shall be interpreted as an infinite window size (i.e. old measurements are never discarded).]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>eNB ECI</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "eNB ECI", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8">
+      <item-type>Number</item-type>
+      <label>eNB ECI</label>
+      <description><![CDATA[A 28 bit E-UTRAN Cell Identifier (ECI)]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>eNB Status</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "eNB Status", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Switch</item-type>
+      <label>eNB Status</label>
+      <description><![CDATA[This resource indicates the current status of the eNB and can be used by the CCC to change the state from enabled to disabled. TRUE = eNB enabled FALSE = eNB disabled]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>Enable eNB</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "Enable eNB", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10">
+      <item-type>Switch</item-type>
+      <label>Enable eNB</label>
+      <description><![CDATA[Enables the eNB. In addition the CrowdBox shall also update its configuration to reflect the current state of other relevant parameters. This might require a reboot.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>eNB Maximum Power</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "eNB Maximum Power", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11">
+      <item-type>Number</item-type>
+      <label>eNB Maximum Power</label>
+      <description><![CDATA[Maximum power for the eNB measured as the sum of input powers to all antenna connectors. The maximum power per antenna port is equal to the maximum eNB power divided by the number of antenna ports. If the requested power is above or below the maximum or minimum power levels of the eNB, then the power level should be set to the maximum or minimum respectively. The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Single-->
+      <label>Backhaul Primary q-OffsetFreq</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "Backhaul Primary q-OffsetFreq", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12">
+      <item-type>Number</item-type>
+      <label>Backhaul Primary q-OffsetFreq</label>
+      <description><![CDATA[q-OffsetFreq parameter for the backhaul primary EARFCN in SIB5 of the CrowdBox eNB BCCH. See TS 36.331 for details. Range: dB-24; dB-22 .. dB24 The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="13"><!--MultiInstances: Multiple-->
+      <label>Backhaul Secondary q-OffsetFreq</label>
+      <channels>
+         <channel id="0" typeId="13"><!--Channel "Backhaul Secondary q-OffsetFreq", ID: 13, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="13">
+      <item-type>Number</item-type>
+      <label>Backhaul Secondary q-OffsetFreq</label>
+      <description><![CDATA[q-OffsetFreq parameter for the backhaul secondary EARFCN in SIB5 of the CrowdBox eNB BCCH. See TS 36.331 for details Range: dB-24; dB-22 .. dB24 The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="14"><!--MultiInstances: Multiple-->
+      <label>Neighbour CrowdBox EARFCN</label>
+      <channels>
+         <channel id="0" typeId="14"><!--Channel "Neighbour CrowdBox EARFCN", ID: 14, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="14">
+      <item-type>Number</item-type>
+      <label>Neighbour CrowdBox EARFCN</label>
+      <description><![CDATA[EARFCN of a neighbour CrowdBox. Each instance of this resource relates to the same instance of resource ID 15.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="15"><!--MultiInstances: Multiple-->
+      <label>Neighbour CrowdBox q-OffsetFreq</label>
+      <channels>
+         <channel id="0" typeId="15"><!--Channel "Neighbour CrowdBox q-OffsetFreq", ID: 15, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="15">
+      <item-type>Number</item-type>
+      <label>Neighbour CrowdBox q-OffsetFreq</label>
+      <description><![CDATA[q-OffsetFreq parameter of the Neighbour CrowdBox EARFCN in SIB5 of the Neighbour CrowdBox eNB BCCH. See TS 36.331 for details Range: dB-24; dB-22 .. dB24 Each instance of this resource relates to the same instance of resource ID 14. The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="16"><!--MultiInstances: Single-->
+      <label>Serving Macro eNB cellIndividualOffset</label>
+      <channels>
+         <channel id="0" typeId="16"><!--Channel "Serving Macro eNB cellIndividualOffset", ID: 16, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="16">
+      <item-type>Number</item-type>
+      <label>Serving Macro eNB cellIndividualOffset</label>
+      <description><![CDATA[Specifies the value of the cellIndividualOffset parameter applicable to the CrowdBox macro serving cell that is to be signalled to connected UEs in their measurement configuration information . See TS 36.331 for details. The CrowdBox shall only apply a change of this resource upon execution of the “Enable eNB” command.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

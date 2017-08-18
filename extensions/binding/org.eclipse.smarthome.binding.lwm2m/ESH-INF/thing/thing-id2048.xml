@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2048">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhPolicy</label>
+      <description><![CDATA[This Object provides links to a set of rules associated with a specific CSE that governs the behavior of that CSE regarding rejecting, buffering and sending request or response messages via the Mcc reference point.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Name" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "DefaultRule" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "LimiRules" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "NetworkAccessECRules" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "BufferRules" (4)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2048</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2048</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Name</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Name", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>Name</label>
+      <description><![CDATA[Contains the name of a CmdhPolicy Object Instance]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>DefaultRule</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "DefaultRule", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>DefaultRule</label>
+      <description><![CDATA[1 reference to CmdhDefaults Object Instance]]></description>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Multiple-->
+      <label>LimiRules</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "LimiRules", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>String</item-type>
+      <label>LimiRules</label>
+      <description><![CDATA[1 or more references to CmdhLimits Object Instances]]></description>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Multiple-->
+      <label>NetworkAccessECRules</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "NetworkAccessECRules", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>String</item-type>
+      <label>NetworkAccessECRules</label>
+      <description><![CDATA[1 or more references to CmdhNetworkAccessRules Object Instances]]></description>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Multiple-->
+      <label>BufferRules</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "BufferRules", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>BufferRules</label>
+      <description><![CDATA[1 or more references to CmdhBuffer Object Instances]]></description>
+   </channel-type>
+</thing:thing-descriptions>

@@ -5,7 +5,7 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3345">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Multiple Axis Joystick</label>
       <description><![CDATA[This IPSO object can be used to report the position of a shuttle or joystick control. A digital input is provided to report the state of an associated push button.]]></description>

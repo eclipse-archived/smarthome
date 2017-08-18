@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2057">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhBackOffParametersSet</label>
+      <description><![CDATA[This Object defines set of parameters which can be referenced by a specific Instance of the CmdhNwAccessRule Object (ID: 2055)]]></description>
+      <!--Optional channel "NetworkAction" (0) will be added dynamically-->
+      <!--Optional channel "OptionalRandomBackoffTime" (4) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="1" typeId="1"><!--Channel "InitialBackoffTime" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "AdditionalBackoffTime" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "MaximumBackoffTime" (3)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2057</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2057</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>NetworkAction</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "NetworkAction", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>Number</item-type>
+      <label>NetworkAction</label>
+      <description><![CDATA[Contains specific action actually attempted on the network (e.g. cellular-registration)]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>InitialBackoffTime</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "InitialBackoffTime", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>InitialBackoffTime</label>
+      <description><![CDATA[Regarding the BackOffParameters of a certain CmdhNwAccessRule Object Instance, this Resource contains the value for the Initial wait time.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>AdditionalBackoffTime</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "AdditionalBackoffTime", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>AdditionalBackoffTime</label>
+      <description><![CDATA[Regarding the BackOffParameters of a certain CmdhNwAccessRule Object Instance, this Resource contains the value for an additional wait tme.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>MaximumBackoffTime</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "MaximumBackoffTime", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>MaximumBackoffTime</label>
+      <description><![CDATA[Regarding the BackOffParameters of a certain CmdhNwAccessRule Object Instance, this Resource contains the value for the maximum wait time]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Multiple-->
+      <label>OptionalRandomBackoffTime</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "OptionalRandomBackoffTime", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Number</item-type>
+      <label>OptionalRandomBackoffTime</label>
+      <description><![CDATA[Regarding the BackOffParameters of a certain CmdhNwAccessRule Object Instance, this Resource contains the value for an optional random wait time.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

@@ -5,21 +5,24 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="5" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Firmware Update</label>
-      <description><![CDATA[This LWM2M Object enables management of firmware which is to be updated. This Object includes installing firmware package, updating firmware, and performing actions after updating firmware.==E.6.1 Firmware Update Consideration==If some Objects are not supported after firmware update, the LWM2M Client MUST delete all the Object Instances of the Objects that are not supported.]]></description>
-      <!--Optional channel "Update Supported Objects" (4) will be added dynamically-->
+      <description><![CDATA[This LwM2M Object enables management of firmware which is to be updated. This Object includes installing firmware package, updating firmware, and performing actions after updating firmware. The firmware update MAY require to reboot the device; it will depend on a number of factors, such as the operating system architecture and the extent of the updated software.The envisioned functionality with LwM2M version 1.0 is to allow a LwM2M Client to connect to any LwM2M version 1.0 compliant Server to obtain a firmware imagine using the object and resource structure defined in this section experiencing communication security protection using DTLS. There are, however, other design decisions that need to be taken into account to allow a manufacturer of a device to securely install firmware on a device. Examples for such design decisions are how to manage the firmware update repository at the server side (which may include user interface considerations), the techniques to provide additional application layer security protection of the firmware image, how many versions of firmware imagines to store on the device, and how to execute the firmware update process considering the hardware specific details of a given IoT hardware product. These aspects are considered to be outside the scope of the LwM2M version 1.0 specification.A LwM2M Server may also instruct a LwM2M Client to fetch a firmware image from a dedicated server (instead of pushing firmware imagines to the LwM2M Client). The Package URI resource is contained in the Firmware object and can be used for this purpose.A LwM2M Client MUST support block-wise transfer [CoAP_Blockwise] if it implements the Firmware Update object.A LwM2M Server MUST support block-wise transfer. Other protocols, such as HTTP/HTTPs, MAY also be used for downloading firmware updates (via the Package URI resource). For constrained devices it is, however, RECOMMENDED to use CoAP for firmware downloads to avoid the need for additional protocol implementations.]]></description>
+      <!--Optional channel "PkgName" (6) will be added dynamically-->
+      <!--Optional channel "PkgVersion" (7) will be added dynamically-->
+      <!--Optional channel "Firmware Update Protocol Support" (8) will be added dynamically-->
       <channel-groups>
          <channel-group id="0" typeId="0"><!--Channel "Package" (0)--></channel-group>
          <channel-group id="1" typeId="1"><!--Channel "Package URI" (1)--></channel-group>
          <channel-group id="2" typeId="2"><!--Channel "Update" (2)--></channel-group>
          <channel-group id="3" typeId="3"><!--Channel "State" (3)--></channel-group>
          <channel-group id="5" typeId="5"><!--Channel "Update Result" (5)--></channel-group>
+         <channel-group id="9" typeId="9"><!--Channel "Firmware Update Delivery Method" (9)--></channel-group>
       </channel-groups>
       <properties>
          <property name="ObjectID">5</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:5</property>
          <property name="MultipleInstances">Single</property>
          <property name="Mandatory">Optional</property>
       </properties>
@@ -47,7 +50,7 @@
    <channel-type id="1">
       <item-type>String</item-type>
       <label>Package URI</label>
-      <description><![CDATA[URI from where the device can download the firmware package by an alternative mechanism. As soon the device has received the Package URI it performs the download at the next practical opportunity.]]></description>
+      <description><![CDATA[URI from where the device can download the firmware package by an alternative mechanism. As soon the device has received the Package URI it performs the download at the next practical opportunity. The URI format is defined in RFC 3986. For example, coaps://example.org/firmware is a syntactically valid URI. The URI scheme determines the protocol to be used. For CoAP this endpoint MAY be a LwM2M Server but does not necessarily need to be. A CoAP server implementing block-wise transfer is sufficient as a server hosting a firmware repository and the expectation is that this server merely serves as a separate file server making firmware images available to LwM2M Clients.]]></description>
    </channel-type>
    <channel-group-type id="2"><!--MultiInstances: Single-->
       <label>Update</label>
@@ -72,23 +75,11 @@
    <channel-type id="3">
       <item-type>Number</item-type>
       <label>State</label>
-      <description><![CDATA[Indicates current state with respect to this firmware update. This value is set by the LWM2M Client.1: Idle (before downloading or after updating)2: Downloading (The data sequence is on the way)3: DownloadedIf writing the firmware package to Package Resource is done, or, if the device has downloaded the firmware package from the Package URI the state changes to Downloaded.If writing an empty string to Package Resource is done or writing an empty string to Package URI is done, the state changes to Idle.If performing the Update Resource failed, the state remains at Downloaded.If performing the Update Resource was successful, the state changes from Downloaded to Idle.]]></description>
+      <description><![CDATA[Indicates current state with respect to this firmware update. This value is set by the LwM2M Client.0: Idle (before downloading or after successful updating)1: Downloading (The data sequence is on the way)2: Downloaded3: UpdatingIf writing the firmware package to Package Resource is done, or, if the device has downloaded the firmware package from the Package URI the state changes to Downloaded.Writing an empty string to Package Resource or to Package URI Resource, resets the Firmware Update State Machine: the State Resource value is set to Idle and the Update Result Resource value is set to 0.When in Downloaded state, and the executable Resource Update is triggered, the state changes to Updating.If the Update Resource failed, the state returns at Downloaded.If performing the Update Resource was successful, the state changes from Updating to Idle. Firmware Update mechanisms are illustrated below in Figure 29 of the LwM2M version 1.0 specification.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
       <state readOnly="true"/>
-   </channel-type>
-   <channel-group-type id="4"><!--MultiInstances: Single-->
-      <label>Update Supported Objects</label>
-      <channels>
-         <channel id="0" typeId="4"><!--Channel "Update Supported Objects", ID: 4, InstanceID: 0--></channel>
-      </channels>
-   </channel-group-type>
-   <channel-type id="4" advanced="true">
-      <item-type>Switch</item-type>
-      <label>Update Supported Objects</label>
-      <description><![CDATA[If this value is true, the LWM2M Client MUST inform the registered LWM2M Servers of Objects and Object Instances parameter by sending an Update or Registration message after the firmware update operation at the next practical opportunity if supported Objects in the LWM2M Client have changed, in order for the LWM2M Servers to promptly manage newly installed Objects.If false, Objects and Object Instances parameter MUST be reported at the next periodic Update message.The default value is false.]]></description>
-      <category>Switch</category>
    </channel-type>
    <channel-group-type id="5"><!--MultiInstances: Single-->
       <label>Update Result</label>
@@ -99,7 +90,61 @@
    <channel-type id="5">
       <item-type>Number</item-type>
       <label>Update Result</label>
-      <description><![CDATA[Contains the result of downloading or updating the firmware0: Default value. Once the updating process is initiated, this Resource SHOULD be reset to default value.1: Firmware updated successfully,2: Not enough storage for the new firmware package.3. Out of memory during downloading process.4: Connection lost during downloading process.5: CRC check failure for new downloaded package.6: Unsupported package type.7: Invalid URIThis Resource MAY be reported by sending Observe operation.]]></description>
+      <description><![CDATA[Contains the result of downloading or updating the firmware0: Initial value. Once the updating process is initiated (Download /Update), this Resource MUST be reset to Initial value.1: Firmware updated successfully,2: Not enough flash memory for the new firmware package.3. Out of RAM during downloading process.4: Connection lost during downloading process.5: Integrity check failure for new downloaded package.6: Unsupported package type.7: Invalid URI8: Firmware update failed9: Unsupported protocol. A LwM2M client indicates the failure to retrieve the firmware imagine using the URI provided in the Package URI resource by writing the value 9 to the /5/0/5 (Update Result resource) when the URI contained a URI scheme unsupported by the client. Consequently, the LwM2M Client is unable to retrieve the firmware image using the URI provided by the LwM2M Server in the Package URI when it refers to an unsupported protocol.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>PkgName</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "PkgName", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>String</item-type>
+      <label>PkgName</label>
+      <description><![CDATA[Name of the Firmware Package]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>PkgVersion</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "PkgVersion", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>String</item-type>
+      <label>PkgVersion</label>
+      <description><![CDATA[Version of the Firmware package]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Multiple-->
+      <label>Firmware Update Protocol Support</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Firmware Update Protocol Support", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Number</item-type>
+      <label>Firmware Update Protocol Support</label>
+      <description><![CDATA[This resource indicates what protocols the LwM2M Client implements to retrieve firmware images. The LwM2M server uses this information to decide what URI to include in the Package URI. A LwM2M Server MUST NOT include a URI in the Package URI object that uses a protocol that is unsupported by the LwM2M client.For example, if a LwM2M client indicates that it supports CoAP and CoAPS then a LwM2M Server must not provide an HTTP URI in the Packet URI.The following values are defined by this version of the specification:0 – CoAP (as defined in RFC 7252) with the additional support for block-wise transfer. CoAP is the default setting.1 – CoAPS (as defined in RFC 7252) with the additional support for block-wise transfer2 – HTTP 1.1 (as defined in RFC 7230)3 – HTTPS 1.1 (as defined in RFC 7230)Additional values MAY be defined in the future. Any value not understood by the LwM2M Server MUST be ignored.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>Firmware Update Delivery Method</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "Firmware Update Delivery Method", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9">
+      <item-type>Number</item-type>
+      <label>Firmware Update Delivery Method</label>
+      <description><![CDATA[The LwM2M Client uses this resource to indicate its support for transferring firmware images to the client either via the Package Resource (=push) or via the Package URI Resource (=pull) mechanism.0 – Pull only1 – Push only2 – Both. In this case the LwM2M Server MAY choose the preferred mechanism for conveying the firmware image to the LwM2M Client.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>

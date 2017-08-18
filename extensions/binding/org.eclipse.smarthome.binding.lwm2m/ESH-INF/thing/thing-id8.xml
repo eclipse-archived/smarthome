@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="8">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Lock and Wipe</label>
+      <description><![CDATA[This LWM2M objects provides the resources needed to perform the lock and wipe operations.]]></description>
+      <!--Optional channel "Wipe item" (2) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "State" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Lock target" (1)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "Wipe" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "Wipe target" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "Lock or Wipe Operation Result" (5)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">8</property>
+         <property name="ObjectURN"> urn:oma:lwm2m: oma:8</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>State</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "State", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>State</label>
+      <description><![CDATA[State of the device:0: unlocked state Normal operation.1: partially locked stateTo render the device inoperable the device has been partially locked. The “lock target” resource allows specifying the target(s) for this operation.2: fully locked stateTo render the device fully inoperable the device has been fully locked.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Multiple-->
+      <label>Lock target</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Lock target", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>Lock target</label>
+      <description><![CDATA[To specify one or several targets for the lock operation. This allows partially locking the device by selecting specific components or interfaces to be locked.]]></description>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Multiple-->
+      <label>Wipe item</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Wipe item", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Wipe item</label>
+      <description><![CDATA[Indicates which data can be wiped from the device. This resource could be e.g. representing a directory.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Wipe</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Wipe", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Switch</item-type>
+      <label>Wipe</label>
+      <description><![CDATA[To permanently erase data from the device.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Multiple-->
+      <label>Wipe target</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Wipe target", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>Wipe target</label>
+      <description><![CDATA[To specify one or several targets for the wipe operation. This allows selecting specific data, or, memory areas for the wipe operation.]]></description>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Lock or Wipe Operation Result</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Lock or Wipe Operation Result", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>Lock or Wipe Operation Result</label>
+      <description><![CDATA[Contains the result of a lock and wipe operation0: Default1: Partially Lock operation successful2: Fully Lock operation successful3: Unlock operation successful4: Wipe operation successful5: Partially Lock operation failed6: Fully Lock operation failed7: Unlock operation failed 8: Wipe operation failedThis Resource MAY be reported by sending Observe operation.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

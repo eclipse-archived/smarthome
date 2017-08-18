@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2052">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhEcDefParamValues</label>
+      <description><![CDATA[This Object represents a specific set of default values for the CMDH related parameters Request Expiration Timestamp, Result Expiration Timestamp, Operational Execution Time, Result Persistence and Delivery Aggregation that are applicable for a given Event Category if these parameters are not specified in the message.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "ApplicableEventCategory " (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "DefaultRequestExpTime" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "DefaultResultExpTime " (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "DefaultOpExecTime" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "DefaultRespPersistence " (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "DefaultDelAggregation " (5)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2052</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2052</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>ApplicableEventCategory </label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "ApplicableEventCategory ", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>ApplicableEventCategory </label>
+      <description><![CDATA[Contains list of Event Category values]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>DefaultRequestExpTime</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "DefaultRequestExpTime", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>DefaultRequestExpTime</label>
+      <description><![CDATA[Contains the default value for the Request Expiration Timestamp parameter when such a parameter is not set in the request]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>DefaultResultExpTime </label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "DefaultResultExpTime ", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>DefaultResultExpTime </label>
+      <description><![CDATA[Contains the default value of the Result Expiration Timestamp parameter when such a parameter is not set in the request]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>DefaultOpExecTime</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "DefaultOpExecTime", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>Number</item-type>
+      <label>DefaultOpExecTime</label>
+      <description><![CDATA[Contains the default value of the Operation Execution Time parameter when such a parameter is not set in the request]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>DefaultRespPersistence </label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "DefaultRespPersistence ", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Number</item-type>
+      <label>DefaultRespPersistence </label>
+      <description><![CDATA[Contains the default value of the Result Persistence parameter when such a parameter is not set in the request]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>DefaultDelAggregation </label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "DefaultDelAggregation ", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Number</item-type>
+      <label>DefaultDelAggregation </label>
+      <description><![CDATA[Contains the default value of the Delivery Aggregation parameter when such a parameter is not set in the request]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

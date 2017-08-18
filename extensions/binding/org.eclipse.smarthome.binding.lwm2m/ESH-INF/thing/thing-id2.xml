@@ -5,10 +5,10 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="2" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
-      <label>LWM2M Access Control</label>
-      <description><![CDATA[Access Control Object is used to check whether the LWM2M Server has access right for performing a operation.==E.3.1 Object Instance Configurations==If a new LWM2M Server Account is added when LWM2M Client has only one LWM2M Server Account, Client MUST ensure that Access Control Object Instances for every Object Instance except Security Object Instance exist. The LWM2M Client MUST create the missing Access Control Object Instances as follows:− Access Control Owner MUST be the previously existing LWM2M Server− Previously existing LWM2M Server MUST have full access right.]]></description>
+      <label>LwM2M Access Control</label>
+      <description><![CDATA[Access Control Object is used to check whether the LwM2M Server has access right for performing an operation.]]></description>
       <!--Optional channel "ACL" (2) will be added dynamically-->
       <channel-groups>
          <channel-group id="0" typeId="0"><!--Channel "Object ID" (0)--></channel-group>
@@ -17,7 +17,7 @@
       </channel-groups>
       <properties>
          <property name="ObjectID">2</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:2</property>
          <property name="MultipleInstances">Multiple</property>
          <property name="Mandatory">Optional</property>
       </properties>
@@ -46,7 +46,7 @@
    <channel-type id="1">
       <item-type>Number</item-type>
       <label>Object Instance ID</label>
-      <description><![CDATA[See Table 14: LWM2M Identifiers.]]></description>
+      <description><![CDATA[See Table 20: LwM2M Identifiers.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -61,7 +61,7 @@
    <channel-type id="2" advanced="true">
       <item-type>Number</item-type>
       <label>ACL</label>
-      <description><![CDATA[Resource Instance ID MUST be the Short Server ID of a certain LWM2M Server which has an access right.Resource Instance ID 0 is for default Short Server ID.The Value of the Resource Instance contains the access rights.Setting each bit means the LWM2M Server has the access right for that operation. The bit order is specified as below.1st lsb: R(Read, Observe, Discover, Write Attributes)2nd lsb: W(Write)3rd lsb: E(Execute)4th lsb: D(Delete)5th lsb: C(Create)Other bits are reserved for future use]]></description>
+      <description><![CDATA[The Resource Instance ID MUST be the Short Server ID of a certain LwM2M Server for which associated access rights are contained in the Resource Instance value.The Resource Instance ID 0 is a specific ID, determining the ACL Instance which contains the default access rights.Each bit set in the Resource Instance value, grants an access right to the LwM2M Server to the corresponding operation.The bit order is specified as below.1st LSB: R(Read, Observe, Discover, Write-Attributes)2nd LSB: W(Write)3rd LSB: E(Execute)4th LSB: D(Delete)5th LSB: C(Create)Other bits are reserved for future use.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -75,7 +75,7 @@
    <channel-type id="3">
       <item-type>Number</item-type>
       <label>Access Control Owner</label>
-      <description><![CDATA[Short Server ID of a certain LWM2M Server. Only this LWM2M Server can manage these Resources of the Object Instance.Value MAX_ID=65535 is reserved for the Access Control Object Instances created during Bootstrap procedure.]]></description>
+      <description><![CDATA[Short Server ID of a certain LwM2M Server; only such an LwM2M Server can manage the Resources of this Object Instance. The specific value MAX_ID=65535 means this Access Control Object Instance is created and modified during a Bootstrap phase only.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>

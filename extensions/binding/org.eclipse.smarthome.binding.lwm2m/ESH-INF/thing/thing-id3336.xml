@@ -5,7 +5,7 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3336">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Location</label>
       <description><![CDATA[This IPSO object represents GPS coordinates. This object is compatible with the LWM2M management object for location, but uses reusable resources.]]></description>
@@ -15,8 +15,8 @@
       <!--Optional channel "Timestamp" (5518) will be added dynamically-->
       <!--Optional channel "Application Type" (5750) will be added dynamically-->
       <channel-groups>
-         <channel-group id="5513" typeId="5513"><!--Channel "Latitude" (5513)--></channel-group>
-         <channel-group id="5514" typeId="5514"><!--Channel "Longitude" (5514)--></channel-group>
+         <channel-group id="5514" typeId="5514"><!--Channel "Latitude" (5514)--></channel-group>
+         <channel-group id="5515" typeId="5515"><!--Channel "Longitude" (5515)--></channel-group>
       </channel-groups>
       <properties>
          <property name="ObjectID">3336</property>
@@ -25,16 +25,16 @@
          <property name="Mandatory">Optional</property>
       </properties>
    </thing-type>
-   <channel-group-type id="5513"><!--MultiInstances: Single-->
+   <channel-group-type id="5514"><!--MultiInstances: Single-->
       <label>Latitude</label>
       <channels>
-         <channel id="0" typeId="5513"><!--Channel "Latitude", ID: 5513, InstanceID: 0--></channel>
+         <channel id="0" typeId="5514"><!--Channel "Latitude", ID: 5514, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
-   <channel-group-type id="5514"><!--MultiInstances: Single-->
+   <channel-group-type id="5515"><!--MultiInstances: Single-->
       <label>Longitude</label>
       <channels>
-         <channel id="0" typeId="5514"><!--Channel "Longitude", ID: 5514, InstanceID: 0--></channel>
+         <channel id="0" typeId="5515"><!--Channel "Longitude", ID: 5515, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5516"><!--MultiInstances: Single-->

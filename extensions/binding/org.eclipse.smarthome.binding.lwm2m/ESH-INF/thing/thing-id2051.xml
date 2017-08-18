@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2051">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhDefEcValues</label>
+      <description><![CDATA[This Object represents default set of values for the Event Category parameter of an incoming request or response message.]]></description>
+      <!--Optional channel "RequestContext" (3) will be added dynamically-->
+      <!--Optional channel "RequestContextNotification" (4) will be added dynamically-->
+      <!--Optional channel "RequestCharacteristics" (5) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Order" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "DefEcValue" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "RequestOrigin" (2)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2051</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2051</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Order</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Order", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>Order</label>
+      <description><![CDATA[Contains an index defining the order of processing this CmdhDefEcValue Object Instance will be handled]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>DefEcValue</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "DefEcValue", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>DefEcValue</label>
+      <description><![CDATA[Represents the default Event category value to be applied when the conditions given in this Object Instance are matched]]></description>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Multiple-->
+      <label>RequestOrigin</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "RequestOrigin", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>String</item-type>
+      <label>RequestOrigin</label>
+      <description><![CDATA[List of zero or more Local AE-IDs, App-IDs, or the strings “localAE” or “thisCSE”]]></description>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>RequestContext</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "RequestContext", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>String</item-type>
+      <label>RequestContext</label>
+      <description><![CDATA[Contains the requestContext information of this Object Instance which needs to be matched]]></description>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>RequestContextNotification</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "RequestContextNotification", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Switch</item-type>
+      <label>RequestContextNotification</label>
+      <description><![CDATA[Contains true/false flag indicating whether or not notification procedures apply.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>RequestCharacteristics</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "RequestCharacteristics", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>String</item-type>
+      <label>RequestCharacteristics</label>
+      <description><![CDATA[Represents conditions pertaining to the request itself, (e.g. the requested Response Type ) than needs to be matched]]></description>
+   </channel-type>
+</thing:thing-descriptions>

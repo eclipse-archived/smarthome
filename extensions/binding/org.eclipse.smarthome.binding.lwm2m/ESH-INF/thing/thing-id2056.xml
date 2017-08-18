@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2056">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhBuffer</label>
+      <description><![CDATA[This Object defines limits in usage of buffers for temporarily storing information that needs to be forwarded to other CSEs during processing of CMDH-related requests in a CSE.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "ApplicableEventCategory" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "MaxBufferSize" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "StoragePriority" (2)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2056</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2056</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>ApplicableEventCategory</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "ApplicableEventCategory", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>ApplicableEventCategory</label>
+      <description><![CDATA[Contains a list of event category values]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>MaxBufferSize</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "MaxBufferSize", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>MaxBufferSize</label>
+      <description><![CDATA[Contains the max Buffer size of the CmdhBuffer Object Instance]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>StoragePriority</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "StoragePriority", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>StoragePriority</label>
+      <description><![CDATA[Storage priority for the buffered data associated to that CmdhBuffer Object Instance. t Buffered requests associated with a lower storage priority shall be purged before buffered requests with a higher storage priority.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2049">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>ActiveCmdhPolicy</label>
+      <description><![CDATA[This Object provides a link to the currently active set of CMDH policies]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "ActiveLink" (0)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2049</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2049</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>ActiveLink</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "ActiveLink", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>ActiveLink</label>
+      <description><![CDATA[Contains the reference to the CMDH policies (CmdhPolicy Object Instance) currently active for the associated CSE.]]></description>
+   </channel-type>
+</thing:thing-descriptions>

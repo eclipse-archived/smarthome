@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="10250">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>App Data Container</label>
+      <description><![CDATA[This LWM2M Object is used for reporting application data of a device.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "UL data" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "DL data" (1)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">10250</property>
+         <property name="ObjectURN">urn:oma:lwm2m:x:10250</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>UL data</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "UL data", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>UL data</label>
+      <description><![CDATA[Uplink application data, e.g. gas meter reporting data.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>DL data</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "DL data", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>DL data</label>
+      <description><![CDATA[Downlink application data, e.g. application response message of uplink data.]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

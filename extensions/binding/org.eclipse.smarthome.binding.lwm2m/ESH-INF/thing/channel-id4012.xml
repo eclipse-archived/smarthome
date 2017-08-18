@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <channel-type id="4012" advanced="true">
+      <item-type>Switch</item-type>
+      <label>LogStop</label>
+      <description><![CDATA[Log Event Set Interface 3/5 Actions: a) Stop data collection(DC) b) 1st LSB of LogStatus is set to 1 (stopped) c) DC is kept (default) or emptied according arg'0' value Argument:'0': DC kept(=0)[default]or emptied(=1)]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

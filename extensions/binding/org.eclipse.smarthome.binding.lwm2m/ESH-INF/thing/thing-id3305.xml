@@ -5,24 +5,24 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3305">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Power Measurement</label>
       <description><![CDATA[This IPSO object should be used over a power measurement sensor to report a remote power measurement. It also provides resources for minimum/maximum measured values and the minimum/maximum range for both active and reactive power. Il also provides resources for cumulative energy, calibration, and the power factor.]]></description>
       <!--Optional channel "Min Measured active power" (5801) will be added dynamically-->
       <!--Optional channel "Max Measured  active power" (5802) will be added dynamically-->
-      <!--Optional channel "Min  Range  active power" (5803) will be added dynamically-->
+      <!--Optional channel "Min Range active power" (5803) will be added dynamically-->
       <!--Optional channel "Max Range active power" (5804) will be added dynamically-->
       <!--Optional channel "Cumulative active power" (5805) will be added dynamically-->
       <!--Optional channel "Active Power Calibration" (5806) will be added dynamically-->
       <!--Optional channel "Instantaneous reactive power" (5810) will be added dynamically-->
       <!--Optional channel "Min Measured reactive power" (5811) will be added dynamically-->
-      <!--Optional channel "Max Measured  reactive power" (5812) will be added dynamically-->
-      <!--Optional channel "Min  Range  reactive power" (5813) will be added dynamically-->
+      <!--Optional channel "Max Measured reactive power" (5812) will be added dynamically-->
+      <!--Optional channel "Min Range reactive power" (5813) will be added dynamically-->
       <!--Optional channel "Max Range reactive power" (5814) will be added dynamically-->
       <!--Optional channel "Cumulative reactive power" (5815) will be added dynamically-->
       <!--Optional channel "Reactive Power Calibration" (5816) will be added dynamically-->
-      <!--Optional channel "Power factor" (5820) will be added dynamically-->
+      <!--Optional channel "Power Factor" (5820) will be added dynamically-->
       <!--Optional channel "Current Calibration" (5821) will be added dynamically-->
       <!--Optional channel "Reset Cumulative energy" (5822) will be added dynamically-->
       <!--Optional channel "Reset Min and Max Measured Values" (5605) will be added dynamically-->
@@ -55,9 +55,9 @@
       </channels>
    </channel-group-type>
    <channel-group-type id="5803"><!--MultiInstances: Single-->
-      <label>Min  Range  active power</label>
+      <label>Min Range active power</label>
       <channels>
-         <channel id="0" typeId="5803"><!--Channel "Min  Range  active power", ID: 5803, InstanceID: 0--></channel>
+         <channel id="0" typeId="5803"><!--Channel "Min Range active power", ID: 5803, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5804"><!--MultiInstances: Single-->
@@ -91,15 +91,15 @@
       </channels>
    </channel-group-type>
    <channel-group-type id="5812"><!--MultiInstances: Single-->
-      <label>Max Measured  reactive power</label>
+      <label>Max Measured reactive power</label>
       <channels>
-         <channel id="0" typeId="5812"><!--Channel "Max Measured  reactive power", ID: 5812, InstanceID: 0--></channel>
+         <channel id="0" typeId="5812"><!--Channel "Max Measured reactive power", ID: 5812, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5813"><!--MultiInstances: Single-->
-      <label>Min  Range  reactive power</label>
+      <label>Min Range reactive power</label>
       <channels>
-         <channel id="0" typeId="5813"><!--Channel "Min  Range  reactive power", ID: 5813, InstanceID: 0--></channel>
+         <channel id="0" typeId="5813"><!--Channel "Min Range reactive power", ID: 5813, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5814"><!--MultiInstances: Single-->
@@ -121,9 +121,9 @@
       </channels>
    </channel-group-type>
    <channel-group-type id="5820"><!--MultiInstances: Single-->
-      <label>Power factor</label>
+      <label>Power Factor</label>
       <channels>
-         <channel id="0" typeId="5820"><!--Channel "Power factor", ID: 5820, InstanceID: 0--></channel>
+         <channel id="0" typeId="5820"><!--Channel "Power Factor", ID: 5820, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5821"><!--MultiInstances: Single-->

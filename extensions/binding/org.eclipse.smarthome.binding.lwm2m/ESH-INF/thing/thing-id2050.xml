@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2050">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhDefaults</label>
+      <description><![CDATA[Defines which CMDH related parameters will be used by default.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "DefaultEcRules" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "DefaultEcParamRules" (1)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2050</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2050</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>DefaultEcRules</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "DefaultEcRules", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>DefaultEcRules</label>
+      <description><![CDATA[1 or more references to CmdhDefEcValue Object Instances containing default values for the ec (event category) parameter of an incoming request or response when this parameter is not indicated in the message itself]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Multiple-->
+      <label>DefaultEcParamRules</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "DefaultEcParamRules", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>String</item-type>
+      <label>DefaultEcParamRules</label>
+      <description><![CDATA[1 or more references to CmdhEcDefParamValues Object Instances]]></description>
+   </channel-type>
+</thing:thing-descriptions>

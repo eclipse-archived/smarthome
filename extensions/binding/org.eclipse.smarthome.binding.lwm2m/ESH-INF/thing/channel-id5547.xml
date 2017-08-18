@@ -5,8 +5,8 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <channel-type id="5547">
       <item-type>Number</item-type>
-      <label>Multistate input</label>
-      <description><![CDATA[The current state of a multistate input or selector.]]></description>
+      <label>Multi-state Input</label>
+      <description><![CDATA[The current state of a Multi-state input or selector.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>

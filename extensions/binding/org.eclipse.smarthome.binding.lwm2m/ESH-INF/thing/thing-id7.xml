@@ -5,22 +5,24 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="7">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Connectivity Statistics</label>
-      <description><![CDATA[This LWM2M Objects enables client to collect statistical information and enables the LWM2M Server to retrieve these information, set the collection duration and reset the statistical parameters.]]></description>
+      <description><![CDATA[This LwM2M Objects enables client to collect statistical information and enables the LwM2M Server to retrieve these information, set the collection duration and reset the statistical parameters.]]></description>
       <!--Optional channel "SMS Tx Counter" (0) will be added dynamically-->
       <!--Optional channel "SMS Rx Counter" (1) will be added dynamically-->
       <!--Optional channel "Tx Data" (2) will be added dynamically-->
       <!--Optional channel "Rx Data" (3) will be added dynamically-->
       <!--Optional channel "Max Message Size" (4) will be added dynamically-->
       <!--Optional channel "Average Message Size" (5) will be added dynamically-->
+      <!--Optional channel "Collection Period" (8) will be added dynamically-->
       <channel-groups>
-         <channel-group id="6" typeId="6"><!--Channel "StartOrReset" (6)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "Start" (6)--></channel-group>
+         <channel-group id="7" typeId="7"><!--Channel "Stop" (7)--></channel-group>
       </channel-groups>
       <properties>
          <property name="ObjectID">7</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:7</property>
          <property name="MultipleInstances">Single</property>
          <property name="Mandatory">Optional</property>
       </properties>
@@ -116,17 +118,45 @@
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="6"><!--MultiInstances: Single-->
-      <label>StartOrReset</label>
+      <label>Start</label>
       <channels>
-         <channel id="0" typeId="6"><!--Channel "StartOrReset", ID: 6, InstanceID: 0--></channel>
+         <channel id="0" typeId="6"><!--Channel "Start", ID: 6, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-type id="6">
       <item-type>Switch</item-type>
-      <label>StartOrReset</label>
-      <description><![CDATA[Start to collect information or reset all other Resources to zeros in this Object. For example, the first time this Resource is executed, the client starts to collect information. The second time this Resource is executed, the values of Resource 0~5 are reset to 0.]]></description>
+      <label>Start</label>
+      <description><![CDATA[Reset resources 0-5 to 0 and start to collect information, If resource 8 (Collection Period) value is 0, the client will keep collecting information until resource 7 (Stop) is executed, otherwise the client will stop collecting information after specified period ended.]]></description>
       <tags>
          <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Stop</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Stop", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7">
+      <item-type>Switch</item-type>
+      <label>Stop</label>
+      <description><![CDATA[Stop collecting information, but do not reset resources 0-5.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>Collection Period</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "Collection Period", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Number</item-type>
+      <label>Collection Period</label>
+      <description><![CDATA[The default collection period in seconds. The value 0 indicates that the collection period is not set.]]></description>
+      <tags>
+         <tag>Integer</tag>
       </tags>
    </channel-type>
 </thing:thing-descriptions>

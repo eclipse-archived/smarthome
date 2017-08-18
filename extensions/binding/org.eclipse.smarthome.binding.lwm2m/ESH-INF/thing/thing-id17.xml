@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="17">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Communication Characteristics</label>
+      <description><![CDATA[This object enables configuration of various generic communications parameters.]]></description>
+      <!--Optional channel "Maximum uplink packet size" (0) will be added dynamically-->
+      <!--Optional channel "Maximum downlink packet size" (1) will be added dynamically-->
+      <!--Optional channel "CoAP ACK_TIMEOUT" (2) will be added dynamically-->
+      <!--Optional channel "CoAP ACK_RANDOM_FACTOR" (3) will be added dynamically-->
+      <!--Optional channel "CoAP MAX_RETRANSMIT" (4) will be added dynamically-->
+      <!--Optional channel "CoAP NSTART" (5) will be added dynamically-->
+      <!--Optional channel "CoAP DEFAULT_LEISURE" (6) will be added dynamically-->
+      <!--Optional channel "CoAP PROBING_RATE" (7) will be added dynamically-->
+      <properties>
+         <property name="ObjectID">17</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:17</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Maximum uplink packet size</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Maximum uplink packet size", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>Number</item-type>
+      <label>Maximum uplink packet size</label>
+      <description><![CDATA[Maximum uplink packet size supported by the communications channel.In case of 3GPP NB-IoT this applies to the maximum uplink packet size supported via the Non Access Stratum (NAS). This information can be retrieved via the Protocol Configuration Options as defined in 3GPP TS 24.008.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Maximum downlink packet size</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Maximum downlink packet size", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>Number</item-type>
+      <label>Maximum downlink packet size</label>
+      <description><![CDATA[Maximum downlink packet size supported by the communications channel, and supported by the device buffer.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>CoAP ACK_TIMEOUT</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "CoAP ACK_TIMEOUT", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP ACK_TIMEOUT</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>CoAP ACK_RANDOM_FACTOR</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "CoAP ACK_RANDOM_FACTOR", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP ACK_RANDOM_FACTOR</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>CoAP MAX_RETRANSMIT</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "CoAP MAX_RETRANSMIT", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP MAX_RETRANSMIT</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>CoAP NSTART</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "CoAP NSTART", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP NSTART</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>CoAP DEFAULT_LEISURE</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "CoAP DEFAULT_LEISURE", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP DEFAULT_LEISURE</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>CoAP PROBING_RATE</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "CoAP PROBING_RATE", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Number</item-type>
+      <label>CoAP PROBING_RATE</label>
+      <description><![CDATA[See [RFC 7252 CoAP]]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+</thing:thing-descriptions>

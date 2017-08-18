@@ -3,8 +3,8 @@
 <!--
 
 LWM2M XML Schema - LWM2M Editor Schema
-   version - 1.0
-   date    - 25 May 2016
+   version - 1.0.1
+   date    - 14 Jan 2017
 
 FILE INFORMATION
 
@@ -27,10 +27,11 @@ CHANGE HISTORY
 18022016 Legal Disclaimer updated from template OMA-TEMPLATE-SUP_XSD_example-20160218-I
 24032016 Changed "xs:unsignedshort" to "xs:unsignedShort"
 25052016 Incorporated OMA-DM-LightweightM2M-2016-0066R01-INP_CR_Update_LWM2M_xsd
+14012017 Introduction of two new elements: LWM2MObject and ObjectVersion
 
 LEGAL DISCLAIMER
 
-  Copyright 2016 Open Mobile Alliance Ltd.  All rights reserved.
+  Copyright 2017 Open Mobile Alliance Ltd.  All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -70,11 +71,13 @@ LEGAL DISCLAIMER
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="Object">
           <xs:complexType>
-            <xs:sequence>
+            <xs:all>
               <xs:element name="Name" type="xs:string" />
               <xs:element name="Description1" type="xs:string" />
               <xs:element name="ObjectID" type="xs:unsignedShort" />
               <xs:element name="ObjectURN" type="xs:string" />
+              <xs:element name="LWM2MVersion" type="xs:string" minOccurs="0"/>
+              <xs:element name="ObjectVersion" type="xs:string" minOccurs="0"/>           
               <xs:element name="MultipleInstances" >
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
@@ -150,7 +153,7 @@ LEGAL DISCLAIMER
                 </xs:complexType>
               </xs:element>
               <xs:element name="Description2" type="xs:string" />
-            </xs:sequence>
+            </xs:all>
             <xs:attribute name="ObjectType" type="xs:string" use="required" />
           </xs:complexType>
         </xs:element>

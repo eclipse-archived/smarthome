@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="18">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>Non-Access Stratum (NAS) configuration </label>
+      <description><![CDATA[This object provides Non-Access Stratum (NAS) configuration and is derived from 3GPP TS 24.368.]]></description>
+      <!--Optional channel "NAS_SignallingPriority" (0) will be added dynamically-->
+      <!--Optional channel "AttachWithIMSI" (1) will be added dynamically-->
+      <!--Optional channel "MinimumPeriodicSearchTimer" (2) will be added dynamically-->
+      <!--Optional channel "NMO_I_Behaviour" (3) will be added dynamically-->
+      <!--Optional channel "Timer_T3245_Behaviour" (4) will be added dynamically-->
+      <!--Optional channel "ExtendedAccessBarring" (5) will be added dynamically-->
+      <!--Optional channel "Override_NAS_SignallingLowPriority" (6) will be added dynamically-->
+      <!--Optional channel "Override_ExtendedAccessBarring" (7) will be added dynamically-->
+      <!--Optional channel "FastFirstHigherPriorityPLMNSearch" (8) will be added dynamically-->
+      <!--Optional channel "EUTRADisablingAllowedForEMMCause15" (9) will be added dynamically-->
+      <!--Optional channel "SM_RetryWaitTime" (10) will be added dynamically-->
+      <!--Optional channel "SM_RetryAtRATChange" (11) will be added dynamically-->
+      <!--Optional channel "ExceptionDataReportingAllowed" (12) will be added dynamically-->
+      <properties>
+         <property name="ObjectID">18</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:18</property>
+         <property name="MultipleInstances">Single</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>NAS_SignallingPriority</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "NAS_SignallingPriority", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>Number</item-type>
+      <label>NAS_SignallingPriority</label>
+      <description><![CDATA[Indicates a NAS signalling priority which is used to determine the setting of the low priority indicator to be included in NAS messages as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5].0=reserved1=NAS signalling low priority2-255=reserved]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>AttachWithIMSI</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "AttachWithIMSI", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>Switch</item-type>
+      <label>AttachWithIMSI</label>
+      <description><![CDATA[Indicates whether attach with IMSI is performed when moving to a non-equivalent PLMN as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5].0 Indicates that normal behaviour is applied.1 Indicates that attach with IMSI is performed when moving to a non-equivalent PLMN.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>MinimumPeriodicSearchTimer</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "MinimumPeriodicSearchTimer", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>Number</item-type>
+      <label>MinimumPeriodicSearchTimer</label>
+      <description><![CDATA[Gives a minimum value in minutes for the timer T controlling the periodic search for higher prioritized PLMNs as specified in 3GPP TS 23.122 [3].]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>NMO_I_Behaviour</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "NMO_I_Behaviour", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Switch</item-type>
+      <label>NMO_I_Behaviour</label>
+      <description><![CDATA[Indicates whether the "NMO I, Network Mode of Operation I" indication as specified in 3GPP TS 24.008 [4] is applied by the UE.0 Indicates that the "NMO I, Network Mode of Operation I" indication is not used.1 Indicates that the "NMO I, Network Mode of Operation I" indication is used, if available.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Timer_T3245_Behaviour</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Timer_T3245_Behaviour", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Timer_T3245_Behaviour</label>
+      <description><![CDATA[Indicates whether the timer T3245 and the related functionality as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5] is used by the UE.0 Indicates that the timer T3245 is not used.1 Indicates that the timer T3245 is used.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>ExtendedAccessBarring</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "ExtendedAccessBarring", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>Switch</item-type>
+      <label>ExtendedAccessBarring</label>
+      <description><![CDATA[Indicates whether the extended access barring is applicable for the UE as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5].0 Indicates that the extended access barring is not applied for the UE.1 Indicates that the extended access barring is applied for the UE.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Single-->
+      <label>Override_NAS_SignallingLowPriority</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "Override_NAS_SignallingLowPriority", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Override_NAS_SignallingLowPriority</label>
+      <description><![CDATA[Indicates whether the UE can override the NAS_SignallingPriority leaf node configured to NAS signalling low priority.The setting of the low priority indicator included in NAS messages when this resource exists is specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5].0 Indicates that the UE cannot override the NAS signalling low priority indicator1 Indicates that the UE can override the NAS signalling low priority indicatorThe default value 0 applies if this leaf is not provisioned.If provisioned, this resource is set to the same value as that provisioned for the Override_ExtendedAccessBarring leaf, e.g., if the UE is configured to override the NAS signalling low access priority indicator, then UE is also configured to override extended access class barring (see 3GPP TS 23.401 [5A]).]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>Override_ExtendedAccessBarring</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "Override_ExtendedAccessBarring", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Override_ExtendedAccessBarring</label>
+      <description><![CDATA[Indicates whether the UE can override ExtendedAccessBarring resource configured to extended access barring.The handling of extended access barring for the UE when this resource exists is specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5].0 Indicates that the UE cannot override extended access barring1 Indicates that the UE can override extended access barringThe default value 0 applies if this resource is not provisioned.If provisioned, this resource is set to the same value as that provisioned for the Override_NAS_SignallingLowPriority leaf, e.g., if the UE is configured to override the NAS signalling low access priority indicator, then UE is also configured to override extended access class barring (see 3GPP TS 23.401 [5A]).]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="8"><!--MultiInstances: Single-->
+      <label>FastFirstHigherPriorityPLMNSearch</label>
+      <channels>
+         <channel id="0" typeId="8"><!--Channel "FastFirstHigherPriorityPLMNSearch", ID: 8, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="8" advanced="true">
+      <item-type>Switch</item-type>
+      <label>FastFirstHigherPriorityPLMNSearch</label>
+      <description><![CDATA[Indicates whether the UE performs the first search for a higher priority PLMN after at least 2 minutes and at most T minutes upon entering a VPLMN as specified in 3GPP TS 23.122 [3].0 Indicates that the Fast First Higher Priority PLMN Search is disabled, see 3GPP TS 23.122 [3]1 Indicates that the Fast First Higher Priority PLMN Search is enabled, see 3GPP TS 23.122 [3]The default value 0 applies if this resource is not provisioned.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="9"><!--MultiInstances: Single-->
+      <label>EUTRADisablingAllowedForEMMCause15</label>
+      <channels>
+         <channel id="0" typeId="9"><!--Channel "EUTRADisablingAllowedForEMMCause15", ID: 9, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="9" advanced="true">
+      <item-type>Switch</item-type>
+      <label>EUTRADisablingAllowedForEMMCause15</label>
+      <description><![CDATA[Indicates whether the UE is allowed to disable the E-UTRA capability when it receives the Extended EMM cause IE with value "E-UTRAN not allowed" as described in 3GPP TS 24.301 [5].0 Indicates that "E-UTRA Disabling for EMM cause #15" is disabled, see 3GPP TS 24.301 [5]1 Indicates that "E-UTRA Disabling for EMM cause #15" is enabled, see 3GPP TS 24.301 [5]The default value 0 applies if this resource is not provisioned.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="10"><!--MultiInstances: Single-->
+      <label>SM_RetryWaitTime</label>
+      <channels>
+         <channel id="0" typeId="10"><!--Channel "SM_RetryWaitTime", ID: 10, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="10" advanced="true">
+      <item-type>Number</item-type>
+      <label>SM_RetryWaitTime</label>
+      <description><![CDATA[Indicates a configured UE retry wait time value applicable when in HPLMN or EHPLMN (see 3GPP TS 23.122 [3]) for controlling the UE session management retry behaviour when prior session management request was rejected by the network with cause value #8, #27, #32, #33 as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5]. The default value of 12 minutes applies if this resource is not provisioned.This resource shall be coded in the same format as the value part of GPRS Timer 3 IE as specified in Table 10.5.163a/3GPP TS 24.008 [4] converted into a decimal value.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="11"><!--MultiInstances: Single-->
+      <label>SM_RetryAtRATChange</label>
+      <channels>
+         <channel id="0" typeId="11"><!--Channel "SM_RetryAtRATChange", ID: 11, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="11" advanced="true">
+      <item-type>Switch</item-type>
+      <label>SM_RetryAtRATChange</label>
+      <description><![CDATA[Indicates the UE's retry behaviour when in HPLMN or EHPLMN (see 3GPP TS 23.122 [3]) after inter-system change between S1 mode and A/Gb or Iu mode as specified in 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5]. 0 Indicates that the UE is allowed to retry the corresponding ESM procedure in S1 mode if an SM procedure was rejected in A/Gb or Iu mode, and to retry the corresponding SM procedure in A/Gb or Iu mode if an ESM procedure was rejected in S1 mode, see 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5]1 Indicates that the UE is not allowed to retry an SM procedure or the corresponding ESM procedure in any of the modes: A/Gb, Iu and S1 mode, see 3GPP TS 24.008 [4] and 3GPP TS 24.301 [5]The default value 0 applies if this resource is not provisioned.]]></description>
+      <category>Switch</category>
+   </channel-type>
+   <channel-group-type id="12"><!--MultiInstances: Single-->
+      <label>ExceptionDataReportingAllowed</label>
+      <channels>
+         <channel id="0" typeId="12"><!--Channel "ExceptionDataReportingAllowed", ID: 12, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="12" advanced="true">
+      <item-type>Switch</item-type>
+      <label>ExceptionDataReportingAllowed</label>
+      <description><![CDATA[For the UE in NB-S1 mode, this resource indicates whether the UE is allowed to use the RRC establishment cause mo-ExceptionData, as specified in 3GPP TS 24.301 [5].0 Indicates that the UE is not allowed to use the RRC establishment cause mo-ExceptionData.1 Indicates that the UE is allowed to use the RRC establishment cause mo-ExceptionData.If this resource is not provisioned, the value of 0 is used.]]></description>
+      <category>Switch</category>
+   </channel-type>
+</thing:thing-descriptions>

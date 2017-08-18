@@ -5,8 +5,8 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <channel-type id="5514">
       <item-type>String</item-type>
-      <label>Longitude</label>
-      <description><![CDATA[The decimal notation of longitude, e.g. 153.21760 (World Geodetic System 1984).]]></description>
+      <label>Latitude</label>
+      <description><![CDATA[The decimal notation of latitude, e.g. -43.5723 (World Geodetic System 1984).]]></description>
       <state readOnly="true"/>
    </channel-type>
 </thing:thing-descriptions>

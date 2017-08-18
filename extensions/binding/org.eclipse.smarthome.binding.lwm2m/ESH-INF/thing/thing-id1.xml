@@ -5,10 +5,10 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="1" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
-      <label>LWM2M Server</label>
-      <description><![CDATA[This LWM2M Objects provides the data related to a LWM2M Server. A Bootstrap Server has no such an Object Instance associated to it.]]></description>
+      <label>LwM2M Server</label>
+      <description><![CDATA[This LwM2M Objects provides the data related to a LwM2M Server. A Bootstrap-Server has no such an Object Instance associated to it.]]></description>
       <!--Optional channel "Default Minimum Period" (2) will be added dynamically-->
       <!--Optional channel "Default Maximum Period" (3) will be added dynamically-->
       <!--Optional channel "Disable" (4) will be added dynamically-->
@@ -22,7 +22,7 @@
       </channel-groups>
       <properties>
          <property name="ObjectID">1</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:1</property>
          <property name="MultipleInstances">Multiple</property>
          <property name="Mandatory">Mandatory</property>
       </properties>
@@ -51,7 +51,7 @@
    <channel-type id="1">
       <item-type>Number</item-type>
       <label>Lifetime</label>
-      <description><![CDATA[Specify the lifetime of the registration in seconds.]]></description>
+      <description><![CDATA[Specify the lifetime of the registration in seconds (see Section 5.3 Registration).]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -65,7 +65,7 @@
    <channel-type id="2" advanced="true">
       <item-type>Number</item-type>
       <label>Default Minimum Period</label>
-      <description><![CDATA[The default value the LWM2M Client should use for the Minimum Period of an Observation in the absence of this parameter being included in an Observation.If this Resource doesn’t exist, the default value is 1.]]></description>
+      <description><![CDATA[The default value the LwM2M Client should use for the Minimum Period of an Observation in the absence of this parameter being included in an Observation.If this Resource doesn’t exist, the default value is 0.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -79,7 +79,7 @@
    <channel-type id="3" advanced="true">
       <item-type>Number</item-type>
       <label>Default Maximum Period</label>
-      <description><![CDATA[The default value the LWM2M Client should use for the Maximum Period of an Observation in the absence of this parameter being included in an Observation.]]></description>
+      <description><![CDATA[The default value the LwM2M Client should use for the Maximum Period of an Observation in the absence of this parameter being included in an Observation.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -93,7 +93,7 @@
    <channel-type id="4" advanced="true">
       <item-type>Switch</item-type>
       <label>Disable</label>
-      <description><![CDATA[If this Resource is executed, this LWM2M Server Object is disabled for a certain period defined in the Disabled Timeout Resource. After receiving “Execute” operation, LWM2M Client MUST send response of the operation and perform de-registration process, and underlying network connection between the Client and Server MUST be disconnected to disable the LWM2M Server account.After the above process, the LWM2M Client MUST NOT send any message to the Server and ignore all the messages from the LWM2M Server for the period.]]></description>
+      <description><![CDATA[If this Resource is executed, this LwM2M Server Object is disabled for a certain period defined in the Disabled Timeout Resource. After receiving “Execute” operation, LwM2M Client MUST send response of the operation and perform de-registration process, and underlying network connection between the Client and Server MUST be disconnected to disable the LwM2M Server account.After the above process, the LwM2M Client MUST NOT send any message to the Server and ignore all the messages from the LwM2M Server for the period.]]></description>
       <tags>
          <tag>Executable</tag>
       </tags>
@@ -107,7 +107,7 @@
    <channel-type id="5" advanced="true">
       <item-type>Number</item-type>
       <label>Disable Timeout</label>
-      <description><![CDATA[A period to disable the Server. After this period, the LWM2M Client MUST perform registration process to the Server. If this Resource is not set, a default timeout value is 86400 (1 day).]]></description>
+      <description><![CDATA[A period to disable the Server. After this period, the LwM2M Client MUST perform registration process to the Server. If this Resource is not set, a default timeout value is 86400 (1 day).]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -121,7 +121,7 @@
    <channel-type id="6">
       <item-type>Switch</item-type>
       <label>Notification Storing When Disabled or Offline</label>
-      <description><![CDATA[If true, the LWM2M Client stores “Notify” operations to the LWM2M Server while the LWM2M Server account is disabled or the LWM2M Client is offline. After the LWM2M Server account is enabled or the LWM2M Client is online, the LWM2M Client reports the stored “Notify” operations to the Server.If false, the LWM2M Client discards all the “Notify” operationsor temporally disables the Observe function while the LWM2M Server is disabled or the LWM2M Client is offline.The default value is true.The maximum number of storing Notification per the Server is up to the implementation.]]></description>
+      <description><![CDATA[If true, the LwM2M Client stores “Notify” operations to the LwM2M Server while the LwM2M Server account is disabled or the LwM2M Client is offline. After the LwM2M Server account is enabled or the LwM2M Client is online, the LwM2M Client reports the stored “Notify” operations to the Server.If false, the LwM2M Client discards all the “Notify” operations or temporarily disables the Observe function while the LwM2M Server is disabled or the LwM2M Client is offline.The default value is true.The maximum number of storing Notifications per Server is up to the implementation.]]></description>
       <category>Switch</category>
    </channel-type>
    <channel-group-type id="7"><!--MultiInstances: Single-->
@@ -133,7 +133,7 @@
    <channel-type id="7">
       <item-type>String</item-type>
       <label>Binding</label>
-      <description><![CDATA[This Resource defines the transport binding configured for the LWM2M Client.If the LWM2M Client supports the binding specified in this Resource, the LWM2M Client MUST use that for Current Binding and Mode.]]></description>
+      <description><![CDATA[This Resource defines the transport binding configured for the LwM2M Client.If the LwM2M Client supports the binding specified in this Resource, the LwM2M Client MUST use that transport for the Current Binding Mode.]]></description>
    </channel-type>
    <channel-group-type id="8"><!--MultiInstances: Single-->
       <label>Registration Update Trigger</label>
@@ -144,7 +144,7 @@
    <channel-type id="8">
       <item-type>Switch</item-type>
       <label>Registration Update Trigger</label>
-      <description><![CDATA[If this Resource is executed the LWM2M Client MUST perform an “Update” operation with this LWM2M Server using the Current Transport Binding and Mode.]]></description>
+      <description><![CDATA[If this Resource is executed the LwM2M Client MUST perform an “Update” operation with this LwM2M Server using that transport for the Current Binding Mode.]]></description>
       <tags>
          <tag>Executable</tag>
       </tags>

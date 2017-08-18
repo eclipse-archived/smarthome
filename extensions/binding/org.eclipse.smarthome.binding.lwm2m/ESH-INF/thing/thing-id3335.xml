@@ -5,11 +5,11 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3335">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Colour</label>
       <description><![CDATA[This IPSO object should be used to report the measured value of a colour sensor in some colour space described by the units resource.]]></description>
-      <!--Optional channel "Units" (5701) will be added dynamically-->
+      <!--Optional channel "Sensor Units" (5701) will be added dynamically-->
       <!--Optional channel "Application Type" (5750) will be added dynamically-->
       <channel-groups>
          <channel-group id="5706" typeId="5706"><!--Channel "Colour" (5706)--></channel-group>
@@ -28,9 +28,9 @@
       </channels>
    </channel-group-type>
    <channel-group-type id="5701"><!--MultiInstances: Single-->
-      <label>Units</label>
+      <label>Sensor Units</label>
       <channels>
-         <channel id="0" typeId="5701"><!--Channel "Units", ID: 5701, InstanceID: 0--></channel>
+         <channel id="0" typeId="5701"><!--Channel "Sensor Units", ID: 5701, InstanceID: 0--></channel>
       </channels>
    </channel-group-type>
    <channel-group-type id="5750"><!--MultiInstances: Single-->

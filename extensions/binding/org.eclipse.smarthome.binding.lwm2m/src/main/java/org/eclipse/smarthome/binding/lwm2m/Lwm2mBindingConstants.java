@@ -18,12 +18,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  */
 public class Lwm2mBindingConstants {
 
-    private static final String BINDING_ID = "lwm2m";
+    public static final String BINDING_ID = "lwm2m";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
-
-    // List of all Channel ids
-    public static final String CHANNEL_1 = "channel1";
-
+    public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "client");
 }

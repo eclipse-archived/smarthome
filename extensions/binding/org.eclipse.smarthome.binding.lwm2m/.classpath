@@ -2,12 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="lib/leshan-core-0.1.11-M11.jar" sourcepath="lib/leshan-master.zip"/>
-	<classpathentry kind="lib" path="lib/leshan-server-core-0.1.11-M11.jar" sourcepath="lib/leshan-master.zip"/>
-	<classpathentry kind="lib" path="lib/leshan-server-cf-0.1.11-M11.jar" sourcepath="lib/leshan-master.zip"/>
-	<classpathentry kind="lib" path="lib/californium-core-2.0.0-M1.jar" sourcepath="lib/californium-master.zip"/>
-	<classpathentry kind="lib" path="lib/element-connector-2.0.0-M1.jar"/>
-	<classpathentry kind="lib" path="lib/scandium-2.0.0-M1.jar"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="14">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>LWM2M Software Component</label>
+      <description><![CDATA[If some Objects are not supported after software update, the LwM2M Client MUST delete all the Object Instances of the Objects that are not supported.]]></description>
+      <!--Optional channel "Component Identity" (0) will be added dynamically-->
+      <!--Optional channel "Component Pack" (1) will be added dynamically-->
+      <!--Optional channel "Component Version" (2) will be added dynamically-->
+      <!--Optional channel "Activate" (3) will be added dynamically-->
+      <!--Optional channel "Deactivate" (4) will be added dynamically-->
+      <!--Optional channel "Activation State" (5) will be added dynamically-->
+      <properties>
+         <property name="ObjectID">14</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:14</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Component Identity</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Component Identity", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0" advanced="true">
+      <item-type>String</item-type>
+      <label>Component Identity</label>
+      <description><![CDATA[Name or identifier of the software component]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Component Pack</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Component Pack", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>String</item-type>
+      <label>Component Pack</label>
+      <description><![CDATA[Software components is stored in this resource]]></description>
+      <tags>
+         <tag>Opaque</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Component Version</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Component Version", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Component Version</label>
+      <description><![CDATA[Version of the software component.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Activate</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Activate", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Activate</label>
+      <description><![CDATA[This action activates the software previously successfully installed (the SW Update Package Installation State Machine is currently in the INSTALLED state).]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Deactivate</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Deactivate", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4" advanced="true">
+      <item-type>Switch</item-type>
+      <label>Deactivate</label>
+      <description><![CDATA[This action deactivates software if the SW Update Package Installation State Machine is currently in the INSTALLED state.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>Activation State</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "Activation State", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5" advanced="true">
+      <item-type>Contact</item-type>
+      <label>Activation State</label>
+      <description><![CDATA[Indicates the current activation state of this software component:0: DISABLEDActivation State is DISABLED if the Software Component Activation State Machine is in the INACTIVE state or not alive.1: ENABLEDActivation State is ENABLED only if the Software Component Activation State Machine is in the ACTIVE state.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+</thing:thing-descriptions>

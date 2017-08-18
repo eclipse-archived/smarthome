@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2054">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhNetworkAccessRules</label>
+      <description><![CDATA[This Object defines the usage of underlying networks for forwarding information to other CSEs during processing of CMDH-related requests in a CSE.]]></description>
+      <!--Optional channel "NetworkAccessRule" (1) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "ApplicableEventCategories" (0)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2054</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2054</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>ApplicableEventCategories</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "ApplicableEventCategories", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>Number</item-type>
+      <label>ApplicableEventCategories</label>
+      <description><![CDATA[Contains a list of Event Category values]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Multiple-->
+      <label>NetworkAccessRule</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "NetworkAccessRule", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1" advanced="true">
+      <item-type>String</item-type>
+      <label>NetworkAccessRule</label>
+      <description><![CDATA[Contains 0 or more references to CmdhNwAccessRule Object Instances]]></description>
+   </channel-type>
+</thing:thing-descriptions>

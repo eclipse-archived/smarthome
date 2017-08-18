@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="2055">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>CmdhNwAccessRule</label>
+      <description><![CDATA[This Object defines limits in usage of specific underlying networks for forwarding information to other CSEs during processing of CMDH-related requests in a CSE.]]></description>
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "TargetNetwork" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "SpreadingWaitTime" (1)--></channel-group>
+         <channel-group id="2" typeId="2"><!--Channel "MinReqVolume" (2)--></channel-group>
+         <channel-group id="3" typeId="3"><!--Channel "BackOffParameters" (3)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "OtherConditions" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "AllowedSchedule" (5)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">2055</property>
+         <property name="ObjectURN">urn:oma:lwm2m:ext:2055</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Multiple-->
+      <label>TargetNetwork</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "TargetNetwork", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>TargetNetwork</label>
+      <description><![CDATA[Contains identifiers of Underlying networks]]></description>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>SpreadingWaitTime</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "SpreadingWaitTime", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>SpreadingWaitTime</label>
+      <description><![CDATA[Contains a value in ms such that before accessing the underlying network (typically to forward an incoming request), the CSE will wait for an additional amount of time randomly chosen between 0 and this value]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>MinReqVolume</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "MinReqVolume", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2">
+      <item-type>Number</item-type>
+      <label>MinReqVolume</label>
+      <description><![CDATA[Minimum amount of data that needs to be aggregated before any of the Underlying Networks matching with the targetNetwork Resource of the current Instance of the CmdhNwAccessRule Object can be used for forwarding information to other CSEs.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>BackOffParameters</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "BackOffParameters", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3">
+      <item-type>String</item-type>
+      <label>BackOffParameters</label>
+      <description><![CDATA[Reference to an Instance of BackOffParameterSet Object defining parameters that define how usage of any of the Underlying Networks matching with the targetNetwork Resource of that Object Instance, shall be handled when attempts to use such networks have failed.]]></description>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>OtherConditions</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "OtherConditions", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>String</item-type>
+      <label>OtherConditions</label>
+      <description><![CDATA[List of additional conditions that need to be fulfilled before any of the Underlying Networks matching with the TargetNetwork Resource of this CmdhNwAccessRule Object Instance can be used for forwarding information to other CSEs.]]></description>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Multiple-->
+      <label>AllowedSchedule</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "AllowedSchedule", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>String</item-type>
+      <label>AllowedSchedule</label>
+      <description><![CDATA[Contains time schedules in form of extended crontab syntax defined in oneM2M Protocol TS-0004]]></description>
+   </channel-type>
+</thing:thing-descriptions>

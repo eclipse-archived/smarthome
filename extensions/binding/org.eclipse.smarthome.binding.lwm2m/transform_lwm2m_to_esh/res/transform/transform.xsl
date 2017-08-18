@@ -37,7 +37,7 @@
 
 			
 			<supported-bridge-type-refs>
-			  <bridge-type-ref id="lwm2mBridgeThing" />
+			  <bridge-type-ref id="client" />
 			</supported-bridge-type-refs>
 			
 			<label><xsl:value-of select="self::node()/Name" /></label>
@@ -177,6 +177,9 @@
 				<xsl:when test="self::node()/Type='Opaque'">
 					<xsl:text>String</xsl:text>
 				</xsl:when>
+                <xsl:when test="self::node()/Type='Objlnk'">
+                    <xsl:text>String</xsl:text>
+                </xsl:when>
 				<xsl:when test="self::node()/Type='String'">
 					<xsl:choose>
 						 <xsl:when test="$itemid='5706'">
@@ -191,7 +194,7 @@
 					<xsl:text>DateTime</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:message terminate="yes">Type not known</xsl:message>
+					<xsl:message terminate="yes">Type not known: <xsl:apply-templates select="." mode="message"/></xsl:message>
 				</xsl:otherwise>
 			</xsl:choose>
          </xsl:otherwise>

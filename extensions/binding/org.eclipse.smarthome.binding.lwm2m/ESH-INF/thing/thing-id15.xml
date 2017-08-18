@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          bindingId="lwm2mleshan"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <thing-type id="15">
+      <supported-bridge-type-refs>
+         <bridge-type-ref id="client"/>
+      </supported-bridge-type-refs>
+      <label>DevCapMgmt</label>
+      <description><![CDATA[This LWM2M Object is dedicated to manage the device capabilities of a device e.g. sensors, communication, etc.]]></description>
+      <!--Optional channel "Description" (2) will be added dynamically-->
+      <!--Optional channel "Attached" (3) will be added dynamically-->
+      <!--Optional channel "NotifyEn" (7) will be added dynamically-->
+      <channel-groups>
+         <channel-group id="0" typeId="0"><!--Channel "Property" (0)--></channel-group>
+         <channel-group id="1" typeId="1"><!--Channel "Group" (1)--></channel-group>
+         <channel-group id="4" typeId="4"><!--Channel "Enabled" (4)--></channel-group>
+         <channel-group id="5" typeId="5"><!--Channel "opEnable" (5)--></channel-group>
+         <channel-group id="6" typeId="6"><!--Channel "opDisable" (6)--></channel-group>
+      </channel-groups>
+      <properties>
+         <property name="ObjectID">15</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:15</property>
+         <property name="MultipleInstances">Multiple</property>
+         <property name="Mandatory">Optional</property>
+      </properties>
+   </thing-type>
+   <channel-group-type id="0"><!--MultiInstances: Single-->
+      <label>Property</label>
+      <channels>
+         <channel id="0" typeId="0"><!--Channel "Property", ID: 0, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="0">
+      <item-type>String</item-type>
+      <label>Property</label>
+      <description><![CDATA[List of Device Capabilities inside a given Group.The format is a free list ASCII-represented integers separated by a semi colon. (e.g. 0;1;10)The list of capabilities per Group is given in Appendix B: Device Capabilities Vocabularyexecutable Resource can work with.]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="1"><!--MultiInstances: Single-->
+      <label>Group</label>
+      <channels>
+         <channel id="0" typeId="1"><!--Channel "Group", ID: 1, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="1">
+      <item-type>Number</item-type>
+      <label>Group</label>
+      <description><![CDATA[Group name of Device Capabilities0: SENSOR: luminosity, presence,temp,humidity1: CONTROL: Light, Power, Sound2: CONNECTIVITY: Bluetooth, wifi, …3: NAVIGATION: gps, galieo4: STORAGE: external memory,5: VISION: cam, video-cam, night_cam.6: SOUND: speaker, buzzer7: ANALOG_INPUT: generic input8: ANALOG_OUTPUT: generic output9-15: reserved]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="2"><!--MultiInstances: Single-->
+      <label>Description</label>
+      <channels>
+         <channel id="0" typeId="2"><!--Channel "Description", ID: 2, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="2" advanced="true">
+      <item-type>String</item-type>
+      <label>Description</label>
+      <description><![CDATA[Device Capability Description(manufacturer specified string)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="3"><!--MultiInstances: Single-->
+      <label>Attached</label>
+      <channels>
+         <channel id="0" typeId="3"><!--Channel "Attached", ID: 3, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="3" advanced="true">
+      <item-type>Contact</item-type>
+      <label>Attached</label>
+      <description><![CDATA[When the resource doesn’t exist, it means the associated Device Capability is not removable.When this resource is “False”, it means the associated Device Capability is removable and is currently not attached to the device.When this resource is “True”, it means the associated Device Capability – if removable – is currently attached to the Device.When a Device Capability is not removable, and the “Attached” Resource is present, the “Attached” value but be set to “True”.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="4"><!--MultiInstances: Single-->
+      <label>Enabled</label>
+      <channels>
+         <channel id="0" typeId="4"><!--Channel "Enabled", ID: 4, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="4">
+      <item-type>Contact</item-type>
+      <label>Enabled</label>
+      <description><![CDATA[This resource indicates whether the Device Capability is enabled regardless whether the Device Capability is attached or not. If the value of this resource is “True” the Device Capability is in Enabled State. If the value is “False” the Device Capability is in Disabled State;The ‘Attached’ and ‘Enabled’ resources are independent. A Device Capability MAY have ‘True’ as value for ‘Enabled’ Resource while having ‘False’ as value for the ‘Attached’ Resource. That means the Device Capability is still not available and can’t be used until it is attached to the Device, but will be useable once the Device Capability is attached.]]></description>
+      <category>Sensor</category>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="5"><!--MultiInstances: Single-->
+      <label>opEnable</label>
+      <channels>
+         <channel id="0" typeId="5"><!--Channel "opEnable", ID: 5, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="5">
+      <item-type>Switch</item-type>
+      <label>opEnable</label>
+      <description><![CDATA[This command is used to enable the Device Capability to transfer the Device Capability from Disabled State to Enabled state.In Enabled State, the Device Capability is allowed to work when it is attached to the Device.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="6"><!--MultiInstances: Multiple-->
+      <label>opDisable</label>
+      <channels>
+         <channel id="0" typeId="6"><!--Channel "opDisable", ID: 6, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="6">
+      <item-type>Switch</item-type>
+      <label>opDisable</label>
+      <description><![CDATA[This command is used to disable the Device Capability to transfer the Device Capability from Enabled State to Disabled State.In Disabled state the Device Capability is not allowed to work.]]></description>
+      <tags>
+         <tag>Executable</tag>
+      </tags>
+   </channel-type>
+   <channel-group-type id="7"><!--MultiInstances: Single-->
+      <label>NotifyEn</label>
+      <channels>
+         <channel id="0" typeId="7"><!--Channel "NotifyEn", ID: 7, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="7" advanced="true">
+      <item-type>Switch</item-type>
+      <label>NotifyEn</label>
+      <description><![CDATA[When the Resources “Enabled” or “Attached” are under “Observation”, this resource specifies whether the LWM2M Server MUST be notified when the value of the Resource on “Observation” changed. If the Resource “NotifyEn” is not present or the value is ‘False’, the LWM2M Server will be not notified about this change. If the “NotifyEn” Resource is present and the value is ‘True’, the LWM2M Server will be notified.]]></description>
+      <category>Switch</category>
+   </channel-type>
+</thing:thing-descriptions>

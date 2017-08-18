@@ -5,10 +5,10 @@
                           xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <thing-type id="3" listed="false">
       <supported-bridge-type-refs>
-         <bridge-type-ref id="lwm2mBridgeThing"/>
+         <bridge-type-ref id="client"/>
       </supported-bridge-type-refs>
       <label>Device</label>
-      <description><![CDATA[This LWM2M Object provides a range of device related information which can be queried by the LWM2M Server, and a device reboot and factory reset function.]]></description>
+      <description><![CDATA[This LwM2M Object provides a range of device related information which can be queried by the LwM2M Server, and a device reboot and factory reset function.]]></description>
       <!--Optional channel "Manufacturer" (0) will be added dynamically-->
       <!--Optional channel "Model Number" (1) will be added dynamically-->
       <!--Optional channel "Serial Number" (2) will be added dynamically-->
@@ -23,6 +23,12 @@
       <!--Optional channel "Current Time" (13) will be added dynamically-->
       <!--Optional channel "UTC Offset" (14) will be added dynamically-->
       <!--Optional channel "Timezone" (15) will be added dynamically-->
+      <!--Optional channel "Device Type" (17) will be added dynamically-->
+      <!--Optional channel "Hardware Version" (18) will be added dynamically-->
+      <!--Optional channel "Software Version" (19) will be added dynamically-->
+      <!--Optional channel "Battery Status" (20) will be added dynamically-->
+      <!--Optional channel "Memory Total" (21) will be added dynamically-->
+      <!--Optional channel "ExtDevInfo" (22) will be added dynamically-->
       <channel-groups>
          <channel-group id="4" typeId="4"><!--Channel "Reboot" (4)--></channel-group>
          <channel-group id="11" typeId="11"><!--Channel "Error Code" (11)--></channel-group>
@@ -30,7 +36,7 @@
       </channel-groups>
       <properties>
          <property name="ObjectID">3</property>
-         <property name="ObjectURN">TBD</property>
+         <property name="ObjectURN">urn:oma:lwm2m:oma:3</property>
          <property name="MultipleInstances">Single</property>
          <property name="Mandatory">Mandatory</property>
       </properties>
@@ -80,7 +86,7 @@
    <channel-type id="3" advanced="true">
       <item-type>String</item-type>
       <label>Firmware Version</label>
-      <description><![CDATA[Current firmware version]]></description>
+      <description><![CDATA[Current firmware version of the Device.The Firmware Management function could rely on this resource.]]></description>
       <state readOnly="true"/>
    </channel-type>
    <channel-group-type id="4"><!--MultiInstances: Single-->
@@ -92,7 +98,7 @@
    <channel-type id="4">
       <item-type>Switch</item-type>
       <label>Reboot</label>
-      <description><![CDATA[Reboot the LWM2M Device to restore the Device from unexpected firmware failure.]]></description>
+      <description><![CDATA[Reboot the LwM2M Device to restore the Device from unexpected firmware failure.]]></description>
       <tags>
          <tag>Executable</tag>
       </tags>
@@ -106,7 +112,7 @@
    <channel-type id="5" advanced="true">
       <item-type>Switch</item-type>
       <label>Factory Reset</label>
-      <description><![CDATA[Perform factory reset of the LWM2M Device to make the LWM2M Device have the same configuration as at the initial deployment.When this Resource is executed, “De-register” operation MAY be sent to the LWM2M Server(s) before factory reset of the LWM2M Device.]]></description>
+      <description><![CDATA[Perform factory reset of the LwM2M Device to make the LwM2M Device to go through initial deployment sequence where provisioning and bootstrap sequence is performed. This requires client ensuring post factory reset to have minimal information to allow it to carry out one of the bootstrap methods specified in section 5.2.3. When this Resource is executed, “De-register” operation MAY be sent to the LwM2M Server(s) before factory reset of the LwM2M Device.]]></description>
       <tags>
          <tag>Executable</tag>
       </tags>
@@ -120,7 +126,7 @@
    <channel-type id="6" advanced="true">
       <item-type>Number</item-type>
       <label>Available Power Sources</label>
-      <description><![CDATA[0 – DC power1 – Internal Battery2 – External Battery4 – Power over Ethernet5 – USB6 – AC (Mains) power7 – Solar]]></description>
+      <description><![CDATA[0 – DC power1 – Internal Battery2 – External Battery4 – Power over Ethernet5 – USB6 – AC (Mains) power7 – SolarThe same Resource Instance ID MUST be used to associate a given Power Source (Resource ID:6) with its Present Voltage (Resource ID:7) and its Present Current (Resource ID:8)]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -135,7 +141,7 @@
    <channel-type id="7" advanced="true">
       <item-type>Number</item-type>
       <label>Power Source Voltage</label>
-      <description><![CDATA[Present voltage for each Available Power Sources Resource Instance.Each Resource Instance ID MUST map to the value of Available Power Sources Resource.]]></description>
+      <description><![CDATA[Present voltage for each Available Power Sources Resource Instance.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -150,7 +156,7 @@
    <channel-type id="8" advanced="true">
       <item-type>Number</item-type>
       <label>Power Source Current</label>
-      <description><![CDATA[Present current for each Available Power Source]]></description>
+      <description><![CDATA[Present current for each Available Power Source.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -165,7 +171,7 @@
    <channel-type id="9" advanced="true">
       <item-type>Number</item-type>
       <label>Battery Level</label>
-      <description><![CDATA[Contains the current battery level as a percentage (with a range from 0 to 100). This value is only valid when the value of Available Power Sources Resource is 1.]]></description>
+      <description><![CDATA[Contains the current battery level as a percentage (with a range from 0 to 100). This value is only valid for the Device internal Battery if present (one Available Power Sources Resource Instance is 1).]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -180,7 +186,7 @@
    <channel-type id="10" advanced="true">
       <item-type>Number</item-type>
       <label>Memory Free</label>
-      <description><![CDATA[Estimated current available amount of storage space which can store data and software in the LWM2M Device (expressed in kilobytes).]]></description>
+      <description><![CDATA[Estimated current available amount of storage space which can store data and software in the LwM2M Device (expressed in kilobytes).]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -195,7 +201,7 @@
    <channel-type id="11">
       <item-type>Number</item-type>
       <label>Error Code</label>
-      <description><![CDATA[0=No error1=Low battery power2=External power supply off3=GPS module failure4=Low received signal strength5=Out of memory6=SMS failure7=IP connectivity failure8=Peripheral malfunctionWhen the single Device Object Instance is initiated, there is only one error code Resource Instance whose value is equal to 0 that means no error. When the first error happens, the LWM2M Client changes error code Resource Instance to any non-zero value to indicate the error type. When any other error happens, a new error code Resource Instance is created.This error code Resource MAY be observed by the LWM2M Server. How to deal with LWM2M Client’s error report depends on the policy of the LWM2M Server.]]></description>
+      <description><![CDATA[0=No error1=Low battery power2=External power supply off3=GPS module failure4=Low received signal strength5=Out of memory6=SMS failure7=IP connectivity failure8=Peripheral malfunctionWhen the single Device Object Instance is initiated, there is only one error code Resource Instance whose value is equal to 0 that means no error. When the first error happens, the LwM2M Client changes error code Resource Instance to any non-zero value to indicate the error type. When any other error happens, a new error code Resource Instance is created.This error code Resource MAY be observed by the LwM2M Server. How to deal with LwM2M Client’s error report depends on the policy of the LwM2M Server.]]></description>
       <tags>
          <tag>Integer</tag>
       </tags>
@@ -224,7 +230,7 @@
    <channel-type id="13" advanced="true">
       <item-type>DateTime</item-type>
       <label>Current Time</label>
-      <description><![CDATA[Current UNIX time of the LWM2M Client.The LWM2M Client should be responsible to increase this time value as every second elapses.The LWM2M Server is able to write this Resource to make the LWM2M Client synchronized with the LWM2M Server.]]></description>
+      <description><![CDATA[Current UNIX time of the LwM2M Client.The LwM2M Client should be responsible to increase this time value as every second elapses.The LwM2M Server is able to write this Resource to make the LwM2M Client synchronized with the LwM2M Server.]]></description>
    </channel-type>
    <channel-group-type id="14"><!--MultiInstances: Single-->
       <label>UTC Offset</label>
@@ -235,7 +241,7 @@
    <channel-type id="14" advanced="true">
       <item-type>String</item-type>
       <label>UTC Offset</label>
-      <description><![CDATA[Indicates the UTC offset currently in effect for this LWM2M Device. UTC+X [ISO 8601].]]></description>
+      <description><![CDATA[Indicates the UTC offset currently in effect for this LwM2M Device. UTC+X [ISO 8601].]]></description>
    </channel-type>
    <channel-group-type id="15"><!--MultiInstances: Single-->
       <label>Timezone</label>
@@ -246,7 +252,7 @@
    <channel-type id="15" advanced="true">
       <item-type>String</item-type>
       <label>Timezone</label>
-      <description><![CDATA[Indicates in which time zone the LWM2M Device is located, in IANA Timezone (TZ) database format.]]></description>
+      <description><![CDATA[Indicates in which time zone the LwM2M Device is located, in IANA Timezone (TZ) database format.]]></description>
    </channel-type>
    <channel-group-type id="16"><!--MultiInstances: Single-->
       <label>Supported Binding and Modes</label>
@@ -257,7 +263,85 @@
    <channel-type id="16">
       <item-type>String</item-type>
       <label>Supported Binding and Modes</label>
-      <description><![CDATA[Indicates which bindings and modes are supported in the LWM2M Client. The possible values of Resource are combination of "U" or "UQ" and "S" or "SQ".]]></description>
+      <description><![CDATA[Indicates which bindings and modes are supported in the LwM2M Client. The possible values of Resource are combination of "U" or "UQ" and "S" or "SQ".]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="17"><!--MultiInstances: Single-->
+      <label>Device Type</label>
+      <channels>
+         <channel id="0" typeId="17"><!--Channel "Device Type", ID: 17, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="17" advanced="true">
+      <item-type>String</item-type>
+      <label>Device Type</label>
+      <description><![CDATA[Type of the device (manufacturer specified string: e.g., smart meters / dev Class…)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="18"><!--MultiInstances: Single-->
+      <label>Hardware Version</label>
+      <channels>
+         <channel id="0" typeId="18"><!--Channel "Hardware Version", ID: 18, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="18" advanced="true">
+      <item-type>String</item-type>
+      <label>Hardware Version</label>
+      <description><![CDATA[Current hardware version of the device]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="19"><!--MultiInstances: Single-->
+      <label>Software Version</label>
+      <channels>
+         <channel id="0" typeId="19"><!--Channel "Software Version", ID: 19, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="19" advanced="true">
+      <item-type>String</item-type>
+      <label>Software Version</label>
+      <description><![CDATA[Current software version of the device (manufacturer specified string). On elaborated LwM2M device, SW could be split in 2 parts: a firmware one and a higher level software on top.Both pieces of Software are together managed by LwM2M Firmware Update Object (Object ID 5)]]></description>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="20"><!--MultiInstances: Single-->
+      <label>Battery Status</label>
+      <channels>
+         <channel id="0" typeId="20"><!--Channel "Battery Status", ID: 20, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="20" advanced="true">
+      <item-type>Number</item-type>
+      <label>Battery Status</label>
+      <description><![CDATA[This value is only valid for the Device Internal Battery if present (one Available Power Sources Resource Instance value is 1).BatteryStatus Meaning Description0 Normal The battery is operating normally and not on power.1 Charging The battery is currently charging.2 Charge Complete The battery is fully charged and still on power.3 Damaged The battery has some problem.4 Low Battery The battery is low on charge.5 Not Installed The battery is not installed.6 Unknown The battery information is not available.]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="21"><!--MultiInstances: Single-->
+      <label>Memory Total</label>
+      <channels>
+         <channel id="0" typeId="21"><!--Channel "Memory Total", ID: 21, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="21" advanced="true">
+      <item-type>Number</item-type>
+      <label>Memory Total</label>
+      <description><![CDATA[Total amount of storage space which can store data and software in the LwM2M Device (expressed in kilobytes).]]></description>
+      <tags>
+         <tag>Integer</tag>
+      </tags>
+      <state readOnly="true"/>
+   </channel-type>
+   <channel-group-type id="22"><!--MultiInstances: Multiple-->
+      <label>ExtDevInfo</label>
+      <channels>
+         <channel id="0" typeId="22"><!--Channel "ExtDevInfo", ID: 22, InstanceID: 0--></channel>
+      </channels>
+   </channel-group-type>
+   <channel-type id="22" advanced="true">
+      <item-type>String</item-type>
+      <label>ExtDevInfo</label>
+      <description><![CDATA[Reference to external “Device” object instance containing information. For example, such an external device can be a Host Device, which is a device into which the Device containing the LwM2M client is embedded. This Resource may be used to retrieve information about the Host Device.]]></description>
       <state readOnly="true"/>
    </channel-type>
 </thing:thing-descriptions>
