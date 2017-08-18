@@ -11,6 +11,7 @@ import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +47,16 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
      */
     public AstroDiscoveryService() {
         super(new HashSet<>(Arrays.asList(new ThingTypeUID(BINDING_ID, "-"))), DISCOVER_TIMEOUT_SECONDS, true);
+    }
+
+    @Override
+    protected void activate(Map<String, Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
     }
 
     @Override

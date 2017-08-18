@@ -340,7 +340,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void activate(Map<String, Object> configProperties) {
         if (configProperties != null) {
-            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
                 this.backgroundDiscoveryEnabled = getAutoDiscoveryEnabled(property);
             }
@@ -364,7 +364,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void modified(Map<String, Object> configProperties) {
         if (configProperties != null) {
-            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
                 boolean enabled = getAutoDiscoveryEnabled(property);
 

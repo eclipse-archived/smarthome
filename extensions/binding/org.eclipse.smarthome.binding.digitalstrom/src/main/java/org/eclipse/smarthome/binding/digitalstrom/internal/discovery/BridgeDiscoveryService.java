@@ -84,6 +84,16 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
     }
 
     @Override
+    protected void activate(Map<String, Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
+    }
+
+    @Override
     protected void startScan() {
         scheduler.execute(resultCreater);
     }
