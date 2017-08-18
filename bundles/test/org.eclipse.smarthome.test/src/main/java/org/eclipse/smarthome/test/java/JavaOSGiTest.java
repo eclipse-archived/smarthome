@@ -299,17 +299,4 @@ public class JavaOSGiTest extends JavaTest {
         });
     }
 
-    /**
-     * Inject a service to enable the auto-update feature.
-     */
-    protected void enableItemAutoUpdate() {
-        registerService(new AutoUpdateBindingConfigProvider() {
-
-            @Override
-            public Boolean autoUpdate(String itemName) {
-                return true;
-            }
-        });
-    }
-
 }

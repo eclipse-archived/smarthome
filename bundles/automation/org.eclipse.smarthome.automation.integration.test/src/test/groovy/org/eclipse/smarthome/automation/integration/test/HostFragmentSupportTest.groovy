@@ -12,14 +12,12 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
-import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkEvent
 import org.osgi.framework.FrameworkListener
 import org.osgi.service.packageadmin.PackageAdmin
@@ -82,15 +80,6 @@ class HostFragmentSupportTest extends OSGiTest{
         Locale.setDefault(Locale.ENGLISH)
         registerVolatileStorageService()
 
-        def autoupdateConfig = [
-            autoUpdate: { String itemName ->
-                println "AutoUpdate Item -> " + itemName
-                return true
-            }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
-
         def StorageService storageService = getService(StorageService)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
         pkgAdmin = getService(PackageAdmin)
@@ -107,11 +96,11 @@ class HostFragmentSupportTest extends OSGiTest{
     void after() {
         logger.info('@After');
     }
-    
+
     protected void registerVolatileStorageService() {
         registerService(AutomationIntegrationJsonTest.VOLATILE_STORAGE_SERVICE)
     }
-    
+
     @Test
     public void 'asserting that the installation of the host-fragment provides the resources correctly' () {
         logger.info('asserting that the installation of the host-fragment provides the resources correctly')

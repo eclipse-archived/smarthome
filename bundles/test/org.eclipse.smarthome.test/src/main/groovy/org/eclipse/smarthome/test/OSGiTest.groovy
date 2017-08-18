@@ -253,14 +253,6 @@ abstract class OSGiTest {
         registerService(autoupdateConfig)
     }
 
-    protected void enableItemAutoUpdate(){
-        def autoupdateConfig = [
-            autoUpdate: { String itemName -> return true }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
-    }
-
     protected void setDefaultLocale(Locale locale) {
         assertThat locale, is(notNullValue())
 
