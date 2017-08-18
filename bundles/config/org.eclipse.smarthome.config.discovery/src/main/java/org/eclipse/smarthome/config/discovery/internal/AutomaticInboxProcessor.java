@@ -82,12 +82,14 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     public void thingAdded(Inbox inbox, DiscoveryResult result) {
         if (autoIgnore) {
             String value = getRepresentationValue(result);
-            Thing thing = thingRegistry.stream()
-                    .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
-                    .orElse(null);
-            if (thing != null) {
-                logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
-                inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
+            if (value != null) {
+                Thing thing = thingRegistry.stream()
+                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
+                        .orElse(null);
+                if (thing != null) {
+                    logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
+                    inbox.setFlag(result.getThingUID(), DiscoveryResultFlag.IGNORED);
+                }
             }
         }
         if (autoApprove) {
