@@ -61,9 +61,12 @@ class ConfigDescriptionsTest extends OSGiTest {
 		Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
 		assertThat bundle, is(notNullValue())
 		
+        //wait until bundle has been installed properly and propagated its config
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
-        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 3)
-        
+        waitForAssert {
+            assertThat configDescriptions.size() , is(initialNumberOfConfigDescriptions + 3)
+        }
+
         ConfigDescription bridgeConfigDescription = configDescriptions.find {
                 it.uri.equals(new URI("thing-type:hue:bridge")) }
         assertThat bridgeConfigDescription, is(notNullValue())
@@ -130,9 +133,12 @@ class ConfigDescriptionsTest extends OSGiTest {
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
         assertThat bundle, is(notNullValue())
         
+        //wait until bundle has been installed properly and propagated its config
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
-        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 3)
-        
+        waitForAssert {
+            assertThat configDescriptions.size() , is(initialNumberOfConfigDescriptions + 3)
+        }
+
         ConfigDescription bridgeConfigDescription = configDescriptions.find {
                 it.uri.equals(new URI("thing-type:hue:dummy")) }
         assertThat bridgeConfigDescription, is(notNullValue())
