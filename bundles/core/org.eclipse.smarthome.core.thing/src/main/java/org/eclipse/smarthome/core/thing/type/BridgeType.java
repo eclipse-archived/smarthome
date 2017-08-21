@@ -67,8 +67,8 @@ public class BridgeType extends ThingType {
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
-        this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions, channelGroupDefinitions,
-                properties, configDescriptionURI);
+        this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions,
+                channelGroupDefinitions, properties, configDescriptionURI);
     }
 
     /**
@@ -126,6 +126,8 @@ public class BridgeType extends ThingType {
      * @param description the human readable description for the according type
      *            (could be null or empty)
      *
+     * @param category provides information about the thing for filtering
+     *
      * @param listed determines whether it should be displayed for manually pairing or not
      *
      * @param representationProperty name of the property that uniquely identifies this Thing
@@ -143,12 +145,12 @@ public class BridgeType extends ThingType {
      *             or the the meta information is null
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
+            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, supportedBridgeTypeUIDs, label, description, listed, representationProperty, channelDefinitions,
-                channelGroupDefinitions, properties, configDescriptionURI);
+        super(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
+                channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI);
     }
 
 }

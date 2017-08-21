@@ -83,8 +83,8 @@ public class ThingType extends AbstractDescriptionType {
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
-        this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions, channelGroupDefinitions,
-                properties, configDescriptionURI);
+        this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions,
+                channelGroupDefinitions, properties, configDescriptionURI);
     }
 
     /**
@@ -119,10 +119,10 @@ public class ThingType extends AbstractDescriptionType {
      *             if the UID is null or empty, or the the meta information is null
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            boolean listed, List<ChannelDefinition> channelDefinitions,
+            String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
-        this(uid, supportedBridgeTypeUIDs, label, description, listed, null, channelDefinitions,
+        this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
 
