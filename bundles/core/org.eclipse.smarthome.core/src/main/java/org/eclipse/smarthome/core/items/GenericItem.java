@@ -229,8 +229,8 @@ abstract public class GenericItem implements ActiveItem {
                             listener.stateChanged(GenericItem.this, oldState, newState);
                         }
                     } catch (Exception e) {
-                        logger.warn("failed notifying listener '{}' about state update of item {}: {}",
-                                new Object[] { listener.toString(), GenericItem.this.getName(), e.getMessage() }, e);
+                        logger.warn("failed notifying listener '{}' about state update of item {}: {}", listener,
+                                GenericItem.this.getName(), e.getMessage(), e);
                     }
                 }
             });
