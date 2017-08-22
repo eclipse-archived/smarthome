@@ -129,7 +129,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private ManagedThingProvider managedThingProvider;
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescRegistry;
-    private Storage<DiscoveryResult> discoveryResultStorage;
+    private StorageService storageService;
+    private volatile Storage<DiscoveryResult> discoveryResultStorage;
     private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
     private ScheduledFuture<?> timeToLiveChecker;
     private EventPublisher eventPublisher;
@@ -603,14 +604,20 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.managedThingProvider = null;
     }
 
-    @Reference
-    protected void setStorageService(StorageService storageService) {
-        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(),
-                this.getClass().getClassLoader());
+    @Reference(policy = ReferencePolicy.DYNAMIC)
+    protected void setStorageService(final StorageService storageService) {
+        if (this.storageService != storageService) {
+            this.storageService = storageService;
+            this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(),
+                    this.getClass().getClassLoader());
+        }
     }
 
-    protected void unsetStorageService(StorageService storageService) {
-        this.discoveryResultStorage = null;
+    protected void unsetStorageService(final StorageService storageService) {
+        if (this.storageService == storageService) {
+            this.storageService = null;
+            this.discoveryResultStorage = null;
+        }
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
