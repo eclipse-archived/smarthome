@@ -7,32 +7,46 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.apache.commons.lang.NotImplementedException;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemUtil;
-import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.eclipse.smarthome.core.thing.internal.profiles.DefaultMasterProfile;
+import org.eclipse.smarthome.core.thing.internal.profiles.RawButtonTriggerProfile;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
+import org.eclipse.smarthome.core.thing.profiles.Profile;
+import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
+import org.eclipse.smarthome.core.thing.profiles.StateProfile;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * This class manages the state related communication between bindings and the framework.
@@ -43,144 +57,223 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Component(service = { EventSubscriber.class, CommunicationManager.class }, immediate = true)
-public class CommunicationManager extends AbstractItemEventSubscriber {
+public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
     private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
+            ChannelTriggeredEvent.TYPE);
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingRegistry thingRegistry;
+    private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
+    private final Map<ChannelUID, Profile> profiles = new ConcurrentHashMap<>();
+    private final Map<ProfileFactory, Set<ChannelUID>> profileFactories = new ConcurrentHashMap<>();
+
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return subscribedEventTypes;
+    }
+
+    @Override
+    public EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ItemStateEvent) {
+            receiveUpdate((ItemStateEvent) event);
+        } else if (event instanceof ItemCommandEvent) {
+            receiveCommand((ItemCommandEvent) event);
+        } else if (event instanceof ChannelTriggeredEvent) {
+            receiveTrigger((ChannelTriggeredEvent) event);
+        }
+    }
 
     private Thing getThing(ThingUID thingUID) {
         return thingRegistry.get(thingUID);
     }
 
-    @Override
-    protected void receiveCommand(ItemCommandEvent commandEvent) {
-        String itemName = commandEvent.getItemName();
-        final Command command = commandEvent.getItemCommand();
-        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
-        for (final ChannelUID channelUID : boundChannels) {
-            // make sure a command event is not sent back to its source
-            if (!channelUID.toString().equals(commandEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        handler.handleCommand(channelUID, command);
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                            }
-                        } else {
-                            logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    command, itemName, channelUID);
-                        }
-                    } else {
-                        logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", command, itemName, channelUID);
-                    }
-                } else {
-                    logger.warn(
-                            "Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            command, itemName, channelUID, channelUID.getThingUID());
+    private Profile getProfile(ItemChannelLink link, Item item, Thing thing) {
+        if (thing == null) {
+            return new NoOpProfile();
+        }
+
+        Channel channel = thing.getChannel(link.getLinkedUID().getId());
+        if (channel == null) {
+            return new NoOpProfile();
+        }
+
+        Profile profile = null;
+        synchronized (profiles) {
+            profile = profiles.get(link.getLinkedUID());
+            if (profile == null) {
+                profile = getProfileFromFactories(link, item, channel);
+                if (profile == null) {
+                    logger.trace("No profile factory found for link {}, falling back to the defaults", link);
+                    profile = createDefaultProfile(channel);
+                }
+                if (profile != null) {
+                    profiles.put(link.getLinkedUID(), profile);
                 }
             }
         }
+        return profile != null ? profile : new NoOpProfile();
     }
 
-    @Override
-    protected void receiveUpdate(ItemStateEvent updateEvent) {
-        String itemName = updateEvent.getItemName();
-        final State newState = updateEvent.getItemState();
-        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
-        for (final ChannelUID channelUID : boundChannels) {
-            // make sure an update event is not sent back to its source
-            if (!channelUID.toString().equals(updateEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        if (newState != null) {
-                                            handler.handleUpdate(channelUID, newState);
-                                        } else {
-                                            throw new IllegalStateException(
-                                                    "Trying to set state to null on channel " + channelUID);
-                                        }
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing {} takes more than {}ms for handling an update",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                            }
-                        } else {
-                            logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    newState, itemName, channelUID);
-                        }
-                    } else {
-                        logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", newState, itemName, channelUID);
-                    }
-                } else {
-                    logger.warn(
-                            "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            newState, itemName, channelUID, channelUID.getThingUID());
-                }
+    private Profile getProfileFromFactories(ItemChannelLink link, Item item, Channel channel) {
+        for (ProfileFactory profileFactory : profileFactories.keySet()) {
+            Profile profile = profileFactory.createProfile(link, item, channel);
+            if (profile != null) {
+                profileFactories.get(profileFactory).add(link.getLinkedUID());
+                logger.trace("Going to use profile {} for link {}", profile, link);
+                return profile;
             }
         }
+        return null;
+    }
+
+    private Profile createDefaultProfile(Channel channel) {
+        switch (channel.getKind()) {
+            case STATE:
+                return new DefaultMasterProfile();
+            case TRIGGER:
+                if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
+                    return new RawButtonTriggerProfile();
+                }
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+        return null;
+    }
+
+    private void receiveCommand(ItemCommandEvent commandEvent) {
+        final String itemName = commandEvent.getItemName();
+        final Command command = commandEvent.getItemCommand();
+        final Item item = itemRegistry.get(itemName);
+
+        itemChannelLinkRegistry.stream().filter(link -> {
+            // all links for the item
+            return link.getItemName().equals(itemName);
+        }).filter(link -> {
+            // make sure a command event is not sent back to its source
+            return !link.getLinkedUID().toString().equals(commandEvent.getSource());
+        }).forEach(link -> {
+            ChannelUID channelUID = link.getLinkedUID();
+            Thing thing = getThing(channelUID.getThingUID());
+            Profile profile = getProfile(link, item, thing);
+            if (profile instanceof StateProfile) {
+                ((StateProfile) profile).onCommand(link, thing, command);
+            }
+        });
+    }
+
+    private void receiveUpdate(ItemStateEvent updateEvent) {
+        final String itemName = updateEvent.getItemName();
+        final State newState = updateEvent.getItemState();
+        final Item item = itemRegistry.get(itemName);
+
+        itemChannelLinkRegistry.stream().filter(link -> {
+            // all links for the item
+            return link.getItemName().equals(itemName);
+        }).filter(link -> {
+            // make sure a command event is not sent back to its source
+            return !link.getLinkedUID().toString().equals(updateEvent.getSource());
+        }).forEach(link -> {
+            ChannelUID channelUID = link.getLinkedUID();
+            Thing thing = getThing(channelUID.getThingUID());
+            Profile profile = getProfile(link, item, thing);
+            if (profile instanceof StateProfile) {
+                ((StateProfile) profile).onUpdate(link, thing, newState);
+            }
+        });
+    }
+
+    private void receiveTrigger(ChannelTriggeredEvent channelTriggeredEvent) {
+        final ChannelUID channelUID = channelTriggeredEvent.getChannel();
+        final String event = channelTriggeredEvent.getEvent();
+        final Thing thing = getThing(channelUID.getThingUID());
+
+        itemChannelLinkRegistry.stream().filter(link -> {
+            // all links for the channel
+            return link.getLinkedUID().equals(channelUID);
+        }).forEach(link -> {
+            Item item = itemRegistry.get(link.getItemName());
+            if (item != null) {
+                Profile profile = getProfile(link, item, thing);
+                if (profile instanceof TriggerProfile) {
+                    ((TriggerProfile) profile).onTrigger(eventPublisher, link, event, item);
+                }
+            }
+        });
     }
 
     public void stateUpdated(ChannelUID channelUID, State state) {
-        Set<Item> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
-        for (Item item : items) {
-            State acceptedState = ItemUtil.convertToAcceptedState(state, item);
-            eventPublisher
-                    .post(ItemEventFactory.createStateEvent(item.getName(), acceptedState, channelUID.toString()));
-        }
+        final Thing thing = getThing(channelUID.getThingUID());
+
+        itemChannelLinkRegistry.stream().filter(link -> {
+            // all links for the channel
+            return link.getLinkedUID().equals(channelUID);
+        }).forEach(link -> {
+            Item item = itemRegistry.get(link.getItemName());
+            if (item != null) {
+                Profile profile = getProfile(link, item, thing);
+                if (profile instanceof StateProfile) {
+                    ((StateProfile) profile).stateUpdated(eventPublisher, link, state, item);
+                }
+            }
+        });
     }
 
     public void postCommand(ChannelUID channelUID, Command command) {
-        Set<String> items = itemChannelLinkRegistry.getLinkedItemNames(channelUID);
-        for (String item : items) {
-            eventPublisher.post(ItemEventFactory.createCommandEvent(item, command, channelUID.toString()));
-        }
+        final Thing thing = getThing(channelUID.getThingUID());
+
+        itemChannelLinkRegistry.stream().filter(link -> {
+            // all links for the channel
+            return link.getLinkedUID().equals(channelUID);
+        }).forEach(link -> {
+            Item item = itemRegistry.get(link.getItemName());
+            if (item != null) {
+                Profile profile = getProfile(link, item, thing);
+                if (profile instanceof StateProfile) {
+                    ((StateProfile) profile).postCommand(eventPublisher, link, command, item);
+                }
+            }
+        });
     }
 
     public void channelTriggered(Thing thing, ChannelUID channelUID, String event) {
         eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
     }
 
+    private void cleanup(ChannelUID channelUID) {
+        synchronized (profiles) {
+            profiles.remove(channelUID);
+        }
+        profileFactories.values().forEach(list -> list.remove(channelUID));
+    }
+
+    @Override
+    public void added(ItemChannelLink element) {
+        // nothing to do
+    }
+
+    @Override
+    public void removed(ItemChannelLink element) {
+        cleanup(element.getLinkedUID());
+    }
+
+    @Override
+    public void updated(ItemChannelLink oldElement, ItemChannelLink element) {
+        cleanup(oldElement.getLinkedUID());
+    }
+
     @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+        itemChannelLinkRegistry.addRegistryChangeListener(this);
     }
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
@@ -203,6 +296,30 @@ public class CommunicationManager extends AbstractItemEventSubscriber {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    @Reference
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addProfileFactory(ProfileFactory profileFactory) {
+        this.profileFactories.put(profileFactory, ConcurrentHashMap.newKeySet());
+    }
+
+    protected void removeProfileFactory(ProfileFactory profileFactory) {
+        Set<ChannelUID> channelUIDs = this.profileFactories.remove(profileFactory);
+        synchronized (profiles) {
+            channelUIDs.forEach(channelUID -> profiles.remove(channelUID));
+        }
+    }
+
+    private static class NoOpProfile implements Profile {
     }
 
 }
