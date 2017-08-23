@@ -44,6 +44,7 @@
     <module>org.eclipse.smarthome.model.sitemap.runtime</module>
     <module>org.eclipse.smarthome.model.sitemap.ui</module>
     <module>org.eclipse.smarthome.model.thing</module>
+    <module>org.eclipse.smarthome.model.thing.ide</module>
     <module>org.eclipse.smarthome.model.thing.runtime</module>
     <module>org.eclipse.smarthome.model.thing.ui</module>
     <module>org.eclipse.smarthome.model.thing.tests</module>
