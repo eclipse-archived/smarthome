@@ -35,6 +35,7 @@
     <module>org.eclipse.smarthome.model.rule.ui</module>
     <module>org.eclipse.smarthome.model.rule.tests</module>
     <module>org.eclipse.smarthome.model.script</module>
+    <module>org.eclipse.smarthome.model.script.ide</module>
     <module>org.eclipse.smarthome.model.script.runtime</module>
     <module>org.eclipse.smarthome.model.script.ui</module>
     <module>org.eclipse.smarthome.model.script.tests</module>
