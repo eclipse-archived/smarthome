@@ -40,6 +40,7 @@
     <module>org.eclipse.smarthome.model.script.ui</module>
     <module>org.eclipse.smarthome.model.script.tests</module>
     <module>org.eclipse.smarthome.model.sitemap</module>
+    <module>org.eclipse.smarthome.model.sitemap.ide</module>
     <module>org.eclipse.smarthome.model.sitemap.runtime</module>
     <module>org.eclipse.smarthome.model.sitemap.ui</module>
     <module>org.eclipse.smarthome.model.thing</module>
