@@ -228,17 +228,27 @@ describe('factory configService', function() {
             expect(params[0].parameters[0].options[0].value).toEqual(1.1);
             expect(params[0].parameters[0].options[1].value).toEqual(2.2);
         });
-        it('should return text widget for type INTEGER/DECIMAL', function() {
+        it('should return number widget for type INTEGER/DECIMAL', function() {
             var inputParams = [ {
                 type : 'integer'
             } ];
             var params = configService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("input");
             expect(params[0].parameters[0].inputType).toEqual("number");
-            inputParams.type = 'decimal';
+            expect(params[0].parameters[0].pattern).toEqual("\\d+");
+
+            inputParams[0].pattern = '[1-3]{4}';
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("input");
+            expect(params[0].parameters[0].inputType).toEqual("number");
+            expect(params[0].parameters[0].pattern).toEqual("[1-3]{4}");
+
+            inputParams[0].type = 'decimal';
+            inputParams[0].pattern = undefined;
             var paramsDecimal = configService.getRenderingModel(inputParams);
             expect(paramsDecimal[0].parameters[0].element).toEqual("input");
             expect(paramsDecimal[0].parameters[0].inputType).toEqual("number");
+            expect(params[0].parameters[0].pattern).toBe(undefined);
         });
         it('should set defaults type DECIMAL', function() {
             var thing = {
