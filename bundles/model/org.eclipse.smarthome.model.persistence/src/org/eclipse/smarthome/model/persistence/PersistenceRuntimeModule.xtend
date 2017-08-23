@@ -11,24 +11,18 @@ package
  */
 org.eclipse.smarthome.model.persistence
 
-import org.eclipse.smarthome.model.persistence.scoping.PersistenceGlobalScopeProvider
-import org.eclipse.xtext.generator.IGenerator
-import org.eclipse.xtext.generator.IGenerator.NullGenerator
-import org.eclipse.xtext.linking.lazy.LazyURIEncoder
-import org.eclipse.xtext.scoping.IGlobalScopeProvider
 import com.google.inject.Binder
 import com.google.inject.name.Names
+import org.eclipse.smarthome.model.persistence.scoping.PersistenceGlobalScopeProvider
+import org.eclipse.xtext.linking.lazy.LazyURIEncoder
+import org.eclipse.xtext.scoping.IGlobalScopeProvider
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
-class PersistenceRuntimeModule extends org.eclipse.smarthome.model.persistence.AbstractPersistenceRuntimeModule {
+class PersistenceRuntimeModule extends AbstractPersistenceRuntimeModule {
     override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
         return PersistenceGlobalScopeProvider
-    }
-
-    override Class<? extends IGenerator> bindIGenerator() {
-        return NullGenerator
     }
 
     override void configureUseIndexFragmentsForLazyLinking(Binder binder) {

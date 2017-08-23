@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.xtext;bundle-version="2.1.0";visibility:=reexport,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
  org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib
 Import-Package: com.google.common.base,
  com.google.common.collect,
  org.apache.commons.logging,
