@@ -30,6 +30,7 @@
     <module>org.eclipse.smarthome.model.persistence.ui</module>
     <module>org.eclipse.smarthome.model.persistence.tests</module>
     <module>org.eclipse.smarthome.model.rule</module>
+    <module>org.eclipse.smarthome.model.rule.ide</module>
     <module>org.eclipse.smarthome.model.rule.runtime</module>
     <module>org.eclipse.smarthome.model.rule.ui</module>
     <module>org.eclipse.smarthome.model.rule.tests</module>
