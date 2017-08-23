@@ -28,7 +28,6 @@ Workflow {
         }
         genericIde = {
           enabled = true
-          name = "${projectName}.ui"
         }
         eclipsePlugin = {
           enabled = true
