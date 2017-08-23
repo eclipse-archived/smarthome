@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - Added call of removeOlderResults
  *
  */
-@Component(immediate = true, service = DiscoveryService.class, name = "discovery.upnp")
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
 public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);

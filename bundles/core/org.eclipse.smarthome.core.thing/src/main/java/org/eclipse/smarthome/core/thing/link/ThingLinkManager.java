@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *         ThingSetupManager)
  * @author Markus Rathgeb - Send link notification if item and link exists and unlink on the first removal
  */
-@Component(immediate = true, name = "org.eclipse.smarthome.links", service = { ThingLinkManager.class,
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.links", service = { ThingLinkManager.class,
         EventSubscriber.class }, property = { "service.config.description.uri:String=system:links",
                 "service.config.label:String=Item Linking", "service.config.category:String=system",
                 "service.pid:String=org.eclipse.smarthome.links" })

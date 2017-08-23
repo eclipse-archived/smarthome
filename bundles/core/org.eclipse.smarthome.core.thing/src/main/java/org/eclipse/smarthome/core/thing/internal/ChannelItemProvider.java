@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Add locale provider support
  * @author Thomas Höfer - Added modified operation
  */
-@Component(name = "org.eclipse.smarthome.channelitemprovider", immediate = true, configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(configurationPid = "org.eclipse.smarthome.channelitemprovider", immediate = true, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class ChannelItemProvider implements ItemProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
