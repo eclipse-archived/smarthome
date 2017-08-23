@@ -15,14 +15,17 @@ Require-Bundle: org.eclipse.smarthome.model.thing;visibility:=reexport,
  org.eclipse.xtext.common.types.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib;resolution:=optional
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model.thing.ui.quickfix,
  org.eclipse.smarthome.model.thing.ui.contentassist,
- org.eclipse.smarthome.model.thing.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr,
  org.eclipse.smarthome.model.thing.ui.internal,
- org.eclipse.smarthome.model.thing.ui.contentassist.antlr.internal
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr.internal,
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr.internal,
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr
 Bundle-Activator: org.eclipse.smarthome.model.thing.ui.internal.ThingActivator
 Bundle-ActivationPolicy: lazy
