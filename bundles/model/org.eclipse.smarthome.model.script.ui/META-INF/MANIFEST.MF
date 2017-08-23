@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.smarthome.model.script;visibility:=reexport,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare,
  org.eclipse.xtext.xbase.lib,
- org.eclipse.jdt.debug.ui
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.xtend.lib;resolution:=optional
 Import-Package: com.google.common.base,
  com.google.common.collect,
  org.apache.commons.lang,
@@ -37,9 +38,11 @@ Import-Package: com.google.common.base,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
- org.eclipse.smarthome.model.script.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.script.ide.contentassist.antlr,
  org.eclipse.smarthome.model.script.ui.internal,
  org.eclipse.smarthome.model.script.ui.quickfix,
- org.eclipse.smarthome.model.script.ui.contentassist.antlr.internal
+ org.eclipse.smarthome.model.script.ide.contentassist.antlr.internal,
+ org.eclipse.smarthome.model.script.ide.contentassist.antlr.internal,
+ org.eclipse.smarthome.model.script.ide.contentassist.antlr
 Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptUIActivator
 Bundle-ActivationPolicy: lazy
