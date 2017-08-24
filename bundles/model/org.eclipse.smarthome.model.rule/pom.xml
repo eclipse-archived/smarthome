@@ -46,7 +46,7 @@
               -p
             </argument>
             <argument>
-              runtimeProject=/${project.basedir}
+              rootPath=/${project.basedir}/..
             </argument>
           </arguments>
           <additionalClasspathElements>
