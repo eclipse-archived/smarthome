@@ -131,7 +131,7 @@ demo.items:
 String Conditions "Conditions [%s]" {channel="weatherunderground:weather:CDG:current#conditions"}
 Image Icon "Icon" {channel="weatherunderground:weather:CDG:current#icon"}
 DateTime ObservationTime "Observation time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:current#observationTime"}
-String Location "Location [%s]" {channel="weatherunderground:weather:CDG:current#location"}
+String ObservationLocation "Location [%s]" {channel="weatherunderground:weather:CDG:current#location"}
 String Station "Station [%s]" {channel="weatherunderground:weather:CDG:current#stationId"}
 
 Number Temperature "Current temperature [%.1f °C]" <temperature> {channel="weatherunderground:weather:CDG:current#temperature"}
