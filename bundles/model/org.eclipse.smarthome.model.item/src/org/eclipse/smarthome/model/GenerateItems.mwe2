@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-module org.eclipse.smarthome.model.item.GenerateItems
+module org.eclipse.smarthome.model.GenerateItems
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
