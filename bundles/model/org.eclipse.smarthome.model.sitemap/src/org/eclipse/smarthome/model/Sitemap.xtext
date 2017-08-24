@@ -37,6 +37,7 @@ Text:
 
 Group:
     'Group' (('item=' item=GroupItemRef) & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? &
+    (expanded?='expanded')? &
     ('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
     ('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
     ('visibility=[' (Visibility+=VisibilityRule (',' Visibility+=VisibilityRule)* ']'))?);

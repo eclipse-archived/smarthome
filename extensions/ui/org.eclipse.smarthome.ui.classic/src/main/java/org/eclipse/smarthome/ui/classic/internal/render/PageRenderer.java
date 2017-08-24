@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.sitemap.Frame;
+import org.eclipse.smarthome.model.sitemap.Group;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.servlet.WebAppServlet;
@@ -84,7 +85,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         StringBuilder post_children = new StringBuilder(parts[1]);
 
         if (parts.length == 2) {
-            processChildren(pre_children, post_children, children);
+            processChildren(pre_children, post_children, children, null);
         } else if (parts.length > 2) {
             logger.error("Snippet '{}' contains multiple %children% sections, but only one is allowed!",
                     async ? "layer" : "main");
@@ -92,16 +93,19 @@ public class PageRenderer extends AbstractWidgetRenderer {
         return pre_children.append(post_children);
     }
 
-    private void processChildren(StringBuilder sb_pre, StringBuilder sb_post, EList<Widget> children)
-            throws RenderException {
+    private void processChildren(StringBuilder sb_pre, StringBuilder sb_post, EList<Widget> children,
+            Widget parentWidget) throws RenderException {
 
         // put a single frame around all children widgets, if there are no explicit frames
         if (!children.isEmpty()) {
             boolean frameRequired = false;
             for (Widget w : children) {
                 EObject parent = itemUIRegistry.getParent(w);
-                if (!(w instanceof Frame || parent instanceof Frame || parent instanceof List)) {
-                    frameRequired = true;
+
+                frameRequired = !(w instanceof Frame || parent instanceof Frame || parent instanceof List);
+
+                if (parentWidget instanceof Group) {
+                    frameRequired = false;
                 }
             }
             if (frameRequired) {
@@ -146,7 +150,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
                             "Snippet for widget '{}' contains multiple %children% sections, but only one is allowed!",
                             widgetType);
                 }
-                processChildren(new_pre, new_post, nextChildren);
+                processChildren(new_pre, new_post, nextChildren, w);
                 sb_pre.append(new_pre);
                 sb_pre.append(new_post);
             } else {

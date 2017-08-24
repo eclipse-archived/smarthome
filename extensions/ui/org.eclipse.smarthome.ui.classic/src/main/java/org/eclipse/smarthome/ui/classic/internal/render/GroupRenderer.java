@@ -10,6 +10,7 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.model.sitemap.Group;
+import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
@@ -19,6 +20,7 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  * can produce HTML code for Group widgets.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Gaël L'hopital - Added expanded behaviour handling
  *
  */
 public class GroupRenderer extends AbstractWidgetRenderer {
@@ -30,18 +32,29 @@ public class GroupRenderer extends AbstractWidgetRenderer {
 
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-        String snippet = getSnippet("group");
+        String snippet;
+        EList<Widget> result;
 
-        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
-        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%state%", getState(w));
-        snippet = StringUtils.replace(snippet, "%format%", getFormat());
+        if (((Group) w).isExpanded()) {
+            snippet = getSnippet("group_expanded");
+            result = itemUIRegistry.getChildren((LinkableWidget) w);
+        } else {
+            snippet = getSnippet("group");
 
-        // Process the color tags
-        snippet = processColor(w, snippet);
+            snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
+            snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
+            snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+            snippet = StringUtils.replace(snippet, "%state%", getState(w));
+            snippet = StringUtils.replace(snippet, "%format%", getFormat());
+
+            // Process the color tags
+            snippet = processColor(w, snippet);
+
+            result = null;
+        }
 
         sb.append(snippet);
-        return null;
+
+        return result;
     }
 }
