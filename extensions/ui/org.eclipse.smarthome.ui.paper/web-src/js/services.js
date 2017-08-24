@@ -196,7 +196,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             adjustNumberValue(parameter, parseInt);
             if (!parameter.pattern) {
                 // force the input of integers if not stated otherwise.
-                parameter.pattern = '\\d+'
+                parameter.pattern = '-?\\d+'
             }
         }
         if (type === 'DECIMAL') {
