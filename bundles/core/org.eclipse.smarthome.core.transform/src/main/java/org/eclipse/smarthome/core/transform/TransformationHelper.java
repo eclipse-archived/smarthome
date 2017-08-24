@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.transform;
 
 import java.util.Collection;
+import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,16 +83,21 @@ public class TransformationHelper {
             String value = matcher.group(3);
             TransformationService transformation = TransformationHelper.getTransformationService(context, type);
             if (transformation != null) {
-                value = String.format(value, state);
                 try {
-                    pattern = transformation.transform(pattern, value);
-                } catch (TransformationException e) {
-                    logger.warn("transformation throws exception [transformation={}, value={}]", transformation, value,
-                            e);
+                    value = String.format(value, state);
+                    try {
+                        pattern = transformation.transform(pattern, value);
+                    } catch (TransformationException e) {
+                        logger.warn("Transformation '{}' with value '{}' failed: {}", transformation, value,
+                                e.getMessage());
+                        pattern = state;
+                    }
+                } catch (IllegalFormatException e) {
+                    logger.warn("Cannot format state '{}' to format '{}': {}", state, value, e.getMessage());
                     pattern = state;
                 }
             } else {
-                logger.warn("couldn't transform value  because transformationService of type '{}' is unavailable",
+                logger.warn("Couldn't transform value because transformation service of type '{}' is not available.",
                         type);
                 pattern = state;
             }
