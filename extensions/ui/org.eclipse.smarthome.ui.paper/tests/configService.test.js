@@ -235,7 +235,7 @@ describe('factory configService', function() {
             var params = configService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("input");
             expect(params[0].parameters[0].inputType).toEqual("number");
-            expect(params[0].parameters[0].pattern).toEqual("\\d+");
+            expect(params[0].parameters[0].pattern).toEqual("-?\\d+");
 
             inputParams[0].pattern = '[1-3]{4}';
             var params = configService.getRenderingModel(inputParams);
