@@ -15,8 +15,12 @@ public class BluetoothUtils {
 
     private BluetoothUtils() {}
 
+    public static String getThingUID(String address) {
+        return address.replaceAll("/", "").replaceAll(":", "");
+    }
+
     public static String getThingUID(URL url) {
-        return url.toString().replaceAll("/", "").replaceAll(":", "");
+        return getThingUID(url.toString());
     }
 
     public static URL getURL(String thingUID) {

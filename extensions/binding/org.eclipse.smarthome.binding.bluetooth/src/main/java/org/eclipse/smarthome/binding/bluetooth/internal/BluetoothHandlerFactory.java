@@ -49,7 +49,8 @@ import static org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants.
  * 
  * @author Vlad Kolotov - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.bluetooth", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.bluetooth",
+        configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class BluetoothHandlerFactory extends BaseThingHandlerFactory {
     
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS =

@@ -16,6 +16,9 @@ import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sputnikdev.bluetooth.gattparser.BluetoothGattParser;
@@ -30,7 +33,7 @@ import org.sputnikdev.bluetooth.manager.GovernorListener;
  * @author Vlad Kolotov - Initial contribution
  */
 public class AdapterHandler extends BluetoothHandler<AdapterGovernor>
-        implements AdapterListener, GovernorListener {
+        implements BridgeHandler, AdapterListener, GovernorListener {
 
     private Logger logger = LoggerFactory.getLogger(AdapterHandler.class);
 
@@ -91,6 +94,8 @@ public class AdapterHandler extends BluetoothHandler<AdapterGovernor>
         adapterGovernor.setAlias(thing.getLabel());
 
         lastUpdatedChanged(new Date());
+
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -115,4 +120,9 @@ public class AdapterHandler extends BluetoothHandler<AdapterGovernor>
         updateState(BluetoothBindingConstants.CHANNEL_LAST_UPDATED, new DateTimeType(calendar));
     }
 
+    @Override
+    public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) { }
+
+    @Override
+    public void childHandlerDisposed(ThingHandler childHandler, Thing childThing) { }
 }

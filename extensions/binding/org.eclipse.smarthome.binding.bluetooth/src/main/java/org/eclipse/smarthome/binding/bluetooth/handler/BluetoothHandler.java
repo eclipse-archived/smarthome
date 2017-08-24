@@ -74,8 +74,8 @@ class BluetoothHandler<T extends BluetoothGovernor> extends BaseThingHandler {
     public void dispose() {
         logger.info("Disposing Abstract Bluetooth Handler");
         super.dispose();
-        disposeChannels();
         logger.info("Disposing bluetooth object: {}", url);
+        getBluetoothManager().disposeDescendantGovernors(url);
         getBluetoothManager().disposeGovernor(url);
         logger.info("Abstract Bluetooth Handler has been disposed");
     }
@@ -145,17 +145,6 @@ class BluetoothHandler<T extends BluetoothGovernor> extends BaseThingHandler {
 
     URL getURL() {
         return url;
-    }
-
-    protected void disposeChannels() {
-        logger.info("Disposing Channel Handlers...");
-        for (ChannelHandler channelHandler : getChannelHandlers()) {
-            try {
-                channelHandler.dispose();
-            } catch (Exception ex) {
-                logger.error("Could not dispose channel handler: {}", channelHandler.getURL(), ex);
-            }
-        }
     }
 
     protected T getGovernor() {

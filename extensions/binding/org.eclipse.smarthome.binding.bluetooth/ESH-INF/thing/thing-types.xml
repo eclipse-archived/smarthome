@@ -4,19 +4,6 @@
         xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <thing-type id="adapter">
-        <label>Bluetooth Adapter</label>
-        <description>Bluetooth Adapter</description>
-        <channels>
-            <channel id="ready" typeId="ready"/>
-            <channel id="powered" typeId="powered"/>
-            <channel id="powered-control" typeId="powered-control"/>
-            <channel id="discovering" typeId="discovering"/>
-            <channel id="discovering-control" typeId="discovering-control"/>
-            <channel id="last-updated" typeId="last-updated"/>
-        </channels>
-    </thing-type>
-
     <thing-type id="generic">
         <label>Generic Bluetooth device</label>
         <description>Generic Bluetooth device</description>

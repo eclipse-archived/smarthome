@@ -1,27 +1,21 @@
 package org.eclipse.smarthome.binding.bluetooth.internal.discovery;
 
-import java.util.HashSet;
-
+import org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants;
+import org.eclipse.smarthome.binding.bluetooth.BluetoothDiscoveryService;
+import org.eclipse.smarthome.binding.bluetooth.internal.BluetoothUtils;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants;
-import org.eclipse.smarthome.binding.bluetooth.BluetoothDiscoveryService;
-import org.eclipse.smarthome.binding.bluetooth.internal.BluetoothUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sputnikdev.bluetooth.URL;
-import org.sputnikdev.bluetooth.manager.AdapterDiscoveryListener;
-import org.sputnikdev.bluetooth.manager.BluetoothManager;
-import org.sputnikdev.bluetooth.manager.DeviceDiscoveryListener;
-import org.sputnikdev.bluetooth.manager.DiscoveredAdapter;
-import org.sputnikdev.bluetooth.manager.DiscoveredDevice;
-import org.sputnikdev.bluetooth.manager.DiscoveredObject;
+import org.sputnikdev.bluetooth.manager.*;
+
+import java.util.HashSet;
 
 /**
  * @author Vlad Kolotov
@@ -44,27 +38,27 @@ public class BluetoothDiscoveryServiceImpl extends AbstractDiscoveryService
     }
 
     @Override
-    public void discovered(DiscoveredDevice discoveredDevice) {
-        DiscoveryResult discoveryResult;
-        if (discoveredDevice.getBluetoothClass() == 0) {
-            discoveryResult = getDiscoveryResult(discoveredDevice, BluetoothBindingConstants.THING_TYPE_BLE);
-        } else {
-            discoveryResult = getDiscoveryResult(discoveredDevice, BluetoothBindingConstants.THING_TYPE_GENERIC);
-        }
-        thingDiscovered(discoveryResult);
-    }
+    public void discovered(DiscoveredDevice device) {
+        ThingTypeUID thingTypeUID = device.getBluetoothClass() == 0 ?
+                BluetoothBindingConstants.THING_TYPE_BLE : BluetoothBindingConstants.THING_TYPE_GENERIC;
 
-    @Override
-    public void discovered(DiscoveredAdapter discoveredAdapter) {
-        thingDiscovered(getDiscoveryResult(discoveredAdapter, BluetoothBindingConstants.THING_TYPE_ADAPTER));
-    }
-
-    private DiscoveryResult getDiscoveryResult(DiscoveredObject device, ThingTypeUID thingTypeUID) {
         DiscoveryResultBuilder builder = DiscoveryResultBuilder
                 .create(new ThingUID(thingTypeUID, BluetoothUtils.getThingUID(device.getURL())))
                 .withLabel(device.getAlias() != null ? device.getAlias() : device.getName())
-                .withTTL(DISCOVERY_RATE_SEC * 3);
-        return builder.build();
+                .withTTL(DISCOVERY_RATE_SEC * 3)
+                .withBridge(new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
+                        BluetoothUtils.getThingUID(device.getURL().getAdapterAddress())));
+
+        thingDiscovered(builder.build());
+    }
+
+    @Override
+    public void discovered(DiscoveredAdapter adapter) {
+        thingDiscovered(DiscoveryResultBuilder
+                .create(new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
+                        BluetoothUtils.getThingUID(adapter.getURL())))
+                .withLabel(adapter.getAlias() != null ? adapter.getAlias() : adapter.getName())
+                .withTTL(DISCOVERY_RATE_SEC * 3).build());
     }
 
     @Override
@@ -93,7 +87,7 @@ public class BluetoothDiscoveryServiceImpl extends AbstractDiscoveryService
         this.bluetoothManager.setRediscover(true);
         this.bluetoothManager.addAdapterDiscoveryListener(this);
         this.bluetoothManager.addDeviceDiscoveryListener(this);
-        this.bluetoothManager.start(true);
+        this.bluetoothManager.start(false);
     }
 
     @Override
