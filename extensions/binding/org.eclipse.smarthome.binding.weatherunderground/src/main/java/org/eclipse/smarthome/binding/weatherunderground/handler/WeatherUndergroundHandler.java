@@ -337,6 +337,11 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             error = "Error parsing Weather Underground response";
             errorDetail = e.getMessage();
             statusDescr = "@text/offline.comm-error-parsing-response";
+        } catch (IllegalArgumentException e) {
+            // catch Illegal character in path at index XX: http://api.wunderground.com/...
+            error = "Error creating URI to fetch data";
+            errorDetail = e.getMessage();
+            statusDescr = "@text/offline.uri-error";
         }
 
         // Update the thing status
