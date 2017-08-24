@@ -58,7 +58,7 @@
 				<label>API Key</label>
 				<description>API key to access the Weather Underground service</description>
 			</parameter>
-			<parameter name="location" type="text" required="true" pattern="[0-9]{1,2}(\.[0-9]*)*,[0-9]{1,2}(\.[0-9]*)*">
+			<parameter name="location" type="text" required="true" pattern="(^-?[0-9]{1,2}(\.[0-9]*)*,-?[0-9]{1,2}(\.[0-9]*)*$)|(^([A-Z]|[a-z])+\/([A-Z]|[a-z])+$)|(^([A-Z]|[a-z])+$)|(^pws:([A-Z]|[a-z]|[0-9])+$)">
 				<label>Location of Weather Information</label>
 				<description>Multiple syntaxes are supported. Please read the binding documentation for more information</description>
 			</parameter>
