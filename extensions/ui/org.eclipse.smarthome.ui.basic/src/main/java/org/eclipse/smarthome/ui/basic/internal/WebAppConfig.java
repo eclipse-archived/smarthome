@@ -21,9 +21,11 @@ import java.util.Map;
 public class WebAppConfig {
     private final static String DEFAULT_SITEMAP = "default";
     private final static String DEFAULT_ICON_TYPE = "png";
+    private final static String DEFAULT_THEME = "default";
 
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
+    private String theme = DEFAULT_THEME;
 
     private List<String> cssClassList = new ArrayList<String>();
 
@@ -61,8 +63,9 @@ public class WebAppConfig {
     }
 
     public void applyConfig(Map<String, Object> configProps) {
-        String configIconType = (String) configProps.get("iconType");
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
+        String configIconType = (String) configProps.get("iconType");
+        String configTheme = (String) configProps.get("theme");
 
         if (configDefaultSitemap == null) {
             configDefaultSitemap = DEFAULT_SITEMAP;
@@ -74,8 +77,13 @@ public class WebAppConfig {
             configIconType = DEFAULT_ICON_TYPE;
         }
 
-        iconType = configIconType;
+        if (configTheme == null) {
+            configTheme = DEFAULT_THEME;
+        }
+
         defaultSitemap = configDefaultSitemap;
+        iconType = configIconType;
+        theme = configTheme;
 
         applyCssClasses(configProps);
     }
@@ -86,6 +94,10 @@ public class WebAppConfig {
 
     public String getIconType() {
         return iconType;
+    }
+
+    public String getTheme() {
+        return theme;
     }
 
     public String getCssClassList() {
