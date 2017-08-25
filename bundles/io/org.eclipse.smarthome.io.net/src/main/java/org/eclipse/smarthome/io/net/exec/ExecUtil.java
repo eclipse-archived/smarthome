@@ -30,7 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecUtil {
 
-    private static final String CMD_LINE_DELIMITER = "@@";
+    /**
+     * Use this to separate between command and parameter, and also between parameters.
+     */
+    public static final String CMD_LINE_DELIMITER = "@@";
 
     /**
      * <p>
