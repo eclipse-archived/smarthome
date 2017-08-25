@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AstroThingHandler extends BaseThingHandler {
 
-    private static final String DAILY_MIDNIGHT = "0 0 0 * * ? *";
+    private static final String DAILY_MIDNIGHT = "30 0 0 * * ? *";
 
     /** Logger Instance */
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
