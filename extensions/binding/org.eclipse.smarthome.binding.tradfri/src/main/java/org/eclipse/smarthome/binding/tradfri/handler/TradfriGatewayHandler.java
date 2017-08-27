@@ -137,7 +137,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
      */
     public void startScan() {
         if (endPoint != null) {
-            updateGatewayInfoSynchronious();
+            updateGatewayInfo();
             deviceClient.get(new TradfriCoapHandler(this));
         }
     }
@@ -177,19 +177,19 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         }
     }
     
-    private void updateGatewayInfoSynchronious() {
+    private synchronized void updateGatewayInfo() {
         // we are reusing our coap client and merely temporarily set a gateway info to call
         deviceClient.setURI(this.gatewayInfoURI);
-        String data = deviceClient.get().getResponseText();
-        JsonObject json = new JsonParser().parse(data).getAsJsonObject();
-            
-        String firmwareVersion = json.get(VERSION).getAsString();
-        getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
+        deviceClient.asyncGet().thenAccept(data -> {
+            JsonObject json = new JsonParser().parse(data).getAsJsonObject();
+            String firmwareVersion = json.get(VERSION).getAsString();
+            getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
+        });
         // restore root URI
         deviceClient.setURI(gatewayURI);
     }
 
-    private void requestDeviceDetails(String instanceId) {
+    private synchronized void requestDeviceDetails(String instanceId) {
         // we are reusing our coap client and merely temporarily set a sub-URI to call
         deviceClient.setURI(gatewayURI + "/" + instanceId);
         deviceClient.asyncGet().thenAccept(data -> {
