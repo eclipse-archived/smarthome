@@ -33,13 +33,13 @@ class BluetoothHandler<T extends BluetoothGovernor> extends BaseThingHandler {
     private final URL url;
     private final List<ChannelHandler> channelHandlers = new ArrayList<>();
 
-    public BluetoothHandler(Thing thing, ItemRegistry itemRegistry,
+    BluetoothHandler(Thing thing, ItemRegistry itemRegistry,
                             BluetoothManager bluetoothManager, BluetoothGattParser gattParser) {
         super(thing);
         this.itemRegistry = itemRegistry;
         this.bluetoothManager = bluetoothManager;
         this.gattParser = gattParser;
-        this.url = BluetoothUtils.getURL(thing.getUID().getId());
+        this.url = BluetoothUtils.getURL(thing);
     }
 
     @Override

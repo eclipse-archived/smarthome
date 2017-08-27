@@ -2,8 +2,11 @@ package org.eclipse.smarthome.binding.bluetooth.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.sputnikdev.bluetooth.URL;
 
 /**
@@ -15,28 +18,29 @@ public class BluetoothUtils {
 
     private BluetoothUtils() {}
 
-    public static String getThingUID(String address) {
-        return address.replaceAll("/", "").replaceAll(":", "");
+    public static ThingUID getAdapterUID(URL url) {
+        return new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
+                BluetoothUtils.getUID(url.getAdapterAddress()));
     }
 
-    public static String getThingUID(URL url) {
-        return getThingUID(url.toString());
+    public static ThingUID getGenericDeviceUID(URL url) {
+        return new ThingUID(BluetoothBindingConstants.THING_TYPE_GENERIC, getAdapterUID(url),
+                BluetoothUtils.getUID(url.getDeviceAddress()));
     }
 
-    public static URL getURL(String thingUID) {
-        String adapterAddress = thingUID.substring(0, 12).replaceAll(MAC_PART_REGEXP, "$1:");
-        String deviceAddress = null;
-        if (thingUID.length() > 12 && thingUID.length() <= 24) {
-            deviceAddress = thingUID.substring(12, 24).replaceAll(MAC_PART_REGEXP, "$1:");
+    public static ThingUID getBleDeviceUID(URL url) {
+        return new ThingUID(BluetoothBindingConstants.THING_TYPE_BLE, getAdapterUID(url),
+                BluetoothUtils.getUID(url.getDeviceAddress()));
+    }
+
+    public static URL getURL(Thing thing) {
+        if (BluetoothBindingConstants.THING_TYPE_ADAPTER.equals(thing.getThingTypeUID())) {
+            return new URL(getAddressFromUID(thing.getUID().getId()), null);
+        } else {
+            String adapterAddress = Optional.of(thing).map(Thing::getBridgeUID).map(ThingUID::getId)
+                    .map(BluetoothUtils::getAddressFromUID).orElse(null);
+            return new URL(adapterAddress, getAddressFromUID(thing.getUID().getId()));
         }
-        return new URL(adapterAddress, deviceAddress);
-    }
-
-    public static String getShortUUID(String longUUID) {
-        if (longUUID.length() < 8) {
-            return longUUID;
-        }
-        return Long.toHexString(Long.valueOf(longUUID.substring(0, 8), 16)).toUpperCase();
     }
 
     public static String getChannelUID(URL url) {
@@ -52,7 +56,8 @@ public class BluetoothUtils {
 
     public static String getItemUID(URL url) {
         return BluetoothBindingConstants.THING_TYPE_BLE.getAsString().replace(":", "_") + "_" +
-                getThingUID(url.getDeviceURL()).replaceAll("-", "_") + "_" + getChannelUID(url).replaceAll("-", "_");
+                getUID(url.getAdapterAddress()) + "_" + getUID(url.getDeviceAddress()) + "_" +
+                getChannelUID(url).replaceAll("-", "_");
     }
 
     public static boolean hasNotificationAccess(String[] flags) {
@@ -71,4 +76,18 @@ public class BluetoothUtils {
         return flgs.contains(BluetoothBindingConstants.WRITE_FLAG);
     }
 
+    private static String getUID(String address) {
+        return address.replaceAll("/", "").replaceAll(":", "");
+    }
+
+    private static String getShortUUID(String longUUID) {
+        if (longUUID.length() < 8) {
+            return longUUID;
+        }
+        return Long.toHexString(Long.valueOf(longUUID.substring(0, 8), 16)).toUpperCase();
+    }
+
+    private static String getAddressFromUID(String uid) {
+        return uid.replaceAll(MAC_PART_REGEXP, "$1:");
+    }
 }

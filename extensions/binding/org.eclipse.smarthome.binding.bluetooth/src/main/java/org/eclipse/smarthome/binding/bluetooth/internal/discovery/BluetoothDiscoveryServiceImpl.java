@@ -39,15 +39,16 @@ public class BluetoothDiscoveryServiceImpl extends AbstractDiscoveryService
 
     @Override
     public void discovered(DiscoveredDevice device) {
-        ThingTypeUID thingTypeUID = device.getBluetoothClass() == 0 ?
-                BluetoothBindingConstants.THING_TYPE_BLE : BluetoothBindingConstants.THING_TYPE_GENERIC;
+        ThingUID bridgeUID = BluetoothUtils.getAdapterUID(device.getURL());
+
+        ThingUID thingUID = device.getBluetoothClass() == 0 ?
+                BluetoothUtils.getBleDeviceUID(device.getURL()) : BluetoothUtils.getGenericDeviceUID(device.getURL());
 
         DiscoveryResultBuilder builder = DiscoveryResultBuilder
-                .create(new ThingUID(thingTypeUID, BluetoothUtils.getThingUID(device.getURL())))
+                .create(thingUID)
                 .withLabel(device.getAlias() != null ? device.getAlias() : device.getName())
                 .withTTL(DISCOVERY_RATE_SEC * 3)
-                .withBridge(new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
-                        BluetoothUtils.getThingUID(device.getURL().getAdapterAddress())));
+                .withBridge(bridgeUID);
 
         thingDiscovered(builder.build());
     }
@@ -55,8 +56,7 @@ public class BluetoothDiscoveryServiceImpl extends AbstractDiscoveryService
     @Override
     public void discovered(DiscoveredAdapter adapter) {
         thingDiscovered(DiscoveryResultBuilder
-                .create(new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
-                        BluetoothUtils.getThingUID(adapter.getURL())))
+                .create(BluetoothUtils.getAdapterUID(adapter.getURL()))
                 .withLabel(adapter.getAlias() != null ? adapter.getAlias() : adapter.getName())
                 .withTTL(DISCOVERY_RATE_SEC * 3).build());
     }
@@ -64,17 +64,14 @@ public class BluetoothDiscoveryServiceImpl extends AbstractDiscoveryService
     @Override
     public void adapterLost(URL url) {
         logger.info("Adapter lost: {}", url);
-        thingRemoved(new ThingUID(BluetoothBindingConstants.THING_TYPE_ADAPTER,
-                BluetoothUtils.getThingUID(url)));
+        thingRemoved(BluetoothUtils.getAdapterUID(url));
     }
 
     @Override
     public void deviceLost(URL url) {
         logger.info("Device lost: {}", url);
-        thingRemoved(new ThingUID(BluetoothBindingConstants.THING_TYPE_GENERIC,
-                BluetoothUtils.getThingUID(url)));
-        thingRemoved(new ThingUID(BluetoothBindingConstants.THING_TYPE_BLE,
-                BluetoothUtils.getThingUID(url)));
+        thingRemoved(BluetoothUtils.getGenericDeviceUID(url));
+        thingRemoved(BluetoothUtils.getBleDeviceUID(url));
     }
 
     @Override
