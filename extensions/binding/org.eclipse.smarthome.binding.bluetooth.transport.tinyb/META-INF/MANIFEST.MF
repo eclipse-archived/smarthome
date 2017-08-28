@@ -8,6 +8,6 @@ Bundle-Copyright: Eclipse Public License v1.0
 Bundle-ClassPath: .,
   lib/tinyb.jar, lib/bluetooth-manager-tinyb-1.0-SNAPSHOT.jar
 Import-Package: org.sputnikdev.bluetooth,
- org.sputnikdev.bluetooth.manager.impl
+ org.sputnikdev.bluetooth.manager.transport
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.sputnikdev.bluetooth.manager.impl.tinyb
+Export-Package: org.sputnikdev.bluetooth.manager.transport.tinyb

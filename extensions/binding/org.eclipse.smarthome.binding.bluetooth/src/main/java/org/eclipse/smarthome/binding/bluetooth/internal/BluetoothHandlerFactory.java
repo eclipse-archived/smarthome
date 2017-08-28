@@ -35,7 +35,7 @@ import org.sputnikdev.bluetooth.gattparser.BluetoothGattParser;
 import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
 import org.sputnikdev.bluetooth.manager.BluetoothManager;
 import org.sputnikdev.bluetooth.manager.impl.BluetoothManagerFactory;
-import org.sputnikdev.bluetooth.manager.impl.BluetoothObjectFactory;
+import org.sputnikdev.bluetooth.manager.transport.BluetoothObjectFactory;
 import org.sputnikdev.bluetooth.manager.impl.BluetoothObjectFactoryProvider;
 
 import static org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants.THING_TYPE_ADAPTER;

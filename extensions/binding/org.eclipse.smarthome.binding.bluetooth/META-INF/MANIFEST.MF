@@ -35,7 +35,7 @@ Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.binding.bluetooth,org.eclipse.smarthome.binding.bluetooth.handler,
  org.sputnikdev.bluetooth,
  org.sputnikdev.bluetooth.manager,
- org.sputnikdev.bluetooth.manager.impl,
+ org.sputnikdev.bluetooth.manager.transport,
  org.sputnikdev.bluetooth.gattparser
 Include-Resource: src/main/resources
 

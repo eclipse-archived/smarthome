@@ -9,12 +9,12 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true"
-               name="org.sputnikdev.bluetooth.manager.impl.tinyb.TinyBFactory">
+               name="org.sputnikdev.bluetooth.manager.transport.tinyb.TinyBFactory">
 
-    <implementation class="org.sputnikdev.bluetooth.manager.impl.tinyb.TinyBFactory"/>
+    <implementation class="org.sputnikdev.bluetooth.manager.transport.tinyb.TinyBFactory"/>
 
     <service>
-        <provide interface="org.sputnikdev.bluetooth.manager.impl.BluetoothObjectFactory"/>
+        <provide interface="org.sputnikdev.bluetooth.manager.transport.BluetoothObjectFactory"/>
     </service>
 
 </scr:component>
