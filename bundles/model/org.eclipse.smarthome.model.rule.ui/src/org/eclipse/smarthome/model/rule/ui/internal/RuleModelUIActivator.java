@@ -11,7 +11,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class RuleModelUIActivator extends RulesActivator {
+public class RuleModelUIActivator extends RuleActivator {
 
     public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
 

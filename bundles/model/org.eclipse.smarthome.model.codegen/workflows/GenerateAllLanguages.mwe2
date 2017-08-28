@@ -14,8 +14,8 @@ module all
  *
  */
 Workflow {
-    component = @org.eclipse.smarthome.model.Items{}
-    component = @org.eclipse.smarthome.model.Sitemap{}
+    component = @org.eclipse.smarthome.model.GenerateItems{}
+    component = @org.eclipse.smarthome.model.GenerateSitemap{}
     component = @org.eclipse.smarthome.model.script.GenerateScript{}
     component = @org.eclipse.smarthome.model.rule.GenerateRules{}
     component = @org.eclipse.smarthome.model.persistence.GeneratePersistence{}
