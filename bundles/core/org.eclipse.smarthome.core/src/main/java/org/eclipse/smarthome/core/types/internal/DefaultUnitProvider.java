@@ -11,6 +11,8 @@ import org.eclipse.smarthome.core.types.ESHUnits;
 import org.eclipse.smarthome.core.types.UnitProvider;
 import org.osgi.service.component.annotations.Component;
 
+import tec.uom.se.unit.Units;
+
 @Component(service = UnitProvider.class, name = "unitProvider")
 public class DefaultUnitProvider implements UnitProvider {
 
@@ -48,6 +50,21 @@ public class DefaultUnitProvider implements UnitProvider {
         pressureMap.put(MeasurementSystem.SI, ESHUnits.HECTO_PASCAL);
         pressureMap.put(MeasurementSystem.US, ESHUnits.INCH_OF_MERCURY);
         dimensionMap.put(Dimension.PRESSURE, pressureMap);
+
+        Map<MeasurementSystem, Unit<?>> speedMap = new HashMap<>();
+        speedMap.put(MeasurementSystem.SI, Units.KILOMETRE_PER_HOUR);
+        speedMap.put(MeasurementSystem.US, ESHUnits.MILES_PER_HOUR);
+        dimensionMap.put(Dimension.SPEED, speedMap);
+
+        Map<MeasurementSystem, Unit<?>> lengthMap = new HashMap<>();
+        lengthMap.put(MeasurementSystem.SI, Units.METRE);
+        lengthMap.put(MeasurementSystem.US, ESHUnits.INCH);
+        dimensionMap.put(Dimension.LENGTH, lengthMap);
+
+        Map<MeasurementSystem, Unit<?>> intensityMap = new HashMap<>();
+        intensityMap.put(MeasurementSystem.SI, ESHUnits.IRRADIANCE);
+        intensityMap.put(MeasurementSystem.US, ESHUnits.IRRADIANCE);
+        dimensionMap.put(Dimension.INTENSITY, intensityMap);
     }
 
     private enum MeasurementSystem {

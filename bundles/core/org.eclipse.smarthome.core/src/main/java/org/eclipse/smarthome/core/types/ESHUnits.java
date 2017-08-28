@@ -12,12 +12,15 @@ import static tec.uom.se.unit.MetricPrefix.HECTO;
 import java.math.BigInteger;
 
 import javax.measure.Unit;
+import javax.measure.quantity.Length;
 import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
 import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.function.AddConverter;
 import tec.uom.se.function.RationalConverter;
+import tec.uom.se.unit.AlternateUnit;
 import tec.uom.se.unit.TransformedUnit;
 import tec.uom.se.unit.Units;
 
@@ -36,9 +39,24 @@ public class ESHUnits extends Units {
     public static final Unit<Temperature> FAHRENHEIT = new TransformedUnit<>("°F", KELVIN,
             new RationalConverter(BigInteger.valueOf(5), BigInteger.valueOf(9)).concatenate(new AddConverter(459.67)));
 
+    public static final Unit<Speed> MILES_PER_HOUR = new TransformedUnit<>("mph", Units.KILOMETRE_PER_HOUR,
+            new RationalConverter(1609344l, 1000000l));
+
+    public static final Unit<Length> INCH = new TransformedUnit<>("in", Units.METRE,
+            new RationalConverter(254l, 10000l));
+
+    /**
+     * See https://en.wikipedia.org/wiki/Irradiance
+     */
+    public static final Unit<Intensity> IRRADIANCE = new AlternateUnit<Intensity>(Units.WATT.divide(Units.SQUARE_METRE),
+            "W/m2");
+
     static {
         SimpleUnitFormat.getInstance().label(INCH_OF_MERCURY, "inHg");
         SimpleUnitFormat.getInstance().label(FAHRENHEIT, "°F");
+        SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m2");
+        SimpleUnitFormat.getInstance().label(MILES_PER_HOUR, "mph");
+        SimpleUnitFormat.getInstance().label(INCH, "in");
     }
 
 }

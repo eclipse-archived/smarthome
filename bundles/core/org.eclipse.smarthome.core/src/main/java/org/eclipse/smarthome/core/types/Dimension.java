@@ -36,7 +36,7 @@ public enum Dimension {
     // FORCE,
     // FREQUENCY,
     // ILLUMINANCE,
-    // LENGTH,
+    LENGTH(Units.METRE),
     // LUMINOUS_FLUX,
     // LUMINOUS_INTENSITY,
     // MAGNETIC_FLUX,
@@ -48,10 +48,11 @@ public enum Dimension {
     // RADIATION_DOSE_EFFECTIVE,
     // RADIO_ACTVITY,
     // SOLID_ANGLE,
-    // SPEED,
-    TEMPERATURE(Units.KELVIN);
+    SPEED(Units.KILOMETRE_PER_HOUR),
+    TEMPERATURE(Units.KELVIN),
     // TIME,
-    // VOLUME;
+    // VOLUME,
+    INTENSITY(ESHUnits.IRRADIANCE);
 
     private final Unit<?> defaultUnit;
 

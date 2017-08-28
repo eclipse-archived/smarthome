@@ -7,25 +7,31 @@
  */
 package org.eclipse.smarthome.binding.weatherunderground.handler;
 
+import static tec.uom.se.unit.MetricPrefix.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.measure.Unit;
+
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonCurrent;
 import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonData;
-import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonUtils;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonForecast;
+import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonForecastDay;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -33,7 +39,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.ESHUnits;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -43,6 +51,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
+import tec.uom.se.unit.Units;
 
 /**
  * The {@link WeatherUndergroundHandler} is responsible for handling the
@@ -63,18 +73,21 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
     private static final int DEFAULT_REFRESH_PERIOD = 30;
 
-    private LocaleProvider localeProvider;
+    private final LocaleProvider localeProvider;
 
     private WeatherUndergroundJsonData weatherData;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Gson gson;
+    private final Gson gson;
 
-    public WeatherUndergroundHandler(Thing thing, LocaleProvider localeProvider) {
+    private final Map<String, Integer> forecastMap;
+
+    public WeatherUndergroundHandler(@NonNull Thing thing, LocaleProvider localeProvider) {
         super(thing);
         this.localeProvider = localeProvider;
         gson = new Gson();
+        forecastMap = initForecastDayMap();
     }
 
     @Override
@@ -178,57 +191,163 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * @param channelId the id identifying the channel to be updated
      */
     private void updateChannel(String channelId) {
-        Channel channel = getThing().getChannel(channelId);
-        if (channel != null && isLinked(channelId)) {
-            // Get the source unit property from the channel when defined
-            String sourceUnit = (String) channel.getConfiguration()
-                    .get(WeatherUndergroundBindingConstants.PROPERTY_SOURCE_UNIT);
-            if (sourceUnit == null) {
-                sourceUnit = "";
-            } else if (sourceUnit.length() > 0) {
-                sourceUnit = sourceUnit.substring(0, 1).toUpperCase() + sourceUnit.substring(1);
-            }
-
-            // Get the value corresponding to the channel
-            // from the last weather data retrieved
-            Object value;
-            try {
-                value = WeatherUndergroundJsonUtils.getValue(channelId + sourceUnit, weatherData);
-            } catch (Exception e) {
-                logger.debug("Update channel {}: Can't get value: {}", channelId, e.getMessage());
-                return;
-            }
-
-            // Build a State from this value
+        if (isLinked(channelId)) {
             State state = null;
-            if (value == null) {
-                state = UnDefType.UNDEF;
-            } else if (value instanceof Calendar) {
-                state = new DateTimeType((Calendar) value);
-            } else if (value instanceof BigDecimal) {
-                state = new DecimalType((BigDecimal) value);
-            } else if (value instanceof Integer) {
-                state = new DecimalType(BigDecimal.valueOf(((Integer) value).longValue()));
-            } else if (value instanceof String) {
-                state = new StringType(value.toString());
-            } else if (value instanceof URL) {
-                state = HttpUtil.downloadImage(((URL) value).toExternalForm());
-                if (state == null) {
-                    logger.debug("Failed to download the content of URL {}", ((URL) value).toExternalForm());
-                    state = UnDefType.UNDEF;
-                }
-            } else {
-                logger.debug("Update channel {}: Unsupported value type {}", channelId,
-                        value.getClass().getSimpleName());
+            if (channelId.startsWith("current")) {
+                state = updateCurrentObservationChannel(channelId, weatherData.getCurrent());
+            } else if (channelId.startsWith("forecast")) {
+                state = updateForecastChannel(channelId, weatherData.getForecast());
             }
-            logger.debug("Update channel {} with state {} ({})", channelId, (state == null) ? "null" : state.toString(),
-                    (value == null) ? "null" : value.getClass().getSimpleName());
+
+            logger.debug("Update channel {} with state {}", channelId, (state == null) ? "null" : state.toString());
 
             // Update the channel
             if (state != null) {
                 updateState(channelId, state);
             }
         }
+    }
+
+    private State updateCurrentObservationChannel(String channelId, WeatherUndergroundJsonCurrent current) {
+        String channelTypeId = getChannelTypeId(channelId);
+        switch (channelTypeId) {
+            case "location":
+                return undefOrState(current.getLocation(), new StringType(current.getLocation()));
+            case "stationId":
+                return undefOrState(current.getStationId(), new StringType(current.getStationId()));
+            case "observationTime":
+                return undefOrState(current.getObservationTime(), new DateTimeType(current.getObservationTime()));
+            case "currentConditions":
+                return undefOrState(current.getConditions(), new StringType(current.getConditions()));
+            case "temperature":
+                return undefOrQuantity(current.getTemperatureC(), Units.CELSIUS);
+            case "relativeHumidity":
+                return undefOrDecimal(current.getRelativeHumidity());
+            case "windDirection":
+                return undefOrState(current.getWindDirection(), new StringType(current.getWindDirection()));
+            case "windDirectionDegrees":
+                return undefOrDecimal(current.getWindDirectionDegrees());
+            case "windSpeed":
+                return undefOrQuantity(current.getWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+            case "windGust":
+                return undefOrQuantity(current.getWindGustKmh(), Units.KILOMETRE_PER_HOUR);
+            case "pressure":
+                return undefOrQuantity(current.getPressureHPa(), ESHUnits.HECTO_PASCAL);
+            case "dewPoint":
+                return undefOrQuantity(current.getDewPointC(), Units.CELSIUS);
+            case "heatIndex":
+                return undefOrQuantity(current.getHeatIndexC(), Units.CELSIUS);
+            case "windChill":
+                return undefOrQuantity(current.getWindChillC(), Units.CELSIUS);
+            case "feelingTemperature":
+                return undefOrQuantity(current.getFeelingTemperatureC(), Units.CELSIUS);
+            case "visibility":
+                return undefOrQuantity(current.getVisibilityKm(), KILO(Units.METRE));
+            case "solarRadiation":
+                return undefOrQuantity(current.getSolarRadiation(), ESHUnits.IRRADIANCE);
+            case "UVIndex":
+                return undefOrDecimal(current.getUVIndex());
+            case "rainDay":
+                return undefOrQuantity(current.getPrecipitationDayMm(), MILLI(Units.METRE));
+            case "rainHour":
+                return undefOrQuantity(current.getPrecipitationHourMm(), MILLI(Units.METRE));
+            case "icon":
+                State icon = HttpUtil.downloadImage(current.getIcon().toExternalForm());
+                if (icon == null) {
+                    logger.debug("Failed to download the content of URL {}", current.getIcon().toExternalForm());
+                    icon = UnDefType.UNDEF;
+                }
+                return icon;
+            default:
+                return null;
+        }
+    }
+
+    private State updateForecastChannel(String channelId, WeatherUndergroundJsonForecast forecast) {
+        int day = getDay(channelId);
+        WeatherUndergroundJsonForecastDay dayForecast = forecast.getSimpleForecast(day);
+
+        String channelTypeId = getChannelTypeId(channelId);
+        switch (channelTypeId) {
+            case "forecastTime":
+                return undefOrState(dayForecast.getForecastTime(), new DateTimeType(dayForecast.getForecastTime()));
+            case "forecastConditions":
+                return undefOrState(dayForecast.getConditions(), new StringType(dayForecast.getConditions()));
+            case "minTemperature":
+                return undefOrQuantity(dayForecast.getMinTemperatureC(), Units.CELSIUS);
+            case "maxTemperature":
+                return undefOrQuantity(dayForecast.getMaxTemperatureC(), Units.CELSIUS);
+            case "relativeHumidity":
+                return undefOrDecimal(dayForecast.getRelativeHumidity());
+            case "probaPrecipitation":
+                return undefOrDecimal(dayForecast.getProbaPrecipitation());
+            case "rainDay":
+                return undefOrQuantity(dayForecast.getPrecipitationDayMm(), MILLI(Units.METRE));
+            case "snow":
+                return undefOrQuantity(dayForecast.getSnowCm(), CENTI(Units.METRE));
+            case "maxWindDirection":
+                return undefOrState(dayForecast.getMaxWindDirection(),
+                        new StringType(dayForecast.getMaxWindDirection()));
+            case "maxWindDirectionDegrees":
+                return undefOrDecimal(dayForecast.getMaxWindDirectionDegrees());
+            case "maxWindSpeed":
+                return undefOrQuantity(dayForecast.getMaxWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+            case "averageWindDirection":
+                return undefOrState(dayForecast.getAverageWindDirection(),
+                        new StringType(dayForecast.getAverageWindDirection()));
+            case "averageWindDirectionDegrees":
+                return undefOrDecimal(dayForecast.getAverageWindDirectionDegrees());
+            case "averageWindSpeed":
+                return undefOrQuantity(dayForecast.getAverageWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+            case "icon":
+                State icon = HttpUtil.downloadImage(dayForecast.getIcon().toExternalForm());
+                if (icon == null) {
+                    logger.debug("Failed to download the content of URL {}", dayForecast.getIcon().toExternalForm());
+                    icon = UnDefType.UNDEF;
+                }
+                return icon;
+            default:
+                return null;
+        }
+    }
+
+    private State undefOrState(Object value, State state) {
+        return value == null ? UnDefType.UNDEF : state;
+    }
+
+    private State undefOrQuantity(BigDecimal value, Unit<?> unit) {
+        return value == null ? UnDefType.UNDEF : new QuantityType(value.doubleValue(), unit);
+    }
+
+    private State undefOrDecimal(Number value) {
+        return value == null ? UnDefType.UNDEF : new DecimalType(value.doubleValue());
+    }
+
+    private int getDay(String channelId) {
+        String channel = channelId.split("#")[0];
+
+        return forecastMap.get(channel);
+    }
+
+    private String getChannelTypeId(String channelId) {
+        Channel channel = thing.getChannel(channelId);
+        ChannelTypeUID channelTypeUID = channel == null ? null : channel.getChannelTypeUID();
+        return channelTypeUID == null ? null : channelTypeUID.getId();
+    }
+
+    private Map<String, Integer> initForecastDayMap() {
+        Map<String, Integer> forecastMap = new HashMap<>();
+        forecastMap.put("forecastToday", Integer.valueOf(1));
+        forecastMap.put("forecastTomorrow", Integer.valueOf(2));
+        forecastMap.put("forecastDay2", Integer.valueOf(3));
+        forecastMap.put("forecastDay3", Integer.valueOf(4));
+        forecastMap.put("forecastDay4", Integer.valueOf(5));
+        forecastMap.put("forecastDay5", Integer.valueOf(6));
+        forecastMap.put("forecastDay6", Integer.valueOf(7));
+        forecastMap.put("forecastDay7", Integer.valueOf(8));
+        forecastMap.put("forecastDay8", Integer.valueOf(9));
+        forecastMap.put("forecastDay9", Integer.valueOf(10));
+        return forecastMap;
     }
 
     /**
@@ -242,19 +361,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
         weatherData = getWeatherData(USUAL_FEATURES, StringUtils.trimToEmpty(config.location));
         return weatherData != null;
-    }
-
-    /**
-     * Request a geolookup feature to the Weather Underground service
-     * for a location given as parameter
-     *
-     * @param location the location to provide to the Weather Underground service
-     *
-     * @return true if success or false in case of error
-     */
-    private boolean checkWeatherLocation(String location) {
-        WeatherUndergroundJsonData data = getWeatherData(Collections.singleton(FEATURE_GEOLOOKUP), location);
-        return data != null;
     }
 
     /**
@@ -309,31 +415,27 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             }
 
             // Map the JSON response to an object
-            if (response != null) {
-                result = gson.fromJson(response, WeatherUndergroundJsonData.class);
-                if (result == null) {
-                    errorDetail = "no data returned";
-                } else if (result.getResponse() == null) {
-                    errorDetail = "missing response sub-object";
-                } else if (result.getResponse().getErrorDescription() != null) {
-                    if ("keynotfound".equals(result.getResponse().getErrorType())) {
-                        error = "API key has to be fixed";
-                        statusDescr = "@text/offline.comm-error-invalid-api-key";
-                    }
-                    errorDetail = result.getResponse().getErrorDescription();
-                } else {
-                    resultOk = true;
-                    for (String feature : features) {
-                        if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
-                            resultOk = false;
-                            errorDetail = "missing current_observation sub-object";
-                        } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
-                            resultOk = false;
-                            errorDetail = "missing forecast sub-object";
-                        } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
-                            resultOk = false;
-                            errorDetail = "missing location sub-object";
-                        }
+            result = gson.fromJson(response, WeatherUndergroundJsonData.class);
+            if (result.getResponse() == null) {
+                errorDetail = "missing response sub-object";
+            } else if (result.getResponse().getErrorDescription() != null) {
+                if ("keynotfound".equals(result.getResponse().getErrorType())) {
+                    error = "API key has to be fixed";
+                    statusDescr = "@text/offline.comm-error-invalid-api-key";
+                }
+                errorDetail = result.getResponse().getErrorDescription();
+            } else {
+                resultOk = true;
+                for (String feature : features) {
+                    if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
+                        resultOk = false;
+                        errorDetail = "missing current_observation sub-object";
+                    } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
+                        resultOk = false;
+                        errorDetail = "missing forecast sub-object";
+                    } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
+                        resultOk = false;
+                        errorDetail = "missing location sub-object";
                     }
                 }
             }

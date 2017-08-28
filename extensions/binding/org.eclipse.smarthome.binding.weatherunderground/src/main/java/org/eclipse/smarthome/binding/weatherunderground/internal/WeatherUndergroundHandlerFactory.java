@@ -60,4 +60,5 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
         return null;
     }
+
 }
