@@ -298,6 +298,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-item-ide" version="${project.version}">
+    <feature dependency="true">esh-model-item</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-persistence" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-item</feature>
@@ -308,6 +313,11 @@
     <feature>esh-base</feature>
     <feature>esh-model-persistence</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-persistence-ide" version="${project.version}">
+    <feature dependency="true">esh-model-persistence</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence.ide/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-rule" version="${project.version}">
@@ -324,6 +334,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-rule-ide" version="${project.version}">
+    <feature dependency="true">esh-model-rule</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-script" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-persistence</feature>
@@ -334,6 +349,11 @@
     <feature>esh-base</feature>
     <feature>esh-model-script</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-script-ide" version="${project.version}">
+    <feature dependency="true">esh-model-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script.ide/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-sitemap" version="${project.version}">
@@ -347,6 +367,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-sitemap-ide" version="${project.version}">
+    <feature dependency="true">esh-model-sitemap</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-thing" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-item</feature>
@@ -357,6 +382,23 @@
     <feature>esh-base</feature>
     <feature>esh-model-thing</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-thing-ide" version="${project.version}">
+    <feature dependency="true">esh-model-thing</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing.ide/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-lsp" version="${project.version}">
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext-ide)(version&gt;=2.12.0)(!(version&gt;=2.13.0)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=lsp4j)(version&gt;=0.2.0)(!(version&gt;=0.3.0)))"</requirement>
+    <feature>esh-model-item-ide</feature>
+    <feature>esh-model-persistence-ide</feature>
+    <feature>esh-model-rule-ide</feature>
+    <feature>esh-model-script-ide</feature>
+    <feature>esh-model-sitemap-ide</feature>
+    <feature>esh-model-thing-ide</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.lsp/${project.version}</bundle>
   </feature>
 
   <feature name="esh-storage-mapdb" version="${project.version}">

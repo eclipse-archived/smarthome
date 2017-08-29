@@ -59,7 +59,7 @@ public class ModelServer {
     private void listen() {
         try {
             socket = new ServerSocket(PORT);
-            logger.info("Language Server running on port {}", PORT);
+            logger.info("Language Server started on port {}", PORT);
             while (!socket.isClosed()) {
                 logger.debug("Going to wait for a client to connect");
                 try {
@@ -79,7 +79,6 @@ public class ModelServer {
     private void handleConnection(final Socket client) {
         logger.debug("Client {} connected", client.getRemoteSocketAddress());
         try {
-
             LanguageServerImpl languageServer = Guice.createInjector(new RuntimeServerModule())
                     .getInstance(LanguageServerImpl.class);
 
@@ -89,7 +88,7 @@ public class ModelServer {
             Future<?> future = launcher.startListening();
             future.get();
         } catch (IOException e) {
-            logger.error("Error communicating with the LSP client", e);
+            logger.warn("Error communicating with LSP client {}", client.getRemoteSocketAddress());
         } catch (InterruptedException e) {
             // go on, let the thread finish
         } catch (ExecutionException e) {
