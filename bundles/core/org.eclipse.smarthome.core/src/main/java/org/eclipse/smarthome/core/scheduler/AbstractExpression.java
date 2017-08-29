@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractExpression<E extends AbstractExpressionPart> implements Expression {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(AbstractExpression.class);
 
     private int minimumCandidates = 1;
     private int maximumCandidates = 100;
@@ -71,9 +71,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
             throw new IllegalArgumentException("The start date of the rule must not be null");
         }
         setStartDate(startDate);
-
-        setTimeZone(timeZone);
-        parseExpression(expression);
     }
 
     @Override
@@ -171,7 +168,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         validateExpression();
 
         if (startDate == null) {
-            setStartDate(Calendar.getInstance().getTime());
+            startDate = Calendar.getInstance().getTime();
         }
 
         applyExpressionParts(searchMode);
@@ -260,8 +257,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
     @Override
     public Date getTimeAfter(Date afterTime) {
 
-        Date currentStartDate = getStartDate();
-
         if (hasFloatingStartDate()) {
             try {
                 clearCandidates();
@@ -292,7 +287,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
                         for (Date candidate : getCandidates()) {
                             newStartDate = candidate;
                             if (candidate.after(afterTime)) {
-                                setStartDate(currentStartDate);
                                 return candidate;
                             }
                         }

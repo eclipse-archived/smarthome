@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * The created thread pools have named threads, so that it is easy to find them in the debugger. Additionally, it is
  * possible to configure the pool sizes through the configuration admin service, so that solutions have the chance to
  * tweak the pool sizes according to their needs.
- * 
+ *
  * <p>
  * The configuration can be done as
  * <br/>
@@ -48,7 +48,6 @@ public class ThreadPoolManager {
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
     protected static final long THREAD_TIMEOUT = 65L;
-    protected static final long THREAD_MONITOR_SLEEP = 60000;
 
     static protected Map<String, ExecutorService> pools = new WeakHashMap<>();
 
