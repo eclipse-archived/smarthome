@@ -148,9 +148,13 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      */
     public void publishChannelIfLinked(ChannelUID channelUID) {
         if (isLinked(channelUID.getId()) && getPlanet() != null) {
+            final Channel channel = getThing().getChannel(channelUID.getId());
+            if (channel == null) {
+                logger.error("Cannot find channel for {}", channelUID);
+                return;
+            }
             try {
-                AstroChannelConfig config = getThing().getChannel(channelUID.getId()).getConfiguration()
-                        .as(AstroChannelConfig.class);
+                AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
                 updateState(channelUID, PropertyUtils.getState(channelUID, config, getPlanet()));
             } catch (Exception ex) {
                 logger.error("Can't update state for channel {} : {}", channelUID, ex.getMessage(), ex);
@@ -263,11 +267,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      * Emits an event for the given channel.
      */
     public void triggerEvent(String channelId, String event) {
-        if (getThing().getChannel(channelId) == null) {
+        final Channel channel = getThing().getChannel(channelId);
+        if (channel == null) {
             logger.warn("Event {} in thing {} does not exist, please recreate the thing", event, getThing().getUID());
             return;
         }
-        triggerChannel(getThing().getChannel(channelId).getUID(), event);
+        triggerChannel(channel.getUID(), event);
     }
 
     /**
