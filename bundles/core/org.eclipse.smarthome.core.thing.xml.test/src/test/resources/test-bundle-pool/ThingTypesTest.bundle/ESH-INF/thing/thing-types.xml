@@ -43,7 +43,7 @@
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>
 
-		<category>Light</category>
+		<category>Lightbulb</category>
 
 		<channels>
 			<channel id="color" typeId="color">

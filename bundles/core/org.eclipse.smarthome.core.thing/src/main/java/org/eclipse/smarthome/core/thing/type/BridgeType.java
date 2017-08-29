@@ -41,23 +41,16 @@ public class BridgeType extends ThingType {
      *
      * @param uid the unique identifier which identifies this Bridge type within
      *            the overall system (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers to the bridges this Bridge type
      *            supports (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     *
      * @param properties the properties this Bridge type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException if the UID is null or empty,
@@ -76,27 +69,18 @@ public class BridgeType extends ThingType {
      *
      * @param uid the unique identifier which identifies this Bridge type within
      *            the overall system (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers to the bridges this Bridge type
      *            supports (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param category provides information about the thing for filtering
-     *
      * @param listed determines whether it should be displayed for manually pairing or not
-     *
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     *
      * @param properties the properties this Bridge type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException if the UID is null or empty,
@@ -116,31 +100,21 @@ public class BridgeType extends ThingType {
      *
      * @param uid the unique identifier which identifies this Bridge type within
      *            the overall system (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers to the bridges this Bridge type
      *            supports (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param category provides information about the thing for filtering
-     *
      * @param listed determines whether it should be displayed for manually pairing or not
-     *
      * @param representationProperty name of the property that uniquely identifies this Thing
-     *
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     *
      * @param properties the properties this Bridge type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
-     *
+     * 
      * @throws IllegalArgumentException if the UID is null or empty,
      *             or the the meta information is null
      */

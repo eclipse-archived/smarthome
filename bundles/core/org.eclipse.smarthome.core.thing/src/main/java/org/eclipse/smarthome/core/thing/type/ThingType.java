@@ -58,23 +58,16 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this Thing type within the overall system
      *            (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
      *            (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)6
-     *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
      *            provides (could be null or empty)
-     *
      * @param properties the properties this Thing type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException
@@ -92,27 +85,18 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this Thing type within the overall system
      *            (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
      *            (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param category provides information about the thing for filtering
-     *
      * @param listed determines whether it should be listed for manually pairing or not
-     *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
      *            provides (could be null or empty)
-     *
      * @param properties the properties this Thing type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException
@@ -131,27 +115,18 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this Thing type within the overall system
      *            (must neither be null, nor empty)
-     *
      * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
      *            (could be null or empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param listed determines whether it should be listed for manually pairing or not
-     *
      * @param representationProperty name of the property that uniquely identifies this Thing
-     *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
      *            provides (could be null or empty)
-     *
      * @param properties the properties this Thing type provides (could be null)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException
@@ -165,9 +140,7 @@ public class ThingType extends AbstractDescriptionType {
         super(uid, label, description);
 
         this.category = category;
-
         this.listed = listed;
-
         this.representationProperty = representationProperty;
 
         if (supportedBridgeTypeUIDs != null) {

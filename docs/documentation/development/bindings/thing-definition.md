@@ -21,7 +21,7 @@ Things represent devices or services that can be individually added to, configur
         </supported-bridge-type-refs>
         <label>Sample Thing</label>
         <description>Some sample description</description>
-        <category>Light</category>
+        <category>Lightbulb</category>
 		...
     </thing-type>
 ```
@@ -221,7 +221,9 @@ The channel group type is defined on the same level as the thing types and chann
 </channel-group-type>
 ```
 
-When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before. Details about the category can be found in our [categories overview](categories.html).
+When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#).
+If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+Details about the category can be found in our [categories overview](categories.html).
 
 ## Properties
 

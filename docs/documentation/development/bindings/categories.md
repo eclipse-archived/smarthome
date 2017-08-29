@@ -30,7 +30,7 @@ The thing type definition allows to specify a category. User interfaces can pars
 | Heating         | Devices that deal with heating |
 | Hifi            | Devices related to TV/audio, such as satelite or cable receivers, recorders, etc.
 | HomeApplicance  | Devices that look like Waschingmachines, Dishwashers, Dryers, etc. |
-| Light           | Devices that illuminate something, such as bulbs, etc. |
+| Lightbulb       | Devices that illuminate something, such as bulbs, etc. |
 | Lock            | Devices whose primary pupose is locking something |
 | Microphone      | Devices to record sound |
 | Mixer           | Kitchen devices for making cake |
