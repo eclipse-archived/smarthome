@@ -78,7 +78,6 @@ public final class DailyJobSun extends AbstractJob {
         // schedule phase jobs
         scheduleSunPhase(thingUID, handler, SUN_RISE, sun.getRise().getStart());
         scheduleSunPhase(thingUID, handler, SUN_SET, sun.getSet().getStart());
-        scheduleSunPhase(thingUID, handler, NOON, sun.getNoon().getStart());
         scheduleSunPhase(thingUID, handler, NIGHT, sun.getNight().getStart());
         scheduleSunPhase(thingUID, handler, DAYLIGHT, sun.getDaylight().getStart());
         scheduleSunPhase(thingUID, handler, ASTRO_DAWN, sun.getAstroDawn().getStart());
