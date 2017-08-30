@@ -9,11 +9,14 @@ package org.eclipse.smarthome.model.item.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
@@ -67,9 +70,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private Integer rank;
 
-    public GenericItemProvider() {
-    }
-
     protected void activate(Map<String, Object> properties) {
         Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
         if (serviceRanking instanceof Integer) {
@@ -86,6 +86,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
+
+        // process models which are already parsed by modelRepository:
+        for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
+            modelChanged(modelName, EventType.ADDED);
+        }
+
         modelRepository.addModelRepositoryChangeListener(this);
     }
 
@@ -157,6 +163,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 }
             }
         }
+
         return items;
     }
 
@@ -343,16 +350,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
         if (modelName.endsWith("items")) {
             switch (type) {
                 case ADDED:
-                    Collection<Item> allNewItems = getItemsFromModel(modelName);
-                    itemsMap.put(modelName, allNewItems);
-                    for (Item item : allNewItems) {
-                        notifyListenersAboutAddedElement(item);
-                    }
-                    processBindingConfigsFromModel(modelName, type);
-                    break;
                 case MODIFIED:
                     Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
-                    Map<String, Item> newItems = toItemMap(getAll());
+                    Map<String, Item> newItems = toItemMap(getItemsFromModel(modelName));
                     itemsMap.put(modelName, newItems.values());
                     for (Item newItem : newItems.values()) {
                         if (oldItems.containsKey(newItem.getName())) {
@@ -384,11 +384,11 @@ public class GenericItemProvider extends AbstractProvider<Item>
     }
 
     private Map<String, Item> toItemMap(Collection<Item> items) {
-        Map<String, Item> ret = new HashMap<>();
-        for (Item item : items) {
-            ret.put(item.getName(), item);
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyMap();
         }
-        return ret;
+
+        return items.stream().collect(Collectors.toMap(Item::getName, Function.identity()));
     }
 
     /**
