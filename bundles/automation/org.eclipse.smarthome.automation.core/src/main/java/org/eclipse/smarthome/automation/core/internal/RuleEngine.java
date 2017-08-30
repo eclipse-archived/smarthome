@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -1442,7 +1443,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     }
 
-    private <T extends Module> void normalizeModuleConfigurations(List<T> modules) {
+    private <T extends Module> void normalizeModuleConfigurations(List<@NonNull T> modules) {
         for (Module module : modules) {
             Configuration config = module.getConfiguration();
             if (config != null) {

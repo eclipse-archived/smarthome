@@ -350,7 +350,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         for (Thing aThing : allThings) {
             if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(aThing.getThingTypeUID())) {
                 ZonePlayerHandler handler = (ZonePlayerHandler) aThing.getHandler();
-                handler.restoreState();
+                if (handler != null) {
+                    handler.restoreState();
+                }
             }
         }
     }
@@ -360,7 +362,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         for (Thing aThing : allThings) {
             if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(aThing.getThingTypeUID())) {
                 ZonePlayerHandler handler = (ZonePlayerHandler) aThing.getHandler();
-                handler.saveState();
+                if (handler != null) {
+                    handler.saveState();
+                }
             }
         }
     }
@@ -1743,7 +1747,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {

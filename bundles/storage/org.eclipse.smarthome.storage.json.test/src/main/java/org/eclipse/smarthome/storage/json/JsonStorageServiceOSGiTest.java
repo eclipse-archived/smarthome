@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,9 +73,11 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
         assertThat(pItem, is(nullValue()));
 
         pItem = storage.get("Key1");
+        Assert.assertNotNull(pItem);
         assertThat(pItem.itemType, is("String"));
 
         pItem = storage.put("Key1", new PersistedItem("Number", Arrays.asList("TEMPERATURE")));
+        Assert.assertNotNull(pItem);
         assertThat(storage.getKeys().size(), is(1));
         assertThat(pItem.itemType, is("String"));
         assertThat(storage.get("Key1").itemType, is("Number"));

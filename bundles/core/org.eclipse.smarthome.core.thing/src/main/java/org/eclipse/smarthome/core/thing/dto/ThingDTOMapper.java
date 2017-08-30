@@ -43,11 +43,10 @@ public class ThingDTOMapper {
 
         String thingTypeUID = thing.getThingTypeUID().getAsString();
         String thingUID = thing.getUID().toString();
-        @SuppressWarnings("null") // thing.getBridgeUID() is checked against null before use
-        String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
+        final ThingUID bridgeUID = thing.getBridgeUID();
 
-        return new ThingDTO(thingTypeUID, thingUID, thing.getLabel(), bridgeUID, channelDTOs,
-                toMap(thing.getConfiguration()), thing.getProperties(), thing.getLocation());
+        return new ThingDTO(thingTypeUID, thingUID, thing.getLabel(), bridgeUID != null ? bridgeUID.toString() : null,
+                channelDTOs, toMap(thing.getConfiguration()), thing.getProperties(), thing.getLocation());
     }
 
     /**
