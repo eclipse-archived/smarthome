@@ -509,13 +509,17 @@ public class MqttBrokerConnection {
 
             @Override
             public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                isConnecting = false;
                 for (final MqttConnectionObserver connectionObserver : connectionObservers) {
                     connectionObserver.connectionStateChanged(
                             isConnected() ? MqttConnectionState.CONNECTED : MqttConnectionState.DISCONNECTED,
                             asyncActionToken.getException());
                 }
-                reconnectStrategy.lostConnection();
+
+                // If we tried to connect via start(), use the reconnect strategy to try it again
+                if (isConnecting) {
+                    isConnecting = false;
+                    reconnectStrategy.lostConnection();
+                }
             }
         };
     }
@@ -551,7 +555,6 @@ public class MqttBrokerConnection {
         MqttDefaultFilePersistence dataStore = new MqttDefaultFilePersistence(tmpDir);
 
         // Create client
-        logger.debug("Creating new client for '{}' using id '{}' and file store '{}'", getUrl(), clientId, tmpDir);
         try {
             client = new MqttAsyncClient(getUrl(), clientId, dataStore);
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
@@ -559,7 +562,8 @@ public class MqttBrokerConnection {
         }
         client.setCallback(clientCallbacks);
 
-        logger.info("Starting MQTT broker connection '{}' with clientid {}", getName(), getClientId());
+        logger.info("Starting MQTT broker connection '{}' to '{}' with clientid {} and file store '{}'", getName(),
+                getUrl(), getClientId(), tmpDir);
 
         // Perform the connection attempt
         isConnecting = true;
@@ -575,7 +579,16 @@ public class MqttBrokerConnection {
      * Close the MQTT connection.
      */
     public synchronized void close() {
-        logger.trace("Closing connection to broker '{}'", getName());
+        logger.trace("Closing the MQTT broker connection '{}'", getName());
+
+        // Abort a connection attempt
+        isConnecting = false;
+
+        if (reconnectStrategy != null) {
+            reconnectStrategy.close();
+        }
+
+        // Close connection
         try {
             if (isConnected()) {
                 client.disconnect();
