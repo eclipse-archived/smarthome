@@ -64,7 +64,7 @@ class ThingTypesTest extends OSGiTest {
 
         def thingType = thingTypes.find { it.toString().equals("hue:lamp") } as ThingType
         assertThat thingType, is(notNullValue())
-        assertThat thingType.category, is("Light")
+        assertThat thingType.category, is("Lightbulb")
         assertThat thingType.listed, is(false)
         assertThat thingType.label, is("HUE Lamp")
         assertThat thingType.description, is("My own great HUE Lamp.")
