@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.io.rest.core.item;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -61,6 +63,8 @@ import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -86,6 +90,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
  * @author Franck Dechavanne - Added DTOs to ApiResponses
+ * @author Stefan Triller - Added bulk item add method
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
@@ -385,7 +390,7 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found or item is not editable.") })
     public Response removeItem(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
-        if (managedItemProvider.remove(itemname) == null) {
+        if (itemname == null || managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -474,24 +479,12 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        ActiveItem newItem = ItemDTOMapper.map(item, itemFactories);
+        ActiveItem newItem = createActiveItem(item);
 
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     item.type);
             return Response.status(Status.BAD_REQUEST).build();
-        }
-
-        // Update the label
-        newItem.setLabel(item.label);
-        if (item.category != null) {
-            newItem.setCategory(item.category);
-        }
-        if (item.groupNames != null) {
-            newItem.addGroupNames(item.groupNames);
-        }
-        if (item.tags != null) {
-            newItem.addTags(item.tags);
         }
 
         // Save the item
@@ -510,6 +503,103 @@ public class ItemResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.METHOD_NOT_ALLOWED,
                     "Cannot update non-managed Item " + itemname);
         }
+    }
+
+    /**
+     * Create or Update a list of items by supplying a list of item beans.
+     *
+     * @param items the list of item beans.
+     * @return array of status information for each item bean
+     */
+    @PUT
+    @RolesAllowed({ Role.ADMIN })
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Adds a list of items to the registry or updates the existing items.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 400, message = "Item list is null.") })
+    public Response createOrUpdateItems(@ApiParam(value = "array of item data", required = true) GroupItemDTO[] items) {
+
+        // If we didn't get an item list bean, then return!
+        if (items == null) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        List<GroupItemDTO> wrongTypes = new ArrayList<>();
+        List<ActiveItem> activeItems = new ArrayList<>();
+
+        for (GroupItemDTO item : items) {
+            ActiveItem newItem = createActiveItem(item);
+            if (newItem == null) {
+                wrongTypes.add(item);
+            } else {
+                activeItems.add(newItem);
+            }
+        }
+
+        List<ActiveItem> createdItems = new ArrayList<>();
+        List<ActiveItem> updatedItems = new ArrayList<>();
+        List<ActiveItem> failedItems = new ArrayList<>();
+
+        for (ActiveItem activeItem : activeItems) {
+            String itemName = activeItem.getName();
+            if (getItem(itemName) == null) {
+                // item does not yet exist, create it
+                managedItemProvider.add(activeItem);
+                createdItems.add(activeItem);
+            } else if (managedItemProvider.get(itemName) != null) {
+                // item already exists as a managed item, update it
+                managedItemProvider.update(activeItem);
+                updatedItems.add(activeItem);
+            } else {
+                // Item exists but cannot be updated
+                logger.warn("Cannot update existing item '{}', because is not managed.", itemName);
+                failedItems.add(activeItem);
+            }
+        }
+
+        // build response
+        List<JsonObject> responseList = new ArrayList<>();
+
+        for (GroupItemDTO item : wrongTypes) {
+            responseList.add(buildStatusObject(item.name, "error", "Received HTTP PUT request at '" + uriInfo.getPath()
+                    + "' with an invalid item type '" + item.type + "'."));
+        }
+        for (ActiveItem item : failedItems) {
+            responseList.add(buildStatusObject(item.getName(), "error", "Cannot update non-managed Item"));
+        }
+        for (ActiveItem item : createdItems) {
+            responseList.add(buildStatusObject(item.getName(), "created", null));
+        }
+        for (ActiveItem item : updatedItems) {
+            responseList.add(buildStatusObject(item.getName(), "updated", null));
+        }
+
+        return JSONResponse.createResponse(Status.OK, responseList, null);
+    }
+
+    private ActiveItem createActiveItem(GroupItemDTO item) {
+        ActiveItem activeItem = ItemDTOMapper.map(item, itemFactories);
+        if (activeItem != null) {
+            activeItem.setLabel(item.label);
+            if (item.category != null) {
+                activeItem.setCategory(item.category);
+            }
+            if (item.groupNames != null) {
+                activeItem.addGroupNames(item.groupNames);
+            }
+            if (item.tags != null) {
+                activeItem.addTags(item.tags);
+            }
+        }
+        return activeItem;
+    }
+
+    private JsonObject buildStatusObject(String itemName, String status, String message) {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("name", itemName);
+        jo.addProperty("status", status);
+        jo.addProperty("message", message);
+        return jo;
     }
 
     /**

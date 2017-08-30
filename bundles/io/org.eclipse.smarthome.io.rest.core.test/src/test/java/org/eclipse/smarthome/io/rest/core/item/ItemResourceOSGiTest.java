@@ -16,6 +16,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -23,9 +24,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -38,9 +41,9 @@ import com.jayway.jsonpath.JsonPath;
 
 public class ItemResourceOSGiTest extends JavaOSGiTest {
 
-    private static final String ITEM_NAME1 = "Item1";
-    private static final String ITEM_NAME2 = "Item2";
-    private static final String ITEM_NAME3 = "Item3";
+    private static final @NonNull String ITEM_NAME1 = "Item1";
+    private static final @NonNull String ITEM_NAME2 = "Item2";
+    private static final @NonNull String ITEM_NAME3 = "Item3";
 
     private GenericItem item1;
     private GenericItem item2;
@@ -134,6 +137,54 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     private List<String> readItemNamesFromResponse(Response response) throws IOException {
         String jsonResponse = IOUtils.toString((InputStream) response.getEntity());
         return JsonPath.read(jsonResponse, "$..name");
+    }
+
+    @Test
+    public void addMultipleItems() throws IOException {
+
+        List<GroupItemDTO> itemList = new ArrayList<>();
+        GroupItemDTO[] items = new GroupItemDTO[] {};
+
+        GroupItemDTO item1DTO = new GroupItemDTO();
+        item1DTO.name = "item1";
+        item1DTO.type = "Switch";
+        item1DTO.label = "item1Label";
+        itemList.add(item1DTO);
+
+        GroupItemDTO item2DTO = new GroupItemDTO();
+        item2DTO.name = "item2";
+        item2DTO.type = "Rollershutter";
+        item2DTO.label = "item2Label";
+        itemList.add(item2DTO);
+
+        items = itemList.toArray(items);
+        Response response = itemResource.createOrUpdateItems(items);
+
+        String jsonResponse = IOUtils.toString((InputStream) response.getEntity());
+        List<String> statusCodes = JsonPath.read(jsonResponse, "$..status");
+
+        // expect 2x created
+        assertThat(statusCodes.size(), is(2));
+        assertThat(statusCodes.get(0), is("created"));
+        assertThat(statusCodes.get(1), is("created"));
+
+        itemList.clear();
+
+        item1DTO.label = "item1LabelNew";
+        itemList.add(item1DTO);
+        item2DTO.type = "WrongType";
+        itemList.add(item2DTO);
+
+        items = itemList.toArray(items);
+        response = itemResource.createOrUpdateItems(items);
+
+        jsonResponse = IOUtils.toString((InputStream) response.getEntity());
+        statusCodes = JsonPath.read(jsonResponse, "$..status");
+
+        // expect error and updated
+        assertThat(statusCodes.size(), is(2));
+        assertThat(statusCodes.get(0), is("error"));
+        assertThat(statusCodes.get(1), is("updated"));
     }
 
 }
