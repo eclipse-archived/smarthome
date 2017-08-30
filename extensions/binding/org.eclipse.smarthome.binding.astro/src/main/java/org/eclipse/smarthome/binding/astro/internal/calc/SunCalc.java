@@ -198,7 +198,7 @@ public class SunCalc {
         if (sunYesterday.getAstroDusk().getEnd() != null
                 && DateUtils.isSameDay(sunYesterday.getAstroDusk().getEnd(), calendar)) {
             morningNightRange = new Range(sunYesterday.getAstroDusk().getEnd(), sun.getAstroDawn().getStart());
-        } else if (isSunUpAllDay) {
+        } else if (isSunUpAllDay || sun.getAstroDawn().getStart() == null) {
             morningNightRange = new Range();
         } else {
             morningNightRange = new Range(DateTimeUtils.truncateToMidnight(calendar), sun.getAstroDawn().getStart());
@@ -243,8 +243,10 @@ public class SunCalc {
         // phase
         for (Entry<SunPhaseName, Range> rangeEntry : sun.getAllRanges().entrySet()) {
             SunPhaseName entryPhase = rangeEntry.getKey();
-            if (entryPhase != SunPhaseName.MORNING_NIGHT && entryPhase != SunPhaseName.EVENING_NIGHT) {
-                if (rangeEntry.getValue().matches(Calendar.getInstance())) {
+            if (rangeEntry.getValue().matches(Calendar.getInstance())) {
+                if (entryPhase == SunPhaseName.MORNING_NIGHT || entryPhase == SunPhaseName.EVENING_NIGHT) {
+                    sun.getPhase().setName(SunPhaseName.NIGHT);
+                } else {
                     sun.getPhase().setName(entryPhase);
                 }
             }
