@@ -51,7 +51,7 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
             * `total, partial, ring` (DateTime)
     * **group** `phase`
         * **channel** 
-            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NOON, NIGHT`
+            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NIGHT`
 * **thing** `moon`
     * **group** `rise, set`
         * **channel** 

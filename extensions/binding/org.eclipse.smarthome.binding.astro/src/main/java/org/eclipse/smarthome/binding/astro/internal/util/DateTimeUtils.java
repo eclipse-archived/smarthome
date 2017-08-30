@@ -29,7 +29,7 @@ public class DateTimeUtils {
 
     public static final double J1970 = 2440588.0;
     public static final double MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
-    
+
     /** Constructor */
     private DateTimeUtils() {
         throw new IllegalAccessError("Non-instantiable");
@@ -93,13 +93,20 @@ public class DateTimeUtils {
     }
 
     /**
-     * Returns the end of day julian date from the calendar object.
+     * Returns the end of day from the calendar object.
      */
-    public static double endOfDayDateToJulianDate(Calendar calendar) {
+    public static Calendar endOfDayDate(Calendar calendar) {
         Calendar cal = (Calendar) calendar.clone();
         cal = DateUtils.ceiling(cal, Calendar.DATE);
         cal.add(Calendar.MILLISECOND, -1);
-        return dateToJulianDate(cal);
+        return cal;
+    }
+
+    /**
+     * Returns the end of day julian date from the calendar object.
+     */
+    public static double endOfDayDateToJulianDate(Calendar calendar) {
+        return dateToJulianDate(endOfDayDate(calendar));
     }
 
     /**
