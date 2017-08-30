@@ -80,7 +80,9 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
         if (serviceReg != null) {
             TradfriDiscoveryService service = (TradfriDiscoveryService) bundleContext
                     .getService(serviceReg.getReference());
-            service.deactivate();
+            if (service != null) {
+                service.deactivate();
+            }
             serviceReg.unregister();
             discoveryServiceRegs.remove(bridgeHandler.getThing().getUID());
         }

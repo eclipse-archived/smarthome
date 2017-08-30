@@ -325,7 +325,10 @@ public class BridgeHandler extends BaseBridgeHandler
     public void handleRemoval() {
         for (Thing thing : getThing().getThings()) {
             // Inform Thing-Child's about removed bridge.
-            thing.getHandler().bridgeStatusChanged(ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build());
+            final ThingHandler thingHandler = thing.getHandler();
+            if (thingHandler != null) {
+                thingHandler.bridgeStatusChanged(ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build());
+            }
         }
         if (StringUtils.isNotBlank((String) super.getConfig().get(APPLICATION_TOKEN))) {
             if (connMan == null) {
@@ -581,7 +584,8 @@ public class BridgeHandler extends BaseBridgeHandler
      */
     public List<Device> getDevices() {
         return this.structMan != null && this.structMan.getDeviceMap() != null
-                ? new LinkedList<Device>(this.structMan.getDeviceMap().values()) : null;
+                ? new LinkedList<Device>(this.structMan.getDeviceMap().values())
+                : null;
     }
 
     /**

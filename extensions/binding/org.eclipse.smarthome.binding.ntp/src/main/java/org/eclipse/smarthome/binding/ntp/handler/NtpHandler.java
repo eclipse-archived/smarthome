@@ -134,15 +134,19 @@ public class NtpHandler extends BaseThingHandler {
             stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
             try {
                 Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
-                Configuration cfg = stringChannel.getConfiguration();
-                String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
-                if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
-                    dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
+                if (stringChannel != null) {
+                    Configuration cfg = stringChannel.getConfiguration();
+                    String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
+                    if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
+                        dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
+                    } else {
+                        logger.debug("No format set in channel config for {}. Using default format.", stringChannelUID);
+                        dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
+                    }
                 } else {
-                    logger.debug("No format set in channel config for {}. Using default format.", stringChannelUID);
-                    dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
+                    logger.debug("Missing channel: '{}'", stringChannelUID.getId());
                 }
-            } catch (Exception ex) {
+            } catch (RuntimeException ex) {
                 logger.debug("No channel config or invalid format for {}. Using default format. ({})", stringChannelUID,
                         ex.getMessage());
                 dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
