@@ -92,7 +92,9 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
         List<M> children = getChildren();
         for (M child : children) {
             ModuleHandler childHandler = moduleHandlerMap.remove(child);
-            childHandler.dispose();
+            if (childHandler != null) {
+                childHandler.dispose();
+            }
         }
         moduleHandlerMap = null;
     }

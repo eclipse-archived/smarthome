@@ -100,7 +100,9 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
                 // remove discovery service, if bridge handler is removed
                 HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
                         .getService(serviceReg.getReference());
-                service.deactivate();
+                if (service != null) {
+                    service.deactivate();
+                }
                 serviceReg.unregister();
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }

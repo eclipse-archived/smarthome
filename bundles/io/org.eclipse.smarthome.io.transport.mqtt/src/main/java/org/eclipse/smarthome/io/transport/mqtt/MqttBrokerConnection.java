@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.naming.ConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -131,19 +132,20 @@ public class MqttBrokerConnection {
      *            ssl://localhost:8883
      * @throws ConfigurationException
      */
-    @SuppressWarnings("null")
-    public MqttBrokerConnection(String name, String url, boolean textualConfiguredBroker)
+    public MqttBrokerConnection(@NonNull String name, @NonNull String url, boolean textualConfiguredBroker)
             throws ConfigurationException {
         this.textualConfiguredBroker = textualConfiguredBroker;
-        this.name = name != null ? name.trim() : null;
-        this.url = url != null ? url.trim() : null;
-        if (StringUtils.isBlank(this.name)) {
+
+        if (name.isEmpty()) {
             throw new ConfigurationException("No name for the broker set!");
         }
-        if (StringUtils.isBlank(url) || (!url.startsWith("tcp://") && !url.startsWith("ssl://"))) {
+        if (url.isEmpty() || (!url.startsWith("tcp://") && !url.startsWith("ssl://"))) {
             throw new ConfigurationException(
                     "No valid url for the broker set! Must be tcp://localhost:1234 or ssl://localhost:1234. Port is optional.");
         }
+
+        this.name = name;
+        this.url = url;
         setReconnectStrategy(new PeriodicReconnectStrategy());
     }
 
