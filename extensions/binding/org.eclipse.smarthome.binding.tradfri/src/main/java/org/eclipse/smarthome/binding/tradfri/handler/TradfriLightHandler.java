@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -145,6 +146,17 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             
             logger.debug("Updating thing for lightId {} to state {dimmer: {}, colorTemp: {}, devicefirmware: {}, modelId: {}, vendor: {}}"
                     , state.getLightId(), dimmer, colorTemp, devicefirmware, modelId, vendor);
+        }
+    }
+    
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        super.bridgeStatusChanged(bridgeStatusInfo);
+
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
+            scheduler.schedule(() -> {
+                coapClient.startObserve(this);
+            }, 0, TimeUnit.SECONDS);
         }
     }
 
