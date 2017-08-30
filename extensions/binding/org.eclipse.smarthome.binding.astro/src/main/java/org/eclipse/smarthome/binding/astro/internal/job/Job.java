@@ -96,8 +96,12 @@ public interface Job extends Runnable {
         }
         final Calendar instant;
         if (!configAlreadyApplied) {
-            AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                    .as(AstroChannelConfig.class);
+            final Channel channel = astroHandler.getThing().getChannel(channelId);
+            if (channel == null) {
+                logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+                return;
+            }
+            AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
             instant = applyConfig(eventAt, config);
         } else {
             instant = eventAt;
@@ -132,8 +136,12 @@ public interface Job extends Runnable {
             return;
         }
 
-        AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                .as(AstroChannelConfig.class);
+        final Channel channel = astroHandler.getThing().getChannel(channelId);
+        if (channel == null) {
+            logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+            return;
+        }
+        AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
         Calendar configStart = applyConfig(start, config);
         Calendar configEnd = applyConfig(end, config);
 
