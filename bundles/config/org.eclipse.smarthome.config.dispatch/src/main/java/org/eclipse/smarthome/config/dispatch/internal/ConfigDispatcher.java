@@ -29,6 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
+import org.eclipse.smarthome.io.crypto.Crypto;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
@@ -47,18 +48,18 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The format of the configuration file is similar to a standard property file, with the exception that the property
  * name can be prefixed by the service pid of the {@link ManagedService}:
- * 
+ *
  * <p>
  * &lt;service-pid&gt;:&lt;property&gt;=&lt;value&gt;
- * 
+ *
  * <p>
  * In case the pid does not contain any ".", the default service pid namespace is prefixed, which can be defined by the
  * program argument "smarthome.servicepid" (default is "org.eclipse.smarthome").
- * 
+ *
  * <p>
  * If no pid is defined in the property line, the default pid namespace will be used together with the filename. E.g. if
  * you have a file "security.cfg", the pid that will be used is "org.eclipse.smarthome.security".
- * 
+ *
  * <p>
  * Last but not least, a pid can be defined in the first line of a cfg file by prefixing it with "pid:", e.g.
  * "pid: com.acme.smarthome.security".
@@ -108,6 +109,7 @@ public class ConfigDispatcher extends AbstractWatchService {
     private final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
 
     private ConfigurationAdmin configAdmin;
+    private Crypto crypto;
 
     @Override
     public void activate() {
@@ -128,6 +130,14 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     protected void unsetConfigurationAdmin(ConfigurationAdmin configAdmin) {
         this.configAdmin = null;
+    }
+
+    protected void setCryptoModule(Crypto crypto) {
+        this.crypto = crypto;
+    }
+
+    protected void unsetCryptoModule(Crypto crypto) {
+        this.crypto = null;
     }
 
     @Override
@@ -252,6 +262,22 @@ public class ConfigDispatcher extends AbstractWatchService {
 
             String property = contents[1];
             String value = contents[2];
+            logger.debug("'{}'='{}'", property, value);
+
+            if (value != null) {
+                if (value.startsWith("ENC(") && value.endsWith(")")) {
+                    String val = value.substring(value.indexOf("(") + 1, value.indexOf(")"));
+                    try {
+                        String decryptedText = crypto.decrypt(val);
+                        logger.debug("decryptedText: {}", decryptedText); // TODO: remove
+                        value = decryptedText;
+                    } catch (Exception e) {
+                        logger.warn("Error occured during property '" + property + "' value decryption. ", e);
+                        continue;
+                    }
+                }
+            }
+
             Configuration configuration = configAdmin.getConfiguration(pid, null);
             if (configuration != null) {
                 Dictionary configProperties = configMap.get(configuration);
