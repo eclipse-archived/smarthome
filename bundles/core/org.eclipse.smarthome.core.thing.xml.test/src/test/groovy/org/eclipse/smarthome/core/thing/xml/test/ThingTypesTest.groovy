@@ -54,7 +54,7 @@ class ThingTypesTest extends OSGiTest {
 
         def bridgeType = thingTypes.find { it.toString().equals("hue:bridge") } as BridgeType
         assertThat bridgeType, is(notNullValue())
-        assertThat bridgeType.category, is("Light")
+        assertThat bridgeType.category, is("NetworkAppliance")
         assertThat bridgeType.listed, is(false)
         assertThat bridgeType.label, is("HUE Bridge")
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
