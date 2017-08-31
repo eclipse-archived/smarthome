@@ -48,6 +48,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     protected void startScan() {
+        removeOlderResults(getTimestampOfLastScan());
         handler.startScan();
     }
 
