@@ -390,7 +390,11 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found or item is not editable.") })
     public Response removeItem(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
-        if (itemname == null || managedItemProvider.remove(itemname) == null) {
+        if (itemname == null) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -565,7 +569,7 @@ public class ItemResource implements RESTResource {
                     + "' with an invalid item type '" + item.type + "'."));
         }
         for (ActiveItem item : failedItems) {
-            responseList.add(buildStatusObject(item.getName(), "error", "Cannot update non-managed Item"));
+            responseList.add(buildStatusObject(item.getName(), "error", "Cannot update non-managed item"));
         }
         for (ActiveItem item : createdItems) {
             responseList.add(buildStatusObject(item.getName(), "created", null));
