@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     private final Logger logger = LoggerFactory.getLogger(PeriodicReconnectStrategy.class);
-    private int reconnectFrequency = 60000;
-    private int firstReconnectAfter = 10000;
+    private final int reconnectFrequency;
+    private final int firstReconnectAfter;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> scheduledTask;
@@ -38,6 +38,7 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
      * Use a default 60s reconnect frequency and try the first reconnect after 10s.
      */
     public PeriodicReconnectStrategy() {
+        this(10000, 60000);
     }
 
     /**
@@ -94,16 +95,8 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
         return reconnectFrequency;
     }
 
-    public void setReconnectFrequency(int reconnectFrequency) {
-        this.reconnectFrequency = reconnectFrequency;
-    }
-
     public int getFirstReconnectAfter() {
         return firstReconnectAfter;
-    }
-
-    public void setFirstReconnectAfter(int firstReconnectAfter) {
-        this.firstReconnectAfter = firstReconnectAfter;
     }
 
     @Override
