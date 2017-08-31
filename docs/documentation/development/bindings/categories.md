@@ -8,50 +8,40 @@ layout: documentation
 
 Categories in Eclipse SmartHome are used to provide meta information about things channels, etc. UIs can use this information to render specific icons or provide a search functionality to for example filter all things for a certain category.
 
+## Differences between categories
+
+We seperate the categories into `functional` and `visual`. Therefore we treat `thing categories` as how the physical device **looks like** and `channel categories` as something that describes the **functional purpose** of the channel.
+
 ## Thing Categories
 
 The thing type definition allows to specify a category. User interfaces can parse this category to get an idea how to render this thing. A binding can classify each thing into one of the existing categories. The list of all predefined categories can be found in our categories overview:
 
 | Category        | Description                                          |
 |-----------------|------------------------------------------------------|
-| Aircondition    | Air condition devices incl. Fans |
-| BinarySensor    | General purpose sensor that returns a boolean value, i.e. a contact that reports open/close on a door or window |
-| Bridge          | Bridges/Gateway need to access other devices like used by Philips Hue for example |
-| Boiler          | Devices that heat up water |
+| AVR             | Audio/Video receivers, i.e. radio receivers, satelite or cable receivers, recorders, etc.
+| Blinds          | Roller shutters, window blinds, etc. |
 | Camera          | All kinds of cameras |
 | Car             | Smart Cars |
-| Cistern         | Cistern |
-| Clock           | Devices that provide the current time |
-| Coffee          | Coffee machines |
-| Fridge          | Fridges, Freezers |
-| Furniture       | Smart furniture |
-| GarageDoor      | Garage doors |
-| GeneralSensor   | General purpose sensor that does not fit in any category |
+| CleaningRobot   | Vacuum robots, mopping robots, etc. |
 | Heating         | Devices that deal with heating |
-| Hifi            | Devices related to TV/audio, such as satelite or cable receivers, recorders, etc.
-| HomeApplicance  | Devices that look like Waschingmachines, Dishwashers, Dryers, etc. |
+| HVAC            | Air condition devices, Fans |
+| Inverter        | Power inverter, such as solar inverters etc. |
+| LawnMower       | Lawn mowing robots, etc. |
 | Lightbulb       | Devices that illuminate something, such as bulbs, etc. |
 | Lock            | Devices whose primary pupose is locking something |
-| Microphone      | Devices to record sound |
-| Mixer           | Kitchen devices for making cake |
-| MotionSensor    | Motion sensors/detectors |
-| MultiSwitch     | Device which controls MULTIPLE states (else see Switch) of something |
-| Oven            | Ovens, microwaves, etc. |
-| Phone           | Anything related to telephony, such as mobile phones, landline phones, etc. |
-| PowerSocketDevice | Small devices to be plugged into a power socket in a wall which stick there |
+| MotionDetector  | Motion sensors/detectors |
+| NetworkAppliance| Bridges/Gateway need to access other devices like used by Philips Hue for example, Routers, Switches |
+| PowerOutlet     | Small devices to be plugged into a power socket in a wall which stick there |
 | Projector       | Devices that project a picture somewhere |
-| Pump            | Water pumps |
-| Radiator        | Radiators that heat up rooms |
-| Robots          | Vacuum cleaners such as cleaning robots, lawn mowers, etc. |
-| RollerShutter   | Roller shutters |
+| RadiatorControl | Controls on radiators used to heat up rooms |
 | Screen          | Devices that are able to show a picture |
+| Sensor          | Device used to measure something |
 | Siren           | Siren used by Alarm systems |
-| Softener        | Water softeners |
-| SolarPlant      | Devices related to solar |
-| Smoke           | Smoke detectors |
-| Speakers        | Devices that are able to play sounds |
+| SmokeDetector   | Smoke detectors |
+| Speaker         | Devices that are able to play sounds |
 | (Wall)Switch    | Any device that controls a BINARY status (else see MultiSwitch) of something, for ex. a light switch |
-| Weather         | Rain sensors, Humidity sensors, Pressure sensors, wind sensors, etc. |
+| WebService      | Account with credentials for a website |
+| WhiteGood       | Devices that look like Waschingmachines, Dishwashers, Dryers, Fridges, Ovens, etc. |
 
 ## Channel Categories
 

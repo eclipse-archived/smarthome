@@ -10,7 +10,7 @@
 		<description>The hue Bridge represents the Philips hue bridge.
 		</description>
 
-		<category>Light</category>
+		<category>NetworkAppliance</category>
 
 		<properties>
 			<property name="vendor">Philips</property>
