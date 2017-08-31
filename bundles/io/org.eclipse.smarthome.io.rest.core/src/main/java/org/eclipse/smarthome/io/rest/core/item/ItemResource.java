@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ActiveItem;
@@ -388,12 +389,8 @@ public class ItemResource implements RESTResource {
     @ApiOperation(value = "Removes an item from the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found or item is not editable.") })
-    public Response removeItem(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
-
-        if (itemname == null) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-
+    public Response removeItem(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) @NonNull String itemname) {
         if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
@@ -556,7 +553,7 @@ public class ItemResource implements RESTResource {
                 updatedItems.add(activeItem);
             } else {
                 // Item exists but cannot be updated
-                logger.warn("Cannot update existing item '{}', because is not managed.", itemName);
+                logger.warn("Cannot update existing item '{}', because it is not managed.", itemName);
                 failedItems.add(activeItem);
             }
         }
