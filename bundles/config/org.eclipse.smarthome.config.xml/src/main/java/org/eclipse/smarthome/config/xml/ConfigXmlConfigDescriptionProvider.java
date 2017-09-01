@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.config.xml;
 
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
@@ -18,6 +20,8 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -41,19 +45,31 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
     private XmlDocumentBundleTracker<List<ConfigDescription>> configDescriptionTracker;
 
     private ConfigI18nLocalizationService configI18nLocalizerService;
+    private ReadyService readyService;
+
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(XmlDocumentBundleTracker.THREAD_POOL_NAME);
+    private Future<?> trackerJob;
 
     @Activate
     public void activate(ComponentContext componentContext) {
         XmlDocumentReader<List<ConfigDescription>> configDescriptionReader = new ConfigDescriptionReader();
 
         configDescriptionTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                configDescriptionReader, this, READY_MARKER);
-        configDescriptionTracker.open();
+                configDescriptionReader, this, READY_MARKER, readyService);
+        trackerJob = scheduler.submit(() -> {
+            configDescriptionTracker.open();
+        });
     }
 
     @Deactivate
     public void deactivate() {
+        if (trackerJob != null && !trackerJob.isDone()) {
+            trackerJob.cancel(true);
+            trackerJob = null;
+        }
         configDescriptionTracker.close();
+        configDescriptionTracker = null;
     }
 
     @Reference
@@ -63,6 +79,15 @@ public class ConfigXmlConfigDescriptionProvider extends AbstractXmlConfigDescrip
 
     public void unsetConfigI18nLocalizerService(ConfigI18nLocalizationService configI18nLocalizerService) {
         this.configI18nLocalizerService = null;
+    }
+
+    @Reference
+    public void setReadyService(ReadyService readyService) {
+        this.readyService = readyService;
+    }
+
+    public void unsetReadyService(ReadyService readyService) {
+        this.readyService = null;
     }
 
     @Override

@@ -12,7 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.service.ReadyMarker
-import org.eclipse.smarthome.core.service.ReadyUtil
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
@@ -50,6 +50,7 @@ import org.osgi.service.component.ComponentContext
 @RunWith(Parameterized.class)
 class GenericThingProviderTest4 extends OSGiTest{
     private TestHueThingTypeProvider thingTypeProvider
+    private ReadyService readyService
     private Bundle bundle
     private ThingHandlerFactory hueThingHandlerFactory
     private boolean finished
@@ -101,6 +102,8 @@ class GenericThingProviderTest4 extends OSGiTest{
 
     @Before
     public void setUp() {
+        readyService = getService ReadyService
+        assertThat readyService, is(notNullValue())
         thingRegistry = getService ThingRegistry
         assertThat thingRegistry, is(notNullValue())
         modelRepository = getService ModelRepository
@@ -136,11 +139,9 @@ class GenericThingProviderTest4 extends OSGiTest{
     private void removeReadyMarker() {
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ReadyMarker.XML_THING_TYPE + "=" + bundle.getSymbolicName() + ")")
-            assertThat ref, is(notNullValue())
-            def registration = ref.registration.getAt(0)
-            assertThat registration, is(notNullValue())
-            registration.unregister()
+            ReadyMarker marker = new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName())
+            assertThat readyService.isReady(marker), is(true)
+            readyService.unmarkReady(marker);
         }
     }
 
@@ -188,7 +189,7 @@ class GenericThingProviderTest4 extends OSGiTest{
     private def finishLoading() {
         finished = true;
         assertThat bridgeInitializeCounter, is(0)
-        ReadyUtil.markAsReady(bundleContext, ReadyMarker.XML_THING_TYPE, bundle.getSymbolicName())
+        readyService.markReady(new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName()))
     }
 
     private def unload() {
