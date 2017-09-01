@@ -74,6 +74,15 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
         }
     }
 
+    /**
+     * Returns if the reconnect strategy has been started.
+     *
+     * @return true if started
+     */
+    public synchronized boolean isStarted() {
+        return scheduler != null;
+    }
+
     @Override
     public synchronized void lostConnection() {
         // Check if we are running (has been started and not stopped) state.
