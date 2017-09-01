@@ -548,6 +548,11 @@ public class MqttBrokerConnection {
             return;
         }
 
+        // Ensure the reconnect strategy is started
+        if (reconnectStrategy != null) {
+            reconnectStrategy.start();
+        }
+
         if (StringUtils.isBlank(clientId) || clientId.length() > 23) {
             clientId = MqttClient.generateClientId();
         }
@@ -579,6 +584,8 @@ public class MqttBrokerConnection {
 
     /**
      * Close the MQTT connection.
+     *
+     * You can re-establish a connection calling {@link #start()} again.
      */
     public synchronized void close() {
         logger.trace("Closing the MQTT broker connection '{}'", getName());
@@ -586,8 +593,9 @@ public class MqttBrokerConnection {
         // Abort a connection attempt
         isConnecting = false;
 
+        // Stop the reconnect strategy
         if (reconnectStrategy != null) {
-            reconnectStrategy.close();
+            reconnectStrategy.stop();
         }
 
         // Close connection
