@@ -12,3 +12,5 @@ The `NetworkAddressService` is an OSGi service that can be used like any other O
 A user can configure his default network address via Paper UI under `Configuration -> System -> Network Settings`.
 One can obtain the configured address via the `getPrimaryIpv4HostAddress()` method on the service.
 This service is useful for example in the `ThingHandlerFactory` or an `AudioSink` where one needs a specific IP address of the host system to provide something like a `callback` URL.
+
+Some static methods like `getAllBroadcastAddresses()` for retrieving all interface broadcast addresses or `getInterfaceAddresses()` for retrieving all assigned interface addresses might be usefull as well for discovery services.
