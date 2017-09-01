@@ -35,6 +35,7 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.validation
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
