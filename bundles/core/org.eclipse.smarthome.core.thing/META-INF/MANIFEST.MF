@@ -63,3 +63,4 @@ Export-Package: org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.util
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: org.eclipse.smarthome.core.thing.internal.Activator
+Require-Bundle: org.eclipse.smarthome.io.crypto

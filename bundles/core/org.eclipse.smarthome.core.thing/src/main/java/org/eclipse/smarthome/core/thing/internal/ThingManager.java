@@ -68,6 +68,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.crypto.Crypto;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventHandler;
@@ -121,6 +122,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private ThingTypeRegistry thingTypeRegistry;
 
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
+
+    private Crypto crypto;
 
     private Map<ThingUID, Lock> thingLocks = new HashMap<>();
 
@@ -390,8 +393,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                            logger.debug(
+                                    "Not delegating command '{}' for item '{}' to handler for channel '{}', "
+                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     command, itemName, channelUID);
                         }
                     } else {
@@ -444,8 +448,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
                             }
                         } else {
-                            logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
+                            logger.debug(
+                                    "Not delegating update '{}' for item '{}' to handler for channel '{}', "
+                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                     newState, itemName, channelUID);
                         }
                     } else {
@@ -525,6 +530,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (oldThing != thing) {
                     thing.setHandler(thingHandler);
                 }
+
+                decryptConfiguration(thing.getConfiguration());
+
                 if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
                     try {
                         // prevent infinite loops by not informing handler about self-initiated update
@@ -689,6 +697,30 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (thingType != null) {
             ThingFactoryHelper.applyDefaultConfiguration(thing.getConfiguration(), thingType,
                     configDescriptionRegistry);
+            decryptConfiguration(thing.getConfiguration());
+        }
+    }
+
+    private void decryptConfiguration(Configuration configuration) {
+        Map<String, Object> map = configuration.getProperties();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Object obj = entry.getValue();
+
+            if (obj != null && obj instanceof String) {
+                String value = (String) obj;
+                if (value.startsWith("ENC(") && value.endsWith(")")) {
+                    String val = value.substring(value.indexOf("(") + 1, value.indexOf(")"));
+                    try {
+                        String decryptedText = crypto.decrypt(val);
+                        logger.debug("decryptedText: {}", decryptedText); // TODO: remove
+                        configuration.put(key, decryptedText);
+                    } catch (Exception e) {
+                        logger.warn("Error occured during property '" + key + "' value decryption. ", e);
+                        continue;
+                    }
+                }
+            }
         }
     }
 
@@ -721,8 +753,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         return configDescriptionRegistry != null
-                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale)
-                : null;
+                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale) : null;
     }
 
     private List<String> getRequiredParameters(ConfigDescription description) {
@@ -1130,6 +1161,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    protected void setCryptoModule(Crypto crypto) {
+        this.crypto = crypto;
+    }
+
+    protected void unsetCryptoModule(Crypto crypto) {
+        this.crypto = null;
     }
 
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail,
