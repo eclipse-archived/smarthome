@@ -47,18 +47,18 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The format of the configuration file is similar to a standard property file, with the exception that the property
  * name can be prefixed by the service pid of the {@link ManagedService}:
- * 
+ *
  * <p>
  * &lt;service-pid&gt;:&lt;property&gt;=&lt;value&gt;
- * 
+ *
  * <p>
  * In case the pid does not contain any ".", the default service pid namespace is prefixed, which can be defined by the
  * program argument "smarthome.servicepid" (default is "org.eclipse.smarthome").
- * 
+ *
  * <p>
  * If no pid is defined in the property line, the default pid namespace will be used together with the filename. E.g. if
  * you have a file "security.cfg", the pid that will be used is "org.eclipse.smarthome.security".
- * 
+ *
  * <p>
  * Last but not least, a pid can be defined in the first line of a cfg file by prefixing it with "pid:", e.g.
  * "pid: com.acme.smarthome.security".
@@ -233,10 +233,11 @@ public class ConfigDispatcher extends AbstractWatchService {
         List<String> lines = IOUtils.readLines(new FileInputStream(configFile));
         if (lines.size() > 0 && lines.get(0).startsWith(PID_MARKER)) {
             pid = lines.get(0).substring(PID_MARKER.length()).trim();
+            lines = lines.subList(1, lines.size());
         }
 
         for (String line : lines) {
-            String[] contents = parseLine(configFile.getPath(), line);
+            String[] contents = parseLine(line);
             // no valid configuration line, so continue
             if (contents == null) {
                 continue;
@@ -272,7 +273,7 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
     }
 
-    private String[] parseLine(final String filePath, final String line) {
+    private String[] parseLine(final String line) {
         String trimmedLine = line.trim();
         if (trimmedLine.startsWith("#") || trimmedLine.isEmpty()) {
             return null;
