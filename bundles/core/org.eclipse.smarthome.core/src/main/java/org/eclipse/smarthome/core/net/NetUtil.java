@@ -14,9 +14,12 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -184,6 +187,50 @@ public class NetUtil implements NetworkAddressService {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Gets every IPv4+IPv6 Address on each Interface except the loopback
+     * If addPrefix is true, the Address format is in the CIDR notation
+     * which is ip/prefix-length e.g. 129.31.31.1/24 otherwise only the IP is returned.
+     *
+     * @param addPrefix Add the prefix to each returned IP address
+     * @return The collected IPv4 and IPv6 Addresses
+     */
+    public static Set<String> getInterfaceAddresses(boolean addPrefix) {
+        Set<String> interfaceIPs = new HashSet<>();
+
+        Enumeration<NetworkInterface> en;
+        try {
+            en = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException ex) {
+            LOGGER.error("Could not find interface IP addresses: {}", ex.getMessage(), ex);
+            return interfaceIPs;
+        }
+
+        while (en.hasMoreElements()) {
+            NetworkInterface networkInterface = en.nextElement();
+            boolean isLoopback = true;
+            try {
+                isLoopback = networkInterface.isLoopback();
+            } catch (SocketException ignored) {
+            }
+            if (isLoopback) {
+                continue;
+            }
+            for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext();) {
+                InterfaceAddress interfaceAddress = it.next();
+                if (addPrefix) {
+                    interfaceIPs.add(interfaceAddress.getAddress().getHostAddress() + "/"
+                            + interfaceAddress.getNetworkPrefixLength());
+                } else {
+                    interfaceIPs.add(interfaceAddress.getAddress().getHostAddress());
+                }
+
+            }
+        }
+
+        return interfaceIPs;
     }
 
     /**
