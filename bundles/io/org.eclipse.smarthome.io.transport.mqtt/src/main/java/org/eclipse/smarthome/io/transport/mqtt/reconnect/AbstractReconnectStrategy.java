@@ -7,8 +7,6 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt.reconnect;
 
-import java.io.Closeable;
-
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 
@@ -18,7 +16,7 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
  *
  * @author David Graeff - Initial contribution
  */
-public abstract class AbstractReconnectStrategy implements Closeable {
+public abstract class AbstractReconnectStrategy {
     protected MqttBrokerConnection brokerConnection;
 
     /**
@@ -56,8 +54,16 @@ public abstract class AbstractReconnectStrategy implements Closeable {
     public abstract void connectionEstablished();
 
     /**
-     * This will be called if your reconnect strategy should no longer try to handle a reconnect.
+     * Start the reconnect strategy handling.
      */
-    @Override
-    public abstract void close();
+    public abstract void start();
+
+    /**
+     * Stop the reconnect strategy handling.
+     *
+     * <p>
+     * It must be possible to restart a reconnect strategy again after it has been stopped.
+     */
+    public abstract void stop();
+
 }

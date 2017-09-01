@@ -30,9 +30,8 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     private final int reconnectFrequency;
     private final int firstReconnectAfter;
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService scheduler = null;
     private ScheduledFuture<?> scheduledTask;
-    boolean closed = false;
 
     /**
      * Use a default 60s reconnect frequency and try the first reconnect after 10s.
@@ -55,9 +54,39 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     }
 
     @Override
+    public synchronized void start() {
+        if (scheduler == null) {
+            scheduler = Executors.newScheduledThreadPool(1);
+        }
+    }
+
+    @Override
+    public synchronized void stop() {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+            scheduler = null;
+        }
+
+        // If there is a scheduled task ensure it is canceled.
+        if (scheduledTask != null) {
+            scheduledTask.cancel(true);
+            scheduledTask = null;
+        }
+    }
+
+    /**
+     * Returns if the reconnect strategy has been started.
+     *
+     * @return true if started
+     */
+    public synchronized boolean isStarted() {
+        return scheduler != null;
+    }
+
+    @Override
     public synchronized void lostConnection() {
-        // If we has been already closed, there is nothing to do.
-        if (closed) {
+        // Check if we are running (has been started and not stopped) state.
+        if (scheduler == null) {
             return;
         }
 
@@ -80,6 +109,7 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
 
     @Override
     public synchronized void connectionEstablished() {
+        // Stop the reconnect task if existing.
         if (scheduledTask != null) {
             scheduledTask.cancel(true);
             scheduledTask = null;
@@ -97,19 +127,5 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
 
     public int getFirstReconnectAfter() {
         return firstReconnectAfter;
-    }
-
-    @Override
-    public synchronized void close() {
-        closed = true;
-
-        // Shutdown the scheduler.
-        scheduler.shutdownNow();
-
-        // If there is a scheduled task ensure it is canceled.
-        if (scheduledTask != null) {
-            scheduledTask.cancel(true);
-            scheduledTask = null;
-        }
     }
 }
