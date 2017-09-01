@@ -8,12 +8,11 @@
 package org.eclipse.smarthome.io.transport.mqtt;
 
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -21,7 +20,13 @@ import javax.naming.ConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +39,9 @@ import org.slf4j.LoggerFactory;
  * @author Davy Vanherbergen
  * @author Markus Rathgeb - Synchronize access to broker connections
  */
-public class MqttService implements ManagedService {
+@Component(immediate = true, service = { MqttService.class }, configurationPid = {
+        "org.eclipse.smarthome.mqtt" }, property = "service.pid=org.eclipse.smarthome.mqtt")
+public class MqttService {
     private static final String NAME_PROPERTY = "name";
     private final Logger logger = LoggerFactory.getLogger(MqttService.class);
     private final Map<String, MqttBrokerConnection> brokerConnections = new ConcurrentHashMap<String, MqttBrokerConnection>();
@@ -43,23 +50,33 @@ public class MqttService implements ManagedService {
     private EventPublisher eventPublisher;
 
     /**
-     * Transform the JDK 1.0 old-school, rotten, deprecated Dictionary content to something useful.
+     * The expected service configuration looks like this:
      *
-     * @param properties An old-school, deprecated dictionary object with the service configuration.
+     * broker1.name=Some name
+     * broker1.url=tcp://123.123.123.132
+     *
+     * broker2.qos=2
+     * broker2.url=ssl://111.222.333.444
+     *
+     * @param properties Service configuration
      * @return A 'list' of broker configurations as key-value maps. A configuration map at least contains a "name".
      */
-    public Map<String, Map<String, String>> extractBrokerConfigurations(Dictionary<String, ?> properties) {
+    public Map<String, Map<String, String>> extractBrokerConfigurations(Map<String, Object> properties) {
         Map<String, Map<String, String>> configPerBroker = new HashMap<String, Map<String, String>>();
-        // We can't enumerate all key-value pairs, only the keys and then we need to perform a lookup
-        // for each value. Inefficient, but can't be solved differently for now.
-        Enumeration<String> keys = properties.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            String value = (String) properties.get(key);
-            // ignore the only non-broker property..
-            if (key.equals("service.pid")) {
+        for (Entry<String, Object> entry : properties.entrySet()) {
+            String key = entry.getKey();
+            // ignore the non-broker properties
+            if (key.equals("service.pid") || key.equals("objectClass") || key.equals("component.name")
+                    || key.equals("component.id")) {
                 continue;
             }
+
+            if (!(entry.getValue() instanceof String)) {
+                logger.warn("Unexpected value in broker configuration {}:{}", entry.getKey(), entry.getValue());
+                continue;
+            }
+
+            String value = (String) entry.getValue();
 
             String[] subkeys = key.split("\\.");
             if (subkeys.length != 2 || StringUtils.isBlank(value)) {
@@ -86,24 +103,27 @@ public class MqttService implements ManagedService {
      * Create broker connections based on the service configuration. This will disconnect and
      * discard all existing textual configured brokers.
      */
-    @Override
-    public void updated(Dictionary<String, ?> properties) {
-        // load broker configurations from configuration file
-        if (properties == null || properties.isEmpty()) {
-            return;
-        }
-
+    @Modified
+    public void modified(Map<String, Object> config) {
         // Disconnect and discard existing brokers
         Iterator<Map.Entry<String, MqttBrokerConnection>> it = brokerConnections.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, MqttBrokerConnection> entry = it.next();
-            if (entry.getValue().isTextualConfiguredBroker()) {
-                entry.getValue().close();
+            MqttBrokerConnection connection = entry.getValue();
+            if (connection.isTextualConfiguredBroker()) {
+                logger.debug("Received new Mqtt configuration: Close connection to {}:{}", connection.getName(),
+                        connection.getClientId());
+                connection.close();
                 it.remove();
             }
         }
 
-        Map<String, Map<String, String>> brokerConfigs = extractBrokerConfigurations(properties);
+        // load broker configurations from configuration file
+        if (config == null || config.isEmpty()) {
+            return;
+        }
+
+        Map<String, Map<String, String>> brokerConfigs = extractBrokerConfigurations(config);
 
         for (Map<String, String> brokerConfig : brokerConfigs.values()) {
             try {
@@ -116,10 +136,13 @@ public class MqttService implements ManagedService {
         }
     }
 
-    public void activate() {
+    @Activate
+    public void activate(Map<String, Object> config) {
         logger.debug("Starting MQTT Service...");
+        modified(config);
     }
 
+    @Deactivate
     public void deactivate() {
         logger.debug("Stopping MQTT Service...");
         for (final MqttBrokerConnection conn : brokerConnections.values()) {
@@ -387,6 +410,7 @@ public class MqttService implements ManagedService {
      * @param eventPublisher EventPublisher
      */
     @Deprecated
+    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
     public void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
