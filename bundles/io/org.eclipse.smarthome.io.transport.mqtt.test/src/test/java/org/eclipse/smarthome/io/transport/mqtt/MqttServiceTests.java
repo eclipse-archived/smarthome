@@ -12,17 +12,14 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.naming.ConfigurationException;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Tests the MqttService class
@@ -35,88 +32,46 @@ public class MqttServiceTests {
     public void brokerConnectionListenerTests() throws ConfigurationException {
         MqttService service = new MqttService();
         assertFalse(service.hasBrokerObservers());
-        MqttBrokersObserver observer = mock(MqttBrokersObserver.class);
+        MqttServiceObserver observer = mock(MqttServiceObserver.class);
 
         service.addBrokersListener(observer);
         assertTrue(service.hasBrokerObservers());
 
-        MqttBrokerConnection connection = new MqttBrokerConnection("name", "tcp://123.123.123.123", false);
-        assertTrue(service.addBrokerConnection(connection));
-        verify(observer).brokerAdded(connection);
+        MqttBrokerConnection connection = new MqttBrokerConnection("tcp://123.123.123.123", null, false, null);
+        assertTrue(service.addBrokerConnection("name", connection));
 
-        service.removeBrokerConnection(connection);
-        verify(observer).brokerRemoved(connection);
+        ArgumentCaptor<MqttBrokerConnection> argumentCaptorConn = ArgumentCaptor.forClass(MqttBrokerConnection.class);
+        ArgumentCaptor<String> argumentCaptorConnName = ArgumentCaptor.forClass(String.class);
+
+        verify(observer).brokerAdded(argumentCaptorConnName.capture(), argumentCaptorConn.capture());
+        assertThat(argumentCaptorConnName.getValue(), equalTo("name"));
+        assertThat(argumentCaptorConn.getValue(), equalTo(connection));
+
+        service.removeBrokerConnection("name");
+        verify(observer).brokerRemoved(argumentCaptorConnName.capture(), argumentCaptorConn.capture());
+        assertThat(argumentCaptorConnName.getValue(), equalTo("name"));
+        assertThat(argumentCaptorConn.getValue(), equalTo(connection));
 
         service.removeBrokersListener(observer);
         assertFalse(service.hasBrokerObservers());
-    }
-
-    // Tests extractBrokerConfigurations() and addBrokerConnection(map)
-    @Test
-    public void extractBrokerConfigurationsTests() throws ConfigurationException, MqttException {
-        MqttService service = new MqttService();
-
-        Map<String, Object> properties = new Hashtable<>();
-        properties.put("bam.name", "brokername");
-        properties.put("bam.url", "tcp://123.123.123.123");
-        Map<String, MqttService.Config> map = service.extractBrokerConfigurations(properties);
-        assertEquals(map.size(), 1);
-        MqttService.Config data = map.get("bam");
-        assertNotNull(data);
-        assertEquals("brokername", data.name);
-        assertEquals("tcp://123.123.123.123", data.url);
-    }
-
-    // Tests if updates to the textual configuration are processed correctly
-    @Test
-    public void textualConfigurationTests() throws ConfigurationException, MqttException {
-        MqttService service = new MqttService();
-
-        Map<String, Object> properties = new Hashtable<>();
-        properties.put("bam.name", "brokername");
-        properties.put("bam.url", "tcp://123.123.123.123");
-
-        // Test activate
-        service.activate(properties);
-        assertThat(service.getAllBrokerConnections(), hasSize(1));
-        assertNotNull(service.getBrokerConnection("brokername"));
-
-        Map<String, Object> properties2 = new Hashtable<>();
-        properties2.put("bam2.name", "brokername2");
-        properties2.put("bam2.url", "tcp://123.123.123.123");
-
-        // Test configuration change
-        service.modified(properties2);
-        assertThat(service.getAllBrokerConnections(), hasSize(1));
-        assertNull(service.getBrokerConnection("brokername"));
-        assertNotNull(service.getBrokerConnection("brokername2"));
-
-        // Test if old broker connections are freed correctly
-        service.modified(Collections.emptyMap());
-        assertThat(service.getAllBrokerConnections(), hasSize(0));
     }
 
     @Test
     public void brokerConnectionAddRemoveEnumerateTests() {
         MqttService service = new MqttService();
         MqttBrokerConnection connection;
-        try {
-            connection = new MqttBrokerConnection("name", "tcp://123.123.123.123", false);
-        } catch (ConfigurationException c) {
-            fail("Couldn't create a MqttBrokerConnection object");
-            return;
-        }
+        connection = new MqttBrokerConnection("tcp://123.123.123.123", null, false, null);
         // Add
-        assertThat(service.getAllBrokerConnections(), hasSize(0));
-        assertTrue(service.addBrokerConnection(connection));
-        assertFalse(service.addBrokerConnection(connection));
+        assertThat(service.getAllBrokerConnections().size(), is(equalTo(0)));
+        assertTrue(service.addBrokerConnection("name", connection));
+        assertFalse(service.addBrokerConnection("name", connection));
 
         // Get/Enumerate
         assertNotNull(service.getBrokerConnection("name"));
-        assertThat(service.getAllBrokerConnections(), hasSize(1));
+        assertThat(service.getAllBrokerConnections().size(), is(equalTo(1)));
 
         // Remove
-        service.removeBrokerConnection(connection);
-        assertThat(service.getAllBrokerConnections(), hasSize(0));
+        service.removeBrokerConnection("name");
+        assertThat(service.getAllBrokerConnections().size(), is(equalTo(0)));
     }
 }

@@ -12,9 +12,9 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -32,31 +32,10 @@ import org.junit.Test;
  *
  * @author David Graeff - Initial contribution
  */
-public class MqttBrokerConnectionTests {
-    @Test
-    public void testConstructor() throws ConfigurationException {
-        // Test tcp and ssl URLs
-        MqttBrokerConnection a = new MqttBrokerConnection("name", "tcp://123.123.123.123", false);
-        MqttBrokerConnection b = new MqttBrokerConnection("name", "ssl://123.123.123.123", true);
-        assertFalse(a.isTextualConfiguredBroker());
-        assertTrue(b.isTextualConfiguredBroker());
-    }
-
-    @Test(expected = ConfigurationException.class)
-    public void testConstructorInvalidProtocol() throws ConfigurationException {
-        new MqttBrokerConnection("name", "unsupported://123.123.123.123", false);
-    }
-
-    @Test(expected = ConfigurationException.class)
-    public void testConstructorInvalidName() throws ConfigurationException, MqttException {
-        new MqttBrokerConnection(" ", "tcp://123.123.123.123", false);
-    }
-
+public class MqttBrokerConnectionTest {
     @Test
     public void messageConsumerTests() throws ConfigurationException, MqttException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = new MqttBrokerConnection(name, url, false);
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
         // Expect no consumers
         assertFalse(a.hasConsumers());
 
@@ -74,38 +53,33 @@ public class MqttBrokerConnectionTests {
 
     @Test
     public void reconnectPolicyDefaultTest() throws ConfigurationException, MqttException, InterruptedException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = new MqttBrokerConnection(name, url, false);
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
 
         // Check if the default policy is set and that the broker within the policy is set.
         assertTrue(a.getReconnectStrategy() instanceof PeriodicReconnectStrategy);
         AbstractReconnectStrategy p = a.getReconnectStrategy();
-        assertThat(p.getBrokerConnection(), is(a));
+        assertThat(p.getBrokerConnection(), equalTo(a));
     }
 
     @Test
     public void reconnectPolicyTests() throws ConfigurationException, MqttException, InterruptedException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = spy(new MqttBrokerConnection(name, url, false));
+        MqttBrokerConnection a = spy(new MqttBrokerConnection("123.123.123.123", null, false, null));
 
         // Check setter
         a.setReconnectStrategy(new PeriodicReconnectStrategy());
-        assertThat(a.getReconnectStrategy().getBrokerConnection(), is(a));
+        assertThat(a.getReconnectStrategy().getBrokerConnection(), equalTo(a));
 
         // Prepare a Mock to test if lostConnect is called and
         // if the PeriodicReconnectPolicy indeed calls start()
-        PeriodicReconnectStrategy mockPolicy = spy(new PeriodicReconnectStrategy());
-        doReturn(a).when(mockPolicy).getBrokerConnection();
-        doReturn(0).when(mockPolicy).getFirstReconnectAfter();
-        doReturn(10000).when(mockPolicy).getReconnectFrequency();
+        PeriodicReconnectStrategy mockPolicy = spy(new PeriodicReconnectStrategy(10000, 0));
         doNothing().when(a).start();
+        mockPolicy.start();
+        a.isConnecting = true;
 
         // Fake a disconnect
         a.setReconnectStrategy(mockPolicy);
         IMqttActionListener l = a.createConnectionListener();
-        doReturn(false).when(a).isConnected();
+        doReturn(MqttConnectionState.DISCONNECTED).when(a).connectionState();
         IMqttToken token = mock(IMqttToken.class);
         when(token.getException()).thenReturn(new org.eclipse.paho.client.mqttv3.MqttException(1));
         l.onFailure(token, null);
@@ -123,9 +97,7 @@ public class MqttBrokerConnectionTests {
 
     @Test
     public void connectionObserverTests() throws ConfigurationException, MqttException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = spy(new MqttBrokerConnection(name, url, false));
+        MqttBrokerConnection a = spy(new MqttBrokerConnection("123.123.123.123", null, false, null));
 
         // Add an observer
         assertFalse(a.hasConnectionObservers());
@@ -138,7 +110,7 @@ public class MqttBrokerConnectionTests {
 
         // Cause a success callback
         IMqttActionListener l = a.createConnectionListener();
-        doReturn(true).when(a).isConnected();
+        doReturn(MqttConnectionState.CONNECTED).when(a).connectionState();
         l.onSuccess(null);
         verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.CONNECTED), anyObject());
 
@@ -148,7 +120,7 @@ public class MqttBrokerConnectionTests {
                 1);
         when(token.getException()).thenReturn(testException);
 
-        doReturn(false).when(a).isConnected();
+        doReturn(MqttConnectionState.DISCONNECTED).when(a).connectionState();
         l.onFailure(token, null);
         verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.DISCONNECTED),
                 eq(testException));
@@ -160,9 +132,7 @@ public class MqttBrokerConnectionTests {
 
     @Test
     public void lastWillAndTestamentTests() throws ConfigurationException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = new MqttBrokerConnection(name, url, false);
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
 
         assertNull(a.getLastWill());
         assertNull(MqttWillAndTestament.fromString(""));
@@ -179,19 +149,27 @@ public class MqttBrokerConnectionTests {
         new MqttWillAndTestament("", new byte[0], 0, false);
     }
 
-    @Test
-    public void setterGetterTests() throws ConfigurationException {
-        final String url = "tcp://123.123.123.123";
-        final String name = "TestName12@!";
-        MqttBrokerConnection a = new MqttBrokerConnection(name, url, false);
-        assertEquals("URL getter", a.getUrl(), url);
-        assertEquals("Name getter", a.getName(), name);
+    @Test(expected = IllegalArgumentException.class)
+    public void tooLongClientID() throws ConfigurationException {
+        // client ids longer than 23 characters should throw
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false,
+                "clientidclientidclientidclientid");
+    }
 
-        a.setClientId("clientid");
+    @Test(expected = IllegalArgumentException.class)
+    public void qosInvalid() throws ConfigurationException {
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
+        a.setQos(10);
+    }
+
+    @Test
+    public void setterGetterTests() {
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "clientid");
+        assertEquals("URL getter", a.getHost(), "123.123.123.123");
+        assertEquals("Name getter", a.getPort(), 1883); // Check for non-secure port
+        assertEquals("Secure getter", a.isSecure(), false);
+
         assertEquals("ClientID getter/setter", "clientid", a.getClientId());
-        // client ids longer than 23 characters should be ignored
-        a.setClientId("clientidclientidclientidclientid");
-        assertEquals("ClientID too long check", "clientid", a.getClientId());
 
         a.setCredentials("user@!", "password123@^");
         assertEquals("User getter/setter", "user@!", a.getUser());
@@ -206,10 +184,6 @@ public class MqttBrokerConnectionTests {
         assertTrue(a.isRetain());
 
         assertEquals(MqttBrokerConnection.DEFAULT_QOS, a.getQos());
-        a.setQos(10);
-        assertEquals(MqttBrokerConnection.DEFAULT_QOS, a.getQos());
-        a.setQos(-10);
-        assertEquals(MqttBrokerConnection.DEFAULT_QOS, a.getQos());
         a.setQos(2);
         assertEquals(2, a.getQos());
         a.setQos(1);
@@ -219,6 +193,6 @@ public class MqttBrokerConnectionTests {
         assertNotNull(a.getSSLContextProvider());
         assertNotNull(a.getReconnectStrategy());
 
-        assertFalse(a.isConnected());
+        assertThat(a.connectionState(), equalTo(MqttConnectionState.DISCONNECTED));
     }
 }

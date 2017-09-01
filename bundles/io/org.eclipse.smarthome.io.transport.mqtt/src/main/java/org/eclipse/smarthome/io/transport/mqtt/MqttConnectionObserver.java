@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Implement this interface to get notified of connection state changes.
  * Register this observer at {@see MqttBrokerConnection}.
@@ -19,6 +22,7 @@ package org.eclipse.smarthome.io.transport.mqtt;
  * @author David Graeff - Rewritten
  * @author Markus Rathgeb - Initial contribution and API
  */
+@NonNullByDefault
 public interface MqttConnectionObserver {
     /**
      * Inform the observer if a connection could be established or if a connection
@@ -29,5 +33,5 @@ public interface MqttConnectionObserver {
      * @param error An exception object (might be a MqttException) with the reason why
      *            a connection failed.
      */
-    public void connectionStateChanged(MqttConnectionState state, Throwable error);
+    public void connectionStateChanged(MqttConnectionState state, @Nullable Throwable error);
 }
