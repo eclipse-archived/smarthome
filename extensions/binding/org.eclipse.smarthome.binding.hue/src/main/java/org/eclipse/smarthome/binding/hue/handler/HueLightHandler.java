@@ -366,14 +366,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         lastSentColorTemp = null;
         lastSentBrightness = null;
 
-            // update status (ONLINE, OFFLINE)
-            if (fullLight.getState().isReachable()) {
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                // we assume OFFLINE without any error (NONE), as this is an
-                // expected state (when bulb powered off)
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
-            }
+        // update status (ONLINE, OFFLINE)
+        if (fullLight.getState().isReachable()) {
+            updateStatus(ThingStatus.ONLINE);
+        } else {
+            // we assume OFFLINE without any error (NONE), as this is an
+            // expected state (when bulb powered off)
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
+        }
 
         HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
         if (!fullLight.getState().isOn()) {
@@ -425,8 +425,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            initializeProperties();
-            updateStatus(ThingStatus.ONLINE);
             onLightStateChanged(bridge, light);
         }
     }
