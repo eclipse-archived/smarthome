@@ -331,6 +331,7 @@
 		_t.reloadIcon = function(state) {
 			// Some widgets don't have icons
 			if (_t.icon !== null) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
 				_t.icon.setAttribute("src",
 					"/icon/" +
 					_t.iconName +
