@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.crypto.Crypto;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -76,6 +77,11 @@ public abstract class BaseThingHandler implements ThingHandler {
     private ServiceTracker thingRegistryServiceTracker;
     @SuppressWarnings("rawtypes")
     private ServiceTracker linkRegistryServiceTracker;
+
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker linkCryptoServiceTracker;
+
+    protected Crypto crypto;
 
     private ThingHandlerCallback callback;
 
@@ -122,11 +128,27 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         linkRegistryServiceTracker.open();
+        linkCryptoServiceTracker = new ServiceTracker(this.bundleContext, Crypto.class.getName(), null) {
+            @Override
+            public Object addingService(final ServiceReference reference) {
+                crypto = (Crypto) bundleContext.getService(reference);
+                return linkRegistry;
+            }
+
+            @Override
+            public void removedService(final ServiceReference reference, final Object service) {
+                synchronized (BaseThingHandler.this) {
+                    crypto = null;
+                }
+            }
+        };
+        linkCryptoServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         linkRegistryServiceTracker.close();
         thingRegistryServiceTracker.close();
+        linkCryptoServiceTracker.close();
         this.bundleContext = null;
     }
 
@@ -230,6 +252,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @return configuration of the thing
      */
     protected Configuration getConfig() {
+        // return decryptConfiguration(getThing().getConfiguration());
         return getThing().getConfiguration();
     }
 
@@ -242,7 +265,33 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @return configuration of thing in form of the given class
      */
     protected <T> T getConfigAs(Class<T> configurationClass) {
-        return getConfig().as(configurationClass);
+        return decryptConfiguration(editConfiguration()).as(configurationClass);
+    }
+
+    private Configuration decryptConfiguration(Configuration configuration) {
+        if (crypto != null) {
+            Map<String, Object> map = configuration.getProperties();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+                Object obj = entry.getValue();
+
+                if (obj != null && obj instanceof String) {
+                    String value = (String) obj;
+                    if (value.startsWith("ENC(") && value.endsWith(")")) {
+                        String val = value.substring(value.indexOf("(") + 1, value.indexOf(")"));
+                        try {
+                            String decryptedText = crypto.decrypt(val);
+                            logger.debug("decryptedText: {}", decryptedText); // TODO: remove
+                            configuration.put(key, decryptedText);
+                        } catch (Exception e) {
+                            logger.warn("Error occured during property '" + key + "' value decryption. ", e);
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return configuration;
     }
 
     /**

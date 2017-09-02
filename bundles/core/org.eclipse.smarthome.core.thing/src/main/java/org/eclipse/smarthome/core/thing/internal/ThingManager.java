@@ -531,7 +531,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     thing.setHandler(thingHandler);
                 }
 
-                decryptConfiguration(thing.getConfiguration());
+                // decryptConfiguration(thing.getConfiguration());
 
                 if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
                     try {
@@ -697,7 +697,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (thingType != null) {
             ThingFactoryHelper.applyDefaultConfiguration(thing.getConfiguration(), thingType,
                     configDescriptionRegistry);
-            decryptConfiguration(thing.getConfiguration());
+            // decryptConfiguration(thing.getConfiguration());
         }
     }
 
