@@ -230,7 +230,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
                     device.setOutputValue(Short.parseShort(((StringType) command).toString()));
                 }
             } else {
-                logger.warn("Command sent to an unknown channel id: " + channelUID);
+                logger.warn("Command sent to an unknown channel id: {}", channelUID);
             }
         } else {
             if (channelUID.getId().equals(CHANNEL_ID_SHADE_ANGLE)) {
@@ -274,7 +274,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
                     }
                 }
             } else {
-                logger.warn("Command sent to an unknown channel id: " + channelUID);
+                logger.warn("Command sent to an unknown channel id: {}", channelUID);
             }
         }
     }
@@ -587,9 +587,9 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
             }
 
             device.setSensorDataRefreshPriority(activePowerPrio, electricMeterPrio, outputCurrentPrio);
-            logger.debug("add sensor prioritys: active power = " + activePowerPrio + ", output current = "
-                    + outputCurrentPrio + ", electric meter = " + electricMeterPrio + " to device with id "
-                    + device.getDSID());
+            logger.debug(
+                    "add sensor prioritys: active power = {}, output current = {}, electric meter = {} to device with id {}",
+                    activePowerPrio, outputCurrentPrio, electricMeterPrio, device.getDSID());
 
             // check and load sensor channels of the thing
             checkSensorChannel(activePowerPrio, outputCurrentPrio, electricMeterPrio);

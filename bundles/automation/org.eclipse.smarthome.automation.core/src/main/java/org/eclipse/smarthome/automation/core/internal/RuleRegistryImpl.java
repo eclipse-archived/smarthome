@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*/
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Arrays;
@@ -15,9 +15,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -231,9 +231,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      */
     @Override
     public Rule add(Rule rule) {
-        if (rule == null) {
-            throw new IllegalArgumentException("The added rule must not be null!");
-        }
         String rUID = rule.getUID();
         if (rUID == null) {
             rUID = ruleEngine.getUniqueId();
@@ -241,7 +238,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         } else {
             super.add(rule);
         }
-        return get(rUID);
+        Rule ruleCopy = get(rUID);
+        if (ruleCopy != null) {
+            return ruleCopy;
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     /**
@@ -252,7 +254,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * @param rule candidate for unique ID
      * @return a rule with UID
      */
-    protected Rule initRuleId(String rUID, Rule rule) {
+    protected @NonNull Rule initRuleId(String rUID, Rule rule) {
         Rule ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
                 rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
                 rule.getVisibility());
@@ -380,7 +382,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public Stream<Rule> stream() {
         // create copies for consumers
-        return super.stream().map( r -> RuleUtils.getRuleCopy(r) );
+        return super.stream().map(r -> RuleUtils.getRuleCopy(r));
     }
 
     @Override
@@ -409,19 +411,19 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     public Collection<Rule> getByTags(String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<Rule> result = new LinkedList<Rule>();
-        if (tagSet != null) {
+        if (tagSet == null || tagSet.isEmpty()) {
+            for (Collection<Rule> rules : elementMap.values()) {
+                for (Rule rule : rules) {
+                    result.add(RuleUtils.getRuleCopy(rule));
+                }
+            }
+        } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
                     Set<String> rTags = rule.getTags();
                     if (rTags != null && rTags.containsAll(tagSet)) {
                         result.add(RuleUtils.getRuleCopy(rule));
                     }
-                }
-            }
-        } else {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
-                    result.add(RuleUtils.getRuleCopy(rule));
                 }
             }
         }
@@ -587,9 +589,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.runNow(ruleUID);
     }
 
-	@Override
-	public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-		ruleEngine.runNow(ruleUID, considerConditions, context);
-	}
+    @Override
+    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
+        ruleEngine.runNow(ruleUID, considerConditions, context);
+    }
 
 }

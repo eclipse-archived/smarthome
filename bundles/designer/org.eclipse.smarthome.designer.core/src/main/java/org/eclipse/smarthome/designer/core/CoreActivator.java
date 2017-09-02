@@ -21,6 +21,8 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The activator class controls the plug-in life cycle
+ *
+ * @author Kai Kreuzer - Initial contribution
  */
 public class CoreActivator extends Plugin {
 

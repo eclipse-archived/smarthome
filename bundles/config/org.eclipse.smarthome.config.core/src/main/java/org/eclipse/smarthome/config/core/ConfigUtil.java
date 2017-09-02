@@ -27,6 +27,14 @@ import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
  * @author Thomas Höfer - Minor changes for type normalization based on config description
  */
 public class ConfigUtil {
+    /**
+     * We do not want to handle or try to normalize OSGi provided configuration parameters
+     *
+     * @param name The configuration parameter name
+     */
+    private static boolean isOSGiConfigParameter(String name) {
+        return name.equals("objectClass") || name.equals("component.name") || name.equals("component.id");
+    }
 
     /**
      * Normalizes the types to the ones allowed for configurations.
@@ -35,11 +43,13 @@ public class ConfigUtil {
      * @return normalized configuration
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration) {
-        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        Map<String, Object> convertedConfiguration = new HashMap<>(configuration.size());
         for (Entry<String, Object> parameter : configuration.entrySet()) {
             String name = parameter.getKey();
             Object value = parameter.getValue();
-            convertedConfiguration.put(name, normalizeType(value));
+            if (!isOSGiConfigParameter(name)) {
+                convertedConfiguration.put(name, normalizeType(value));
+            }
         }
         return convertedConfiguration;
     }
@@ -129,7 +139,7 @@ public class ConfigUtil {
             return null;
         }
 
-        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        Map<String, Object> convertedConfiguration = new HashMap<>();
 
         Map<String, ConfigDescriptionParameter> configParams = new HashMap<>();
         for (int i = configDescriptions.size() - 1; i >= 0; i--) {
@@ -138,8 +148,10 @@ public class ConfigUtil {
         for (Entry<String, ?> parameter : configuration.entrySet()) {
             String name = parameter.getKey();
             Object value = parameter.getValue();
-            ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
-            convertedConfiguration.put(name, normalizeType(value, configDescriptionParameter));
+            if (!isOSGiConfigParameter(name)) {
+                ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
+                convertedConfiguration.put(name, normalizeType(value, configDescriptionParameter));
+            }
         }
         return convertedConfiguration;
     }

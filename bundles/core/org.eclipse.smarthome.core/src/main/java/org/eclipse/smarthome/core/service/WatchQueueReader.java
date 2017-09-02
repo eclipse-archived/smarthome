@@ -23,7 +23,6 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -180,16 +179,15 @@ public class WatchQueueReader implements Runnable {
                 try {
                     key = watchService.take();
                 } catch (InterruptedException exc) {
-                    logger.info(MessageFormat.format("Caught InterruptedException: {0}", exc.getLocalizedMessage()));
+                    logger.info("Caught InterruptedException: {}", exc.getLocalizedMessage());
                     return;
                 }
 
                 for (WatchEvent<?> event : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
                     if (kind == OVERFLOW) {
-                        logger.warn(MessageFormat.format(
-                                "Found an event of kind 'OVERFLOW': {0}. File system changes might have been missed.",
-                                event));
+                        logger.warn("Found an event of kind 'OVERFLOW': {}. File system changes might have been missed.",
+                                event);
                         continue;
                     }
 

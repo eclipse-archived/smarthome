@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.forThingUID;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -54,6 +58,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +82,7 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Knauf - Added removeThingsForBridge and getPropsAndConfigParams
  *
  */
+@Component(immediate = true, service = Inbox.class)
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
     /**
@@ -115,25 +124,16 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
-
     private DiscoveryServiceRegistry discoveryServiceRegistry;
-
     private ThingRegistry thingRegistry;
-
     private ManagedThingProvider managedThingProvider;
-
     private ThingTypeRegistry thingTypeRegistry;
-
     private ConfigDescriptionRegistry configDescRegistry;
-
-    private Storage<DiscoveryResult> discoveryResultStorage;
-
+    private StorageService storageService;
+    private volatile Storage<DiscoveryResult> discoveryResultStorage;
     private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
-
     private ScheduledFuture<?> timeToLiveChecker;
-
     private EventPublisher eventPublisher;
-
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     @Override
@@ -141,7 +141,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (thingUID == null) {
             throw new IllegalArgumentException("Thing UID must not be null");
         }
-        List<DiscoveryResult> results = get(new InboxFilterCriteria(thingUID, null));
+        List<DiscoveryResult> results = stream().filter(forThingUID(thingUID)).collect(Collectors.toList());
         if (results.isEmpty()) {
             throw new IllegalArgumentException("No Thing with UID " + thingUID.getAsString() + " in inbox");
         }
@@ -280,7 +280,12 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public List<DiscoveryResult> getAll() {
-        return get((InboxFilterCriteria) null);
+        return stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DiscoveryResult> stream() {
+        return this.discoveryResultStorage.getValues().stream();
     }
 
     @Override
@@ -463,7 +468,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not post event of type '" + eventType.name() + "'.", ex);
+                logger.error("Could not post event of type '{}'.", eventType.name(), ex);
             }
         }
     }
@@ -570,15 +575,18 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.timeToLiveChecker.cancel(true);
     }
 
+    @Reference
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
         this.thingRegistry.addRegistryChangeListener(this);
     }
 
+    @Reference
     protected void setManagedThingProvider(ManagedThingProvider thingProvider) {
         this.managedThingProvider = thingProvider;
     }
@@ -596,15 +604,23 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.managedThingProvider = null;
     }
 
-    protected void setStorageService(StorageService storageService) {
-        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(),
-                this.getClass().getClassLoader());
+    @Reference(policy = ReferencePolicy.DYNAMIC)
+    protected void setStorageService(final StorageService storageService) {
+        if (this.storageService != storageService) {
+            this.storageService = storageService;
+            this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(),
+                    this.getClass().getClassLoader());
+        }
     }
 
-    protected void unsetStorageService(StorageService storageService) {
-        this.discoveryResultStorage = null;
+    protected void unsetStorageService(final StorageService storageService) {
+        if (this.storageService == storageService) {
+            this.storageService = null;
+            this.discoveryResultStorage = null;
+        }
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -613,6 +629,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.eventPublisher = null;
     }
 
+    @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -621,6 +638,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.thingTypeRegistry = null;
     }
 
+    @Reference
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }
@@ -629,6 +647,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         this.configDescRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.add(thingHandlerFactory);
     }

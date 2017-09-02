@@ -70,8 +70,8 @@ public interface Job extends Runnable {
      * @param channelId the channel ID
      */
     public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt, String event,
-            String channelId) {
-        scheduleEvent(thingUID, astroHandler, eventAt, singletonList(event), channelId);
+            String channelId, boolean configAlreadyApplied) {
+        scheduleEvent(thingUID, astroHandler, eventAt, singletonList(event), channelId, configAlreadyApplied);
     }
 
     /**
@@ -84,7 +84,7 @@ public interface Job extends Runnable {
      * @param channelId the channel ID
      */
     public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt,
-            List<String> events, String channelId) {
+            List<String> events, String channelId, boolean configAlreadyApplied) {
         boolean thingNull = checkNull(thingUID, "Thing UID is null");
         boolean astroHandlerNull = checkNull(astroHandler, "AstroThingHandler is null");
         boolean eventAtNull = checkNull(eventAt, "Scheduled Instant is null");
@@ -94,9 +94,18 @@ public interface Job extends Runnable {
         if (thingNull || astroHandlerNull || eventAtNull || eventsNull || channelIdNull || events.isEmpty()) {
             return;
         }
-        AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                .as(AstroChannelConfig.class);
-        Calendar instant = applyConfig(eventAt, config);
+        final Calendar instant;
+        if (!configAlreadyApplied) {
+            final Channel channel = astroHandler.getThing().getChannel(channelId);
+            if (channel == null) {
+                logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+                return;
+            }
+            AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
+            instant = applyConfig(eventAt, config);
+        } else {
+            instant = eventAt;
+        }
         List<Job> jobs = events.stream().map(e -> new EventJob(thingUID, channelId, e)).collect(toList());
         schedule(thingUID, astroHandler, new CompositeJob(thingUID, jobs), instant);
     }
@@ -127,11 +136,20 @@ public interface Job extends Runnable {
             return;
         }
 
-        if (truncatedEquals(start, end, SECOND)) {
-            scheduleEvent(thingUID, astroHandler, start, asList(EVENT_START, EVENT_END), channelId);
+        final Channel channel = astroHandler.getThing().getChannel(channelId);
+        if (channel == null) {
+            logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+            return;
+        }
+        AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
+        Calendar configStart = applyConfig(start, config);
+        Calendar configEnd = applyConfig(end, config);
+
+        if (truncatedEquals(configStart, configEnd, SECOND)) {
+            scheduleEvent(thingUID, astroHandler, configStart, asList(EVENT_START, EVENT_END), channelId, true);
         } else {
-            scheduleEvent(thingUID, astroHandler, start, EVENT_START, channelId);
-            scheduleEvent(thingUID, astroHandler, end, EVENT_END, channelId);
+            scheduleEvent(thingUID, astroHandler, configStart, EVENT_START, channelId, true);
+            scheduleEvent(thingUID, astroHandler, configEnd, EVENT_END, channelId, true);
         }
     }
 
@@ -197,7 +215,7 @@ public interface Job extends Runnable {
      */
     public static <T> boolean checkNull(T obj, String message) {
         if (isNull(obj)) {
-            logger.trace(message);
+            logger.trace("{}", message);
             return true;
         }
         return false;

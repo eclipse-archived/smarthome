@@ -27,6 +27,7 @@ The binding has the following configuration options, which can be set for "bindi
 
 The Sonos Thing requires the UPnP UDN (Unique Device Name) as a configuration value in order for the binding to know how to access it. All the Sonos UDN have the "RINCON_000E58D8403A0XXXX" format. Additionally, a refresh interval, used to poll the Sonos device, can be specified (in seconds)
 In the thing file, this looks e.g. like
+
 ```
 Thing sonos:PLAY1:1 [ udn="RINCON_000E58D8403A0XXXX", refresh=60]
 ```

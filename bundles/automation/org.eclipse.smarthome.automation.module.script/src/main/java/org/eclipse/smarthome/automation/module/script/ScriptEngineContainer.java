@@ -9,6 +9,10 @@ package org.eclipse.smarthome.automation.module.script;
 
 import javax.script.ScriptEngine;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public class ScriptEngineContainer {
     private ScriptEngine scriptEngine;
     private ScriptEngineFactory factory;

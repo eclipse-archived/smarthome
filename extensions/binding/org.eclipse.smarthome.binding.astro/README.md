@@ -20,7 +20,7 @@ No binding configuration required.
 
 ## Thing Configuration
 
-All Things require the parameter `geolocation` (as "<latitude>,<longitude>,[<altitude in m>]") for which the calculation is done. 
+All Things require the parameter `geolocation` (as `<latitude>,<longitude>,[<altitude in m>]`) for which the calculation is done. 
 The altitude segment is optional and sharpens results provided by the Radiation group.
 Optionally, a refresh `interval` (in seconds) can be defined to also calculate positional data like azimuth and elevation.
 
@@ -51,7 +51,7 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
             * `total, partial, ring` (DateTime)
     * **group** `phase`
         * **channel** 
-            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NOON, NIGHT`
+            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NIGHT`
 * **thing** `moon`
     * **group** `rise, set`
         * **channel** 

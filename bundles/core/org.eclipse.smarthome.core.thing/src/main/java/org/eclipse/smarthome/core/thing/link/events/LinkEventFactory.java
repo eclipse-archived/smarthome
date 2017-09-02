@@ -13,6 +13,7 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -26,6 +27,7 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - Removed Thing link events
  */
+@Component(immediate = true, service = EventFactory.class)
 public class LinkEventFactory extends AbstractEventFactory {
 
     private static final String LINK_ADDED_EVENT_TOPIC = "smarthome/links/{linkID}/added";

@@ -44,7 +44,6 @@ public class TradfriHandlerTest extends JavaOSGiTest {
     public void setUp() {
         registerService(volatileStorageService);
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertThat(managedThingProvider, is(notNullValue()));
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(GatewayConfig.HOST, "1.2.3.4");

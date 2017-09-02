@@ -43,7 +43,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    static protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(DISCOVERY_THREADPOOL_NAME);
+    static protected final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected ScanListener scanListener = null;
@@ -252,8 +253,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             try {
                 discoveryListener.thingDiscovered(this, discoveryResult);
             } catch (Exception e) {
-                logger.error("An error occurred while calling the discovery listener "
-                        + discoveryListener.getClass().getName() + ".", e);
+                logger.error("An error occurred while calling the discovery listener {}.",
+                        discoveryListener.getClass().getName(), e);
             }
         }
         synchronized (cachedResults) {
@@ -272,8 +273,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             try {
                 discoveryListener.thingRemoved(this, thingUID);
             } catch (Exception e) {
-                logger.error("An error occurred while calling the discovery listener "
-                        + discoveryListener.getClass().getName() + ".", e);
+                logger.error("An error occurred while calling the discovery listener {}.",
+                        discoveryListener.getClass().getName(), e);
             }
         }
         synchronized (cachedResults) {
@@ -316,8 +317,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             try {
                 removedThings = discoveryListener.removeOlderResults(this, timestamp, thingTypeUIDs);
             } catch (Exception e) {
-                logger.error("An error occurred while calling the discovery listener "
-                        + discoveryListener.getClass().getName() + ".", e);
+                logger.error("An error occurred while calling the discovery listener {}.",
+                        discoveryListener.getClass().getName(), e);
             }
         }
         if (removedThings != null) {
@@ -339,7 +340,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void activate(Map<String, Object> configProperties) {
         if (configProperties != null) {
-            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
                 this.backgroundDiscoveryEnabled = getAutoDiscoveryEnabled(property);
             }
@@ -363,7 +364,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void modified(Map<String, Object> configProperties) {
         if (configProperties != null) {
-            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+            Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
                 boolean enabled = getAutoDiscoveryEnabled(property);
 

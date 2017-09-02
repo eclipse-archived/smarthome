@@ -62,7 +62,11 @@ public class ItemRegistryDelegate implements Map<String, State> {
 
     @Override
     public State get(Object key) {
-        return itemRegistry.get((String) key).getState();
+        final Item item = itemRegistry.get((String) key);
+        if (item == null) {
+            return null;
+        }
+        return item.getState();
     }
 
     @Override

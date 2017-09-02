@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -15,13 +16,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -48,7 +49,6 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
     final String sn2 = "001788141b41";
     final ThingUID BRIDGE_THING_UID_1 = new ThingUID(BRIDGE_THING_TYPE_UID, sn1);
     final ThingUID BRIDGE_THING_UID_2 = new ThingUID(BRIDGE_THING_TYPE_UID, sn2);
-    final InboxFilterCriteria inboxFilter = new InboxFilterCriteria(BRIDGE_THING_TYPE_UID, null);
     final String validBridgeDiscoveryResult = "[{\"id\":\"001788fffe20057f\",\"internalipaddress\":" + ip1
             + "},{\"id\":\"001788fffe141b41\",\"internalipaddress\":" + ip2 + "}]";
     String discoveryResult;
@@ -155,7 +155,8 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
 
     @Test
     public void validBridgesAreDiscovered() {
-        List<DiscoveryResult> oldResults = inbox.get(inboxFilter);
+        List<DiscoveryResult> oldResults = inbox.stream().filter(forThingTypeUID(BRIDGE_THING_TYPE_UID))
+                .collect(Collectors.toList());
         for (final DiscoveryResult oldResult : oldResults) {
             inbox.remove(oldResult.getThingUID());
         }
@@ -190,7 +191,8 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
             assertThat(results.get(BRIDGE_THING_UID_2), is(notNullValue()));
             checkDiscoveryResult(results.get(BRIDGE_THING_UID_2), ip2, sn2);
 
-            final List<DiscoveryResult> inboxResults = inbox.get(inboxFilter);
+            final List<DiscoveryResult> inboxResults = inbox.stream().filter(forThingTypeUID(BRIDGE_THING_TYPE_UID))
+                    .collect(Collectors.toList());
             assertTrue(inboxResults.size() >= 2);
 
             assertThat(inboxResults.stream().filter(result -> result.getThingUID().equals(BRIDGE_THING_UID_1))
@@ -202,7 +204,8 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
 
     @Test
     public void invalidBridgesAreNotDiscovered() {
-        List<DiscoveryResult> oldResults = inbox.get(inboxFilter);
+        List<DiscoveryResult> oldResults = inbox.stream().filter(forThingTypeUID(BRIDGE_THING_TYPE_UID))
+                .collect(Collectors.toList());
         for (final DiscoveryResult oldResult : oldResults) {
             inbox.remove(oldResult.getThingUID());
         }
@@ -288,7 +291,9 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
         });
 
         waitForAssert(() -> {
-            assertThat(inbox.get(inboxFilter).size(), is(0));
+            assertThat(
+                    inbox.stream().filter(forThingTypeUID(BRIDGE_THING_TYPE_UID)).collect(Collectors.toList()).size(),
+                    is(0));
         });
     }
 }

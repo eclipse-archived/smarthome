@@ -13,6 +13,10 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class StringType implements PrimitiveType, State, Command {
 
     public final static StringType EMPTY = new StringType();

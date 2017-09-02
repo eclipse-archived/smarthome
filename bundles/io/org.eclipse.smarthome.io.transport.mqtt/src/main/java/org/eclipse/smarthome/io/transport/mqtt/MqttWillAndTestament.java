@@ -67,6 +67,31 @@ public class MqttWillAndTestament {
     }
 
     /**
+     * Hide the constructor and force consumers to use the fromString() method or the
+     * constructor requiring all field parameters to be set.
+     */
+    private MqttWillAndTestament() {
+    }
+
+    /**
+     * Create a new {@link} MqttWillAndTestament with at least a topic name.
+     *
+     * @param topic topic is a normal topic string (no placeholders are allowed)
+     * @param payload The optional payload. Can be null.
+     * @param qos Valid values are 0 (Deliver at most once),1 (Deliver at least once) or 2</li>
+     * @param retain true if messages shall be retained
+     */
+    public MqttWillAndTestament(String topic, byte[] payload, int qos, boolean retain) {
+        if (StringUtils.isBlank(topic)) {
+            throw new IllegalArgumentException("Topic must be set");
+        }
+        this.topic = topic;
+        this.payload = payload;
+        this.qos = qos;
+        this.retain = retain;
+    }
+
+    /**
      * Return true if the last will and testament object is valid.
      */
     private boolean isValid() {

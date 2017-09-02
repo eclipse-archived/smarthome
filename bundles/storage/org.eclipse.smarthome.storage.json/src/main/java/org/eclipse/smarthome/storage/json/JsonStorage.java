@@ -249,6 +249,7 @@ public class JsonStorage<T> implements Storage<T> {
     private void writeDatabaseFile(File dataFile, String data) {
         try (FileOutputStream outputStream = new FileOutputStream(dataFile, false)) {
             outputStream.write(data.getBytes());
+            outputStream.flush();
         } catch (Exception e) {
             logger.error("Error writing JsonDB to {}. Cause {}.", dataFile.getPath(), e.getMessage());
         }

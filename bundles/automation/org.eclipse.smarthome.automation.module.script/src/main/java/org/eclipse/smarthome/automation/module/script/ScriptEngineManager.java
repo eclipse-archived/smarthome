@@ -9,6 +9,10 @@ package org.eclipse.smarthome.automation.module.script;
 
 import java.io.InputStreamReader;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface ScriptEngineManager {
 
     /**

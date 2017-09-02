@@ -49,10 +49,10 @@ import org.slf4j.LoggerFactory;
  * {@link Config#getCert()}. If there is no SSL-Certificate, but an path to an external SSL-Certificate file what is set
  * in {@link Config#getTrustCertPath()} this will be set. If no SSL-Certificate is set in the {@link Config} it will be
  * red out from the server and set in {@link Config#setCert(String)}.
- * 
+ *
  * <p>
  * If no {@link Config} is given the SSL-Certificate will be stored locally.
- * 
+ *
  * <p>
  * The method {@link #writePEMCertFile(String)} saves the SSL-Certificate in a file at the given path. If all
  * SSL-Certificates shout be ignored the flag <i>exeptAllCerts</i> have to be true at the constructor
@@ -262,7 +262,7 @@ public class HttpTransportImpl implements HttpTransport {
             if (e instanceof java.net.UnknownHostException) {
                 return -5;
             }
-            logger.error("An IOException occurred by executing jsonRequest: " + testRequest, e);
+            logger.error("An IOException occurred by executing jsonRequest: {}", testRequest, e);
         }
         return -1;
     }
@@ -290,11 +290,11 @@ public class HttpTransportImpl implements HttpTransport {
                         if (cert.startsWith(BEGIN_CERT)) {
                             return cert;
                         } else {
-                            logger.error(
-                                    "File is not a PEM certificate file. PEM-Certificats starts with: " + BEGIN_CERT);
+                            logger.error("File is not a PEM certificate file. PEM-Certificats starts with: {}",
+                                    BEGIN_CERT);
                         }
                     } catch (FileNotFoundException e) {
-                        logger.error("Can't find a certificate file at the path: " + path + "\nPlease check the path!");
+                        logger.error("Can't find a certificate file at the path: {}\nPlease check the path!", path);
                     } catch (IOException e) {
                         logger.error("An IOException occurred: ", e);
                     }

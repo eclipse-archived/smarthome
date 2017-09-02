@@ -12,6 +12,8 @@ import org.osgi.framework.BundleContext;
 
 /**
  * Extension of the default OSGi bundle activator
+ * 
+ * @author Vlad Ivanov - Initial contribution
  */
 public final class WebAppActivator implements BundleActivator {
 

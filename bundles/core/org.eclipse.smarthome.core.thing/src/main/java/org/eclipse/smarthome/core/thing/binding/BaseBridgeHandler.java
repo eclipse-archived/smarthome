@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -29,7 +30,7 @@ public abstract class BaseBridgeHandler extends BaseThingHandler implements Brid
     /**
      * @see BaseThingHandler
      */
-    public BaseBridgeHandler(Bridge bridge) {
+    public BaseBridgeHandler(@NonNull Bridge bridge) {
         super(bridge);
     }
 

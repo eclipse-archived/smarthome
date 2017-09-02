@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*/
 package org.eclipse.smarthome.automation.rest.internal;
 
 import static org.eclipse.smarthome.automation.RulePredicates.*;
@@ -104,12 +104,8 @@ public class RuleResource implements RESTResource {
             p = p.and(hasPrefix(prefix));
         }
 
-        // tag parameter has been used
-        if (null != tags) {
-            // works also for empty tag list
-            // (empty tags list used if searching for rules without _any_ tags)
-            p = p.and(hasAllTags(tags));
-        }
+        // if tags is null or emty list returns all rules
+        p = p.and(hasAllTags(tags));
 
         final Collection<EnrichedRuleDTO> rules = ruleRegistry.stream().filter(p) // filter according to Predicates
                 .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleRegistry)) // map matching rules
@@ -133,12 +129,12 @@ public class RuleResource implements RESTResource {
 
         } catch (IllegalArgumentException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
-            logger.warn(errMessage);
+            logger.warn("{}", errMessage);
             return JSONResponse.createErrorResponse(Status.CONFLICT, errMessage);
 
         } catch (RuntimeException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
-            logger.warn(errMessage);
+            logger.warn("{}", errMessage);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, errMessage);
         }
     }

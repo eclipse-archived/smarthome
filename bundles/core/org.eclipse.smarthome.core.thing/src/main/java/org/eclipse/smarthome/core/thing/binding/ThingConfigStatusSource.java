@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.status.ConfigStatusSource;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -24,7 +25,7 @@ public final class ThingConfigStatusSource extends ConfigStatusSource {
      *
      * @param thingUID the UID of the thing
      */
-    public ThingConfigStatusSource(String thingUID) {
+    public ThingConfigStatusSource(@NonNull String thingUID) {
         super(thingUID);
     }
 

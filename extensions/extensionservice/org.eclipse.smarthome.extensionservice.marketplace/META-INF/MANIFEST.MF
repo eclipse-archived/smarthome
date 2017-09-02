@@ -16,6 +16,7 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.extension,
  org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.extensionservice.marketplace,
  org.osgi.framework,
  org.slf4j
 Bundle-ActivationPolicy: lazy

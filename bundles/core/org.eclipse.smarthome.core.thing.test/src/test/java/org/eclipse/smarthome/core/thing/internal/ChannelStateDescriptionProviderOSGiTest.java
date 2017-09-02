@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.Item;
@@ -28,10 +29,12 @@ import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -181,6 +184,16 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         });
     }
 
+    private static @NonNull Channel getChannel(final @NonNull Thing thing, final @NonNull String channelId) {
+        final Channel channel = thing.getChannel(channelId);
+        if (channel == null) {
+            throw new IllegalArgumentException(String.format("The thing '%s' does not seems to contain a channel '%s'.",
+                    thing.getUID(), channelId));
+        } else {
+            return channel;
+        }
+    }
+
     /**
      * Assert that item's state description is present.
      */
@@ -193,17 +206,17 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
                 null, "test thing", new Configuration());
         assertNotNull(thing);
         managedThingProvider.add(thing);
-        ItemChannelLink link = new ItemChannelLink("TestItem", thing.getChannel("1").getUID());
+        ItemChannelLink link = new ItemChannelLink("TestItem", getChannel(thing, "1").getUID());
         linkRegistry.add(link);
-        link = new ItemChannelLink("TestItem2", thing.getChannel("2").getUID());
+        link = new ItemChannelLink("TestItem2", getChannel(thing, "2").getUID());
         linkRegistry.add(link);
-        link = new ItemChannelLink("TestItem3", thing.getChannel("3").getUID());
+        link = new ItemChannelLink("TestItem3", getChannel(thing, "3").getUID());
         linkRegistry.add(link);
-        link = new ItemChannelLink("TestItem4", thing.getChannel("4").getUID());
+        link = new ItemChannelLink("TestItem4", getChannel(thing, "4").getUID());
         linkRegistry.add(link);
-        link = new ItemChannelLink("TestItem5", thing.getChannel("5").getUID());
+        link = new ItemChannelLink("TestItem5", getChannel(thing, "5").getUID());
         linkRegistry.add(link);
-        link = new ItemChannelLink("TestItem6", thing.getChannel("6").getUID());
+        link = new ItemChannelLink("TestItem6", getChannel(thing, "6").getUID());
         linkRegistry.add(link);
         //
         final Collection<Item> items = itemRegistry.getItems();
@@ -295,6 +308,11 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
             return new BaseThingHandler(thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
                 }
             };
         }

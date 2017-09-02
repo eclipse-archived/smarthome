@@ -16,8 +16,8 @@ import java.util.concurrent.ExecutorService;
 import org.eclipse.smarthome.config.core.status.events.ConfigStatusInfoEvent;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -87,8 +87,8 @@ public final class ConfigStatusService implements ConfigStatusCallback {
                     if (eventPublisher != null) {
                         eventPublisher.post(new ConfigStatusInfoEvent(configStatusSource.getTopic(), info));
                     } else {
-                        logger.warn("EventPublisher not available. Cannot post new config status for entity "
-                                + configStatusSource.entityId);
+                        logger.warn("EventPublisher not available. Cannot post new config status for entity {}",
+                                configStatusSource.entityId);
                     }
                 }
             }

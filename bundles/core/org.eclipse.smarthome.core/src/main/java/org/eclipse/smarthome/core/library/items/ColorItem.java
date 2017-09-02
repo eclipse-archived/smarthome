@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -47,7 +48,7 @@ public class ColorItem extends DimmerItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public ColorItem(String name) {
+    public ColorItem(@NonNull String name) {
         super(CoreItemFactory.COLOR, name);
     }
 

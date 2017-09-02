@@ -156,6 +156,11 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     @Override
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
+    }
+
+    @Override
     protected void deactivate() {
         super.deactivate();
     }

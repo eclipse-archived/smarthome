@@ -80,7 +80,7 @@ public interface DiscoveryResult {
      * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
      * identifiers are typically the <code>ipAddress</code>, the <code>macAddress</code> or the
      * <code>serialNumber</code> of the discovered thing.
-     * 
+     *
      * @return the representation property of this result object (could be null)
      */
     public String getRepresentationProperty();
@@ -112,14 +112,14 @@ public interface DiscoveryResult {
 
     /**
      * Get the timestamp of this {@link DiscoveryResult}.
-     * 
+     *
      * @return timestamp as long
      */
     public long getTimestamp();
 
     /**
      * Get the time to live in seconds for this entry.
-     * 
+     *
      * @return time to live in seconds
      */
     public long getTimeToLive();

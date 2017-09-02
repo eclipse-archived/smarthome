@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -40,7 +41,7 @@ public class LocationItem extends GenericItem {
         acceptedCommandTypes.add(PointType.class);
     }
 
-    public LocationItem(String name) {
+    public LocationItem(@NonNull String name) {
         super(CoreItemFactory.LOCATION, name);
     }
 

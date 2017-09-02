@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.dto,
@@ -18,6 +19,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.events,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
@@ -29,6 +31,7 @@ Import-Package: com.google.common.base,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.config.discovery,

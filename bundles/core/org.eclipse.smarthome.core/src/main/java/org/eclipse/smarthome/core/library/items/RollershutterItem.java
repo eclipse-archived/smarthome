@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -46,7 +47,7 @@ public class RollershutterItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public RollershutterItem(String name) {
+    public RollershutterItem(@NonNull String name) {
         super(CoreItemFactory.ROLLERSHUTTER, name);
     }
 

@@ -8,6 +8,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.binding.fsinternetradio
 Import-Package: javax.servlet,
  javax.servlet.http,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,

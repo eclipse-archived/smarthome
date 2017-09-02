@@ -41,10 +41,10 @@
   </feature>
 
   <feature name="esh-tp-coap" description="Californium CoAP library" version="${project.version}">
-    <capability>esh.tp;feature=coap;version=1.0.5</capability>
-    <bundle>mvn:org.eclipse.californium/californium-osgi/1.0.5</bundle>
-    <bundle>mvn:org.eclipse.californium/element-connector/1.0.5</bundle>
-    <bundle>mvn:org.eclipse.californium/scandium/1.0.5</bundle>
+    <capability>esh.tp;feature=coap;version=1.0.6</capability>
+    <bundle>mvn:org.eclipse.californium/californium-osgi/1.0.6</bundle>
+    <bundle>mvn:org.eclipse.californium/element-connector/1.0.6</bundle>
+    <bundle>mvn:org.eclipse.californium/scandium/1.0.6</bundle>
   </feature>
 
   <feature name="esh-tp-httpclient" version="${project.version}">
@@ -165,33 +165,32 @@
   </feature>
 
   <feature name="esh-tp-xtext" description="Xtext - Language Engineering Made Easy" version="${project.version}">
-    <capability>esh.tp;feature=xtext;version=2.9.2</capability>
+    <capability>esh.tp;feature=xtext;version=2.12.0</capability>
 
-    <bundle>mvn:org.eclipse.xtext/org.eclipse.xtext/2.9.2</bundle>
+    <bundle>mvn:org.eclipse.xtext/org.eclipse.xtext/2.12.0</bundle>
 
     <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.common/2.11.0-v20150805-0538</bundle>
     <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore/2.11.1-v20150805-0538</bundle>
     <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore.xmi/2.11.1-v20150805-0538</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.common.types/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.common.types/2.12.0</bundle>
 
-    <bundle dependency="true">mvn:de.maggu2810.thirdparty.modified.org.eclipse.xtext/org.eclipse.xtext.xbase/2.9.2.sp1</bundle>
     <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
 
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.lib/2.9.2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.smap/2.9.2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.util/2.9.2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib/2.9.2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib.macro/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase/2.12.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.lib/2.12.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.smap/2.12.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.util/2.12.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib/2.12.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib.macro/2.12.0</bundle>
 
+    <bundle dependency="true">mvn:com.google.guava/guava/15.0</bundle>
     <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/1_2</bundle>
 
     <!--<bundle dependency="true">mvn:com.google.inject/guice/3.0</bundle>-->
-    <!--<bundle dependency="true">mvn:com.google.guava/guava/14.0.1</bundle>-->
     <!--<bundle dependency="true">wrap:mvn:org.antlr/antlr-runtime/3.2</bundle>-->
     <!--<bundle dependency="true">wrap:mvn:aopalliance/aopalliance/1.0</bundle>-->
 
     <bundle dependency="true">mvn:de.maggu2810.p2redist/com.google.inject/3.0.0.v201312141243</bundle>
-    <bundle dependency="true">mvn:de.maggu2810.p2redist/com.google.guava/10.0.1.v201203051515</bundle>
     <bundle dependency="true">mvn:de.maggu2810.p2redist/org.antlr.runtime/3.2.0.v201101311130</bundle>
 
     <bundle dependency="true">mvn:org.eclipse.platform/org.eclipse.equinox.common/3.8.0</bundle>

@@ -10,4 +10,4 @@ Import-Package: io.swagger.annotations;resolution:=optional,
  javax.ws.rs.core,
  org.eclipse.smarthome.io.rest,
  org.slf4j
-Service-Component: OSGI-INF/loghandler.xml
+Service-Component: OSGI-INF/*.xml

@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.internal.events;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -148,7 +149,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         } else {
             logger.error(
                     "The handled OSGi event is invalid. Expect properties as string named 'type', 'payload' and 'topic'. "
-                            + "Received event properties are: " + osgiEvent.getPropertyNames());
+                            + "Received event properties are: {}", Arrays.toString(osgiEvent.getPropertyNames()));
         }
     }
 
@@ -164,7 +165,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 }
             }
         } else {
-            logger.warn("Could not find an Event Factory for the event type '" + type + "'.");
+            logger.warn("Could not find an Event Factory for the event type '{}'.", type);
         }
     }
 
@@ -175,7 +176,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
             eshEvent = eventFactory.createEvent(type, topic, payload, source);
         } catch (Exception e) {
             logger.error("Creation of ESH-Event failed, "
-                    + "because one of the registered event factories has thrown an exception: " + e.getMessage(), e);
+                            + "because one of the registered event factories has thrown an exception: {}", e.getMessage(), e);
         }
         return eshEvent;
     }
@@ -198,8 +199,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.", eventSubscriber.toString(),
                         SafeMethodCaller.DEFAULT_TIMEOUT);
             } catch (Throwable t) {
-                logger.error("Dispatching/filtering event for subscriber '" + EventSubscriber.class.getName()
-                        + "' failed: " + t.getMessage(), t);
+                logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
+                        EventSubscriber.class.getName(), t.getMessage(), t);
             }
         }
     }

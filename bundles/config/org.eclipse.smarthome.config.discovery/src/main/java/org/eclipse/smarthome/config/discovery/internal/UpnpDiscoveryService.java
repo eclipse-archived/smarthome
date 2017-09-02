@@ -24,6 +24,11 @@ import org.jupnp.model.meta.LocalDevice;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.registry.Registry;
 import org.jupnp.registry.RegistryListener;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - Added call of removeOlderResults
  *
  */
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
 public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
@@ -53,6 +59,13 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         startScan();
     }
 
+    @Override
+    @Modified
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
+    }
+
+    @Reference
     protected void setUpnpService(UpnpService upnpService) {
         this.upnpService = upnpService;
     }
@@ -61,6 +74,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         this.upnpService = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
     protected void addUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
         this.participants.add(participant);
 

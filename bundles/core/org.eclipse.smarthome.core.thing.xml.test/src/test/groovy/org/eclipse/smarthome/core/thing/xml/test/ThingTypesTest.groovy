@@ -59,6 +59,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
         assertThat bridgeType.properties.size(), is(1)
         assertThat bridgeType.properties.get("vendor"), is("Philips")
+        assertThat bridgeType.representationProperty, is("serialNumber")
 
         def thingType = thingTypes.find { it.toString().equals("hue:lamp") } as ThingType
         assertThat thingType, is(notNullValue())
@@ -70,6 +71,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat thingType.properties.size(), is(2)
         assertThat thingType.properties.get("key1"), is("value1")
         assertThat thingType.properties.get("key2"), is("value2")
+        assertThat thingType.representationProperty, is("uniqueId")
         thingType.channelDefinitions.with {
             assertThat size(), is(3)
             def colorChannel = it.find { it.id.equals("color") } as ChannelDefinition

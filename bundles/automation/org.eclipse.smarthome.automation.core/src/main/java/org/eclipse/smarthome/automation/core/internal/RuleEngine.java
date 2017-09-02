@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
@@ -694,7 +695,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             if (status == RuleStatus.DISABLED) {
                 setRule(runtimeRule);
             } else {
-                logger.debug("The rule rId = " + rUID + " is already enabled.");
+                logger.debug("The rule rId = {} is already enabled.", rUID);
             }
         } else {
             unregister(runtimeRule);
@@ -1087,7 +1088,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         return statusMap.get(rUID);
     }
 
-    protected synchronized String getUniqueId() {
+    protected synchronized @NonNull String getUniqueId() {
         int result = 0;
         if (rules != null) {
             Set<String> col = rules.keySet();
@@ -1133,7 +1134,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 if (value instanceof Number) {
                     scheduleReinitializationDelay = ((Number) value).longValue();
                 } else {
-                    logger.error("Invalid configuration value: " + value + "It MUST be Number.");
+                    logger.error("Invalid configuration value: {}. It MUST be Number.", value);
                 }
             } else {
                 scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
@@ -1442,7 +1443,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     }
 
-    private <T extends Module> void normalizeModuleConfigurations(List<T> modules) {
+    private <T extends Module> void normalizeModuleConfigurations(List<@NonNull T> modules) {
         for (Module module : modules) {
             Configuration config = module.getConfiguration();
             if (config != null) {

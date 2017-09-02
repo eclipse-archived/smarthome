@@ -112,7 +112,7 @@ public class SceneManagerImpl implements SceneManager {
                     try {
                         sceneId = Short.parseShort(sceneStr);
                     } catch (java.lang.NumberFormatException e) {
-                        logger.error("An exception occurred, while handling event at parsing sceneID: " + sceneStr, e);
+                        logger.error("An exception occurred, while handling event at parsing sceneID: {}", sceneStr, e);
                     }
                 }
 

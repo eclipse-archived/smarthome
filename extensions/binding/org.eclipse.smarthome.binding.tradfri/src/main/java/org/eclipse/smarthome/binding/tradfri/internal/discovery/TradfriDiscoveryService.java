@@ -19,6 +19,7 @@ import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     protected void startScan() {
+        removeOlderResults(getTimestampOfLastScan());
         handler.startScan();
     }
 
@@ -93,9 +95,15 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
+                properties.put(Thing.PROPERTY_MODEL_ID, model);
+                
                 if (deviceInfo.get(DEVICE_VENDOR) != null) {
-                    properties.put("vendor", deviceInfo.get(DEVICE_VENDOR));
+                    properties.put(Thing.PROPERTY_VENDOR, deviceInfo.get(DEVICE_VENDOR).getAsString());
                 }
+                if (deviceInfo.get(DEVICE_FIRMWARE) != null) {
+                    properties.put(Thing.PROPERTY_FIRMWARE_VERSION, deviceInfo.get(DEVICE_FIRMWARE).getAsString());
+                }
+                
                 logger.debug("Adding device {} to inbox", thingId);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingId).withBridge(bridge)
                         .withLabel(label).withProperties(properties).withRepresentationProperty("id").build();

@@ -12,6 +12,10 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public abstract class SimpleConditionHandler implements ScriptedHandler {
     public void init(Condition condition) {
     }

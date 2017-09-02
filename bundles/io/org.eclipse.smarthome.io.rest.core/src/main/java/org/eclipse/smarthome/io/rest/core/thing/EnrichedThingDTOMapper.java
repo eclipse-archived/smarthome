@@ -23,6 +23,8 @@ import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 /**
  * The {@link EnrichedThingDTOMapper} is an utility class to map things into enriched thing data transfer objects
  * (DTOs).
+ *
+ * @author Dennis Nobel - Initial contribution
  */
 public class EnrichedThingDTOMapper extends ThingDTOMapper {
 

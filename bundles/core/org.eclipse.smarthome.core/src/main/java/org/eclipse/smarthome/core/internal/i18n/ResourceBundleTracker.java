@@ -140,15 +140,17 @@ public class ResourceBundleTracker extends BundleTracker {
     }
 
     /**
-     * This method adds the localization resources provided by this <i>OSGi</i> bundle parameter, accordingly
-     * of that the resource bundle is detected.
+     * This method adds the localization resources provided by this <i>OSGi</i> bundle parameter if the bundle is not in
+     * UNINSTALLED state.
      *
      * @param bundle the <i>OSGi</i> bundle that was detected
      */
     private void addResourceBundle(Bundle bundle) {
-        LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(localeProvider, bundle);
-        if (languageResource.containsResources()) {
-            this.bundleLanguageResourceMap.put(bundle, languageResource);
+        if (bundle.getState() != Bundle.UNINSTALLED) {
+            LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(localeProvider, bundle);
+            if (languageResource.containsResources()) {
+                this.bundleLanguageResourceMap.put(bundle, languageResource);
+            }
         }
     }
 

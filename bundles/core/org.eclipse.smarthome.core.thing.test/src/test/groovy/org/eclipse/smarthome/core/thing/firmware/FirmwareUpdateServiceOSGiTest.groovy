@@ -210,7 +210,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
             managedThingProvider = getService ManagedThingProvider
             assertThat managedThingProvider, is(notNullValue())
         }
-        
+
         thingRegistry = getService(ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
 
@@ -1099,7 +1099,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             sleep wait
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE)
         }
 
         @Override
@@ -1172,7 +1172,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             sleep wait
-            super.initialize()
+            updateStatus(ThingStatus.ONLINE)
         }
 
         @Override
@@ -1222,6 +1222,11 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
 
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
+        }
+
+        @Override
+        public void initialize() {
+            updateStatus(ThingStatus.ONLINE)
         }
     }
 }

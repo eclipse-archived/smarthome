@@ -10,13 +10,13 @@ And of course you can [report issues](https://github.com/eclipse/smarthome/issue
 
 Please read the [Eclipse Foundation policy on accepting contributions via Git](http://wiki.eclipse.org/Development_Resources/Contributing_via_Git).
 
-Your contribution cannot be accepted unless you have an [Eclipse Foundation Contributor License Agreement](http://www.eclipse.org/legal/CLA.php) in place.
+Your contribution cannot be accepted unless you have an [Eclipse Contributor Agreement](https://www.eclipse.org/legal/ECA.php) in place.
 
 Here is the checklist for contributions to be _acceptable_:
 
 1. [create an account at Eclipse](https://dev.eclipse.org/site_login/createaccount.php), and
 2. add your GitHub user name in your account settings, and
-3. [log into the projects portal](https://projects.eclipse.org/) and look for ["Eclipse CLA"](https://projects.eclipse.org/user/sign/cla), and
+3. electronically sign the ["Eclipse Contributor Agreement"](https://accounts.eclipse.org/user/eca), and
 4. ensure that you _sign-off_ your Git commits, and
 5. ensure that you use the _same_ email address as your Eclipse Foundation in commits.
 

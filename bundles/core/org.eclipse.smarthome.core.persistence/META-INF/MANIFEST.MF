@@ -6,10 +6,14 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.persistence
-Import-Package: org.eclipse.smarthome.config.core,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.persistence,
+ org.eclipse.smarthome.core.persistence.config,
+ org.eclipse.smarthome.core.persistence.dto,
+ org.eclipse.smarthome.core.persistence.strategy,
  org.eclipse.smarthome.core.scheduler,
  org.eclipse.smarthome.core.types,
  org.slf4j

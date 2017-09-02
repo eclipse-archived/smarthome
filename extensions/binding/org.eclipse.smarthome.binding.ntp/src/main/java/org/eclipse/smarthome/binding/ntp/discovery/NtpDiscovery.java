@@ -33,13 +33,21 @@ public class NtpDiscovery extends AbstractDiscoveryService {
     }
 
     @Override
+    protected void activate(Map<String, Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
+    }
+
+    @Override
     protected void startBackgroundDiscovery() {
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                discoverNtp();
-            }
+        scheduler.schedule(() -> {
+            discoverNtp();
         }, 1, TimeUnit.SECONDS);
+
     }
 
     @Override

@@ -9,4 +9,4 @@ Import-Package: org.eclipse.smarthome.model.core,
  org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.sitemap
-Service-Component: OSGI-INF/runtime.xml
+Service-Component: OSGI-INF/*.xml

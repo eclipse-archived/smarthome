@@ -201,6 +201,11 @@ class ThingStatusInfoI18nLocalizationServiceOSGiTest extends OSGiTest {
             //do nothing
         }
 
+        @Override
+        public void initialize() {
+            updateStatus(ThingStatus.ONLINE);
+        }
+
         void setThingStatusInfo(ThingStatusInfo thingStatusInfo) {
             updateStatus(thingStatusInfo.getStatus(), thingStatusInfo.getStatusDetail(), thingStatusInfo.getDescription())
         }

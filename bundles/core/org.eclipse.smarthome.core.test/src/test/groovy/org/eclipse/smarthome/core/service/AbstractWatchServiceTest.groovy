@@ -396,7 +396,6 @@ class AbstractWatchServiceTest extends OSGiTest {
             allFullEvents << fullEvent
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         protected Kind<?>[] getWatchEventKinds(Path subDir) {
             return [

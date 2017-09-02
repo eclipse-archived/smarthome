@@ -233,11 +233,8 @@ public class ScriptFileWatcher extends AbstractWatchService {
             @Override
             public int compare(URL o1, URL o2) {
                 String f1 = o1.getPath();
-                String s1 = f1.substring(f1.lastIndexOf("/") + 1);
                 String f2 = o2.getPath();
-                String s2 = f2.substring(f2.lastIndexOf("/") + 1);
-
-                return String.CASE_INSENSITIVE_ORDER.compare(s1, s2);
+                return String.CASE_INSENSITIVE_ORDER.compare(f1, f2);
             }
         });
 

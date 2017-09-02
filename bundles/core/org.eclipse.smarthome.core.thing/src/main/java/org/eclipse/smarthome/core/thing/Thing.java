@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.thing;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.items.Item;
@@ -75,6 +77,7 @@ public interface Thing extends Identifiable<ThingUID> {
      * @return the channel for the given id or null if no channel with the id
      *         exists
      */
+    @Nullable
     Channel getChannel(String channelId);
 
     /**
@@ -117,6 +120,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the handler (can be null)
      */
+    @Nullable
     ThingHandler getHandler();
 
     /**
@@ -124,6 +128,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the bridge UID (can be null)
      */
+    @Nullable
     ThingUID getBridgeUID();
 
     /**
@@ -139,6 +144,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the configuration (not null)
      */
+    @NonNull
     Configuration getConfiguration();
 
     /**
@@ -161,7 +167,8 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return an immutable copy of the {@link Thing} properties (not null)
      */
-    Map<String, String> getProperties();
+    @NonNull
+    Map<@NonNull String, String> getProperties();
 
     /**
      * Sets the property value for the property identified by the given name. If the value to be set is null then the
@@ -173,14 +180,14 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the previous value associated with the name, or null if there was no mapping for the name
      */
-    String setProperty(String name, String value);
+    String setProperty(@NonNull String name, String value);
 
     /**
      * Updates all properties of the thing.
      *
      * @param properties the properties to set (must not be null)
      */
-    void setProperties(Map<String, String> properties);
+    void setProperties(@NonNull Map<String, String> properties);
 
     /**
      * Get the physical location of the {@link Thing}.
@@ -188,6 +195,7 @@ public interface Thing extends Identifiable<ThingUID> {
      * @return the location identifier (presumably an item name) or <code>null</code> if no location has been
      *         configured.
      */
+    @Nullable
     String getLocation();
 
     /**

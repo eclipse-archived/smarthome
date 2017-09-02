@@ -10,6 +10,10 @@ package org.eclipse.smarthome.model.core.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class ModelCoreActivator implements BundleActivator {
 
     private static BundleContext context;

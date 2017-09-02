@@ -123,8 +123,8 @@ public class RulePredicates {
      * @return created {@link Predicate}
      */
     public static Predicate<Rule> hasAllTags(final Collection<String> tags) {
-        if (null == tags || tags.isEmpty()) {
-            return hasNoTags();
+        if (tags == null || tags.isEmpty()) {
+            return (Predicate<Rule>) r -> true;
         } else {
             final Set<String> tagSet = new HashSet<String>(tags);
 
@@ -142,11 +142,7 @@ public class RulePredicates {
      * @return created {@link Predicate}
      */
     public static Predicate<Rule> hasAllTags(final String... tags) {
-        if (null == tags || 0 == tags.length) {
-            return hasNoTags();
-        } else {
-            return hasAllTags(Arrays.asList(tags));
-        }
+        return hasAllTags(tags == null ? null : Arrays.asList(tags));
     }
 
     /**

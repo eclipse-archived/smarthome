@@ -30,7 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecUtil {
 
-    private static final String CMD_LINE_DELIMITER = "@@";
+    /**
+     * Use this to separate between command and parameter, and also between parameters.
+     */
+    public static final String CMD_LINE_DELIMITER = "@@";
 
     /**
      * <p>
@@ -38,7 +41,7 @@ public class ExecUtil {
      * properly. In that cases another exec-method is to be used. To accomplish this please use the special delimiter '
      * <code>@@</code>'. If <code>commandLine</code> contains this delimiter it is split into a String[] array and the
      * special exec-method is used.
-     * 
+     *
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      *
@@ -58,7 +61,7 @@ public class ExecUtil {
                 logger.info("executed commandLine '{}'", commandLine);
             }
         } catch (IOException e) {
-            logger.error("couldn't execute commandLine '" + commandLine + "'", e);
+            logger.error("couldn't execute commandLine '{}'", commandLine, e);
         }
     }
 
@@ -68,7 +71,7 @@ public class ExecUtil {
      * properly. In that cases another exec-method is to be used. To accomplish this please use the special delimiter '
      * <code>@@</code>'. If <code>commandLine</code> contains this delimiter it is split into a String[] array and the
      * special exec-method is used.
-     * 
+     *
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      *
@@ -111,9 +114,9 @@ public class ExecUtil {
             executor.execute(cmdLine, resultHandler);
             logger.debug("executed commandLine '{}'", commandLine);
         } catch (ExecuteException e) {
-            logger.warn("couldn't execute commandLine '" + commandLine + "'", e);
+            logger.warn("couldn't execute commandLine '{}'", commandLine, e);
         } catch (IOException e) {
-            logger.warn("couldn't execute commandLine '" + commandLine + "'", e);
+            logger.warn("couldn't execute commandLine '{}'", commandLine, e);
         }
 
         // some time later the result handler callback was invoked so we
@@ -123,12 +126,12 @@ public class ExecUtil {
             int exitCode = resultHandler.getExitValue();
             retval = StringUtils.chomp(stdout.toString());
             if (resultHandler.getException() != null) {
-                logger.warn(resultHandler.getException().getMessage());
+                logger.warn("{}", resultHandler.getException().getMessage());
             } else {
                 logger.debug("exit code '{}', result '{}'", exitCode, retval);
             }
         } catch (InterruptedException e) {
-            logger.warn("Timeout occurred when executing commandLine '" + commandLine + "'", e);
+            logger.warn("Timeout occurred when executing commandLine '{}'", commandLine, e);
         }
 
         return retval;

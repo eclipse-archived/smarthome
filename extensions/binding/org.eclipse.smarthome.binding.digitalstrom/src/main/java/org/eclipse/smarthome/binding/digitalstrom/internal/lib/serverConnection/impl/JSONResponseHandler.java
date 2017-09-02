@@ -40,8 +40,8 @@ public class JSONResponseHandler {
             return jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_OK.getKey()).toString()
                     .equals(JSONApiResponseKeysEnum.RESPONSE_SUCCESSFUL.getKey());
         } else {
-            logger.error("JSONResponseHandler: error in json request. Error message : "
-                    + jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_MESSAGE.getKey()).toString());
+            logger.error("JSONResponseHandler: error in json request. Error message : {}",
+                    jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_MESSAGE.getKey()));
         }
         return false;
     }
@@ -58,7 +58,7 @@ public class JSONResponseHandler {
             try {
                 return (JsonObject) new JsonParser().parse(jsonResponse);
             } catch (JsonParseException e) {
-                logger.error("An JsonParseException occurred by parsing jsonRequest: " + jsonResponse, e);
+                logger.error("An JsonParseException occurred by parsing jsonRequest: {}", jsonResponse, e);
             }
         }
         return null;

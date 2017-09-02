@@ -47,7 +47,8 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, changed
+ *         the initialization of properties
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
@@ -108,8 +109,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // the bridge
             if (getHueBridgeHandler() != null) {
                 if (bridgeStatus == ThingStatus.ONLINE) {
-                    updateStatus(ThingStatus.ONLINE);
                     initializeProperties();
+                    updateStatus(ThingStatus.ONLINE);
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
                 }
@@ -117,7 +118,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 updateStatus(ThingStatus.OFFLINE);
             }
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-no-light-id");
         }
     }
 
@@ -132,6 +134,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (vendor != null) {
                     updateProperty(Thing.PROPERTY_VENDOR, vendor);
                 }
+                updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
                 propertiesInitializedSuccessfully = true;
             }
@@ -210,6 +213,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 }
                 break;
             case CHANNEL_SWITCH:
+                logger.trace("CHANNEL_SWITCH handling command {}", command);
                 if (command instanceof OnOffType) {
                     lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
                     if (isOsramPar16) {
@@ -257,7 +261,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (lightState != null) {
             hueBridge.updateLightState(light, lightState);
         } else {
-            logger.warn("Command send to an unknown channel id: " + channelUID);
+            logger.warn("Command sent to an unknown channel id: {}", channelUID);
         }
     }
 
@@ -350,42 +354,52 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void onLightStateChanged(HueBridge bridge, FullLight fullLight) {
-        if (fullLight != null && fullLight.getId().equals(lightId)) {
+        logger.trace("onLightStateChanged() was called");
 
-            initializeProperties();
+        if (!fullLight.getId().equals(lightId)) {
+            logger.trace("Received state change for another handler's light ({}). Will be ignored.", fullLight.getId());
+            return;
+        }
 
-            lastSentColorTemp = null;
-            lastSentBrightness = null;
+        initializeProperties();
 
-            // update status (ONLINE, OFFLINE)
-            if (fullLight.getState().isReachable()) {
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                // we assume OFFLINE without any error (NONE), as this is an
-                // expected state (when bulb powered off)
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge reports light as not reachable");
-            }
+        lastSentColorTemp = null;
+        lastSentBrightness = null;
 
-            HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
-            if (!fullLight.getState().isOn()) {
-                hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
-            }
-            updateState(CHANNEL_COLOR, hsbType);
+        // update status (ONLINE, OFFLINE)
+        if (fullLight.getState().isReachable()) {
+            updateStatus(ThingStatus.ONLINE);
+        } else {
+            // we assume OFFLINE without any error (NONE), as this is an
+            // expected state (when bulb powered off)
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
+        }
 
-            PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
-            updateState(CHANNEL_COLORTEMPERATURE, percentType);
+        HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
+        if (!fullLight.getState().isOn()) {
+            hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
+        }
+        updateState(CHANNEL_COLOR, hsbType);
 
-            percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
-            if (!fullLight.getState().isOn()) {
-                percentType = new PercentType(0);
-            }
-            updateState(CHANNEL_BRIGHTNESS, percentType);
+        PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
+        updateState(CHANNEL_COLORTEMPERATURE, percentType);
 
-            StringType stringType = LightStateConverter.toAlertStringType(fullLight.getState());
-            if (!stringType.toString().equals("NULL")) {
-                updateState(CHANNEL_ALERT, stringType);
-                scheduleAlertStateRestore(stringType);
-            }
+        percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
+        if (!fullLight.getState().isOn()) {
+            percentType = new PercentType(0);
+        }
+        updateState(CHANNEL_BRIGHTNESS, percentType);
+
+        if (fullLight.getState().isOn()) {
+            updateState(CHANNEL_SWITCH, OnOffType.ON);
+        } else {
+            updateState(CHANNEL_SWITCH, OnOffType.OFF);
+        }
+
+        StringType stringType = LightStateConverter.toAlertStringType(fullLight.getState());
+        if (!stringType.toString().equals("NULL")) {
+            updateState(CHANNEL_ALERT, stringType);
+            scheduleAlertStateRestore(stringType);
         }
 
     }
@@ -394,21 +408,23 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     public void channelLinked(ChannelUID channelUID) {
         HueBridgeHandler handler = getHueBridgeHandler();
         if (handler != null) {
-            onLightStateChanged(null, handler.getLightById(lightId));
+            FullLight light = handler.getLightById(lightId);
+            if (light != null) {
+                onLightStateChanged(null, light);
+            }
         }
     }
 
     @Override
     public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "offline.light-removed");
         }
     }
 
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            updateStatus(ThingStatus.ONLINE);
             onLightStateChanged(bridge, light);
         }
     }

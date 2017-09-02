@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
@@ -38,7 +39,7 @@ public class ContactItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public ContactItem(String name) {
+    public ContactItem(@NonNull String name) {
         super(CoreItemFactory.CONTACT, name);
     }
 

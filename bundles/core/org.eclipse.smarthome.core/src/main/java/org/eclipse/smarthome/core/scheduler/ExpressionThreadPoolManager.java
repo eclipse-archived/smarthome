@@ -111,16 +111,16 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
             super.afterExecute(runnable, throwable);
 
             if (runnable instanceof Future) {
+                Future<?> future = (Future<?>) runnable;
                 try {
                     futuresLock.lock();
                     for (Runnable aRunnable : futures.keySet()) {
-                        futures.get(aRunnable).removeIf(future -> future == runnable);
+                        futures.get(aRunnable).removeIf(entry -> entry == future);
                     }
                 } finally {
                     futuresLock.unlock();
                 }
-                timestamps.remove(runnable);
-
+                timestamps.remove(future);
             } else {
                 List<ScheduledFuture<?>> obsoleteFutures = new ArrayList<ScheduledFuture<?>>();
                 try {

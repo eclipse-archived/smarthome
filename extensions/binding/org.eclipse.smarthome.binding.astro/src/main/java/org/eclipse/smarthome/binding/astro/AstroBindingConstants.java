@@ -17,11 +17,11 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Amit Kumar Mondal - Made non-Instantiable
  */
 public final class AstroBindingConstants {
-	
-	/** Constructor */
-	private AstroBindingConstants() {
-		throw new IllegalAccessError("Non-instantiable");
-	}
+
+    /** Constructor */
+    private AstroBindingConstants() {
+        throw new IllegalAccessError("Non-instantiable");
+    }
 
     public static final String BINDING_ID = "astro";
 

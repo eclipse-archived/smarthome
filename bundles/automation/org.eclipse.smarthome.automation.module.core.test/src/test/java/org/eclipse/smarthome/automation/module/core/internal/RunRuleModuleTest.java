@@ -7,13 +7,15 @@
  */
 package org.eclipse.smarthome.automation.module.core.internal;
 
+import static org.junit.Assert.*;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,8 +34,8 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.events.ItemStateEvent;
-import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -73,7 +75,6 @@ public class RunRuleModuleTest extends JavaOSGiTest {
             }
         });
         registerService(volatileStorageService);
-        enableItemAutoUpdate();
     }
 
     private Rule createSceneRule() {
@@ -157,7 +158,7 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         final ItemRegistry itemRegistry = getService(ItemRegistry.class);
         Assert.assertNotNull(itemRegistry);
 
-        final LinkedBlockingQueue<Event> events = new LinkedBlockingQueue<>();
+        final Queue<Event> events = new LinkedList<>();
 
         registerService(new EventSubscriber() {
             @Override
@@ -168,7 +169,7 @@ public class RunRuleModuleTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Stream.of(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE).collect(Collectors.toSet());
+                return Collections.singleton(ItemCommandEvent.TYPE);
             }
 
             @Override
@@ -178,39 +179,13 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         });
 
         // trigger rule by switching triggerItem ON
-
-        final Item ruleTriggerItem = itemRegistry.getItem("ruleTrigger");
-        ((SwitchItem) ruleTriggerItem).send(OnOffType.ON);
-
-        boolean eventFound = false;
-        long wait = TimeUnit.MILLISECONDS.toNanos(DFL_TIMEOUT);
-        final long nanoEnd = System.nanoTime() + wait;
-        do {
-            final Event event = events.poll(wait, TimeUnit.NANOSECONDS);
-            Assert.assertNotNull(event);
-            wait = nanoEnd - System.nanoTime();
-
-            if (!"smarthome/items/switch3/state".equals(event.getTopic())) {
-                continue;
-            }
-
-            if (!(event instanceof ItemStateEvent)) {
-                continue;
-            }
-
-            final ItemStateEvent itemEvent = (ItemStateEvent) event;
-            if (itemEvent.getItemState() != OnOffType.ON) {
-                continue;
-            }
-
-            eventFound = true;
-        } while (!eventFound && wait > 0);
-        Assert.assertTrue(eventFound);
-
-        Stream.of("switch1", "switch2", "switch3").forEach(itemName -> {
-            final Item item = itemRegistry.get(itemName);
-            Assert.assertNotNull(item);
-            waitForAssert(() -> Assert.assertEquals(OnOffType.ON, item.getState()));
+        eventPublisher.post(ItemEventFactory.createStateEvent("ruleTrigger", OnOffType.ON));
+        waitForAssert(() -> {
+            assertFalse(events.isEmpty());
+            ItemCommandEvent event = (ItemCommandEvent) events.remove();
+            assertEquals("smarthome/items/switch3/command", event.getTopic());
+            assertEquals(OnOffType.ON, event.getItemCommand());
         });
+
     }
 }

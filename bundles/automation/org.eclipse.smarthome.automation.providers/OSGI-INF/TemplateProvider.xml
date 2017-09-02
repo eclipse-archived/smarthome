@@ -16,7 +16,6 @@
     <implementation class="org.eclipse.smarthome.automation.internal.core.provider.TemplateResourceBundleProvider" />
 
     <reference bind="addParser" cardinality="1..n" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="dynamic" unbind="removeParser" target="(parser.type=parser.template)"/>
-    <reference bind="setTemplateRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.template.TemplateRegistry" name="TemplateRegistry" policy="static" unbind="removeTemplateRegistry"/>
     <reference bind="setTranslationProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.i18n.TranslationProvider" name="TranslationProvider" policy="dynamic" unbind="removeTranslationProvider"/>
     <service>
         <provide interface="org.eclipse.smarthome.automation.template.RuleTemplateProvider" />

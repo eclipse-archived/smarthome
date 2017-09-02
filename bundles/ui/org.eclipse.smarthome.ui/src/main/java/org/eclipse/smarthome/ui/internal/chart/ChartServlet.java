@@ -256,7 +256,7 @@ public class ChartServlet extends HttpServlet {
                     req.getParameter("items"), req.getParameter("groups"));
             ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
         } catch (ItemNotFoundException e) {
-            logger.debug(e.getMessage());
+            logger.debug("{}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
         }

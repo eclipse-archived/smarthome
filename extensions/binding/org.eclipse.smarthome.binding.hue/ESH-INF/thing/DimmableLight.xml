@@ -18,6 +18,8 @@
 			<channel id="alert" typeId="alert" />
 		</channels>
 
+        <representation-property>uniqueId</representation-property>
+
 		<config-description>
 			<parameter name="lightId" type="text">
 				<label>Light ID</label>

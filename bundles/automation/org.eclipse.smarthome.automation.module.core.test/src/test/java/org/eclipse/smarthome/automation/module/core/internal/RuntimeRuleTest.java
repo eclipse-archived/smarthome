@@ -7,15 +7,17 @@
   */
 package org.eclipse.smarthome.automation.module.core.internal;
 
+import static org.junit.Assert.*;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,8 +42,6 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.items.events.ItemStateEvent;
-import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.TypeParser;
@@ -87,7 +87,6 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             }
         });
         registerService(volatileStorageService);
-        enableItemAutoUpdate();
     }
 
     @Test
@@ -98,7 +97,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         // final SwitchItem myMotionItem = (SwitchItem) itemRegistry.getItem("myMotionItem");
         // eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON));
 
-        final LinkedBlockingQueue<Event> events = new LinkedBlockingQueue<>();
+        final Queue<Event> events = new LinkedList<>();
 
         registerService(new EventSubscriber() {
             @Override
@@ -109,7 +108,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Stream.of(ItemCommandEvent.TYPE, ItemStateEvent.TYPE).collect(Collectors.toSet());
+                return Collections.singleton(ItemCommandEvent.TYPE);
             }
 
             @Override
@@ -120,30 +119,12 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
         eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem", OnOffType.ON));
 
-        boolean eventFound = false;
-        long wait = TimeUnit.MILLISECONDS.toNanos(DFL_TIMEOUT);
-        final long nanoEnd = System.nanoTime() + wait;
-        do {
-            final Event event = events.poll(wait, TimeUnit.NANOSECONDS);
-            Assert.assertNotNull(event);
-            wait = nanoEnd - System.nanoTime();
-
-            if (!"smarthome/items/myLampItem/command".equals(event.getTopic())) {
-                continue;
-            }
-
-            if (!(event instanceof ItemStateEvent)) {
-                continue;
-            }
-
-            final ItemStateEvent itemEvent = (ItemStateEvent) event;
-            if (itemEvent.getItemState() != OnOffType.ON) {
-                continue;
-            }
-
-            eventFound = true;
-        } while (!eventFound && wait > 0);
-        Assert.assertTrue(eventFound);
+        waitForAssert(() -> {
+            assertFalse(events.isEmpty());
+            ItemCommandEvent event = (ItemCommandEvent) events.remove();
+            assertEquals("smarthome/items/myLampItem/command", event.getTopic());
+            assertEquals(OnOffType.ON, event.getItemCommand());
+        });
     }
 
     @Test
@@ -174,14 +155,12 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         });
 
         // Test rule
+        final EventPublisher eventPublisher = getService(EventPublisher.class);
+        Assert.assertNotNull(eventPublisher);
 
-        final ItemRegistry itemRegistry = getService(ItemRegistry.class);
+        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem2", OnOffType.ON));
 
-        SwitchItem myMotionItem = (SwitchItem) itemRegistry.getItem("myMotionItem2");
-        SwitchItem myPresenceItem = (SwitchItem) itemRegistry.getItem("myPresenceItem2");
-        myPresenceItem.send(OnOffType.ON);
-
-        final LinkedBlockingQueue<Event> events = new LinkedBlockingQueue<>();
+        final Queue<Event> events = new LinkedList<>();
 
         registerService(new EventSubscriber() {
             @Override
@@ -192,7 +171,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Stream.of(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE).collect(Collectors.toSet());
+                return Collections.singleton(ItemCommandEvent.TYPE);
             }
 
             @Override
@@ -201,39 +180,14 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             }
         });
 
-        myMotionItem.send(OnOffType.ON);
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem2", OnOffType.ON));
 
-        boolean eventFound = false;
-        long wait = TimeUnit.MILLISECONDS.toNanos(DFL_TIMEOUT);
-        final long nanoEnd = System.nanoTime() + wait;
-        do {
-            final Event event = events.poll(wait, TimeUnit.NANOSECONDS);
-            Assert.assertNotNull(event);
-            wait = nanoEnd - System.nanoTime();
-
-            if (!"smarthome/items/myLampItem2/state".equals(event.getTopic())) {
-                continue;
-            }
-
-            if (!(event instanceof ItemStateEvent)) {
-                continue;
-            }
-
-            final ItemStateEvent itemEvent = (ItemStateEvent) event;
-            if (itemEvent.getItemState() != OnOffType.ON) {
-                continue;
-            }
-
-            eventFound = true;
-        } while (!eventFound && wait > 0);
-        Assert.assertTrue(eventFound);
-
-        final Item myLampItem2 = itemRegistry.getItem("myLampItem2");
-        Assert.assertNotNull(myLampItem2);
         waitForAssert(() -> {
-            Assert.assertEquals(OnOffType.ON, myLampItem2.getState());
+            assertFalse(events.isEmpty());
+            ItemCommandEvent event = (ItemCommandEvent) events.remove();
+            assertEquals("smarthome/items/myLampItem2/command", event.getTopic());
+            assertEquals(OnOffType.ON, event.getItemCommand());
         });
-
     }
 
     @Test
@@ -389,7 +343,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(rule.getUID()).getStatus());
         });
 
-        final LinkedBlockingQueue<Event> events = new LinkedBlockingQueue<>();
+        final Queue<Event> events = new LinkedList<>();
 
         registerService(new EventSubscriber() {
             @Override
@@ -400,7 +354,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Stream.of(RuleStatusInfoEvent.TYPE).collect(Collectors.toSet());
+                return Collections.singleton(RuleStatusInfoEvent.TYPE);
             }
 
             @Override
@@ -410,58 +364,20 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         });
 
         final EventPublisher eventPublisher = getService(EventPublisher.class);
-        final ItemRegistry itemRegistry = getService(ItemRegistry.class);
+        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem3", OnOffType.ON));
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON));
 
-        final Item myPresenceItem3 = itemRegistry.getItem("myPresenceItem3");
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem3",
-                TypeParser.parseCommand(myPresenceItem3.getAcceptedCommandTypes(), "ON")));
+        waitForAssert(() -> {
+            assertFalse(events.isEmpty());
+            RuleStatusInfoEvent event = (RuleStatusInfoEvent) events.remove();
+            assertEquals(RuleStatus.RUNNING, event.getStatusInfo().getStatus());
+        });
 
-        final Item myMotionItem = itemRegistry.getItem("myMotionItem3");
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3",
-                TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")));
-
-        boolean eventFound = false;
-        long wait = TimeUnit.MILLISECONDS.toNanos(DFL_TIMEOUT);
-        long nanoEnd = System.nanoTime() + wait;
-        do {
-            final Event event = events.poll(wait, TimeUnit.NANOSECONDS);
-            Assert.assertNotNull(event);
-            wait = nanoEnd - System.nanoTime();
-
-            if (!(event instanceof RuleStatusInfoEvent)) {
-                continue;
-            }
-
-            final RuleStatusInfoEvent ruleStatusInfoEvent = (RuleStatusInfoEvent) event;
-            if (ruleStatusInfoEvent.getStatusInfo().getStatus() != RuleStatus.RUNNING) {
-                continue;
-            }
-
-            eventFound = true;
-        } while (!eventFound && wait > 0);
-        Assert.assertTrue(eventFound);
-
-        eventFound = false;
-        wait = TimeUnit.MILLISECONDS.toNanos(DFL_TIMEOUT);
-        nanoEnd = System.nanoTime() + wait;
-        do {
-            final Event event = events.poll(wait, TimeUnit.NANOSECONDS);
-            Assert.assertNotNull(event);
-            wait = nanoEnd - System.nanoTime();
-
-            if (!(event instanceof RuleStatusInfoEvent)) {
-                continue;
-            }
-
-            final RuleStatusInfoEvent ruleStatusInfoEvent = (RuleStatusInfoEvent) event;
-            if (ruleStatusInfoEvent.getStatusInfo().getStatus() != RuleStatus.IDLE) {
-                continue;
-            }
-
-            eventFound = true;
-        } while (!eventFound && wait > 0);
-        Assert.assertTrue(eventFound);
-
+        waitForAssert(() -> {
+            assertFalse(events.isEmpty());
+            RuleStatusInfoEvent event = (RuleStatusInfoEvent) events.remove();
+            assertEquals(RuleStatus.IDLE, event.getStatusInfo().getStatus());
+        });
     }
 
     @Test

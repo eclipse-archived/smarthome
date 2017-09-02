@@ -35,7 +35,7 @@ public class TimerExecutionJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.debug("Executing timer '{}'", context.getJobDetail().getKey().toString());
         Procedure0 procedure = (Procedure0) context.getJobDetail().getJobDataMap().get("procedure");
-        Procedure1<Object> procedure1 = (Procedure1) context.getJobDetail().getJobDataMap().get("procedure1");
+        Procedure1<Object> procedure1 = (Procedure1<Object>) context.getJobDetail().getJobDataMap().get("procedure1");
         TimerImpl timer = (TimerImpl) context.getJobDetail().getJobDataMap().get("timer");
         Object argument1 = context.getJobDetail().getJobDataMap().get("argument1");
         if (argument1 != null) {

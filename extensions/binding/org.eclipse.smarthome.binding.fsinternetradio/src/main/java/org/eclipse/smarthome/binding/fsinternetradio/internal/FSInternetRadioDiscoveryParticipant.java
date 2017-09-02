@@ -183,7 +183,8 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                 final String modelNumber = modelDetails.getModelNumber();
                 if (modelNumber != null) {
                     if (manufacturer != null) {
-                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(manufacturer.trim().toUpperCase());
+                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS
+                                .get(manufacturer.trim().toUpperCase());
                         if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
                         }

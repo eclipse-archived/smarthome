@@ -35,7 +35,8 @@ import com.google.common.collect.ImmutableMap;
  * to a paired hue bridge. The default search time for hue is 60 seconds.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Andre Fuechsel - changed search timeout, changed discovery result creation to support generic thing types
+ * @author Andre Fuechsel - changed search timeout, changed discovery result creation to support generic thing types;
+ *         added representationProperty to discovery result
  * @author Thomas Höfer - Added representation
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
@@ -44,7 +45,6 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
     private final static int SEARCH_TIME = 60;
-    private final static String MODEL_ID = "modelId";
 
     // @formatter:off
     private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
@@ -114,14 +114,11 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LIGHT_ID, light.getId());
             properties.put(MODEL_ID, modelId);
-
-            /*
-             * TODO retrieve the light´s unique id (available since Hue bridge versions > 1.3) and set the mac address
-             * as discovery result representation. For this purpose the jue library has to be modified.
-             */
+            properties.put(LIGHT_UNIQUE_ID, light.getUniqueID());
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
-                    .withProperties(properties).withBridge(bridgeUID).withLabel(light.getName()).build();
+                    .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(LIGHT_UNIQUE_ID)
+                    .withLabel(light.getName()).build();
 
             thingDiscovered(discoveryResult);
         } else {

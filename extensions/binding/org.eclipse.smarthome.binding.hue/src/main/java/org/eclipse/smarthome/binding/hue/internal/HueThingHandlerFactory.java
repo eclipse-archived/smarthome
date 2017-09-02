@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -48,8 +48,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
         if (HueBridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
-            return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
+            return super.createThing(thingTypeUID, configuration, thingUID, null);
         }
         if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
@@ -61,14 +60,6 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
-    }
-
-    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-        if (thingUID == null) {
-            String serialNumber = (String) configuration.get(SERIAL_NUMBER);
-            thingUID = new ThingUID(thingTypeUID, serialNumber);
-        }
-        return thingUID;
     }
 
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
@@ -109,7 +100,9 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
                 // remove discovery service, if bridge handler is removed
                 HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
                         .getService(serviceReg.getReference());
-                service.deactivate();
+                if (service != null) {
+                    service.deactivate();
+                }
                 serviceReg.unregister();
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }

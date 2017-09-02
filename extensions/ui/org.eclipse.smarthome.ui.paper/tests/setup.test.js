@@ -294,16 +294,22 @@ describe('module PaperUI.controllers.setup', function() {
             $httpBackend = $injector.get('$httpBackend');
             mdDialog = $injector.get('$mdDialog');
             thingTypeRepository = $injector.get('thingTypeRepository');
-            spyOn(thingTypeRepository, "getOne").and.callThrough();
+            thingTypeRepository.singleElements = {
+                'A:B' : {
+                    UID : 'A:B',
+                    label : 'LABEL'
+                }
+            }
+            spyOn(thingTypeRepository, 'getOne').and.callThrough();
             rootScope.data.thingTypes = [ {
-                UID : "A:B",
+                UID : 'A:B',
                 label : 'LABEL'
             } ];
             approveInboxEntryDialogController = $controller('ApproveInboxEntryDialogController', {
                 '$scope' : scope,
                 'discoveryResult' : {
                     label : 'LABEL',
-                    thingTypeUID : "A:B"
+                    thingTypeUID : 'A:B'
                 }
             });
             discoveryService = $injector.get('discoveryService');

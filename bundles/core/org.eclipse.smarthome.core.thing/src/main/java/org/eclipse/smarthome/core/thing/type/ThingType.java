@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -30,21 +32,23 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Dennis Nobel - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Simon Kaufmann - Added listed field
+ * @author Andre Fuechsel - Added representationProperty field
  */
 public class ThingType extends AbstractDescriptionType {
 
     private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
     private final List<String> supportedBridgeTypeUIDs;
-    private final Map<String, String> properties;
-    private URI configDescriptionURI;
-    private boolean listed;
+    private final Map<@NonNull String, String> properties;
+    private final String representationProperty;
+    private final URI configDescriptionURI;
+    private final boolean listed;
 
     /**
      * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, List, Map, URI)
      */
     public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null, null);
     }
 
     /**
@@ -77,7 +81,7 @@ public class ThingType extends AbstractDescriptionType {
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
-        this(uid, supportedBridgeTypeUIDs, label, description, true, channelDefinitions, channelGroupDefinitions,
+        this(uid, supportedBridgeTypeUIDs, label, description, true, null, channelDefinitions, channelGroupDefinitions,
                 properties, configDescriptionURI);
     }
 
@@ -94,9 +98,9 @@ public class ThingType extends AbstractDescriptionType {
      *            (must neither be null nor empty)
      *
      * @param description the human readable description for the according type
-     *            (could be null or empty)6
+     *            (could be null or empty)
      *
-     * @param listed detemines whether it should be listed for manually pairing or not
+     * @param listed determines whether it should be listed for manually pairing or not
      *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
      *
@@ -114,10 +118,51 @@ public class ThingType extends AbstractDescriptionType {
             boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
+        this(uid, supportedBridgeTypeUIDs, label, description, listed, null, channelDefinitions,
+                channelGroupDefinitions, properties, configDescriptionURI);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this Thing type within the overall system
+     *            (must neither be null, nor empty)
+     *
+     * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
+     *            (could be null or empty)
+     *
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     *
+     * @param description the human readable description for the according type
+     *            (could be null or empty)
+     *
+     * @param listed determines whether it should be listed for manually pairing or not
+     *
+     * @param representationProperty name of the property that uniquely identifies this Thing
+     *
+     * @param channelDefinitions the channels this Thing type provides (could be null or empty)
+     *
+     * @param channelGroupDefinitions the channel groups defining the channels this Thing type
+     *            provides (could be null or empty)
+     *
+     * @param properties the properties this Thing type provides (could be null)
+     *
+     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     *
+     * @throws IllegalArgumentException
+     *             if the UID is null or empty, or the the meta information is null
+     */
+    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
+            boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
         this.listed = listed;
+
+        this.representationProperty = representationProperty;
 
         if (supportedBridgeTypeUIDs != null) {
             this.supportedBridgeTypeUIDs = Collections.unmodifiableList(supportedBridgeTypeUIDs);
@@ -215,7 +260,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @return the properties for this {@link ThingType} (not null)
      */
-    public Map<String, String> getProperties() {
+    public @NonNull Map<@NonNull String, String> getProperties() {
         return properties;
     }
 
@@ -251,8 +296,22 @@ public class ThingType extends AbstractDescriptionType {
         return null;
     }
 
+    /**
+     * Check, if things of this thing type should be listed for manually pairing or not.
+     *
+     * @return {@code true}, if manual pairing is allowed
+     */
     public boolean isListed() {
         return listed;
+    }
+
+    /**
+     * Get the name of the representation property of this thing type. May be {code null}.
+     *
+     * @return representation property name or {@code null}
+     */
+    public @Nullable String getRepresentationProperty() {
+        return representationProperty;
     }
 
     @Override

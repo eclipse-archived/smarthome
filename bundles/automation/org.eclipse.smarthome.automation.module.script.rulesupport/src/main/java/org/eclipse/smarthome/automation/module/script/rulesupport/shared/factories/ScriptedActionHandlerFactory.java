@@ -11,6 +11,10 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface ScriptedActionHandlerFactory extends ScriptedHandler {
     public ActionHandler get(Action action);
 }

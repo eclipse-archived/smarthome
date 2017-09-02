@@ -15,6 +15,10 @@ import org.eclipse.smarthome.model.items.ModelItem;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class GenericItemUIProvider implements ItemUIProvider {
 
     private ModelRepository modelRepository = null;

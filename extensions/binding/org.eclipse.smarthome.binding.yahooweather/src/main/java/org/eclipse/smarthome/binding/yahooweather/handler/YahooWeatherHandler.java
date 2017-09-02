@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Integrate new thing status handling
  * @author Thomas Höfer - Added config status provider
  * @author Christoph Weitkamp - Changed use of caching utils to ESH ExpiringCacheMap
- * 
+ *
  */
 public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
@@ -104,7 +104,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     }
 
     private void startAutomaticRefresh() {
-        refreshJob = scheduler.scheduleAtFixedRate(() -> {
+        refreshJob = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 boolean success = updateWeatherData();
                 if (success) {

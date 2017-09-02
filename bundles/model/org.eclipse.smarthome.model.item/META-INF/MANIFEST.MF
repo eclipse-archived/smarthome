@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.xtext,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
  org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
@@ -34,6 +35,7 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.validation
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,

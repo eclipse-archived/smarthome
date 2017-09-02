@@ -8,6 +8,9 @@
 package org.eclipse.smarthome.binding.tradfri.handler;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.DEVICES;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_DETAILS;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.VERSION;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -30,6 +33,7 @@ import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -55,6 +59,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     private TradfriCoapClient deviceClient;
     private String gatewayURI;
+    private String gatewayInfoURI;
     private DTLSConnector dtlsConnector;
     private CoapEndpoint endPoint;
 
@@ -86,6 +91,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         }
 
         this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
+        this.gatewayInfoURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GATEWAY + "/" + GATEWAY_DETAILS;
         try {
             URI uri = new URI(gatewayURI);
             deviceClient = new TradfriCoapClient(uri);
@@ -131,6 +137,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
      */
     public void startScan() {
         if (endPoint != null) {
+            updateGatewayInfo();
             deviceClient.get(new TradfriCoapHandler(this));
         }
     }
@@ -155,7 +162,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     @Override
     public void onUpdate(JsonElement data) {
-        logger.trace("Response: {}", data);
+        logger.debug("onUpdate response: {}", data);
 
         if (endPoint != null) {
             try {
@@ -169,12 +176,24 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             }
         }
     }
+    
+    private synchronized void updateGatewayInfo() {
+        // we are reusing our coap client and merely temporarily set a gateway info to call
+        deviceClient.setURI(this.gatewayInfoURI);
+        deviceClient.asyncGet().thenAccept(data -> {
+            JsonObject json = new JsonParser().parse(data).getAsJsonObject();
+            String firmwareVersion = json.get(VERSION).getAsString();
+            getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
+        });
+        // restore root URI
+        deviceClient.setURI(gatewayURI);
+    }
 
-    private void requestDeviceDetails(String instanceId) {
+    private synchronized void requestDeviceDetails(String instanceId) {
         // we are reusing our coap client and merely temporarily set a sub-URI to call
         deviceClient.setURI(gatewayURI + "/" + instanceId);
         deviceClient.asyncGet().thenAccept(data -> {
-            logger.debug("Response: {}", data);
+            logger.debug("requestDeviceDetails response: {}", data);
             JsonObject json = new JsonParser().parse(data).getAsJsonObject();
             deviceUpdateListeners.forEach(listener -> listener.onUpdate(instanceId, json));
         });

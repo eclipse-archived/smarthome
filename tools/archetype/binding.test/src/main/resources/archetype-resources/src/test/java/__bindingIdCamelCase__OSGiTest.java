@@ -12,36 +12,38 @@ package ${package};
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import ${package}.handler.${bindingIdCamelCase}Handler;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
-* Tests cases for {@link  ${bindingIdCamelCase}Handler}.
+* Tests cases for {@link ${bindingIdCamelCase}Handler}.
 *
-* @author  ${author} - Initial contribution
+* @author ${author} - Initial contribution
 */
 public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
 
-    private final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("${bindingId}", "bridge");
+    private static final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("${bindingId}", "bridge");
 
     private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
     private Bridge bridge;
-    
+
     @Before
     public void setUp() {
         registerService(volatileStorageService);
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();		        
+        bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();
     }
 
     @After
@@ -54,7 +56,7 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
     public void creationOf${bindingIdCamelCase}Handler() {
         assertThat(bridge.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));        
+        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));
     }
 
 }

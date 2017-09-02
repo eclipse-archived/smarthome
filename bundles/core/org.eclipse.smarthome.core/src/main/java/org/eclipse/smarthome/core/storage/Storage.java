@@ -9,6 +9,9 @@ package org.eclipse.smarthome.core.storage;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * A Storage is the generic way to store key-value pairs in ESH. Each Storage
  * implementation can store its data differently, e.g in-memory or in-database.
@@ -20,12 +23,13 @@ public interface Storage<T> {
 
     /**
      * Puts a key-value mapping into this Storage.
-     * 
+     *
      * @param key the key to add
      * @param value the value to add
      * @return previous value for the key or null if no value was replaced
      */
-    T put(String key, T value);
+    @Nullable
+    T put(@NonNull String key, T value);
 
     /**
      * Removes the specified mapping from this map.
@@ -33,11 +37,12 @@ public interface Storage<T> {
      * @param key the mapping to remove
      * @return the removed value or null if no entry existed
      */
-    T remove(String key);
+    @Nullable
+    T remove(@NonNull String key);
 
     /**
      * Gets the value mapped to the key specified.
-     * 
+     *
      * @param key the key
      * @return the mapped value, null if no match
      */
@@ -45,14 +50,14 @@ public interface Storage<T> {
 
     /**
      * Gets all keys of this Storage.
-     * 
+     *
      * @return the keys of this Storage
      */
     Collection<String> getKeys();
 
     /**
      * Gets all values of this Storage.
-     * 
+     *
      * @return the values of this Storage
      */
     Collection<T> getValues();

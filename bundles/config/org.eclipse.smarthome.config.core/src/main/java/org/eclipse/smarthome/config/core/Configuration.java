@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,12 +61,16 @@ public class Configuration {
             try {
                 configuration = configurationClass.newInstance();
             } catch (InstantiationException | IllegalAccessException ex) {
-                logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
+                logger.error("Could not create configuration instance: {}", ex.getMessage(), ex);
                 return null;
             }
 
             List<Field> fields = getAllFields(configurationClass);
             for (Field field : fields) {
+                // Don't try to write to final fields
+                if (Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
                 String fieldName = field.getName();
                 String typeName = field.getType().getSimpleName();
                 Object value = properties.get(fieldName);
@@ -96,7 +101,7 @@ public class Configuration {
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }
                 } catch (Exception ex) {
-                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
+                    logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
                 }
             }
 

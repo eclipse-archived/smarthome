@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.RawType;
@@ -37,7 +38,7 @@ public class ImageItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public ImageItem(String name) {
+    public ImageItem(@NonNull String name) {
         super(CoreItemFactory.IMAGE, name);
     }
 

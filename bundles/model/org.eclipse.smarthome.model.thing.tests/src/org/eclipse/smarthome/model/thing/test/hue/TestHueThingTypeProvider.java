@@ -79,7 +79,7 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
                             new URI("hue", "grouped", null)));
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         }
     }
 

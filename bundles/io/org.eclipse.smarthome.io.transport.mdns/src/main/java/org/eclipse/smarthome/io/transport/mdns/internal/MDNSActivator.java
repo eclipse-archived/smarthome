@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extension of the default OSGi bundle activator
+ *
+ * @author Kai Kreuzer - Initial contribution
  */
 public final class MDNSActivator implements BundleActivator {
 

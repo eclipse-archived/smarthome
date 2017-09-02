@@ -53,5 +53,7 @@ public class HueBindingConstants {
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
+    public final static String LIGHT_UNIQUE_ID = "uniqueId";
+    public final static String MODEL_ID = "modelId";
 
 }

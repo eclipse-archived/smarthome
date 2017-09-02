@@ -195,7 +195,7 @@ public class ServiceBinder {
                     method.invoke(object);
                 }
             } catch (Exception ex) {
-                logger.error("Error while executing inject method: " + ex.getMessage(), ex);
+                logger.error("Error while executing inject method: {}", ex.getMessage(), ex);
             }
         }
     }

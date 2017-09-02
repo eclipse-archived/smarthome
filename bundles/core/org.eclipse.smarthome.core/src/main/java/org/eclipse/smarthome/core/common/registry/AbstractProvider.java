@@ -60,8 +60,7 @@ public abstract class AbstractProvider<E> implements Provider<E> {
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + ex.getMessage(), ex);
+                logger.error("Could not inform the listener '{}' about the '{}' event!: {}", listener, eventType.name(), ex.getMessage(), ex);
             }
         }
     }

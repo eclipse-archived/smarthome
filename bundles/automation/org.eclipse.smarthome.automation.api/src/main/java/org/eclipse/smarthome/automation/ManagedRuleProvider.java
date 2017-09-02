@@ -7,8 +7,6 @@
  */
 package org.eclipse.smarthome.automation;
 
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 
 /**
@@ -19,11 +17,6 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, String> implements RuleProvider {
-
-    @Override
-    protected String getKey(Rule element) {
-        return element.getUID();
-    }
 
     @Override
     protected String getStorageName() {

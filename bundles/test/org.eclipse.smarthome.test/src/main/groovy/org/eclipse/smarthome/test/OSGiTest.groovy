@@ -253,14 +253,6 @@ abstract class OSGiTest {
         registerService(autoupdateConfig)
     }
 
-    protected void enableItemAutoUpdate(){
-        def autoupdateConfig = [
-            autoUpdate: { String itemName -> return true }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
-    }
-
     protected void setDefaultLocale(Locale locale) {
         assertThat locale, is(notNullValue())
 
@@ -270,7 +262,7 @@ abstract class OSGiTest {
         def localeProvider = getService(Class.forName("org.eclipse.smarthome.core.i18n.LocaleProvider"))
         assertThat localeProvider, is(notNullValue())
 
-        def config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider")
+        def config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider", null)
         assertThat config, is(notNullValue())
 
         def properties = config.getProperties()

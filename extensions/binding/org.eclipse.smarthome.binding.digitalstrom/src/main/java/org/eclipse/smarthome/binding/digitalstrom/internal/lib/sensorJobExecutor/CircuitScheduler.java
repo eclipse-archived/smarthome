@@ -66,8 +66,8 @@ public class CircuitScheduler {
         this.meterDSID = sensorJob.getMeterDSID();
         this.sensorJobQueue.add(sensorJob);
         this.config = config;
-        logger.debug("create circuitScheduler: " + this.getMeterDSID() + " and add sensorJob: "
-                + sensorJob.getDSID().toString());
+        logger.debug("create circuitScheduler: {} and add sensorJob: {}", this.getMeterDSID(),
+                sensorJob.getDSID().toString());
     }
 
     /**
@@ -88,12 +88,12 @@ public class CircuitScheduler {
         synchronized (sensorJobQueue) {
             if (!this.sensorJobQueue.contains(sensorJob)) {
                 sensorJobQueue.add(sensorJob);
-                logger.debug("Add sensorJob: " + sensorJob.toString() + "to circuitScheduler: " + this.getMeterDSID());
+                logger.debug("Add sensorJob: {} to circuitScheduler: {}", sensorJob.toString(), this.getMeterDSID());
             } else if (checkSensorJobPrio(sensorJob)) {
-                logger.debug("add sensorJob: " + sensorJob.toString() + "with higher priority to circuitScheduler: "
-                        + this.getMeterDSID());
+                logger.debug("add sensorJob: {} with higher priority to circuitScheduler: {}", sensorJob.toString(),
+                        this.getMeterDSID());
             } else {
-                logger.debug("sensorJob: " + sensorJob.getDSID().toString() + " allready exist with a higher priority");
+                logger.debug("sensorJob: {} allready exist with a higher priority", sensorJob.getDSID());
             }
         }
     }
@@ -164,7 +164,7 @@ public class CircuitScheduler {
                     iter.remove();
                 }
             }
-            logger.debug("Remove SensorJobs from device with dSID {}." + dSID);
+            logger.debug("Remove SensorJobs from device with dSID {}.", dSID);
         }
     }
 

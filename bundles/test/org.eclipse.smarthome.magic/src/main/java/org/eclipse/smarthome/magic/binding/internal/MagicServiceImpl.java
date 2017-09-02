@@ -17,6 +17,10 @@ import org.eclipse.smarthome.magic.binding.MagicService;
 
 import com.google.common.collect.Lists;
 
+/**
+ *
+ * @author Henning Treu - Initial contribution
+ */
 public class MagicServiceImpl implements MagicService {
 
     static final String PARAMETER_BACKEND_DECIMAL = "select_decimal_limit";

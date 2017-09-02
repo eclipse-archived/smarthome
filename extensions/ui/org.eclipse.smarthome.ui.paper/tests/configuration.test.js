@@ -2,7 +2,6 @@ describe('module PaperUI.controllers.configuration', function() {
     beforeEach(function() {
         module('PaperUI');
     });
-    var restConfig;
     describe('tests for ConfigurationPageController', function() {
         var configurationPageController, scope;
         beforeEach(inject(function($injector, $rootScope, $controller) {
@@ -20,112 +19,6 @@ describe('module PaperUI.controllers.configuration', function() {
             } ]
             var label = scope.getThingTypeLabel(0);
             expect(label).toEqual('1');
-        });
-    });
-    describe('tests for BindingController', function() {
-        var bindingController, scope, mdDialog;
-        beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog) {
-            scope = $rootScope.$new();
-            mdDialog = $mdDialog
-            $controller('BodyController', {
-                '$scope' : scope
-            });
-            bindingController = $controller('BindingController', {
-                '$scope' : scope
-            });
-        }));
-        it('should require BindingController', function() {
-            expect(bindingController).toBeDefined();
-        });
-        it('should open binding info dialog', function() {
-            spyOn(mdDialog, 'show');
-            scope.openBindingInfoDialog(0);
-            expect(mdDialog.show).toHaveBeenCalled();
-        });
-        it('should open binding configuration dialog', function() {
-            spyOn(mdDialog, 'show');
-            scope.configure(0);
-            expect(mdDialog.show).toHaveBeenCalled();
-        });
-    });
-
-    describe('tests for BindingInfoDialogController', function() {
-        var bindingInfoDialogController, scope, mdDialog;
-        beforeEach(inject(function($injector, $rootScope, $controller) {
-            scope = $rootScope.$new();
-            var bindingRepository = $injector.get('bindingRepository');
-            var thingTypeRepository = $injector.get('thingTypeRepository');
-            restConfig = $injector.get('restConfig');
-            $rootScope.data.bindings = [ {
-                id : 'B'
-            } ];
-
-            $httpBackend = $injector.get('$httpBackend');
-            $httpBackend.when('GET', restConfig.restPath + "/thing-types").respond([ {
-                UID : 'B:T'
-            } ]);
-            bindingInfoDialogController = $controller('BindingInfoDialogController', {
-                '$scope' : scope,
-                'bindingId' : 'B',
-                'bindingRepository' : bindingRepository,
-                'thingTypeRepository' : thingTypeRepository
-            });
-            $httpBackend.flush();
-        }));
-        it('should require BindingInfoDialogController', function() {
-            expect(bindingInfoDialogController).toBeDefined();
-        });
-        it('should get ThingTypes of Binding', function() {
-            expect(scope.binding.thingTypes[0].UID).toEqual('B:T');
-        });
-
-    });
-
-    describe('tests for ConfigureBindingDialogController', function() {
-        var configureBindingDialogController, scope, bindingService;
-        beforeEach(inject(function($injector, $rootScope, $controller) {
-            scope = $rootScope.$new();
-            var bindingRepository = $injector.get('bindingRepository');
-            $rootScope.data.bindings = [ {
-                id : 'B'
-            } ];
-            configureBindingDialogController = $controller('ConfigureBindingDialogController', {
-                '$scope' : scope,
-                'bindingId' : 'B',
-                'configDescriptionURI' : 'CDURI',
-                'bindingRepository' : bindingRepository
-            });
-            $httpBackend = $injector.get('$httpBackend');
-            $httpBackend.when('GET', restConfig.restPath + "/config-descriptions/CDURI").respond({
-                parameters : [ {
-                    type : 'input',
-                    name : 'PNAME'
-                } ]
-            });
-            $httpBackend.when('GET', restConfig.restPath + "/bindings/B/config").respond({
-                PNAME : '1'
-            });
-            $httpBackend.flush();
-            bindingService = $injector.get('bindingService');
-        }));
-        it('should require ConfigureBindingDialogController', function() {
-            expect(configureBindingDialogController).toBeDefined();
-        });
-        it('should get binding parameters', function() {
-            expect(scope.parameters.length).toEqual(1);
-        });
-        it('should get binding configuration', function() {
-            expect(scope.configuration.PNAME).toEqual(1);
-        });
-        it('should add binding parameter', function() {
-            scope.configArray = [];
-            scope.addParameter();
-            expect(scope.configArray.length).toEqual(1);
-        });
-        it('should save binding configuration', function() {
-            spyOn(bindingService, 'updateConfig');
-            scope.save();
-            expect(bindingService.updateConfig).toHaveBeenCalled();
         });
     });
 

@@ -82,8 +82,8 @@ public class WelcomeHomeCommands extends AbstractConsoleCommandExtension {
         }
         if (COMMAND_SETTINGS.equalsIgnoreCase(command) || COMMAND_SETTINGS_SHORT.equalsIgnoreCase(command)) {
             settings(params, console);
-        } else
-            if (COMMAND_ACTIVATE_AC.equalsIgnoreCase(command) || COMMAND_ACTIVATE_AC_SHORT.equalsIgnoreCase(command)) {
+        } else if (COMMAND_ACTIVATE_AC.equalsIgnoreCase(command)
+                || COMMAND_ACTIVATE_AC_SHORT.equalsIgnoreCase(command)) {
             activate(params, console);
         } else if (COMMAND_ACTIVATE_L.equalsIgnoreCase(command) || COMMAND_ACTIVATE_L_SHORT.equalsIgnoreCase(command)) {
             activateLights(params, console);
@@ -212,7 +212,6 @@ public class WelcomeHomeCommands extends AbstractConsoleCommandExtension {
             console.println("Missing required parameters");
             return;
         }
-        @SuppressWarnings("unchecked")
         Configuration config = rulesProvider.rules.get(WelcomeHomeRulesProvider.AC_UID).getConfiguration();
         if (params[0] != null && (params[0].equalsIgnoreCase(TemperatureConditionType.OPERATOR_HEATING)
                 || params[0].equalsIgnoreCase(TemperatureConditionType.OPERATOR_COOLING))) {

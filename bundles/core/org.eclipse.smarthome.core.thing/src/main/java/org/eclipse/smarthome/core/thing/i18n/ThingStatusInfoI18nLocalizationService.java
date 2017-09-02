@@ -17,6 +17,8 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * <p>
@@ -41,6 +43,7 @@ import org.osgi.framework.FrameworkUtil;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = ThingStatusInfoI18nLocalizationService.class)
 public final class ThingStatusInfoI18nLocalizationService {
 
     private TranslationProvider i18nProvider;
@@ -82,6 +85,7 @@ public final class ThingStatusInfoI18nLocalizationService {
         return new ThingStatusInfo(thing.getStatus(), thing.getStatusInfo().getStatusDetail(), translatedDescription);
     }
 
+    @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }

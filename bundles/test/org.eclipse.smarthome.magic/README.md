@@ -3,6 +3,7 @@
 The Magic Bundle is a virtual device bundle which provides different Things, Channels and supporting functionality for easy UI testing.
 
 Future plans:
+
 * Firmware update support
 * Simulate communication errors
 * Provide REST API to update thing status from _outside_
@@ -29,6 +30,7 @@ The provided Things need no parameters right now.
 ## Channels
 
 Available channels:
+
 * switch - the on/off toggle maps to a Switch item.
 * brightness - the brightness value maps to a Dimmer item.
 * color - the color maps to a Color item.

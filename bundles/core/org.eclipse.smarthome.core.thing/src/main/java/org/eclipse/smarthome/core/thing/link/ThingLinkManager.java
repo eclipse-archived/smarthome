@@ -13,6 +13,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -27,6 +28,11 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +48,10 @@ import org.slf4j.LoggerFactory;
  *         ThingSetupManager)
  * @author Markus Rathgeb - Send link notification if item and link exists and unlink on the first removal
  */
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.links", service = { ThingLinkManager.class,
+        EventSubscriber.class }, property = { "service.config.description.uri:String=system:links",
+                "service.config.label:String=Item Linking", "service.config.category:String=system",
+                "service.pid:String=org.eclipse.smarthome.links" })
 public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 
     public ThingLinkManager() {
@@ -57,6 +67,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     private boolean autoLinks = true;
 
+    @Activate
     protected void activate(ComponentContext context) {
         modified(context);
         itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
@@ -64,6 +75,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         managedThingProvider.addProviderChangeListener(managedThingProviderListener);
     }
 
+    @Modified
     protected void modified(ComponentContext context) {
         // check whether we want to enable the automatic link creation or not
         if (context != null) {
@@ -72,12 +84,14 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         }
     }
 
+    @Deactivate
     protected void deactivate() {
         itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.removeRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         managedThingProvider.removeProviderChangeListener(managedThingProviderListener);
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -86,6 +100,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         this.itemRegistry = null;
     }
 
+    @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
@@ -94,6 +109,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         this.itemChannelLinkRegistry = null;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -102,6 +118,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = managedThingProvider;
     }
@@ -263,7 +280,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
             try {
                 handler.channelLinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
             }
         } else {
             logger.trace("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
@@ -282,7 +299,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
             try {
                 handler.channelUnlinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
             }
         } else {
             logger.trace(

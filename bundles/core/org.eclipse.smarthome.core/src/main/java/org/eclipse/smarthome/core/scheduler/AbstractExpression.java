@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     private String expression;
     private String delimiters;
-    private List<E> expressionParts = Collections.emptyList();
+    private List<@NonNull E> expressionParts = Collections.emptyList();
 
     private boolean continueSearch;
     private ArrayList<Date> candidates = new ArrayList<Date>();
@@ -359,11 +360,11 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         this.candidates = null;
     }
 
-    public List<E> getExpressionParts() {
+    public List<@NonNull E> getExpressionParts() {
         return expressionParts;
     }
 
-    public void setExpressionParts(List<E> expressionParts) {
+    public void setExpressionParts(List<@NonNull E> expressionParts) {
         synchronized (this) {
             this.expressionParts = Collections.unmodifiableList(new LinkedList<>(expressionParts));
         }

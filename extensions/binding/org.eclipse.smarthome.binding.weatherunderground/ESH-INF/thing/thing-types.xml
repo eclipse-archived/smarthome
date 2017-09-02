@@ -150,7 +150,7 @@
 					<option value="YI">Yiddish - unicode</option>
 				</options>
 			</parameter>
-			<parameter name="refresh" type="integer" min="5" required="false">
+			<parameter name="refresh" type="integer" min="5" required="false" unit="min">
 				<label>Refresh interval</label>
 				<description>Specifies the refresh interval in minutes.</description>
 				<default>30</default>
@@ -253,7 +253,7 @@
 	<channel-type id="temperature">
 		<item-type>Number</item-type>
 		<label>Temperature</label>
-		<description>Temperature</description>
+		<description>Current temperature</description>
 		<category>Temperature</category>
 		<state readOnly="true" pattern="%.1f" />
 		<config-description>

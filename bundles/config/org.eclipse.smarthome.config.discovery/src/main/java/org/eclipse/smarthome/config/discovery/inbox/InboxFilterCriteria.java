@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.inbox;
 
+import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -20,7 +21,10 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @author Michael Grammling - Initial Contribution
  *
  * @see Inbox
+ *
+ * @deprecated use {@link InboxPredicates} to filter on streams of {@link DiscoveryResult}s
  */
+@Deprecated
 public final class InboxFilterCriteria {
 
     private final String bindingId;

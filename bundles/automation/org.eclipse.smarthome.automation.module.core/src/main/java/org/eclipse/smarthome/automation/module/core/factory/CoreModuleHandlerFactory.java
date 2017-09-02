@@ -185,7 +185,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             }
         }
 
-        logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
+        logger.error("The ModuleHandler is not supported:{}", moduleTypeUID);
         return null;
     }
 }

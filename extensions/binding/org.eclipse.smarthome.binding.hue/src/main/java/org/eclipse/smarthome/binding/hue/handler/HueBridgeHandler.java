@@ -80,9 +80,13 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private boolean lastBridgeConnectionState = false;
 
+    private boolean propertiesInitializedSuccessfully = false;
+
     private List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
 
     private ScheduledFuture<?> pollingJob;
+
+    private HueBridge hueBridge = null;
 
     private Runnable pollingRunnable = new Runnable() {
 
@@ -90,7 +94,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         public void run() {
             try {
                 try {
-                    FullConfig fullConfig = bridge.getFullConfig();
+                    FullConfig fullConfig = hueBridge.getFullConfig();
                     if (!lastBridgeConnectionState) {
                         lastBridgeConnectionState = tryResumeBridgeConnection();
                     }
@@ -118,37 +122,29 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                             logger.debug("Hue light {} removed.", fullLightEntry.getKey());
                             for (LightStatusListener lightStatusListener : lightStatusListeners) {
                                 try {
-                                    lightStatusListener.onLightRemoved(bridge, fullLightEntry.getValue());
+                                    lightStatusListener.onLightRemoved(hueBridge, fullLightEntry.getValue());
                                 } catch (Exception e) {
                                     logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
                                 }
                             }
                         }
-
-                        final Config config = fullConfig.getConfig();
-                        if (config != null) {
-                            Map<String, String> properties = editProperties();
-                            properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
-                            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
-                            updateProperties(properties);
-                        }
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
-                    if (isReachable(bridge.getIPAddress())) {
+                    if (isReachable(hueBridge.getIPAddress())) {
                         lastBridgeConnectionState = false;
-                        onNotAuthenticated(bridge);
+                        onNotAuthenticated();
                     } else {
                         if (lastBridgeConnectionState || thing.getStatus() == ThingStatus.INITIALIZING) {
                             lastBridgeConnectionState = false;
-                            onConnectionLost(bridge);
+                            onConnectionLost();
                         }
                     }
                 } catch (Exception e) {
-                    if (bridge != null) {
+                    if (hueBridge != null) {
                         if (lastBridgeConnectionState) {
-                            logger.debug("Connection to Hue Bridge {} lost.", bridge.getIPAddress());
+                            logger.debug("Connection to Hue Bridge {} lost.", hueBridge.getIPAddress());
                             lastBridgeConnectionState = false;
-                            onConnectionLost(bridge);
+                            onConnectionLost();
                         }
                     }
                 }
@@ -164,7 +160,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 // That's why we do an HTTP access instead
 
                 // If there is no connection, this line will fail
-                bridge.authenticate("invalid");
+                hueBridge.authenticate("invalid");
             } catch (IOException e) {
                 return false;
             } catch (ApiException e) {
@@ -181,10 +177,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         }
     };
 
-    private HueBridge bridge = null;
-
-    public HueBridgeHandler(Bridge hueBridge) {
-        super(hueBridge);
+    public HueBridgeHandler(Bridge bridge) {
+        super(bridge);
     }
 
     @Override
@@ -194,9 +188,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     public void updateLightState(FullLight light, StateUpdate stateUpdate) {
 
-        if (bridge != null) {
+        if (hueBridge != null) {
             try {
-                bridge.setLightState(light, stateUpdate);
+                hueBridge.setLightState(light, stateUpdate);
             } catch (DeviceOffException e) {
                 updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
                 updateLightState(light, stateUpdate);
@@ -217,8 +211,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
             pollingJob.cancel(true);
             pollingJob = null;
         }
-        if (bridge != null) {
-            bridge = null;
+        if (hueBridge != null) {
+            hueBridge = null;
         }
     }
 
@@ -227,19 +221,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         logger.debug("Initializing hue bridge handler.");
 
         if (getConfig().get(HOST) != null) {
-            if (bridge == null) {
-                bridge = new HueBridge((String) getConfig().get(HOST));
-                bridge.setTimeout(5000);
+            if (hueBridge == null) {
+                hueBridge = new HueBridge((String) getConfig().get(HOST));
+                hueBridge.setTimeout(5000);
             }
             onUpdate();
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to hue bridge. IP address not set.");
+                    "@text/offline.conf-error-no-ip-address");
         }
     }
 
     private synchronized void onUpdate() {
-        if (bridge != null) {
+        if (hueBridge != null) {
             if (pollingJob == null || pollingJob.isCancelled()) {
                 int pollingInterval = DEFAULT_POLLING_INTERVAL;
                 try {
@@ -254,28 +248,40 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                     logger.info("Wrong configuration value for polling interval. Using default value: {}s",
                             pollingInterval);
                 }
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
+                pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
         }
     }
 
     /**
-     * This method is called whenever the connection to the given {@link HueBridge} is lost.
-     *
-     * @param bridge the hue bridge the connection is lost to
+     * This method is called whenever the connection to the {@link HueBridge} is lost.
      */
-    public void onConnectionLost(HueBridge bridge) {
+    public void onConnectionLost() {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.bridge-connection-lost");
     }
 
     /**
-     * This method is called whenever the connection to the given {@link HueBridge} is resumed.
+     * This method is called whenever the connection to the {@link HueBridge} is resumed.
      *
-     * @param bridge the hue bridge the connection is resumed to
+     * @throws ApiException if the physical device does not support this API call
+     * @throws IOException if the physical device could not be reached
      */
-    public void onConnectionResumed(HueBridge bridge) {
+    private void onConnectionResumed() throws IOException, ApiException {
         logger.debug("Bridge connection resumed. Updating thing status to ONLINE.");
+
+        if (!propertiesInitializedSuccessfully) {
+            FullConfig fullConfig = hueBridge.getFullConfig();
+            Config config = fullConfig.getConfig();
+            if (config != null) {
+                Map<String, String> properties = editProperties();
+                properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress().replaceAll(":", "").toLowerCase());
+                properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                updateProperties(properties);
+                propertiesInitializedSuccessfully = true;
+            }
+        }
+
         updateStatus(ThingStatus.ONLINE);
     }
 
@@ -283,23 +289,25 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      * Check USER_NAME config for null. Call onConnectionResumed() otherwise.
      *
      * @return True if USER_NAME was not null.
+     * @throws ApiException if the physical device does not support this API call
+     * @throws IOException if the physical device could not be reached
      */
-    private boolean tryResumeBridgeConnection() {
-        logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
+    private boolean tryResumeBridgeConnection() throws IOException, ApiException {
+        logger.debug("Connection to Hue Bridge {} established.", hueBridge.getIPAddress());
         if (getConfig().get(USER_NAME) == null) {
             logger.warn("User name for Hue bridge authentication not available in configuration. "
                     + "Setting ThingStatus to offline.");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "User name is not properly configured - please check log files");
+                    "@text/offline.conf-error-no-username");
             return false;
         } else {
-            onConnectionResumed(bridge);
+            onConnectionResumed();
             return true;
         }
     }
 
     /**
-     * This method is called whenever the connection to the given {@link HueBridge} is available,
+     * This method is called whenever the connection to the {@link HueBridge} is available,
      * but requests are not allowed due to a missing or invalid authentication.
      * <p>
      * If there is a user name available, it attempts to re-authenticate. Otherwise new authentication credentials will
@@ -308,13 +316,13 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      * @param bridge the hue bridge the connection is not authorized
      * @return returns {@code true} if re-authentication was successful, {@code false} otherwise
      */
-    public boolean onNotAuthenticated(HueBridge bridge) {
+    public boolean onNotAuthenticated() {
         String userName = (String) getConfig().get(USER_NAME);
         if (userName == null) {
-            createUser(bridge);
+            createUser();
         } else {
             try {
-                bridge.authenticate(userName);
+                hueBridge.authenticate(userName);
                 return true;
             } catch (Exception e) {
                 handleAuthenticationFailure(e, userName);
@@ -323,9 +331,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return false;
     }
 
-    private void createUser(HueBridge bridge) {
+    private void createUser() {
         try {
-            String newUser = createUserOnPhysicalBridge(bridge);
+            String newUser = createUserOnPhysicalBridge();
             updateBridgeThingConfiguration(newUser);
         } catch (LinkButtonException ex) {
             handleLinkButtonNotPressed(ex);
@@ -334,10 +342,10 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         }
     }
 
-    private String createUserOnPhysicalBridge(HueBridge bridge) throws IOException, ApiException {
+    private String createUserOnPhysicalBridge() throws IOException, ApiException {
         logger.info("Creating new user on Hue bridge {} - please press the pairing button on the bridge.",
                 getConfig().get(HOST));
-        String userName = bridge.link(DEVICE_TYPE);
+        String userName = hueBridge.link(DEVICE_TYPE);
         logger.info("User '{}' has been successfully added to Hue bridge.", userName);
         return userName;
     }
@@ -359,19 +367,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         logger.warn("User {} is not authenticated on Hue bridge {}", userName, getConfig().get(HOST));
         logger.warn("Please configure a valid user or remove user from configuration to generate a new one.");
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Authentication failed - remove user name from configuration to generate a new one.");
+                "@text/offline.conf-error-invalid-username");
     }
 
     private void handleLinkButtonNotPressed(LinkButtonException ex) {
         logger.debug("Failed creating new user on Hue bridge: {}", ex.getMessage());
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Not authenticated - press pairing button on the bridge.");
+                "@text/offline.conf-error-press-pairing-button");
     }
 
     private void handleExceptionWhileCreatingUser(Exception ex) {
         logger.warn("Failed creating new user on Hue bridge", ex);
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                "Failed to create new user on bridge: " + ex.getMessage());
+                "@text/offline.conf-error-creation-username");
     }
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
@@ -383,7 +391,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
             onUpdate();
             // inform the listener initially about all lights and their states
             for (FullLight light : lastLightStates.values()) {
-                lightStatusListener.onLightAdded(bridge, light);
+                lightStatusListener.onLightAdded(hueBridge, light);
             }
         }
         return result;
@@ -403,33 +411,33 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     public List<FullLight> getFullLights() {
         List<FullLight> ret = withReAuthentication("search for new lights", () -> {
-            return bridge.getFullConfig().getLights();
+            return hueBridge.getFullConfig().getLights();
         });
         return ret != null ? ret : Collections.emptyList();
     }
 
     public void startSearch() {
         withReAuthentication("start search mode", () -> {
-            bridge.startSearch();
+            hueBridge.startSearch();
             return null;
         });
     }
 
     public void startSearch(List<String> serialNumbers) {
         withReAuthentication("start search mode", () -> {
-            bridge.startSearch(serialNumbers);
+            hueBridge.startSearch(serialNumbers);
             return null;
         });
     }
 
     private <T> T withReAuthentication(String taskDescription, Callable<T> runnable) {
-        if (bridge != null) {
+        if (hueBridge != null) {
             try {
                 try {
                     return runnable.call();
                 } catch (UnauthorizedException | IllegalStateException e) {
                     lastBridgeConnectionState = false;
-                    if (onNotAuthenticated(bridge)) {
+                    if (onNotAuthenticated()) {
                         return runnable.call();
                     }
                 }
@@ -441,20 +449,27 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     /**
-     * Iterate through lightStatusListeners and notify them about a changed ot added light state.
+     * Iterate through lightStatusListeners and notify them about a changed or added light state.
      *
      * @param fullLight
      * @param type Can be "changed" if just a state has changed or "added" if this is a new light on the bridge.
      */
     private void notifyLightStatusListeners(final FullLight fullLight, final String type) {
+        if (lightStatusListeners.isEmpty()) {
+            logger.debug("No light status listeners to notify of light change for light {}", fullLight.getId());
+            return;
+        }
+
         for (LightStatusListener lightStatusListener : lightStatusListeners) {
             try {
                 switch (type) {
                     case LIGHT_STATE_ADDED:
-                        lightStatusListener.onLightAdded(bridge, fullLight);
+                        lightStatusListener.onLightAdded(hueBridge, fullLight);
+                        logger.debug("Sending lightAdded for light {}", fullLight.getId());
                         break;
                     case LIGHT_STATE_CHANGED:
-                        lightStatusListener.onLightStateChanged(bridge, fullLight);
+                        logger.debug("Sending lightStateChanged for light {}", fullLight.getId());
+                        lightStatusListener.onLightStateChanged(hueBridge, fullLight);
                         break;
                     default:
                         throw new IllegalArgumentException(

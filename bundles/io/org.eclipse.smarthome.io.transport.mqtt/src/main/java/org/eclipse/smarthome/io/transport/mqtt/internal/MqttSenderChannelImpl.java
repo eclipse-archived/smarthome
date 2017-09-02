@@ -9,12 +9,16 @@ package org.eclipse.smarthome.io.transport.mqtt.internal;
 
 import java.io.IOException;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttSenderChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author David Gräff - Initial contribution
+ */
 @Deprecated
 public class MqttSenderChannelImpl implements MqttSenderChannel {
     private final MqttBrokerConnection connection;

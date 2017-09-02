@@ -11,6 +11,10 @@ import java.util.Map;
 
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public interface SimpleRuleEngineCallback extends RuleEngineCallback {
     public void triggered(Map<String, ?> context);
 }

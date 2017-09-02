@@ -25,6 +25,10 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author Andrew Nagle - Initial contribution
+ */
 public class LIRCRemoteDiscoveryService extends AbstractDiscoveryService
         implements ExtendedDiscoveryService, LIRCMessageListener {
 

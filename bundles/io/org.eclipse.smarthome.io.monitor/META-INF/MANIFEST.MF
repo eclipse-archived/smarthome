@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Service-Component: OSGI-INF/eventlogger.xml
+Service-Component: OSGI-INF/*.xml
 Private-Package: org.eclipse.smarthome.core.monitor.internal
 Ignore-Package: org.eclipse.smarthome.core.monitor.internal
 Bundle-Name: Eclipse SmartHome Monitor

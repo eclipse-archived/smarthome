@@ -116,6 +116,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             // check getBridge works
             assertThat getBridge().getUID().toString(), is("bindingId:type1:bridgeId")
         }
+
+        @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
+        }
     }
 
     class SimpleBridgeHandler extends BaseBridgeHandler {
@@ -130,6 +135,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         public void updateBridgetatus(ThingStatus status) {
             updateStatus(status)
+        }
+
+        @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
         }
     }
 
@@ -315,6 +325,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
+        }
+
+        @Override
         public Collection<ConfigStatusMessage> getConfigStatus() {
             if("invalid".equals(getThing().getConfiguration().get(PARAM))) {
                 return [ERROR]
@@ -344,12 +359,12 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         @Override
         public void initialize() {
-            super.initialize()
             ThingBuilder thingBuilder = editThing()
             thingBuilder.withChannels([
                 new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")
             ])
             updateThing(thingBuilder.build())
+            updateStatus(ThingStatus.ONLINE)
         }
 
         @Override

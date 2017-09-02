@@ -32,6 +32,8 @@ import org.osgi.service.event.EventAdmin;
  * The event will be with topic: test/demo/topic
  * and entry with key: test and value 10
  * </pre>
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class PostEventCommand extends DemoCommand {
 

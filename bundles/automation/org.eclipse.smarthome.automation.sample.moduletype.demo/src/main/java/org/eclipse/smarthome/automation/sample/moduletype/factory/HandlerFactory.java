@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is a factory for creating {@link ConsoleTrigger}, {@link CompareCondition} and {@link ConsolePrintAction}
  * objects.
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 

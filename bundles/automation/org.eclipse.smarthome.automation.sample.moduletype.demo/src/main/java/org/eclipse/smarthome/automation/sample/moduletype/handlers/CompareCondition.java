@@ -46,6 +46,8 @@ import org.eclipse.smarthome.config.core.Configuration;
  * <pre>
  * constraint operator inputValue
  * </pre>
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class CompareCondition extends BaseModuleHandler<Condition> implements ConditionHandler {
 

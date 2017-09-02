@@ -47,11 +47,6 @@ public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvi
     }
 
     @Override
-    protected String getKey(RuleTemplate element) {
-        return element.getUID();
-    }
-
-    @Override
     protected String getStorageName() {
         return "org.eclipse.smarthome.extensionservice.marketplace.RuleTemplates";
     }

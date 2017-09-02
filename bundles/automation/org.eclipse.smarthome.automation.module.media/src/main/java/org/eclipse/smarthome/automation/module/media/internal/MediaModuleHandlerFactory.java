@@ -21,6 +21,10 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private static final Collection<String> types = ImmutableList.of(SayActionHandler.TYPE_ID,

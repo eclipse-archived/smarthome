@@ -20,6 +20,7 @@ import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.RemoteDevice;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
+@Component(immediate = true)
 public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     private Logger logger = LoggerFactory.getLogger(ZonePlayerDiscoveryParticipant.class);
@@ -51,11 +53,12 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
                 } catch (Exception e) {
                     // ignore and use default label
                 }
+                label += " (" + roomName + ")";
                 properties.put(ZonePlayerConfiguration.UDN, device.getIdentity().getUdn().getIdentifierString());
                 properties.put(SonosBindingConstants.IDENTIFICATION, roomName);
 
                 DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label)
-                        .withRepresentationProperty(SonosBindingConstants.IDENTIFICATION).build();
+                        .withRepresentationProperty(ZonePlayerConfiguration.UDN).build();
 
                 logger.debug("Created a DiscoveryResult for device '{}' with UDN '{}'",
                         device.getDetails().getFriendlyName(), device.getIdentity().getUdn().getIdentifierString());

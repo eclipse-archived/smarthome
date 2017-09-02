@@ -67,7 +67,7 @@ public abstract class AbstractSensorJobExecutor {
                 sensorJob.execute(dSAPI, connectionManager.getSessionToken());
             }
             if (circuit.noMoreJobs()) {
-                logger.debug("no more jobs... stop circuit schedduler with id = " + circuit.getMeterDSID().toString());
+                logger.debug("no more jobs... stop circuit schedduler with id = {}", circuit.getMeterDSID());
                 pollingSchedulers.get(circuit.getMeterDSID()).cancel(true);
             }
         }
@@ -112,7 +112,7 @@ public abstract class AbstractSensorJobExecutor {
             if (pollingSchedulers.get(circuit.getMeterDSID()) == null
                     || pollingSchedulers.get(circuit.getMeterDSID()).isCancelled()) {
                 pollingSchedulers.put(circuit.getMeterDSID(),
-                        scheduler.scheduleAtFixedRate(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
+                        scheduler.scheduleWithFixedDelay(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
                                 config.getSensorReadingWaitTime(), TimeUnit.MILLISECONDS));
             }
         }

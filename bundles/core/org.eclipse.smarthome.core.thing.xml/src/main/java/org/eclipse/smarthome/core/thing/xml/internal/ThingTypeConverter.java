@@ -32,6 +32,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Chris Jackson - Added channel properties
+ * @author Andre Fuechsel - Added representationProperty
  */
 public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTypeXmlResult> {
 
@@ -95,7 +96,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
                 new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator), super.readDescription(nodeIterator), getListed(attributes),
                 getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
-                super.getConfigDescriptionObjects(nodeIterator));
+                getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
     }
@@ -106,6 +107,10 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
             return Boolean.parseBoolean(listedFlag);
         }
         return true;
+    }
+
+    protected String getRepresentationProperty(NodeIterator nodeIterator) {
+        return (String) nodeIterator.nextValue("representation-property", false);
     }
 
 }

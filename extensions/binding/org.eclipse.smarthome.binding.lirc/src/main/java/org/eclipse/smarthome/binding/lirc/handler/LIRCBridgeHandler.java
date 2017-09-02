@@ -59,7 +59,7 @@ public class LIRCBridgeHandler extends BaseBridgeHandler {
         logger.debug("Initializing the LIRC Bridge handler");
         configuration = getConfigAs(LIRCBridgeConfiguration.class);
         if (connectorTask == null || connectorTask.isCancelled()) {
-            connectorTask = scheduler.scheduleAtFixedRate(new Runnable() {
+            connectorTask = scheduler.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     logger.debug("Checking LIRC connection, thing status = {}", thing.getStatus());

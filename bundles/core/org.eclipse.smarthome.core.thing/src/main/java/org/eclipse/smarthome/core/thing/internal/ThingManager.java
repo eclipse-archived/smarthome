@@ -37,12 +37,8 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemUtil;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -62,7 +58,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -70,6 +65,12 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +98,7 @@ import com.google.common.collect.SetMultimap;
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
  */
+@Component(immediate = true, service = { EventSubscriber.class, ThingTypeMigrationService.class })
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
@@ -109,7 +111,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private EventPublisher eventPublisher;
 
-    private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private CommunicationManager communicationManager;
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -128,20 +130,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void stateUpdated(ChannelUID channelUID, State state) {
-            Set<Item> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
-            for (Item item : items) {
-                State acceptedState = ItemUtil.convertToAcceptedState(state, item);
-                eventPublisher
-                        .post(ItemEventFactory.createStateEvent(item.getName(), acceptedState, channelUID.toString()));
-            }
+            communicationManager.stateUpdated(channelUID, state);
         }
 
         @Override
         public void postCommand(ChannelUID channelUID, Command command) {
-            Set<String> items = itemChannelLinkRegistry.getLinkedItemNames(channelUID);
-            for (String item : items) {
-                eventPublisher.post(ItemEventFactory.createCommandEvent(item, command, channelUID.toString()));
-            }
+            communicationManager.postCommand(channelUID, command);
+        }
+
+        @Override
+        public void channelTriggered(Thing thing, ChannelUID channelUID, String event) {
+            communicationManager.channelTriggered(thing, channelUID, event);
         }
 
         @Override
@@ -247,11 +246,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
         }
 
-        @Override
-        public void channelTriggered(Thing thing, ChannelUID channelUID, String event) {
-            eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
-        }
-
     };
 
     private ThingRegistryImpl thingRegistry;
@@ -307,8 +301,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     // Register the new Handler - ThingManager.updateThing() is going to take care of that
                     thingRegistry.update(thing);
 
+                    ThingHandler handler = thing.getHandler();
+                    String handlerString = "NO HANDLER";
+                    if (handler != null) {
+                        handlerString = handler.toString();
+                    }
                     logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
-                            thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
+                            thing.getUID().toString(), thing.getThingTypeUID(), handlerString);
                 } finally {
                     lock.unlock();
                 }
@@ -353,106 +352,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 throw new RuntimeException(message);
             }
         }, 0, TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    protected void receiveCommand(ItemCommandEvent commandEvent) {
-        String itemName = commandEvent.getItemName();
-        final Command command = commandEvent.getItemCommand();
-        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
-        for (final ChannelUID channelUID : boundChannels) {
-            // make sure a command event is not sent back to its source
-            if (!channelUID.toString().equals(commandEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        handler.handleCommand(channelUID, command);
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                            }
-                        } else {
-                            logger.debug(
-                                    "Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    command, itemName, channelUID);
-                        }
-                    } else {
-                        logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", command, itemName, channelUID);
-                    }
-                } else {
-                    logger.warn(
-                            "Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            command, itemName, channelUID, channelUID.getThingUID());
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void receiveUpdate(ItemStateEvent updateEvent) {
-        String itemName = updateEvent.getItemName();
-        final State newState = updateEvent.getItemState();
-        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
-        for (final ChannelUID channelUID : boundChannels) {
-            // make sure an update event is not sent back to its source
-            if (!channelUID.toString().equals(updateEvent.getSource())) {
-                Thing thing = getThing(channelUID.getThingUID());
-                if (thing != null) {
-                    final ThingHandler handler = thing.getHandler();
-                    if (handler != null) {
-                        if (ThingHandlerHelper.isHandlerInitialized(thing)) {
-                            logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
-                                    itemName, channelUID);
-                            try {
-                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        handler.handleUpdate(channelUID, newState);
-                                        return null;
-                                    }
-                                });
-                            } catch (TimeoutException ex) {
-                                logger.warn("Handler for thing {} takes more than {}ms for handling an update",
-                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                            } catch (Exception ex) {
-                                logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                            }
-                        } else {
-                            logger.debug(
-                                    "Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
-                                    newState, itemName, channelUID);
-                        }
-                    } else {
-                        logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                + "because no handler is assigned. Maybe the binding is not installed or not "
-                                + "propertly initialized.", newState, itemName, channelUID);
-                    }
-                } else {
-                    logger.warn(
-                            "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because no thing with the UID '{}' could be found.",
-                            newState, itemName, channelUID, channelUID.getThingUID());
-                }
-            }
-        }
     }
 
     @Override
@@ -544,7 +443,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
             }
 
-            if (oldThing != thing) {
+            if (oldThing != thing && oldThing != null) {
                 oldThing.setHandler(null);
             }
         } finally {
@@ -653,9 +552,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         thing.getUID());
                 return;
             }
-            if (thing.getHandler().getThing() != thing) {
-                logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
-                        thing.getUID());
+            ThingHandler handler = thing.getHandler();
+            if (handler == null) {
+                throw new IllegalStateException("Handler should not be null here");
+            } else {
+                if (handler.getThing() != thing) {
+                    logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
+                            thing.getUID());
+                }
             }
             ThingType thingType = getThingType(thing);
             applyDefaultConfiguration(thing, thingType);
@@ -708,7 +612,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         return configDescriptionRegistry != null
-                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale) : null;
+                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale)
+                : null;
     }
 
     private List<String> getRequiredParameters(ConfigDescription description) {
@@ -787,7 +692,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 public Void call() throws Exception {
                     ThingHandler thingHandler = thing.getHandler();
                     thingHandlerFactory.unregisterHandler(thing);
-                    thingHandler.setCallback(null);
+                    if (thingHandler != null) {
+                        thingHandler.setCallback(null);
+                    }
                     thing.setHandler(null);
                     setThingStatus(thing,
                             buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
@@ -899,7 +806,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     try {
                         BridgeHandler bridgeHandler = bridge.getHandler();
                         if (bridgeHandler != null) {
-                            bridgeHandler.childHandlerInitialized(thing.getHandler(), thing);
+                            ThingHandler thingHandler = thing.getHandler();
+                            if (thingHandler != null) {
+                                bridgeHandler.childHandlerInitialized(thingHandler, thing);
+                            }
                         }
                     } catch (Exception e) {
                         logger.error(
@@ -981,10 +891,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         });
     }
 
+    @Activate
     protected void activate(ComponentContext componentContext) {
         this.thingRegistry.addThingTracker(this);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
         thingHandlerFactories.add(thingHandlerFactory);
@@ -993,6 +905,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
         if (properties.containsKey(XML_THING_TYPE)) {
             String bsn = (String) properties.get(XML_THING_TYPE);
@@ -1055,6 +968,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         return null;
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.thingRegistry.removeThingTracker(this);
     }
@@ -1081,14 +995,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         return thingLocks.get(thingUID);
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
-    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
-    }
-
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = (ThingRegistryImpl) thingRegistry;
     }
@@ -1097,14 +1009,11 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         this.eventPublisher = null;
     }
 
-    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = null;
-    }
-
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry;
     }
@@ -1135,10 +1044,11 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), newStatusInfo, oldStatusInfo));
             }
         } catch (Exception ex) {
-            logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
+            logger.error("Could not post 'ThingStatusInfoEvent' event: {}", ex.getMessage(), ex);
         }
     }
 
+    @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -1147,6 +1057,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         this.thingTypeRegistry = null;
     }
 
+    @Reference
     protected void setThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
@@ -1155,6 +1066,15 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     protected void unsetThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = null;
+    }
+
+    @Reference
+    protected void setInboundCommunication(CommunicationManager communicationManager) {
+        this.communicationManager = communicationManager;
+    }
+
+    protected void unsetInboundCommunication(CommunicationManager communicationManager) {
+        this.communicationManager = null;
     }
 
 }

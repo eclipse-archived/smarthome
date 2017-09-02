@@ -70,7 +70,7 @@ public class AudioPlayer extends Thread {
                 mixer = AudioSystem.getMixer(mixerInfo[cnt]);
                 Line.Info[] lineInfos = mixer.getSourceLineInfo();
                 for (Info lineInfo : lineInfos) {
-                    logger.info(lineInfo.toString());
+                    logger.info("{}", lineInfo);
                 }
             }
             return;

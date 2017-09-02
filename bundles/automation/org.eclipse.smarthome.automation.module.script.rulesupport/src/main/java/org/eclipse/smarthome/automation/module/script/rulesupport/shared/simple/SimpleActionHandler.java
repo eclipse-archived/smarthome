@@ -12,6 +12,10 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public abstract class SimpleActionHandler implements ScriptedHandler {
     public void init(Action module) {
     }

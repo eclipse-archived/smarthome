@@ -47,9 +47,10 @@
     <maven.compiler.compilerVersion>${esh.java.version}</maven.compiler.compilerVersion>
     <tycho-version>1.0.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
-    <xtext-version>2.9.2</xtext-version>
+    <xtext-version>2.12.0</xtext-version>
     <karaf.version>4.0.3</karaf.version>
     <ds-annotations.version>1.2.8</ds-annotations.version>
+    <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -156,7 +157,16 @@
                 <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
                 <version>${ds-annotations.version}</version>
               </extraClasspathElement>
+              <extraClasspathElement>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.annotation</artifactId>
+                <version>${jdt-annotations.version}</version>
+              </extraClasspathElement>
             </extraClasspathElements>
+            <compilerArgs>
+              <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
+              <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+            </compilerArgs>
           </configuration>          
         </plugin>
         <plugin>
@@ -460,33 +470,5 @@
       </build>
     </profile>
   </profiles>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>tycho-snapshots</id>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>cbi-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>buchen-maven-repo</id>
-      <url>http://buchen.github.io/maven-repo</url>
-      <layout>default</layout>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <repositories>
-    <repository>
-      <id>eclipse</id>
-      <name>Eclipse Snapshot Repository</name>
-      <layout>default</layout>
-      <url>https://repo.eclipse.org/content/repositories/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>

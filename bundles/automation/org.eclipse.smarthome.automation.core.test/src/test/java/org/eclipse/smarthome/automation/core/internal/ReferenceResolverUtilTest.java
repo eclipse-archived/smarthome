@@ -105,9 +105,9 @@ public class ReferenceResolverUtilTest {
 
     @Test
     public void testBeanMapAccess() {
-        Map map = new HashMap();
-        Map map1 = new HashMap();
-        Map map2 = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map1 = new HashMap<>();
+        Map<String, Object> map2 = new HashMap<>();
         map2.put("b", "bValue");
         map1.put("a", map2);
         B1 bean1 = new B1();
@@ -130,7 +130,7 @@ public class ReferenceResolverUtilTest {
 
     class B1 {
         public Object getA() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("b", "bValue");
             return map2;
         }
@@ -142,7 +142,7 @@ public class ReferenceResolverUtilTest {
 
     class B2 {
         public Object getE() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("f", "fValue");
             return map2;
         }

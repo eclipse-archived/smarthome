@@ -38,6 +38,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+/**
+ *
+ * @author Sebastian Janzen - Initial contribution
+ */
 @Path("/log")
 @Api(value = LogHandler.PATH_LOG)
 @Produces(MediaType.APPLICATION_JSON)

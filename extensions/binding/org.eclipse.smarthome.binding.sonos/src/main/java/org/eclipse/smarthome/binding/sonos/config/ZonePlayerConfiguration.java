@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.binding.sonos.config;
 
+/**
+ *
+ * @author Karel Goderis - Initial contribution
+ */
 public class ZonePlayerConfiguration {
 
     public static final String UDN = "udn";

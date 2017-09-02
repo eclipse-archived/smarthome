@@ -87,24 +87,29 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
         boolean validConfig = true;
         String errors = "";
+        String statusDescr = null;
 
         if (StringUtils.trimToNull(config.apikey) == null) {
             errors += " Parameter 'apikey' must be configured.";
+            statusDescr = "@text/offline.conf-error-missing-apikey";
             validConfig = false;
         }
         if (StringUtils.trimToNull(config.location) == null) {
             errors += " Parameter 'location' must be configured.";
+            statusDescr = "@text/offline.conf-error-missing-location";
             validConfig = false;
         }
         if (config.language != null) {
             String lang = StringUtils.trimToEmpty(config.language);
             if (lang.length() != 2) {
                 errors += " Parameter 'language' must be 2 letters.";
+                statusDescr = "@text/offline.conf-error-syntax-language";
                 validConfig = false;
             }
         }
         if (config.refresh != null && config.refresh < 5) {
             errors += " Parameter 'refresh' must be at least 5 minutes.";
+            statusDescr = "@text/offline.conf-error-min-refresh";
             validConfig = false;
         }
         errors = errors.trim();
@@ -113,7 +118,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             startAutomaticRefresh();
         } else {
             logger.debug("Disabling thing '{}': {}", getThing().getUID(), errors);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errors);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, statusDescr);
         }
     }
 
@@ -141,7 +146,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
             WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
             int period = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
-            refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, period, TimeUnit.MINUTES);
+            refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, period, TimeUnit.MINUTES);
         }
     }
 
@@ -171,9 +176,10 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * @param channelId the id identifying the channel to be updated
      */
     private void updateChannel(String channelId) {
-        if (isLinked(channelId)) {
+        Channel channel = getThing().getChannel(channelId);
+        if (channel != null && isLinked(channelId)) {
             // Get the source unit property from the channel when defined
-            String sourceUnit = (String) getThing().getChannel(channelId).getConfiguration()
+            String sourceUnit = (String) channel.getConfiguration()
                     .get(WeatherUndergroundBindingConstants.PROPERTY_SOURCE_UNIT);
             if (sourceUnit == null) {
                 sourceUnit = "";
@@ -261,6 +267,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         boolean resultOk = false;
         String error = null;
         String errorDetail = null;
+        String statusDescr = null;
 
         try {
 
@@ -288,41 +295,58 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             logger.debug("URL = {}", urlStr);
 
             // Run the HTTP request and get the JSON response from Weather Underground
-            String response = HttpUtil.executeUrl("GET", urlStr, 30 * 1000);
-            logger.debug("weatherData = {}", response);
+            String response = null;
+            try {
+                response = HttpUtil.executeUrl("GET", urlStr, 30 * 1000);
+                logger.debug("weatherData = {}", response);
+            } catch (IllegalArgumentException e) {
+                // catch Illegal character in path at index XX: http://api.wunderground.com/...
+                error = "Error creating URI with location parameter: '" + location + "'";
+                errorDetail = e.getMessage();
+                statusDescr = "@text/offline.uri-error";
+            }
 
             // Map the JSON response to an object
-            result = gson.fromJson(response, WeatherUndergroundJsonData.class);
-            if (result == null) {
-                errorDetail = "no data returned";
-            } else if (result.getResponse() == null) {
-                errorDetail = "missing response sub-object";
-            } else if (result.getResponse().getErrorDescription() != null) {
-                errorDetail = result.getResponse().getErrorDescription();
-            } else {
-                resultOk = true;
-                for (String feature : features) {
-                    if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
-                        resultOk = false;
-                        errorDetail = "missing current_observation sub-object";
-                    } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
-                        resultOk = false;
-                        errorDetail = "missing forecast sub-object";
-                    } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
-                        resultOk = false;
-                        errorDetail = "missing forecast sub-object";
+            if (response != null) {
+                result = gson.fromJson(response, WeatherUndergroundJsonData.class);
+                if (result == null) {
+                    errorDetail = "no data returned";
+                } else if (result.getResponse() == null) {
+                    errorDetail = "missing response sub-object";
+                } else if (result.getResponse().getErrorDescription() != null) {
+                    if ("keynotfound".equals(result.getResponse().getErrorType())) {
+                        error = "API key has to be fixed";
+                        statusDescr = "@text/offline.comm-error-invalid-api-key";
+                    }
+                    errorDetail = result.getResponse().getErrorDescription();
+                } else {
+                    resultOk = true;
+                    for (String feature : features) {
+                        if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
+                            resultOk = false;
+                            errorDetail = "missing current_observation sub-object";
+                        } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
+                            resultOk = false;
+                            errorDetail = "missing forecast sub-object";
+                        } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
+                            resultOk = false;
+                            errorDetail = "missing location sub-object";
+                        }
                     }
                 }
             }
-            if (!resultOk) {
+            if (!resultOk && error == null) {
                 error = "Error in Weather Underground response";
+                statusDescr = "@text/offline.comm-error-response";
             }
         } catch (IOException e) {
             error = "Error running Weather Underground request";
             errorDetail = e.getMessage();
+            statusDescr = "@text/offline.comm-error-running-request";
         } catch (JsonSyntaxException e) {
             error = "Error parsing Weather Underground response";
             errorDetail = e.getMessage();
+            statusDescr = "@text/offline.comm-error-parsing-response";
         }
 
         // Update the thing status
@@ -330,7 +354,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("{}: {}", error, errorDetail);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, error);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, statusDescr);
         }
 
         return resultOk ? result : null;

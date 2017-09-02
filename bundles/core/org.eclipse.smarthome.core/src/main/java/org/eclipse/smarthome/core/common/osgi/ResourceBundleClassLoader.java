@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,10 +31,9 @@ import org.osgi.framework.Bundle;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Martin Herbst - UTF-8 replaced by ISO-8859-1 to follow Java standards
+ * 
  */
 public class ResourceBundleClassLoader extends ClassLoader {
-
-    private static final Charset SUPPORTED_CHARSET = Charset.forName("ISO-8859-1");
 
     private Bundle bundle;
     private String path;
@@ -115,7 +114,7 @@ public class ResourceBundleClassLoader extends ClassLoader {
         if (resourceURL != null) {
             try (InputStream resourceStream = resourceURL.openStream()) {
                 if (resourceStream != null) {
-                    try (Reader resourceReader = new InputStreamReader(resourceStream, SUPPORTED_CHARSET)) {
+                    try (Reader resourceReader = new InputStreamReader(resourceStream, StandardCharsets.ISO_8859_1)) {
                         Properties props = new Properties();
                         props.load(resourceReader);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();

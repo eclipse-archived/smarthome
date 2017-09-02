@@ -12,6 +12,10 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
 
+/**
+ *
+ * @author Simon Merschjohann - Initial contribution
+ */
 public abstract class SimpleTriggerHandler implements ScriptedHandler {
     private SimpleRuleEngineCallback ruleCallback;
 

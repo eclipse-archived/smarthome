@@ -55,7 +55,7 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
             channelTypes = Lists.newArrayList(ctColor, ctColorTemperature, ctColorX, ctColorTemperatureX);
 
             ChannelGroupType groupX = new ChannelGroupType(GROUP_CHANNEL_GROUP_TYPE_UID, false, "Channel Group",
-                    "Channel Group",
+                    "Channel Group", null,
                     Lists.newArrayList(new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
                             new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)));
             channelGroupTypes = Lists.newArrayList(groupX);

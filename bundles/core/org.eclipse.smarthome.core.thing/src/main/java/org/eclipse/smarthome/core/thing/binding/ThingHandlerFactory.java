@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -29,7 +30,7 @@ public interface ThingHandlerFactory {
      * @param thingTypeUID the thing type UID
      * @return true, if the handler supports the thing type, false otherwise
      */
-    boolean supportsThingType(ThingTypeUID thingTypeUID);
+    boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID);
 
     /**
      * Creates a new {@link ThingHandler} instance. In addition, the handler can be registered as a service if it is
@@ -46,7 +47,8 @@ public interface ThingHandlerFactory {
      *
      * @throws IllegalStateException if the handler instance could not be created
      */
-    ThingHandler registerHandler(Thing thing);
+    @NonNull
+    ThingHandler registerHandler(@NonNull Thing thing);
 
     /**
      * Unregisters a {@link ThingHandler} instance.
@@ -56,7 +58,7 @@ public interface ThingHandlerFactory {
      *
      * @param thing the thing for which the handler must be unregistered
      */
-    void unregisterHandler(Thing thing);
+    void unregisterHandler(@NonNull Thing thing);
 
     /**
      * Creates a thing for given arguments.
@@ -68,13 +70,14 @@ public interface ThingHandlerFactory {
      *
      * @return created thing
      */
-    Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID);
+    Thing createThing(@NonNull ThingTypeUID thingTypeUID, @NonNull Configuration configuration, ThingUID thingUID,
+            ThingUID bridgeUID);
 
     /**
      * A thing with the given {@link Thing} UID was removed.
      *
      * @param thingUID thing UID of the removed object
      */
-    void removeThing(ThingUID thingUID);
+    void removeThing(@NonNull ThingUID thingUID);
 
 }

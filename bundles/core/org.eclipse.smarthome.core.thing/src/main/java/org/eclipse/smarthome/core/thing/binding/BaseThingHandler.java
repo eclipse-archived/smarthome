@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -41,8 +42,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
  * <p>
@@ -71,7 +70,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ItemChannelLinkRegistry linkRegistry;
     protected BundleContext bundleContext;
 
-    protected Thing thing;
+    protected @NonNull Thing thing;
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
@@ -84,11 +83,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Creates a new instance of this class for the {@link Thing}.
      *
      * @param thing the thing that should be handled, not null
-     *
-     * @throws IllegalArgumentException if thing argument is null
      */
-    public BaseThingHandler(Thing thing) {
-        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
+    public BaseThingHandler(@NonNull Thing thing) {
         this.thing = thing;
     }
 
@@ -168,7 +164,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public Thing getThing() {
+    public @NonNull Thing getThing() {
         return this.thing;
     }
 
@@ -178,11 +174,12 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
+    @Deprecated
     public void initialize() {
-        // can be overridden by subclasses
-        // standard behavior is to set the thing to ONLINE,
-        // assuming no further initialization is necessary.
+        // should be overridden by subclasses!
         updateStatus(ThingStatus.ONLINE);
+        logger.warn(
+                "BaseThingHandler.initialize() will be removed soon, ThingStatus can be set manually via updateStatus(ThingStatus.ONLINE)");
     }
 
     @Override
@@ -297,7 +294,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             if (this.callback != null) {
                 this.callback.channelTriggered(this.getThing(), channelUID, event);
             } else {
-                throw new IllegalStateException("Could not update state, because callback is missing");
+                throw new IllegalStateException("Could not trigger channel, because callback is missing");
             }
         }
     }
@@ -438,7 +435,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateThing(Thing thing) {
+    protected void updateThing(@NonNull Thing thing) {
         synchronized (this) {
             if (this.callback != null) {
                 this.thing = thing;
@@ -532,7 +529,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @param name the name of the property to be set
      * @param value the value of the property
      */
-    protected void updateProperty(String name, String value) {
+    protected void updateProperty(@NonNull String name, String value) {
         String existingPropertyValue = thing.getProperties().get(name);
         if (existingPropertyValue == null || !existingPropertyValue.equals(value)) {
             thing.setProperty(name, value);

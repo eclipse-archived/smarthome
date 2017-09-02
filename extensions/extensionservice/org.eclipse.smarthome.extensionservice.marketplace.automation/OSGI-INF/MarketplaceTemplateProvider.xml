@@ -14,6 +14,6 @@
       <provide interface="org.eclipse.smarthome.extensionservice.marketplace.automation.internal.MarketplaceRuleTemplateProvider"/>
       <provide interface="org.eclipse.smarthome.automation.template.RuleTemplateProvider"/>
    </service>
-   <reference bind="setStorageService" cardinality="1..1" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="static" unbind="unsetStorageService"/>
+   <reference bind="setStorageService" cardinality="1..1" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="dynamic" unbind="unsetStorageService"/>
    <reference bind="setParser" cardinality="1..1" interface="org.eclipse.smarthome.automation.parser.Parser" name="Parser" policy="static" target="(&amp;(format=json)(parser.type=parser.template))" unbind="unsetParser"/>
 </scr:component>

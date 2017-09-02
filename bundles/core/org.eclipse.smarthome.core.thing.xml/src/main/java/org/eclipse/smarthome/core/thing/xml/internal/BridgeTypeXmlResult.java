@@ -26,22 +26,24 @@ import com.thoughtworks.xstream.converters.ConversionException;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Andre Fuechsel - Added representationProperty
  */
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
             String description, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
-            List<NodeValue> properties, Object[] configDescriptionObjects) {
+            List<NodeValue> properties, String representationProperty, Object[] configDescriptionObjects) {
 
         super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, listed, channelTypeReferenceObjects,
-                properties, configDescriptionObjects);
+                properties, representationProperty, configDescriptionObjects);
     }
 
     @Override
     public ThingType toThingType() throws ConversionException {
 
         BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
-                super.description, super.listed, super.toChannelDefinitions(this.channelTypeReferences),
+                super.description, super.listed, super.representationProperty,
+                super.toChannelDefinitions(this.channelTypeReferences),
                 super.toChannelGroupDefinitions(this.channelGroupTypeReferences), super.toPropertiesMap(),
                 super.configDescriptionURI);
 
@@ -52,9 +54,10 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
     public String toString() {
         return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", listed=" + listed
-                + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
-                + configDescriptionURI + ", configDescription=" + configDescription + "]";
+                + ", representationProperty=" + representationProperty + ", channelTypeReferences="
+                + channelTypeReferences + ", channelGroupTypeReferences=" + channelGroupTypeReferences + ", properties="
+                + properties + ", configDescriptionURI=" + configDescriptionURI + ", configDescription="
+                + configDescription + "]";
     }
 
 }

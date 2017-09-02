@@ -19,6 +19,7 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.HandlerUtils;
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSili
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
@@ -54,8 +55,8 @@ import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -97,8 +98,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
     private ManagedThingProvider managedThingProvider;
     private ManagedItemChannelLinkProvider itemChannelLinkProvider;
+    private ManagedItemProvider managedItemProvider;
     private ThingRegistry thingRegistry;
-    private ItemRegistry itemRegistry;
 
     /** An instance of the mock HttpServlet which is used for the tests */
     private RadioServiceDummy servlet;
@@ -141,8 +142,21 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         channels.clear();
         unregisterRadioTestServlet();
-        clearTheThingProvider();
-        clearTheItemRegistry();
+        clearThings();
+        clearItems();
+        clearLinks();
+    }
+
+    private static @NonNull Channel getChannel(final @NonNull Thing thing, final @NonNull String channelId) {
+        final Channel channel = thing.getChannel(channelId);
+        Assert.assertNotNull(channel);
+        return channel;
+    }
+
+    private static @NonNull ChannelUID getChannelUID(final @NonNull Thing thing, final @NonNull String channelId) {
+        final ChannelUID channelUID = getChannel(thing, channelId).getUID();
+        Assert.assertNotNull(channelUID);
+        return channelUID;
     }
 
     /**
@@ -210,7 +224,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         // turn-on the radio
         turnTheRadioOn(radioThing);
 
-        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID();
+        ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
 
         /*
          * Setting the isInvalidResponseExpected variable to true
@@ -267,7 +281,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          */
         servlet.setOKAnswerExpected(false);
 
-        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID();
+        ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
         Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType);
 
         servlet.setInvalidResponseExpected(true);
@@ -337,7 +351,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID muteChannelUID = radioThing.getChannel(FSInternetRadioBindingConstants.CHANNEL_MUTE).getUID();
+        ChannelUID muteChannelUID = getChannelUID(radioThing, FSInternetRadioBindingConstants.CHANNEL_MUTE);
         Item muteTestItem = initializeItem(muteChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.ON);
@@ -376,7 +390,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID modeChannelUID = radioThing.getChannel(modeChannelID).getUID();
+        ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
         Item modeTestItem = initializeItem(modeChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
@@ -410,7 +424,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
@@ -431,7 +445,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
@@ -452,7 +466,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
@@ -520,11 +534,11 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
-        ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID();
+        ChannelUID percentVolumeChannelUID = getChannelUID(radioThing, percentVolumeChannelID);
 
         testChannelWithINCREASEAndDECREASECommands(percentVolumeChannelUID, volumeTestItem);
     }
@@ -553,11 +567,11 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
-        ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID();
+        ChannelUID percentVolumeChannelUID = getChannelUID(radioThing, percentVolumeChannelID);
 
         testChannelWithUPAndDOWNCommands(percentVolumeChannelUID, volumeTestItem);
     }
@@ -581,11 +595,11 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID absoluteVolumeChannelUID = radioThing.getChannel(absoluteVolumeChannelID).getUID();
+        ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
         Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
                 absoluteAcceptedItemType);
 
-        ChannelUID percentVolumeChannelUID = radioThing.getChannel(percentVolumeChannelID).getUID();
+        ChannelUID percentVolumeChannelUID = getChannelUID(radioThing, percentVolumeChannelID);
 
         /*
          * Giving the handler a valid percent value. According to the FrontierSiliconRadio's
@@ -676,7 +690,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         testRadioThingConsideringConfiguration(radioThing);
         turnTheRadioOn(radioThing);
 
-        ChannelUID presetChannelUID = radioThing.getChannel(FSInternetRadioBindingConstants.CHANNEL_PRESET).getUID();
+        ChannelUID presetChannelUID = getChannelUID(radioThing, FSInternetRadioBindingConstants.CHANNEL_PRESET);
         Item presetTestItem = initializeItem(presetChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(presetChannelUID, DecimalType.valueOf("100"));
@@ -699,8 +713,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID playInfoNameChannelUID = radioThing
-                .getChannel(FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_NAME).getUID();
+        ChannelUID playInfoNameChannelUID = getChannelUID(radioThing,
+                FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_NAME);
         Item playInfoNameTestItem = initializeItem(playInfoNameChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
@@ -722,8 +736,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
 
         turnTheRadioOn(radioThing);
 
-        ChannelUID playInfoTextChannelUID = radioThing
-                .getChannel(FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_TEXT).getUID();
+        ChannelUID playInfoTextChannelUID = getChannelUID(radioThing,
+                FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_TEXT);
         Item playInfoTextTestItem = initializeItem(playInfoTextChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
@@ -758,20 +772,19 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     }
 
     private void setUpServices() {
-        // ManagedItemChannelLinkProvider needs a StorageService to persist the elements
-        VolatileStorageService volatileStorageService = new VolatileStorageService();
-        registerService(volatileStorageService);
+        registerVolatileStorageService();
 
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
+        assertNotNull(managedThingProvider);
 
         thingRegistry = getService(ThingRegistry.class);
         assertNotNull(thingRegistry);
 
-        itemRegistry = getService(ItemRegistry.class);
-        assertNotNull(itemRegistry);
-
         itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
         assertNotNull(itemChannelLinkProvider);
+
+        managedItemProvider = getService(ManagedItemProvider.class);
+        assertNotNull(managedItemProvider);
     }
 
     private void registerRadioTestServlet() throws ServletException, NamespaceException {
@@ -797,7 +810,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         servlet = null;
     }
 
-    private void clearTheThingProvider() {
+    private void clearThings() {
         final Collection<Thing> things = managedThingProvider.getAll();
         for (final Thing thing : things) {
             managedThingProvider.remove(thing.getUID());
@@ -805,12 +818,24 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         assertTrue(managedThingProvider.getAll().isEmpty());
     }
 
-    private void clearTheItemRegistry() {
-        final Collection<Item> items = itemRegistry.getItems();
+    private void clearItems() {
+        final Collection<Item> items = managedItemProvider.getAll();
         for (final Item item : items) {
-            itemRegistry.remove(item.getName());
+            managedItemProvider.remove(item.getName());
         }
-        assertTrue(itemRegistry.getItems().isEmpty());
+        waitForAssert(() -> {
+            assertTrue(managedItemProvider.getAll().isEmpty());
+        });
+    }
+
+    private void clearLinks() {
+        final Collection<ItemChannelLink> links = itemChannelLinkProvider.getAll();
+        for (final ItemChannelLink link : links) {
+            itemChannelLinkProvider.remove(link.getUID());
+        }
+        waitForAssert(() -> {
+            assertTrue(itemChannelLinkProvider.getAll().isEmpty());
+        });
     }
 
     private Item initializeItem(ChannelUID channelUID, String itemName, String acceptedItemType) {
@@ -835,7 +860,9 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
                 break;
         }
 
-        itemRegistry.add(item);
+        if (item != null) {
+            managedItemProvider.add(item);
+        }
         itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
         try {
             Thread.sleep(WAIT_ITEM_CHANNEL_LINK_TO_BE_ADDED);
@@ -892,7 +919,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     }
 
     private void turnTheRadioOn(Thing radioThing) {
-        radioHandler.handleCommand(radioThing.getChannel(FSInternetRadioBindingConstants.CHANNEL_POWER).getUID(),
+        radioHandler.handleCommand(getChannelUID(radioThing, FSInternetRadioBindingConstants.CHANNEL_POWER),
                 OnOffType.ON);
 
         final FrontierSiliconRadio radio = HandlerUtils.getRadio(radioHandler);

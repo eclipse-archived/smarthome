@@ -16,6 +16,9 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * {@link LinkConsoleCommandExtension} provides console commands for listing,
@@ -25,6 +28,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Alex Tugarev - Added support for links between items and things
  * @author Kai Kreuzer - Removed Thing link commands
  */
+@Component(immediate = true, service = ConsoleCommandExtension.class)
 public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
@@ -115,6 +119,7 @@ public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension
         }
     }
 
+    @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }

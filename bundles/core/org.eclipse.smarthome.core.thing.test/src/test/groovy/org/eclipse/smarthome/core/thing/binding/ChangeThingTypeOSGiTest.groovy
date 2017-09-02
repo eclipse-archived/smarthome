@@ -209,7 +209,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             println "[ChangeThingTypeOSGiTest] GenericThingHandler.initialize"
-            super.initialize()
+            updateStatus(ThingStatus.ONLINE)
             genericInits++;
             if (selfChanging) {
                 changeThingType(THING_TYPE_SPECIFIC_UID, new Configuration(['providedspecific':'there']))
@@ -233,7 +233,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         public void initialize() {
             println "[ChangeThingTypeOSGiTest] SpecificThingHandler.initialize"
             specificInits++;
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         }
 
         @Override

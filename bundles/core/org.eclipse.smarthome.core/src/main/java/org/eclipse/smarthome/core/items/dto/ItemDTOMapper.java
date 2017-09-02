@@ -156,7 +156,7 @@ public class ItemDTOMapper {
                 break;
             default:
                 LoggerFactory.getLogger(ItemDTOMapper.class)
-                        .error("Unknown group function '" + function.name + "'. Using Equality instead.");
+                        .error("Unknown group function '{}'. Using Equality instead.", function.name);
         }
 
         if (groupFunction == null) {

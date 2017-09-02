@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 
@@ -26,10 +27,10 @@ public interface LightStatusListener {
      * @param bridge The bridge the changed light is connected to.
      * @param light The light which received the state update.
      */
-    void onLightStateChanged(HueBridge bridge, FullLight light);
+    void onLightStateChanged(HueBridge bridge, @NonNull FullLight light);
 
     /**
-     * This method us called whenever a light is removed.
+     * This method is called whenever a light is removed.
      *
      * @param bridge The bridge the removed light was connected to.
      * @param light The light which is removed.
@@ -37,11 +38,10 @@ public interface LightStatusListener {
     void onLightRemoved(HueBridge bridge, FullLight light);
 
     /**
-     * This method us called whenever a light is added.
+     * This method is called whenever a light is added.
      *
      * @param bridge The bridge the added light was connected to.
      * @param light The light which is added.
      */
     void onLightAdded(HueBridge bridge, FullLight light);
-
 }

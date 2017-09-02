@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.types.Command;
@@ -43,9 +42,7 @@ public class StringListType implements Command, State {
     }
 
     public StringListType(StringType... rows) {
-        typeDetails = Arrays.stream(rows)
-                .map(StringType::toString)
-                .collect(Collectors.toList());
+        typeDetails = Arrays.stream(rows).map(StringType::toString).collect(Collectors.toList());
     }
 
     public StringListType(String... rows) {
@@ -56,9 +53,7 @@ public class StringListType implements Command, State {
      * Deserialize the input string, splitting it on every delimiter not preceded by a backslash.
      */
     public StringListType(String serialized) {
-        typeDetails = Arrays.stream(
-                serialized.split(REGEX_SPLITTER))
-                .map(s -> s.replace(ESCAPED_DELIMITER, DELIMITER))
+        typeDetails = Arrays.stream(serialized.split(REGEX_SPLITTER)).map(s -> s.replace(ESCAPED_DELIMITER, DELIMITER))
                 .collect(Collectors.toList());
     }
 
@@ -91,8 +86,7 @@ public class StringListType implements Command, State {
 
     @Override
     public String toFullString() {
-        return typeDetails.stream()
-                .map(s -> s.replace(DELIMITER, ESCAPED_DELIMITER))
+        return typeDetails.stream().map(s -> s.replace(DELIMITER, ESCAPED_DELIMITER))
                 .collect(Collectors.joining(DELIMITER));
     }
 

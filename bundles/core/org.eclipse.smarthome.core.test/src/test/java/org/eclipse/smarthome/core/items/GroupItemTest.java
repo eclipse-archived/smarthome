@@ -10,14 +10,18 @@ package org.eclipse.smarthome.core.items;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent;
+import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -33,6 +37,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class GroupItemTest extends JavaOSGiTest {
@@ -43,9 +48,61 @@ public class GroupItemTest extends JavaOSGiTest {
     List<Event> events = new LinkedList<>();
     EventPublisher publisher;
 
+    ItemRegistry itemRegistry;
+
     @Before
     public void setUp() {
+        registerVolatileStorageService();
         publisher = event -> events.add(event);
+
+        itemRegistry = getService(ItemRegistry.class);
+        assertNotNull(itemRegistry);
+
+        registerService(new EventSubscriber() {
+
+            @Override
+            public void receive(Event event) {
+                events.add(event);
+            }
+
+            @Override
+            public Set<String> getSubscribedEventTypes() {
+                HashSet<String> hs = new HashSet<>();
+                hs.add(ItemUpdatedEvent.TYPE);
+                return hs;
+            }
+
+            @Override
+            public EventFilter getEventFilter() {
+                return null;
+            }
+        });
+    }
+
+    @Ignore
+    @Test
+    public void testItemUpdateWithItemRegistry() {
+        GroupItem item = new GroupItem("mySimpleGroupItem");
+        item.setLabel("firstLabel");
+
+        itemRegistry.add(item);
+
+        GroupItem updatedItem = (GroupItem) itemRegistry.get("mySimpleGroupItem");
+        assertNotNull(updatedItem);
+
+        events.clear();
+
+        updatedItem.setLabel("secondLabel");
+        itemRegistry.update(updatedItem);
+        waitForAssert(() -> assertThat(events.size(), is(1)));
+
+        List<Event> stateChanges = events.stream().filter(it -> it instanceof ItemUpdatedEvent)
+                .collect(Collectors.toList());
+        assertThat(stateChanges.size(), is(1));
+
+        ItemUpdatedEvent change = (ItemUpdatedEvent) stateChanges.get(0);
+
+        assertThat(change.getItem().label, is("secondLabel"));
     }
 
     @Test()

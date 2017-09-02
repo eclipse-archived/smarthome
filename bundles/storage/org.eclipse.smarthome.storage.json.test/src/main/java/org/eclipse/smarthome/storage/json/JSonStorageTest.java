@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ import org.junit.Test;
  *
  * @author Stefan Triller - Initial Contribution
  */
-public class JSonStorageTest {
+public class JSonStorageTest extends JavaTest {
 
     private JsonStorage<DummyObject> objectStorage;
     private File tmpFile;
@@ -40,7 +41,11 @@ public class JSonStorageTest {
 
     private void persistAndReadAgain() {
         objectStorage.commitDatabase();
-        objectStorage = new JsonStorage<>(tmpFile, this.getClass().getClassLoader(), 0, 0, 0);
+        waitForAssert(() -> {
+            objectStorage = new JsonStorage<>(tmpFile, this.getClass().getClassLoader(), 0, 0, 0);
+            DummyObject dummy = objectStorage.get("DummyObject");
+            assertNotNull(dummy.configuration);
+        });
     }
 
     @Test

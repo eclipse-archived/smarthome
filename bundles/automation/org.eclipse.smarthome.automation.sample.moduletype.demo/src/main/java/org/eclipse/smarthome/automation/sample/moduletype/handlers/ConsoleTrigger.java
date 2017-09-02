@@ -47,6 +47,8 @@ import org.osgi.service.event.EventHandler;
  *    "keyName":"key"
  * }
  * </pre>
+ * 
+ * @author Plamen Peev - Initial contribution
  */
 public class ConsoleTrigger extends BaseModuleHandler<Trigger> implements TriggerHandler, EventHandler {
 

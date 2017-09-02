@@ -9,11 +9,12 @@ package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.types.Type;
 
 /**
  * {@link ChannelTriggeredEvent}s can be used to deliver triggers through the Eclipse SmartHome event bus.
  * Trigger events must be created with the {@link ThingEventFactory}.
+ *
+ * @author Moritz Kammerer - Initial contribution
  */
 public class ChannelTriggeredEvent extends AbstractEvent {
 

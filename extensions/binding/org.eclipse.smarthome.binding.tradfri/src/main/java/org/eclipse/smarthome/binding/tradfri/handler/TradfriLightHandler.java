@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -120,15 +121,42 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
 
             PercentType dimmer = state.getBrightness();
             if (dimmer != null) {
-                logger.debug("Updating brightness to {}", dimmer);
                 updateState(CHANNEL_BRIGHTNESS, dimmer);
             }
 
             PercentType colorTemp = state.getColorTemperature();
             if (colorTemp != null) {
-                logger.debug("Updating color temperature to {} ", colorTemp);
                 updateState(CHANNEL_COLOR_TEMPERATURE, colorTemp);
             }
+            
+            String devicefirmware = state.getFirmwareVersion();
+            if (devicefirmware != null) {
+                getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, devicefirmware);
+            }
+            
+            String modelId = state.getModelId();
+            if (modelId != null) {
+                getThing().setProperty(Thing.PROPERTY_MODEL_ID, modelId);
+            }
+            
+            String vendor = state.getVendor();
+            if (vendor != null) {
+                getThing().setProperty(Thing.PROPERTY_VENDOR, vendor);
+            }
+            
+            logger.debug("Updating thing for lightId {} to state {dimmer: {}, colorTemp: {}, devicefirmware: {}, modelId: {}, vendor: {}}"
+                    , state.getLightId(), dimmer, colorTemp, devicefirmware, modelId, vendor);
+        }
+    }
+    
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        super.bridgeStatusChanged(bridgeStatusInfo);
+
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
+            scheduler.schedule(() -> {
+                coapClient.startObserve(this);
+            }, 0, TimeUnit.SECONDS);
         }
     }
 
@@ -181,7 +209,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         } else if (command instanceof OnOffType) {
             setState(((OnOffType) command));
         } else if (command instanceof IncreaseDecreaseType) {
-            if (state != null) {
+            if (state != null && state.getBrightness() != null) {
                 int current = state.getBrightness().intValue();
                 if (IncreaseDecreaseType.INCREASE.equals(command)) {
                     setBrightness(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
@@ -200,7 +228,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         if (command instanceof PercentType) {
             setColorTemperature((PercentType) command);
         } else if (command instanceof IncreaseDecreaseType) {
-            if (state != null) {
+            if (state != null && state.getColorTemperature() != null) {
                 int current = state.getColorTemperature().intValue();
                 if (IncreaseDecreaseType.INCREASE.equals(command)) {
                     setColorTemperature(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
@@ -231,6 +259,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         JsonObject root;
         JsonArray array;
         JsonObject attributes;
+        JsonObject generalInfo;
 
         public LightData() {
             root = new JsonObject();
@@ -238,6 +267,9 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             attributes = new JsonObject();
             array.add(attributes);
             root.add(LIGHT, array);
+            
+            generalInfo = new JsonObject();
+            root.add(DEVICE, generalInfo);
         }
 
         public LightData(JsonElement json) {
@@ -245,6 +277,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 root = json.getAsJsonObject();
                 array = root.getAsJsonArray(LIGHT);
                 attributes = array.get(0).getAsJsonObject();
+                generalInfo = root.getAsJsonObject(DEVICE);
             } catch (JsonSyntaxException e) {
                 logger.error("JSON error: {}", e.getMessage(), e);
             }
@@ -343,6 +376,34 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 return attributes.get(ONOFF).getAsInt() == 1;
             } else {
                 return false;
+            }
+        }
+        
+        Integer getLightId() {
+            return root.get(INSTANCE_ID).getAsInt();
+        }
+        
+        String getFirmwareVersion() {
+            if (generalInfo.get(DEVICE_FIRMWARE) != null) {
+                return generalInfo.get(DEVICE_FIRMWARE).getAsString();
+            } else {
+                return null;
+            }
+        }
+        
+        String getModelId() {
+            if (generalInfo.get(DEVICE_MODEL) != null) {
+                return generalInfo.get(DEVICE_MODEL).getAsString();
+            } else {
+                return null;
+            }
+        }
+        
+        String getVendor() {
+            if (generalInfo.get(DEVICE_VENDOR) != null) {
+                return generalInfo.get(DEVICE_VENDOR).getAsString();
+            } else {
+                return null;
             }
         }
 

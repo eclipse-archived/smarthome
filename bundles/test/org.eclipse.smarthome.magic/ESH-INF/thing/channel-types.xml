@@ -20,11 +20,24 @@
 		<label>Color</label>
 		<description>The color channel allows to control the color of a light.
             It is also possible to dim values and switch the light on and off.
-        </description>
+		</description>
 		<category>ColorLight</category>
 		<tags>
 			<tag>Lighting</tag>
 		</tags>
+	</channel-type>
+
+	<channel-type id="alert" advanced="true">
+		<item-type>String</item-type>
+		<label>Alert</label>
+		<description>The alert channel allows a temporary change to the bulb’s state.</description>
+		<state>
+			<options>
+				<option value="NONE">None</option>
+				<option value="SELECT">Alert</option>
+				<option value="LSELECT">Long Alert</option>
+			</options>
+		</state>
 	</channel-type>
 
 	<channel-type id="contact">

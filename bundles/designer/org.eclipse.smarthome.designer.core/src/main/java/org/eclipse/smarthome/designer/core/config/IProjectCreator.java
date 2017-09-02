@@ -9,6 +9,10 @@ package org.eclipse.smarthome.designer.core.config;
 
 import org.eclipse.core.resources.IProject;
 
+/**
+ *
+ * @author Oliver Libutzki - Initial contribution
+ */
 public interface IProjectCreator {
     IProject createProject(String projectName);
 }
