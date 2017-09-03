@@ -368,8 +368,25 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Override
     public void thingRemoving(Thing thing, ThingTrackerEvent thingTrackerEvent) {
-        setThingStatus(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
-        notifyThingHandlerAboutRemoval(thing);
+        if (ThingStatus.UNINITIALIZED.equals(thing.getStatusInfo().getStatus())
+                && ThingStatusDetail.HANDLER_MISSING_ERROR.equals(thing.getStatusInfo().getStatusDetail())) {
+            // we have no handler - we can safely assume everything is already disposed
+            ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build();
+            setThingStatus(thing, statusInfo);
+
+            // if thing is a bridge
+            if (isBridge(thing)) {
+                notifyThingsAboutBridgeStatusChange((Bridge) thing, statusInfo);
+
+            }
+
+            // really remove it
+            notifyRegistryAboutForceRemove(thing);
+        } else {
+            // we have a handler - notify it of the removal
+            setThingStatus(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
+            notifyThingHandlerAboutRemoval(thing);
+        }
     }
 
     @Override
