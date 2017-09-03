@@ -87,8 +87,7 @@ public class ConfigUtil {
         } else if (value instanceof Collection) {
             return ((Collection<?>) value).stream().map(c -> normalizeType(c, null)).collect(Collectors.toList());
         }
-        throw new IllegalArgumentException(
-                "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
+        return value;
     }
 
     /**
