@@ -8,12 +8,13 @@
 package org.eclipse.smarthome.config.core;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
@@ -24,8 +25,8 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
  * configuration or for supporting user interfaces.
  * <p>
  * The {@link ConfigDescriptionParameterGroup} provides a method to group parameters to allow the UI to better display
- * the parameter information. This can be left blank for small devices where there are only a few parameters, however
- * devices with larger numbers of parameters can set the group member in the {@link ConfigDescriptionParameter} and then
+ * the parameter information. This can be left blank if there are only a few parameters or
+ * set the group member in the {@link ConfigDescriptionParameter} and then
  * provide group information as part of the {@link ConfigDescription} class.
  * <p>
  * The description is stored within the {@link ConfigDescriptionRegistry} under the given URI. The URI has to follow the
@@ -50,7 +51,7 @@ public class ConfigDescription implements Identifiable<URI> {
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry}
      * @throws IllegalArgumentException if the URI is null or invalid
      */
-    public ConfigDescription(URI uri) throws IllegalArgumentException {
+    public ConfigDescription(@NonNull URI uri) throws IllegalArgumentException {
         this(uri, null, null);
     }
 
@@ -65,7 +66,7 @@ public class ConfigDescription implements Identifiable<URI> {
      *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
-    public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
+    public ConfigDescription(@NonNull URI uri, List<ConfigDescriptionParameter> parameters) {
         this(uri, parameters, null);
     }
 
@@ -82,11 +83,8 @@ public class ConfigDescription implements Identifiable<URI> {
      *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
-    public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters,
+    public ConfigDescription(@NonNull URI uri, List<ConfigDescriptionParameter> parameters,
             List<ConfigDescriptionParameterGroup> groups) {
-        if (uri == null) {
-            throw new IllegalArgumentException("The URI must not be null!");
-        }
         if (!uri.isAbsolute()) {
             throw new IllegalArgumentException("The scheme is missing!");
         }
@@ -95,18 +93,8 @@ public class ConfigDescription implements Identifiable<URI> {
         }
 
         this.uri = uri;
-
-        if (parameters != null) {
-            this.parameters = Collections.unmodifiableList(parameters);
-        } else {
-            this.parameters = Collections.unmodifiableList(new ArrayList<ConfigDescriptionParameter>(0));
-        }
-
-        if (groups != null) {
-            this.parameterGroups = Collections.unmodifiableList(groups);
-        } else {
-            this.parameterGroups = Collections.unmodifiableList(new ArrayList<ConfigDescriptionParameterGroup>(0));
-        }
+        this.parameters = parameters != null ? Collections.unmodifiableList(parameters) : Collections.emptyList();
+        this.parameterGroups = groups != null ? Collections.unmodifiableList(groups) : Collections.emptyList();
     }
 
     /**
@@ -139,11 +127,8 @@ public class ConfigDescription implements Identifiable<URI> {
      *         as value (not null, could be empty)
      */
     public Map<String, ConfigDescriptionParameter> toParametersMap() {
-        Map<String, ConfigDescriptionParameter> map = new HashMap<>();
-        for (ConfigDescriptionParameter parameter : parameters) {
-            map.put(parameter.getName(), parameter);
-        }
-        return Collections.unmodifiableMap(map);
+        return Collections.unmodifiableMap(parameters.stream()
+                .collect(Collectors.toMap(ConfigDescriptionParameter::getName, Function.identity())));
     }
 
     /**
