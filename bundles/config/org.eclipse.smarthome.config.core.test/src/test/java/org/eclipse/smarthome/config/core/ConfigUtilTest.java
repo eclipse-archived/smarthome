@@ -28,7 +28,7 @@ import org.junit.Test;
  * @author David Graeff - From Groovy to Java
  *
  */
-class ConfigUtilTest {
+public class ConfigUtilTest {
     private Map<String, Object> m(String a, Object b) {
         return Stream.of(new SimpleEntry<>(a, b)).collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
