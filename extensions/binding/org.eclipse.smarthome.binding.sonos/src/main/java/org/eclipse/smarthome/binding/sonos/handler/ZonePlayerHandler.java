@@ -1450,7 +1450,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } else if (command instanceof OnOffType && command == OnOffType.OFF) {
                     newValue = "0";
                 } else if (command instanceof DecimalType) {
-                    newValue = command.toString();
+                    newValue = String.valueOf(((DecimalType) command).intValue());
                 } else {
                     return;
                 }
@@ -1747,8 +1747,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true
-                : false;
+                ? true : false;
     }
 
     public String getRepeatMode() {
@@ -2682,7 +2681,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             try {
                 ZonePlayerHandler coordinator = getCoordinatorHandler();
 
-                String trackNumber = command.toString();
+                String trackNumber = String.valueOf(((DecimalType) command).intValue());
 
                 coordinator.setCurrentURI(QUEUE_URI + coordinator.getUDN() + "#0", "");
 
@@ -2822,7 +2821,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 Map<String, String> inputs = new HashMap<String, String>();
                 inputs.put("InstanceID", "0");
-                inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(Integer.parseInt(command.toString())));
+                inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(((DecimalType) command).longValue()));
 
                 this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer", inputs);
             }
