@@ -22,32 +22,31 @@ These are the icons that can be used on thing types.
 {% endfor %}
 {% assign thingCategoryNames = thingCategoryNamesStr | split: ',' %}
 
-{% assign allIconsAndThingCategories = allIconsWithoutExtension | concat: thingCategoryNames | sort | uniq %}
 <div id="iconset-preview-things">
-{% for category in allIconsAndThingCategories %}
-  {% assign showCategory = false %}
-  {% for thingCategory in thingCategoryNames %}
-    {% if thingCategory.size <= category.size %}
-      {% assign categoryStart = category | truncate: thingCategory.size, "" %}
-      {% if categoryStart == thingCategory %}
-        {% unless category contains "_" %}
-          {% assign showCategory = true %}
+{% for thingCategory in thingCategoryNames %}
+  {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
+  {% if allIconsWithoutExtension contains thingCategory %}
+    {% assign iconSrc = "icons/" | append: thingCategory | append: ".png" %}
+  {% endif %}
+  <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
+    <img src="{{iconSrc}}" alt="{{thingCategory}}" title="{{thingCategory}}">
+    <figcaption>{{thingCategory}}</figcaption>
+  </figure>
+
+  {% for icon in allIconsWithoutExtension %}
+    {% if thingCategory.size < icon.size %}
+      {% assign iconStart = icon | truncate: thingCategory.size, "" %}
+      {% if iconStart == thingCategory %}
+        {% unless icon contains "_" %}
+          {% assign iconSrc = "icons/" | append: icon | append: ".png" %}
+          <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
+            <img src="{{iconSrc}}" alt="{{icon}}" title="{{icon}}">
+            <figcaption>{{icon}}</figcaption>
+          </figure>
         {% endunless %}
-        {% break %}
       {% endif %}
     {% endif %}
   {% endfor %}
-
-  {% if showCategory == true %}
-    {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
-    {% if allIconsWithoutExtension contains category %}
-      {% assign iconSrc = "icons/" | append: category | append: ".png" %}
-    {% endif %}
-    <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-      <img src="{{iconSrc}}" alt="{{category}}" title="{{category}}">
-      <figcaption>{{category}}</figcaption>
-    </figure>
-  {% endif %}
 {% endfor %}
 </div>
 
@@ -60,32 +59,31 @@ These are the icons that can be used on channel types.
 {% endfor %}
 {% assign channelCategoryNames = channelCategoryNamesStr | split: ',' %}
 
-{% assign allIconsAndChannelCategories = allIconsWithoutExtension | concat: channelCategoryNames | sort | uniq %}
 <div id="iconset-preview-channels">
-{% for category in allIconsAndChannelCategories %}
-  {% assign showCategory = false %}
-  {% for channelCategory in channelCategoryNames %}
-    {% if channelCategory.size <= category.size %}
-      {% assign categoryStart = category | truncate: channelCategory.size, "" %}
-      {% if categoryStart == channelCategory %}
-        {% unless category contains "_" %}
-          {% assign showCategory = true %}
+{% for channelCategory in channelCategoryNames %}
+  {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
+  {% if allIconsWithoutExtension contains channelCategory %}
+    {% assign iconSrc = "icons/" | append: channelCategory | append: ".png" %}
+  {% endif %}
+  <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
+    <img src="{{iconSrc}}" alt="{{channelCategory}}" title="{{channelCategory}}">
+    <figcaption>{{channelCategory}}</figcaption>
+  </figure>
+
+  {% for icon in allIconsWithoutExtension %}
+    {% if channelCategory.size < icon.size %}
+      {% assign iconStart = icon | truncate: channelCategory.size, "" %}
+      {% if iconStart == channelCategory %}
+        {% unless icon contains "_" %}
+          {% assign iconSrc = "icons/" | append: icon | append: ".png" %}
+          <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
+            <img src="{{iconSrc}}" alt="{{icon}}" title="{{icon}}">
+            <figcaption>{{icon}}</figcaption>
+          </figure>
         {% endunless %}
-        {% break %}
       {% endif %}
     {% endif %}
   {% endfor %}
-
-  {% if showCategory == true %}
-    {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
-    {% if allIconsWithoutExtension contains category %}
-      {% assign iconSrc = "icons/" | append: category | append: ".png" %}
-    {% endif %}
-    <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-      <img src="{{iconSrc}}" alt="{{category}}" title="{{category}}">
-      <figcaption>{{category}}</figcaption>
-    </figure>
-  {% endif %}
 {% endfor %}
 </div>
 
