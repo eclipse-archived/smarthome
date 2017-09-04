@@ -30,7 +30,9 @@ These are the icons that can be used on thing types.
     {% if thingCategory.size <= category.size %}
       {% assign categoryStart = category | truncate: thingCategory.size, "" %}
       {% if categoryStart == thingCategory %}
-        {% assign showCategory = true %}
+        {% unless category contains "_" %}
+          {% assign showCategory = true %}
+        {% endunless %}
         {% break %}
       {% endif %}
     {% endif %}
@@ -66,7 +68,9 @@ These are the icons that can be used on channel types.
     {% if channelCategory.size <= category.size %}
       {% assign categoryStart = category | truncate: channelCategory.size, "" %}
       {% if categoryStart == channelCategory %}
-        {% assign showCategory = true %}
+        {% unless category contains "_" %}
+          {% assign showCategory = true %}
+        {% endunless %}
         {% break %}
       {% endif %}
     {% endif %}
