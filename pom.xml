@@ -544,34 +544,12 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>tycho-snapshots</id>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>cbi-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>buchen-maven-repo</id>
-      <url>http://buchen.github.io/maven-repo</url>
-      <layout>default</layout>
-    </pluginRepository>
-    <pluginRepository>
       <id>openhab-artifactory-release</id>
       <url>https://openhab.jfrog.io/openhab/libs-release</url>
     </pluginRepository>
   </pluginRepositories>
 
   <repositories>
-    <repository>
-      <id>eclipse</id>
-      <name>Eclipse Snapshot Repository</name>
-      <layout>default</layout>
-      <url>https://repo.eclipse.org/content/repositories/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
     <repository>
       <id>openhab-artifactory-release</id>
       <name>JFrog Artifactory Repository</name>
