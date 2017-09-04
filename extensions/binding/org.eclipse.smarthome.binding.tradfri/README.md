@@ -13,6 +13,14 @@ The thing type ids are defined according to the lighting devices defined for Zig
 | Dimmable Light           | 0x0100           | 0100       |
 | Colour Temperature Light | 0x0220           | 0220       |
 
+
+The following matrix lists the capabilities (channels) for each of the supported lighting device types:
+
+| Thing type  | On/Off | Brightness | Color | Color Temperature |
+|-------------|:------:|:----------:|:-----:|:-----------------:|   
+|  0100       |    X   |     X      |       |                   |
+|  0220       |    X   |     X      |       |          X        |
+
 ## Thing Configuration
 
 The gateway requires a `host` parameter for the hostname or IP address and a `code`, which is the security code that is printed on the bottom of the gateway. Optionally, a `port` can be configured, but any standard gateway uses the default port 5684.
@@ -21,7 +29,7 @@ The devices require only a single (integer) parameter, which is their instance i
 
 ## Channels
 
-All devices support the `brightness` channel, while the white spectrum bulbs additionally also support the `color_temperature` channel.
+All devices support the `brightness` channel, while the white spectrum bulbs additionally also support the `color_temperature` channel (refer to the matrix above).
 
 | Channel Type ID   | Item Type | Description                                 |
 |-------------------|-----------|---------------------------------------------|
