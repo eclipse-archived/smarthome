@@ -523,23 +523,6 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>check-bindings</id>
-      <activation>
-        <file>
-          <exists>ESH-INF/binding/binding.xml</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-              <groupId>org.openhab.tools</groupId>
-              <artifactId>static-code-analysis</artifactId>
-              <version>${sat.version}</version>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
   <pluginRepositories>
