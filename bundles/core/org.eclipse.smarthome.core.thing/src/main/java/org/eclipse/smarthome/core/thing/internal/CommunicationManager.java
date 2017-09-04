@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,8 +49,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-
 /**
  * This class manages the state related communication between bindings and the framework.
  *
@@ -60,8 +61,8 @@ import com.google.common.collect.ImmutableSet;
 public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
     private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE,
-            ChannelTriggeredEvent.TYPE);
+    private final Set<String> subscribedEventTypes = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(ItemStateEvent.TYPE, ItemCommandEvent.TYPE, ChannelTriggeredEvent.TYPE)));
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingRegistry thingRegistry;

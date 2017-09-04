@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * This is the default profile for stateful channels.
  *
  * It forwards commands to the {@link ThingHandler}. In the other direction it posts events to the event bus
- * for state updates and commands which are initiated by the handler.
+ * for state updates.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
@@ -87,12 +86,11 @@ public class DefaultMasterProfile implements StateProfile {
 
     @Override
     public void postCommand(EventPublisher eventPublisher, ItemChannelLink link, Command command, Item item) {
-        eventPublisher
-                .post(ItemEventFactory.createCommandEvent(link.getItemName(), command, link.getLinkedUID().toString()));
+        // no-op
     }
 
     @Override
-    public void onUpdate(@NonNull ItemChannelLink link, Thing thing, State state) {
+    public void onUpdate(ItemChannelLink link, Thing thing, State state) {
         // no-op
     }
 

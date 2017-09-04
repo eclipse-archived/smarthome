@@ -118,9 +118,6 @@ public class DefaultMasterProfileTest {
 
         profile.postCommand(eventPublisher, link, OnOffType.ON, item);
 
-        verify(eventPublisher).post(eventCaptor.capture());
-        assertEquals(TEST_ITEM, eventCaptor.getValue().getItemName());
-        assertEquals(OnOffType.ON, eventCaptor.getValue().getItemCommand());
         verifyNoMoreInteractions(eventPublisher);
         verifyNoMoreInteractions(thing);
         verifyNoMoreInteractions(handler);

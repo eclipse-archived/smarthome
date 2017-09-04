@@ -1,5 +1,6 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -114,6 +115,9 @@ public class DefaultSlaveProfileTest {
 
         profile.postCommand(eventPublisher, link, OnOffType.ON, item);
 
+        verify(eventPublisher).post(eventCaptor.capture());
+        assertEquals(TEST_ITEM, eventCaptor.getValue().getItemName());
+        assertEquals(OnOffType.ON, eventCaptor.getValue().getItemCommand());
         verifyNoMoreInteractions(eventPublisher);
         verifyNoMoreInteractions(thing);
         verifyNoMoreInteractions(handler);
