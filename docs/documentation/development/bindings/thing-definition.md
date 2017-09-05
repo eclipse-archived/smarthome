@@ -38,7 +38,7 @@ Thing types are listed by default, unless specified otherwise. Hiding thing type
 
 ### Thing Categories
 
-A description about channel categories as well as an overview about which categories exist can be found in our [categories overview](categories.html).
+A description about channel categories as well as an overview about which categories exist can be found in our [categories overview](../../concepts/categories.html).
 
 ## Channels
 
@@ -100,7 +100,7 @@ There exist systemwide channels that are available by default:
 | low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
 | battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (eg 4 levels) should convert to a percentage to provide a consistent battery level reading. |
 
-For further information about categories see the [categories page](categories.html).
+For further information about categories see the [categories page](../../concepts/categories.html).
 
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
@@ -189,7 +189,7 @@ The user interface can use these values to render labels for values or to provid
 
 ### Channel Categories
 
-A description about channel categories as well as an overview about which categories exist can be found in out [categories overview](categories.html).
+A description about channel categories as well as an overview about which categories exist can be found in out [categories overview](../../concepts/categories.html).
 
 ### Channel Groups
 
@@ -208,7 +208,7 @@ Inside the thing types XML file channel groups can be defined like this:
 </thing-type>    
 ```
 
-The channel group type is defined on the same level as the thing types and channel types. The group type must have a label, an optional description, and an optional [category](categories.html). Moreover the list of contained channels must be specified:
+The channel group type is defined on the same level as the thing types and channel types. The group type must have a label, an optional description, and an optional [category](../../concepts/categories.html). Moreover the list of contained channels must be specified:
 
 ```xml
 <channel-group-type id="switchActor">
@@ -223,7 +223,7 @@ The channel group type is defined on the same level as the thing types and chann
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#).
 If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
-Details about the category can be found in our [categories overview](categories.html).
+Details about the category can be found in our [categories overview](../../concepts/categories.html).
 
 ## Properties
 

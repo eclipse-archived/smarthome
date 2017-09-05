@@ -18,7 +18,7 @@ The thing type definition allows to specify a category. User interfaces can pars
 
 | Category        | Description | Icon Example |
 |-----------------|-------------|{% for category in site.data.categories_thing %}
-|{{category.name}}|{{category.description}}|![{{category.icon}}](../../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
+|{{category.name}}|{{category.description}}|![{{category.icon}}](../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 ## Channel Categories
 
@@ -26,7 +26,7 @@ The channel type definition allows to specify a category. Together with the defi
 
 | Category        | Accessible Mode | Item Type | Icon Example |
 |-----------------|-------------|{% for category in site.data.categories_channel %}
-|{{category.name}}|{{category.access}}|{{category.itemType}}|![{{category.icon}}](../../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
+|{{category.name}}|{{category.access}}|{{category.itemType}}|![{{category.icon}}](../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 R=Read, RW=Read/Write
 
