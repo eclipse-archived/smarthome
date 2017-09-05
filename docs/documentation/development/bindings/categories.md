@@ -17,7 +17,7 @@ We seperate the categories into `functional` and `visual`. Therefore we treat `t
 The thing type definition allows to specify a category. User interfaces can parse this category to get an idea how to render this thing. A binding can classify each thing into one of the existing categories. The list of all predefined categories can be found in our categories overview:
 
 | Category        | Description | Icon Example |
-|-----------------|-------------|{% for category in site.data.thingCategories %}
+|-----------------|-------------|{% for category in site.data.categories_thing %}
 |{{category.name}}|{{category.description}}|![{{category.icon}}](../../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 ## Channel Categories
@@ -25,7 +25,7 @@ The thing type definition allows to specify a category. User interfaces can pars
 The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accessible mode and the according item type:
 
 | Category        | Accessible Mode | Item Type | Icon Example |
-|-----------------|-------------|{% for category in site.data.channelCategories %}
+|-----------------|-------------|{% for category in site.data.categories_channel %}
 |{{category.name}}|{{category.access}}|{{category.itemType}}|![{{category.icon}}](../../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 R=Read, RW=Read/Write
