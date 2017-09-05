@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome REST Interface JAX-RS optimization Bundle
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.optimize;singleton:=true
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.eclipsesource.jaxrs.publisher,
+ org.osgi.framework,
+ org.slf4j
+Bundle-Activator: org.eclipse.smarthome.io.rest.optimize.internal.Activator
+Bundle-Vendor: Eclipse.org/SmartHome

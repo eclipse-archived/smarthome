@@ -114,6 +114,7 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.optimize/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
     <capability>
