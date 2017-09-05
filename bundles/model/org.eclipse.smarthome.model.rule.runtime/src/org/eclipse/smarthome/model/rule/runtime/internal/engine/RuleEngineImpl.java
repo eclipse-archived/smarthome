@@ -289,7 +289,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
             Iterable<Rule> startupRules = triggerManager.getRules(STARTUP);
 
             for (Rule rule : startupRules) {
-                scheduler.schedule(() -> {
+                scheduler.execute(() -> {
                     try {
                         Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
                         logger.debug("Executing startup rule '{}'", rule.getName());
@@ -308,7 +308,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
                                     rule.getName(), e.getMessage());
                         }
                     }
-                }, 0, TimeUnit.SECONDS);
+                });
             }
             // now that we have scheduled the startup rules, we are ready for others as well
             starting = false;
@@ -318,7 +318,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     protected synchronized void executeRule(Rule rule, RuleEvaluationContext context) {
 
-        scheduler.schedule(() -> {
+        scheduler.execute(() -> {
             Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
 
             logger.debug("Executing rule '{}'", rule.getName());
@@ -333,7 +333,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
                     logger.error("Rule '{}': {}", rule.getName(), msg);
                 }
             }
-        }, 0, TimeUnit.SECONDS);
+        });
     }
 
     protected synchronized void executeRules(Iterable<Rule> rules) {
