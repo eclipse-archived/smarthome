@@ -13,13 +13,12 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -190,16 +189,18 @@ public class NetUtil implements NetworkAddressService {
     }
 
     /**
-     * Gets every IPv4+IPv6 Address on each Interface except the loopback
-     * If addPrefix is true, the Address format is in the CIDR notation
-     * which is ip/prefix-length e.g. 129.31.31.1/24 otherwise only the IP is returned.
+     * Gets every IPv4+IPv6 Address on each Interface except the loopback interface.
+     * The Address format is in the CIDR notation which is ip/prefix-length e.g. 129.31.31.1/24.
      *
-     * @param addPrefix Add the prefix to each returned IP address
+     * Example to get a list of only IPv4 addresses in string representation:
+     * List<String> l = getAllInterfaceAddresses().stream().filter(a->a.getAddress() instanceof
+     * Inet4Address).map(a->a.getAddress().getHostAddress()).collect(Collectors.toList());
+     *
      * @return The collected IPv4 and IPv6 Addresses
      */
-    public static Set<String> getInterfaceAddresses(boolean addPrefix) {
-        Set<String> interfaceIPs = new HashSet<>();
-
+    @SuppressWarnings("null")
+    public static Collection<CidrAddress> getAllInterfaceAddresses() {
+        Collection<CidrAddress> interfaceIPs = new ArrayList<>();
         Enumeration<NetworkInterface> en;
         try {
             en = NetworkInterface.getNetworkInterfaces();
@@ -210,23 +211,17 @@ public class NetUtil implements NetworkAddressService {
 
         while (en.hasMoreElements()) {
             NetworkInterface networkInterface = en.nextElement();
-            boolean isLoopback = true;
+
             try {
-                isLoopback = networkInterface.isLoopback();
+                if (!networkInterface.isUp() || networkInterface.isLoopback()) {
+                    continue;
+                }
             } catch (SocketException ignored) {
-            }
-            if (isLoopback) {
                 continue;
             }
-            for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext();) {
-                InterfaceAddress interfaceAddress = it.next();
-                if (addPrefix) {
-                    interfaceIPs.add(interfaceAddress.getAddress().getHostAddress() + "/"
-                            + interfaceAddress.getNetworkPrefixLength());
-                } else {
-                    interfaceIPs.add(interfaceAddress.getAddress().getHostAddress());
-                }
 
+            for (InterfaceAddress cidr : networkInterface.getInterfaceAddresses()) {
+                interfaceIPs.add(new CidrAddress(cidr.getAddress(), cidr.getNetworkPrefixLength()));
             }
         }
 
