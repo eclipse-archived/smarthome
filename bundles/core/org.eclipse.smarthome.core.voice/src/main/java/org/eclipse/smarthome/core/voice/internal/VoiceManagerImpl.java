@@ -97,7 +97,8 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         if (config != null) {
             this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
             this.listeningItem = config.containsKey(CONFIG_LISTENING_ITEM)
-                    ? config.get(CONFIG_LISTENING_ITEM).toString() : null;
+                    ? config.get(CONFIG_LISTENING_ITEM).toString()
+                    : null;
             this.defaultTTS = config.containsKey(CONFIG_DEFAULT_TTS) ? config.get(CONFIG_DEFAULT_TTS).toString() : null;
             this.defaultSTT = config.containsKey(CONFIG_DEFAULT_STT) ? config.get(CONFIG_DEFAULT_STT).toString() : null;
             this.defaultKS = config.containsKey(CONFIG_DEFAULT_KS) ? config.get(CONFIG_DEFAULT_KS).toString() : null;
@@ -339,15 +340,13 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             locales.add(currentVoice.getLocale());
         }
 
-        // TODO: This can be activated for Java 8
         // Determine preferred locale based on RFC 4647
-        // String ranges = locale.toLanguageTag();
-        // List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(ranges);
-        // Locale preferedLocale = Locale.lookup(languageRanges,locales);
-        Locale preferredLocale = locale;
+        String ranges = locale.toLanguageTag();
+        List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(ranges + "-*");
+        Locale preferredLocale = Locale.lookup(languageRanges, locales);
 
         // As a last resort choose some Locale
-        if (null == preferredLocale) {
+        if (preferredLocale == null) {
             preferredLocale = locales.iterator().next();
         }
 
