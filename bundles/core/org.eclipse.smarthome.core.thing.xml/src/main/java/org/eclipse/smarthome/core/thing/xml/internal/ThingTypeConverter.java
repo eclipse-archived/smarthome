@@ -95,7 +95,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
         ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
                 new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator), super.readDescription(nodeIterator), readCategory(nodeIterator),
-		getListed(attributes), getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
+                getListed(attributes), getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
                 getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;

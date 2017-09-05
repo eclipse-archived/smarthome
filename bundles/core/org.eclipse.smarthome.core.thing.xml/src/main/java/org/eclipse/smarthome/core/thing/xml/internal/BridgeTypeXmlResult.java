@@ -54,11 +54,10 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
     public String toString() {
         return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", category="
-		+ category + ", listed=" + listed
-                + ", representationProperty=" + representationProperty + ", channelTypeReferences="
-                + channelTypeReferences + ", channelGroupTypeReferences=" + channelGroupTypeReferences + ", properties="
-                + properties + ", configDescriptionURI=" + configDescriptionURI + ", configDescription="
-                + configDescription + "]";
+                + category + ", listed=" + listed + ", representationProperty=" + representationProperty
+                + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
+                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
+                + configDescriptionURI + ", configDescription=" + configDescription + "]";
     }
 
 }
