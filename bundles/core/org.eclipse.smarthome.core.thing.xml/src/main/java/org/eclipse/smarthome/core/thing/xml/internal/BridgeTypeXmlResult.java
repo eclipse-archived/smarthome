@@ -31,10 +31,10 @@ import com.thoughtworks.xstream.converters.ConversionException;
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
+            String description, String category, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
             List<NodeValue> properties, String representationProperty, Object[] configDescriptionObjects) {
 
-        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, listed, channelTypeReferenceObjects,
+        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, category, listed, channelTypeReferenceObjects,
                 properties, representationProperty, configDescriptionObjects);
     }
 
@@ -42,7 +42,7 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
     public ThingType toThingType() throws ConversionException {
 
         BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
-                super.description, super.listed, super.representationProperty,
+                super.description, super.category, super.listed, super.representationProperty,
                 super.toChannelDefinitions(this.channelTypeReferences),
                 super.toChannelGroupDefinitions(this.channelGroupTypeReferences), super.toPropertiesMap(),
                 super.configDescriptionURI);
@@ -53,7 +53,8 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
     @Override
     public String toString() {
         return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
-                + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", listed=" + listed
+                + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", category="
+		+ category + ", listed=" + listed
                 + ", representationProperty=" + representationProperty + ", channelTypeReferences="
                 + channelTypeReferences + ", channelGroupTypeReferences=" + channelGroupTypeReferences + ", properties="
                 + properties + ", configDescriptionURI=" + configDescriptionURI + ", configDescription="

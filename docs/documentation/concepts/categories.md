@@ -8,54 +8,25 @@ layout: documentation
 
 Categories in Eclipse SmartHome are used to provide meta information about things channels, etc. UIs can use this information to render specific icons or provide a search functionality to for example filter all things for a certain category.
 
+## Differences between categories
+
+We seperate the categories into `functional` and `visual`. Therefore we treat `thing categories` as how the physical device **looks like** and `channel categories` as something that describes the **functional purpose** of the channel.
+
 ## Thing Categories
 
 The thing type definition allows to specify a category. User interfaces can parse this category to get an idea how to render this thing. A binding can classify each thing into one of the existing categories. The list of all predefined categories can be found in our categories overview:
 
-| Category        | Description                                          |
-|-----------------|------------------------------------------------------|
-
+| Category        | Description | Icon Example |
+|-----------------|-------------|{% for category in site.data.categories_thing %}
+|{{category.name}}|{{category.description}}|![{{category.icon}}](../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 ## Channel Categories
 
 The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accessible mode and the according item type:
 
-| Category      | Accessible Mode | Item Type              |
-|---------------|-----------------|------------------------|
-| Alarm         | R, RW           | Switch                 |
-| Battery       | R               | Switch, Number         |
-| Blinds        | RW              | Rollershutter          |
-| ColorLight    | RW              | Color                  |
-| Contact       | R               | Contact                |
-| DimmableLight | RW              | Dimmer                 |
-| CarbonDioxide | R               | Switch, Number         |
-| Door          | R, RW           | Switch                 |
-| Energy        | R               | Number                 |
-| Fan           | RW              | Switch, Number, String |
-| Fire          | R               | Switch                 |
-| Flow          | R               | Number                 |
-| GarageDoor    | RW              | String                 |
-| Gas           | R               | Switch, Number         |
-| Humidity      | R               | Number                 |
-| Light         | R, RW           | Switch, Number         |
-| Moisture      | R               | Number                 |
-| Motion        | R               | Switch                 |
-| MoveControl   | RW              | String                 |
-| Noise         | R               | Number                 |
-| Player        | RW              | Player                 |
-| PowerOutlet   | RW              | Switch                 |
-| Pressure      | R               | Number                 |
-| QualityOfService      | R       | Number                 |
-| Rain          | R               | Switch, Number         |
-| Recorder      | RW              | String                 |
-| Smoke         | R               | Switch                 |
-| SoundVolume   | R, RW           | Number                 |
-| Switch        | RW              | Switch                 |
-| Temperature   | R, RW           | Number                 |
-| Water         | R               | Switch, Number         |
-| Wind          | R               | Number                 |
-| Window        | R, RW           | String, Switch         |
-| Zoom          | RW              | String                 |
+| Category        | Accessible Mode | Item Type | Icon Example |
+|-----------------|-------------|{% for category in site.data.categories_channel %}
+|{{category.name}}|{{category.access}}|{{category.itemType}}|![{{category.icon}}](../features/ui/iconset/classic/icons/{{category.icon}}){:height="36px" width="36px"}|{% endfor %}
 
 R=Read, RW=Read/Write
 

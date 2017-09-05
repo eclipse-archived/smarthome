@@ -42,7 +42,7 @@ public class BridgeTypeConverter extends ThingTypeConverter {
         BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(
                 new ThingTypeUID(super.getUID(attributes, context)),
                 super.readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), super.getListed(attributes),
+                super.readDescription(nodeIterator), super.readCategory(nodeIterator), super.getListed(attributes),
                 super.getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
                 super.getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 

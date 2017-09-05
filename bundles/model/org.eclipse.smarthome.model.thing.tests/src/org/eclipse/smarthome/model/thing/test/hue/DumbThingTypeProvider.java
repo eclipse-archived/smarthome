@@ -39,7 +39,7 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false,
+                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", null, false,
                             channelDefinitions, null, null, new URI("dumb:DUMB")));
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
