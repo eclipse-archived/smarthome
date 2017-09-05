@@ -21,6 +21,7 @@ public class StrippedThingTypeDTO {
     public String UID;
     public String label;
     public String description;
+    public String category;
     public boolean listed;
     public List<String> supportedBridgeTypeUIDs;
     public boolean bridge;
@@ -28,11 +29,12 @@ public class StrippedThingTypeDTO {
     public StrippedThingTypeDTO() {
     }
 
-    public StrippedThingTypeDTO(String UID, String label, String description, boolean listed,
+    public StrippedThingTypeDTO(String UID, String label, String description, String category, boolean listed,
             List<String> supportedBridgeTypeUIDs, boolean bridge) {
         this.UID = UID;
         this.label = label;
         this.description = description;
+        this.category = category;
         this.listed = listed;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
         this.bridge = bridge;

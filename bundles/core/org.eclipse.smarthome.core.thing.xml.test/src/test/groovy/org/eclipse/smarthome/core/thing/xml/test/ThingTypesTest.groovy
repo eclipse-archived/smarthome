@@ -54,6 +54,7 @@ class ThingTypesTest extends OSGiTest {
 
         def bridgeType = thingTypes.find { it.toString().equals("hue:bridge") } as BridgeType
         assertThat bridgeType, is(notNullValue())
+        assertThat bridgeType.category, is("NetworkAppliance")
         assertThat bridgeType.listed, is(false)
         assertThat bridgeType.label, is("HUE Bridge")
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
@@ -63,6 +64,7 @@ class ThingTypesTest extends OSGiTest {
 
         def thingType = thingTypes.find { it.toString().equals("hue:lamp") } as ThingType
         assertThat thingType, is(notNullValue())
+        assertThat thingType.category, is("Lightbulb")
         assertThat thingType.listed, is(false)
         assertThat thingType.label, is("HUE Lamp")
         assertThat thingType.description, is("My own great HUE Lamp.")
@@ -142,6 +144,7 @@ class ThingTypesTest extends OSGiTest {
 
         thingType = thingTypes.find { it.toString().equals("hue:lamp-with-group") } as ThingType
         assertThat thingType.properties.size(), is(0)
+        assertThat thingType.category, is(null)
         assertThat thingType.listed, is(true)
 
         // uninstall test bundle

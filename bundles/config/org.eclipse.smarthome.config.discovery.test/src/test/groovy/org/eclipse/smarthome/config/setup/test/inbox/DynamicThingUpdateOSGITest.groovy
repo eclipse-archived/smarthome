@@ -65,7 +65,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
     final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
-    final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY, null, null, null, null);
+    final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, null, true, DEVICE_ID_KEY, null, null, null, null);
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry

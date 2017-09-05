@@ -1,0 +1,35 @@
+name,access,itemType,icon
+Alarm,"R, RW",Switch,alarm.png
+Battery,R,"Switch, Number",battery.png
+Blinds,RW,Rollershutter,blinds.png
+ColorLight,RW,Color,colorlight.png
+Contact,R,Contact,contact.png
+DimmableLight,RW,Dimmer,dimmablelight.png
+CarbonDioxide,R,"Switch, Number",carbondioxide.png
+Door,"R, RW",Switch,door.png
+Energy,R,Number,energy.png
+Fan,RW,"Switch, Number, String",fan.png
+Fire,R,Switch,fire.png
+Flow,R,Number,flow.png
+GarageDoor,RW,String,garagedoor.png
+Gas,R,"Switch, Number",gas.png
+Humidity,R,Number,humidity.png
+Light,"R, RW","Switch, Number",light.png
+Moisture,R,Number,
+Motion,R,Switch,motion.png
+MoveControl,RW,String,movecontrol.png
+Noise,R,Number,
+Player,RW,Player,player.png
+PowerOutlet,RW,Switch,poweroutlet.png
+Pressure,R,Number,pressure.png
+QualityOfService,R,Number,qualityofservice.png
+Rain,R,"Switch, Number",rain.png
+Recorder,RW,String,recorder.png
+Smoke,R,Switch,smoke.png
+SoundVolume,"R, RW",Number,soundvolume.png
+Switch,RW,Switch,switch.png
+Temperature,"R, RW",Number,temperature.png
+Water,R,"Switch, Number",water.png
+Wind,R,Number,wind.png
+Window,"R, RW","String, Switch",window.png
+Zoom,RW,String,zoom.png
