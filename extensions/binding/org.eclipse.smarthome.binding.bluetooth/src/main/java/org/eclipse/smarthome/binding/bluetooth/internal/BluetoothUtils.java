@@ -3,11 +3,13 @@ package org.eclipse.smarthome.binding.bluetooth.internal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.smarthome.binding.bluetooth.BluetoothBindingConstants;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.sputnikdev.bluetooth.URL;
+import org.sputnikdev.bluetooth.manager.transport.CharacteristicAccessType;
 
 /**
  * @author Vlad Kolotov
@@ -60,20 +62,19 @@ public class BluetoothUtils {
                 getChannelUID(url).replaceAll("-", "_");
     }
 
-    public static boolean hasNotificationAccess(String[] flags) {
-        List<String> flgs = Arrays.asList(flags);
-        return flgs.contains(BluetoothBindingConstants.NOTIFY_FLAG) ||
-                flgs.contains(BluetoothBindingConstants.INDICATE_FLAG);
+    public static boolean hasNotificationAccess(Set<CharacteristicAccessType> flags) {
+        return flags.contains(CharacteristicAccessType.NOTIFY) ||
+                flags.contains(CharacteristicAccessType.INDICATE);
     }
 
-    public static boolean hasReadAccess(String[] flags) {
-        List<String> flgs = Arrays.asList(flags);
-        return flgs.contains(BluetoothBindingConstants.READ_FLAG);
+    public static boolean hasReadAccess(Set<CharacteristicAccessType> flags) {
+        return flags.contains(CharacteristicAccessType.READ);
     }
 
-    public static boolean hasWriteAccess(String[] flags) {
-        List<String> flgs = Arrays.asList(flags);
-        return flgs.contains(BluetoothBindingConstants.WRITE_FLAG);
+    public static boolean hasWriteAccess(Set<CharacteristicAccessType> flags) {
+
+        return flags.contains(CharacteristicAccessType.WRITE) ||
+                flags.contains(CharacteristicAccessType.WRITE_WITHOUT_RESPONSE);
     }
 
     private static String getUID(String address) {

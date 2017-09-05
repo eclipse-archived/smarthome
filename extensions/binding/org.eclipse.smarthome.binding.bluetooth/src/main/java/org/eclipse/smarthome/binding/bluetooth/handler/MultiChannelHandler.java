@@ -2,6 +2,7 @@ package org.eclipse.smarthome.binding.bluetooth.handler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -25,6 +26,7 @@ import org.sputnikdev.bluetooth.gattparser.FieldHolder;
 import org.sputnikdev.bluetooth.gattparser.GattRequest;
 import org.sputnikdev.bluetooth.manager.CharacteristicGovernor;
 import org.sputnikdev.bluetooth.manager.ValueListener;
+import org.sputnikdev.bluetooth.manager.transport.CharacteristicAccessType;
 
 /**
  * @author Vlad Kolotov
@@ -35,9 +37,9 @@ class MultiChannelHandler implements ChannelHandler, ValueListener {
 
     private final BluetoothHandler handler;
     private final URL url;
-    private final String[] flags;
+    private final Set<CharacteristicAccessType> flags;
 
-    MultiChannelHandler(BluetoothHandler handler, URL characteristicURL, String[] flags) {
+    MultiChannelHandler(BluetoothHandler handler, URL characteristicURL, Set<CharacteristicAccessType> flags) {
         this.handler = handler;
         this.url = characteristicURL;
         this.flags = flags;

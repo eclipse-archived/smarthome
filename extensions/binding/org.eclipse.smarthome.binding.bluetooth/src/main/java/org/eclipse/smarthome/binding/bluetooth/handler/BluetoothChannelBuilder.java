@@ -1,9 +1,6 @@
 package org.eclipse.smarthome.binding.bluetooth.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -20,6 +17,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.Characteristic;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.manager.GattCharacteristic;
 import org.sputnikdev.bluetooth.manager.GattService;
+import org.sputnikdev.bluetooth.manager.transport.CharacteristicAccessType;
 
 /**
  * @author Vlad Kolotov
@@ -46,7 +44,7 @@ public class BluetoothChannelBuilder {
                     continue;
                 }
 
-                String[] flags = characteristic.getFlags();
+                Set<CharacteristicAccessType> flags = characteristic.getFlags();
                 boolean readAccess = BluetoothUtils.hasReadAccess(flags) ||
                         BluetoothUtils.hasNotificationAccess(flags);
                 boolean writeAccess = BluetoothUtils.hasWriteAccess(flags);

@@ -91,7 +91,9 @@ public class AdapterHandler extends BluetoothHandler<AdapterGovernor>
         AdapterGovernor adapterGovernor = getGovernor();
         adapterGovernor.addGovernorListener(this);
         adapterGovernor.addAdapterListener(this);
-        adapterGovernor.setAlias(thing.getLabel());
+        if (adapterGovernor.isReady()) {
+            adapterGovernor.setAlias(thing.getLabel());
+        }
 
         lastUpdatedChanged(new Date());
 
