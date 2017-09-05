@@ -9,9 +9,11 @@ package org.eclipse.smarthome.model.persistence.extensions;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
@@ -68,13 +70,13 @@ public class PersistenceExtensionsTest {
         ext.setPersistenceServiceRegistry(registry);
         item = new GenericItem("Test", "Test") {
             @Override
-            public List<Class<? extends State>> getAcceptedDataTypes() {
-                return null;
+            public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+                return Collections.emptyList();
             }
 
             @Override
-            public List<Class<? extends Command>> getAcceptedCommandTypes() {
-                return null;
+            public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+                return Collections.emptyList();
             }
         };
     }
