@@ -23,7 +23,7 @@ There are the following categories of bundles:
 ### Optional Bundles
 
  - `org.eclipse.smarthome.core.id`: [Unique instance IDs](core/id.html)
- - `org.eclipse.smarthome.ui.icon`: [Icon support](ui/icons.html)
+ - `org.eclipse.smarthome.ui.icon`: [Icon support](icons.html)
 
 Besides the very core framework that is mandatory for all solutions, there are many optional features like the support for textual configurations (DSLs), the REST API or the sitemap support.
 
