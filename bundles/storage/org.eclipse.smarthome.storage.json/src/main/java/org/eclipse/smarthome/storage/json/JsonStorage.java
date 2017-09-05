@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.slf4j.Logger;
@@ -75,8 +76,9 @@ public class JsonStorage<T> implements Storage<T> {
         this.writeDelay = writeDelay;
         this.maxDeferredPeriod = maxDeferredPeriod;
 
-        this.internalMapper = new GsonBuilder().registerTypeHierarchyAdapter(Map.class, new StorageEntryMapDeserializer())
-                .setPrettyPrinting().create();
+        this.internalMapper = new GsonBuilder()
+                .registerTypeHierarchyAdapter(Map.class, new StorageEntryMapDeserializer()).setPrettyPrinting()
+                .create();
         this.entityMapper = new GsonBuilder().registerTypeAdapter(Configuration.class, new ConfigurationDeserializer())
                 .setPrettyPrinting().create();
 
@@ -137,6 +139,11 @@ public class JsonStorage<T> implements Storage<T> {
         StorageEntry removedElement = map.remove(key);
         deferredCommit();
         return deserialize(removedElement);
+    }
+
+    @Override
+    public boolean containsKey(final @NonNull String key) {
+        return map.containsKey(key);
     }
 
     @Override

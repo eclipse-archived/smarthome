@@ -41,6 +41,16 @@ public interface Storage<T> {
     T remove(@NonNull String key);
 
     /**
+     * Check if the storage contains a key.
+     *
+     * @param key the key
+     * @return true if the storage contains the key, otherwise false
+     */
+    default boolean containsKey(@NonNull String key) {
+        return getKeys().contains(key);
+    }
+
+    /**
      * Gets the value mapped to the key specified.
      *
      * @param key the key

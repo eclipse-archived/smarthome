@@ -11,11 +11,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.storage.Storage;
 
 /**
  * A {@link Storage} implementation which stores it's data in-memory.
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
  * @author Kai Kreuzer - improved return values
  */
@@ -31,6 +32,11 @@ public class VolatileStorage<T> implements Storage<T> {
     @Override
     public T remove(String key) {
         return storage.remove(key);
+    }
+
+    @Override
+    public boolean containsKey(final @NonNull String key) {
+        return storage.containsKey(key);
     }
 
     @Override
