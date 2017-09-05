@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -24,12 +26,12 @@ public class TestItem extends GenericItem {
     }
 
     @Override
-    public List<Class<? extends State>> getAcceptedDataTypes() {
-        return null;
+    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<Class<? extends Command>> getAcceptedCommandTypes() {
-        return null;
+    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.emptyList();
     }
 }
