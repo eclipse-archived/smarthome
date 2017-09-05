@@ -68,3 +68,11 @@ Note that this list also serves as a checklist for code reviews on pull requests
  - ```error``` logging should only be used to inform the user that something is tremendously wrong in his setup, the system cannot function normally anymore, and there is a need for immediate action. It should also be used if some code fails irrecoverably and the user should report it as a severe bug.
 1. For bindings, you should NOT log errors, if e.g. connections are dropped - this is considered to be an external problem and from a system perspective to be a normal and expected situation. The correct way to inform users about such events is to update the Thing status accordingly. Note that all events (including Thing status events) are anyhow already logged.
 1. Likewise, bundles that accept external requests (such as servlets) must not log errors or warnings if incoming requests are incorrect. Instead, appropriate error responses should be returned to the caller.
+
+## Static code analysis
+
+The Eclipse SmartHome Maven build includes [tooling for static code analysis](https://github.com/openhab/static-code-analysis) that will validate your code against the Coding Guidelines and some additional best practices. Information about the checks can be found [here](https://github.com/openhab/static-code-analysis/blob/master/docs/included-checks.md).
+
+The tool will generate an individual report for each bundle that you can find in `path/to/bundle/target/code-analysis/report.html` file and a report for the whole build that contains links to the individual reports in the `target/summary_report.html`. The tool categorizes the found issues by priority: 1(error),2(warning) or 3(info). If any error is found within your code the Maven build will end with failure. You will receive detailed information (path to the file, line and message) listing all problems with Priority 1 on the console.
+
+Please fix all the Priority 1 issues and all issues with Priority 2 and 3 that are relevant (if you have any doubt don't hesitate to ask). Re-run the build to confirm that the checks are passing.
