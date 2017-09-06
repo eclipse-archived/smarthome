@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -948,6 +949,8 @@ public class SonosXMLParser {
             desc = entry.getResourceMetaData().getDesc();
             upnpClass = entry.getResourceMetaData().getUpnpClass();
         }
+
+        title = StringEscapeUtils.escapeXml(title);
 
         String metadata = METADATA_FORMAT.format(new Object[] { id, parentId, title, upnpClass, desc });
 
