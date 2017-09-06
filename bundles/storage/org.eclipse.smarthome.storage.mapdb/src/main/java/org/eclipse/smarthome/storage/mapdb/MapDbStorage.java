@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.storage.DeletableStorage;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.mapdb.DB;
@@ -74,6 +75,11 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
         String removedElement = map.remove(key);
         db.commit();
         return deserialize(removedElement);
+    }
+
+    @Override
+    public boolean containsKey(final @NonNull String key) {
+        return map.containsKey(key);
     }
 
     @Override
