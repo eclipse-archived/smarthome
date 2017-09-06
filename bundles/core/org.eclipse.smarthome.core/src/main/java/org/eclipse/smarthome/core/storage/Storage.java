@@ -46,9 +46,7 @@ public interface Storage<T> {
      * @param key the key
      * @return true if the storage contains the key, otherwise false
      */
-    default boolean containsKey(@NonNull String key) {
-        return getKeys().contains(key);
-    }
+    boolean containsKey(@NonNull String key);
 
     /**
      * Gets the value mapped to the key specified.
