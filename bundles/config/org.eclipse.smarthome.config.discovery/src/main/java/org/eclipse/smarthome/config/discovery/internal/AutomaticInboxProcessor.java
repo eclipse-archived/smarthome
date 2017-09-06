@@ -79,8 +79,6 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    // InboxListemer methods
-
     @Override
     public void thingAdded(Inbox inbox, DiscoveryResult result) {
         if (autoIgnore) {
@@ -107,8 +105,6 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @Override
     public void thingRemoved(Inbox inbox, DiscoveryResult result) {
     }
-
-    // RegistryListener methods
 
     @Override
     public void added(Thing element) {
