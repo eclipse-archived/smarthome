@@ -37,8 +37,6 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -98,8 +96,8 @@ import com.google.common.collect.SetMultimap;
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
  */
-@Component(immediate = true, service = { EventSubscriber.class, ThingTypeMigrationService.class })
-public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, ThingTypeMigrationService {
+@Component(immediate = true, service = { ThingTypeMigrationService.class })
+public class ThingManager implements ThingTracker, ThingTypeMigrationService {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";

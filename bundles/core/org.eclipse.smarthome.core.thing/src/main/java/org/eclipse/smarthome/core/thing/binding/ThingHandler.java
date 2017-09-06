@@ -99,7 +99,10 @@ public interface ThingHandler {
      *
      * @param channelUID the {@link ChannelUID} of the channel on which the update was performed
      * @param newState the new {@link State}
+     * @deprecated in favor of using a "slave" profile. Will be removed before a 1.0 release. Bindings must not
+     *             implement this method!
      */
+    @Deprecated
     void handleUpdate(@NonNull ChannelUID channelUID, @NonNull State newState);
 
     /**

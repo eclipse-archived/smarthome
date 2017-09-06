@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,12 +122,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         } else {
             logger.warn("The Astro-Binding is a read-only binding and can not handle commands");
         }
-    }
-
-    @Override
-    public void handleUpdate(ChannelUID channelUID, State newState) {
-        logger.warn("The Astro-Binding is a read-only binding and can not handle channel updates");
-        super.handleUpdate(channelUID, newState);
     }
 
     /**
