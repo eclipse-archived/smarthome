@@ -198,7 +198,6 @@ public class NetUtil implements NetworkAddressService {
      *
      * @return The collected IPv4 and IPv6 Addresses
      */
-    @SuppressWarnings("null")
     public static Collection<CidrAddress> getAllInterfaceAddresses() {
         Collection<CidrAddress> interfaceIPs = new ArrayList<>();
         Enumeration<NetworkInterface> en;
@@ -221,7 +220,10 @@ public class NetUtil implements NetworkAddressService {
             }
 
             for (InterfaceAddress cidr : networkInterface.getInterfaceAddresses()) {
-                interfaceIPs.add(new CidrAddress(cidr.getAddress(), cidr.getNetworkPrefixLength()));
+                final InetAddress address = cidr.getAddress();
+                assert address != null; // NetworkInterface.getInterfaceAddresses() should return only non-null
+                                        // addresses
+                interfaceIPs.add(new CidrAddress(address, cidr.getNetworkPrefixLength()));
             }
         }
 
