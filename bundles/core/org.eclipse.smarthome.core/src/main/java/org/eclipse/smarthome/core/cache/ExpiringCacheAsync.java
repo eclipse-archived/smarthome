@@ -1,6 +1,5 @@
 /**
  * Copyright (c) 2010-2017 by the respective copyright holders.
- *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +23,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @param <V> the type of the cached value
  */
-public class ExpiringCacheAsync<@Nullable V> {
+public class ExpiringCacheAsync<V> {
     protected final long expiry;
     protected long expiresAt = 0;
     protected CompletableFuture<V> currentNewValueRequest = null;
@@ -53,6 +52,7 @@ public class ExpiringCacheAsync<@Nullable V> {
      *         `getValue().thenAccept(value->useYourValueHere(value));`. If you need the value synchronously you can use
      *         `getValue().get()`.
      */
+    @SuppressWarnings("null")
     public CompletableFuture<V> getValue(@NonNull Supplier<CompletableFuture<V>> requestNewValueFuture) {
         if (isExpired()) {
             return refreshValue(requestNewValueFuture);
@@ -97,6 +97,7 @@ public class ExpiringCacheAsync<@Nullable V> {
         if (currentNewValueRequest == null) {
             throw new IllegalArgumentException("We expect a CompletableFuture for refreshValue() to work!");
         }
+        @SuppressWarnings("null")
         CompletableFuture<V> t = currentNewValueRequest.thenApply(newValue -> {
             // No request is ongoing anymore, update the value and expire time
             currentNewValueRequest = null;
