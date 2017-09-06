@@ -38,7 +38,7 @@ Thing types are listed by default, unless specified otherwise. Hiding thing type
 
 ### Thing Categories
 
-A description about channel categories as well as an overview about which categories exist can be found in our [categories overview](../../concepts/categories.html).
+A description about thing categories as well as an overview about which categories exist can be found in our [categories overview](../../concepts/categories.html).
 
 ## Channels
 
