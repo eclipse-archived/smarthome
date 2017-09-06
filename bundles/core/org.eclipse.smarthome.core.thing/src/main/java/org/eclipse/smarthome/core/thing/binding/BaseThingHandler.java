@@ -169,6 +169,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
+    @Deprecated
     public void handleUpdate(ChannelUID channelUID, State newState) {
         // can be overridden by subclasses
     }
