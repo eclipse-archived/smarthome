@@ -10,8 +10,7 @@ package org.eclipse.smarthome.core.cache;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This is a simple expiring and reloading cache implementation.
@@ -20,21 +19,19 @@ import org.slf4j.LoggerFactory;
  * answer from the last calculation is not valid anymore, i.e. if it is expired.
  *
  * @author Christoph Weitkamp - Initial contribution and API.
- * 
+ *
  * @param <V> the type of the value
  */
 public class ExpiringCache<V> {
-
-    private final Logger logger = LoggerFactory.getLogger(ExpiringCache.class);
-
     private final long expiry;
     private final Supplier<V> action;
+    @Nullable
     private V value;
     private long expiresAt;
 
     /**
      * Create a new instance.
-     * 
+     *
      * @param expiry the duration in milliseconds for how long the value stays valid
      * @param action the action to retrieve/calculate the value
      */
@@ -51,9 +48,8 @@ public class ExpiringCache<V> {
 
     /**
      * Returns the value - possibly from the cache, if it is still valid.
-     * 
-     * @return the value
      */
+    @Nullable
     public synchronized V getValue() {
         if (value == null || isExpired()) {
             return refreshValue();
@@ -71,9 +67,10 @@ public class ExpiringCache<V> {
 
     /**
      * Refreshes and returns the value in the cache.
-     * 
+     *
      * @return the new value
      */
+    @Nullable
     public synchronized V refreshValue() {
         value = action.get();
         expiresAt = System.nanoTime() + expiry;
@@ -82,7 +79,7 @@ public class ExpiringCache<V> {
 
     /**
      * Checks if the value is expired.
-     * 
+     *
      * @return true if the value is expired
      */
     public boolean isExpired() {
