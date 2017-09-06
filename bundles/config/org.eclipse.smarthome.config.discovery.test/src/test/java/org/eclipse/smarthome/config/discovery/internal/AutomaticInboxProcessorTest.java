@@ -215,11 +215,7 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
-        when(thingRegistry.get(THING_UID)).thenReturn(thing);
-        when(thingStatusInfoChangedEvent.getStatusInfo())
-                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
-        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        inboxAutoIgnore.removed(thing);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));
@@ -278,11 +274,7 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
 
-        when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
-        when(thingStatusInfoChangedEvent.getStatusInfo())
-                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
-        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID2);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        inboxAutoIgnore.removed(thing2);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));
