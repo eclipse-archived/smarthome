@@ -23,8 +23,3 @@ Trigger channels (`ChannelKind.TRIGGER`) by themselves do not maintain a state (
 Trigger profiles are powerful means to implement some immediate, straight-forward logic without the need to write any rules. 
 
 Apart from that, they do not pass any commands or state updates to and from the thing handler as by their nature trigger channels are not capable of handling these.
-
-
-
-
-
