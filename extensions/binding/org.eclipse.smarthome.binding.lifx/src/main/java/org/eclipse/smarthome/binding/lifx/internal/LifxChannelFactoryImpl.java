@@ -11,20 +11,25 @@ import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link LifxChannelFactoryImpl} creates dynamic LIFX channels.
  *
  * @author Wouter Born - Add i18n support
  */
+@Component(service = LifxChannelFactory.class, immediate = true)
 public class LifxChannelFactoryImpl implements LifxChannelFactory {
 
     private static final String COLOR_ZONE_LABEL_KEY = "channel-type.lifx.colorzone.label";
@@ -62,14 +67,17 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
         return i18nProvider != null ? i18nProvider.getText(bundle, key, getDefaultText(key), locale, arguments) : key;
     }
 
+    @Activate
     protected void activate(ComponentContext componentContext) {
         this.bundle = componentContext.getBundleContext().getBundle();
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.bundle = null;
     }
 
+    @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
@@ -78,6 +86,7 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
         this.i18nProvider = null;
     }
 
+    @Reference
     protected void setLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

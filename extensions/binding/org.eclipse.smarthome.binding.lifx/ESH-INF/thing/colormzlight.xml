@@ -10,6 +10,7 @@
             <channel id="temperature" typeId="temperature" />
             <channel id="signalstrength" typeId="system.signal-strength" />
         </channels>
+        <representation-property>macAddress</representation-property>
         <config-description-ref uri="thing-type:lifx:light" />
     </thing-type>
 
