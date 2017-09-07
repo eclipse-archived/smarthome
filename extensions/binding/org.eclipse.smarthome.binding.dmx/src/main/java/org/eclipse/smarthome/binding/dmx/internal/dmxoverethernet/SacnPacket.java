@@ -157,7 +157,6 @@ public class SacnPacket extends DmxOverEthernetPacket {
         /* observe limits (coerce to range) */
         rawPacket[108] = (byte) Util.coerceToRange(priority, 0, 200, logger, "packet priority");
         logger.debug("set packet priority to {}", priority);
-
     }
 
     @Override

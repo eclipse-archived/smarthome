@@ -250,7 +250,6 @@ public class Channel extends BaseChannel {
      * @return value 0-65535
      */
     public synchronized Integer getNewHiResValue(long calculationTime) {
-
         if (hasRunningActions()) {
             BaseAction action = actions.get(0);
             value = action.getNewValue(this, calculationTime);

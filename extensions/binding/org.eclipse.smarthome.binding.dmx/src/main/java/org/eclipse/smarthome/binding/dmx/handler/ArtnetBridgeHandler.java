@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * @author Jan N. Klug - Initial contribution
  */
 public class ArtnetBridgeHandler extends DmxOverEthernetHandler {
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_ARTNET_BRIDGE);
-    public final static int MIN_UNIVERSE_ID = 0;
-    public final static int MAX_UNIVERSE_ID = 32767;
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_ARTNET_BRIDGE);
+    public static final int MIN_UNIVERSE_ID = 0;
+    public static final int MAX_UNIVERSE_ID = 32767;
 
     private final Logger logger = LoggerFactory.getLogger(ArtnetBridgeHandler.class);
 

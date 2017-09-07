@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ChaserThingHandler extends DmxThingHandler {
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_CHASER);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_CHASER);
 
     private static Logger logger = LoggerFactory.getLogger(ChaserThingHandler.class);
 
@@ -84,7 +84,6 @@ public class ChaserThingHandler extends DmxThingHandler {
                                 channel.addListener(channelUID, this, ListenerType.ACTION);
                             }
                             channelCounter++;
-
                         }
                     } else {
                         for (Channel channel : channels) {
@@ -156,21 +155,25 @@ public class ChaserThingHandler extends DmxThingHandler {
                 }
             } catch (IllegalArgumentException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+                dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
                 return;
             }
             if (configuration.get(CONFIG_CHASER_STEPS) != null) {
                 if (parseChaserConfig((String) configuration.get(CONFIG_CHASER_STEPS))) {
                     if (this.getBridge().getStatus().equals(ThingStatus.ONLINE)) {
                         updateStatus(ThingStatus.ONLINE);
+                        dmxHandlerStatus = ThingStatusDetail.NONE;
                     } else {
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
                     }
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "Chase configuration malformed");
+                    dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
                 }
             } else {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Chase configuration missing");
+                dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             }
             if (configuration.get(CONFIG_CHASER_RESUME_AFTER) != null) {
                 resumeAfter = (Boolean) configuration.get(CONFIG_CHASER_RESUME_AFTER);
@@ -179,8 +182,8 @@ public class ChaserThingHandler extends DmxThingHandler {
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
         }
-
     }
 
     @Override
@@ -205,7 +208,6 @@ public class ChaserThingHandler extends DmxThingHandler {
             default:
                 logger.debug("channel {} not supported in thing {}", channelUID.getId(), this.thing.getUID());
         }
-
     }
 
     @Override

@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * @author Jan N. Klug - Initial contribution
  */
 public class SacnBridgeHandler extends DmxOverEthernetHandler {
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_SACN_BRIDGE);
-    public final static int MIN_UNIVERSE_ID = 1;
-    public final static int MAX_UNIVERSE_ID = 63999;
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_SACN_BRIDGE);
+    public static final int MIN_UNIVERSE_ID = 1;
+    public static final int MAX_UNIVERSE_ID = 63999;
 
     private final Logger logger = LoggerFactory.getLogger(SacnBridgeHandler.class);
     private final UUID senderUUID;
