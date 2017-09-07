@@ -72,9 +72,8 @@ public class Configuration {
                     || type.equals(Float.class) || field.getType().isPrimitive()) {
                 Object value = FieldUtils.readField(field, o, true);
                 if (value != null) {
-                    v.put(fieldName, String.valueOf(value));
+                    v.put(fieldName, value);
                 }
-
             } else if (Collection.class.isAssignableFrom(type)) {
                 List<Map<String, Object>> collect = new ArrayList<>();
                 for (Object subObject : (Collection<?>) FieldUtils.readField(field, o, true)) {
@@ -140,7 +139,7 @@ public class Configuration {
                 if (field.getType().isPrimitive()) {
                     logger.warn("Skipping field '{}', because it's primitive data type and value is not set",
                             fieldName);
-                } else {
+                } else if (properties.containsKey(fieldName)) {
                     // Write null to the field (which may contain another default value)
                     FieldUtils.writeField(field, configuration, null, true);
                 }

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -37,14 +38,17 @@ public class ConfigurationTest {
         private int intField;
         private boolean booleanField;
         private String stringField = "default";
+        @SuppressWarnings("unused")
         private static final String CONSTANT = "SOME_CONSTANT";
         ConfigSubClass credentials;
         List<ConfigSubClass> credentialList;
     };
 
-    @Test
-    public void getConfigAs() {
-        Map<String, Object> data = new HashMap<>();
+    private Map<String, Object> data;
+
+    @Before
+    public void setup() {
+        data = new HashMap<>();
         data.put("intField", 1);
         data.put("booleanField", false);
         data.put("stringField", "test");
@@ -54,10 +58,13 @@ public class ConfigurationTest {
         credentials.put("password", "testpwd");
         data.put("credentials", credentials);
         data.put("credentialList", Stream.of(credentials, credentials).collect(Collectors.toList()));
+    }
 
+    @Test
+    public void getConfigAs() {
         Configuration configuration = new Configuration(data);
-
         ConfigClass configClass = configuration.as(ConfigClass.class);
+        assert configClass != null;
 
         assertThat(configClass.intField, is(equalTo(1)));
         assertThat(configClass.booleanField, is(false));
@@ -66,6 +73,16 @@ public class ConfigurationTest {
         assertThat(configClass.credentials.password, is("testpwd"));
         assertThat(configClass.credentialList.get(0).password, is("testpwd"));
         assertThat(configClass.credentialList.get(1).password, is("testpwd"));
+    }
+
+    @Test
+    public void mapToConfigBackToMap() throws IllegalAccessException {
+        data.remove("notExisitingProperty");
+        Configuration configuration = new Configuration(data);
+        ConfigClass configClass = configuration.as(ConfigClass.class);
+        assert configClass != null;
+        Map<String, Object> data2 = Configuration.readFromConfigurationClassInstance(configClass);
+        assertThat(data, is(data2));
     }
 
     @Test
