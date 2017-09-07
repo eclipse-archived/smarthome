@@ -12,8 +12,10 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.magic.binding.MagicService;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.Lists;
 
@@ -21,6 +23,9 @@ import com.google.common.collect.Lists;
  *
  * @author Henning Treu - Initial contribution
  */
+@Component(configurationPid = "org.eclipse.smarthome.magic", service = ConfigOptionProvider.class, immediate = true, property = {
+        "service.pid=org.eclipse.smarthome.magic", "service.config.description.uri=test:magic",
+        "service.config.label=Magic", "service.config.category=test" })
 public class MagicServiceImpl implements MagicService {
 
     static final String PARAMETER_BACKEND_DECIMAL = "select_decimal_limit";
