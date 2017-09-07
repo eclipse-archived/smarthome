@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -53,6 +54,44 @@ public class Configuration {
      */
     public Configuration(Map<String, Object> properties) {
         this.properties = properties == null ? new HashMap<String, Object>() : ConfigUtil.normalizeTypes(properties);
+    }
+
+    public static Map<String, Object> readFromConfigurationClassInstance(Object o) throws IllegalAccessException {
+        Map<String, Object> v = new HashMap<String, Object>();
+        List<Field> fields = getAllFields(o.getClass());
+        for (Field field : fields) {
+            // Don't read from final fields
+            if (Modifier.isFinal(field.getModifiers())) {
+                continue;
+            }
+            final String fieldName = field.getName();
+            final Class<?> type = field.getType();
+
+            if (type.equals(BigDecimal.class) || type.equals(String.class) || type.equals(Boolean.class)
+                    || type.equals(Integer.class) || type.equals(Long.class) || type.equals(Double.class)
+                    || type.equals(Float.class) || field.getType().isPrimitive()) {
+                Object value = FieldUtils.readField(field, o, true);
+                if (value != null) {
+                    v.put(fieldName, String.valueOf(value));
+                }
+
+            } else if (Collection.class.isAssignableFrom(type)) {
+                List<Map<String, Object>> collect = new ArrayList<>();
+                for (Object subObject : (Collection<?>) FieldUtils.readField(field, o, true)) {
+                    if (subObject != null) {
+                        collect.add(readFromConfigurationClassInstance(subObject));
+                    }
+                }
+                v.put(fieldName, collect);
+
+            } else if (Array.class.isAssignableFrom(type)) {
+                throw new IllegalArgumentException("Arrays are not supported");
+
+            } else { // Read complex objects
+                v.put(fieldName, readFromConfigurationClassInstance(FieldUtils.readField(field, o, true)));
+            }
+        }
+        return v;
     }
 
     /**
