@@ -50,7 +50,12 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Rewrite for Firmware V2, and remove dependency on external libraries
  * @author Wouter Born - Discover light labels, improve locking, optimize packet handling
  */
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.lifx")
 public class LifxLightDiscovery extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightDiscovery.class);
@@ -114,6 +120,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         super(LifxBindingConstants.SUPPORTED_THING_TYPES, 1, true);
     }
 
+    @Activate
     @Override
     protected void activate(Map<String, Object> configProperties) {
         super.activate(configProperties);
@@ -155,11 +162,13 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         }
     }
 
+    @Modified
     @Override
     protected void modified(Map<String, Object> configProperties) {
         super.modified(configProperties);
     }
 
+    @Deactivate
     @Override
     protected void deactivate() {
         super.deactivate();
@@ -504,7 +513,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             logger.trace("Discovered a LIFX light : {}", label);
 
             DiscoveryResultBuilder builder = DiscoveryResultBuilder.create(thingUID);
-            builder.withRepresentationProperty(macAsLabel);
+            builder.withRepresentationProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS);
             builder.withLabel(label);
 
             builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
