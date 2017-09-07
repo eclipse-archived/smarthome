@@ -33,8 +33,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoHandlerFactory} is responsible for creating things and thing
  * handlers.
@@ -48,8 +46,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private UpnpIOService upnpIOService;
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
-            .newHashSet(WemoBindingConstants.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = WemoBindingConstants.SUPPORTED_THING_TYPES;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

@@ -16,6 +16,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,8 +68,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * The {@link ZonePlayerHandler} is responsible for handling commands, which are
  * sent to one of the channels.
@@ -94,8 +93,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private ScheduledFuture<?> pollingJob;
     private SonosZonePlayerState savedState = null;
 
-    private final static Collection<String> SERVICE_SUBSCRIPTIONS = Lists.newArrayList("DeviceProperties",
-            "AVTransport", "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn", "HTControl");
+    private final static Collection<String> SERVICE_SUBSCRIPTIONS = Arrays.asList("DeviceProperties", "AVTransport",
+            "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn", "HTControl");
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
     protected final static int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
@@ -1747,7 +1746,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {

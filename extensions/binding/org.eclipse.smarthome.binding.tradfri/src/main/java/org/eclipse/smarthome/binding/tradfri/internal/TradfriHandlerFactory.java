@@ -9,11 +9,12 @@ package org.eclipse.smarthome.binding.tradfri.internal;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriLightHandler;
@@ -27,8 +28,6 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.ServiceRegistration;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link TradfriHandlerFactory} is responsible for creating things and thing handlers.
  *
@@ -36,8 +35,8 @@ import com.google.common.collect.Sets;
  */
 public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets
-            .union(Collections.singleton(GATEWAY_TYPE_UID), SUPPORTED_LIGHT_TYPES_UIDS);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
+            .concat(Stream.of(GATEWAY_TYPE_UID), SUPPORTED_LIGHT_TYPES_UIDS.stream()).collect(Collectors.toSet());
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
