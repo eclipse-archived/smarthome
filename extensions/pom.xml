@@ -56,7 +56,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.felix</groupId>
+      <groupId>org.openhab</groupId>
       <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
       <version>${ds-annotations.version}</version>
       <optional>true</optional>
