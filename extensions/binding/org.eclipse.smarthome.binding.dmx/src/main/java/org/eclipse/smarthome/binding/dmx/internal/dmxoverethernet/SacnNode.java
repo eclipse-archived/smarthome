@@ -16,7 +16,7 @@ package org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet;
  */
 
 public class SacnNode extends IpNode {
-    public final static int DEFAULT_PORT = 5568;
+    public static final int DEFAULT_PORT = 5568;
 
     /**
      * constructor with address

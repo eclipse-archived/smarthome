@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class Lib485BridgeHandler extends DmxBridgeHandler {
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_LIB485_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_LIB485_BRIDGE);
     public static final int MIN_UNIVERSE_ID = 0;
     public static final int MAX_UNIVERSE_ID = 0;
     public static final int DEFAULT_PORT = 9020;
@@ -117,7 +117,6 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void updateConfiguration() {
-
         Configuration configuration = getConfig();
 
         universe = new Universe(MIN_UNIVERSE_ID);

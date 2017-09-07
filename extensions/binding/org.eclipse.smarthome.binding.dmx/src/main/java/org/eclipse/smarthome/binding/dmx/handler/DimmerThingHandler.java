@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DimmerThingHandler extends DmxThingHandler {
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DIMMER);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DIMMER);
 
     private final Logger logger = LoggerFactory.getLogger(DimmerThingHandler.class);
 
@@ -159,7 +159,6 @@ public class DimmerThingHandler extends DmxThingHandler {
             default:
                 logger.debug("channel {} not supported in thing {}", channelUID.getId(), this.thing.getUID());
         }
-
     }
 
     @Override
@@ -168,6 +167,7 @@ public class DimmerThingHandler extends DmxThingHandler {
         Configuration configuration = getConfig();
         if (getBridge() == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "no bridge assigned");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             return;
         }
         if (configuration.get(CONFIG_DMX_ID) != null) {
@@ -181,11 +181,12 @@ public class DimmerThingHandler extends DmxThingHandler {
                 }
             } catch (IllegalArgumentException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+                dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
                 return;
             }
             if (configuration.get(CONFIG_DIMMER_FADE_TIME) != null) {
                 fadeTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_FADE_TIME)).intValue();
-                logger.trace("setting fadeTime to {} ms in {}", fadeTime, this.thing.getUID());
+                logger.debug("setting fadeTime to {} ms in {}", fadeTime, this.thing.getUID());
             }
             if (configuration.get(CONFIG_DIMMER_DIM_TIME) != null) {
                 dimTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_DIM_TIME)).intValue();
@@ -234,12 +235,14 @@ public class DimmerThingHandler extends DmxThingHandler {
             }
             if (this.getBridge().getStatus().equals(ThingStatus.ONLINE)) {
                 updateStatus(ThingStatus.ONLINE);
+                dmxHandlerStatus = ThingStatusDetail.NONE;
             } else {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
             }
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
         }
     }
 

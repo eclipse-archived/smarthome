@@ -221,7 +221,6 @@ public class Universe {
             applyCurve.add(channel.getChannelId());
         }
         logger.debug("applying dim curve in universe {} to channels {}", universeId, applyCurve);
-
     }
 
     /**
@@ -240,6 +239,5 @@ public class Universe {
                 cie1931Curve[i] = (short) Math.round(Channel.MAX_VALUE * Math.pow((lLn + 0.16) / 1.16, 3));
             }
         }
-
     }
 }

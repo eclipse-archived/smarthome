@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.dmx.handler.ChaserThingHandler;
+import org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -78,16 +79,23 @@ public class ChaserThingHandlerTest extends JavaOSGiTest {
     }
 
     @Test
-    public void initializationOfDimmerThing() {
+    public void initializationOfChaserThing() {
         assertThat(chaserThing.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
         waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+        TestBridgeHandler bridgeHandler = (TestBridgeHandler) bridge.getHandler();
 
         // check handler present
         managedThingProvider.add(chaserThing);
         waitForAssert(() -> assertThat(chaserThing.getHandler(), notNullValue()));
 
         // check that thing turns online id properly configured
+        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.ONLINE)));
+
+        // check that thing properly follows bridge status
+        bridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE);
+        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.OFFLINE)));
+        bridgeHandler.updateBridgeStatus(ThingStatus.ONLINE);
         waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.ONLINE)));
 
         // check that thing is offline if no bridge found

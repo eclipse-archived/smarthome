@@ -41,9 +41,7 @@ public class TestBridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void openConnection() {
-        if (!this.thing.getStatus().equals(ThingStatus.ONLINE)) {
-            updateStatus(ThingStatus.ONLINE);
-        }
+
     }
 
     @Override
@@ -53,9 +51,7 @@ public class TestBridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void sendDmxData() {
-        if (!this.thing.getStatus().equals(ThingStatus.ONLINE)) {
-            openConnection();
-        }
+
     }
 
     @Override
@@ -64,7 +60,7 @@ public class TestBridgeHandler extends DmxBridgeHandler {
 
         super.updateConfiguration();
 
-        updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
 
         logger.debug("updated configuration for Test bridge {}", this.thing.getUID());
     }
@@ -76,4 +72,32 @@ public class TestBridgeHandler extends DmxBridgeHandler {
         updateConfiguration();
     }
 
+    /**
+     *
+     * get single channel data
+     *
+     * @param time UNIX timestamp of calculation time
+     *
+     * @param index channel number
+     *
+     * @return channel value
+     */
+    public byte getBufferValue(long time, int index) {
+        universe.calculateBuffer(time);
+        byte[] buffer = universe.getBuffer();
+        if ((index > 1) && (index - 1) < buffer.length) {
+            return buffer[index - 1];
+        } else {
+            throw new IllegalArgumentException("index not available");
+        }
+    }
+
+    /**
+     * update briudge status manually
+     *
+     * @param status a ThingStatus to set the bridge to
+     */
+    public void updateBridgeStatus(ThingStatus status) {
+        updateStatus(status);
+    }
 }

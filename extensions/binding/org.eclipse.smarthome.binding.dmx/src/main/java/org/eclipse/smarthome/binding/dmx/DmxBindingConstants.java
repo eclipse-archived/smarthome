@@ -22,44 +22,44 @@ import com.google.common.collect.ImmutableSet;
  */
 public class DmxBindingConstants {
 
-    public final static String BINDING_ID = "dmx";
+    public static final String BINDING_ID = "dmx";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_CHASER = new ThingTypeUID(BINDING_ID, "chaser");
-    public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "dimmer");
-    public final static ThingTypeUID THING_TYPE_ARTNET_BRIDGE = new ThingTypeUID(BINDING_ID, "artnet-bridge");
-    public final static ThingTypeUID THING_TYPE_LIB485_BRIDGE = new ThingTypeUID(BINDING_ID, "lib485-bridge");
-    public final static ThingTypeUID THING_TYPE_SACN_BRIDGE = new ThingTypeUID(BINDING_ID, "sacn-bridge");
+    public static final ThingTypeUID THING_TYPE_CHASER = new ThingTypeUID(BINDING_ID, "chaser");
+    public static final ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "dimmer");
+    public static final ThingTypeUID THING_TYPE_ARTNET_BRIDGE = new ThingTypeUID(BINDING_ID, "artnet-bridge");
+    public static final ThingTypeUID THING_TYPE_LIB485_BRIDGE = new ThingTypeUID(BINDING_ID, "lib485-bridge");
+    public static final ThingTypeUID THING_TYPE_SACN_BRIDGE = new ThingTypeUID(BINDING_ID, "sacn-bridge");
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_ARTNET_BRIDGE,
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_ARTNET_BRIDGE,
             THING_TYPE_LIB485_BRIDGE, THING_TYPE_SACN_BRIDGE, THING_TYPE_CHASER, THING_TYPE_DIMMER);
 
     // List of all config options
-    public final static String CONFIG_UNIVERSE = "universe";
-    public final static String CONFIG_DMX_ID = "dmxid";
-    public final static String CONFIG_APPLY_CURVE = "applycurve";
-    public final static String CONFIG_REFRESH_RATE = "refreshrate";
+    public static final String CONFIG_UNIVERSE = "universe";
+    public static final String CONFIG_DMX_ID = "dmxid";
+    public static final String CONFIG_APPLY_CURVE = "applycurve";
+    public static final String CONFIG_REFRESH_RATE = "refreshrate";
 
-    public final static String CONFIG_SACN_MODE = "mode";
-    public final static String CONFIG_ADDRESS = "address";
-    public final static String CONFIG_LOCAL_ADDRESS = "localaddress";
-    public final static String CONFIG_REFRESH_MODE = "refreshmode";
+    public static final String CONFIG_SACN_MODE = "mode";
+    public static final String CONFIG_ADDRESS = "address";
+    public static final String CONFIG_LOCAL_ADDRESS = "localaddress";
+    public static final String CONFIG_REFRESH_MODE = "refreshmode";
 
-    public final static String CONFIG_DIMMER_FADE_TIME = "fadetime";
-    public final static String CONFIG_DIMMER_DIM_TIME = "dimtime";
-    public final static String CONFIG_DIMMER_TURNONVALUE = "turnonvalue";
-    public final static String CONFIG_DIMMER_TURNOFFVALUE = "turnoffvalue";
-    public final static String CONFIG_CHASER_STEPS = "steps";
-    public final static String CONFIG_CHASER_RESUME_AFTER = "resumeafter";
+    public static final String CONFIG_DIMMER_FADE_TIME = "fadetime";
+    public static final String CONFIG_DIMMER_DIM_TIME = "dimtime";
+    public static final String CONFIG_DIMMER_TURNONVALUE = "turnonvalue";
+    public static final String CONFIG_DIMMER_TURNOFFVALUE = "turnoffvalue";
+    public static final String CONFIG_CHASER_STEPS = "steps";
+    public static final String CONFIG_CHASER_RESUME_AFTER = "resumeafter";
 
     // List of all channels
-    public final static String CHANNEL_BRIGHTNESS = "brightness";
-    public final static String CHANNEL_COLOR = "color";
-    public final static String CHANNEL_SWITCH = "switch";
-    public final static String CHANNEL_CONTROL = "control";
-    public final static String CHANNEL_MUTE = "mute";
+    public static final String CHANNEL_BRIGHTNESS = "brightness";
+    public static final String CHANNEL_COLOR = "color";
+    public static final String CHANNEL_SWITCH = "switch";
+    public static final String CHANNEL_CONTROL = "control";
+    public static final String CHANNEL_MUTE = "mute";
 
-    public final static ChannelTypeUID colorChannelTypeUID = new ChannelTypeUID(BINDING_ID, CHANNEL_COLOR);
+    public static final ChannelTypeUID colorChannelTypeUID = new ChannelTypeUID(BINDING_ID, CHANNEL_COLOR);
 
     // Listener Type for channel updates
     public static enum ListenerType {
