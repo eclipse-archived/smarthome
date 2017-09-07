@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet;
  *
  */
 public class ArtnetNode extends IpNode {
-    public final static int DEFAULT_PORT = 6454;
+    public static final int DEFAULT_PORT = 6454;
 
     /**
      * constructor with address

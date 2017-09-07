@@ -233,7 +233,6 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
         } else if (universe.getUniverseId() != universeId) {
             universe.rename(universeId);
         }
-
     }
 
 }

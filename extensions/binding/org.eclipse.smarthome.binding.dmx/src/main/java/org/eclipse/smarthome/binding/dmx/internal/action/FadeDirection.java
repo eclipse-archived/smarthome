@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal.action;
 
+/**
+ * The {@link FadeDirection} gives the direction for fading
+ *
+ * @author Jan N. Klug
+ */
 enum FadeDirection {
     up,
     down

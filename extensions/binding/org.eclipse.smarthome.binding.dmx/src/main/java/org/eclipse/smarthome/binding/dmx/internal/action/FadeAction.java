@@ -68,11 +68,9 @@ public class FadeAction extends BaseAction {
 
     @Override
     public int getNewValue(Channel channel, long currentTime) {
-
         int newValue = channel.getHiResValue();
 
         if (startTime == 0) {
-
             startTime = currentTime;
 
             if (fadeTime != 0) {
@@ -96,7 +94,6 @@ public class FadeAction extends BaseAction {
         long duration = currentTime - startTime;
 
         if ((fadeTime != 0) && (newValue != targetValue)) {
-
             // calculate new fade value
             if (stepDuration == 0) {
                 stepDuration = 1;
