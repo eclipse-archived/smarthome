@@ -1,0 +1,7 @@
+class org/slf4j/LoggerFactory
+getLogger
+ (Ljava/lang/Class;)Lorg/slf4j/Logger;
+ (Ljava/lang/Class;)L1org/slf4j/Logger;
+getLogger
+ (Ljava/lang/String;)Lorg/slf4j/Logger;
+ (Ljava/lang/String;)L1org/slf4j/Logger;

@@ -1,0 +1,7 @@
+class java/util/List
+get
+ (I)TE;
+ (I)T+E;
+subList
+ (II)Ljava/util/List<TE;>;
+ (II)L1java/util/List<TE;>;

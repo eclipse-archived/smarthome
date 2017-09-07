@@ -1,0 +1,4 @@
+class java/util/concurrent/Executors
+newSingleThreadExecutor
+ (Ljava/util/concurrent/ThreadFactory;)Ljava/util/concurrent/ExecutorService;
+ (Ljava/util/concurrent/ThreadFactory;)L1java/util/concurrent/ExecutorService;

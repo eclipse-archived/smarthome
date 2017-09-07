@@ -1,0 +1,7 @@
+class java/util/concurrent/CompletableFuture
+supplyAsync
+ <U:Ljava/lang/Object;>(Ljava/util/function/Supplier<TU;>;)Ljava/util/concurrent/CompletableFuture<TU;>;
+ <U:Ljava/lang/Object;>(Ljava/util/function/Supplier<TU;>;)L1java/util/concurrent/CompletableFuture<TU;>;
+supplyAsync
+ <U:Ljava/lang/Object;>(Ljava/util/function/Supplier<TU;>;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture<TU;>;
+ <U:Ljava/lang/Object;>(Ljava/util/function/Supplier<TU;>;Ljava/util/concurrent/Executor;)L1java/util/concurrent/CompletableFuture<TU;>;
