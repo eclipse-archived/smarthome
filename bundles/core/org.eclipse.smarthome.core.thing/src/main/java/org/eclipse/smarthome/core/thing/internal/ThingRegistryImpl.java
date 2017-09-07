@@ -249,8 +249,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
                 return thing;
             }
         }
-        logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
-                thingTypeUID);
+        logger.warn("Cannot create thing. No binding found that supports creating a thing of type '{}'.", thingTypeUID);
         return null;
     }
 
