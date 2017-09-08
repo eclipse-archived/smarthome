@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +35,6 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiFirmwareRes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * The {@link LifxLightPropertiesUpdater} updates the light properties when a light goes online. When packets get lost
  * the requests are resent when the {@code UPDATE_INTERVAL} elapses.
@@ -55,8 +54,8 @@ public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
 
     private final List<LifxPropertiesUpdateListener> propertiesUpdateListeners = new CopyOnWriteArrayList<>();
 
-    private final List<Packet> requestPackets = Lists.newArrayList(new GetVersionRequest(),
-            new GetHostFirmwareRequest(), new GetWifiFirmwareRequest());
+    private final List<Packet> requestPackets = Arrays.asList(new GetVersionRequest(), new GetHostFirmwareRequest(),
+            new GetWifiFirmwareRequest());
     private final Set<Integer> receivedPacketTypes = new HashSet<>();
 
     private final ReentrantLock lock = new ReentrantLock();

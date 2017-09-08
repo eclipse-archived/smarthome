@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.binding.tradfri;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link TradfriBindingConstants} class defines common constants, which are
@@ -30,11 +31,11 @@ public class TradfriBindingConstants {
     public final static ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
     public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
 
-    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMABLE_LIGHT,
-            THING_TYPE_COLOR_TEMP_LIGHT);
+    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = Collections.unmodifiableSet(
+            Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT).collect(Collectors.toSet()));
 
     // Not yet used - included for future support
-    public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMER);
+    public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = Collections.singleton(THING_TYPE_DIMMER);
 
     // List of all Channel IDs
     public static final String CHANNEL_BRIGHTNESS = "brightness";
