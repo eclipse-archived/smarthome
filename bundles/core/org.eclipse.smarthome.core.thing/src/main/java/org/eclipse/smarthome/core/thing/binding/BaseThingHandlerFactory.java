@@ -249,12 +249,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
-        if (thingUID == null) {
-            thingUID = ThingFactory.generateRandomThingUID(thingTypeUID);
-        }
+        ThingUID effectiveUID = thingUID != null ? thingUID : ThingFactory.generateRandomThingUID(thingTypeUID);
         ThingType thingType = getThingTypeByUID(thingTypeUID);
         if (thingType != null) {
-            Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
+            Thing thing = ThingFactory.createThing(thingType, effectiveUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
             return thing;
         } else {

@@ -52,14 +52,9 @@ public class ConverterValueMap {
      */
     public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context)
             throws ConversionException {
-
-        if (numberOfValues < -1) {
-            numberOfValues = -1;
-        }
-
         this.reader = reader;
         this.context = context;
-        this.valueMap = readValueMap(this.reader, numberOfValues, this.context);
+        this.valueMap = readValueMap(this.reader, numberOfValues >= -1 ? numberOfValues : -1, this.context);
     }
 
     /**

@@ -108,12 +108,15 @@ public class LIRCConnector {
      */
     public void transmit(String remote, String button) {
         int timesToSend = 1;
+        String buttonName;
         String[] parts = button.split(" ");
         if (parts.length > 1) {
-            button = parts[0];
+            buttonName = parts[0];
             timesToSend = Integer.parseInt(parts[1]);
+        } else {
+            buttonName = button;
         }
-        transmit(remote, button, timesToSend);
+        transmit(remote, buttonName, timesToSend);
     }
 
     /**

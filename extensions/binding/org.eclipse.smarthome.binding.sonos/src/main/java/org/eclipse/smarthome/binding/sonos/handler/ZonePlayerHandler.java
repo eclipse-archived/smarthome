@@ -1747,7 +1747,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {
@@ -2839,11 +2840,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (sleepSeconds == 0) {
             return "";
         } else if (sleepSeconds < 68400) {
-            long hours = TimeUnit.SECONDS.toHours(sleepSeconds);
-            sleepSeconds -= TimeUnit.HOURS.toSeconds(hours);
-            long minutes = TimeUnit.SECONDS.toMinutes(sleepSeconds);
-            sleepSeconds -= TimeUnit.MINUTES.toSeconds(minutes);
-            long seconds = TimeUnit.SECONDS.toSeconds(sleepSeconds);
+            long remainingSeconds = sleepSeconds;
+            long hours = TimeUnit.SECONDS.toHours(remainingSeconds);
+            remainingSeconds -= TimeUnit.HOURS.toSeconds(hours);
+            long minutes = TimeUnit.SECONDS.toMinutes(remainingSeconds);
+            remainingSeconds -= TimeUnit.MINUTES.toSeconds(minutes);
+            long seconds = TimeUnit.SECONDS.toSeconds(remainingSeconds);
             return String.format("%02d:%02d:%02d", hours, minutes, seconds);
         } else {
             logger.error("Sonos SleepTimer: Invalid sleep time set. sleep time must be >=0 and < 68400s (24h)");

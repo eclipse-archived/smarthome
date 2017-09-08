@@ -83,22 +83,22 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @throws RenderException if snippet could not be read
      */
     protected synchronized String getSnippet(String elementType) throws RenderException {
-        elementType = elementType.toLowerCase();
-        String snippet = snippetCache.get(elementType);
+        String lowerCaseElementType = elementType.toLowerCase();
+        String snippet = snippetCache.get(lowerCaseElementType);
         if (snippet == null) {
-            String snippetLocation = SNIPPET_LOCATION + elementType + SNIPPET_EXT;
+            String snippetLocation = SNIPPET_LOCATION + lowerCaseElementType + SNIPPET_EXT;
             URL entry = WebAppActivator.getContext().getBundle().getEntry(snippetLocation);
             if (entry != null) {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
                     if (!config.isHtmlCacheDisabled()) {
-                        snippetCache.put(elementType, snippet);
+                        snippetCache.put(lowerCaseElementType, snippet);
                     }
                 } catch (IOException e) {
-                    logger.warn("Cannot load snippet for element type '{}'", elementType, e);
+                    logger.warn("Cannot load snippet for element type '{}'", lowerCaseElementType, e);
                 }
             } else {
-                throw new RenderException("Cannot find a snippet for element type '" + elementType + "'");
+                throw new RenderException("Cannot find a snippet for element type '" + lowerCaseElementType + "'");
             }
         }
         return snippet;
@@ -184,16 +184,16 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         if (color != null) {
             style = "color:" + color;
         }
-        snippet = StringUtils.replace(snippet, "%labelstyle%", style);
+        String ret = StringUtils.replace(snippet, "%labelstyle%", style);
 
         style = "";
         color = itemUIRegistry.getValueColor(w);
         if (color != null) {
             style = "color:" + color;
         }
-        snippet = StringUtils.replace(snippet, "%valuestyle%", style);
+        ret = StringUtils.replace(ret, "%valuestyle%", style);
 
-        return snippet;
+        return ret;
     }
 
     protected String getFormat() {

@@ -79,7 +79,8 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @param w corresponding widget
      * @return
      */
-    protected String preprocessSnippet(String snippet, Widget w) {
+    protected String preprocessSnippet(String originalSnippet, Widget w) {
+        String snippet = originalSnippet;
         snippet = StringUtils.replace(snippet, "%widget_id%", itemUIRegistry.getWidgetId(w));
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
         snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
@@ -108,20 +109,20 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @throws RenderException if snippet could not be read
      */
     protected synchronized String getSnippet(String elementType) throws RenderException {
-        elementType = elementType.toLowerCase();
-        String snippet = snippetCache.get(elementType);
+        String lowerTypeElementType = elementType.toLowerCase();
+        String snippet = snippetCache.get(lowerTypeElementType);
         if (snippet == null) {
-            String snippetLocation = SNIPPET_LOCATION + elementType + SNIPPET_EXT;
+            String snippetLocation = SNIPPET_LOCATION + lowerTypeElementType + SNIPPET_EXT;
             URL entry = WebAppActivator.getContext().getBundle().getEntry(snippetLocation);
             if (entry != null) {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
-                    snippetCache.put(elementType, snippet);
+                    snippetCache.put(lowerTypeElementType, snippet);
                 } catch (IOException e) {
-                    logger.warn("Cannot load snippet for element type '{}'", elementType, e);
+                    logger.warn("Cannot load snippet for element type '{}'", lowerTypeElementType, e);
                 }
             } else {
-                throw new RenderException("Cannot find a snippet for element type '" + elementType + "'");
+                throw new RenderException("Cannot find a snippet for element type '" + lowerTypeElementType + "'");
             }
         }
         return snippet;
@@ -147,10 +148,10 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         int index = text.indexOf('[');
 
         if (index != -1) {
-            text = text.substring(0, index);
+            return escapeHtml(text.substring(0, index));
+        } else {
+            return escapeHtml(text);
         }
-
-        return escapeHtml(text);
     }
 
     /**
@@ -228,9 +229,10 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      *            The snippet to translate
      * @return The updated snippet
      */
-    protected String processColor(Widget w, String snippet) {
+    protected String processColor(Widget w, String originalSnippet) {
         String style = "";
         String color = "";
+        String snippet = originalSnippet;
 
         color = itemUIRegistry.getLabelColor(w);
 

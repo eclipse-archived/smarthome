@@ -832,7 +832,7 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
             cal.setLenient(false);
             cal.setTime(getStartDate());
 
-            candidates = new ArrayList<Date>();
+            ArrayList<Date> ret = new ArrayList<>();
             ArrayList<Date> newCandidates = new ArrayList<Date>();
             newCandidates.add(cal.getTime());
 
@@ -843,8 +843,8 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                 newCandidates.add(cal.getTime());
             }
 
-            candidates.addAll(newCandidates);
-            return candidates;
+            ret.addAll(newCandidates);
+            return ret;
         }
 
         @Override

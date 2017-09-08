@@ -665,9 +665,9 @@ public class HueBridge {
                 if (requestMethod.equals("GET")) {
                     return super.doNetwork(address, requestMethod, body);
                 } else {
-                    address = Util.quickMatch("^http://[^/]+(.+)$", address);
+                    String extractedAddress = Util.quickMatch("^http://[^/]+(.+)$", address);
                     JsonElement commandBody = new JsonParser().parse(body);
-                    scheduleCommand = new ScheduleCommand(address, requestMethod, commandBody);
+                    scheduleCommand = new ScheduleCommand(extractedAddress, requestMethod, commandBody);
 
                     // Return a fake result that will cause an exception and the callback to end
                     return new Result(null, 405);

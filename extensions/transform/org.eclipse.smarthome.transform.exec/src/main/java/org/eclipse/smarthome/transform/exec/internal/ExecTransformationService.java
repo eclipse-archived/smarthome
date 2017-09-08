@@ -25,7 +25,7 @@ public class ExecTransformationService implements TransformationService {
 
     /**
      * Transforms the input <code>source</code> by the command line.
-     * 
+     *
      * @param commandLine
      *            the command to execute. Command line should contain %s string,
      *            which will be replaced by the input data.
@@ -43,8 +43,8 @@ public class ExecTransformationService implements TransformationService {
 
         long startTime = System.currentTimeMillis();
 
-        commandLine = String.format(commandLine, source);
-        String result = ExecUtil.executeCommandLineAndWaitResponse(commandLine, 5000);
+        String formattedCommandLine = String.format(commandLine, source);
+        String result = ExecUtil.executeCommandLineAndWaitResponse(formattedCommandLine, 5000);
         logger.trace("command line execution elapsed {} ms", System.currentTimeMillis() - startTime);
 
         return result;
