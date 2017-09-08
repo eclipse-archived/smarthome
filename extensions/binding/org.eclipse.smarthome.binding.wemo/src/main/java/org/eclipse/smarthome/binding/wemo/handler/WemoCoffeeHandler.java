@@ -56,8 +56,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoCoffeeHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
@@ -69,7 +67,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Logger logger = LoggerFactory.getLogger(WemoCoffeeHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COFFEE);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_COFFEE);
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 

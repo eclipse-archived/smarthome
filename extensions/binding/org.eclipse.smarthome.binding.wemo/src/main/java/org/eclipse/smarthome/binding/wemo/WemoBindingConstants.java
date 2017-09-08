@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.binding.wemo;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link WemoBinding} class defines common constants, which are
@@ -65,15 +66,18 @@ public class WemoBindingConstants {
     public static final String DEVICE_ID = "deviceID";
     public static final String POLLINGINTERVALL = "pollingInterval";
 
-    public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_THING_TYPES = ImmutableSet.of(THING_TYPE_BRIDGE);
+    public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    public final static Set<ThingTypeUID> SUPPORTED_LIGHT_THING_TYPES = ImmutableSet.of(THING_TYPE_MZ100);
+    public final static Set<ThingTypeUID> SUPPORTED_LIGHT_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
-    public final static Set<ThingTypeUID> SUPPORTED_DEVICE_THING_TYPES = ImmutableSet.of(THING_TYPE_SOCKET,
-            THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION);
+    public final static Set<ThingTypeUID> SUPPORTED_DEVICE_THING_TYPES = Collections
+            .unmodifiableSet(Stream.of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION)
+                    .collect(Collectors.toSet()));
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
-            THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION, THING_TYPE_BRIDGE, THING_TYPE_MZ100, THING_TYPE_MAKER,
-            THING_TYPE_COFFEE);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
+            .unmodifiableSet(Stream
+                    .of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION,
+                            THING_TYPE_BRIDGE, THING_TYPE_MZ100, THING_TYPE_MAKER, THING_TYPE_COFFEE)
+                    .collect(Collectors.toSet()));
 
 }

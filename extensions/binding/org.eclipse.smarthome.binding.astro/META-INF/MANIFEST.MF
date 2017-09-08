@@ -5,8 +5,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.binding.astro;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Bundle-Copyright: Eclipse Public License v1.0
-Import-Package: com.google.common.collect,
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
  org.apache.commons.lang.builder,
  org.apache.commons.lang.reflect,
  org.apache.commons.lang.time,

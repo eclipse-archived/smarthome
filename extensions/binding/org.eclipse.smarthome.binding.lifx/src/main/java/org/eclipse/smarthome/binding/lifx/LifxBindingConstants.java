@@ -10,14 +10,14 @@ package org.eclipse.smarthome.binding.lifx;
 import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.kelvinToPercentType;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link LifxBinding} class defines common constants, which are used across
@@ -83,7 +83,8 @@ public class LifxBindingConstants {
     public static final ThingTypeUID THING_TYPE_COLORMZLIGHT = new ThingTypeUID(BINDING_ID, "colormzlight");
     public static final ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COLORLIGHT,
-            THING_TYPE_COLORIRLIGHT, THING_TYPE_COLORMZLIGHT, THING_TYPE_WHITELIGHT);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .of(THING_TYPE_COLORLIGHT, THING_TYPE_COLORIRLIGHT, THING_TYPE_COLORMZLIGHT, THING_TYPE_WHITELIGHT)
+            .collect(Collectors.toSet());
 
 }

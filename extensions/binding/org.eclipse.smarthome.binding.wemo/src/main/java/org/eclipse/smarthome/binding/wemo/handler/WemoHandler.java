@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.wemo.internal.http.WemoHttpCall;
@@ -45,8 +47,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
@@ -60,8 +60,9 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
-            THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION)
+            .collect(Collectors.toSet());
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
