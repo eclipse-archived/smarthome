@@ -32,4 +32,4 @@ Temperature,"R, RW",Number,temperature.png
 Water,R,"Switch, Number",water.png
 Wind,R,Number,wind.png
 Window,"R, RW","String, Switch",window.png
-Zoom,RW,String,zoom.png
+Zoom,RW,"String, Dimmer, Number",zoom.png
