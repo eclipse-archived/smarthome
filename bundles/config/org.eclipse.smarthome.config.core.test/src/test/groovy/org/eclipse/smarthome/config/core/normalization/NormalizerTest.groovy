@@ -15,6 +15,8 @@ import java.text.MessageFormat
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.core.internal.normalization.Normalizer
+import org.eclipse.smarthome.config.core.internal.normalization.NormalizerFactory
 import org.junit.Test
 
 public class NormalizerTest {
