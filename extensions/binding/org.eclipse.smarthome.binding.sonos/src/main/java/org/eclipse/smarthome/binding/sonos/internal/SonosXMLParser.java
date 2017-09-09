@@ -225,6 +225,21 @@ public class SonosXMLParser {
         return handler.getMetaData();
     }
 
+    public static List<SonosMusicService> getMusicServicesFromXML(String xml) {
+        MusicServiceHandler handler = new MusicServiceHandler();
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(new StringReader(xml)));
+        } catch (IOException e) {
+            // This should never happen - we're not performing I/O!
+            logger.error("Could not parse music services from string '{}'", xml);
+        } catch (SAXException s) {
+            logger.error("Could not parse music services from string '{}'", xml);
+        }
+        return handler.getServices();
+    }
+
     static private class EntryHandler extends DefaultHandler {
 
         // Maintain a set of elements about which it is unuseful to complain about.
@@ -827,6 +842,24 @@ public class SonosXMLParser {
 
     }
 
+    static private class MusicServiceHandler extends DefaultHandler {
+
+        private final List<SonosMusicService> services = new ArrayList<SonosMusicService>();
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            // All services are of the form <services Id="value" Name="value">...</Service>
+            if ("Service".equals(qName) && atts.getValue("Id") != null && atts.getValue("Name") != null) {
+                services.add(new SonosMusicService(atts.getValue("Id"), atts.getValue("Name")));
+            }
+        }
+
+        public List<SonosMusicService> getServices() {
+            return services;
+        }
+
+    }
+
     public static String getRoomName(String descriptorXML) {
         RoomNameHandler roomNameHandler = new RoomNameHandler();
         try {
@@ -937,7 +970,10 @@ public class SonosXMLParser {
          * subscription like pandora we need to use the desc string asscoiated
          * with that item.
          */
-        String desc = "RINCON_AssociatedZPUDN";
+        String desc = entry.getDesc();
+        if (desc == null) {
+            desc = "RINCON_AssociatedZPUDN";
+        }
 
         /**
          * If resource meta data exists, use it over the parent data
