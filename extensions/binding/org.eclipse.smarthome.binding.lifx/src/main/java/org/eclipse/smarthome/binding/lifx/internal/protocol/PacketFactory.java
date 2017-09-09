@@ -24,7 +24,7 @@ public class PacketFactory {
 
     private static PacketFactory instance;
 
-    public synchronized static PacketFactory getInstance() {
+    public static synchronized  PacketFactory getInstance() {
         if (instance == null) {
             instance = new PacketFactory();
         }

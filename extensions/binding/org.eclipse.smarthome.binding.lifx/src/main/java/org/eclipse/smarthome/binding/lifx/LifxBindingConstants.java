@@ -33,6 +33,10 @@ public class LifxBindingConstants {
     // The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not more.
     public static final long PACKET_INTERVAL = 50;
 
+    // Port constants
+    public static final int BROADCAST_PORT = 56700;
+    public static final int UNICAST_PORT = 56700;
+
     // Minimum and maximum of MultiZone light indices
     public static final int MIN_ZONE_INDEX = 0;
     public static final int MAX_ZONE_INDEX = 255;

@@ -119,7 +119,6 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                     pendingPacket.lastSend = System.currentTimeMillis();
                     pendingPacket.sendCount++;
                 }
-
             } catch (Exception e) {
                 logger.error("Error occurred while sending packet", e);
             } finally {
@@ -186,7 +185,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
             if (packetType == null) {
                 packetType = packet.getPacketType();
             } else if (packetType != packet.getPacketType()) {
-                throw new RuntimeException("Packets should have same packet type");
+                throw new IllegalArgumentException("Packets should have same packet type");
             }
         }
 

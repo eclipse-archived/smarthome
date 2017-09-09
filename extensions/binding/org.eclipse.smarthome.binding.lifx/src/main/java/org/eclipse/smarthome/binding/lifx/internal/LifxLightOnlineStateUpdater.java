@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.ScheduledExecutorService;
@@ -65,14 +64,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                 if (currentLightState.isOnline()) {
                     if (Duration.between(lastSeen, LocalDateTime.now()).getSeconds() > ECHO_POLLING_INTERVAL) {
                         if (unansweredEchoPackets < MAXIMUM_POLLING_RETRIES) {
-                            ByteBuffer payload = ByteBuffer.allocate(Long.SIZE / 8);
-                            payload.putLong(System.currentTimeMillis());
-
-                            GetEchoRequest request = new GetEchoRequest();
-                            request.setResponseRequired(true);
-                            request.setPayload(payload);
-
-                            communicationHandler.sendPacket(request);
+                            communicationHandler.sendPacket(GetEchoRequest.currentTimeEchoRequest());
                             unansweredEchoPackets++;
                         } else {
                             currentLightState.setOfflineByCommunicationError();
@@ -80,10 +72,13 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                         }
                     }
                 } else {
-                    // are we not configured? let's broadcast instead
-                    logger.trace("{} : The light is not online, let's broadcast instead", macAsHex);
-                    GetServiceRequest packet = new GetServiceRequest();
-                    communicationHandler.broadcastPacket(packet);
+                    if (communicationHandler.isBroadcastEnabled()) {
+                        logger.trace("{} : The light is not online, broadcasting request", macAsHex);
+                        communicationHandler.broadcastPacket(new GetServiceRequest());
+                    } else {
+                        logger.trace("{} : The light is not online, unicasting request", macAsHex);
+                        communicationHandler.sendPacket(GetEchoRequest.currentTimeEchoRequest());
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Error occurred while polling online state", e);
@@ -91,6 +86,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
                 lock.unlock();
             }
         }
+
     };
 
     public void start() {
@@ -126,6 +122,7 @@ public class LifxLightOnlineStateUpdater implements LifxResponsePacketListener {
     public void handleResponsePacket(Packet packet) {
         lastSeen = LocalDateTime.now();
         unansweredEchoPackets = 0;
+        currentLightState.setOnline();
     }
 
 }

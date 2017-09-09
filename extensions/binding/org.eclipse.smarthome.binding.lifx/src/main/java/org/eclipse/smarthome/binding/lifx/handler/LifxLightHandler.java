@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.lifx.handler;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.increaseDecreasePercentType;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCommunicationHandler;
+import org.eclipse.smarthome.binding.lifx.internal.LifxLightConfig;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCurrentStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightOnlineStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightPropertiesUpdater;
@@ -72,14 +72,13 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
-    private static final Duration FADE_TIME_DEFAULT = Duration.ofMillis(300);
     private static final Duration MIN_STATUS_INFO_UPDATE_INTERVAL = Duration.ofSeconds(1);
     private static final Duration MAX_STATE_CHANGE_DURATION = Duration.ofSeconds(4);
 
     private final LifxChannelFactory channelFactory;
     private Products product;
 
-    private Duration fadeTime = FADE_TIME_DEFAULT;
+    private Duration fadeTime;
     private PercentType powerOnBrightness;
 
     private MACAddress macAddress;
@@ -211,20 +210,25 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         try {
             lock.lock();
 
+            LifxLightConfig configuration = getConfigAs(LifxLightConfig.class);
+
             product = getProduct();
-            macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
+            macAddress = configuration.getMACAddress();
             macAsHex = this.macAddress.getHex();
 
             logger.debug("Initializing the LIFX handler for light '{}'.", macAsHex);
 
-            fadeTime = getFadeTime();
+            fadeTime = configuration.getFadeTime();
             powerOnBrightness = getPowerOnBrightness();
 
             channelStates = new HashMap<>();
             currentLightState = new CurrentLightState();
             pendingLightState = new LifxLightState();
 
-            communicationHandler = new LifxLightCommunicationHandler(macAddress, scheduler, currentLightState);
+            communicationHandler = configuration.hasHost()
+                    ? new LifxLightCommunicationHandler(macAddress, configuration.getHost(), scheduler,
+                            currentLightState)
+                    : new LifxLightCommunicationHandler(macAddress, scheduler, currentLightState);
             currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, scheduler, currentLightState,
                     communicationHandler, product);
             onlineStateUpdater = new LifxLightOnlineStateUpdater(macAddress, scheduler, currentLightState,
@@ -282,15 +286,9 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
             currentLightState = null;
             pendingLightState = null;
-
         } finally {
             lock.unlock();
         }
-    }
-
-    private Duration getFadeTime() {
-        BigDecimal fadeCfg = (BigDecimal) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_FADETIME);
-        return fadeCfg == null ? FADE_TIME_DEFAULT : Duration.ofMillis(fadeCfg.longValue());
     }
 
     private PercentType getPowerOnBrightness() {
@@ -368,7 +366,6 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
         if (command instanceof RefreshType) {
             try {
                 switch (channelUID.getId()) {

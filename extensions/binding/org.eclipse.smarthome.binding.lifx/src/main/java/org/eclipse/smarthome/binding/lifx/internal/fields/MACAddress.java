@@ -104,7 +104,6 @@ public class MACAddress {
         }
 
         hex = StringUtils.left(result, result.length() - 1);
-
     }
 
     @Override

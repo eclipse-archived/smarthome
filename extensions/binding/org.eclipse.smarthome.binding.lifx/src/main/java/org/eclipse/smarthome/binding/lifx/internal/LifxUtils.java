@@ -39,7 +39,7 @@ public final class LifxUtils {
             delta = INCREASE_DECREASE_STEP.negate();
         }
 
-        if (delta != ZERO) {
+        if (!ZERO.equals(delta)) {
             BigDecimal newValue = old.toBigDecimal().add(delta);
             newValue = newValue.setScale(0, RoundingMode.HALF_UP);
             newValue = newValue.min(HUNDRED);

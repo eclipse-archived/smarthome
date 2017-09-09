@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.BROADCAST_PORT;
+
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -76,15 +78,16 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     private static final int VERSION_REQUEST_SEQ_NO = 1;
     private static final int LABEL_REQUEST_SEQ_NO = 2;
 
+    private static final int BROADCAST_TIMEOUT = 5000;
+    private static final int SELECTOR_TIMEOUT = 10000;
+    private static final int REFRESH_INTERVAL = 60;
+
     private List<InetSocketAddress> broadcastAddresses;
     private List<InetAddress> interfaceAddresses;
-    private final int BROADCAST_PORT = 56700;
-    private static int REFRESH_INTERVAL = 60;
-    private static int BROADCAST_TIMEOUT = 5000;
-    private static int SELECTOR_TIMEOUT = 10000;
     private int bufferSize = 0;
 
     private Selector selector;
+    private SelectionKey broadcastKey;
     private DatagramChannel broadcastChannel;
     private long source;
     private boolean isScanning = false;
@@ -215,9 +218,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     protected void doScan() {
-
         try {
-
             if (!isScanning) {
                 isScanning = true;
                 if (selector != null) {
@@ -229,16 +230,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 }
 
                 selector = Selector.open();
-
-                broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                        .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                        .setOption(StandardSocketOptions.SO_BROADCAST, true);
-                broadcastChannel.configureBlocking(false);
-                broadcastChannel.socket().setSoTimeout(BROADCAST_TIMEOUT);
-                broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT));
-
-                SelectionKey broadcastKey = broadcastChannel.register(selector,
-                        SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                openBroadcastChannel();
 
                 networkJob = scheduler.schedule(networkRunnable, 0, TimeUnit.MILLISECONDS);
 
@@ -250,18 +242,27 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 packet.setSequence(SERVICE_REQUEST_SEQ_NO);
                 packet.setSource(source);
 
-                broadcastPacket(packet, broadcastKey);
+                broadcastPacket(packet);
             } else {
                 logger.info("A discovery scan for LIFX light is already underway");
             }
-
         } catch (Exception e) {
             logger.debug("An exception occurred while discovering LIFX lights : '{}'", e.getMessage());
         }
-
     }
 
-    private void broadcastPacket(Packet packet, SelectionKey broadcastKey) {
+    private void openBroadcastChannel() throws IOException, SocketException, ClosedChannelException {
+        broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                .setOption(StandardSocketOptions.SO_BROADCAST, true);
+        broadcastChannel.configureBlocking(false);
+        broadcastChannel.socket().setSoTimeout(BROADCAST_TIMEOUT);
+        broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT));
+
+        broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+    }
+
+    private void broadcastPacket(Packet packet) {
         for (InetSocketAddress address : broadcastAddresses) {
             LifxNetworkThrottler.lock();
             sendPacket(packet, address, broadcastKey);
@@ -281,7 +282,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     private boolean sendPacket(Packet packet, InetSocketAddress address, SelectionKey selectedKey) {
-
         boolean result = false;
 
         try {
@@ -324,14 +324,12 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         @Override
         public void run() {
             try {
-
                 long startStamp = System.currentTimeMillis();
                 discoveredLights.clear();
 
                 logger.trace("Entering read loop at {}", startStamp);
 
                 while (System.currentTimeMillis() - startStamp < SELECTOR_TIMEOUT) {
-
                     if (selector != null && selector.isOpen()) {
                         try {
                             selector.selectNow();
@@ -343,19 +341,16 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                         Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
                         while (keyIterator.hasNext()) {
-
                             SelectionKey key = keyIterator.next();
 
                             if (key.isValid() && key.isAcceptable()) {
-                                // a connection was accepted by a ServerSocketChannel.
                                 // block of code only for completeness purposes
-
+                                logger.trace("Connection was accepted by a ServerSocketChannel");
                             } else if (key.isValid() && key.isConnectable()) {
-                                // a connection was established with a remote server.
                                 // block of code only for completeness purposes
-
+                                logger.trace("Connection was established with a remote server");
                             } else if (key.isValid() && key.isReadable()) {
-                                // a channel is ready for reading
+                                logger.trace("Channel is ready for reading");
                                 SelectableChannel channel = key.channel();
                                 InetSocketAddress address = null;
                                 int messageLength = 0;
@@ -376,7 +371,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                                 if (address != null) {
                                     logger.trace("Receiving data from {}", address.getAddress().toString());
                                     if (!interfaceAddresses.contains(address.getAddress())) {
-
                                         readBuffer.rewind();
 
                                         ByteBuffer packetSize = readBuffer.slice();
@@ -385,7 +379,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                                         int size = Packet.FIELD_SIZE.value(packetSize);
 
                                         if (messageLength == size) {
-
                                             ByteBuffer packetType = readBuffer.slice();
                                             packetType.position(32);
                                             packetType.limit(34);
@@ -409,8 +402,8 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                                         }
                                     }
                                 } else if (key.isValid() && key.isWritable()) {
-                                    // a channel is ready for writing
                                     // block of code only for completeness purposes
+                                    logger.trace("Channel is ready for writing");
                                 }
                             }
                         }
@@ -432,13 +425,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 boolean waitingForLightResponse = System.currentTimeMillis() - light.lastRequestTimeMillis < 200;
 
                 if (light.supportedProduct && !light.isDataComplete() && !waitingForLightResponse) {
-                    DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                            .setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    unicastChannel.configureBlocking(false);
-                    SelectionKey unicastKey = unicastChannel.register(selector,
-                            SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                    unicastChannel.connect(light.socketAddress);
-                    logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
+                    SelectionKey unicastKey = openUnicastChannel(light);
 
                     if (light.products == null) {
                         sendLightDataRequestPacket(light, new GetVersionRequest(), VERSION_REQUEST_SEQ_NO, unicastKey);
@@ -452,16 +439,24 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 }
             }
         }
+
+        private SelectionKey openUnicastChannel(DiscoveredLight light) throws IOException, ClosedChannelException {
+            DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                    .setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            unicastChannel.configureBlocking(false);
+            SelectionKey unicastKey = unicastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+            unicastChannel.connect(light.socketAddress);
+            logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
+            return unicastKey;
+        }
     };
 
     private void handlePacket(Packet packet, InetSocketAddress address) {
-
         logger.trace("Discovery : Packet type '{}' received from '{}' for '{}' with sequence '{}' and source '{}'",
                 new Object[] { packet.getClass().getSimpleName(), address.toString(), packet.getTarget().getHex(),
                         packet.getSequence(), Long.toString(packet.getSource(), 16) });
 
         if (packet.getSource() == source || packet.getSource() == 0) {
-
             DiscoveredLight light = discoveredLights.get(packet.getTarget());
 
             if (packet instanceof StateServiceResponse) {
