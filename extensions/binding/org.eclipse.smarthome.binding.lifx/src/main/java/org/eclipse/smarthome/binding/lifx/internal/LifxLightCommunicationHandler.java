@@ -66,6 +66,7 @@ public class LifxLightCommunicationHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightCommunicationHandler.class);
 
+    private final boolean broadcastEnabled;
     private final MACAddress macAddress;
     private final String macAsHex;
     private final ScheduledExecutorService scheduler;
@@ -81,7 +82,6 @@ public class LifxLightCommunicationHandler {
     private ScheduledFuture<?> networkJob;
     private Selector selector;
 
-    private boolean broadcastEnabled;
     private InetSocketAddress ipAddress;
     private DatagramChannel unicastChannel;
     private SelectionKey unicastKey;
