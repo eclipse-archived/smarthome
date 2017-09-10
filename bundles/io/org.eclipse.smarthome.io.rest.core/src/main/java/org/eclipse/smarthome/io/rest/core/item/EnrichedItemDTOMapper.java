@@ -45,7 +45,7 @@ public class EnrichedItemDTOMapper {
 
         String state = item.getState().toFullString();
         String transformedState = considerTransformation(state, item.getStateDescription(locale));
-        if (transformedState.equals(state)) {
+        if (transformedState != null && transformedState.equals(state)) {
             transformedState = null;
         }
         StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
@@ -90,7 +90,7 @@ public class EnrichedItemDTOMapper {
     }
 
     private static String considerTransformation(String state, StateDescription stateDescription) {
-        if (stateDescription != null && stateDescription.getPattern() != null) {
+        if (stateDescription != null && stateDescription.getPattern() != null && state != null) {
             try {
                 return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
                         stateDescription.getPattern(), state.toString());
