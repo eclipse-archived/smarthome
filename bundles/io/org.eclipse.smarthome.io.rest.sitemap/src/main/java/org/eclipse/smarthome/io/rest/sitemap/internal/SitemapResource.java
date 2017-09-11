@@ -300,10 +300,9 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
                             logger.debug("Received HTTP GET request at '{}' for the unknown page id '{}'.", uri,
                                     pageId);
                         } else {
-                            logger.debug(
-                                    "Received HTTP GET request at '{}' for the page id '{}'. "
-                                            + "This id refers to a non-linkable widget and is therefore no valid page id.",
-                                    uri, pageId);
+                            logger.debug("Received HTTP GET request at '{}' for the page id '{}'. "
+                                    + "This id refers to a non-linkable widget and is therefore no valid page id.", uri,
+                                    pageId);
                         }
                     }
                     throw new WebApplicationException(404);
@@ -413,9 +412,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             EList<Widget> children = itemUIRegistry.getChildren(linkableWidget);
             if (widget instanceof Frame) {
                 int cntWidget = 0;
+                String wID = widgetId;
                 for (Widget child : children) {
-                    widgetId += "_" + cntWidget;
-                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, widgetId, locale);
+                    wID += "_" + cntWidget;
+                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, wID, locale);
                     if (subWidget != null) {
                         bean.widgets.add(subWidget);
                         cntWidget++;

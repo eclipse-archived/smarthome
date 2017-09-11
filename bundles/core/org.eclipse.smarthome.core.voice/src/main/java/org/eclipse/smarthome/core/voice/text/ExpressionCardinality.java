@@ -41,7 +41,8 @@ public final class ExpressionCardinality extends Expression {
     }
 
     @Override
-    ASTNode parse(ResourceBundle language, TokenList list) {
+    ASTNode parse(ResourceBundle language, TokenList tokenList) {
+        TokenList list = tokenList;
         ASTNode node = new ASTNode(), cr;
         ArrayList<ASTNode> nodes = new ArrayList<ASTNode>();
         ArrayList<Object> values = new ArrayList<Object>();

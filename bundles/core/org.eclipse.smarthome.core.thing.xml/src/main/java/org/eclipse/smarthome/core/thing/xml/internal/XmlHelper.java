@@ -26,9 +26,12 @@ public class XmlHelper {
      * @return system uid (e.g. "system:test")
      */
     public static String getSystemUID(String typeId) {
+        String type;
         if (typeId.startsWith(SYSTEM_NAMESPACE_PREFIX)) {
-            typeId = typeId.substring(SYSTEM_NAMESPACE_PREFIX.length());
+            type = typeId.substring(SYSTEM_NAMESPACE_PREFIX.length());
+        } else {
+            type = typeId;
         }
-        return String.format("%s:%s", SYSTEM_NAMESPACE, typeId);
+        return String.format("%s:%s", SYSTEM_NAMESPACE, type);
     }
 }

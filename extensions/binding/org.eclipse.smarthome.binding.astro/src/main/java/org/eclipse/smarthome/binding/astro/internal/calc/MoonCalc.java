@@ -217,13 +217,16 @@ public class MoonCalc {
             return riseSet;
         }
         double riseMinute = (riseSet - Math.floor(riseSet)) * 60.0 / 100.0;
+        double rounded;
         if (riseMinute >= .595) {
             riseMinute = 0;
-            riseSet += 1;
+            rounded = riseSet + 1;
+        } else {
+            rounded = riseSet;
         }
-        riseSet = Math.floor(riseSet) + riseMinute;
+        rounded = Math.floor(rounded) + riseMinute;
 
-        BigDecimal bd = new BigDecimal(Double.toString(riseSet));
+        BigDecimal bd = new BigDecimal(Double.toString(rounded));
         bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
         return bd.doubleValue();
     }
@@ -232,14 +235,14 @@ public class MoonCalc {
      * Calculates the moon phase.
      */
     private double calcMoonPhase(double k, double mode) {
-        k = Math.floor(k) + mode;
-        double t = k / 1236.85;
+        double k_mod = Math.floor(k) + mode;
+        double t = k_mod / 1236.85;
         double e = var_e(t);
-        double m = var_m(k, t);
-        double m1 = var_m1(k, t);
-        double f = var_f(k, t);
-        double o = var_o(k, t);
-        double jd = var_jde(k, t);
+        double m = var_m(k_mod, t);
+        double m1 = var_m1(k_mod, t);
+        double f = var_f(k_mod, t);
+        double o = var_o(k_mod, t);
+        double jd = var_jde(k_mod, t);
         if (mode == NEW_MOON) {
             jd += -.4072 * SN(m1) + .17241 * e * SN(m) + .01608 * SN(2 * m1) + .01039 * SN(2 * f)
                     + .00739 * e * SN(m1 - m) - .00514 * e * SN(m1 + m) + .00208 * e * e * SN(2 * m)
@@ -277,32 +280,32 @@ public class MoonCalc {
                     + .00002 * CS(2 * f);
             jd += (mode == FIRST_QUARTER) ? w : -w;
         }
-        return moonCorrection(jd, t, k);
+        return moonCorrection(jd, t, k_mod);
     }
 
     /**
      * Calculates the eclipse.
      */
     private double getEclipse(double k, double typ, int mode) {
-        k = Math.floor(k) + typ;
-        double t = k / 1236.85;
-        double f = var_f(k, t);
+        double k_mod = Math.floor(k) + typ;
+        double t = k_mod / 1236.85;
+        double f = var_f(k_mod, t);
         double jd = 0;
         double ringTest = 0;
         if (SN(Math.abs(f)) <= .36) {
-            double o = var_o(k, t);
+            double o = var_o(k_mod, t);
             double f1 = f - .02665 * SN(o);
-            double a1 = 299.77 + .107408 * k - .009173 * t * t;
+            double a1 = 299.77 + .107408 * k_mod - .009173 * t * t;
             double e = var_e(t);
-            double m = var_m(k, t);
-            double m1 = var_m1(k, t);
+            double m = var_m(k_mod, t);
+            double m1 = var_m1(k_mod, t);
             double p = .207 * e * SN(m) + .0024 * e * SN(2 * m) - .0392 * SN(m1) + .0116 * SN(2 * m1)
                     - .0073 * e * SN(m1 + m) + .0067 * e * SN(m1 - m) + .0118 * SN(2 * f1);
             double q = 5.2207 - .0048 * e * CS(m) + .002 * e * CS(2 * m) - .3299 * CS(m1) - .006 * e * CS(m1 + m)
                     + .0041 * e * CS(m1 - m);
             double g = (p * CS(f1) + q * SN(f1)) * (1 - .0048 * CS(Math.abs(f1)));
             double u = .0059 + .0046 * e * CS(m) - .0182 * CS(m1) + .0004 * CS(2 * m1) - .0005 * CS(m + m1);
-            jd = var_jde(k, t);
+            jd = var_jde(k_mod, t);
             jd += (typ == ECLIPSE_TYPE_MOON) ? -.4065 * SN(m1) + .1727 * e * SN(m)
                     : -.4075 * SN(m1) + .1721 * e * SN(m);
 
@@ -542,11 +545,11 @@ public class MoonCalc {
     }
 
     private double FRAK(double x) {
-        x = x - (int) (x);
-        if (x < 0) {
-            x += 1;
+        double ret = x - (int) (x);
+        if (ret < 0) {
+            ret += 1;
         }
-        return x;
+        return ret;
     }
 
     private double[] QUAD(double yminus, double yo, double yplus) {
@@ -606,15 +609,16 @@ public class MoonCalc {
     }
 
     private double moonCorrection(double jd, double t, double k) {
-        jd += .000325 * SN(299.77 + .107408 * k - .009173 * t * t) + .000165 * SN(251.88 + .016321 * k)
+        double ret = jd;
+        ret += .000325 * SN(299.77 + .107408 * k - .009173 * t * t) + .000165 * SN(251.88 + .016321 * k)
                 + .000164 * SN(251.83 + 26.651886 * k) + .000126 * SN(349.42 + 36.412478 * k)
                 + .00011 * SN(84.66 + 18.206239 * k);
-        jd += .000062 * SN(141.74 + 53.303771 * k) + .00006 * SN(207.14 + 2.453732 * k)
+        ret += .000062 * SN(141.74 + 53.303771 * k) + .00006 * SN(207.14 + 2.453732 * k)
                 + .000056 * SN(154.84 + 7.30686 * k) + .000047 * SN(34.52 + 27.261239 * k)
                 + .000042 * SN(207.19 + .121824 * k) + .00004 * SN(291.34 + 1.844379 * k);
-        jd += .000037 * SN(161.72 + 24.198154 * k) + .000035 * SN(239.56 + 25.513099 * k)
+        ret += .000037 * SN(161.72 + 24.198154 * k) + .000035 * SN(239.56 + 25.513099 * k)
                 + .000023 * SN(331.55 + 3.592518 * k);
-        return jd;
+        return ret;
     }
 
     private double getCoefficient(double d, double m, double m1, double f) {
@@ -776,8 +780,8 @@ public class MoonCalc {
      */
     private double toGMST(double jd) {
         double ut = (jd - 0.5 - Math.floor(jd - 0.5)) * 24.;
-        jd = Math.floor(jd - 0.5) + 0.5;
-        double t = (jd - 2451545.0) / 36525.0;
+        double jd_mod = Math.floor(jd - 0.5) + 0.5;
+        double t = (jd_mod - 2451545.0) / 36525.0;
         double t0 = 6.697374558 + t * (2400.051336 + t * 0.000025862);
         return (mod(t0 + ut * 1.002737909, 24.));
     }

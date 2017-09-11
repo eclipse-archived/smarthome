@@ -910,15 +910,15 @@ public class SonosXMLParser {
      * @return the extracted players model name without column (:) character used for ThingType creation
      */
     public static String extractModelName(String sonosModelName) {
-        //
-        Matcher matcher = Pattern.compile("\\s(.*)").matcher(sonosModelName);
+        String ret = sonosModelName;
+        Matcher matcher = Pattern.compile("\\s(.*)").matcher(ret);
         if (matcher.find()) {
-            sonosModelName = matcher.group(1);
+            ret = matcher.group(1);
         }
-        if (sonosModelName.contains(":")) {
-            sonosModelName = sonosModelName.replace(":", "");
+        if (ret.contains(":")) {
+            ret = ret.replace(":", "");
         }
-        return sonosModelName;
+        return ret;
     }
 
     public static String compileMetadataString(SonosEntry entry) {

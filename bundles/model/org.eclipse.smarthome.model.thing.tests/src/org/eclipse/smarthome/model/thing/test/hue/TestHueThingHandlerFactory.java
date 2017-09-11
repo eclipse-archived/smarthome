@@ -78,21 +78,22 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-        if (thingUID == null) {
+        if (thingUID != null) {
+            return thingUID;
+        } else {
             String serialNumber = (String) configuration.get(SERIAL_NUMBER);
-            thingUID = new ThingUID(thingTypeUID, serialNumber);
+            return new ThingUID(thingTypeUID, serialNumber);
         }
-        return thingUID;
     }
 
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        String lightId = (String) configuration.get(LIGHT_ID);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String lightId = (String) configuration.get(LIGHT_ID);
+            return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
         }
-        return thingUID;
     }
 
     @Override

@@ -70,11 +70,12 @@ public class PageRenderer extends AbstractWidgetRenderer {
         // Note: we can have a span here, if the parent widget had a label
         // with some value defined (e.g. "Windows [%d]"), which getLabel()
         // will convert into a "Windows <span>5</span>".
-        if (label.contains("[") && label.endsWith("]")) {
-            label = label.replace("[", "").replace("]", "");
+        String labelPlain = label;
+        if (labelPlain.contains("[") && labelPlain.endsWith("]")) {
+            labelPlain = labelPlain.replace("[", "").replace("]", "");
         }
         snippet = StringUtils.replace(snippet, "%labelstyle%", "");
-        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(label));
+        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(labelPlain));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
 

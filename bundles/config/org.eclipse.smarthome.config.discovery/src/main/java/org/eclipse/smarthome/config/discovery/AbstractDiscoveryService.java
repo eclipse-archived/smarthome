@@ -310,12 +310,11 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void removeOlderResults(long timestamp, Collection<ThingTypeUID> thingTypeUIDs) {
         Collection<ThingUID> removedThings = null;
-        if (thingTypeUIDs == null) {
-            thingTypeUIDs = getSupportedThingTypes();
-        }
+
+        Collection<ThingTypeUID> toBeRemoved = thingTypeUIDs != null ? thingTypeUIDs : getSupportedThingTypes();
         for (DiscoveryListener discoveryListener : discoveryListeners) {
             try {
-                removedThings = discoveryListener.removeOlderResults(this, timestamp, thingTypeUIDs);
+                removedThings = discoveryListener.removeOlderResults(this, timestamp, toBeRemoved);
             } catch (Exception e) {
                 logger.error("An error occurred while calling the discovery listener {}.",
                         discoveryListener.getClass().getName(), e);

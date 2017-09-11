@@ -253,13 +253,11 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      */
     @SuppressWarnings({ "rawtypes" })
     protected void addEvent(Bundle bundle, BundleEvent event) {
-        if (event == null) {
-            event = initializeEvent(bundle);
-        }
+        BundleEvent e = event != null ? event : initializeEvent(bundle);
         synchronized (queue) {
-            queue.add(event);
+            queue.add(e);
             for (AutomationResourceBundlesEventQueue queue : providerEventsQueue) {
-                queue.addEvent(bundle, event);
+                queue.addEvent(bundle, e);
             }
         }
     }

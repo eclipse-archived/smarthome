@@ -132,15 +132,14 @@ public class LanguageResourceBundleManager {
      */
     public String getText(String resource, String key, Locale locale) {
         if ((key != null) && (!key.isEmpty())) {
-            if (locale == null) {
-                locale = localeProvider.getLocale();
-            }
+
+            Locale effectiveLocale = locale != null ? locale : localeProvider.getLocale();
 
             if (resource != null) {
-                return getTranslatedText(resource, key, locale);
+                return getTranslatedText(resource, key, effectiveLocale);
             } else {
                 for (String resourceName : this.resourceNames) {
-                    String text = getTranslatedText(resourceName, key, locale);
+                    String text = getTranslatedText(resourceName, key, effectiveLocale);
 
                     if (text != null) {
                         return text;

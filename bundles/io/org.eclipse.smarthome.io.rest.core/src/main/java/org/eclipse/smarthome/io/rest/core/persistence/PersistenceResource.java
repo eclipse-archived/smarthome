@@ -198,20 +198,19 @@ public class PersistenceResource implements RESTResource {
 
         // If serviceId is null, then use the default service
         PersistenceService service = null;
-        if (serviceId == null) {
-            serviceId = persistenceServiceRegistry.getDefaultId();
-        }
-        service = persistenceServiceRegistry.get(serviceId);
+        String effectiveServiceId = serviceId != null ? serviceId : persistenceServiceRegistry.getDefaultId();
+        service = persistenceServiceRegistry.get(effectiveServiceId);
 
         if (service == null) {
-            logger.debug("Persistence service not found '{}'.", serviceId);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
+            logger.debug("Persistence service not found '{}'.", effectiveServiceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
+                    "Persistence service not found: " + effectiveServiceId);
         }
 
         if (!(service instanceof QueryablePersistenceService)) {
-            logger.debug("Persistence service not queryable '{}'.", serviceId);
+            logger.debug("Persistence service not queryable '{}'.", effectiveServiceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not queryable: " + serviceId);
+                    "Persistence service not queryable: " + effectiveServiceId);
         }
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -421,14 +420,12 @@ public class PersistenceResource implements RESTResource {
     private Response putItemState(String serviceId, String itemName, String value, String time) {
         // If serviceId is null, then use the default service
         PersistenceService service = null;
-        if (serviceId == null) {
-            serviceId = persistenceServiceRegistry.getDefaultId();
-        }
-        service = persistenceServiceRegistry.get(serviceId);
+        String effectiveServiceId = serviceId != null ? serviceId : persistenceServiceRegistry.getDefaultId();
+        service = persistenceServiceRegistry.get(effectiveServiceId);
 
         if (service == null) {
-            logger.warn("Persistence service not found '{}'.", serviceId);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + serviceId);
+            logger.warn("Persistence service not found '{}'.", effectiveServiceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + effectiveServiceId);
         }
 
         Item item;
@@ -461,9 +458,9 @@ public class PersistenceResource implements RESTResource {
         }
 
         if (!(service instanceof ModifiablePersistenceService)) {
-            logger.warn("Persistence service not modifiable '{}'.", serviceId);
+            logger.warn("Persistence service not modifiable '{}'.", effectiveServiceId);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not modifiable: " + serviceId);
+                    "Persistence service not modifiable: " + effectiveServiceId);
         }
 
         ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
