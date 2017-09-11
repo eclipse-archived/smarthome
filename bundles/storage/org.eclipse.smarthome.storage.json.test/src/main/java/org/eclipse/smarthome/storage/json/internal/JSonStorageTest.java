@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.storage.json;
+package org.eclipse.smarthome.storage.json.internal;
 
 import static org.junit.Assert.*;
 
@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.storage.json.internal.JsonStorage;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;

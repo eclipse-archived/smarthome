@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.storage.json;
+package org.eclipse.smarthome.storage.json.internal;
 
 import java.io.File;
 import java.io.FileNotFoundException;
