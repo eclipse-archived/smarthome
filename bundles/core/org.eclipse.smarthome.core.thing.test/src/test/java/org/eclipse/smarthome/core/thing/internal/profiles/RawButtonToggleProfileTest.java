@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.CommonTriggerEvents;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -35,10 +37,15 @@ import org.mockito.Mock;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class RawButtonTriggerProfileTest {
+public class RawButtonToggleProfileTest {
 
+    @NonNull
     private static final String TEST_ITEM = "testItem";
+
+    @NonNull
     private static final ThingUID THING_UID = new ThingUID("test", "thing");
+
+    @NonNull
     private static final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
 
     @Mock
@@ -51,7 +58,7 @@ public class RawButtonTriggerProfileTest {
 
     @Test
     public void testSwitchItem() {
-        RawButtonTriggerProfile profile = new RawButtonTriggerProfile();
+        TriggerProfile profile = new RawButtonToggleProfile();
         SwitchItem item = new SwitchItem(TEST_ITEM);
         verifyAction(profile, item, UnDefType.NULL, OnOffType.ON);
         verifyAction(profile, item, OnOffType.ON, OnOffType.OFF);
@@ -60,15 +67,14 @@ public class RawButtonTriggerProfileTest {
 
     @Test
     public void testColorItem() {
-        RawButtonTriggerProfile profile = new RawButtonTriggerProfile();
+        TriggerProfile profile = new RawButtonToggleProfile();
         ColorItem item = new ColorItem(TEST_ITEM);
         verifyAction(profile, item, UnDefType.NULL, OnOffType.ON);
         verifyAction(profile, item, HSBType.WHITE, OnOffType.OFF);
         verifyAction(profile, item, HSBType.BLACK, OnOffType.ON);
     }
 
-    private void verifyAction(RawButtonTriggerProfile profile, GenericItem item, State preCondition,
-            Command expectation) {
+    private void verifyAction(TriggerProfile profile, GenericItem item, State preCondition, Command expectation) {
         ItemChannelLink link = new ItemChannelLink(TEST_ITEM, CHANNEL_UID);
         ArgumentCaptor<ItemCommandEvent> eventCaptor = ArgumentCaptor.forClass(ItemCommandEvent.class);
         item.setState(preCondition);
