@@ -18,13 +18,13 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 /**
  * This profile allows a channel of the "system:rawbutton" type to be bound to an item.
  *
- * It reads the triggered events and uses the item's current state to calculate the new state once it detects that the
+ * It reads the triggered events and uses the item's current state and toggles it once it detects that the
  * button was pressed.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class RawButtonTriggerProfile implements TriggerProfile {
+public class RawButtonToggleProfile implements TriggerProfile {
 
     @Override
     public void onTrigger(EventPublisher eventPublisher, ItemChannelLink link, String event, Item item) {
