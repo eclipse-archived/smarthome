@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.module.core.handler.exception;
+package org.eclipse.smarthome.automation.module.core.internal.exception;
 
 /**
  * This Exception is used as an indicator for not matching types during comparation
