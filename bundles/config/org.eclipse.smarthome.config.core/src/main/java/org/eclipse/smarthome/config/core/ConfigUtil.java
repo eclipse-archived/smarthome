@@ -8,14 +8,15 @@
 package org.eclipse.smarthome.config.core;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.normalization.Normalizer;
 import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
@@ -48,7 +49,7 @@ public class ConfigUtil {
             String name = parameter.getKey();
             Object value = parameter.getValue();
             if (!isOSGiConfigParameter(name)) {
-                convertedConfiguration.put(name, normalizeType(value));
+                convertedConfiguration.put(name, normalizeType(value, null));
             }
         }
         return convertedConfiguration;
@@ -59,7 +60,9 @@ public class ConfigUtil {
      *
      * @param value the value to return as normalized type
      * @return corresponding value as a valid type
+     * @deprecated
      */
+    @Deprecated
     public static Object normalizeType(Object value) {
         return normalizeType(value, null);
     }
@@ -82,34 +85,9 @@ public class ConfigUtil {
         } else if (value instanceof Number) {
             return new BigDecimal(value.toString());
         } else if (value instanceof Collection) {
-            return normalizeCollection((Collection<?>) value);
+            return ((Collection<?>) value).stream().map(c -> normalizeType(c, null)).collect(Collectors.toList());
         }
-        throw new IllegalArgumentException(
-                "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
-    }
-
-    /**
-     * Normalizes a collection.
-     *
-     * @param collection the collection that entries should be normalized
-     * @return a collection that contains the normalized entries
-     * @throws IllegalArgumentException if the type of the normalized values differ or an invalid type has been given
-     */
-    private static Collection<Object> normalizeCollection(Collection<?> collection) throws IllegalArgumentException {
-        if (collection.size() == 0) {
-            return Collections.emptyList();
-        } else {
-            final List<Object> lst = new ArrayList<>(collection.size());
-            for (final Object it : collection) {
-                final Object normalized = normalizeType(it);
-                lst.add(normalized);
-                if (normalized.getClass() != lst.get(0).getClass()) {
-                    throw new IllegalArgumentException(
-                            "Invalid configuration property. Heterogeneous collection value!");
-                }
-            }
-            return lst;
-        }
+        return value;
     }
 
     /**
@@ -127,12 +105,12 @@ public class ConfigUtil {
      * @param configuration the configuration to be normalized (can be null)
      * @param configDescriptions the configuration descriptions that should be applied (must not be null or empty).
      * @return the normalized configuration or null if given configuration was null
-     * @throws IllegalArgumentExcetpion if given config description is null
+     * @throws IllegalArgumentException if given config description is empty
      */
-    public static Map<String, Object> normalizeTypes(Map<String, Object> configuration,
-            List<ConfigDescription> configDescriptions) {
-        if (configDescriptions == null || configDescriptions.isEmpty()) {
-            throw new IllegalArgumentException("Config description must not be null.");
+    public static Map<String, Object> normalizeTypes(@Nullable Map<String, Object> configuration,
+            @NonNull List<ConfigDescription> configDescriptions) {
+        if (configDescriptions.isEmpty()) {
+            throw new IllegalArgumentException("Config description must not be empty.");
         }
 
         if (configuration == null) {
@@ -145,14 +123,12 @@ public class ConfigUtil {
         for (int i = configDescriptions.size() - 1; i >= 0; i--) {
             configParams.putAll(configDescriptions.get(i).toParametersMap());
         }
-        for (Entry<String, ?> parameter : configuration.entrySet()) {
-            String name = parameter.getKey();
-            Object value = parameter.getValue();
+        configuration.forEach((name, value) -> {
             if (!isOSGiConfigParameter(name)) {
                 ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
                 convertedConfiguration.put(name, normalizeType(value, configDescriptionParameter));
             }
-        }
+        });
         return convertedConfiguration;
     }
 

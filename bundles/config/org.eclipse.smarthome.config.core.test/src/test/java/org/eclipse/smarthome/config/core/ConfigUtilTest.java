@@ -11,47 +11,59 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
-import java.net.*;
-import java.util.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  * @author Simon Kaufmann - initial contribution and API.
+ * @author David Graeff - From Groovy to Java
  *
  */
-class ConfigUtilTest {
-    private Map<String, Object> m(String a, Object b) {
-        Map<String, Object> m = new HashMap<>();
-        m.put(a, b);
-        return m;
+public class ConfigUtilTest {
+    private ConfigDescriptionParameter configDescriptionParameterInteger;
+    private ConfigDescriptionParameter configDescriptionParameterString;
+    private ConfigDescription configDescriptionInteger;
+    private ConfigDescription configDescriptionString;
+
+    @Before
+    public void setup() throws IllegalArgumentException, URISyntaxException {
+        configDescriptionParameterInteger = new ConfigDescriptionParameter("foo", Type.INTEGER);
+        configDescriptionInteger = new ConfigDescription(new URI("thing:fooThing"),
+                Arrays.asList(configDescriptionParameterInteger));
+
+        configDescriptionParameterString = new ConfigDescriptionParameter("foo", Type.TEXT);
+        configDescriptionString = new ConfigDescription(new URI("thingType:fooThing"),
+                Arrays.asList(configDescriptionParameterString));
     }
 
-    private static class L<T> extends ArrayList<T> {
-        L(T... args) {
-            for (T arg : args) {
-                add(arg);
-            }
-        }
-    };
+    @Test
+    public void normalizeIgnoresUnknownObjects() {
+        Object testObject = new Object();
+        assertThat(ConfigUtil.normalizeType(testObject, null), is(testObject));
+    }
 
     @Test
+    public void normalizeWithDescriptor() {
+        assertThat(ConfigUtil.normalizeType("1", configDescriptionParameterInteger), is(instanceOf(BigDecimal.class)));
+        assertThat(ConfigUtil.normalizeType("foo", configDescriptionParameterString), is(instanceOf(String.class)));
+    }
+
+    @SuppressWarnings("null")
+    @Test
     public void firstDesciptionWinsForNormalization() throws URISyntaxException {
-        ConfigDescription configDescriptionInteger = new ConfigDescription(new URI("thing:fooThing"),
-                new L<>(new ConfigDescriptionParameter("foo", Type.INTEGER)));
-
-        ConfigDescription configDescriptionString = new ConfigDescription(new URI("thingType:fooThing"),
-                new L<>(new ConfigDescriptionParameter("foo", Type.TEXT)));
-
-        assertThat(ConfigUtil.normalizeTypes(m("foo", "1"), new L<>(configDescriptionInteger)).get("foo"),
-                is(instanceOf(BigDecimal.class)));
-        assertThat(ConfigUtil.normalizeTypes(m("foo", "1"), new L<>(configDescriptionString)).get("foo"),
-                is(instanceOf(String.class)));
-        assertThat(ConfigUtil.normalizeTypes(m("foo", "1"), new L<>(configDescriptionInteger, configDescriptionString))
+        Map<String, Object> data = new HashMap<>();
+        data.put("foo", 1);
+        assertThat(ConfigUtil.normalizeTypes(data, Arrays.asList(configDescriptionInteger, configDescriptionString))
                 .get("foo"), is(instanceOf(BigDecimal.class)));
-        assertThat(ConfigUtil.normalizeTypes(m("foo", "1"), new L<>(configDescriptionString, configDescriptionInteger))
+        assertThat(ConfigUtil.normalizeTypes(data, Arrays.asList(configDescriptionString, configDescriptionInteger))
                 .get("foo"), is(instanceOf(String.class)));
     }
 }
