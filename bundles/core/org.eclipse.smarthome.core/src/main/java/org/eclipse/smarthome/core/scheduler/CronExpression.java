@@ -11,11 +11,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.scheduler.AbstractExpressionPart.BoundedIntegerSet;
 import org.eclipse.smarthome.core.scheduler.CronExpression.CronExpressionPart;
 import org.slf4j.Logger;
@@ -223,14 +225,27 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
     @Override
     protected void validateExpression() throws IllegalArgumentException {
 
-        DayOfMonthExpressionPart domPart = (DayOfMonthExpressionPart) this
-                .getExpressionPart(DayOfMonthExpressionPart.class);
-        DayOfWeekExpressionPart dowPart = (DayOfWeekExpressionPart) this
-                .getExpressionPart(DayOfWeekExpressionPart.class);
+        DayOfMonthExpressionPart domPart = (DayOfMonthExpressionPart) getExpressionPart(DayOfMonthExpressionPart.class);
+        DayOfWeekExpressionPart dowPart = (DayOfWeekExpressionPart) getExpressionPart(DayOfWeekExpressionPart.class);
 
         if (domPart.isNotSpecific() && dowPart.isNotSpecific()) {
             throw new IllegalArgumentException(
                     "The DayOfMonth and DayOfWeek rule parts CAN NOT be not specific at the same time.");
+        }
+
+        YearsExpressionPart yearsPart = (YearsExpressionPart) getExpressionPart(YearsExpressionPart.class);
+
+        if (yearsPart == null) {
+            List<@NonNull CronExpressionPart> ep = getExpressionParts();
+            List<@NonNull CronExpressionPart> parts = new LinkedList<@NonNull CronExpressionPart>();
+            parts.addAll(ep);
+
+            try {
+                parts.add(new YearsExpressionPart("*"));
+            } catch (ParseException e) {
+                throw new IllegalArgumentException("Year rule part must contain * as a token");
+            }
+            setExpressionParts(parts);
         }
 
     }
@@ -1094,7 +1109,7 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                     } else {
                         Calendar current = Calendar.getInstance();
                         current.setTime(date);
-                        for (int i = 1; i <= 5; i++) {
+                        for (int i = 1; i <= 6; i++) {
                             cal.setTime(date);
                             cal.set(Calendar.WEEK_OF_MONTH, i);
                             Date weekInMonth = cal.getTime();
