@@ -225,15 +225,15 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
     @Override
     protected void validateExpression() throws IllegalArgumentException {
 
-        DayOfMonthExpressionPart domPart = (DayOfMonthExpressionPart) getExpressionPart(DayOfMonthExpressionPart.class);
-        DayOfWeekExpressionPart dowPart = (DayOfWeekExpressionPart) getExpressionPart(DayOfWeekExpressionPart.class);
+        DayOfMonthExpressionPart domPart = getExpressionPart(DayOfMonthExpressionPart.class);
+        DayOfWeekExpressionPart dowPart = getExpressionPart(DayOfWeekExpressionPart.class);
 
         if (domPart.isNotSpecific() && dowPart.isNotSpecific()) {
             throw new IllegalArgumentException(
                     "The DayOfMonth and DayOfWeek rule parts CAN NOT be not specific at the same time.");
         }
 
-        YearsExpressionPart yearsPart = (YearsExpressionPart) getExpressionPart(YearsExpressionPart.class);
+        YearsExpressionPart yearsPart = getExpressionPart(YearsExpressionPart.class);
 
         if (yearsPart == null) {
             List<@NonNull CronExpressionPart> ep = getExpressionParts();
