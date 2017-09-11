@@ -166,7 +166,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
             position++;
             parts.add(parseToken(token, position));
         }
-        Collections.sort(parts);
         setExpressionParts(parts);
 
         validateExpression();
@@ -366,6 +365,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     public void setExpressionParts(List<@NonNull E> expressionParts) {
         synchronized (this) {
+            Collections.sort(expressionParts);
             this.expressionParts = Collections.unmodifiableList(new LinkedList<>(expressionParts));
         }
     }
