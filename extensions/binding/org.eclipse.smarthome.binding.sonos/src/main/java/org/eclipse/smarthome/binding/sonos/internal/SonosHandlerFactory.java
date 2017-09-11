@@ -143,14 +143,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-
-        String udn = (String) configuration.get(UDN);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, udn);
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String udn = (String) configuration.get(UDN);
+            return new ThingUID(thingTypeUID, udn);
         }
-
-        return thingUID;
     }
 
     @Reference

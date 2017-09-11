@@ -43,8 +43,8 @@ public class WeatherUndergroundJsonUtils {
         String fieldName = fields[index];
         Method method = data.getClass().getMethod(toGetterString(fieldName), null);
         Object result = method.invoke(data, (Object[]) null);
-        if (++index < fields.length) {
-            result = getValue(result, fields, index);
+        if (index + 1 < fields.length) {
+            result = getValue(result, fields, index + 1);
         }
         return result;
     }

@@ -126,22 +126,23 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     @Override
-    public void say(String text, String voiceId, String sinkId) {
+    public void say(String text, String voiceIda, String sinkId) {
         try {
             TTSService tts = null;
             Voice voice = null;
-            if (voiceId == null) {
+            String selectedVoiceId = voiceIda;
+            if (selectedVoiceId == null) {
                 // use the configured default, if set
-                voiceId = defaultVoice;
+                selectedVoiceId = defaultVoice;
             }
-            if (voiceId == null) {
+            if (selectedVoiceId == null) {
                 tts = getTTS();
                 if (tts != null) {
                     voice = getPreferredVoice(tts.getAvailableVoices());
                 }
-            } else if (voiceId.contains(":")) {
+            } else if (selectedVoiceId.contains(":")) {
                 // it is a fully qualified unique id
-                String[] segments = voiceId.split(":");
+                String[] segments = selectedVoiceId.split(":");
                 tts = getTTS(segments[0]);
                 if (tts != null) {
                     voice = getVoice(tts.getAvailableVoices(), segments[1]);
@@ -150,11 +151,11 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 // voiceId is not fully qualified
                 tts = getTTS();
                 if (tts != null) {
-                    voice = getVoice(tts.getAvailableVoices(), voiceId);
+                    voice = getVoice(tts.getAvailableVoices(), selectedVoiceId);
                 }
             }
             if (tts == null) {
-                throw new TTSException("No TTS service can be found for voice " + voiceId);
+                throw new TTSException("No TTS service can be found for voice " + selectedVoiceId);
             }
             if (voice == null) {
                 throw new TTSException(
@@ -369,24 +370,25 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     @Override
-    public void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli,
-            AudioSource source, AudioSink sink, Locale locale, String keyword, String listeningItem) {
+    public void startDialog(KSService ksService, STTService sttService, TTSService ttsService,
+            HumanLanguageInterpreter interpreter, AudioSource audioSource, AudioSink audioSink, Locale locale,
+            String keyword, String listeningItem) {
 
         // use defaults, if null
-        ks = (ks == null) ? getKS() : ks;
-        stt = (stt == null) ? getSTT() : stt;
-        tts = (tts == null) ? getTTS() : tts;
-        hli = (hli == null) ? getHLI() : hli;
-        source = (source == null) ? audioManager.getSource() : source;
-        sink = (sink == null) ? audioManager.getSink() : sink;
-        locale = (locale == null) ? localeProvider.getLocale() : locale;
-        keyword = (keyword == null) ? this.keyword : keyword;
-        listeningItem = (listeningItem == null) ? this.listeningItem : listeningItem;
+        KSService ks = (ksService == null) ? getKS() : ksService;
+        STTService stt = (sttService == null) ? getSTT() : sttService;
+        TTSService tts = (ttsService == null) ? getTTS() : ttsService;
+        HumanLanguageInterpreter hli = (interpreter == null) ? getHLI() : interpreter;
+        AudioSource source = (audioSource == null) ? audioManager.getSource() : audioSource;
+        AudioSink sink = (audioSink == null) ? audioManager.getSink() : audioSink;
+        Locale loc = (locale == null) ? localeProvider.getLocale() : locale;
+        String kw = (keyword == null) ? this.keyword : keyword;
+        String item = (listeningItem == null) ? this.listeningItem : listeningItem;
 
-        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null && locale != null
-                && keyword != null) {
-            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, locale, keyword,
-                    listeningItem, this.eventPublisher);
+        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null && loc != null
+                && kw != null) {
+            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, loc, kw, item,
+                    this.eventPublisher);
             processor.start();
         } else {
             String msg = "Cannot start dialog as services are missing.";

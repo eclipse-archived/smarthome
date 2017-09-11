@@ -187,9 +187,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public Widget getDefaultWidget(Class<? extends Item> itemType, String itemName) {
+    public Widget getDefaultWidget(Class<? extends Item> targetItemType, String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
-            Widget widget = provider.getDefaultWidget(itemType, itemName);
+            Widget widget = provider.getDefaultWidget(targetItemType, itemName);
             if (widget != null) {
                 return widget;
             }
@@ -197,6 +197,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
         // do some reasonable default, if no provider had an answer
         // if the itemType is not defined, try to get it from the item name
+        Class<? extends Item> itemType = targetItemType;
         if (itemType == null) {
             itemType = getItemType(itemName);
         }
@@ -381,12 +382,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     private String getFormatPattern(String label) {
-        label = label.trim();
-        int indexOpenBracket = label.indexOf("[");
-        int indexCloseBracket = label.endsWith("]") ? label.length() - 1 : -1;
+        String pattern = label.trim();
+        int indexOpenBracket = pattern.indexOf("[");
+        int indexCloseBracket = pattern.endsWith("]") ? pattern.length() - 1 : -1;
 
         if ((indexOpenBracket >= 0) && (indexCloseBracket > indexOpenBracket)) {
-            return label.substring(indexOpenBracket + 1, indexCloseBracket);
+            return pattern.substring(indexOpenBracket + 1, indexCloseBracket);
         } else {
             return null;
         }
@@ -440,6 +441,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * we return the label with the mapped option value if provided (not null).
      */
     private String transform(String label, String labelMappedOption) {
+        String ret = label;
         if (getFormatPattern(label) != null) {
             Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(label);
             if (matcher.find()) {
@@ -450,24 +452,24 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         .getTransformationService(UIActivator.getContext(), type);
                 if (transformation != null) {
                     try {
-                        label = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
+                        ret = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
                                 + "]";
                     } catch (TransformationException e) {
                         logger.error("transformation throws exception [transformation={}, value={}]", transformation,
                                 value, e);
-                        label = label.substring(0, label.indexOf("[") + 1) + value + "]";
+                        ret = label.substring(0, label.indexOf("[") + 1) + value + "]";
                     }
                 } else {
                     logger.warn(
                             "couldn't transform value in label because transformationService of type '{}' is unavailable",
                             type);
-                    label = label.substring(0, label.indexOf("[") + 1) + value + "]";
+                    ret = label.substring(0, label.indexOf("[") + 1) + value + "]";
                 }
             } else if (labelMappedOption != null) {
-                label = labelMappedOption;
+                ret = labelMappedOption;
             }
         }
-        return label;
+        return ret;
     }
 
     @Override
@@ -775,13 +777,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public String getWidgetId(Widget w) {
-        Widget w2 = defaultWidgets.get(w);
+    public String getWidgetId(Widget widget) {
+        Widget w2 = defaultWidgets.get(widget);
         if (w2 != null) {
             return getWidgetId(w2);
         }
 
         String id = "";
+        Widget w = widget;
         while (w.eContainer() instanceof Widget) {
             Widget parent = (Widget) w.eContainer();
             String index = String.valueOf(((LinkableWidget) parent).getChildren().indexOf(w));
@@ -815,8 +818,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
         // Remove quotes - this occurs in some instances where multiple types
         // are defined in the xtext definitions
-        if (value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length() - 1);
+        String unquotedValue = value;
+        if (unquotedValue.startsWith("\"") && unquotedValue.endsWith("\"")) {
+            unquotedValue = unquotedValue.substring(1, unquotedValue.length() - 1);
         }
 
         // Convert the condition string into enum
@@ -829,33 +833,33 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             try {
                 switch (condition) {
                     case EQUAL:
-                        if (Double.parseDouble(state.toString()) == Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) == Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LTE:
-                        if (Double.parseDouble(state.toString()) <= Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) <= Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GTE:
-                        if (Double.parseDouble(state.toString()) >= Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) >= Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GREATER:
-                        if (Double.parseDouble(state.toString()) > Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) > Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LESS:
-                        if (Double.parseDouble(state.toString()) < Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) < Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case NOT:
                     case NOTEQUAL:
-                        if (Double.parseDouble(state.toString()) != Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) != Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
@@ -871,33 +875,33 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             try {
                 switch (condition) {
                     case EQUAL:
-                        if (secsDif == Integer.parseInt(value)) {
+                        if (secsDif == Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LTE:
-                        if (secsDif <= Integer.parseInt(value)) {
+                        if (secsDif <= Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GTE:
-                        if (secsDif >= Integer.parseInt(value)) {
+                        if (secsDif >= Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GREATER:
-                        if (secsDif > Integer.parseInt(value)) {
+                        if (secsDif > Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LESS:
-                        if (secsDif < Integer.parseInt(value)) {
+                        if (secsDif < Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case NOT:
                     case NOTEQUAL:
-                        if (secsDif != Integer.parseInt(value)) {
+                        if (secsDif != Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
@@ -910,12 +914,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             switch (condition) {
                 case NOT:
                 case NOTEQUAL:
-                    if (!value.equals(state.toString())) {
+                    if (!unquotedValue.equals(state.toString())) {
                         matched = true;
                     }
                     break;
                 default:
-                    if (value.equals(state.toString())) {
+                    if (unquotedValue.equals(state.toString())) {
                         matched = true;
                     }
                     break;

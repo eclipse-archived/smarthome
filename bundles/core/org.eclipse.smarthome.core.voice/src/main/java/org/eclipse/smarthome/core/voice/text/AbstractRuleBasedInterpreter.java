@@ -660,10 +660,11 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
         }
 
         private Expression unwrapLet(Expression expression) {
-            while (expression instanceof ExpressionLet) {
-                expression = ((ExpressionLet) expression).getSubExpression();
+            Expression exp = expression;
+            while (exp instanceof ExpressionLet) {
+                exp = ((ExpressionLet) expression).getSubExpression();
             }
-            return expression;
+            return exp;
         }
 
         private void emit(Object obj) {
@@ -701,17 +702,17 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
         }
 
         private void emitExpression(Expression expression) {
-            expression = unwrapLet(expression);
-            if (expression instanceof ExpressionMatch) {
-                emitMatchExpression((ExpressionMatch) expression);
-            } else if (expression instanceof ExpressionSequence) {
-                emitSequenceExpression((ExpressionSequence) expression);
-            } else if (expression instanceof ExpressionAlternatives) {
-                emitAlternativesExpression((ExpressionAlternatives) expression);
-            } else if (expression instanceof ExpressionCardinality) {
-                emitCardinalExpression((ExpressionCardinality) expression);
-            } else if (expression instanceof ExpressionIdentifier) {
-                emitItemIdentifierExpression((ExpressionIdentifier) expression);
+            Expression unwrappedExpression = unwrapLet(expression);
+            if (unwrappedExpression instanceof ExpressionMatch) {
+                emitMatchExpression((ExpressionMatch) unwrappedExpression);
+            } else if (unwrappedExpression instanceof ExpressionSequence) {
+                emitSequenceExpression((ExpressionSequence) unwrappedExpression);
+            } else if (unwrappedExpression instanceof ExpressionAlternatives) {
+                emitAlternativesExpression((ExpressionAlternatives) unwrappedExpression);
+            } else if (unwrappedExpression instanceof ExpressionCardinality) {
+                emitCardinalExpression((ExpressionCardinality) unwrappedExpression);
+            } else if (unwrappedExpression instanceof ExpressionIdentifier) {
+                emitItemIdentifierExpression((ExpressionIdentifier) unwrappedExpression);
             }
         }
 

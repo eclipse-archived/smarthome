@@ -112,9 +112,10 @@ public class Configuration {
     private List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<Field>();
 
-        while (clazz != null) {
-            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-            clazz = clazz.getSuperclass();
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
         }
 
         return fields;

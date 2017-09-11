@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Gerhard Riegler - Initial contribution
  */
 public class PropertyUtils {
-    
+
     /** Constructor */
     private PropertyUtils() {
         throw new IllegalAccessError("Non-instantiable");
@@ -70,8 +70,8 @@ public class PropertyUtils {
         String propertyName = properties[nestedIndex];
         Method m = instance.getClass().getMethod(toGetterString(propertyName), null);
         Object result = m.invoke(instance, (Object[]) null);
-        if (++nestedIndex < properties.length) {
-            return getPropertyValue(result, properties, nestedIndex);
+        if (nestedIndex + 1 < properties.length) {
+            return getPropertyValue(result, properties, nestedIndex + 1);
         }
         return result;
     }
