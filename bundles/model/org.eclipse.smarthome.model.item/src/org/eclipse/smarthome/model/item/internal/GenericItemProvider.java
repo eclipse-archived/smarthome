@@ -11,12 +11,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
@@ -388,7 +387,11 @@ public class GenericItemProvider extends AbstractProvider<Item>
             return Collections.emptyMap();
         }
 
-        return items.stream().collect(Collectors.toMap(Item::getName, Function.identity()));
+        Map<String, Item> ret = new LinkedHashMap<>();
+        for (Item item : items) {
+            ret.put(item.getName(), item);
+        }
+        return ret;
     }
 
     /**
