@@ -10,9 +10,9 @@ package org.eclipse.smarthome.core.scheduler;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.smarthome.core.scheduler.DateExpression.DateExpressionPart;
@@ -158,7 +158,7 @@ public class DateExpression extends AbstractExpression<DateExpressionPart> {
         }
 
         @Override
-        public ArrayList<Date> apply(Date startDate, ArrayList<Date> candidates) {
+        public List<Date> apply(Date startDate, List<Date> candidates) {
             candidates.add(theDate);
             return candidates;
         }
