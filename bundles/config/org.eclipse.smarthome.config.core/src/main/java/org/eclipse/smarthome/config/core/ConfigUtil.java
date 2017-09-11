@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.config.core.normalization.Normalizer;
-import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
+import org.eclipse.smarthome.config.core.internal.normalization.Normalizer;
+import org.eclipse.smarthome.config.core.internal.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 
 /**
