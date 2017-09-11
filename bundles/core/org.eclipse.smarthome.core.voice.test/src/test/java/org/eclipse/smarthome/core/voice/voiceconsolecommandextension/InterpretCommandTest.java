@@ -87,7 +87,7 @@ public class InterpretCommandTest extends VoiceConsoleCommandExtensionTest {
         waitForAssert(() -> {
             String[] params = new String[] { SUBCMD_INTERPRET };
             extensionService.execute(params, console);
-            assertThat(console.getPrintedText(), is(not(equals(INTERPRETED_TEXT))));
+            assertThat(console.getPrintedText(), is(not(INTERPRETED_TEXT)));
         });
     }
 }
