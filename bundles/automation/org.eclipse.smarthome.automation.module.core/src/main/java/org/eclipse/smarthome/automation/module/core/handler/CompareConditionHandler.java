@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.module.core.handler.exception.UncomparableException;
+import org.eclipse.smarthome.automation.module.core.internal.exception.UncomparableException;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.Logger;
