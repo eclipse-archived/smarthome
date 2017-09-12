@@ -50,17 +50,17 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
-      <groupId>org.openhab</groupId>
+      <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
       <version>${ds-annotations.version}</version>
       <optional>true</optional>
     </dependency>
-  </dependencies>  
+  </dependencies>
 
 </project>
