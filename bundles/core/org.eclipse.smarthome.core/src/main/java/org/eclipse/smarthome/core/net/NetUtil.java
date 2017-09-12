@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Mark Herwege - Added methods to find broadcast address(es)
  * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
  */
-@Component(configurationPid = "org.eclipse.smarthome.network", property = {
+@Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
         "service.config.category=system" })
 public class NetUtil implements NetworkAddressService {
