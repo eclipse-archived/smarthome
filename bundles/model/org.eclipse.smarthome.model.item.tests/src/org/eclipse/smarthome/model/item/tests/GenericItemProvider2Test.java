@@ -78,4 +78,48 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         }
     }
 
+    @Test
+    public void testStableReloadOrder() {
+        assertThat(itemRegistry.getAll().size(), is(0));
+
+        String model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup) " + //
+                "Number number3 (testGroup) " + //
+                "Number number4 (testGroup) " + //
+                "Number number5 (testGroup) " + //
+                "Number number6 (testGroup) " + //
+                "Number number7 (testGroup) " + //
+                "Number number8 (testGroup) " + //
+                "Number number9 (testGroup) ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        assertThat(itemRegistry.getAll().size(), is(10));
+
+        model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup) " + //
+                "Number number3 (testGroup) " + //
+                "Number number4 (testGroup) " + //
+                "Number number5 (testGroup) " + //
+                "Number number6 (testGroup) " + //
+                "Number number7 \"Number Seven\" (testGroup) " + //
+                "Number number8 (testGroup) " + //
+                "Number number9 (testGroup) ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        GroupItem groupItem = (GroupItem) itemRegistry.get("testGroup");
+        assertNotNull(groupItem);
+
+        int number = 0;
+        Iterator<Item> it = groupItem.getMembers().iterator();
+        while (it.hasNext()) {
+            Item item = it.next();
+            assertEquals("number" + (++number), item.getName());
+            if (number == 7) {
+                assertEquals("Number Seven", item.getLabel());
+            }
+        }
+    }
+
 }

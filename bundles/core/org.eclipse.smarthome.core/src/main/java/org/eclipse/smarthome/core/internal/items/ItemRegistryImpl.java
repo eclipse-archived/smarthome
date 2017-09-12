@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -125,6 +127,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         }
     }
 
+    private void replaceInGroupItems(Item oldItem, Item newItem, List<String> groupItemNames) {
+        for (String groupName : groupItemNames) {
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).replaceMember(oldItem, newItem);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
+                }
+            }
+        }
+    }
+
     /**
      * An item should be initialized, which means that the event publisher is
      * injected and its implementation is notified that it has just been
@@ -201,8 +218,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     protected void onUpdateElement(Item oldItem, Item item) {
         clearServices(oldItem);
         injectServices(item);
-        removeFromGroupItems(oldItem, oldItem.getGroupNames());
-        addToGroupItems(item, item.getGroupNames());
+
+        List<String> oldNames = oldItem.getGroupNames();
+        List<String> newNames = item.getGroupNames();
+        List<String> commonNames = oldNames.stream().filter(name -> newNames.contains(name)).collect(toList());
+
+        removeFromGroupItems(oldItem, oldNames.stream().filter(name -> !commonNames.contains(name)).collect(toList()));
+        replaceInGroupItems(oldItem, item, commonNames);
+        addToGroupItems(item, newNames.stream().filter(name -> !commonNames.contains(name)).collect(toList()));
         if (item instanceof GroupItem) {
             addMembersToGroupItem((GroupItem) item);
         }
