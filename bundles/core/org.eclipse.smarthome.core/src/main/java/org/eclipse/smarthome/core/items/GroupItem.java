@@ -8,11 +8,12 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
     protected final GenericItem baseItem;
 
-    protected final Set<Item> members;
+    protected final CopyOnWriteArrayList<Item> members;
 
     protected GroupFunction function;
 
@@ -76,7 +77,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             this.baseItem = baseItem;
         }
 
-        members = new CopyOnWriteArraySet<Item>();
+        members = new CopyOnWriteArrayList<Item>();
     }
 
     /**
@@ -120,7 +121,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         return ImmutableSet.copyOf(getMembers((Item i) -> !(i instanceof GroupItem)));
     }
 
-    private void collectMembers(Set<Item> allMembers, Set<Item> members) {
+    private void collectMembers(Collection<Item> allMembers, Collection<Item> members) {
         for (Item member : members) {
             if (allMembers.contains(member)) {
                 continue;
@@ -154,11 +155,34 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (item == null) {
             throw new IllegalArgumentException("Item must not be null!");
         }
-        members.add(item);
+        members.addIfAbsent(item);
+        registerStateListener(item);
+    }
+
+    private void registerStateListener(Item item) {
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
             genericItem.addStateChangeListener(this);
         }
+    }
+
+    private void unregisterStateListener(Item old) {
+        if (old instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) old;
+            genericItem.removeStateChangeListener(this);
+        }
+    }
+
+    public void replaceMember(Item oldItem, Item newItem) {
+        if (oldItem == null || newItem == null) {
+            throw new IllegalArgumentException("Items must not be null!");
+        }
+        int index = members.indexOf(oldItem);
+        if (index > -1) {
+            Item old = members.set(index, newItem);
+            unregisterStateListener(old);
+        }
+        registerStateListener(newItem);
     }
 
     /**
@@ -172,10 +196,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             throw new IllegalArgumentException("Item must not be null!");
         }
         members.remove(item);
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.removeStateChangeListener(this);
-        }
+        unregisterStateListener(item);
     }
 
     /**
@@ -318,7 +339,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
         if (function != null && baseItem != null) {
-            State calculatedState = function.calculate(members);
+            State calculatedState = function.calculate(getMembers());
             calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
