@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Test
 
@@ -44,7 +44,7 @@ class ThingFactoryTest extends OSGiTest{
     @Test
     void 'create simple Thing'() {
 
-        def thingType = new ThingType("bindingId", "thingTypeId", "label")
+        def thingType = new ThingTypeBuilder().withBindingId("bindingId").withThingTypeId("thingTypeId").withLabel("label").build();
         def configuration = new Configuration();
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -72,7 +72,7 @@ class ThingFactoryTest extends OSGiTest{
 
         def bridgeUID = new ThingUID("binding:bridge:1")
 
-        def thingType = new ThingType("bindingId", "thingTypeId", "label")
+        def thingType = new ThingTypeBuilder().withBindingId("bindingId").withThingTypeId("thingTypeId").withLabel("label").build();
         def configuration = new Configuration();
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridgeUID)
@@ -97,7 +97,7 @@ class ThingFactoryTest extends OSGiTest{
 
     @Test
     void 'create Thing with Default values'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), null, null, new URI("scheme", "thingType", null))
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("myThingType","myThing")).withLabel("label").withDescription("description").withChannelDefinitions(getChannelDefinitions()).withConfigDescriptionURI(new URI("scheme", "thingType", null)).build();
         def configuration = new Configuration()
 
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -121,7 +121,7 @@ class ThingFactoryTest extends OSGiTest{
 
     @Test
     void 'create Thing with different default value types'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, null, null, new URI("scheme", "thingType", null))
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("myThingType","myThing")).withLabel("label").withDescription("description").withConfigDescriptionURI(new URI("scheme", "thingType", null)).build();
         def configuration = new Configuration()
 
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -156,7 +156,10 @@ class ThingFactoryTest extends OSGiTest{
         ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1.UID)
         ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2.UID)
 
-        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null, null, null)
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("bindingId:thingType")).withSupportedBridgeTypeUIDs([]).withLabel("label").withChannelDefinitions([
+            channelDef1,
+            channelDef2
+        ]).build();
         def configuration = new Configuration();
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -192,10 +195,10 @@ class ThingFactoryTest extends OSGiTest{
             channelGroupType2
         ])
 
-        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, [
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("bindingId:thingType")).withSupportedBridgeTypeUIDs([]).withLabel("label").withChannelGroupDefinitions([
             channelGroupDef1,
             channelGroupDef2
-        ], null, null)
+        ]).build();
         def configuration = new Configuration();
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -208,7 +211,7 @@ class ThingFactoryTest extends OSGiTest{
 
     @Test
     void 'create Thing with properties'() {
-        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, null, ["key1":"value1", "key2":"value2"], null)
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("bindingId:thingType")).withLabel("label").withProperties(["key1":"value1", "key2":"value2"]).build();
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), new Configuration())
 
         assertThat thing.getProperties().size(), is(2)

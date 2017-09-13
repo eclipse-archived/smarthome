@@ -49,7 +49,7 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroun
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.OSGiTest
@@ -965,8 +965,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     private void registerThingTypeProvider() {
-        def thingType = new ThingType(THING_TYPE_UID1, null, "label", null, null, null, null, CONFIG_URI)
-        def thingTypeWithoutFW = new ThingType(THING_TYPE_UID_WITHOUT_FW, null, "label", null, null, null, null, CONFIG_URI)
+        def thingType = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID1).withLabel("label").withConfigDescriptionURI(CONFIG_URI).build();
+        def thingTypeWithoutFW = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID_WITHOUT_FW).withLabel("label").withConfigDescriptionURI(CONFIG_URI).build();
 
         registerService([
             getThingType: { thingTypeUID,locale ->

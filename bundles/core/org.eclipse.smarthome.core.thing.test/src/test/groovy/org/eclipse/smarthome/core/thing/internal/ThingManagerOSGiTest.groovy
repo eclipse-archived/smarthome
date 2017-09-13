@@ -60,7 +60,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -1583,7 +1583,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingType(new ThingTypeUID("binding", "type"), null, "label", null, null, null, null, configDescriptionUri)
+        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("binding", "type")).withLabel("label").withConfigDescriptionURI(configDescriptionUri).build();
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }

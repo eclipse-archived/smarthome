@@ -8,9 +8,7 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,16 +37,21 @@ public class ThingType extends AbstractDescriptionType {
 
     private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
+    private final List<String> extensibleChannelTypeIds;
     private final List<String> supportedBridgeTypeUIDs;
-    private final Map<@NonNull String, String> properties;
+    private final @NonNull Map<@NonNull String, String> properties;
     private final String representationProperty;
     private final URI configDescriptionURI;
     private final boolean listed;
     private String category;
 
     /**
-     * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, List, Map, URI)
+     * @deprecated Use the {@link ThingTypeBuilder} instead.
+     *
+     * @throws IllegalArgumentException
+     *             if the UID is null or empty, or the the meta information is null
      */
+    @Deprecated
     public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
         this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, true, null, null, null, null, null);
     }
@@ -56,23 +59,13 @@ public class ThingType extends AbstractDescriptionType {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param uid the unique identifier which identifies this Thing type within the overall system
-     *            (must neither be null, nor empty)
-     * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
-     *            (could be null or empty)
-     * @param label the human readable label for the according type
-     *            (must neither be null nor empty)
-     * @param description the human readable description for the according type
-     *            (could be null or empty)6
-     * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     * @param channelGroupDefinitions the channel groups defining the channels this Thing type
-     *            provides (could be null or empty)
-     * @param properties the properties this Thing type provides (could be null)
-     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
      * @throws IllegalArgumentException
      *             if the UID is null or empty, or the the meta information is null
      */
+    @Deprecated
+    @SuppressWarnings("null")
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
@@ -81,33 +74,39 @@ public class ThingType extends AbstractDescriptionType {
     }
 
     /**
+     *
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param uid the unique identifier which identifies this Thing type within the overall system
-     *            (must neither be null, nor empty)
-     * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
-     *            (could be null or empty)
-     * @param label the human readable label for the according type
-     *            (must neither be null nor empty)
-     * @param description the human readable description for the according type
-     *            (could be null or empty)
-     * @param category provides information about the thing for filtering
-     * @param listed determines whether it should be listed for manually pairing or not
-     * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     * @param channelGroupDefinitions the channel groups defining the channels this Thing type
-     *            provides (could be null or empty)
-     * @param properties the properties this Thing type provides (could be null)
-     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
      * @throws IllegalArgumentException
      *             if the UID is null or empty, or the the meta information is null
      */
+    @Deprecated
+    @SuppressWarnings("null")
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
         this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @deprecated Use the {@link ThingTypeBuilder} instead.
+     *
+     * @throws IllegalArgumentException
+     *             if the UID is null or empty, or the the meta information is null
+     */
+    @Deprecated
+    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
+            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<@NonNull String, String> properties,
+            URI configDescriptionURI) throws IllegalArgumentException {
+        this(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
+                channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI, null);
     }
 
     /**
@@ -128,14 +127,15 @@ public class ThingType extends AbstractDescriptionType {
      *            provides (could be null or empty)
      * @param properties the properties this Thing type provides (could be null)
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     * @param extensibleChannelTypeIds the channel-type ids this thing-type is extensible with (could be null or empty).
      *
      * @throws IllegalArgumentException
      *             if the UID is null or empty, or the the meta information is null
      */
-    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description, String category,
+            boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<@NonNull String, String> properties,
+            URI configDescriptionURI, List<String> extensibleChannelTypeIds) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -146,25 +146,31 @@ public class ThingType extends AbstractDescriptionType {
         if (supportedBridgeTypeUIDs != null) {
             this.supportedBridgeTypeUIDs = Collections.unmodifiableList(supportedBridgeTypeUIDs);
         } else {
-            this.supportedBridgeTypeUIDs = Collections.unmodifiableList(new ArrayList<String>(0));
+            this.supportedBridgeTypeUIDs = Collections.emptyList();
         }
 
         if (channelDefinitions != null) {
             this.channelDefinitions = Collections.unmodifiableList(channelDefinitions);
         } else {
-            this.channelDefinitions = Collections.unmodifiableList(new ArrayList<ChannelDefinition>(0));
+            this.channelDefinitions = Collections.emptyList();
         }
 
         if (channelGroupDefinitions != null) {
             this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
         } else {
-            this.channelGroupDefinitions = Collections.unmodifiableList(new ArrayList<ChannelGroupDefinition>(0));
+            this.channelGroupDefinitions = Collections.emptyList();
+        }
+
+        if (extensibleChannelTypeIds != null) {
+            this.extensibleChannelTypeIds = Collections.unmodifiableList(extensibleChannelTypeIds);
+        } else {
+            this.extensibleChannelTypeIds = Collections.emptyList();
         }
 
         if (properties != null) {
             this.properties = Collections.unmodifiableMap(properties);
         } else {
-            this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
+            this.properties = Collections.emptyMap();
         }
 
         this.configDescriptionURI = configDescriptionURI;
@@ -322,6 +328,10 @@ public class ThingType extends AbstractDescriptionType {
     @Override
     public String toString() {
         return getUID().toString();
+    }
+
+    public List<String> getExtensibleChannelTypeIds() {
+        return extensibleChannelTypeIds;
     }
 
 }

@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
@@ -46,6 +47,7 @@ public class ThingTypeXmlResult {
     protected String description;
     protected String category;
     protected boolean listed;
+    protected List<String> extensibleChannelTypeIds;
     protected String representationProperty;
     protected List<ChannelXmlResult> channelTypeReferences;
     protected List<ChannelXmlResult> channelGroupTypeReferences;
@@ -54,8 +56,9 @@ public class ThingTypeXmlResult {
     protected ConfigDescription configDescription;
 
     public ThingTypeXmlResult(ThingTypeUID thingTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, String category, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
-            List<NodeValue> properties, String representationProperty, Object[] configDescriptionObjects) {
+            String description, String category, boolean listed, List<String> extensibleChannelTypeIds,
+            List<ChannelXmlResult>[] channelTypeReferenceObjects, List<NodeValue> properties,
+            String representationProperty, Object[] configDescriptionObjects) {
 
         this.thingTypeUID = thingTypeUID;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
@@ -63,6 +66,7 @@ public class ThingTypeXmlResult {
         this.description = description;
         this.category = category;
         this.listed = listed;
+        this.extensibleChannelTypeIds = extensibleChannelTypeIds;
         this.representationProperty = representationProperty;
         this.channelTypeReferences = channelTypeReferenceObjects[0];
         this.channelGroupTypeReferences = channelTypeReferenceObjects[1];
@@ -129,15 +133,23 @@ public class ThingTypeXmlResult {
         return propertiesMap;
     }
 
+    ThingTypeBuilder getBuilder() {
+        return new ThingTypeBuilder().withThingTypeUID(thingTypeUID) //
+                .withSupportedBridgeTypeUIDs(supportedBridgeTypeUIDs) //
+                .withLabel(label) //
+                .withDescription(description) //
+                .withCategory(category) //
+                .isListed(listed) //
+                .withRepresentationProperty(representationProperty) //
+                .withChannelDefinitions(toChannelDefinitions(channelTypeReferences)) //
+                .withChannelGroupDefinitions(toChannelGroupDefinitions(channelGroupTypeReferences)) //
+                .withProperties(toPropertiesMap()) //
+                .withConfigDescriptionURI(configDescriptionURI) //
+                .withExtensibleChannelTypeIds(extensibleChannelTypeIds); //
+    }
+
     public ThingType toThingType() throws ConversionException {
-
-        ThingType thingType = new ThingType(this.thingTypeUID, this.supportedBridgeTypeUIDs, this.label,
-                this.description, this.category, this.listed, this.representationProperty,
-                toChannelDefinitions(this.channelTypeReferences),
-                toChannelGroupDefinitions(this.channelGroupTypeReferences), toPropertiesMap(),
-                this.configDescriptionURI);
-
-        return thingType;
+        return getBuilder().build();
     }
 
     @Override
@@ -146,8 +158,9 @@ public class ThingTypeXmlResult {
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ",  category="
                 + category + ", listed=" + listed + ", representationProperty=" + representationProperty
                 + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
-                + configDescriptionURI + ", configDescription=" + configDescription + "]";
+                + channelGroupTypeReferences + ", extensibelChannelTypeIds=" + extensibleChannelTypeIds
+                + ", properties=" + properties + ", configDescriptionURI=" + configDescriptionURI
+                + ", configDescription=" + configDescription + "]";
     }
 
 }

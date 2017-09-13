@@ -35,7 +35,7 @@
 	</bridge-type>
 
 	<!-- HUE Lamp -->
-	<thing-type id="lamp" listed="false">
+	<thing-type id="lamp" listed="false" extensible="alarm,brightness">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>

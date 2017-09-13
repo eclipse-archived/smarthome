@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     protected ThingTypeConverter(Class clazz, String type) {
         super(clazz, type);
         this.attributeMapValidator = new ConverterAttributeMapValidator(
-                new String[][] { { "id", "true" }, { "listed", "false" } });
+                new String[][] { { "id", "true" }, { "listed", "false" }, { "extensible", "false" } });
     }
 
     protected List<String> readSupportedBridgeTypeUIDs(NodeIterator nodeIterator, UnmarshallingContext context) {
@@ -95,10 +97,20 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
         ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
                 new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator), super.readDescription(nodeIterator), readCategory(nodeIterator),
-                getListed(attributes), getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
+                getListed(attributes), getExtensibleChannelTypeIds(attributes),
+                getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
                 getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
+    }
+
+    protected List<String> getExtensibleChannelTypeIds(Map<String, String> attributes) {
+        String extensible = attributes.get("extensible");
+        if (extensible == null) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(extensible.split(","));
     }
 
     protected String readCategory(NodeIterator nodeIterator) {

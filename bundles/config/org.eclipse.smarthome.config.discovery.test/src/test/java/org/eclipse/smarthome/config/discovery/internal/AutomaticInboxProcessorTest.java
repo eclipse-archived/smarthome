@@ -38,6 +38,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.Before;
@@ -60,10 +61,10 @@ public class AutomaticInboxProcessorTest {
     private static final ThingTypeUID THING_TYPE_UID2 = new ThingTypeUID("test2", "test2");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
     private static final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, "test2");
-    private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, null, true,
-            DEVICE_ID_KEY, null, null, null, null);
-    private static final ThingType THING_TYPE2 = new ThingType(THING_TYPE_UID2, null, "label", null, null, true,
-            CONFIG_KEY, null, null, null, null);
+    private static final ThingType THING_TYPE = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID)
+            .withLabel("label").isListed(true).withRepresentationProperty(DEVICE_ID_KEY).build();
+    private static final ThingType THING_TYPE2 = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID2)
+            .withLabel("label").isListed(true).withRepresentationProperty(CONFIG_KEY).build();
     private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
             .put(DEVICE_ID_KEY, DEVICE_ID).build();
     private final static Configuration CONFIG = new Configuration(

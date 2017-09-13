@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.xml.test;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
@@ -80,6 +81,7 @@ public class ThingTypesTest extends JavaOSGiTest {
         assertThat(thingType.getDescription(), is("My own great HUE Lamp."));
         assertThat(thingType.getSupportedBridgeTypeUIDs().size(), is(1));
         assertThat(thingType.getSupportedBridgeTypeUIDs().get(0), is("hue:bridge"));
+        assertThat(thingType.getExtensibleChannelTypeIds(), containsInAnyOrder("alarm", "brightness"));
         assertThat(thingType.getProperties().size(), is(2));
         assertThat(thingType.getProperties().get("key1"), is("value1"));
         assertThat(thingType.getProperties().get("key2"), is("value2"));

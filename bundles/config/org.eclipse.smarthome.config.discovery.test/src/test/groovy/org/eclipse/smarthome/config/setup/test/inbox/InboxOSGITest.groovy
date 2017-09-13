@@ -39,6 +39,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -97,7 +98,7 @@ class InboxOSGITest extends OSGiTest {
         "manufactured":new Date(12344)
     ]
     final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).withLabel(discoveryResultLabel).build()
-    final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
+    final ThingType testThingType = new ThingTypeBuilder().withThingTypeUID(testTypeUID).withLabel("label").withConfigDescriptionURI(testURI).build();
     final ConfigDescriptionParameter[] configDescriptionParameter = [
         [
             discoveryResultProperties.keySet().getAt(0),
