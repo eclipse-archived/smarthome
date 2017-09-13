@@ -1457,7 +1457,8 @@ md-progress-circular.firmware {
 
 .binding :not(md-expansion-panel) .md-title {
 	padding-bottom: 10px;
-	flex-grow: 2
+	flex-grow: 2;
+	max-width: none;
 }
 .binding .things .search {
 	padding: 0 0 10px 0;
