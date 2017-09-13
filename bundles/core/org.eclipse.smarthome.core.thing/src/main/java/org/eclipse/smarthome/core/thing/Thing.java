@@ -32,19 +32,19 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 public interface Thing extends Identifiable<ThingUID> {
 
     /** the key for the vendor property */
-    public static final String PROPERTY_VENDOR = "vendor";
+    @NonNull String PROPERTY_VENDOR = "vendor";
 
     /** the key for the model ID property */
-    public static final String PROPERTY_MODEL_ID = "modelId";
+    @NonNull String PROPERTY_MODEL_ID = "modelId";
 
     /** the key for the serial number property */
-    public static final String PROPERTY_SERIAL_NUMBER = "serialNumber";
+    @NonNull String PROPERTY_SERIAL_NUMBER = "serialNumber";
 
     /** the key for the hardware version property */
-    public static final String PROPERTY_HARDWARE_VERSION = "hardwareVersion";
+    @NonNull String PROPERTY_HARDWARE_VERSION = "hardwareVersion";
 
     /** the key for the firmware version property */
-    public static final String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
+    @NonNull String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
 
     /**
      * Returns the human readable label for this thing.
@@ -56,7 +56,7 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Sets the human readable label for this thing.
      *
-     * @return the human readable label
+     * @param label the human readable label
      */
     void setLabel(String label);
 
@@ -134,8 +134,8 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Sets the bridge.
      *
-     * @param bridge
-     *            the new bridge
+     * @param bridgeUID
+     *            the new bridge UID
      */
     void setBridgeUID(ThingUID bridgeUID);
 
@@ -160,6 +160,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the thing type UID
      */
+    @NonNull
     ThingTypeUID getThingTypeUID();
 
     /**
