@@ -17,7 +17,12 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  *
@@ -26,6 +31,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @author Marcel Verpaalen - Initial contribution
  */
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.ntp")
 public class NtpDiscovery extends AbstractDiscoveryService {
 
     public NtpDiscovery() throws IllegalArgumentException {
@@ -68,6 +74,24 @@ public class NtpDiscovery extends AbstractDiscoveryService {
             thingDiscovered(result);
         }
 
+    }
+
+    @Reference
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        this.locale = localeProvider.getLocale();
+    }
+
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.locale = null;
+    }
+
+    @Reference
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+    }
+
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = null;
     }
 
 }
