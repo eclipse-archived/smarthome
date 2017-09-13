@@ -58,7 +58,7 @@ public class JavaOSGiTest extends JavaTest {
      *
      * @return bundle context
      */
-    private BundleContext getBundleContext() {
+    protected BundleContext getBundleContext() {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             return bundle.getBundleContext();
