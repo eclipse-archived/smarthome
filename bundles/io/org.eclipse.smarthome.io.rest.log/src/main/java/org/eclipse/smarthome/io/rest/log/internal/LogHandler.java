@@ -28,7 +28,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.log.LogConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
