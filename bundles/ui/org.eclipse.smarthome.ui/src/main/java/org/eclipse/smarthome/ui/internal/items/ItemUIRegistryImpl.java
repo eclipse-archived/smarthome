@@ -347,9 +347,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                                         labelMappedOption = labelMappedOption.substring(0,
                                                 labelMappedOption.indexOf("[") + 1) + formatPatternOption + "]";
                                     } catch (IllegalArgumentException e) {
-                                        logger.warn(
-                                                "Exception while formatting value '{}' of item {} with format '{}': {}",
-                                                stateOption, itemName, formatPattern, e);
+                                        logger.debug(
+                                                "Mapping option value '{}' for item {} using format '{}' failed ({}); mapping is ignored",
+                                                stateOption, itemName, formatPattern, e.getMessage());
                                         labelMappedOption = null;
                                     }
                                     break;
