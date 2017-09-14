@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.apache.karaf.shell.api.action.lifecycle.Manager;
 import org.apache.karaf.shell.api.console.Registry;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -36,8 +37,12 @@ public class ConsoleSupportKaraf {
     // This map contains all registered commands.
     private final Map<ConsoleCommandExtension, CommandWrapper> registeredCommands = new HashMap<>();
 
+    private Manager manager;
+
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+        manager = sessionFactory.getRegistry().getService(Manager.class);
+        manager.register(CommandWrapper.class);
         registerCommands();
     }
 
@@ -45,6 +50,9 @@ public class ConsoleSupportKaraf {
         if (this.sessionFactory == sessionFactory) {
             unregisterCommands();
             sessionFactory = null;
+            if (manager != null) {
+                manager.unregister(CommandWrapper.class);
+            }
         }
     }
 
