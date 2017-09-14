@@ -23,6 +23,8 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.service.ReadyMarker
+import org.eclipse.smarthome.core.service.ReadyMarkerFilter
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -49,9 +51,9 @@ import org.eclipse.smarthome.model.thing.thing.ModelPropertyContainer
 import org.eclipse.smarthome.model.thing.thing.ModelThing
 import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
+import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.osgi.framework.FrameworkUtil
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -66,7 +68,7 @@ import org.osgi.framework.FrameworkUtil
  * @author Markus Rathgeb - Add locale provider support
  * 
  */
-class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
+class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener, ReadyService.ReadyTracker {
 
     private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
@@ -522,12 +524,19 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ]
     }
     
-    def protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(XML_THING_TYPE)) {
-            val bsn = properties.get(XML_THING_TYPE) as String
-            loadedXmlThingTypes.add(bsn)
-            bsn.handleXmlThingTypesLoaded
-        }
+    
+    def void setReadyService(ReadyService readyService) {
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
+    }
+
+    def void unsetReadyService(ReadyService readyService) {
+        readyService.unregisterTracker(this);
+    }
+
+    override onReadyMarkerAdded(ReadyMarker readyMarker) {
+        val bsn = readyMarker.identifier
+        loadedXmlThingTypes.add(bsn)
+        bsn.handleXmlThingTypesLoaded
     }
     
     def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
@@ -542,11 +551,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ]
     }
 
-    def protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(XML_THING_TYPE)) {
-            val bsn = properties.get(XML_THING_TYPE) as String
-            loadedXmlThingTypes.remove(bsn);
-        }
+    override onReadyMarkerRemoved(ReadyMarker readyMarker) {
+        val bsn = readyMarker.identifier
+        loadedXmlThingTypes.remove(bsn);
     }
 
     def private createThingsFromModelForThingHandlerFactory(String modelName, ThingHandlerFactory factory) {

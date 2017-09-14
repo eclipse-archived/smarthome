@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.service.ReadyMarker
-import org.eclipse.smarthome.core.service.ReadyUtil
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -79,6 +79,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     ManagedThingProvider managedThingProvider
     ThingLinkManager thingLinkManager
     ItemRegistry itemRegistry
+    ReadyService readyService
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
 
@@ -110,6 +111,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         assertNotNull(itemChannelLinkRegistry)
+
+        readyService = getService(ReadyService)
+        assertNotNull(readyService)
 
         waitForAssert {
             assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
@@ -1292,11 +1296,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ThingManager.XML_THING_TYPE + "=" + FrameworkUtil.getBundle(this.getClass()).getSymbolicName() + ")")
-            assertThat ref, is(notNullValue())
-            def registration = ref.registration.getAt(0)
-            assertThat registration, is(notNullValue())
-            registration.unregister()
+            ReadyMarker marker = new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+            assertThat readyService.isReady(marker), is(true)
+            readyService.unmarkReady(marker);
         }
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
@@ -1309,7 +1311,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
-        ReadyUtil.markAsReady(bundleContext, ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+        readyService.markReady(new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName()))
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()

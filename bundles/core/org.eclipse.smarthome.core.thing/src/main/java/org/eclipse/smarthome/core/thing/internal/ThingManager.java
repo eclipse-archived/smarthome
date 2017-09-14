@@ -38,6 +38,8 @@ import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.service.ReadyMarker;
+import org.eclipse.smarthome.core.service.ReadyMarkerFilter;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -97,7 +99,7 @@ import com.google.common.collect.SetMultimap;
  * @author Thomas Höfer - Added localization of thing status info
  */
 @Component(immediate = true, service = { ThingTypeMigrationService.class })
-public class ThingManager implements ThingTracker, ThingTypeMigrationService {
+public class ThingManager implements ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
@@ -903,20 +905,26 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService {
 
     private Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(XML_THING_TYPE)) {
-            String bsn = (String) properties.get(XML_THING_TYPE);
-            loadedXmlThingTypes.add(bsn);
-            handleThingHandlerFactoryAddition(bsn);
-        }
+    @Reference
+    public void setReadyService(ReadyService readyService) {
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
     }
 
-    protected void removeReadyMarker(ReadyMarker readyMarker, Map<String, Object> properties) {
-        if (properties.containsKey(XML_THING_TYPE)) {
-            String bsn = (String) properties.get(XML_THING_TYPE);
-            loadedXmlThingTypes.remove(bsn);
-        }
+    public void unsetReadyService(ReadyService readyService) {
+        readyService.unregisterTracker(this);
+    }
+
+    @Override
+    public void onReadyMarkerAdded(ReadyMarker readyMarker) {
+        String bsn = readyMarker.getIdentifier();
+        loadedXmlThingTypes.add(bsn);
+        handleThingHandlerFactoryAddition(bsn);
+    }
+
+    @Override
+    public void onReadyMarkerRemoved(ReadyMarker readyMarker) {
+        String bsn = readyMarker.getIdentifier();
+        loadedXmlThingTypes.remove(bsn);
     }
 
     private void handleThingHandlerFactoryAddition(String bsn) {
