@@ -29,6 +29,12 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
@@ -52,6 +58,7 @@ import com.google.common.collect.SetMultimap;
  *
  * @author Stefan Bußweiler - Initial contribution
  */
+@Component(immediate = true, property = { "event.topics:String=smarthome" })
 public class OSGiEventManager implements EventHandler, EventPublisher {
 
     @SuppressWarnings("rawtypes")
@@ -81,7 +88,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     }
 
-    private Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
+    private final Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
 
     private EventAdmin osgiEventAdmin;
 
@@ -92,17 +99,20 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private EventSubscriberServiceTracker eventSubscriberServiceTracker;
 
+    @Activate
     protected void activate(ComponentContext componentContext) {
         eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
         eventSubscriberServiceTracker.open();
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         if (eventSubscriberServiceTracker != null) {
             eventSubscriberServiceTracker.close();
         }
     }
 
+    @Reference
     protected void setEventAdmin(EventAdmin eventAdmin) {
         this.osgiEventAdmin = eventAdmin;
     }
@@ -111,6 +121,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         this.osgiEventAdmin = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addEventFactory(EventFactory eventFactory) {
         Set<String> supportedEventTypes = eventFactory.getSupportedEventTypes();
 
@@ -149,7 +160,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         } else {
             logger.error(
                     "The handled OSGi event is invalid. Expect properties as string named 'type', 'payload' and 'topic'. "
-                            + "Received event properties are: {}", Arrays.toString(osgiEvent.getPropertyNames()));
+                            + "Received event properties are: {}",
+                    Arrays.toString(osgiEvent.getPropertyNames()));
         }
     }
 
@@ -175,8 +187,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         try {
             eshEvent = eventFactory.createEvent(type, topic, payload, source);
         } catch (Exception e) {
-            logger.error("Creation of ESH-Event failed, "
-                            + "because one of the registered event factories has thrown an exception: {}", e.getMessage(), e);
+            logger.error(
+                    "Creation of ESH-Event failed, "
+                            + "because one of the registered event factories has thrown an exception: {}",
+                    e.getMessage(), e);
         }
         return eshEvent;
     }

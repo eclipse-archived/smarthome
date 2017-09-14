@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.extension;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.Sets;
 
@@ -21,6 +22,7 @@ import com.google.common.collect.Sets;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(service = EventFactory.class, immediate = true)
 public class ExtensionEventFactory extends AbstractEventFactory {
 
     static final String TOPIC_PREFIX = "smarthome/extensions/{id}";

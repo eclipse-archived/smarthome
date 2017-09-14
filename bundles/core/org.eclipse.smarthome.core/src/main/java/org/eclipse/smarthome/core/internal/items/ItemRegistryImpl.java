@@ -29,6 +29,10 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface. It
@@ -40,9 +44,10 @@ import org.osgi.service.component.ComponentContext;
  * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
+@Component(immediate = true)
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
-    private List<StateDescriptionProvider> stateDescriptionProviders = Collections
+    private final List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
 
     public ItemRegistryImpl() {
@@ -232,6 +237,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         super.setEventPublisher(eventPublisher);
         for (Item item : getItems()) {
@@ -328,6 +334,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super.deactivate();
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addStateDescriptionProvider(StateDescriptionProvider provider) {
         synchronized (stateDescriptionProviders) {
             stateDescriptionProviders.add(provider);
@@ -351,6 +358,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         for (Item item : getItems()) {
             ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setManagedProvider(ManagedItemProvider provider) {
+        super.setManagedProvider(provider);
+    }
+
+    protected void unsetManagedProvider(ManagedItemProvider provider) {
+        super.unsetManagedProvider(provider);
     }
 
 }
