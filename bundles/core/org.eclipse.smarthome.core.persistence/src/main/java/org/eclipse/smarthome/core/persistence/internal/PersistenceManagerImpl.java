@@ -43,6 +43,10 @@ import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Separation of persistence core and model, drop Quartz usage.
  */
+@Component(service = PersistenceManager.class, immediate = true)
 public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryChangeListener, StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
@@ -77,6 +82,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         scheduler = null;
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
         itemRegistry.addRegistryChangeListener(this);
@@ -88,6 +94,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         this.itemRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addPersistenceService(PersistenceService persistenceService) {
         logger.debug("Initializing {} persistence service.", persistenceService.getId());
         persistenceServices.put(persistenceService.getId(), persistenceService);
