@@ -49,7 +49,7 @@
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.12.0</xtext-version>
     <karaf.version>4.0.3</karaf.version>
-    <ds-annotations.version>1.2.9-AG1</ds-annotations.version>
+    <ds-annotations.version>1.2.10</ds-annotations.version>
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -154,7 +154,7 @@
           <configuration>
             <extraClasspathElements>
               <extraClasspathElement>
-                <groupId>org.openhab</groupId>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
                 <version>${ds-annotations.version}</version>
               </extraClasspathElement>
@@ -168,7 +168,7 @@
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
               <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
             </compilerArgs>
-          </configuration>          
+          </configuration>
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
