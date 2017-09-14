@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome security API
+Bundle-SymbolicName: org.eclipse.smarthome.io.security.api;singleton:=true
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.smarthome.io.security.api
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.security.api
+Service-Component: OSGI-INF/*.xml
+Bundle-ClassPath: .
+Bundle-ActivationPolicy: lazy
