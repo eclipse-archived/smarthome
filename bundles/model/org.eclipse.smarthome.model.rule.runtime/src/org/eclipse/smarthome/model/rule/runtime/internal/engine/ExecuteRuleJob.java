@@ -11,7 +11,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
-import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -40,13 +39,16 @@ public class ExecuteRuleJob implements Job {
     @Inject
     private Injector injector;
 
+    @Inject
+    private ModelRepository modelRepository;
+
+    @Inject
+    private ScriptEngine scriptEngine;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         String modelName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULEMODEL);
         String ruleName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULENAME);
-
-        ModelRepository modelRepository = ScriptServiceUtil.getModelRepository();
-        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
 
         if (modelRepository != null && scriptEngine != null) {
             EObject model = modelRepository.getModel(modelName);

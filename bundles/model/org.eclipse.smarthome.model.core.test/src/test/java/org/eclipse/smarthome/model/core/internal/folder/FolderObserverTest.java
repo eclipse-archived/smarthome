@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -459,6 +460,11 @@ public class FolderObserverTest extends JavaOSGiTest {
             isRemoveModelMethodCalled = false;
             calledFileName = null;
             fileContent = null;
+        }
+
+        @Override
+        public Set<String> removeAllModelsOfType(String modelType) {
+            return null;
         }
     }
 

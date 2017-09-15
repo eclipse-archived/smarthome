@@ -20,12 +20,12 @@ import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
+import org.eclipse.smarthome.model.script.ScriptStandaloneSetup;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
 import org.eclipse.smarthome.model.script.runtime.ScriptRuntime;
-import org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeStandaloneSetup;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -53,17 +53,19 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptEngineImpl.class);
 
+    private ScriptServiceUtil scriptServiceUtil;
+
     public ScriptEngineImpl() {
     }
 
     public void activate() {
-        ScriptRuntimeStandaloneSetup.doSetup();
+        ScriptStandaloneSetup.doSetup(scriptServiceUtil, this);
         logger.debug("Registered 'script' configuration parser");
     }
 
     private XtextResourceSet getResourceSet() {
         if (resourceSet == null) {
-            resourceSet = ScriptRuntimeStandaloneSetup.getInjector().getInstance(XtextResourceSet.class);
+            resourceSet = ScriptStandaloneSetup.getInjector().getInstance(XtextResourceSet.class);
             resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.FALSE);
         }
         return resourceSet;
@@ -71,6 +73,7 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     public void deactivate() {
         this.resourceSet = null;
+        ScriptStandaloneSetup.unregister();
     }
 
     /**
@@ -83,11 +86,13 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
     }
 
     protected void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        this.scriptServiceUtil = scriptServiceUtil;
         scriptServiceUtil.setScriptEngine(this);
     }
 
     protected void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
         scriptServiceUtil.unsetScriptEngine(this);
+        this.scriptServiceUtil = null;
     }
 
     @Override
@@ -97,7 +102,7 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     @Override
     public Script newScriptFromXExpression(XExpression expression) {
-        ScriptImpl script = ScriptRuntimeStandaloneSetup.getInjector().getInstance(ScriptImpl.class);
+        ScriptImpl script = ScriptStandaloneSetup.getInjector().getInstance(ScriptImpl.class);
         script.setXExpression(expression);
         return script;
     }

@@ -10,12 +10,9 @@ package org.eclipse.smarthome.model.script.engine;
 import java.util.List;
 
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
-import org.eclipse.smarthome.model.script.internal.engine.ServiceTrackerActionServiceProvider;
 
-import com.google.inject.ImplementedBy;
-import com.google.inject.Provider;
+public interface IActionServiceProvider {
 
-@ImplementedBy(ServiceTrackerActionServiceProvider.class)
-public interface IActionServiceProvider extends Provider<List<ActionService>> {
+    List<ActionService> get();
 
 }
