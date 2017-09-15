@@ -28,6 +28,7 @@ Note that this list also serves as a checklist for code reviews on pull requests
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
 There is **no need** for a `@NonNull` annotation because it is set as default.
 The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
+Test classes do not have to be annotated.
 
 ## B. OSGi Bundles
 
