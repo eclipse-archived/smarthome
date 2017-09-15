@@ -29,10 +29,12 @@ public class TradfriBindingConstants {
 
     public final static ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
     public final static ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
+    public final static ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "0200");
     public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
 
-    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = Collections.unmodifiableSet(
-            Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT).collect(Collectors.toSet()));
+    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = Collections
+            .unmodifiableSet(Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT, THING_TYPE_COLOR_LIGHT)
+                    .collect(Collectors.toSet()));
 
     // Not yet used - included for future support
     public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = Collections.singleton(THING_TYPE_DIMMER);
@@ -40,6 +42,7 @@ public class TradfriBindingConstants {
     // List of all Channel IDs
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR_TEMPERATURE = "color_temperature";
+    public static final String CHANNEL_COLOR = "color";
 
     // IPSO Objects
     public static final String DEVICES = "15001";

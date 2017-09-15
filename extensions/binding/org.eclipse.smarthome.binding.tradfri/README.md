@@ -12,7 +12,7 @@ The thing type ids are defined according to the lighting devices defined for Zig
 |--------------------------|------------------|------------|
 | Dimmable Light           | 0x0100           | 0100       |
 | Colour Temperature Light | 0x0220           | 0220       |
-
+| Colour Light             | 0x0200           | 0200       |
 
 The following matrix lists the capabilities (channels) for each of the supported lighting device types:
 
@@ -20,6 +20,7 @@ The following matrix lists the capabilities (channels) for each of the supported
 |-------------|:------:|:----------:|:-----:|:-----------------:|   
 |  0100       |    X   |     X      |       |                   |
 |  0220       |    X   |     X      |       |          X        |
+|  0200       |    X   |     X      |   X   |          X        |
 
 ## Thing Configuration
 
@@ -29,12 +30,15 @@ The devices require only a single (integer) parameter, which is their instance i
 
 ## Channels
 
-All devices support the `brightness` channel, while the white spectrum bulbs additionally also support the `color_temperature` channel (refer to the matrix above).
+All devices support the `brightness` channel.
+The white spectrum bulbs additionally also support the `color_temperature` channel. Full color bulbs additionally also support the `color` channel.
+Refer to the matrix above.
 
 | Channel Type ID   | Item Type | Description                                 |
 |-------------------|-----------|---------------------------------------------|
 | brightness        | Dimmer    | The brightness of the bulb in percent       |
 | color_temperature | Dimmer    | color temperature from 0%=cold to 100%=warm |
+| color             | Color     | full color                                  |
 
 ## Full Example
 
@@ -43,14 +47,16 @@ demo.things:
 ```
 Bridge tradfri:gateway:mygateway [ host="192.168.0.177", code="EHPW5rIJKyXFgjH3" ] {
     0100 myDimmableBulb [ id=65537 ]    
-    0220 myColorTempBulb [ id=65538 ]    
+    0220 myColorTempBulb [ id=65538 ]
+    0200 myColorBulb [ id=65539 ]
 }
 ```
 
 demo.items:
 
 ```
-Dimmer Light { channel="tradfri:0100:mygateway:myDimmableBulb:brightness" } 
+Dimmer Light { channel="tradfri:0100:mygateway:myDimmableBulb:brightness" }
+Color ColorLight { channel="tradfri:0200:mygateway:myColorBulb:color" } 
 ```
 
 demo.sitemap:
@@ -60,6 +66,7 @@ sitemap demo label="Main Menu"
 {
     Frame {
         Slider item=Light label="Brightness [%.1f %%]"
+        Colorpicker item=ColorLight
     }
 }
 ```

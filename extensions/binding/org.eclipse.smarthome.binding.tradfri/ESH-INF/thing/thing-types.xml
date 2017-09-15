@@ -71,6 +71,28 @@
         </config-description>
     </thing-type>
 
+    <thing-type id="0200">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="gateway"/>
+        </supported-bridge-type-refs>
+
+        <label>Color Light</label>
+        <description>A dimmable light that supports full colors and color temperature settings.</description>
+
+        <channels>
+            <channel id="brightness" typeId="brightness"/>
+            <channel id="color_temperature" typeId="color_temperature"/>
+            <channel id="color" typeId="color"/>
+        </channels>
+
+        <config-description>
+            <parameter name="id" type="integer" required="true">
+                <label>ID</label>
+                <description>The identifier of the light on the gateway</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
     <!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
     <thing-type id="0820" listed="false">
         <supported-bridge-type-refs>
@@ -105,6 +127,13 @@
         <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
         <description>Control the color temperature of the light.</description>
+        <category>ColorLight</category>
+    </channel-type>
+
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>Control the color of the light.</description>
         <category>ColorLight</category>
     </channel-type>
 
