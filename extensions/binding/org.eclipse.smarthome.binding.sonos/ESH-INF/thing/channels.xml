@@ -256,6 +256,12 @@
 		<description>Stop the Zone Player</description>
 	</channel-type>
 
+	<channel-type id="tuneinstationid" advanced="true">
+		<item-type>String</item-type>
+		<label>TuneIn Station Id</label>
+		<description>Provide the current TuneIn station id or play the TuneIn radio given by its station id</description>
+	</channel-type>
+
 	<channel-type id="volume">
 		<item-type>Dimmer</item-type>
 		<label>Volume</label>
