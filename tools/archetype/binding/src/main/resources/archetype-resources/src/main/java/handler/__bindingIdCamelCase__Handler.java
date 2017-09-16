@@ -12,7 +12,7 @@ package ${package}.handler;
 
 import static ${package}.${bindingIdCamelCase}BindingConstants.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -27,11 +27,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author ${author} - Initial contribution
  */
+ @NonNullByDefault
 public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(${bindingIdCamelCase}Handler.class);
 
-    public ${bindingIdCamelCase}Handler(@NonNull Thing thing) {
+    public ${bindingIdCamelCase}Handler(Thing thing) {
         super(thing);
     }
 

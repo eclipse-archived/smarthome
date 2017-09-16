@@ -520,7 +520,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
         registerService(eventSubscriberMock, EventSubscriber.class.getName());
 
         if (updateEventType.equals(UpdateEventType.HANDLE_COMMAND)) {
-            ntpHandler.handleCommand(new ChannelUID("ntp:test:chan:1"), null);
+            ntpHandler.handleCommand(new ChannelUID("ntp:test:chan:1"), new StringType("test"));
         } else if (updateEventType.equals(UpdateEventType.CHANNEL_LINKED)) {
             ntpHandler.channelLinked(new ChannelUID("ntp:test:chan:1"));
         }
