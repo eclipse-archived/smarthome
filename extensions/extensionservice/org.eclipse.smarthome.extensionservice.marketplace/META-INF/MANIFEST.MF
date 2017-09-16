@@ -9,6 +9,7 @@ Bundle-ClassPath: .
 Import-Package: com.thoughtworks.xstream,
  org.apache.commons.io,
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.xml.util,
  org.eclipse.smarthome.core.common,

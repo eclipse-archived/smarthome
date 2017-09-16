@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: ${package}
 Import-Package: ${package},
  ${package}.handler,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.thing,

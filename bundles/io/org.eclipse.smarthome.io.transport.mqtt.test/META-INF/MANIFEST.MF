@@ -6,7 +6,8 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.io.transport.mqtt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.smarthome.io.transport.mqtt,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,

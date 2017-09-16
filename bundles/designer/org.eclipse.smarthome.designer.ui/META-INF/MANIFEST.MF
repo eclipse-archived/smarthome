@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,

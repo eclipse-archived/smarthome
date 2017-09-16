@@ -9,6 +9,7 @@ Bundle-ClassPath: .
 Import-Package: org.apache.karaf.shell.api.action;version="4.0.0",
  org.apache.karaf.shell.api.action.lifecycle;version="4.0.0",
  org.apache.karaf.shell.api.console;version="4.0.0",
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,

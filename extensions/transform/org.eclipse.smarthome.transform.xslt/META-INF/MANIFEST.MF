@@ -6,6 +6,7 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: javax.xml.transform,
  javax.xml.transform.stream,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.transform,
  org.slf4j

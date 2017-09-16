@@ -6,7 +6,8 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.auth.jaas
-Import-Package: org.eclipse.smarthome.core.auth,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.auth,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

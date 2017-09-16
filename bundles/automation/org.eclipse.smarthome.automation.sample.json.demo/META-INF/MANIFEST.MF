@@ -6,4 +6,5 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Bosch Software Innovations GmbH
 Automation-ResourceType: json
 Bundle-ClassPath: .
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Service-Component: OSGI-INF/*.xml
