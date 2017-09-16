@@ -35,6 +35,7 @@ import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.binding.sonos.internal.SonosAlarm;
 import org.eclipse.smarthome.binding.sonos.internal.SonosEntry;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
+import org.eclipse.smarthome.binding.sonos.internal.SonosMusicService;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
@@ -87,6 +88,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private final static String RADIO_URI = "x-sonosapi-radio:";
     private final static String FILE_URI = "x-file-cifs:";
     private final static String SPDIF = ":spdif";
+    private final static String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
 
     private UpnpIOService service;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
@@ -130,6 +132,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int DEFAULT_REFRESH_INTERVAL = 60;
 
     private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+
+    private List<SonosMusicService> musicServices;
 
     private final Object upnpLock = new Object();
 
@@ -266,6 +270,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case RADIO:
                     playRadio(command);
+                    break;
+                case TUNEINSTATIONID:
+                    playTuneinStation(command);
                     break;
                 case FAVORITE:
                     playFavorite(command);
@@ -514,6 +521,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                             sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
                                     : UnDefType.UNDEF);
                     break;
+                case "CurrentTuneInStationId":
+                    updateChannel(TUNEINSTATIONID);
+                    break;
 
                 default:
                     break;
@@ -693,6 +703,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CURRENTTRACKURI:
                 if (stateMap.get("CurrentTrackURI") != null) {
                     newState = new StringType(stateMap.get("CurrentTrackURI"));
+                }
+                break;
+            case TUNEINSTATIONID:
+                if (stateMap.get("CurrentTuneInStationId") != null) {
+                    newState = new StringType(stateMap.get("CurrentTuneInStationId"));
                 }
                 break;
             default:
@@ -941,6 +956,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         String album = null;
         String title = null;
         String resultString = null;
+        String stationID = null;
         boolean needsUpdating = false;
 
         if (currentURI == null) {
@@ -961,8 +977,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         else if (isPlayingStream(currentURI)) {
             // Radio stream (tune-in)
             boolean opmlUrlSucceeded = false;
+            stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
             if (opmlUrl != null) {
-                String stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
                 String mac = getMACAddress();
                 if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
                     String url = opmlUrl;
@@ -1036,14 +1052,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
         }
 
-        if (needsUpdating) {
-            String albumArtURI = (currentTrack != null && currentTrack.getAlbumArtUri() != null
-                    && !currentTrack.getAlbumArtUri().isEmpty()) ? currentTrack.getAlbumArtUri() : "";
-            for (String member : getZoneGroupMembers()) {
-                try {
-                    ZonePlayerHandler memberHandler = getHandlerByName(member);
-                    if (memberHandler != null && memberHandler.getThing() != null
-                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+        String albumArtURI = (currentTrack != null && currentTrack.getAlbumArtUri() != null
+                && !currentTrack.getAlbumArtUri().isEmpty()) ? currentTrack.getAlbumArtUri() : "";
+
+        for (String member : getZoneGroupMembers()) {
+            try {
+                ZonePlayerHandler memberHandler = getHandlerByName(member);
+                if (memberHandler != null && memberHandler.getThing() != null
+                        && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                    memberHandler.onValueReceived("CurrentTuneInStationId", (stationID != null) ? stationID : "",
+                            "AVTransport");
+                    if (needsUpdating) {
                         memberHandler.onValueReceived("CurrentArtist", (artist != null) ? artist : "", "AVTransport");
                         memberHandler.onValueReceived("CurrentAlbum", (album != null) ? album : "", "AVTransport");
                         memberHandler.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
@@ -1051,9 +1070,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                 "AVTransport");
                         memberHandler.onValueReceived("CurrentAlbumArtURI", albumArtURI, "AVTransport");
                     }
-                } catch (IllegalStateException e) {
-                    logger.warn("Cannot update media data for group member ({})", e.getMessage());
                 }
+            } catch (IllegalStateException e) {
+                logger.warn("Cannot update media data for group member ({})", e.getMessage());
             }
         }
     }
@@ -2620,6 +2639,82 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
         }
 
+    }
+
+    public void playTuneinStation(Command command) {
+
+        if (command instanceof StringType) {
+            String stationId = command.toString();
+            List<SonosMusicService> allServices = getAvailableMusicServices();
+
+            SonosMusicService tuneinService = null;
+            // search for the TuneIn music service based on its name
+            if (allServices != null) {
+                for (SonosMusicService service : allServices) {
+                    if (service.getName().equals("TuneIn")) {
+                        tuneinService = service;
+                        break;
+                    }
+                }
+            }
+
+            // set the URI of the group coordinator
+            if (tuneinService != null) {
+                try {
+                    ZonePlayerHandler coordinator = getCoordinatorHandler();
+                    SonosEntry entry = new SonosEntry("", "TuneIn station", "", "", "", "",
+                            "object.item.audioItem.audioBroadcast",
+                            String.format(TUNEIN_URI, stationId, tuneinService.getId()));
+                    entry.setDesc("SA_RINCON" + tuneinService.getType().toString() + "_");
+                    coordinator.setCurrentURI(entry);
+                    coordinator.play();
+                } catch (IllegalStateException e) {
+                    logger.warn("Cannot play TuneIn station {} ({})", stationId, e.getMessage());
+                }
+            } else {
+                logger.warn("TuneIn service not found");
+            }
+        }
+    }
+
+    private List<SonosMusicService> getAvailableMusicServices() {
+        if (musicServices == null) {
+            Map<String, String> result = service.invokeAction(this, "MusicServices", "ListAvailableServices", null);
+
+            if (result.get("AvailableServiceDescriptorList") != null) {
+                musicServices = SonosXMLParser.getMusicServicesFromXML(result.get("AvailableServiceDescriptorList"));
+
+                String[] servicesTypes = new String[0];
+                if (result.get("AvailableServiceTypeList") != null) {
+                    // It is a comma separated list of service types (integers) in the same order as the services
+                    // declaration in "AvailableServiceDescriptorList" except that there is no service type for the
+                    // TuneIn service
+                    servicesTypes = result.get("AvailableServiceTypeList").split(",");
+                }
+
+                int idx = 0;
+                for (SonosMusicService service : musicServices) {
+                    if (!service.getName().equals("TuneIn")) {
+                        // Add the service type integer value from "AvailableServiceTypeList" to each service
+                        // except TuneIn
+                        if (idx < servicesTypes.length) {
+                            try {
+                                Integer serviceType = Integer.parseInt(servicesTypes[idx]);
+                                service.setType(serviceType);
+                            } catch (NumberFormatException e) {
+                            }
+                            idx++;
+                        }
+                    } else {
+                        // Use 65031 as service type value for TuneIn service
+                        service.setType(65031);
+                    }
+                    logger.debug("Service name {} => id {} type {}", service.getName(), service.getId(),
+                            service.getType());
+                }
+            }
+        }
+        return musicServices;
     }
 
     /**

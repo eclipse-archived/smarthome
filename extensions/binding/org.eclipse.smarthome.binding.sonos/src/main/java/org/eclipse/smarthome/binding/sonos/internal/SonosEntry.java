@@ -14,7 +14,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 /**
  * The {@link SonosEntry} is a datastructure to describe
  * multimedia "entries" in the Sonos ecosystem
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SonosEntry implements Serializable {
@@ -30,6 +30,7 @@ public class SonosEntry implements Serializable {
     private final String creator;
     private final int originalTrackNumber;
     private final SonosResourceMetaData resourceMetaData;
+    private String desc;
 
     public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, String creator,
             String upnpClass, String res) {
@@ -53,6 +54,7 @@ public class SonosEntry implements Serializable {
         this.res = res;
         this.originalTrackNumber = originalTrackNumber;
         this.resourceMetaData = resourceMetaData;
+        this.desc = null;
     }
 
     /**
@@ -126,10 +128,19 @@ public class SonosEntry implements Serializable {
     /**
      * The resourceMetaData field from the ResMD parent, this will be login info for
      * streaming accounts to use in favorites
-     * 
+     *
      * @return
      */
     public SonosResourceMetaData getResourceMetaData() {
         return resourceMetaData;
     }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
 }
