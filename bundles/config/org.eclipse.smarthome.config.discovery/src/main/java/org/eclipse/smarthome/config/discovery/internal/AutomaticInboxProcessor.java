@@ -162,6 +162,9 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         if (thingType != null) {
             String representationProperty = thingType.getRepresentationProperty();
+            if (representationProperty == null) {
+                return null;
+            }
             Map<String, String> properties = thing.getProperties();
             if (properties.containsKey(representationProperty)) {
                 return properties.get(representationProperty);
