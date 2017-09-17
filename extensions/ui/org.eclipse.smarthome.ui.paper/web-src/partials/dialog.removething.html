@@ -4,6 +4,9 @@
 <p ng-show="isRemoving">
 	<strong>Warning:</strong> The thing is currently in the removing state and the binding has not yet confirmed, that the device has been removed successfully. If you now click on remove, it will be removed without additional communication to the binding.
 </p>
+<p ng-show="isMissingHandler">
+    <strong>Warning:</strong> The thing is currently missing a handler. Removing devices in this state may have unwanted side-effects.
+</p>
 </md-dialog-content>
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>

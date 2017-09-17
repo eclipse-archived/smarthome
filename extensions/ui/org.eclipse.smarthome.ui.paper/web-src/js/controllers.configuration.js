@@ -417,6 +417,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     $scope.thing = thing;
     if (thing.statusInfo) {
         $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
+        $scope.isMissingHandler = thing.statusInfo.statusDetail === 'HANDLER_MISSING';
     }
     $scope.close = function() {
         $mdDialog.cancel();
