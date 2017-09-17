@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: io.swagger.annotations;resolution:=optional,
  javax.ws.rs,
  javax.ws.rs.core,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.rest,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

@@ -3,8 +3,8 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.commands
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Bundle-Name: Eclipse SmartHome Automation commands
-Import-Package: 
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,

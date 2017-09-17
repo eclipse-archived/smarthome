@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.smarthome.model.thing,
  org.eclipse.xtext.ide,
  org.antlr.runtime,
  org.eclipse.xtext.xbase.lib
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Export-Package: org.eclipse.smarthome.model.thing.ide.contentassist.antlr.internal,
  org.eclipse.smarthome.model.thing.ide.contentassist.antlr
 

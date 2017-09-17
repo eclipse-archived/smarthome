@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.smarthome.ui.iconset.classic
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.smarthome.core.i18n,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.ui.icon,
  org.osgi.framework,
  org.slf4j

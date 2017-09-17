@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.rest.api
 Bundle-Activator: org.eclipse.smarthome.automation.sample.rest.api.Activator
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Import-Package: 
- javax.servlet,
+Import-Package: javax.servlet,
  javax.servlet.http,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework,
  org.osgi.service.http,
  org.osgi.util.tracker

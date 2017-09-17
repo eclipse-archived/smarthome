@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.smarthome.model.script,
  org.antlr.runtime,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext.xbase.ide
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Export-Package: org.eclipse.smarthome.model.script.ide.contentassist.antlr,
  org.eclipse.smarthome.model.script.ide.contentassist.antlr.internal
 

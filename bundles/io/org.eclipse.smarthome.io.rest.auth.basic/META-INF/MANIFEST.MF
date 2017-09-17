@@ -9,6 +9,7 @@ Import-Package: com.eclipsesource.jaxrs.provider.security,
  javax.ws.rs.container,
  javax.ws.rs.core,
  org.apache.commons.codec.binary,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.auth,
  org.eclipse.smarthome.io.rest.auth,
  org.slf4j

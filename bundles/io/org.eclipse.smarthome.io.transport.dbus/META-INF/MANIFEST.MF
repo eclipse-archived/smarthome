@@ -13,6 +13,7 @@ Export-Package: org.freedesktop,
  cx.ath.matthew.unix
 Import-Package: 
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.slf4j
 Bundle-ClassPath: .,
  lib/unix-0.5.jar,

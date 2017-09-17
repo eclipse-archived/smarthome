@@ -6,7 +6,8 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.core.voice
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.smarthome.core.library.items,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.voice,
  org.eclipse.smarthome.test.java,
