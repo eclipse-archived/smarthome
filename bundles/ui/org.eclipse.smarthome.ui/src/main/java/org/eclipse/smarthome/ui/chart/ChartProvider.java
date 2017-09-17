@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
  * chart servlet and returns a chart image object (PNG).
  *
  * @author Chris Jackson
+ * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
 public interface ChartProvider {
@@ -52,6 +53,10 @@ public interface ChartProvider {
      *            The items to display on the chart
      * @param groups
      *            The groups to display on the chart
+     * @param dpi
+     *            The DPI (dots per inch) value, can be <code>null</code>
+     * @param legend
+     *            Show the legend? If <code>null</code>, the ChartProvider should make his own decision.
      *
      * @return BufferedImage object if the chart is rendered correctly,
      *         otherwise null.
@@ -60,7 +65,7 @@ public interface ChartProvider {
      * @throws IllegalArgumentException if an invalid argument is passed
      */
     BufferedImage createChart(String service, String theme, Date startTime, Date endTime, int height, int width,
-            String items, String groups) throws ItemNotFoundException;
+            String items, String groups, Integer dpi, Boolean legend) throws ItemNotFoundException;
 
     /**
      * Gets the type of data that will be written by the chart.
