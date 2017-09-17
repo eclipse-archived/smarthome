@@ -7,12 +7,12 @@
  */
 package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -26,7 +26,7 @@ import org.eclipse.smarthome.core.types.State;
  */
 public class ItemRegistryDelegate implements Map<String, State> {
 
-    private ItemRegistry itemRegistry;
+    private final ItemRegistry itemRegistry;
 
     public ItemRegistryDelegate(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
@@ -107,12 +107,11 @@ public class ItemRegistryDelegate implements Map<String, State> {
         return values;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Set<java.util.Map.Entry<String, State>> entrySet() {
         Set<Map.Entry<String, State>> entries = new HashSet<Map.Entry<String, State>>();
         for (Item item : itemRegistry.getAll()) {
-            entries.add(new DefaultMapEntry(item.getName(), item.getState()));
+            entries.add(new AbstractMap.SimpleEntry<>(item.getName(), item.getState()));
         }
         return entries;
     }
