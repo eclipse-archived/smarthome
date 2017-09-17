@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.smarthome.model.item;visibility:=reexport,
  org.eclipse.smarthome.model.item.ide
 Import-Package: com.google.common.collect,
  org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.designer.ui,
  org.eclipse.smarthome.model.core,

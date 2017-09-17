@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.smarthome.model.rule,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext.xbase.ide,
  org.eclipse.smarthome.model.script
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Export-Package: org.eclipse.smarthome.model.rule.ide.contentassist.antlr.internal,
  org.eclipse.smarthome.model.rule.ide.contentassist.antlr
 

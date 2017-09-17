@@ -6,6 +6,7 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.ws.rs.container,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.auth,
  com.eclipsesource.jaxrs.provider.security,
  org.slf4j
