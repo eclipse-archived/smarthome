@@ -8,15 +8,20 @@
 package org.eclipse.smarthome.model.script.internal.engine;
 
 import com.google.inject.Singleton
-import java.util.List
-import org.eclipse.smarthome.model.script.engine.action.ActionService
 import org.eclipse.smarthome.model.script.ScriptServiceUtil
+import org.eclipse.smarthome.model.script.engine.IActionServiceProvider
 
 @Singleton
-class ServiceTrackerActionServiceProvider implements org.eclipse.smarthome.model.script.engine.IActionServiceProvider {
+class ServiceTrackerActionServiceProvider implements IActionServiceProvider {
+
+    private val ScriptServiceUtil scriptServiceUtil
+    
+    new(ScriptServiceUtil scriptServiceUtil) {
+        this.scriptServiceUtil = scriptServiceUtil;
+    }
 
 	override get() {
-		ScriptServiceUtil.getActionServices
+		return scriptServiceUtil.getActionServiceInstances();
 	}
 
 }

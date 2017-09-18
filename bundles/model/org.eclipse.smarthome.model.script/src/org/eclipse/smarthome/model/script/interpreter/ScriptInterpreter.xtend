@@ -10,20 +10,19 @@ package org.eclipse.smarthome.model.script.interpreter;
 import com.google.inject.Inject
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemNotFoundException
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.types.Type
-import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
 import org.eclipse.smarthome.model.script.lib.NumberExtensions
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.common.types.JvmField
+import org.eclipse.xtext.common.types.JvmIdentifiableElement
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
-import org.eclipse.xtext.xbase.XAssignment
+import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
-import org.eclipse.xtext.common.types.JvmIdentifiableElement
-import org.eclipse.xtext.xbase.XExpression
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -37,7 +36,7 @@ import org.eclipse.xtext.xbase.XExpression
 public class ScriptInterpreter extends XbaseInterpreter {
 
 	@Inject
-	IItemRegistryProvider itemRegistryProvider
+	ItemRegistry itemRegistry
 
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider
@@ -82,7 +81,6 @@ public class ScriptInterpreter extends XbaseInterpreter {
 	}
 
 	def protected Item getItem(String name) {
-		val itemRegistry = itemRegistryProvider.get()
 		try {
 			return itemRegistry.getItem(name);
 		} catch (ItemNotFoundException e) {

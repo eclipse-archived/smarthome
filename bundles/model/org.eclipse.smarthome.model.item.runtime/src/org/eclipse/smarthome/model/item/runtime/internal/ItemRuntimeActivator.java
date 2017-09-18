@@ -22,6 +22,7 @@ public class ItemRuntimeActivator implements ModelParser {
     }
 
     public void deactivate() throws Exception {
+        ItemsStandaloneSetup.unregister();
     }
 
     @Override

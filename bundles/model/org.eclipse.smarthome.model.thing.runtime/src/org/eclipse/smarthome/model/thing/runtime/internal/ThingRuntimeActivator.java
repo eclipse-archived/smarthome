@@ -22,6 +22,7 @@ public class ThingRuntimeActivator implements ModelParser {
     }
 
     public void deactivate() throws Exception {
+        ThingStandaloneSetup.unregister();
     }
 
     @Override
