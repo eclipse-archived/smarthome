@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -90,7 +89,7 @@ public class ChannelBuilder {
      * @param properties properties to add
      * @return channel builder
      */
-    public ChannelBuilder withProperties(Map<@NonNull String, String> properties) {
+    public ChannelBuilder withProperties(Map<String, String> properties) {
         this.properties = properties;
         return this;
     }
