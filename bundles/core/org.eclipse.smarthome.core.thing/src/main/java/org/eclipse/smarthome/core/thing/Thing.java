@@ -72,9 +72,7 @@ public interface Thing extends Identifiable<ThingUID> {
      * exists.
      *
      * @param channelId channel ID
-     *
-     * @return the channel for the given id or null if no channel with the id
-     *         exists
+     * @return the channel for the given id or null if no channel with the id exists
      */
     @Nullable
     Channel getChannel(String channelId);
@@ -82,8 +80,8 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Gets the status of a thing.
      *
-     * In order to get all status information (status, status detail and status description)
-     * please use {@link Thing#getStatusInfo()}.
+     * In order to get all status information (status, status detail and status description) please use
+     * {@link Thing#getStatusInfo()}.
      *
      * @return the status
      */
@@ -171,9 +169,7 @@ public interface Thing extends Identifiable<ThingUID> {
      * property will be removed.
      *
      * @param name the name of the property to be set (must not be null or empty)
-     *
      * @param value the value of the property (if null then the property with the given name is removed)
-     *
      * @return the previous value associated with the name, or null if there was no mapping for the name
      */
     String setProperty(@NonNull String name, String value);
@@ -188,8 +184,7 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Get the physical location of the {@link Thing}.
      *
-     * @return the location identifier (presumably an item name) or <code>null</code> if no location has been
-     *         configured.
+     * @return the location identifier (presumably an item name) or {@code null} if no location has been configured.
      */
     @Nullable
     String getLocation();
@@ -197,7 +192,7 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Set the physical location of the {@link Thing}.
      *
-     * @param location the location identifier (preferably an item name) or <code>null</code> if no location has been
+     * @param location the location identifier (preferably an item name) or {@code null} if no location has been
      *            configured.
      */
     void setLocation(String location);
