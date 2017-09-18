@@ -30,91 +30,113 @@ cat <<EOF >> "$READMEMD"
 {% endfor %}
 {% assign allIconsWithoutExtension = allIconsWithoutExtensionStr | split: ',' %}
 
-## Thing Categories
 
-These are the icons that can be used on thing types.
+## Places
 
+{% for category in site.data.categories_places %}
+    {% assign categoryNamesStr = categoryNamesStr | append: category.name | downcase | append: ',' %}
+{% endfor %}
+{% assign placesCategoryNames = categoryNamesStr | split: ',' %}
+
+<div id="iconset-preview-locations" class="icons">
+{% for category in placesCategoryNames %}
+  {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
+  {% if allIconsWithoutExtension contains category %}
+    {% assign iconSrc = "icons/" | append: category | append: ".png" %}
+  {% endif %}
+  <figure>
+    <img src="{{iconSrc}}" alt="{{category}}" title="{{category}}">
+    <figcaption>{{category}}</figcaption>
+  </figure>
+{% endfor %}
+</div>
+
+## Things
+
+{% assign categoryNamesStr = "" %}
 {% for category in site.data.categories_thing %}
-    {% assign thingCategoryNamesStr = thingCategoryNamesStr | append: category.name | downcase | append: ',' %}
+    {% assign categoryNamesStr = categoryNamesStr | append: category.name | downcase | append: ',' %}
 {% endfor %}
-{% assign thingCategoryNames = thingCategoryNamesStr | split: ',' %}
+{% assign thingCategoryNames = categoryNamesStr | split: ',' %}
 
-<div id="iconset-preview-things">
-{% for thingCategory in thingCategoryNames %}
+<div id="iconset-preview-things" class="icons">
+{% for category in thingCategoryNames %}
   {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
-  {% if allIconsWithoutExtension contains thingCategory %}
-    {% assign iconSrc = "icons/" | append: thingCategory | append: ".png" %}
+  {% if allIconsWithoutExtension contains category %}
+    {% assign iconSrc = "icons/" | append: category | append: ".png" %}
   {% endif %}
-  <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-    <img src="{{iconSrc}}" alt="{{thingCategory}}" title="{{thingCategory}}">
-    <figcaption>{{thingCategory}}</figcaption>
-  </figure>
 
-  {% for icon in allIconsWithoutExtension %}
-    {% if thingCategory.size < icon.size %}
-      {% assign iconStart = icon | truncate: thingCategory.size, "" %}
-      {% if iconStart == thingCategory %}
-        {% unless icon contains "_" %}
-          {% assign iconSrc = "icons/" | append: icon | append: ".png" %}
-          <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-            <img src="{{iconSrc}}" alt="{{icon}}" title="{{icon}}">
-            <figcaption>{{icon}}</figcaption>
-          </figure>
-        {% endunless %}
-      {% endif %}
+  {% assign altText = "" %}
+  {% for i in allIcons %}
+    {% assign prefix = category | append: "-" %}    
+    {% if i contains prefix %}
+      {% assign iWithoutExt = i | split: "." %}
+      {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
     {% endif %}
   {% endfor %}
+  <figure>
+    <img src="{{iconSrc}}" alt="{{altText}}" title="{{altText}}">
+    <figcaption>{{category}}</figcaption>
+  </figure>
 {% endfor %}
 </div>
 
-## Channel Categories
+## Channels
 
-These are the icons that can be used on channel types.
-
-{% for category in site.data.categories_channel %}
-    {% assign channelCategoryNamesStr = channelCategoryNamesStr | append: category.name | downcase | append: ',' %}
+{% for category in site.data.categories %}
+    {% assign typesStr = typesStr | append: category.type | append: ',' %}
 {% endfor %}
-{% assign channelCategoryNames = channelCategoryNamesStr | split: ',' %}
+{% assign types = typesStr | split: ',' | uniq %}
 
-<div id="iconset-preview-channels">
-{% for channelCategory in channelCategoryNames %}
-  {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
-  {% if allIconsWithoutExtension contains channelCategory %}
-    {% assign iconSrc = "icons/" | append: channelCategory | append: ".png" %}
-  {% endif %}
-  <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-    <img src="{{iconSrc}}" alt="{{channelCategory}}" title="{{channelCategory}}">
-    <figcaption>{{channelCategory}}</figcaption>
-  </figure>
+{% for type in types %}
 
-  {% for icon in allIconsWithoutExtension %}
-    {% if channelCategory.size < icon.size %}
-      {% assign iconStart = icon | truncate: channelCategory.size, "" %}
-      {% if iconStart == channelCategory %}
-        {% unless icon contains "_" %}
-          {% assign iconSrc = "icons/" | append: icon | append: ".png" %}
-          <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-            <img src="{{iconSrc}}" alt="{{icon}}" title="{{icon}}">
-            <figcaption>{{icon}}</figcaption>
-          </figure>
-        {% endunless %}
-      {% endif %}
+#### {{type}}
+
+  {% assign channelCategoryNamesStr = "" %}
+  {% for category in site.data.categories %}
+    {% if category.type == type %}
+      {% assign channelCategoryNamesStr = channelCategoryNamesStr | append: category.name | downcase | append: ',' %}
     {% endif %}
   {% endfor %}
+  {% assign channelCategoryNames = channelCategoryNamesStr | split: ',' %}
+  {% assign channelCategories = channelCategories | concat: channelCategoryNames %}
+
+  <div id="iconset-preview-channels" class="icons">
+  {% for channelCategory in channelCategoryNames %}
+    {% assign iconSrc = base | append: "/img/icon_no_category.png" %}
+    {% if allIconsWithoutExtension contains channelCategory %}
+      {% assign iconSrc = "icons/" | append: channelCategory | append: ".png" %}
+    {% endif %}
+
+    {% assign altText = "" %}
+    {% for i in allIcons %}
+      {% assign prefix = channelCategory | append: "-" %}    
+      {% if i contains prefix %}
+        {% assign iWithoutExt = i | split: "." %}
+        {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
+      {% endif %}
+    {% endfor %}
+
+    <figure>
+      <img src="{{iconSrc}}" alt="{{altText}}" title="{{altText}}">
+      <figcaption>{{channelCategory}}</figcaption>
+    </figure>
+  {% endfor %}
+  </div>
+
 {% endfor %}
-</div>
 
-## Other Categories
+## Other Icons
 
-{% assign categoriesWithIcons = thingCategoryNames | concat: channelCategoryNames | sort | uniq %}
+{% assign allCategories = thingCategoryNames | concat: channelCategories | concat: placesCategoryNames | sort | uniq %}
 
-<div id="iconset-preview-other">
+<div id="iconset-preview-other" class="icons">
 {% for icon in allIcons %}
   {% assign categoryLower = icon | downcase | split: "." %}
   {% assign plainCategory = categoryLower[0] %}
 
   {% assign otherIcon = true %}
-  {% for catWithIcon in categoriesWithIcons %}
+  {% for catWithIcon in allCategories %}
     {% if catWithIcon.size <= plainCategory.size %}
       {% assign plainCategoryStart = plainCategory | truncate: catWithIcon.size, "" %}
       {% if plainCategoryStart == catWithIcon %}
@@ -128,10 +150,22 @@ These are the icons that can be used on channel types.
     {% continue %}
   {% endif %}
 
-  <figure style="width: 128px; display: inline-block; text-align: center; font-size: 0.8em; margin: 16px 8px;">
-    <img src="icons/{{icon}}" alt="{{icon}}" title="{{icon}}">
-    <figcaption>{{plainCategory}}</figcaption>
-  </figure>
+  {% unless icon contains "-" %}
+
+    {% assign altText = "" %}
+    {% for i in allIcons %}
+      {% assign prefix = plainCategory | append: "-" %}    
+      {% if i contains prefix %}
+        {% assign iWithoutExt = i | split: "." %}
+        {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
+      {% endif %}
+    {% endfor %}
+  
+    <figure>
+      <img src="icons/{{icon}}" alt="{{altText}}" title="{{altText}}">
+      <figcaption>{{plainCategory}}</figcaption>
+    </figure>
+  {% endunless %}
 {% endfor %}
 </div>
 

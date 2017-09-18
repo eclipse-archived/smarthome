@@ -823,3 +823,11 @@ body section#blog .parallax-container #headline {
 body section#blog .parallax-container h1 {
     color: white;
 }
+
+body.documentation .icons figure {
+    width: 80px;
+    display: inline-block;
+    text-align: center;
+    font-size: 0.7em;
+    margin: 10px 8px;
+}
