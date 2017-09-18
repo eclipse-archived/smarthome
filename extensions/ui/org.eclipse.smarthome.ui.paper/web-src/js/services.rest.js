@@ -294,25 +294,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 'Content-Type' : 'application/json'
             }
         },
-        link : {
-            method : 'POST',
-            params : {
-                thingUID : '@thingUID',
-                channelId : '@channelId'
-            },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
-            headers : {
-                'Content-Type' : 'text/plain'
-            }
-        },
-        unlink : {
-            method : 'DELETE',
-            params : {
-                thingUID : '@thingUID',
-                channelId : '@channelId'
-            },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
-        },
         getFirmwareStatus : {
             method : 'GET',
             params : {
@@ -327,13 +308,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 firmwareVersion : '@firmwareVersion'
             },
             url : restConfig.restPath + '/things/:thingUID/firmware/:firmwareVersion'
-        },
-        cancel : {
-            method : 'GET',
-            params : {
-                thingUID : '@thingUID'
-            },
-            url : restConfig.restPath + '/update/:thingUID/cancel'
         }
     });
 }).factory('serviceConfigService', function($resource, restConfig) {
@@ -661,13 +635,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 thingUID : '@thingUID'
             },
             url : restConfig.restPath + '/update/:thingUID'
-        },
-        cancel : {
-            method : 'GET',
-            params : {
-                thingUID : '@thingUID'
-            },
-            url : restConfig.restPath + '/update/:thingUID/cancel'
         }
     });
 });
