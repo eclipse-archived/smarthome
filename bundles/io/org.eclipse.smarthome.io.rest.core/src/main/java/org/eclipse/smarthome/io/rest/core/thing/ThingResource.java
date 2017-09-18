@@ -49,9 +49,7 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.config.core.status.ConfigStatusService;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.auth.Role;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -74,7 +72,6 @@ import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationServ
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
@@ -241,62 +238,6 @@ public class ThingResource implements RESTResource {
     }
 
     /**
-     * link a Channel of a Thing to an Item
-     *
-     * @param thingUID
-     * @param channelId
-     * @param itemName
-     * @return Response with status/error information
-     */
-    @POST
-    @RolesAllowed({ Role.ADMIN })
-    @Path("/{thingUID}/channels/{channelId}/link")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 403, message = "Channel is not linkable for the thing, as it is not of kind 'state'!"),
-            @ApiResponse(code = 404, message = "Thing not found or channel not found.") })
-    public Response link(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
-            @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
-            @ApiParam(value = "item name") String itemName) {
-
-        Thing thing = thingRegistry.get(new ThingUID(thingUID));
-        if (thing == null) {
-            logger.warn("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            return getThingNotFoundResponse(thingUID);
-        }
-
-        Channel channel = findChannel(channelId, thing);
-        if (channel == null) {
-            logger.info("Received HTTP POST request at '{}' for the unknown channel '{}' of the thing '{}'",
-                    uriInfo.getPath(), channel, thingUID);
-            String message = "Channel " + channelId + " for Thing " + thingUID + " does not exist!";
-            return JSONResponse.createResponse(Status.NOT_FOUND, null, message);
-        }
-        if (channel.getKind() != ChannelKind.STATE) {
-            logger.info("Tried to link channel '{}' of thing '{}', which is not of kind 'state'", channel, thingUID);
-            String message = "Channel " + channelId + " for Thing " + thingUID
-                    + " is not linkable, as it is not of kind 'state'!";
-            return JSONResponse.createResponse(Status.FORBIDDEN, null, message);
-        }
-
-        try {
-            itemRegistry.getItem(itemName);
-        } catch (ItemNotFoundException ex) {
-            GenericItem item = itemFactory.createItem(channel.getAcceptedItemType(), itemName);
-            managedItemProvider.add(item);
-        }
-
-        ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
-
-        unlinkChannelIfAlreadyLinked(channelUID);
-
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
-
-        return Response.ok().build();
-    }
-
-    /**
      * Delete a Thing, if possible. Thing deletion might be impossible if the
      * Thing is not managed, will return CONFLICT. Thing deletion might happen
      * delayed, will return ACCEPTED.
@@ -348,39 +289,6 @@ public class ThingResource implements RESTResource {
             if (null != thingRegistry.remove(thingUIDObject)) {
                 return getThingResponse(Status.ACCEPTED, thing, locale, null);
             }
-        }
-
-        return Response.ok().build();
-    }
-
-    /**
-     * Unlink a Channel of a Thing from an Item.
-     *
-     * @param thingUID
-     * @param channelId
-     * @param itemName
-     * @return Response with status/error information
-     */
-    @DELETE
-    @RolesAllowed({ Role.ADMIN })
-    @Path("/{thingUID}/channels/{channelId}/link")
-    @ApiOperation(value = "Unlinks item from a channel.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found.") })
-    public Response unlink(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
-            @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
-            @ApiParam(value = "channelId") String itemName) {
-
-        Thing thing = thingRegistry.get(new ThingUID(thingUID));
-        if (thing == null) {
-            logger.warn("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            return getThingNotFoundResponse(thingUID);
-        }
-
-        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
-
-        if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
-            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getUID());
         }
 
         return Response.ok().build();
@@ -639,8 +547,10 @@ public class ThingResource implements RESTResource {
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 locale);
         boolean managed = managedThingProvider.get(thing.getUID()) != null;
-        EnrichedThingDTO enrichedThingDTO = thing != null ? EnrichedThingDTOMapper.map(thing, thingStatusInfo,
-                this.getThingFirmwareStatus(thing.getUID()), getLinkedItemsMap(thing), managed) : null;
+        EnrichedThingDTO enrichedThingDTO = thing != null
+                ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
+                        getLinkedItemsMap(thing), managed)
+                : null;
 
         return JSONResponse.createResponse(status, enrichedThingDTO, errormessage);
     }
