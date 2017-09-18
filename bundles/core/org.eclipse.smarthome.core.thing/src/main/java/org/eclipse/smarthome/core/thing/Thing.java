@@ -32,19 +32,19 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 public interface Thing extends Identifiable<ThingUID> {
 
     /** the key for the vendor property */
-    public static final String PROPERTY_VENDOR = "vendor";
+    String PROPERTY_VENDOR = "vendor";
 
     /** the key for the model ID property */
-    public static final String PROPERTY_MODEL_ID = "modelId";
+    String PROPERTY_MODEL_ID = "modelId";
 
     /** the key for the serial number property */
-    public static final String PROPERTY_SERIAL_NUMBER = "serialNumber";
+    String PROPERTY_SERIAL_NUMBER = "serialNumber";
 
     /** the key for the hardware version property */
-    public static final String PROPERTY_HARDWARE_VERSION = "hardwareVersion";
+    String PROPERTY_HARDWARE_VERSION = "hardwareVersion";
 
     /** the key for the firmware version property */
-    public static final String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
+    String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
 
     /**
      * Returns the human readable label for this thing.
@@ -56,7 +56,7 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Sets the human readable label for this thing.
      *
-     * @return the human readable label
+     * @param label the human readable label
      */
     void setLabel(String label);
 
@@ -71,8 +71,7 @@ public interface Thing extends Identifiable<ThingUID> {
      * Gets the channel for the given id or null if no channel with the id
      * exists.
      *
-     * @param channelId
-     *            channel ID
+     * @param channelId channel ID
      *
      * @return the channel for the given id or null if no channel with the id
      *         exists
@@ -102,16 +101,14 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Sets the status info.
      *
-     * @param status
-     *            the new status info
+     * @param status the new status info
      */
     void setStatusInfo(ThingStatusInfo status);
 
     /**
      * Sets the handler.
      *
-     * @param thingHandler
-     *            the new handler
+     * @param thingHandler the new handler
      */
     void setHandler(ThingHandler thingHandler);
 
@@ -134,8 +131,7 @@ public interface Thing extends Identifiable<ThingUID> {
     /**
      * Sets the bridge.
      *
-     * @param bridge
-     *            the new bridge
+     * @param bridgeUID the new bridge UID
      */
     void setBridgeUID(ThingUID bridgeUID);
 
