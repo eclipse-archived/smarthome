@@ -453,6 +453,9 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             }
         },
         setConfigDefaults : function(originalConfiguration, groups, sending) {
+            if (!groups) { // no config groups available for this configuration
+                return originalConfiguration;
+            }
             var configuration = {};
             angular.copy(originalConfiguration, configuration);
             for (var i = 0; i < groups.length; i++) {
