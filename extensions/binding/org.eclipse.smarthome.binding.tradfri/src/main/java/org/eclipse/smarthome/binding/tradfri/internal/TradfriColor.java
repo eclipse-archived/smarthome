@@ -45,6 +45,12 @@ public class TradfriColor {
     public Integer brightness;
 
     /**
+     * {@link HSBType} color object.
+     * May be <code>null</code> if the calculation method does not support this color range.
+     */
+    public HSBType hsbType;
+
+    /**
      * Private constructor based on all fields.
      *
      * @param rgbR RGB red value 0 to 255
@@ -52,9 +58,11 @@ public class TradfriColor {
      * @param rgbB RGB blue value 0 to 255
      * @param xyX CIE x value 0 to 65535
      * @param xyY CIE y value 0 to 65535
-     * @param brightness brightness level 0 to 254
+     * @param brightness xy brightness level 0 to 254
+     * @param hsbType {@link HSBType}
      */
-    private TradfriColor(Integer rgbR, Integer rgbG, Integer rgbB, Integer xyX, Integer xyY, Integer brightness) {
+    private TradfriColor(Integer rgbR, Integer rgbG, Integer rgbB, Integer xyX, Integer xyY, Integer brightness,
+            HSBType hsbType) {
         super();
         this.rgbR = rgbR;
         this.rgbG = rgbG;
@@ -62,6 +70,7 @@ public class TradfriColor {
         this.xyX = xyX;
         this.xyY = xyY;
         this.brightness = brightness;
+        this.hsbType = hsbType;
     }
 
     /**
@@ -110,17 +119,25 @@ public class TradfriColor {
             blue = 1.0;
         }
 
-        // gamma correction
-        red = red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * Math.pow(red, (1.0 / 2.4)) - 0.055;
-        green = green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
-        blue = blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
+        // gamma correction - disabled for now - needs tweaking
+        // red = red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * Math.pow(red, (1.0 / 2.4)) - 0.055;
+        // green = green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
+        // blue = blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
 
-        // target range 0 to 255
-        int rgbR = (int) Math.round(red * 255.0);
-        int rgbG = (int) Math.round(green * 255.0);
-        int rgbB = (int) Math.round(blue * 255.0);
+        int redRounded = (int) Math.round(red * 255.0);
+        int greenRounded = (int) Math.round(green * 255.0);
+        int blueRounded = (int) Math.round(blue * 255.0);
 
-        return new TradfriColor(rgbR, rgbG, rgbB, xyX, xyY, brightness);
+        // construct hsbType from RGB values
+        // this hsbType has corrected values for RGB based on the hue/saturation/brightness values
+        HSBType hsbType = constructHsbTypeFromRgbWithBrightnessPercent(redRounded, greenRounded, blueRounded,
+                brightness);
+        // take RGB values from the HSBType
+        int rgbR = (int) (hsbType.getRed().intValue() * 2.55);
+        int rgbG = (int) (hsbType.getGreen().intValue() * 2.55);
+        int rgbB = (int) (hsbType.getBlue().intValue() * 2.55);
+
+        return new TradfriColor(rgbR, rgbG, rgbB, xyX, xyY, brightness, hsbType);
     }
 
     /**
@@ -141,11 +158,11 @@ public class TradfriColor {
         int rgbG = (int) green;
         int rgbB = (int) blue;
 
-        // gamma correction
-        red = (red > 0.04045) ? Math.pow((red + 0.055) / (1.0 + 0.055), 2.4) : (red / 12.92);
-        green = (green > 0.04045) ? Math.pow((green + 0.055) / (1.0 + 0.055), 2.4) : (green / 12.92);
-        blue = (blue > 0.04045) ? Math.pow((blue + 0.055) / (1.0 + 0.055), 2.4) : (blue / 12.92);
-
+        // gamma correction - disabled for now - needs tweaking
+        // red = (red > 0.04045) ? Math.pow((red + 0.055) / (1.0 + 0.055), 2.4) : (red / 12.92);
+        // green = (green > 0.04045) ? Math.pow((green + 0.055) / (1.0 + 0.055), 2.4) : (green / 12.92);
+        // blue = (blue > 0.04045) ? Math.pow((blue + 0.055) / (1.0 + 0.055), 2.4) : (blue / 12.92);
+        
         // Wide RGB D65 conversion
         // math inspiration: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
         double X = red * 0.664511 + green * 0.154324 + blue * 0.162028;
@@ -160,7 +177,10 @@ public class TradfriColor {
         int xyY = normalize(y);
         int brightness = (int) (hsbType.getBrightness().intValue() * 2.54);
 
-        return new TradfriColor(rgbR, rgbG, rgbB, xyX, xyY, brightness);
+        // construct new hsbType with the calculated concrete values
+        HSBType hsbTypeConcreteValues = constructHsbTypeFromRgbWithBrightnessPercent(rgbR, rgbG, rgbB, brightness);
+
+        return new TradfriColor(rgbR, rgbG, rgbB, xyX, xyY, brightness, hsbTypeConcreteValues);
     }
 
     /**
@@ -168,7 +188,7 @@ public class TradfriColor {
      * 0 (coldest) to 100 (warmest).
      * Note: The resulting {@link TradfriColor} has only the {@link TradfriColor#xyX X} and {@link TradfriColor#xyY y}
      * values set!
-     * 
+     *
      * @param percentType the color temperature in percent
      * @return {@link TradfriColor} object with x and y values
      */
@@ -188,7 +208,7 @@ public class TradfriColor {
             y = (int) Math.round(PRESET_Y[1] + p * (PRESET_Y[2] - PRESET_Y[1]));
         }
 
-        return new TradfriColor(null, null, null, x, y, null);
+        return new TradfriColor(null, null, null, x, y, null, null);
     }
 
     /**
@@ -197,7 +217,7 @@ public class TradfriColor {
      * @param value double in the range 0.0 to 1.0
      * @return normalized value in the range 0 to 65535
      */
-    public static int normalize(double value) {
+    private static int normalize(double value) {
         return (int) (value * 65535 + 0.5);
     }
 
@@ -207,8 +227,28 @@ public class TradfriColor {
      * @param value integer in the range 0 to 65535
      * @return unnormalized value in the range 0.0 to 1.0
      */
-    public static double unnormalize(int value) {
+    private static double unnormalize(int value) {
         return (value / 65535.0);
+    }
+
+    /**
+     * Construct a {@link HSBType} from the given RGB values and the xyBrightness.
+     * RGB is converted to hue, and then the brightness gets applied.
+     *
+     * @param rgbR RGB red value 0 to 255
+     * @param rgbG RGB green value 0 to 255
+     * @param rgbB RGB blue value 0 to 255
+     * @param xyBrightness xy brightness level 0 to 254
+     * @return {@link HSBType}
+     */
+    private static HSBType constructHsbTypeFromRgbWithBrightnessPercent(int rgbR, int rgbG, int rgbB,
+            int xyBrightness) {
+        // construct HSBType from RGB values
+        HSBType hsbFullBright = HSBType.fromRGB(rgbR, rgbG, rgbB);
+        // get hue and saturation from HSBType and construct new HSBType based on these values with the given brightbess
+        PercentType brightnessPercent = new PercentType((int) (xyBrightness / 2.54));
+        HSBType hsb = new HSBType(hsbFullBright.getHue(), hsbFullBright.getSaturation(), brightnessPercent);
+        return hsb;
     }
 
     /**

@@ -29,7 +29,7 @@ public class TradfriBindingConstants {
 
     public final static ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
     public final static ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
-    public final static ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "0200");
+    public final static ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "0210");
     public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
 
     public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = Collections

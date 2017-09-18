@@ -112,7 +112,7 @@ public class TradfriDiscoveryServiceTest {
 
         assertNotNull(discoveryResult);
         assertThat(discoveryResult.getFlag(), is(DiscoveryResultFlag.NEW));
-        assertThat(discoveryResult.getThingUID(), is(new ThingUID("tradfri:0200:1:65550")));
+        assertThat(discoveryResult.getThingUID(), is(new ThingUID("tradfri:0210:1:65550")));
         assertThat(discoveryResult.getThingTypeUID(), is(TradfriBindingConstants.THING_TYPE_COLOR_LIGHT));
         assertThat(discoveryResult.getBridgeUID(), is(new ThingUID("tradfri:gateway:1")));
         assertThat(discoveryResult.getProperties().get(DeviceConfig.ID), is(65550));

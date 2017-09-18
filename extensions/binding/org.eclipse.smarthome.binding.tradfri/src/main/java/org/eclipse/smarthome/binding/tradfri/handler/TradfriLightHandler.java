@@ -126,7 +126,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             }
 
             PercentType dimmer = state.getBrightness();
-            if (dimmer != null) {
+            if (dimmer != null && !lightHasColorSupport()) { // color lighs do not have brightness channel
                 updateState(CHANNEL_BRIGHTNESS, dimmer);
             }
 
@@ -422,7 +422,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 int brightness = dimmer.getAsInt();
                 // extract HSBType from converted xy/brightness
                 TradfriColor color = TradfriColor.fromCie(x, y, brightness);
-                return HSBType.fromRGB(color.rgbR, color.rgbG, color.rgbB);
+                return color.hsbType;
             }
             return null;
         }

@@ -24,24 +24,32 @@ public class TradfriColorTest {
     public void testFromCieKnownGood1() {
         TradfriColor color = TradfriColor.fromCie(29577, 12294, 254);
         assertNotNull(color);
-        assertEquals(255, (int) color.rgbR);
-        assertEquals(21, (int) color.rgbG);
-        assertEquals(207, (int) color.rgbB);
+        assertEquals(254, (int) color.rgbR);
+        assertEquals(2, (int) color.rgbG);
+        assertEquals(158, (int) color.rgbB);
         assertEquals(29577, (int) color.xyX);
         assertEquals(12294, (int) color.xyY);
         assertEquals(254, (int) color.brightness);
+        assertNotNull(color.hsbType);
+        assertEquals(323, color.hsbType.getHue().intValue());
+        assertEquals(99, color.hsbType.getSaturation().intValue());
+        assertEquals(100, color.hsbType.getBrightness().intValue());
     }
 
     @Test
     public void testFromCieKnownGood2() {
         TradfriColor color = TradfriColor.fromCie(19983, 37417, 84);
         assertNotNull(color);
-        assertEquals(110, (int) color.rgbR);
-        assertEquals(174, (int) color.rgbG);
-        assertEquals(58, (int) color.rgbB);
+        assertEquals(30, (int) color.rgbR);
+        assertEquals(84, (int) color.rgbG);
+        assertEquals(7, (int) color.rgbB);
         assertEquals(19983, (int) color.xyX);
         assertEquals(37417, (int) color.xyY);
         assertEquals(84, (int) color.brightness);
+        assertNotNull(color.hsbType);
+        assertEquals(102, color.hsbType.getHue().intValue());
+        assertEquals(89, color.hsbType.getSaturation().intValue());
+        assertEquals(33, color.hsbType.getBrightness().intValue());
     }
 
     @Test
@@ -54,6 +62,10 @@ public class TradfriColorTest {
         assertEquals(45914, (int) color.xyX);
         assertEquals(19615, (int) color.xyY);
         assertEquals(254, (int) color.brightness);
+        assertNotNull(color.hsbType);
+        assertEquals(0, color.hsbType.getHue().intValue());
+        assertEquals(100, color.hsbType.getSaturation().intValue());
+        assertEquals(100, color.hsbType.getBrightness().intValue());
     }
 
     @Test
@@ -67,15 +79,23 @@ public class TradfriColorTest {
         assertEquals(11299, (int) color.xyX);
         assertEquals(48941, (int) color.xyY);
         assertEquals(254, (int) color.brightness);
+        assertNotNull(color.hsbType);
+        assertEquals(120, color.hsbType.getHue().intValue());
+        assertEquals(100, color.hsbType.getSaturation().intValue());
+        assertEquals(100, color.hsbType.getBrightness().intValue());
         // convert the result again based on the XY values
         TradfriColor reverse = TradfriColor.fromCie(color.xyX, color.xyY, color.brightness);
         assertNotNull(reverse);
         assertEquals(0, (int) reverse.rgbR);
-        assertEquals(255, (int) reverse.rgbG); // 255 instead of 254 - only approximated calculation
+        assertEquals(254, (int) reverse.rgbG);
         assertEquals(0, (int) reverse.rgbB);
         assertEquals(11299, (int) reverse.xyX);
         assertEquals(48941, (int) reverse.xyY);
         assertEquals(254, (int) reverse.brightness);
+        assertNotNull(reverse.hsbType);
+        assertEquals(120, reverse.hsbType.getHue().intValue());
+        assertEquals(100, reverse.hsbType.getSaturation().intValue());
+        assertEquals(100, reverse.hsbType.getBrightness().intValue());
     }
 
     @Test

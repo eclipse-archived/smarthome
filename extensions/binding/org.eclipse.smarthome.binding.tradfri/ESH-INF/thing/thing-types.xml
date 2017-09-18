@@ -71,7 +71,7 @@
         </config-description>
     </thing-type>
 
-    <thing-type id="0200">
+    <thing-type id="0210">
         <supported-bridge-type-refs>
             <bridge-type-ref id="gateway"/>
         </supported-bridge-type-refs>
@@ -80,7 +80,6 @@
         <description>A dimmable light that supports full colors and color temperature settings.</description>
 
         <channels>
-            <channel id="brightness" typeId="brightness"/>
             <channel id="color_temperature" typeId="color_temperature"/>
             <channel id="color" typeId="color"/>
         </channels>
