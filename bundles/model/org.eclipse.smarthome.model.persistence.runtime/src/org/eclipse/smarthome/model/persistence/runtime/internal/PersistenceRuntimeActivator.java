@@ -22,6 +22,7 @@ public class PersistenceRuntimeActivator implements ModelParser {
     }
 
     public void deactivate() throws Exception {
+        PersistenceStandaloneSetup.unregister();
     }
 
     @Override

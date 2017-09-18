@@ -9,7 +9,7 @@ package org.eclipse.smarthome.model.script.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
-import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.smarthome.model.script.script.Script
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
@@ -38,7 +38,7 @@ class ScriptJvmModelInferrer extends AbstractModelInferrer {
 	
 
 	@Inject
-	IItemRegistryProvider itemRegistryProvider
+	ItemRegistry itemRegistry
 
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider	
@@ -71,7 +71,6 @@ class ScriptJvmModelInferrer extends AbstractModelInferrer {
 			}
 		]
 
-		 val itemRegistry = itemRegistryProvider.get
 		 itemRegistry?.items?.forEach[ item |
 		 	val name = item.name
 				if (fieldNames.add(name)) {

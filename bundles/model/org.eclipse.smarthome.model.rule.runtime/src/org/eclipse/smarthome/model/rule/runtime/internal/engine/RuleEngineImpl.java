@@ -46,6 +46,10 @@ import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.naming.QualifiedName;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +67,7 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
+@Component(immediate = true, service = { EventSubscriber.class, RuleEngine.class })
 public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener,
         RuleEngine, EventSubscriber {
 
@@ -85,6 +90,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     // ready to be operational
     private boolean starting = true;
 
+    @Activate
     public void activate() {
         injector = RulesStandaloneSetup.getInjector();
         triggerManager = injector.getInstance(RuleTriggerManager.class);
@@ -118,6 +124,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         scheduleStartupRules();
     }
 
+    @Deactivate
     public void deactivate() {
         // unregister listeners
         for (Item item : itemRegistry.getItems()) {
@@ -132,6 +139,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         triggerManager = null;
     }
 
+    @Reference
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -140,6 +148,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.itemRegistry = null;
     }
 
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -148,6 +157,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.modelRepository = null;
     }
 
+    @Reference
     public void setScriptEngine(ScriptEngine scriptEngine) {
         this.scriptEngine = scriptEngine;
     }
@@ -156,6 +166,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.scriptEngine = null;
     }
 
+    @Reference
     protected void setRuleRuntimeActivator(RuleRuntimeActivator ruleRuntimeActivator) {
         // noop - only make sure RuleRuntimeActivator gets "used", hence activated
     }

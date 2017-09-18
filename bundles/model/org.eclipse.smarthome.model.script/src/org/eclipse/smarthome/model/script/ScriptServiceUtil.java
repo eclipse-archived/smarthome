@@ -97,8 +97,12 @@ public class ScriptServiceUtil {
         return getInstance().itemRegistry;
     }
 
-    public static ThingRegistry getThingRegistry() {
-        return getInstance().thingRegistry;
+    public ItemRegistry getItemRegistryInstance() {
+        return itemRegistry;
+    }
+
+    public ThingRegistry getThingRegistryInstance() {
+        return thingRegistry;
     }
 
     public static EventPublisher getEventPublisher() {
@@ -109,12 +113,20 @@ public class ScriptServiceUtil {
         return getInstance().modelRepository;
     }
 
+    public ModelRepository getModelRepositoryInstance() {
+        return modelRepository;
+    }
+
     public static ScriptEngine getScriptEngine() {
         return getInstance().scriptEngine.get();
     }
 
     public static List<ActionService> getActionServices() {
         return getInstance().actionServices;
+    }
+
+    public List<ActionService> getActionServiceInstances() {
+        return actionServices;
     }
 
     public void addActionService(ActionService actionService) {

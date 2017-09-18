@@ -12,7 +12,6 @@ import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
-import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -51,7 +50,7 @@ public class RuleContextHelper {
         }
         Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
         // no evaluation context found, so create a new one
-        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
+        ScriptEngine scriptEngine = injector.getInstance(ScriptEngine.class);
         if (scriptEngine != null) {
             IEvaluationContext evaluationContext = contextProvider.get();
             for (VariableDeclaration var : ruleModel.getVariables()) {
@@ -79,7 +78,7 @@ public class RuleContextHelper {
      */
     private static class RuleContextAdapter extends EContentAdapter {
 
-        private IEvaluationContext context;
+        private final IEvaluationContext context;
 
         public RuleContextAdapter(IEvaluationContext context) {
             this.context = context;

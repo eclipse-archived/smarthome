@@ -14,9 +14,11 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.IOUtils;
@@ -204,6 +206,26 @@ public class ModelRepositoryImpl implements ModelRepository {
                 }
             }
         }
+    }
+
+    @Override
+    public Set<String> removeAllModelsOfType(final String modelType) {
+        Set<String> ret = new HashSet<>();
+        synchronized (resourceSet) {
+            // Make a copy to avoid ConcurrentModificationException
+            List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            for (Resource resource : resourceListCopy) {
+                if (resource != null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
+                    if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
+                        logger.debug("Removing resource '{}'", resource.getURI().lastSegment());
+                        ret.add(resource.getURI().lastSegment());
+                        resourceSet.getResources().remove(resource);
+                        notifyListeners(resource.getURI().lastSegment(), EventType.REMOVED);
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
     @Override
