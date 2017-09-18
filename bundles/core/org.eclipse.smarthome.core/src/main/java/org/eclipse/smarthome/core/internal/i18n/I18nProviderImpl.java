@@ -19,6 +19,10 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,9 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Triller - Initial contribution and API of LocationProvider
  *
  */
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.core.i18nprovider", property = {
+        "service.config.description.uri:String=system:i18n", "service.config.label:String=Regional Settings",
+        "service.config.category:String=system" })
 public class I18nProviderImpl implements TranslationProvider, LocaleProvider, LocationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -59,6 +66,7 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
     private static final String LOCATION = "location";
     private PointType location;
 
+    @Activate
     @SuppressWarnings("unchecked")
     protected void activate(ComponentContext componentContext) {
         modified((Map<String, Object>) componentContext.getProperties());
@@ -67,10 +75,12 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         this.resourceBundleTracker.open();
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.resourceBundleTracker.close();
     }
 
+    @Modified
     protected synchronized void modified(Map<String, Object> config) {
         final String language = (String) config.get(LANGUAGE);
         final String script = (String) config.get(SCRIPT);

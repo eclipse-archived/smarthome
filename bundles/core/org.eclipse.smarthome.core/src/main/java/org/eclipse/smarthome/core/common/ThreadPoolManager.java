@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * The created thread pools have named threads, so that it is easy to find them in the debugger. Additionally, it is
  * possible to configure the pool sizes through the configuration admin service, so that solutions have the chance to
  * tweak the pool sizes according to their needs.
- * 
+ *
  * <p>
  * The configuration can be done as
  * <br/>
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  *
  */
+@Component(configurationPid = "org.eclipse.smarthome.threadpool")
 public class ThreadPoolManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);

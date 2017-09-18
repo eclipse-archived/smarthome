@@ -46,7 +46,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
-    private Class<P> providerClazz;
+    private final Class<P> providerClazz;
     private ServiceTracker<P, P> providerTracker;
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
@@ -294,6 +294,10 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     protected void setManagedProvider(ManagedProvider<E, K> provider) {
         managedProvider = provider;
+    }
+
+    protected void unsetManagedProvider(ManagedProvider<E, K> provider) {
+        managedProvider = null;
     }
 
     /**

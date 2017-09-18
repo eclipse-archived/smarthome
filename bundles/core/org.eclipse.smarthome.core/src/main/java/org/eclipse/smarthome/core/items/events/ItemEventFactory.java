@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
@@ -23,6 +24,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -33,6 +35,7 @@ import com.google.common.collect.Sets;
  *
  * @author Stefan Bußweiler - Initial contribution
  */
+@Component(immediate = true, service = EventFactory.class)
 public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String TYPE_POSTFIX = "Type";

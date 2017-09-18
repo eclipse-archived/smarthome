@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * {@link CoreItemFactory}-Implementation for the core ItemTypes
@@ -30,6 +31,7 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
  * @author Kai Kreuzer
  * @author Alexander Kostadinov
  */
+@Component(immediate = true)
 public class CoreItemFactory implements ItemFactory {
 
     public static final @NonNull String CALL = "Call";
