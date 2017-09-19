@@ -1,11 +1,15 @@
 name,description,icon
+Battery,"Batteries, Energy Storages",battery.png
 Blinds,"Roller shutters, window blinds, etc.",blinds.png
 Camera,"All kinds of cameras",camera.png
 Car,"Smart Cars",
 CleaningRobot,"Vacuum robots, mopping robots, etc.",
+Door,"Door",door.png
+FrontDoor,"Front Door",frontdoor.png
+GarageDoor,"Garage Door",garagedoor.png
 HVAC,"Air condition devices, Fans",
 Inverter,"Power inverter, such as solar inverters etc.",
-LawnMower,"Lawn mowing robots, etc.",
+LawnMower,"Lawn mowing robots, etc.",lawnmower.png
 Lightbulb,"Devices that illuminate something, such as bulbs, etc.",lightbulb.png
 Lock,"Devices whose primary pupose is locking something",lock.png
 MotionDetector,"Motion sensors/detectors",
@@ -21,4 +25,5 @@ SmokeDetector,"Smoke detectors",
 Speaker,"Devices that are able to play sounds",
 WallSwitch,"Any device attached to the wall that controls a binary status of something, for ex. a light switch",wallswitch.png
 WebService,"Account with credentials for a website",
+Window,"Window",window.png
 WhiteGood,"Devices that look like Waschingmachines, Dishwashers, Dryers, Fridges, Ovens, etc.",whitegood.png

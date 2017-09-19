@@ -12,11 +12,6 @@ cp -f house.svg             group.svg
 
 # Alternative Types
 
-cp -f dimmablelight-0.png   light-off.png
-cp -f dimmablelight-0.svg   light-off.svg
-cp -f dimmablelight-100.png light-on.png
-cp -f dimmablelight-100.svg light-on.svg
-
 cp -f garagedoor-70.png     garagedoor-ajar.png
 cp -f garagedoor-70.svg     garagedoor-ajar.svg
 cp -f garagedoor-100.png    garagedoor-closed.png
@@ -34,9 +29,6 @@ cp -f heating-100.svg       heating-on.svg
 
 # Uninitialized State
 
-cp -f dimmablelight-100.png dimmablelight.png
-cp -f dimmablelight-100.svg dimmablelight.svg
-
 cp -f fire-on.png           fire.png
 cp -f fire-on.svg           fire.svg
 
@@ -51,9 +43,6 @@ cp -f lock-closed.svg       lock.svg
 
 cp -f receiver-on.png       receiver.png
 cp -f receiver-on.svg       receiver.svg
-
-cp -f signal-4.png          signal.png
-cp -f signal-4.svg          signal.svg
 
 cp -f siren-on.png          siren.png
 cp -f siren-on.svg          siren.svg
@@ -73,8 +62,36 @@ cp -f switch-on.svg          switch.svg
 cp -f siren.png             alarm.png
 cp -f siren.svg             alarm.svg
 
-cp -f battery-0.png         battery.png
-cp -f battery-0.svg         battery.svg
+cp -f battery-60.png         battery.png
+cp -f battery-60.svg         battery.svg
+
+cp -f battery.png         batterylevel.png
+cp -f battery.svg         batterylevel.svg
+cp -f battery-0.png         batterylevel-0.png
+cp -f battery-0.svg         batterylevel-0.svg
+cp -f battery-10.png         batterylevel-10.png
+cp -f battery-10.svg         batterylevel-10.svg
+cp -f battery-20.png         batterylevel-20.png
+cp -f battery-20.svg         batterylevel-20.svg
+cp -f battery-30.png         batterylevel-30.png
+cp -f battery-30.svg         batterylevel-30.svg
+cp -f battery-40.png         batterylevel-40.png
+cp -f battery-40.svg         batterylevel-40.svg
+cp -f battery-50.png         batterylevel-50.png
+cp -f battery-50.svg         batterylevel-50.svg
+cp -f battery-60.png         batterylevel-60.png
+cp -f battery-60.svg         batterylevel-60.svg
+cp -f battery-70.png         batterylevel-70.png
+cp -f battery-70.svg         batterylevel-70.svg
+cp -f battery-80.png         batterylevel-80.png
+cp -f battery-80.svg         batterylevel-80.svg
+cp -f battery-90.png         batterylevel-90.png
+cp -f battery-90.svg         batterylevel-90.svg
+cp -f battery-100.png         batterylevel-100.png
+cp -f battery-100.svg         batterylevel-100.svg
+
+cp -f battery-0.png         lowbat.png
+cp -f battery-0.svg         lowbat.svg
 
 cp -f rollershutter-0.png   blinds-0.png
 cp -f rollershutter-0.svg   blinds-0.svg
@@ -113,49 +130,23 @@ cp -f window-open.svg       contact-open.svg
 cp -f window.png            contact.png
 cp -f window.svg            contact.svg
 
-cp -f dimmablelight-0.png   slider-0.png
-cp -f dimmablelight-0.svg   slider-0.svg
-cp -f dimmablelight-10.png  slider-10.png
-cp -f dimmablelight-10.svg  slider-10.svg
-cp -f dimmablelight-20.png  slider-20.png
-cp -f dimmablelight-20.svg  slider-20.svg
-cp -f dimmablelight-30.png  slider-30.png
-cp -f dimmablelight-30.svg  slider-30.svg
-cp -f dimmablelight-40.png  slider-40.png
-cp -f dimmablelight-40.svg  slider-40.svg
-cp -f dimmablelight-50.png  slider-50.png
-cp -f dimmablelight-50.svg  slider-50.svg
-cp -f dimmablelight-60.png  slider-60.png
-cp -f dimmablelight-60.svg  slider-60.svg
-cp -f dimmablelight-70.png  slider-70.png
-cp -f dimmablelight-70.svg  slider-70.svg
-cp -f dimmablelight-80.png  slider-80.png
-cp -f dimmablelight-80.svg  slider-80.svg
-cp -f dimmablelight-90.png  slider-90.png
-cp -f dimmablelight-90.svg  slider-90.svg
-cp -f dimmablelight-100.png slider-100.png
-cp -f dimmablelight-100.svg slider-100.svg
-cp -f dimmablelight.png     slider.png
-cp -f dimmablelight.svg     slider.svg
-
 cp -f fan_box.png           fan.png
 cp -f fan_box.svg           fan.svg
 
 cp -f receiver.png          player.png
 cp -f receiver.svg          player.svg
 
-cp -f signal-0.png          qualityofservice-0.png
-cp -f signal-0.svg          qualityofservice-0.svg
-cp -f signal-1.png          qualityofservice-1.png
-cp -f signal-1.svg          qualityofservice-1.svg
-cp -f signal-2.png          qualityofservice-2.png
-cp -f signal-2.svg          qualityofservice-2.svg
-cp -f signal-3.png          qualityofservice-3.png
-cp -f signal-3.svg          qualityofservice-3.svg
-cp -f signal-4.png          qualityofservice-4.png
-cp -f signal-4.svg          qualityofservice-4.svg
-cp -f signal.png            qualityofservice.png
-cp -f signal.svg            qualityofservice.svg
-
 cp -f microphone.png        recorder.png
 cp -f microphone.svg        recorder.svg
+
+cp -f climate.png           snow.png
+cp -f climate.svg           snow.svg
+
+cp -f piggybank.png         price.png
+cp -f piggybank.svg         price.svg
+
+cp -f clock.png             time.png
+cp -f clock.svg             time.svg
+
+cp -f video.png             mediacontrol.png
+cp -f video.svg             mediacontrol.svg
