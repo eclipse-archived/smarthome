@@ -5,6 +5,15 @@
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
 	<config-description uri="ui:basic">
+		<parameter name="theme" type="text" required="true">
+			<label>Theme</label>
+			<description>Defines the UI theme.</description>
+			<options>
+				<option value="default">Default</option>
+				<option value="dark">Dark</option>
+			</options>
+			<default>default</default>
+		</parameter>
 		<parameter name="iconType" type="text" required="true">
 			<label>Icon Format</label>
 			<description>Defines whether bitmap or vector icons are used by the UI.</description>

@@ -3,19 +3,19 @@
 
 	var
 		gulp = require("gulp"),
-		less = require("gulp-less"),
+		sass = require("gulp-sass"),
 		uglify = require("gulp-uglify"),
 		eslint = require("gulp-eslint");
 
 	var
 		sources = {
 			js: "web-src/smarthome.js",
-			less: "web-src/smarthome.less"
+			sass: "web-src/smarthome.scss"
 		};
 
 	gulp.task("css", function() {
-		return gulp.src(sources.less)
-			.pipe(less({ compress: true }))
+		return gulp.src(sources.sass)
+			.pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
 			.pipe(gulp.dest("web"));
 	});
 
