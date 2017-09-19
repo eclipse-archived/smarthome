@@ -20,6 +20,7 @@ import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,14 @@ import com.google.gson.JsonSyntaxException;
  */
 public class TradfriDiscoveryService extends AbstractDiscoveryService implements DeviceUpdateListener {
 
-    private Logger logger = LoggerFactory.getLogger(TradfriDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(TradfriDiscoveryService.class);
 
-    private TradfriGatewayHandler handler;
+    private final TradfriGatewayHandler handler;
 
-    private String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
-            "TRADFRI bulb GU10 WS 400lm" };
+    private final String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
+            "TRADFRI bulb GU10 WS 400lm", "TRADFRI bulb E14 WS opal 400lm" };
+
+    private final String COLOR_MODELS_IDENTIFIER = "CWS";
 
     public TradfriDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         super(TradfriBindingConstants.SUPPORTED_LIGHT_TYPES_UIDS, 10, true);
@@ -75,15 +78,25 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                 if (type.equals(TYPE_LIGHT) && data.has(LIGHT)) {
                     JsonObject state = data.get(LIGHT).getAsJsonArray().get(0).getAsJsonObject();
 
-                    // Color temperature light
+                    // Color temperature light:
                     // We do not always receive a COLOR attribute, even the light supports it - but the gateway does not
                     // seem to have this information, if the bulb is unreachable. We therefore also check against
                     // concrete model names.
-                    if (state.has(COLOR) || (model != null && Arrays.asList(COLOR_TEMP_MODELS).contains(model))) {
-                        thingId = new ThingUID(THING_TYPE_COLOR_TEMP_LIGHT, bridge, Integer.toString(id));
-                    } else {
-                        thingId = new ThingUID(THING_TYPE_DIMMABLE_LIGHT, bridge, Integer.toString(id));
+                    // Color light:
+                    // As the protocol does not distinguishes between color and full-color lights,
+                    // we check if the "CWS" identifier is given in the model name
+                    ThingTypeUID thingType = null;
+                    if (model != null && model.contains(COLOR_MODELS_IDENTIFIER)) {
+                        thingType = THING_TYPE_COLOR_LIGHT;
                     }
+                    if (thingType == null && //
+                            (state.has(COLOR) || (model != null && Arrays.asList(COLOR_TEMP_MODELS).contains(model)))) {
+                        thingType = THING_TYPE_COLOR_TEMP_LIGHT;
+                    }
+                    if (thingType == null) {
+                        thingType = THING_TYPE_DIMMABLE_LIGHT;
+                    }
+                    thingId = new ThingUID(thingType, bridge, Integer.toString(id));
                 }
 
                 if (thingId == null) {
@@ -96,14 +109,14 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
                 properties.put(Thing.PROPERTY_MODEL_ID, model);
-                
+
                 if (deviceInfo.get(DEVICE_VENDOR) != null) {
                     properties.put(Thing.PROPERTY_VENDOR, deviceInfo.get(DEVICE_VENDOR).getAsString());
                 }
                 if (deviceInfo.get(DEVICE_FIRMWARE) != null) {
                     properties.put(Thing.PROPERTY_FIRMWARE_VERSION, deviceInfo.get(DEVICE_FIRMWARE).getAsString());
                 }
-                
+
                 logger.debug("Adding device {} to inbox", thingId);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingId).withBridge(bridge)
                         .withLabel(label).withProperties(properties).withRepresentationProperty("id").build();

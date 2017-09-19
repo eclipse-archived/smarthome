@@ -81,9 +81,10 @@ public class TradfriDiscoveryServiceTest {
 
     @Test
     public void correctSupportedTypes() {
-        assertThat(discovery.getSupportedThingTypes().size(), is(2));
+        assertThat(discovery.getSupportedThingTypes().size(), is(3));
         assertTrue(discovery.getSupportedThingTypes().contains(TradfriBindingConstants.THING_TYPE_DIMMABLE_LIGHT));
         assertTrue(discovery.getSupportedThingTypes().contains(TradfriBindingConstants.THING_TYPE_COLOR_TEMP_LIGHT));
+        assertTrue(discovery.getSupportedThingTypes().contains(TradfriBindingConstants.THING_TYPE_COLOR_LIGHT));
     }
 
     @Test
@@ -101,4 +102,21 @@ public class TradfriDiscoveryServiceTest {
         assertThat(discoveryResult.getProperties().get(DeviceConfig.ID), is(65537));
         assertThat(discoveryResult.getRepresentationProperty(), is(DeviceConfig.ID));
     }
+
+    @Test
+    public void validDiscoveryResultColorLightCWS() {
+        String json = "{\"9001\":\"TRADFRI bulb E27 CWS opal 600lm\",\"9002\":1505151864,\"9020\":1505433527,\"9003\":65550,\"9019\":1,\"9054\":0,\"5750\":2,\"3\":{\"0\":\"IKEA of Sweden\",\"1\":\"TRADFRI bulb E27 CWS opal 600lm\",\"2\":\"\",\"3\":\"1.3.002\",\"6\":1},\"3311\":[{\"5850\":1,\"5708\":0,\"5851\":254,\"5707\":0,\"5709\":33137,\"5710\":27211,\"5711\":0,\"5706\":\"efd275\",\"9003\":0}]}";
+        JsonObject data = new JsonParser().parse(json).getAsJsonObject();
+
+        discovery.onUpdate("65550", data);
+
+        assertNotNull(discoveryResult);
+        assertThat(discoveryResult.getFlag(), is(DiscoveryResultFlag.NEW));
+        assertThat(discoveryResult.getThingUID(), is(new ThingUID("tradfri:0210:1:65550")));
+        assertThat(discoveryResult.getThingTypeUID(), is(TradfriBindingConstants.THING_TYPE_COLOR_LIGHT));
+        assertThat(discoveryResult.getBridgeUID(), is(new ThingUID("tradfri:gateway:1")));
+        assertThat(discoveryResult.getProperties().get(DeviceConfig.ID), is(65550));
+        assertThat(discoveryResult.getRepresentationProperty(), is(DeviceConfig.ID));
+    }
+
 }

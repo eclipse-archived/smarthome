@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.smarthome.binding.tradfri.DeviceConfig;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
+import org.eclipse.smarthome.binding.tradfri.internal.TradfriColor;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -41,6 +43,7 @@ import com.google.gson.JsonSyntaxException;
  * individual lights.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Holger Reichert - Support for color bulbs
  */
 public class TradfriLightHandler extends BaseThingHandler implements CoapCallback {
 
@@ -115,12 +118,15 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             if (!state.getOnOffState()) {
                 logger.debug("Setting state to OFF");
                 updateState(CHANNEL_BRIGHTNESS, PercentType.ZERO);
+                if (lightHasColorSupport()) {
+                    updateState(CHANNEL_COLOR, HSBType.BLACK);
+                }
                 // if we are turned off, we do not set any brightness value
                 return;
             }
 
             PercentType dimmer = state.getBrightness();
-            if (dimmer != null) {
+            if (dimmer != null && !lightHasColorSupport()) { // color lighs do not have brightness channel
                 updateState(CHANNEL_BRIGHTNESS, dimmer);
             }
 
@@ -128,27 +134,36 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             if (colorTemp != null) {
                 updateState(CHANNEL_COLOR_TEMPERATURE, colorTemp);
             }
-            
+
+            HSBType color = null;
+            if (lightHasColorSupport()) {
+                color = state.getColor();
+                if (color != null) {
+                    updateState(CHANNEL_COLOR, color);
+                }
+            }
+
             String devicefirmware = state.getFirmwareVersion();
             if (devicefirmware != null) {
                 getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, devicefirmware);
             }
-            
+
             String modelId = state.getModelId();
             if (modelId != null) {
                 getThing().setProperty(Thing.PROPERTY_MODEL_ID, modelId);
             }
-            
+
             String vendor = state.getVendor();
             if (vendor != null) {
                 getThing().setProperty(Thing.PROPERTY_VENDOR, vendor);
             }
-            
-            logger.debug("Updating thing for lightId {} to state {dimmer: {}, colorTemp: {}, devicefirmware: {}, modelId: {}, vendor: {}}"
-                    , state.getLightId(), dimmer, colorTemp, devicefirmware, modelId, vendor);
+
+            logger.debug(
+                    "Updating thing for lightId {} to state {dimmer: {}, colorTemp: {}, color: {}, devicefirmware: {}, modelId: {}, vendor: {}}",
+                    state.getLightId(), dimmer, colorTemp, color, devicefirmware, modelId, vendor);
         }
     }
-    
+
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);
@@ -183,6 +198,12 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         set(data.getJsonString());
     }
 
+    private void setColor(HSBType hsb) {
+        LightData data = new LightData();
+        data.setColor(hsb).setTransitionTime(DEFAULT_DIMMER_TRANSITION_TIME);
+        set(data.getJsonString());
+    }
+
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
@@ -197,6 +218,9 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 break;
             case CHANNEL_COLOR_TEMPERATURE:
                 handleColorTemperatureCommand(command);
+                break;
+            case CHANNEL_COLOR:
+                handleColorCommand(command);
                 break;
             default:
                 logger.error("Unknown channel UID {}", channelUID);
@@ -243,16 +267,50 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
     }
 
+    private void handleColorCommand(Command command) {
+        if (command instanceof HSBType) {
+            // tradfri can not handle color (xy) and brightness at once,
+            // so send color first and schedule the brightess update.
+            // 1500ms wait time because brightness setting would interrupt color fading
+            setColor((HSBType) command);
+            scheduler.schedule(() -> {
+                setBrightness(((HSBType) command).getBrightness());
+            }, 1500, TimeUnit.MILLISECONDS);
+        } else if (command instanceof OnOffType) {
+            setState(((OnOffType) command));
+        } else if (command instanceof PercentType) {
+            // PaperUI sends PercentType on color channel when changing Brightness
+            setBrightness((PercentType) command);
+        } else if (command instanceof IncreaseDecreaseType) {
+            // increase or decrease only the brightness, but keep color
+            if (state != null && state.getBrightness() != null) {
+                int current = state.getBrightness().intValue();
+                if (IncreaseDecreaseType.INCREASE.equals(command)) {
+                    setBrightness(new PercentType(Math.min(current + STEP, PercentType.HUNDRED.intValue())));
+                } else {
+                    setBrightness(new PercentType(Math.max(current - STEP, PercentType.ZERO.intValue())));
+                }
+            } else {
+                logger.debug("Cannot handle inc/dec for color as current brightness is not known.");
+            }
+        } else {
+            logger.debug("Can't handle command {} on channel {}", command, CHANNEL_COLOR);
+        }
+    }
+
+    /**
+     * Checks if this light supports full color.
+     *
+     * @return true if the light supports full color
+     */
+    private boolean lightHasColorSupport() {
+        return thing.getThingTypeUID().getId().equals(THING_TYPE_COLOR_LIGHT.getId());
+    }
+
     /**
      * This class is a Java wrapper for the raw JSON data about the light state.
      */
     private static class LightData {
-
-        // Tradfri uses the CIE color space (see https://en.wikipedia.org/wiki/CIE_1931_color_space),
-        // which uses x,y-coordinates.
-        // Its own app comes with 3 predefined color temperature settings (0,1,2), which have those values:
-        private final static double[] X = new double[] { 24933.0, 30138.0, 33137.0 };
-        private final static double[] Y = new double[] { 24691.0, 26909.0, 27211.0 };
 
         private final Logger logger = LoggerFactory.getLogger(LightData.class);
 
@@ -267,7 +325,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
             attributes = new JsonObject();
             array.add(attributes);
             root.add(LIGHT, array);
-            
+
             generalInfo = new JsonObject();
             root.add(DEVICE, generalInfo);
         }
@@ -325,44 +383,48 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
 
         public LightData setColorTemperature(PercentType c) {
-            double percent = c.doubleValue();
-
-            long x, y;
-            if (percent < 50.0) {
-                // we calculate a value that is between preset 0 and 1
-                double p = percent / 50.0;
-                x = Math.round(X[0] + p * (X[1] - X[0]));
-                y = Math.round(Y[0] + p * (Y[1] - Y[0]));
-            } else {
-                // we calculate a value that is between preset 1 and 2
-                double p = (percent - 50) / 50.0;
-                x = Math.round(X[1] + p * (X[2] - X[1]));
-                y = Math.round(Y[1] + p * (Y[2] - Y[1]));
-            }
-            logger.debug("New color temperature: {},{} ({} %)", x, y, percent);
-
+            TradfriColor color = TradfriColor.fromColorTemperature(c);
+            int x = color.xyX;
+            int y = color.xyY;
+            logger.debug("New color temperature: {},{} ({} %)", x, y, c.intValue());
             attributes.add(COLOR_X, new JsonPrimitive(x));
             attributes.add(COLOR_Y, new JsonPrimitive(y));
             return this;
         }
 
         PercentType getColorTemperature() {
-            // we only need to check one of the coordinates and figure out where between the presets we are
             JsonElement colorX = attributes.get(COLOR_X);
-            if (colorX != null) {
-                double x = colorX.getAsInt();
-                double value = 0.0;
-                if (x > X[1]) {
-                    // is it between preset 1 and 2?
-                    value = (x - X[1]) / (X[2] - X[1]) / 2.0 + 0.5;
-                } else {
-                    // it is between preset 0 and 1
-                    value = (x - X[0]) / (X[1] - X[0]) / 2.0;
-                }
-                return new PercentType((int) Math.round(value * 100.0));
+            JsonElement colorY = attributes.get(COLOR_Y);
+            if (colorX != null && colorY != null) {
+                return TradfriColor.calculateColorTemperature(colorX.getAsInt(), colorY.getAsInt());
             } else {
                 return null;
             }
+        }
+
+        public LightData setColor(HSBType hsb) {
+            // construct new HSBType with full brightness and extract XY color values from it
+            HSBType hsbFullBright = new HSBType(hsb.getHue(), hsb.getSaturation(), PercentType.HUNDRED);
+            TradfriColor color = TradfriColor.fromHSBType(hsbFullBright);
+            attributes.add(COLOR_X, new JsonPrimitive(color.xyX));
+            attributes.add(COLOR_Y, new JsonPrimitive(color.xyY));
+            return this;
+        }
+
+        public HSBType getColor() {
+            // XY color coordinates plus brightness is needed for color calculation
+            JsonElement colorX = attributes.get(COLOR_X);
+            JsonElement colorY = attributes.get(COLOR_Y);
+            JsonElement dimmer = attributes.get(DIMMER);
+            if (colorX != null && colorY != null && dimmer != null) {
+                int x = colorX.getAsInt();
+                int y = colorY.getAsInt();
+                int brightness = dimmer.getAsInt();
+                // extract HSBType from converted xy/brightness
+                TradfriColor color = TradfriColor.fromCie(x, y, brightness);
+                return color.hsbType;
+            }
+            return null;
         }
 
         LightData setOnOffState(boolean on) {
@@ -378,11 +440,11 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 return false;
             }
         }
-        
+
         Integer getLightId() {
             return root.get(INSTANCE_ID).getAsInt();
         }
-        
+
         String getFirmwareVersion() {
             if (generalInfo.get(DEVICE_FIRMWARE) != null) {
                 return generalInfo.get(DEVICE_FIRMWARE).getAsString();
@@ -390,7 +452,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 return null;
             }
         }
-        
+
         String getModelId() {
             if (generalInfo.get(DEVICE_MODEL) != null) {
                 return generalInfo.get(DEVICE_MODEL).getAsString();
@@ -398,7 +460,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
                 return null;
             }
         }
-        
+
         String getVendor() {
             if (generalInfo.get(DEVICE_VENDOR) != null) {
                 return generalInfo.get(DEVICE_VENDOR).getAsString();
