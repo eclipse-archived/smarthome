@@ -1,120 +1,23 @@
-/**
- * Eclipse Smarthome BasicUI stylesheet 
- *
- * @author Vlad Ivanov — initial version
- */
-
-@layout-header-button-desktop-size: 48px;
-@layout-header-button-mobile-size: 32px;
-
-@layout-desktop-size-threshold: 1024px;
-@layout-tablet-size-threshold: 850px;
-@layout-mobile-size-threshold: 440px;
-
-@form-row-mobile-height: 52px;
-@form-row-desktop-height: 48px;
-
-@form-row-desktop-height-condensed: 36px;
-@form-row-mobile-height-condensed: 40px;
-
-@form-row-desktop-padding: 16px;
-@form-row-mobile-padding: 12px;
-
-@form-row-desktop-padding-condensed: 10px;
-@form-row-mobile-padding-condensed: 4px;
-
-@mdl-grid-spacing: 8px;
-
-@item-separator-color: lighten(black, 80);
-
-.user-select (@val) {
-	-webkit-user-select: @val;
-	-moz-user-select: @val;
-	-ms-user-select: @val;
-	user-select: @val;
-}
-
-.flex-display(@display: flex) {
-	display: ~"-webkit-@{display}";
-	display: ~"-moz-@{display}";
-	display: ~"-ms-@{display}box";
-	display: ~"-ms-@{display}";
-	display: @display;
-}
-
-.flex-grow(@grow: 0) {
-  -webkit-flex-grow: @grow;
-     -moz-flex-grow: @grow;
-      -ms-flex-grow: @grow;
-          flex-grow: @grow;
-}
-
-.flex-shrink(@shrink: 1) {
-  -webkit-flex-shrink: @shrink;
-     -moz-flex-shrink: @shrink;
-      -ms-flex-shrink: @shrink;
-          flex-shrink: @shrink;
-}
-
-.flex-wrap(@wrap) {
-	flex-wrap: @wrap;
-	-webkit-flex-wrap: @wrap;
-}
-
-.align-items(@align) {
-  -webkit-align-items: @align;
-     -moz-align-items: @align;
-      -ms-align-items: @align;
-          align-items: @align;
-}
-
-.align-items-2011(@align) {
-	-ms-flex-align: @align;
-	flex-align: @align;
-}
-
-.justify-content(@param) {
-	-webkit-justify-content: @param;
-	-ms-justify-content: @param;
-	justify-content: @param;
-}
-
-.flex-2011(@flex) {
-	-ms-flex: @flex;
-	flex: @flex;
-}
-
-.expand() {
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
 
 .mdl-layout {
 	&__header-button {
 		display: block;
-		height: @layout-header-button-desktop-size;
-		width: @layout-header-button-desktop-size;
-		
+		height: $layout-header-button-desktop-size;
+		width: $layout-header-button-desktop-size;
 		position: absolute;
 		top: 0;
 		left: 0;
 		z-index: 3;
-		
 		margin: 8px 12px;
 		border: 0;
-		
-		line-height: @layout-header-button-desktop-size + 2;
+		line-height: $layout-header-button-desktop-size + 2;
 		font-size: 26px;
 		line-height: 50px;
 		text-align: center;
-
 		cursor: pointer;
-		.user-select(none);
-		.flex-shrink(0);
-		
-		@media screen and (max-width: @layout-desktop-size-threshold) {
+		@include user-select(none);
+		@include flex-shrink(0);
+		@media screen and (max-width: $layout-desktop-size-threshold) {
 			margin: 4px;
 		}
 	}
@@ -142,55 +45,51 @@
 
 .page-content {
 	max-width: 1080px;
-	@media screen and (max-width: @layout-tablet-size-threshold) {
+	@media screen and (max-width: $layout-tablet-size-threshold) {
 		padding: 0;
-	} 
+	}
 }
 
 .mdl-form {
 	padding: 0;
-	@media screen and (max-width: @layout-mobile-size-threshold) {
+	@media screen and (max-width: $layout-mobile-size-threshold) {
 		margin-top: 0;
 		margin-left: 0;
 		margin-right: 0;
 		width: 100%;
 	}
 	&__row {
-		.flex-display();
+		@include flex-display();
 		flex-direction: row;
-		.flex-wrap(nowrap);
-		.align-items(center);
-		.align-items-2011(center);
-
+		@include flex-wrap(nowrap);
+		@include align-items(center);
+		@include align-items-2011(center);
 		white-space: nowrap;
-		
-		height: @form-row-desktop-height;
+		height: $form-row-desktop-height;
 		box-sizing: content-box;
 		padding: 4px 0;
-		margin: 0 @mdl-grid-spacing;
-		
-		border-bottom: 1px solid @item-separator-color;
-		
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			height: @form-row-mobile-height;
-			padding: 4px @mdl-grid-spacing;
+		margin: 0 $mdl-grid-spacing;
+		border-bottom: 1px solid $item-separator-color;
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			height: $form-row-mobile-height;
+			padding: 4px $mdl-grid-spacing;
 			margin: 0;
 			html.ui-layout-condensed & {
-				height: @form-row-desktop-height-condensed;
+				height: $form-row-desktop-height-condensed;
 			}
 		}
-		@media screen and (min-width: @layout-tablet-size-threshold) {
+		@media screen and (min-width: $layout-tablet-size-threshold) {
 			&:last-child,
 			&:nth-last-child(2):nth-child(even) {
 				border: none;
 			}
 		}
-		& > * {
+		&>* {
 			display: block;
 		}
 		&--height-auto {
 			height: auto;
-			.justify-content(center);
+			@include justify-content(center);
 			html.ui-layout-condensed &.mdl-form__row {
 				height: auto;
 			}
@@ -199,22 +98,20 @@
 			display: none;
 		}
 		html.ui-layout-condensed & {
-			height: @form-row-desktop-height-condensed;
+			height: $form-row-desktop-height-condensed;
 		}
 	}
 	&__image {
-		.mdl-form__control& {
+		.mdl-form__control#{&} {
 			padding-left: 0;
 			padding-right: 0;
 			max-width: 100%;
-
 			img {
 				max-width: 100%;
 			}
 		}
-
-		@media screen and (max-width: @layout-tablet-size-threshold) {	
-			.mdl-form__control& {
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			.mdl-form__control#{&} {
 				padding-left: 0;
 				padding-right: 0;
 			}
@@ -229,16 +126,16 @@
 		cursor: pointer;
 	}
 	&__icon {
-		.flex-shrink(0);
+		@include flex-shrink(0);
 		width: 32px;
-		padding-left: @form-row-desktop-padding;
+		padding-left: $form-row-desktop-padding;
 		html.ui-layout-condensed & {
-			padding-left: @form-row-desktop-padding-condensed;
+			padding-left: $form-row-desktop-padding-condensed;
 		}
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			padding-left: @form-row-mobile-padding;
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			padding-left: $form-row-mobile-padding;
 			html.ui-layout-condensed & {
-				padding-left: @form-row-mobile-padding-condensed;
+				padding-left: $form-row-mobile-padding-condensed;
 			}
 		}
 		html:not(.ui-icons-enabled) & {
@@ -249,7 +146,6 @@
 			max-height: 32px;
 			width: auto;
 			height: auto;
-
 			html.ui-layout-condensed & {
 				max-width: 28px;
 				max-height: 28px;
@@ -257,36 +153,34 @@
 		}
 	}
 	&__label {
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			padding-left: @form-row-mobile-padding;
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			padding-left: $form-row-mobile-padding;
 			html.ui-layout-condensed & {
-				padding-left: @form-row-mobile-padding-condensed;
+				padding-left: $form-row-mobile-padding-condensed;
 			}
 		}
-		padding-left: @form-row-desktop-padding;
+		padding-left: $form-row-desktop-padding;
 		html.ui-layout-condensed & {
-			padding-left: @form-row-desktop-padding-condensed;
+			padding-left: $form-row-desktop-padding-condensed;
 		}
-		
-		.flex-shrink(0);
-		.flex-grow(2);
-		.flex-2011(2 2 auto);
-		
+		@include flex-shrink(0);
+		@include flex-grow(2);
+		@include flex-2011(2 2 auto);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 	&__control {
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			padding-right: @form-row-mobile-padding;
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			padding-right: $form-row-mobile-padding;
 			html.ui-layout-condensed & {
-				padding-left: @form-row-mobile-padding-condensed;
+				padding-left: $form-row-mobile-padding-condensed;
 			}
 		}
-		padding-right: @form-row-desktop-padding;
+		padding-right: $form-row-desktop-padding;
 		padding-left: 4px;
 		html.ui-layout-condensed & {
-			padding-left: @form-row-desktop-padding-condensed;
+			padding-left: $form-row-desktop-padding-condensed;
 		}
 		font-weight: 700;
 		html.ui-capitalize-values & {
@@ -304,20 +198,22 @@
 				margin: 0;
 			}
 			&__background-flex {
-				width: calc(~"100% - 12px");
+				width: calc(#{"100% - 12px"});
 				margin: 0 0 0 12px;
 			}
-			&.is-upgraded.is-lowest-value ~ .mdl-slider__background-flex > 
-			.mdl-slider__background-upper {
+			&.is-upgraded.is-lowest-value~.mdl-slider__background-flex>.mdl-slider__background-upper {
 				left: 0;
 			}
 		}
-		.mdl-button, .mdl-button:focus {
+		.mdl-button,
+		.mdl-button:focus {
 			box-shadow: none;
 			-webkit-box-shadow: none;
 		}
 	}
-	&__setpoint, &__colorpicker, &__rollerblind {
+	&__setpoint,
+	&__colorpicker,
+	&__rollerblind {
 		.mdl-button {
 			min-width: 0;
 			padding-top: 6px;
@@ -343,24 +239,20 @@
 	}
 	&__title {
 		margin: 0;
-		padding-left: @form-row-desktop-padding + @mdl-grid-spacing;
-
+		padding-left: $form-row-desktop-padding + $mdl-grid-spacing;
 		html.ui-layout-condensed & {
-			padding-left: @form-row-desktop-padding-condensed + @mdl-grid-spacing;
+			padding-left: $form-row-desktop-padding-condensed + $mdl-grid-spacing;
 		}
-
 		padding-top: 25px;
 		padding-bottom: 10px;
-
 		html.ui-layout-condensed & {
 			padding-top: 15px;
 			padding-bottom: 5px;
 		}
-
-		@media screen and (max-width: @layout-tablet-size-threshold) {
-			padding-left: @form-row-mobile-padding + @mdl-grid-spacing;
+		@media screen and (max-width: $layout-tablet-size-threshold) {
+			padding-left: $form-row-mobile-padding + $mdl-grid-spacing;
 			html.ui-layout-condensed & {
-				padding-left: @form-row-desktop-padding-condensed + @mdl-grid-spacing;
+				padding-left: $form-row-desktop-padding-condensed + $mdl-grid-spacing;
 			}
 		}
 	}
@@ -369,7 +261,8 @@
 		html.ui-capitalize-values & {
 			text-transform: uppercase;
 		}
-		&--setpoint, &--rollerblind {
+		&--setpoint,
+		&--rollerblind {
 			padding: 0 10px 0 5px;
 		}
 		&--group {
@@ -379,7 +272,8 @@
 		&--text-link {
 			font-weight: normal;
 		}
-		&--switch, &--slider {
+		&--switch,
+		&--slider {
 			padding: 0 10px 0 10px;
 		}
 	}
@@ -388,7 +282,8 @@
 		flex-shrink: 2;
 		text-overflow: ellipsis;
 	}
-	&__webview, &__video {
+	&__webview,
+	&__video {
 		padding-left: 0px;
 		padding-right: 0px;
 		width: 100%;
@@ -410,15 +305,12 @@
 	position: absolute;
 	background: rgba(50, 50, 50, 0.3);
 	z-index: 10;
-	
-	.expand();
-	.flex-display(flex);
+	@include expand();
+	@include flex-display(flex);
 	overflow-y: auto;
-	
-	.align-items(center);
-	.align-items-2011(center);
-	.justify-content(center);
-	
+	@include align-items(center);
+	@include align-items-2011(center);
+	@include justify-content(center);
 	&--overflow {
 		display: block;
 	}
@@ -431,7 +323,7 @@
 		.ui-layout-condensed & {
 			padding: 10px;
 		}
-		@media screen and (max-width: @layout-tablet-size-threshold) {
+		@media screen and (max-width: $layout-tablet-size-threshold) {
 			padding: 20px;
 		}
 	}
@@ -443,20 +335,22 @@
 .mdl-radio {
 	width: 100%;
 	&__item {
-		border-bottom: 1px solid @item-separator-color;
+		border-bottom: 1px solid $item-separator-color;
 		padding-left: 20px;
 	}
 	&__group &__label {
 		padding-top: 17px;
 		width: 100%;
 		display: inline-block;
-		height: @form-row-desktop-height + 14px;
+		height: $form-row-desktop-height + 14px;
 		box-sizing: border-box;
 	}
 	&__group & {
 		padding-left: 35px;
 	}
-	&__outer-circle, &__inner-circle, &__ripple-container {
+	&__outer-circle,
+	&__inner-circle,
+	&__ripple-container {
 		margin-top: 20px;
 	}
 }
@@ -489,8 +383,7 @@ html.flexbox-legacy {
 	}
 	.mdl-form {
 		display: block;
-		border-bottom: 1px solid @item-separator-color;
-
+		border-bottom: 1px solid $item-separator-color;
 		&__row {
 			// 2009 syntax
 			display: -webkit-box;
@@ -506,7 +399,6 @@ html.flexbox-legacy {
 		-webkit-box-orient: horizontal;
 		-webkit-box-align: center;
 		-webkit-box-pack: center;
-
 		&__content {
 			-webkit-box-flex: 2;
 		}
@@ -520,29 +412,27 @@ html.flexbox-legacy {
 }
 
 // Colorpicker
-
-@slider-height: 20px;
-@colorpicker-desktop-size: 300px;
-@colorpicker-mobile-size: 270px;
-
-.slider-background() {
-	background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
-	background: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+$slider-height: 20px;
+$colorpicker-desktop-size: 300px;
+$colorpicker-mobile-size: 270px;
+@mixin slider-background() {
+	background: -webkit-linear-gradient(left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
+	background: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
 }
 
-.slider-track() {
+@mixin slider-track() {
 	display: block;
-	height: @slider-height;
+	height: $slider-height;
 	border-radius: 0;
 	background: transparent;
 	color: transparent;
 	border: none;
 }
 
-.slider-thumb() {
+@mixin slider-thumb() {
 	-webkit-appearance: none;
-	width: @slider-height;
-	height: @slider-height;
+	width: $slider-height;
+	height: $slider-height;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	border-radius: 0;
@@ -555,51 +445,48 @@ html.flexbox-legacy {
 	&__image {
 		display: block;
 		position: relative;
-		width: @colorpicker-desktop-size;
-		height: @colorpicker-desktop-size;
-		@media screen and (max-width: @layout-mobile-size-threshold) {
-			width: @colorpicker-mobile-size;
-			height: @colorpicker-mobile-size;
+		width: $colorpicker-desktop-size;
+		height: $colorpicker-desktop-size;
+		@media screen and (max-width: $layout-mobile-size-threshold) {
+			width: $colorpicker-mobile-size;
+			height: $colorpicker-mobile-size;
 		}
 		background: url("images/colorwheel.png") no-repeat;
 		background-size: 100%;
-		.user-select(none);
+		@include user-select(none);
 		overflow: hidden;
 		cursor: pointer;
 	}
 	&__brightness {
 		-webkit-appearance: none;
 		position: absolute;
-		.slider-background();
-		
+		@include slider-background();
 		top: 15px;
 		padding: 0;
 		margin: 0;
-		
-		width: @colorpicker-desktop-size - 30px;
-		@media screen and (max-width: @layout-mobile-size-threshold) {
-			width: @colorpicker-mobile-size - 30px;
+		width: $colorpicker-desktop-size - 30px;
+		@media screen and (max-width: $layout-mobile-size-threshold) {
+			width: $colorpicker-mobile-size - 30px;
 		}
-		height: @slider-height;
+		height: $slider-height;
 		z-index: 3;
-
 		&::-ms-track {
-			.slider-track();
+			@include slider-track();
 		}
 		&::-webkit-slider-runnable-track {
-			.slider-track();
+			@include slider-track();
 		}
 		&::-moz-range-track {
-			.slider-track();
+			@include slider-track();
 		}
 		&::-moz-range-thumb {
-			.slider-thumb();
+			@include slider-thumb();
 		}
 		&::-webkit-slider-thumb {
-			.slider-thumb();
+			@include slider-thumb();
 		}
 		&::-ms-thumb {
-			.slider-thumb();
+			@include slider-thumb();
 		}
 		&::-ms-fill-upper {
 			background: none;
@@ -616,36 +503,31 @@ html.flexbox-legacy {
 		position: relative;
 		z-index: 2;
 		bottom: 0;
-		width: @colorpicker-desktop-size - 30px;
-		@media screen and (max-width: @layout-mobile-size-threshold) {
-			width: @colorpicker-mobile-size - 30px;
+		width: $colorpicker-desktop-size - 30px;
+		@media screen and (max-width: $layout-mobile-size-threshold) {
+			width: $colorpicker-mobile-size - 30px;
 		}
-		height: @slider-height;
+		height: $slider-height;
 	}
 	&__handle {
-		@handle-size: 24px;
-
+		$handle-size: 24px;
 		position: absolute;
 		top: 50%;
 		left: 50%;
 		box-sizing: border-box;
 		-moz-box-sizing: border-box;
-
 		border: 4px solid white;
-		width: @handle-size;
-		height: @handle-size;
-		margin: -(@handle-size / 2) -0 0 -(@handle-size / 2);
-		border-radius: @handle-size / 2;
-		box-shadow: 
-			0 0 0 2px #aaa inset,
-			0 0 0 2px #aaa;
-
+		width: $handle-size;
+		height: $handle-size;
+		margin: -($handle-size / 2) -0 0 -($handle-size / 2);
+		border-radius: $handle-size / 2;
+		box-shadow: 0 0 0 2px #aaa inset, 0 0 0 2px #aaa;
 		pointer-events: none;
 	}
 	&__controls {
 		position: relative;
 		padding: 15px;
-		border-bottom: 1px solid @item-separator-color;
+		border-bottom: 1px solid $item-separator-color;
 	}
 	&__buttons {
 		padding: 5px;
@@ -656,9 +538,9 @@ html.flexbox-legacy {
 .page {
 	&-static {
 		&__content {
-			padding: @form-row-desktop-padding;
-			@media screen and (max-width: @layout-tablet-size-threshold) {
-				padding: @form-row-mobile-padding;
+			padding: $form-row-desktop-padding;
+			@media screen and (max-width: $layout-tablet-size-threshold) {
+				padding: $form-row-mobile-padding;
 			}
 		}
 	}
@@ -683,9 +565,9 @@ html.flexbox-legacy {
 
 .mdl-modal {
 	&--colorpicker {
-		max-width: @colorpicker-desktop-size;
-		@media screen and (max-width: @layout-mobile-size-threshold) {
-			max-width: @colorpicker-mobile-size;
+		max-width: $colorpicker-desktop-size;
+		@media screen and (max-width: $layout-mobile-size-threshold) {
+			max-width: $colorpicker-mobile-size;
 		}
 	}
 }
@@ -693,30 +575,25 @@ html.flexbox-legacy {
 .mdl-notify {
 	border-radius: 2px 2px 0 0;
 	background: #323232;
-
-	@media screen and (max-width: @layout-mobile-size-threshold) {
+	@media screen and (max-width: $layout-mobile-size-threshold) {
 		border-radius: 0;
 		width: 100%;
 	}
-
 	&__text {
 		padding: 14px 24px;
 		vertical-align: middle;
 		color: white;
 		font-weight: 400;
 	}
-
 	&__container {
 		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
 		z-index: 1;
-
-		.flex-display();
-		.justify-content(center);
+		@include flex-display();
+		@include justify-content(center);
 	}
-
 	&--hidden {
 		display: none;
 	}
@@ -727,7 +604,6 @@ html.flexbox-legacy {
 	.mdl-slider.mdl-slider.is-upgraded {
 		-ms-appearance: none;
 		height: 32px;
- 		margin: 0;
+		margin: 0;
 	}
 }
-
