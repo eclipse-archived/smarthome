@@ -15,6 +15,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link NtpHandlerFactory} is responsible for creating things and thing
@@ -23,10 +26,12 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  * @author Marcel Verpaalen - Initial contribution
  * @author Markus Rathgeb - Add locale provider support
  */
+@Component(service = ThingHandlerFactory.class, immediate = true)
 public class NtpHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

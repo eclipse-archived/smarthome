@@ -22,12 +22,15 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link AstroHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, immediate = true)
 public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
