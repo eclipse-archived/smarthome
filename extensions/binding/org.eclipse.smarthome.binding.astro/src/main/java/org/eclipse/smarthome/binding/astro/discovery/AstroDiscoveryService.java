@@ -18,10 +18,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Gerhard Riegler - Initial Contribution
  * @author Stefan Triller - Use configured location
  */
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.astro")
 public class AstroDiscoveryService extends AbstractDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(AstroDiscoveryService.class);
     private static final int DISCOVER_TIMEOUT_SECONDS = 30;
@@ -111,12 +117,31 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
                 .withProperty("geolocation", propGeolocation).build());
     }
 
+    @Reference
     protected void setLocationProvider(LocationProvider locationProvider) {
         this.locationProvider = locationProvider;
     }
 
     protected void unsetLocationProvider(LocationProvider locationProvider) {
         this.locationProvider = null;
+    }
+
+    @Reference
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        this.locale = localeProvider.getLocale();
+    }
+
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.locale = null;
+    }
+
+    @Reference
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+    }
+
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = null;
     }
 
 }
