@@ -11,9 +11,9 @@ angular.module('PaperUI.controllers.control', []) //
             channelTypeRepository.getAll(function() {
                 thingTypeRepository.getAll(function() {
                     renderTabs();
-                }, true)
-            }, true)
-        }, true);
+                })
+            })
+        });
     }
 
     function renderTabs() {
