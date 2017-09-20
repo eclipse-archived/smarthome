@@ -252,6 +252,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         switch (groupType) {
             case 'Number':
             case 'Dimmer':
+            case 'Rollershutter':
                 $scope.functions = itemConfig.arithmeticFunctions;
                 break;
             case 'Contact':
