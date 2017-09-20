@@ -50,7 +50,6 @@ public class ThreadPoolManager {
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
     protected static final long THREAD_TIMEOUT = 65L;
-    protected static final long THREAD_MONITOR_SLEEP = 60000;
 
     static protected Map<String, ExecutorService> pools = new WeakHashMap<>();
 

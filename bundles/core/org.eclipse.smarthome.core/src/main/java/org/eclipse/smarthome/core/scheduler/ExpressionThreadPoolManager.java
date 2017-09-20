@@ -74,6 +74,8 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
     public static class ExpressionThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
         private final Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolExecutor.class);
+        private static final long THREAD_MONITOR_SLEEP = 60000;
+        private static final long THREAD_MONITOR_ALLOWED_DRIFT = THREAD_MONITOR_SLEEP + 3000;
 
         private Map<Expression, RunnableWrapper> scheduled = new ConcurrentHashMap<>();
         private Map<RunnableWrapper, List<ScheduledFuture<?>>> futures = Collections.synchronizedMap(new HashMap<>());
@@ -83,6 +85,12 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
         private NamedThreadFactory monitorThreadFactory;
         private final Lock monitoringLock = new ReentrantLock();
         private final Condition newExpressionCondition = monitoringLock.newCondition();
+
+        private final Runnable monitorTask;
+
+        private DateWrapper dateWrapper;
+        private long monitorSleep = THREAD_MONITOR_SLEEP;
+        private long monitorAllowedDrift = THREAD_MONITOR_ALLOWED_DRIFT;
 
         public ExpressionThreadPoolExecutor(final String poolName, int corePoolSize) {
             this(poolName, corePoolSize, new NamedThreadFactory(poolName), new ThreadPoolExecutor.DiscardPolicy() {
@@ -103,6 +111,9 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                 RejectedExecutionHandler rejectedHandler) {
             super(corePoolSize, threadFactory, rejectedHandler);
             this.monitorThreadFactory = new NamedThreadFactory(threadFactory.getName() + "-" + "Monitor");
+
+            dateWrapper = new DateWrapper();
+            monitorTask = createMonitorTask();
         }
 
         @Override
@@ -160,142 +171,183 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
             }
         }
 
-        Runnable monitorTask = new Runnable() {
+        private Runnable createMonitorTask() {
 
-            @Override
-            public void run() {
-                logger.debug("Starting the monitor thread '{}'", Thread.currentThread().getName());
-                while (true) {
-                    try {
-                        Date earliestExecution = null;
-                        final Date now = new Date();
+            return new Runnable() {
 
-                        List<Expression> finishedExpressions = new ArrayList<Expression>();
+                @Override
+                public void run() {
+                    long wantToSleepUntil = dateWrapper.getDate().getTime();
+                    String threadName = Thread.currentThread().getName();
+                    logger.debug("Starting the monitor thread '{}'", threadName);
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("There are {} scheduled expressions", scheduled.keySet().size());
-                            for (Entry<Expression, RunnableWrapper> entry : scheduled.entrySet()) {
-                                logger.trace("  Runnable {} with {}", entry.getValue(), entry.getValue());
+                    while (true) {
+                        try {
+                            Date earliestExecution = null;
+                            Date now = dateWrapper.getDate();
+
+                            // check for time jumps
+                            long diff = now.getTime() - wantToSleepUntil;
+                            logger.trace("Thread {}: sleep diff is '{}'", threadName, diff);
+                            if (Math.abs(diff) > monitorAllowedDrift) {
+                                logger.info(
+                                        "Detected time jump of '{}'ms (DST change?) in thread '{}' will reschedule Jobs now",
+                                        diff, threadName);
+                                rescheduleJobs(diff, threadName);
                             }
-                        }
-                        for (Expression e : scheduled.keySet()) {
-                            Date time = e.getTimeAfter(now);
 
-                            if (time != null) {
-                                logger.trace("Expression's '{}' next execution time is {}", e, time);
+                            logger.trace("Thread {} wantToSleepUntil: {} now is: {}", threadName, wantToSleepUntil,
+                                    now.getTime(), threadName);
 
-                                final RunnableWrapper task = scheduled.get(e);
+                            List<Expression> finishedExpressions = new ArrayList<Expression>();
 
-                                if (task != null) {
-                                    try {
-                                        futuresLock.lock();
-                                        List<ScheduledFuture<?>> taskFutures = futures.get(task);
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("Thread: {} There are {} scheduled expressions", threadName,
+                                        scheduled.keySet().size());
+                                for (Entry<Expression, RunnableWrapper> entry : scheduled.entrySet()) {
+                                    logger.trace("  Runnable {} with {}", entry.getValue(), entry.getValue());
+                                }
+                            }
+                            for (Expression e : scheduled.keySet()) {
+                                Date time = e.getTimeAfter(now);
 
-                                        if (taskFutures == null) {
-                                            taskFutures = new ArrayList<ScheduledFuture<?>>();
-                                            futures.put(task, taskFutures);
-                                        }
+                                if (time != null) {
+                                    logger.trace("Thread: {} Expression's '{}' next execution time is {}", threadName,
+                                            e, time);
 
-                                        boolean schedule = false;
+                                    final RunnableWrapper task = scheduled.get(e);
 
-                                        long delay = time.getTime() - now.getTime();
-                                        if (taskFutures.size() == 0) {
-                                            // if no futures are currently scheduled, we definitely have to schedule the
-                                            // task
-                                            schedule = true;
-                                        } else {
-                                            // check the time stamp of the last scheduled task if an additional task
-                                            // needs
-                                            // to be scheduled
-                                            Date timestamp = timestamps.get(taskFutures.get(taskFutures.size() - 1));
+                                    if (task != null) {
+                                        try {
+                                            futuresLock.lock();
+                                            List<ScheduledFuture<?>> taskFutures = futures.get(task);
 
-                                            if (time.after(timestamp)) {
+                                            if (taskFutures == null) {
+                                                taskFutures = new ArrayList<ScheduledFuture<?>>();
+                                                futures.put(task, taskFutures);
+                                            }
+
+                                            boolean schedule = false;
+
+                                            long delay = time.getTime() - now.getTime();
+                                            if (taskFutures.size() == 0) {
+                                                // if no futures are currently scheduled, we definitely have to schedule
+                                                // the task
                                                 schedule = true;
                                             } else {
-                                                logger.trace("The task '{}' is already scheduled to execute in {} ms",
-                                                        task, delay);
-                                            }
-                                        }
+                                                // check the time stamp of the last scheduled task if an additional task
+                                                // needs to be scheduled
+                                                Date timestamp = timestamps
+                                                        .get(taskFutures.get(taskFutures.size() - 1));
 
-                                        if (schedule) {
-                                            logger.debug("Scheduling the task '{}' to execute in {} ms", task, delay);
-                                            ScheduledFuture<?> newFuture = ExpressionThreadPoolExecutor.this
-                                                    .schedule(task, delay, TimeUnit.MILLISECONDS);
-                                            taskFutures.add(newFuture);
-                                            logger.trace("Task '{}' has now {} Futures", task, taskFutures.size());
-                                            timestamps.put(newFuture, time);
-                                        }
-                                        if (logger.isTraceEnabled()) {
-                                            for (ScheduledFuture<?> future : taskFutures) {
-                                                logger.trace("Task {} ({}) will run in {}", task,
-                                                        System.identityHashCode(task),
-                                                        future.getDelay(TimeUnit.MILLISECONDS));
+                                                if (time.after(timestamp)) {
+                                                    schedule = true;
+                                                } else {
+                                                    logger.trace(
+                                                            "Thread: {} The task '{}' is already scheduled to execute in {} ms",
+                                                            threadName, task, delay);
+                                                }
                                             }
+
+                                            if (schedule) {
+                                                logger.debug("Thread: {}  Scheduling the task '{}' to execute in {} ms",
+                                                        threadName, task, delay);
+                                                ScheduledFuture<?> newFuture = ExpressionThreadPoolExecutor.this
+                                                        .schedule(task, delay, TimeUnit.MILLISECONDS);
+                                                taskFutures.add(newFuture);
+                                                logger.trace("Thread: {} Task '{}' has now {} Futures", threadName,
+                                                        task, taskFutures.size());
+                                                timestamps.put(newFuture, time);
+                                            }
+                                            if (logger.isTraceEnabled()) {
+                                                for (ScheduledFuture<?> future : taskFutures) {
+                                                    logger.trace("Thread: {} Task {} ({}) will run in {}", threadName,
+                                                            task, System.identityHashCode(task),
+                                                            future.getDelay(TimeUnit.MILLISECONDS));
+                                                }
+                                            }
+                                        } finally {
+                                            futuresLock.unlock();
                                         }
-                                    } finally {
-                                        futuresLock.unlock();
+                                    } else {
+                                        logger.trace("Expressions without tasks are not valid");
                                     }
-                                } else {
-                                    logger.trace("Expressions without tasks are not valid");
-                                }
 
-                                if (earliestExecution == null) {
-                                    earliestExecution = time;
-                                } else {
-                                    if (time.before(earliestExecution)) {
+                                    if (earliestExecution == null) {
                                         earliestExecution = time;
+                                    } else {
+                                        if (time.before(earliestExecution)) {
+                                            earliestExecution = time;
+                                        }
                                     }
+
+                                } else {
+                                    logger.debug("Thread: {} Expression '{}' has no future executions anymore",
+                                            threadName, e);
+                                    finishedExpressions.add(e);
+                                }
+                            }
+
+                            for (Expression e : finishedExpressions) {
+                                scheduled.remove(e);
+                                logger.trace("Thread: {} Cleaning up finished expression '{}'", threadName, e);
+                            }
+
+                            if (earliestExecution != null) {
+                                try {
+                                    monitoringLock.lock();
+                                    long sleepTime = Math.min(monitorSleep,
+                                            earliestExecution.getTime() - dateWrapper.getDate().getTime());
+                                    if (logger.isTraceEnabled()) {
+                                        logger.trace(
+                                                "Expr: Thread: {} Putting the monitor thread '{}' to sleep for {} ms",
+                                                threadName, Thread.currentThread().getName(), sleepTime);
+                                    }
+                                    wantToSleepUntil = dateWrapper.getDate().getTime() + sleepTime;
+                                    newExpressionCondition.await(sleepTime, TimeUnit.MILLISECONDS);
+                                    logger.trace("Thread: {} Monitor thread woke again", threadName);
+                                } finally {
+                                    monitoringLock.unlock();
                                 }
 
                             } else {
-                                logger.debug("Expression '{}' has no future executions anymore", e);
-                                finishedExpressions.add(e);
-                            }
-                        }
-
-                        for (Expression e : finishedExpressions) {
-                            scheduled.remove(e);
-                            logger.trace("Cleaning up finished expression '{}'", e);
-                        }
-
-                        if (earliestExecution != null) {
-                            boolean newExpression = false;
-                            while (!newExpression && new Date().before(earliestExecution)) {
-                                if (logger.isTraceEnabled()) {
-                                    logger.trace("Putting the monitor thread '{}' to sleep for {} ms",
-                                            Thread.currentThread().getName(),
-                                            earliestExecution.getTime() - new Date().getTime());
-                                }
+                                long sleepTime = monitorSleep;
+                                logger.trace("Reg: Putting the monitor thread '{}' to sleep for {} ms", threadName,
+                                        sleepTime);
                                 try {
                                     monitoringLock.lock();
-                                    newExpression = newExpressionCondition.await(
-                                            earliestExecution.getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                                    logger.trace("Monitor thread woke again with {}", newExpression);
+                                    wantToSleepUntil = dateWrapper.getDate().getTime() + sleepTime;
+                                    newExpressionCondition.await(sleepTime, TimeUnit.MILLISECONDS);
                                 } finally {
                                     monitoringLock.unlock();
                                 }
                             }
-
-                        } else {
-                            logger.trace("Putting the monitor thread '{}' to sleep for {} ms",
-                                    Thread.currentThread().getName(), THREAD_MONITOR_SLEEP);
-                            try {
-                                monitoringLock.lock();
-                                newExpressionCondition.await(THREAD_MONITOR_SLEEP, TimeUnit.MILLISECONDS);
-                            } finally {
-                                monitoringLock.unlock();
-                            }
+                        } catch (RejectedExecutionException ex) {
+                            logger.error("The executor has already been shut down : '{}'", ex.getMessage());
+                        } catch (CancellationException ex) {
+                            logger.error("Non executed tasks are cancelled : '{}'", ex.getMessage());
+                        } catch (InterruptedException ex) {
+                            logger.trace("The monitor thread was interrupted : '{}'", ex.getMessage());
                         }
-                    } catch (RejectedExecutionException ex) {
-                        logger.error("The executor has already been shut down : '{}'", ex.getMessage());
-                    } catch (CancellationException ex) {
-                        logger.error("Non executed tasks are cancelled : '{}'", ex.getMessage());
-                    } catch (InterruptedException ex) {
-                        logger.trace("The monitor thread was interrupted : '{}'", ex.getMessage());
                     }
                 }
-            }
-        };
+
+                private void rescheduleJobs(long diff, String threadName) {
+                    Map<Expression, RunnableWrapper> adjustTasks = new HashMap<>();
+
+                    // collect tasks to not change 'scheduled' while iterating over it
+                    for (Expression e : scheduled.keySet()) {
+                        adjustTasks.put(e, scheduled.get(e));
+                    }
+                    logger.debug("Thread: {} rescheduling {} jobs due to time jump.", adjustTasks.size(), threadName);
+
+                    for (Entry<Expression, RunnableWrapper> entry : adjustTasks.entrySet()) {
+                        remove(entry.getValue());
+                        schedule(entry.getValue(), entry.getKey());
+                    }
+                }
+            };
+        }
 
         public void schedule(final Runnable task, final Expression expression) {
             if (task == null || expression == null) {
@@ -391,5 +443,21 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                 futuresLock.unlock();
             }
         }
+
+        // package private for testing purposes
+        void setMonitorSleep(long monitorSleep) {
+            this.monitorSleep = monitorSleep;
+        }
+
+        // package private for testing purposes
+        void setMonitorAllowedDrift(long monitorAllowedDrift) {
+            this.monitorAllowedDrift = monitorAllowedDrift;
+        }
+
+        // package private for testing purposes
+        void setDateWrapper(DateWrapper dw) {
+            this.dateWrapper = dw;
+        }
     }
+
 }
