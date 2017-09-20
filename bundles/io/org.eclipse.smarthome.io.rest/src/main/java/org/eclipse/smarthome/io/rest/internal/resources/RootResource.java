@@ -28,13 +28,18 @@ import org.eclipse.smarthome.io.rest.internal.Constants;
 import org.eclipse.smarthome.io.rest.internal.resources.beans.RootBean;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * This class acts as an entry point / root resource for the REST API.
- * 
+ *
  * <p>
  * In good HATEOAS manner, it provides links to other offered resources.
  *
@@ -44,6 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path("/")
+@Component(service = RootResource.class, configurationPid = { "org.eclipse.smarthome.io.rest.root" })
 public class RootResource {
 
     private final transient Logger logger = LoggerFactory.getLogger(RootResource.class);
@@ -76,6 +82,7 @@ public class RootResource {
         return bean;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRESTResource(RESTResource resource) {
         restResources.add(resource);
     }
@@ -85,6 +92,7 @@ public class RootResource {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Activate
     public void activate() {
         Configuration configuration;
         try {
@@ -109,6 +117,7 @@ public class RootResource {
         }
     }
 
+    @Reference
     protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }

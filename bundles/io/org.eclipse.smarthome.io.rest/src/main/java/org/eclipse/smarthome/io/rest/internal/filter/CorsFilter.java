@@ -14,12 +14,15 @@ import java.util.Map;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
-import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.rest.internal.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,8 @@ import com.google.common.collect.Lists;
  *
  */
 @Provider
+@Component(immediate = true, property = { "service.pid=org.eclipse.smarthome.cors" }, configurationPid = {
+        "org.eclipse.smarthome.cors" }, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class CorsFilter implements ContainerResponseFilter {
 
     private static final String HTTP_HEAD_METHOD = "HEAD";
@@ -46,7 +51,7 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final String HTTP_POST_METHOD = "POST";
     private static final String HTTP_GET_METHOD = "GET";
     private static final String HTTP_OPTIONS_METHOD = "OPTIONS";
-    
+
     private static final String CONTENT_TYPE_HEADER = HttpHeaders.CONTENT_TYPE;
 
     private static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
@@ -166,13 +171,14 @@ public class CorsFilter implements ContainerResponseFilter {
         }
     }
 
+    @Activate
     protected void activate(Map<String, Object> properties) {
         if (properties != null) {
             String corsPropertyValue = (String) properties.get(Constants.CORS_PROPERTY);
             this.isEnabled = "true".equalsIgnoreCase(corsPropertyValue);
         }
 
-        if(this.isEnabled) {
+        if (this.isEnabled) {
             logger.info("enabled CORS for REST API.");
         }
     }
