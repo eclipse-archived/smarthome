@@ -1,11 +1,14 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Script Globals
-Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.defaultscope
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.commons.io,
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.defa
+ ultscope
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
@@ -20,4 +23,3 @@ Import-Package: org.apache.commons.io,
  org.joda.time;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

@@ -1,12 +1,17 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Sonos Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.sonos
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Import-Package: org.apache.commons.io,
+Export-Package: 
+ org.eclipse.smarthome.binding.sonos,
+ org.eclipse.smarthome.binding.sonos.handler
+Import-Package: 
+ org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.sonos,
@@ -35,6 +40,3 @@ Import-Package: org.apache.commons.io,
  org.xml.sax,
  org.xml.sax.helpers
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.binding.sonos,
- org.eclipse.smarthome.binding.sonos.handler
-Bundle-ActivationPolicy: lazy

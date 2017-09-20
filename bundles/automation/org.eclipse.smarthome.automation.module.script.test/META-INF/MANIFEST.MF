@@ -1,12 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome JSR233 Automation Module Tests
-Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.test
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.automation.module.script
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.collect,
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.test
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.automation.module.script
+Import-Package: 
+ com.google.common.collect,
  groovy.lang,
  org.apache.commons.io,
  org.apache.commons.lang,
@@ -37,7 +38,8 @@ Import-Package: com.google.common.collect,
  org.osgi.service.event,
  org.osgi.util.tracker,
  org.slf4j
-Require-Bundle: org.eclipse.smarthome.automation.core,
+Require-Bundle: 
+ org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.module.script.defaultscope,
  org.eclipse.smarthome.automation.parser.gson,

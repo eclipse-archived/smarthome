@@ -1,14 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UI Icons
-Bundle-SymbolicName: org.eclipse.smarthome.ui.icon
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.servlet,
+Bundle-SymbolicName: org.eclipse.smarthome.ui.icon
+Bundle-Vendor: Eclipse.org
+Bundle-Version: 0.9.0.qualifier
+Export-Package: org.eclipse.smarthome.ui.icon
+Import-Package: 
+ javax.servlet,
  javax.servlet.http,
- javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
+ javax.ws.rs;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -20,4 +22,3 @@ Import-Package: javax.servlet,
  org.osgi.service.http,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.ui.icon

@@ -1,12 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome IO UPnP Tests
-Bundle-SymbolicName: org.eclipse.smarthome.io.transport.upnp.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.upnp.test;single
+ ton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.transport.upnp
-Import-Package: groovy.lang,
+Import-Package: 
+ groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,

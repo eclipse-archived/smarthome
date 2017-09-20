@@ -1,12 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Tests
-Bundle-SymbolicName: org.eclipse.smarthome.core.thing.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.thing.test;singleton:=tr
+ ue
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.core.thing
-Import-Package: com.google.gson,
+Import-Package: 
+ com.google.gson,
  groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
@@ -26,8 +28,8 @@ Import-Package: com.google.gson,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
- org.junit;version="4.0.0",
  org.junit.rules,
+ org.junit;version="4.0.0",
  org.mockito,
  org.mockito.invocation,
  org.mockito.stubbing,

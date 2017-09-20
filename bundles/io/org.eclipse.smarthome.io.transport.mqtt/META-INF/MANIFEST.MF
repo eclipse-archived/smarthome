@@ -1,14 +1,19 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome MQTT Transport Bundle
-Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mqtt;singleton:=true
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.smarthome.io.transport.mqtt,
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mqtt;singleton:=
+ true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext
-Import-Package: javax.naming,
+Import-Package: 
+ javax.naming,
  javax.net,
  javax.net.ssl,
  org.apache.commons.lang,
@@ -19,10 +24,8 @@ Import-Package: javax.naming,
  org.eclipse.paho.client.mqttv3.util,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.io.transport.mqtt,
+ org.osgi.service.cm,
  org.osgi.service.component,
  org.osgi.service.component.annotations;resolution:=optional,
- org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ClassPath: .
-Bundle-ActivationPolicy: lazy
