@@ -423,8 +423,16 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
         }
     });
 
+    var suppressUnavailableError = function(response, headersGetter, status) {
+        return status != 503 ? response : {
+            showError : false
+        };
+    }
+
     extensionService.isAvailable = function(callback) {
-        $http.head(restConfig.restPath + '/extensions').then(function() {
+        $http.head(restConfig.restPath + '/extensions', {
+            transformResponse : suppressUnavailableError
+        }).then(function() {
             callback(true);
         }, function() {
             callback(false);
