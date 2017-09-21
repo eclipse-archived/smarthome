@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java.template;
+package org.eclipse.smarthome.automation.sample.extension.java.internal.template;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,11 +18,11 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.automation.sample.extension.java.WelcomeHomeRulesProvider;
-import org.eclipse.smarthome.automation.sample.extension.java.type.AirConditionerTriggerType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditionType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeActionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.WelcomeHomeRulesProvider;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.AirConditionerTriggerType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.TemperatureConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.WelcomeHomeActionType;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;

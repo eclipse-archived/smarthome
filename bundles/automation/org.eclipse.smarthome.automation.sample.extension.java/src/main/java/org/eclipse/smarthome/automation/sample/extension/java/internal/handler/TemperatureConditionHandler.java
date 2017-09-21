@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java.handler;
+package org.eclipse.smarthome.automation.sample.extension.java.internal.handler;
 
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.TemperatureConditionType;
 
 /**
  * This class serves to handle the Condition types provided by this application. It is used to help the RuleEngine
