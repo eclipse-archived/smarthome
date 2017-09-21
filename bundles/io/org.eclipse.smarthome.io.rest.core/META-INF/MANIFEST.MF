@@ -59,8 +59,14 @@ Import-Package:
  org.eclipse.smarthome.io.rest,
  org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing,
+ org.eclipse.smarthome.io.rest.core.persistence,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
+Export-Package: org.eclipse.smarthome.io.rest.core.config,
+ org.eclipse.smarthome.io.rest.core.persistence,
+ org.eclipse.smarthome.io.rest.core.service,
+ org.eclipse.smarthome.io.rest.core.item,
+ org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml

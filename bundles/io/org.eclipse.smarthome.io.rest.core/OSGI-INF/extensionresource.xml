@@ -12,7 +12,7 @@
    <implementation class="org.eclipse.smarthome.io.rest.core.extensions.ExtensionResource"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
-      <provide interface="org.eclipse.smarthome.io.rest.core.extensions.ExtensionResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.core.internal.extensions.ExtensionResource"/>
    </service>
    <reference bind="addExtensionService" cardinality="0..n" interface="org.eclipse.smarthome.core.extension.ExtensionService" name="ExtensionService" policy="dynamic" unbind="removeExtensionService"/>
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>

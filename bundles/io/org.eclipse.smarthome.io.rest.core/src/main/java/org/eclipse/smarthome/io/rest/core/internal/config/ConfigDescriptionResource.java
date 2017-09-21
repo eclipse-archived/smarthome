@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.config;
+package org.eclipse.smarthome.io.rest.core.internal.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
