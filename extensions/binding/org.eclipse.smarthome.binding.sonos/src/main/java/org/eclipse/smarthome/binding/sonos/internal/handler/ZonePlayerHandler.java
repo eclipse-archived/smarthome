@@ -5,9 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.sonos.handler;
+package org.eclipse.smarthome.binding.sonos.internal.handler;
 
-import static org.eclipse.smarthome.binding.sonos.SonosBindingConstants.*;
+import static org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,15 +30,15 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
-import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.binding.sonos.internal.SonosAlarm;
+import org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.internal.SonosEntry;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMusicService;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
+import org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
