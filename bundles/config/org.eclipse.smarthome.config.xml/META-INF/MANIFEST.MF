@@ -1,11 +1,28 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: lib/xstream-1.4.7.jar,.
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Config XML
-Bundle-SymbolicName: org.eclipse.smarthome.config.xml
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.thoughtworks.xstream,
+Bundle-SymbolicName: org.eclipse.smarthome.config.xml
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ com.thoughtworks.xstream,
+ com.thoughtworks.xstream.annotations,
+ com.thoughtworks.xstream.converters,
+ com.thoughtworks.xstream.converters.basic,
+ com.thoughtworks.xstream.converters.reflection,
+ com.thoughtworks.xstream.core,
+ com.thoughtworks.xstream.core.util,
+ com.thoughtworks.xstream.io,
+ com.thoughtworks.xstream.io.naming,
+ com.thoughtworks.xstream.io.xml,
+ com.thoughtworks.xstream.mapper,
+ org.eclipse.smarthome.config.xml,
+ org.eclipse.smarthome.config.xml.osgi,
+ org.eclipse.smarthome.config.xml.util
+Import-Package: 
+ com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,
  com.thoughtworks.xstream.converters,
  com.thoughtworks.xstream.converters.basic,
@@ -37,20 +54,4 @@ Import-Package: com.thoughtworks.xstream,
  org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.util.tracker,
  org.slf4j
-Export-Package: com.thoughtworks.xstream,
- com.thoughtworks.xstream.annotations,
- com.thoughtworks.xstream.converters,
- com.thoughtworks.xstream.converters.basic,
- com.thoughtworks.xstream.converters.reflection,
- com.thoughtworks.xstream.core,
- com.thoughtworks.xstream.core.util,
- com.thoughtworks.xstream.io,
- com.thoughtworks.xstream.io.naming,
- com.thoughtworks.xstream.io.xml,
- com.thoughtworks.xstream.mapper,
- org.eclipse.smarthome.config.xml,
- org.eclipse.smarthome.config.xml.osgi,
- org.eclipse.smarthome.config.xml.util
-Bundle-ClassPath: lib/xstream-1.4.7.jar,
- .
 Service-Component: OSGI-INF/*.xml

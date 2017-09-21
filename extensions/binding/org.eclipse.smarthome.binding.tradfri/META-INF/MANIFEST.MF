@@ -1,12 +1,18 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Tradfri Binding
-Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri;singleton:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri;singleton:=tr
+ ue
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Import-Package: com.google.gson,
+Export-Package: 
+ org.eclipse.smarthome.binding.tradfri,
+ org.eclipse.smarthome.binding.tradfri.handler
+Import-Package: 
+ com.google.gson,
  javax.jmdns,
  org.eclipse.californium.core,
  org.eclipse.californium.core.coap,
@@ -31,6 +37,3 @@ Import-Package: com.google.gson,
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.binding.tradfri,
- org.eclipse.smarthome.binding.tradfri.handler
-Bundle-ActivationPolicy: lazy

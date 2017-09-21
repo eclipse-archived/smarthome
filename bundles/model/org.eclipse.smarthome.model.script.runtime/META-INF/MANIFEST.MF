@@ -1,15 +1,17 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script Runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.script.runtime;singleto
+ n:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-SymbolicName: org.eclipse.smarthome.model.script.runtime;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Service-Component: OSGI-INF/*.xml
-Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.model.core,
  org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.script
-Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml

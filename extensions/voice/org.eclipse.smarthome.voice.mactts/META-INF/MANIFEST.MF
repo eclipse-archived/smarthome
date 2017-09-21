@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: MacOS Text-to-Speech
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.voice.mactts;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
- org.eclipse.smarthome.core.voice,
- org.eclipse.smarthome.core.audio,
+Import-Package: 
  org.apache.commons.io,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.audio,
+ org.eclipse.smarthome.core.voice,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

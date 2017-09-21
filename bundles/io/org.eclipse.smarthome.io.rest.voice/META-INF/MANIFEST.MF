@@ -1,11 +1,13 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Voice REST API
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest.voice
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: io.swagger.annotations;resolution:=optional,
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.voice
+Bundle-Vendor: Eclipse.org
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ io.swagger.annotations;resolution:=optional,
  javax.annotation.security;resolution:=optional,
  javax.ws.rs,
  javax.ws.rs.core,
@@ -16,4 +18,3 @@ Import-Package: io.swagger.annotations;resolution:=optional,
  org.eclipse.smarthome.io.rest,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

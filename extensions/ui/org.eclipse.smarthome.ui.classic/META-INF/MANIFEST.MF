@@ -1,13 +1,18 @@
 Manifest-Version: 1.0
-Private-Package: org.eclipse.smarthome.ui.webapp.internal
-Ignore-Package: org.eclipse.smarthome.ui.webapp.internal
+Bundle-Activator: org.eclipse.smarthome.ui.classic.internal.WebAppActiva
+ tor
+Bundle-ClassPath: patch/,.
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome WebApp UI
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.ui.classic
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.ui.classic.internal.WebAppActivator
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: javax.servlet,
+Export-Package: org.eclipse.smarthome.ui.classic.render
+Ignore-Package: org.eclipse.smarthome.ui.webapp.internal
+Import-Package: 
+ javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.emf.common.util,
@@ -26,8 +31,5 @@ Import-Package: javax.servlet,
  org.osgi.service.component,
  org.osgi.service.http,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.ui.classic
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Private-Package: org.eclipse.smarthome.ui.webapp.internal
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.ui.classic.render
-Bundle-ClassPath: patch/,.
