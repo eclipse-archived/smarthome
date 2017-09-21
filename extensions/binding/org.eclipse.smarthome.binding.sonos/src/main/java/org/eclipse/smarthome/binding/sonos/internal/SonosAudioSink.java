@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.smarthome.binding.sonos.handler.ZonePlayerHandler;
+import org.eclipse.smarthome.binding.sonos.internal.handler.ZonePlayerHandler;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
