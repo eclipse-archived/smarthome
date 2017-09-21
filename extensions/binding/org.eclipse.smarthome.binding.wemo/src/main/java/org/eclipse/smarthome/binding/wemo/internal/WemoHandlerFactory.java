@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants;
-import org.eclipse.smarthome.binding.wemo.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoCoffeeHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoMakerHandler;
+import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
