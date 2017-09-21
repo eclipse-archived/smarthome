@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
+import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
 
 /**
  * The {@link EnrichedItemDTOMapper} is a utility class to map items into enriched item data transform objects (DTOs).

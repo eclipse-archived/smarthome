@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.item;
+package org.eclipse.smarthome.io.rest.core.internal.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +61,8 @@ import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

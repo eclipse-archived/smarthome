@@ -12,7 +12,7 @@ import static org.junit.Assert.*
 
 import javax.ws.rs.core.Response
 
-import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceResource
+import org.eclipse.smarthome.io.rest.core.internal.service.ConfigurableServiceResource
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
