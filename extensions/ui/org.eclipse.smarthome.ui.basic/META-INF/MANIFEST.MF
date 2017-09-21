@@ -1,11 +1,17 @@
 Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.smarthome.ui.basic.internal.WebAppActivato
+ r
+Bundle-ClassPath: patch/,.
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Basic UI
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.ui.basic
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.ui.basic.internal.WebAppActivator
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.google.gson,
+Export-Package: org.eclipse.smarthome.ui.basic.render
+Import-Package: 
+ com.google.gson,
  javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,
@@ -29,8 +35,4 @@ Import-Package: com.google.gson,
  org.osgi.service.component,
  org.osgi.service.http,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.ui.basic
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.ui.basic.render
-Bundle-ClassPath: patch/,.

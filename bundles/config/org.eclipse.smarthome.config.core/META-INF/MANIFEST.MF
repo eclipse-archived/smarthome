@@ -1,11 +1,20 @@
 Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.smarthome.config.core.internal.Activator
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Config Core
-Bundle-SymbolicName: org.eclipse.smarthome.config.core
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.base,
+Bundle-SymbolicName: org.eclipse.smarthome.config.core
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.core.dto,
+ org.eclipse.smarthome.config.core.i18n,
+ org.eclipse.smarthome.config.core.status,
+ org.eclipse.smarthome.config.core.status.events,
+ org.eclipse.smarthome.config.core.validation
+Import-Package: 
+ com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  org.apache.commons.lang.reflect,
@@ -26,11 +35,4 @@ Import-Package: com.google.common.base,
  org.osgi.service.component,
  org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
-Export-Package: org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.config.core.dto,
- org.eclipse.smarthome.config.core.i18n,
- org.eclipse.smarthome.config.core.status,
- org.eclipse.smarthome.config.core.status.events,
- org.eclipse.smarthome.config.core.validation
 Service-Component: OSGI-INF/*.xml
-Bundle-Activator: org.eclipse.smarthome.config.core.internal.Activator

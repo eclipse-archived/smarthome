@@ -1,11 +1,14 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Basic Auth Support for REST Interface
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest.auth.basic
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.eclipsesource.jaxrs.provider.security,
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.auth.basic
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ com.eclipsesource.jaxrs.provider.security,
  javax.ws.rs.container,
  javax.ws.rs.core,
  org.apache.commons.codec.binary,
@@ -13,7 +16,4 @@ Import-Package: com.eclipsesource.jaxrs.provider.security,
  org.eclipse.smarthome.core.auth,
  org.eclipse.smarthome.io.rest.auth,
  org.slf4j
-Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy
-

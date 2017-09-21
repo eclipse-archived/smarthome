@@ -1,13 +1,19 @@
 Manifest-Version: 1.0
-Private-Package: org.eclipse.smarthome.ui.internal
-Ignore-Package: org.eclipse.smarthome.ui.internal
+Bundle-Activator: org.eclipse.smarthome.ui.internal.UIActivator
+Bundle-ClassPath: .,lib/xchart-2.6.1.jar
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UI
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.ui
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.ui.internal.UIActivator
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: javax.imageio,
+Export-Package: 
+ org.eclipse.smarthome.ui.chart,
+ org.eclipse.smarthome.ui.items
+Ignore-Package: org.eclipse.smarthome.ui.internal
+Import-Package: 
+ javax.imageio,
  javax.servlet,
  javax.servlet.http,
  org.apache.commons.io,
@@ -40,10 +46,5 @@ Import-Package: javax.imageio,
  org.osgi.service.cm,
  org.osgi.service.http,
  org.slf4j
-Bundle-ClassPath: .,
- lib/xchart-2.6.1.jar
-Bundle-SymbolicName: org.eclipse.smarthome.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.smarthome.ui.chart,
- org.eclipse.smarthome.ui.items
+Private-Package: org.eclipse.smarthome.ui.internal
 Service-Component: OSGI-INF/*.xml

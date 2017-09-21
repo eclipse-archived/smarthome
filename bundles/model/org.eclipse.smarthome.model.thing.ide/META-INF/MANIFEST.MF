@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Model IDE
-Bundle-SymbolicName: org.eclipse.smarthome.model.thing.ide
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.thing.ide
 Bundle-Vendor: Eclipse.org/SmartHome
-Require-Bundle: org.eclipse.smarthome.model.thing,
- org.eclipse.xtext.ide,
- org.antlr.runtime,
- org.eclipse.xtext.xbase.lib
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr,
+ org.eclipse.smarthome.model.thing.ide.contentassist.antlr.internal
 Import-Package: org.eclipse.jdt.annotation;resolution:=optional
-Export-Package: org.eclipse.smarthome.model.thing.ide.contentassist.antlr.internal,
- org.eclipse.smarthome.model.thing.ide.contentassist.antlr
-
+Require-Bundle: 
+ org.antlr.runtime,
+ org.eclipse.smarthome.model.thing,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.lib

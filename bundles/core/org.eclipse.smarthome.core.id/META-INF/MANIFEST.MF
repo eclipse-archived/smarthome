@@ -1,16 +1,17 @@
 Manifest-Version: 1.0
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Core ID
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.id
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Bundle-SymbolicName: org.eclipse.smarthome.core.id
 Export-Package: org.eclipse.smarthome.core.id
-Import-Package: io.swagger.annotations;resolution:=optional,
+Import-Package: 
+ io.swagger.annotations;resolution:=optional,
  javax.annotation.security;resolution:=optional,
- javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
+ javax.ws.rs;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
