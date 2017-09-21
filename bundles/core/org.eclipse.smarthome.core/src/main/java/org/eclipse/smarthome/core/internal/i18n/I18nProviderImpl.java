@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.core.i18nprovider", property = {
-        "service.config.description.uri:String=system:i18n", "service.config.label:String=Regional Settings",
-        "service.config.category:String=system" })
+        "service.pid=org.eclipse.smarthome.core.i18nprovider", "service.config.description.uri:String=system:i18n",
+        "service.config.label:String=Regional Settings", "service.config.category:String=system" })
 public class I18nProviderImpl implements TranslationProvider, LocaleProvider, LocationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
