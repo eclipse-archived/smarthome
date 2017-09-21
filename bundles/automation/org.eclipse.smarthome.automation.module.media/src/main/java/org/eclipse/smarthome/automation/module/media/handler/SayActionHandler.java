@@ -23,8 +23,8 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
 public class SayActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
     public static final String TYPE_ID = "media.SayAction";
-    private static final String PARAM_TEXT = "text";
-    private static final String PARAM_SINK = "sink";
+    public static final String PARAM_TEXT = "text";
+    public static final String PARAM_SINK = "sink";
 
     private final VoiceManager voiceManager;
 
