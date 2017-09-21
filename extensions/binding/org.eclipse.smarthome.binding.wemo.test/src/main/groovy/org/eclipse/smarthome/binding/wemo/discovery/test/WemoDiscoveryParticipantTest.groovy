@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.discovery.WemoDiscoveryParticipant
+import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoDiscoveryParticipant
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoOSGiTest
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant
