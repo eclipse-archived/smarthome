@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.discovery
+package org.eclipse.smarthome.io.rest.core.internal.discovery
 
 import static org.junit.Assert.*
 
@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
+import org.eclipse.smarthome.io.rest.core.internal.discovery.InboxResource
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test

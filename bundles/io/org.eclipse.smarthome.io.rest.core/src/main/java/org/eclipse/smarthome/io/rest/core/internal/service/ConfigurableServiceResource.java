@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.service;
+package org.eclipse.smarthome.io.rest.core.internal.service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
+import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceDTO;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;

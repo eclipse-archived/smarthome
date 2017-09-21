@@ -9,9 +9,9 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.thing.ThingResource">
-   <implementation class="org.eclipse.smarthome.io.rest.core.thing.ThingResource"/>
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.thing.ThingResource"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.rest.core.thing.ThingResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.core.internal.thing.ThingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
    <reference bind="setItemChannelLinkRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="dynamic" unbind="unsetItemChannelLinkRegistry"/>

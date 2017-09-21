@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.binding;
+package org.eclipse.smarthome.io.rest.core.internal.binding;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,7 +41,7 @@ import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
-import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceResource;
+import org.eclipse.smarthome.io.rest.core.internal.service.ConfigurableServiceResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

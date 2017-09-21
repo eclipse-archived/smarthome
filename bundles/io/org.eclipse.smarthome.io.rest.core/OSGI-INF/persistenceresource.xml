@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.persistence.internal.rest">
-   <implementation class="org.eclipse.smarthome.io.rest.core.persistence.PersistenceResource"/>
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.persistence.PersistenceResource"/>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>

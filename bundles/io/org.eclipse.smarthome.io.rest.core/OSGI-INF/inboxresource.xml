@@ -9,9 +9,9 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.discovery.InboxResource">
-   <implementation class="org.eclipse.smarthome.io.rest.core.discovery.InboxResource"/>
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.discovery.InboxResource"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.rest.core.discovery.InboxResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.core.internal.discovery.InboxResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
    <reference bind="setInbox" cardinality="0..1" interface="org.eclipse.smarthome.config.discovery.inbox.Inbox" name="Inbox" policy="dynamic" unbind="unsetInbox"/>

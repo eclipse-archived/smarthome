@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.config.ConfigDescriptionResource">
-   <implementation class="org.eclipse.smarthome.io.rest.core.config.ConfigDescriptionResource"/>
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.config.ConfigDescriptionResource"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.core.config.ConfigDescriptionResource"/>
