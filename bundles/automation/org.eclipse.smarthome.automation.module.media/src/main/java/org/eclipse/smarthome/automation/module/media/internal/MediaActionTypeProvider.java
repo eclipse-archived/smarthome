@@ -31,6 +31,8 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class dynamically provides the Play action type.
@@ -39,6 +41,7 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(immediate = true)
 public class MediaActionTypeProvider implements ModuleTypeProvider {
 
     private AudioManager audioManager;
@@ -127,6 +130,7 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
         // does nothing because this provider does not change
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         this.audioManager = audioManager;
     }
