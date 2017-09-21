@@ -5,15 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.sonos.discovery;
+package org.eclipse.smarthome.binding.sonos.internal.discovery;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
-import org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration;
+import org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
+import org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
