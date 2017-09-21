@@ -18,7 +18,6 @@ import org.eclipse.smarthome.binding.fsinternetradio.internal.FSInternetRadioDis
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.jupnp.model.ValidationException;
@@ -36,8 +35,10 @@ import org.jupnp.model.types.UDN;
  *
  * @author Mihaela Memova - Initial contribution
  * @author Markus Rathgeb - Migrated from Groovy to pure Java test, made more robust
+ * @author Velin Yordanov - Migrated to mockito
+ *
  */
-public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
+public class FSInternetRadioDiscoveryParticipantJavaTest {
     UpnpDiscoveryParticipant discoveryParticipant;
 
     // default device variables used in the tests
@@ -76,8 +77,7 @@ public class FSInternetRadioDiscoveryParticipantOSGiTest extends JavaOSGiTest {
 
     @Before
     public void setUp() {
-        discoveryParticipant = getService(UpnpDiscoveryParticipant.class, FSInternetRadioDiscoveryParticipant.class);
-        assertNotNull(discoveryParticipant);
+        discoveryParticipant = new FSInternetRadioDiscoveryParticipant();
     }
 
     /**

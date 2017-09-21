@@ -9,12 +9,17 @@ package org.eclipse.smarthome.binding.fsinternetradio.test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants;
 
@@ -22,9 +27,10 @@ import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSili
  * Radio service mock.
  *
  * @author Markus Rathgeb - Migrated from Groovy to pure Java, made more robust
- *
+ * @author Velin Yordanov - Small adjustments
  */
 public class RadioServiceDummy extends HttpServlet {
+    private static Map<Integer, String> requestParameters = new ConcurrentHashMap<>();
 
     private static final long serialVersionUID = 1L;
 
@@ -45,6 +51,7 @@ public class RadioServiceDummy extends HttpServlet {
             + FrontierSiliconRadioConstants.REQUEST_GET_PLAY_INFO_TEXT;
     private static final String REQUEST_GET_PLAY_INFO_NAME = "/"
             + FrontierSiliconRadioConstants.REQUEST_GET_PLAY_INFO_NAME;
+    private static final String VALUE = "value";
 
     /*
      * For the purposes of the tests it is assumed that the current station and the additional information
@@ -95,19 +102,40 @@ public class RadioServiceDummy extends HttpServlet {
         this.isInvalidResponseExpected = isInvalidResponseExpected;
     }
 
-    public void setInvalidValueExpected(boolean isInvalidValueExpected) {
-        this.isInvalidValueExpected = isInvalidValueExpected;
-    }
-
     public void setOKAnswerExpected(boolean isOKAnswerExpected) {
         this.isOKAnswerExpected = isOKAnswerExpected;
+    }
+
+    public boolean containsRequestParameter(int value, String parameter) {
+        String url = requestParameters.get(value);
+        if (url == null) {
+            return false;
+        }
+
+        return url.contains(parameter);
+    }
+
+    public void clearRequestParameters() {
+        requestParameters.clear();
+    }
+
+    public boolean areRequestParametersEmpty() {
+        return requestParameters.isEmpty();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String queryString = request.getQueryString();
+        Collection<String> requestParameterNames = Collections.list(request.getParameterNames());
+        if (queryString != null && requestParameterNames.contains(VALUE)) {
+            StringBuffer fullUrl = request.getRequestURL().append("?").append(queryString);
+            int value = Integer.parseInt(request.getParameter(VALUE));
+            requestParameters.put(value, fullUrl.toString());
+        }
+
         String pin = request.getParameter("pin");
-        if (!pin.equals(MOCK_RADIO_PIN)) {
+        if (!MOCK_RADIO_PIN.equals(pin)) {
             response.setStatus(HttpStatus.FORBIDDEN_403);
         } else if (!isOKAnswerExpected) {
             response.setStatus(HttpStatus.NOT_FOUND_404);
@@ -115,13 +143,13 @@ public class RadioServiceDummy extends HttpServlet {
             response.setStatus(HttpStatus.OK_200);
             response.setContentType("text/xml");
             String commandString = request.getPathInfo();
-            switch (commandString) {
 
+            switch (commandString) {
                 case (REQUEST_SET_POWER):
                     if (isInvalidValueExpected) {
                         powerValue = null;
                     } else {
-                        powerValue = request.getParameter("value");
+                        powerValue = request.getParameter(VALUE);
                     }
 
                 case (REQUEST_GET_POWER):
@@ -133,7 +161,7 @@ public class RadioServiceDummy extends HttpServlet {
                     if (isInvalidValueExpected) {
                         muteValue = null;
                     } else {
-                        muteValue = request.getParameter("value");
+                        muteValue = request.getParameter(VALUE);
                     }
 
                 case (REQUEST_GET_MUTE):
@@ -145,7 +173,7 @@ public class RadioServiceDummy extends HttpServlet {
                     if (isInvalidValueExpected) {
                         modeValue = null;
                     } else {
-                        modeValue = request.getParameter("value");
+                        modeValue = request.getParameter(VALUE);
                     }
 
                 case (REQUEST_GET_MODE):
@@ -157,7 +185,7 @@ public class RadioServiceDummy extends HttpServlet {
                     if (isInvalidValueExpected) {
                         absoluteVolumeValue = null;
                     } else {
-                        absoluteVolumeValue = request.getParameter("value");
+                        absoluteVolumeValue = request.getParameter(VALUE);
                     }
 
                 case (REQUEST_GET_VOLUME):
@@ -166,7 +194,7 @@ public class RadioServiceDummy extends HttpServlet {
                     break;
 
                 case (REQUEST_SET_PRESET_ACTION):
-                    final String station = request.getParameter("value");
+                    final String station = request.getParameter(VALUE);
                     setRadioStation(station);
                     break;
 
@@ -193,27 +221,27 @@ public class RadioServiceDummy extends HttpServlet {
         }
     }
 
-    protected static String makeU8Tag(final String value) {
+    protected String makeU8Tag(final String value) {
         return String.format("<value><u8>%s</u8></value>", value);
     }
 
-    protected static String makeU32Tag(final String value) {
+    protected String makeU32Tag(final String value) {
         return String.format("<value><u32>%s</u32></value>", value);
     }
 
-    protected static String makeC8_arrayTag(final String value) {
+    protected String makeC8_arrayTag(final String value) {
         return String.format("<value><c8_array>%s</c8_array></value>", value);
     }
 
-    private String makeValidXMLResponse() {
-        return String.format(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pre><sessionId>111</sessionId><xmp><fsapiResponse><status>FS_OK</status>%s</fsapiResponse></xmp></pre>",
-                tagToReturn);
+    private String makeValidXMLResponse() throws IOException {
+        return IOUtils.toString(getClass().getResourceAsStream("/validXml.xml"));
     }
 
-    private String makeInvalidXMLResponse() {
-        return String.format(
-                "<--xmmmmt version=\"1.0\" encoding=\"UTF-8\"?><pre><sessionId>111</sessionId><xmp><fsapiResponse><status>FS_OK</status>%s</fsapiResponse></xmp></pre>",
-                tagToReturn);
+    private String makeInvalidXMLResponse() throws IOException {
+        return IOUtils.toString(getClass().getResourceAsStream("/invalidXml.xml"));
+    }
+
+    public void setInvalidResponse(boolean value) {
+        isInvalidResponseExpected = value;
     }
 }

@@ -7,27 +7,26 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.HandlerUtils;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio;
-import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadioConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
@@ -36,31 +35,25 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProvider;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
-import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.junit.After;
+import org.eclipse.smarthome.test.java.JavaTest;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 /**
@@ -68,14 +61,20 @@ import org.osgi.service.http.NamespaceException;
  *
  * @author Mihaela Memova - Initial contribution
  * @author Markus Rathgeb - Migrated from Groovy to pure Java test, made more robust
+ * @author Velin Yordanov - Migrated to mockito
  *
  */
-public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
+public class FSInternetRadioHandlerJavaTest extends JavaTest {
     private static final String DEFAULT_TEST_THING_NAME = "testRadioThing";
     private static final String DEFAULT_TEST_ITEM_NAME = "testItem";
+    private final String VOLUME = "volume";
 
+    // The request send for preset is "SET/netRemote.nav.action.selectPreset";
+    private static final String PRESET = "Preset";
+    private static final int TIMEOUT = 10 * 1000;
     private static final ThingTypeUID DEFAULT_THING_TYPE_UID = FSInternetRadioBindingConstants.THING_TYPE_RADIO;
     private static final ThingUID DEFAULT_THING_UID = new ThingUID(DEFAULT_THING_TYPE_UID, DEFAULT_TEST_THING_NAME);
+    private static final RadioServiceDummy radioServiceDummy = new RadioServiceDummy();
 
     /**
      * In order to test a specific channel, it is necessary to create a Thing with two channels - CHANNEL_POWER
@@ -84,6 +83,10 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
      * when it's needed.
      */
     private Channel powerChannel;
+
+    private ThingHandlerCallback callback;
+
+    private static TestServer server;
 
     /**
      * A HashMap which saves all the 'channel-acceppted_item_type' pairs.
@@ -96,55 +99,35 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
      */
     private ArrayList<Channel> channels = new ArrayList<Channel>();
 
-    private ManagedThingProvider managedThingProvider;
-    private ManagedItemChannelLinkProvider itemChannelLinkProvider;
-    private ManagedItemProvider managedItemProvider;
-    private ThingRegistry thingRegistry;
-
-    /** An instance of the mock HttpServlet which is used for the tests */
-    private RadioServiceDummy servlet;
-    private static final String DUMMY_SERVLET_PATH = FrontierSiliconRadioConstants.CONNECTION_PATH;
-
     private FSInternetRadioHandler radioHandler;
+    private Thing radioThing;
 
     // default configuration properties
     private static final String DEFAULT_CONFIG_PROPERTY_IP = "127.0.0.1";
     private static final String DEFAULT_CONFIG_PROPERTY_PIN = "1234";
     private static final String DEFAULT_CONFIG_PROPERTY_PORT = "9090";
+
     /** The default refresh interval is 60 seconds. For the purposes of the tests it is set to 1 second */
     private static final String DEFAULT_CONFIG_PROPERTY_REFRESH = "1";
     private static final Configuration DEFAULT_COMPLETE_CONFIGURATION = createDefaultConfiguration();
 
-    /**
-     * Enabling channel item provider is done asynchronously.
-     * In order to be sure that we get the actual item state, we need to put the current
-     * Thread to sleep for a while after a new {@link ItemChannelLink} is added
-     */
-    private static final int WAIT_ITEM_CHANNEL_LINK_TO_BE_ADDED = 300;
-
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass() throws Exception {
+        ServletHolder holder = new ServletHolder(radioServiceDummy);
+        server = new TestServer(DEFAULT_CONFIG_PROPERTY_IP, Integer.parseInt(DEFAULT_CONFIG_PROPERTY_PORT), TIMEOUT,
+                holder);
         setTheChannelsMap();
+        server.startServer();
     }
 
     @Before
     public void setUp() throws ServletException, NamespaceException {
-        setUpServices();
-        registerRadioTestServlet();
         createThePowerChannel();
     }
 
-    @After
-    public void tearDown() {
-        servlet.setInvalidValueExpected(false);
-        servlet.setInvalidResponseExpected(false);
-        servlet.setOKAnswerExpected(true);
-
-        channels.clear();
-        unregisterRadioTestServlet();
-        clearThings();
-        clearItems();
-        clearLinks();
+    @AfterClass
+    public static void tearDownClass() {
+        server.stopServer();
     }
 
     private static @NonNull Channel getChannel(final @NonNull Thing thing, final @NonNull String channelId) {
@@ -198,13 +181,12 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     @Test
     public void offlineIfWrongPIN() {
         final String wrongPin = "5678";
-        Configuration config = createConfiguration(wrongPin, DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PORT,
+        Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, wrongPin, DEFAULT_CONFIG_PROPERTY_PORT,
                 DEFAULT_CONFIG_PROPERTY_REFRESH);
-        Thing radioThingWithWrongPin = initializeRadioThing(config);
+        initializeRadioThing(config);
         waitForAssert(() -> {
-            assertEquals(ThingStatus.OFFLINE, radioThingWithWrongPin.getStatus());
-            assertEquals(ThingStatusDetail.COMMUNICATION_ERROR,
-                    radioThingWithWrongPin.getStatusInfo().getStatusDetail());
+            String exceptionMessage = "java.lang.RuntimeException: Radio does not allow connection, maybe wrong pin?";
+            verifyCommunicationError(exceptionMessage);
         });
     }
 
@@ -230,32 +212,15 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          * Setting the isInvalidResponseExpected variable to true
          * in order to get the incorrect XML response from the servlet
          */
-        servlet.setInvalidResponseExpected(true);
+        radioServiceDummy.setInvalidResponse(true);
 
         // try to handle a command
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
+        radioServiceDummy.setInvalidResponse(false);
 
         waitForAssert(() -> {
-            assertEquals(ThingStatus.OFFLINE, radioThing.getStatus());
-            assertEquals(ThingStatusDetail.COMMUNICATION_ERROR, radioThing.getStatusInfo().getStatusDetail());
-        });
-    }
-
-    /**
-     * Verify not registered RadioHandler when the thingTypeUID is not the DEFAULT_THING_TYPE_UID.
-     */
-    @Test
-    public void notRegisteredHandlerOnThingTypeMismatch() {
-        ThingTypeUID anotherThingTypeUID = new ThingTypeUID("anotherBindingID", "notRadio");
-        ThingUID anotherThingUID = new ThingUID(anotherThingTypeUID, DEFAULT_TEST_THING_NAME);
-
-        Thing radioThing = ThingBuilder.create(anotherThingTypeUID, anotherThingUID)
-                .withConfiguration(DEFAULT_COMPLETE_CONFIGURATION).withChannels(channels).build();
-        managedThingProvider.add(radioThing);
-
-        waitForAssert(() -> {
-            radioHandler = getService(ThingHandler.class, FSInternetRadioHandler.class);
-            assertNull(radioHandler);
+            String exceptionMessage = "java.io.IOException: org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 2; The markup in the document preceding the root element must be well-formed.";
+            verifyCommunicationError(exceptionMessage);
         });
     }
 
@@ -279,12 +244,8 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          * Setting the needed boolean variable to false, so we can be sure
          * that the XML response won't have a OK_200 status
          */
-        servlet.setOKAnswerExpected(false);
-
         ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
-        Item modeTestItem = initializeItem(modeChannelUID, "mode", acceptedItemType);
-
-        servlet.setInvalidResponseExpected(true);
+        Item modeTestItem = initializeItem(modeChannelUID, CHANNEL_MODE, acceptedItemType);
 
         // try to handle a command
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
@@ -312,28 +273,32 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         testRadioThingConsideringConfiguration(radioThing);
 
         ChannelUID powerChannelUID = powerChannel.getUID();
-        Item powerTestItem = initializeItem(powerChannelUID, DEFAULT_TEST_ITEM_NAME,
+        initializeItem(powerChannelUID, DEFAULT_TEST_ITEM_NAME,
                 acceptedItemTypes.get(FSInternetRadioBindingConstants.CHANNEL_POWER));
 
         radioHandler.handleCommand(powerChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertSame(OnOffType.ON, powerTestItem.getState());
+            assertTrue("We should be able to turn on the radio",
+                    radioServiceDummy.containsRequestParameter(1, CHANNEL_POWER));
+            radioServiceDummy.clearRequestParameters();
         });
 
         radioHandler.handleCommand(powerChannelUID, OnOffType.OFF);
         waitForAssert(() -> {
-            assertSame(OnOffType.OFF, powerTestItem.getState());
+            assertTrue("We should be able to turn off the radio",
+                    radioServiceDummy.containsRequestParameter(0, CHANNEL_POWER));
+            radioServiceDummy.clearRequestParameters();
         });
 
         /*
          * Setting the needed boolean variable to true, so we can be sure
          * that an invalid value will be returned in the XML response
          */
-        servlet.setInvalidValueExpected(true);
-
         radioHandler.handleCommand(powerChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertSame(OnOffType.OFF, powerTestItem.getState());
+            assertTrue("We should be able to turn on the radio",
+                    radioServiceDummy.containsRequestParameter(1, CHANNEL_POWER));
+            radioServiceDummy.clearRequestParameters();
         });
     }
 
@@ -352,28 +317,26 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         turnTheRadioOn(radioThing);
 
         ChannelUID muteChannelUID = getChannelUID(radioThing, FSInternetRadioBindingConstants.CHANNEL_MUTE);
-        Item muteTestItem = initializeItem(muteChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
+        initializeItem(muteChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.ON);
         waitForAssert(() -> {
-            assertSame(OnOffType.ON, muteTestItem.getState());
+            assertTrue("We should be able to mute the radio",
+                    radioServiceDummy.containsRequestParameter(1, CHANNEL_MUTE));
+            radioServiceDummy.clearRequestParameters();
         });
 
         radioHandler.handleCommand(muteChannelUID, OnOffType.OFF);
         waitForAssert(() -> {
-            assertSame(OnOffType.OFF, muteTestItem.getState());
+            assertTrue("We should be able to unmute the radio",
+                    radioServiceDummy.containsRequestParameter(0, CHANNEL_MUTE));
+            radioServiceDummy.clearRequestParameters();
         });
 
         /*
          * Setting the needed boolean variable to true, so we can be sure
          * that an invalid value will be returned in the XML response
          */
-        servlet.setInvalidValueExpected(true);
-
-        radioHandler.handleCommand(muteChannelUID, OnOffType.ON);
-        waitForAssert(() -> {
-            assertSame(OnOffType.OFF, muteTestItem.getState());
-        });
     }
 
     /**
@@ -391,22 +354,24 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         turnTheRadioOn(radioThing);
 
         ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
-        Item modeTestItem = initializeItem(modeChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
+        initializeItem(modeChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("1"), modeTestItem.getState());
+            assertTrue("We should be able to update the mode channel correctly",
+                    radioServiceDummy.containsRequestParameter(1, CHANNEL_MODE));
+            radioServiceDummy.clearRequestParameters();
         });
 
         /*
          * Setting the needed boolean variable to true, so we can be sure
          * that an invalid value will be returned in the XML response
          */
-        servlet.setInvalidValueExpected(true);
-
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("3"));
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("0"), modeTestItem.getState());
+            assertTrue("We should be able to update the mode channel correctly",
+                    radioServiceDummy.containsRequestParameter(3, CHANNEL_MODE));
+            radioServiceDummy.clearRequestParameters();
         });
     }
 
@@ -467,46 +432,54 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         turnTheRadioOn(radioThing);
 
         ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
-        Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
-                absoluteAcceptedItemType);
+        initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME, absoluteAcceptedItemType);
 
         // Trying to set a value that is greater than the maximum volume
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("36"));
 
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
+            assertTrue("The volume should not exceed the maximum value",
+                    radioServiceDummy.containsRequestParameter(32, VOLUME));
+            radioServiceDummy.clearRequestParameters();
         });
 
         // Trying to increase the volume more than its maximum value using the INCREASE command
         radioHandler.handleCommand(absoluteVolumeChannelUID, IncreaseDecreaseType.INCREASE);
 
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
+            assertTrue("The volume should not be increased above the maximum value",
+                    radioServiceDummy.areRequestParametersEmpty());
+            radioServiceDummy.clearRequestParameters();
         });
 
         // Trying to increase the volume more than its maximum value using the UP command
         radioHandler.handleCommand(absoluteVolumeChannelUID, UpDownType.UP);
 
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("32"), volumeTestItem.getState());
+            assertTrue("The volume should not be increased above the maximum value",
+                    radioServiceDummy.areRequestParametersEmpty());
+            radioServiceDummy.clearRequestParameters();
         });
 
         // Trying to set a value that is lower than the minimum volume value
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("-10"));
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
+            assertTrue("The volume should not be decreased below 0",
+                    radioServiceDummy.containsRequestParameter(0, VOLUME));
+            radioServiceDummy.clearRequestParameters();
         });
 
         /*
          * Setting the needed boolean variable to true, so we can be sure
          * that an invalid value will be returned in the XML response
          */
-        servlet.setInvalidValueExpected(true);
 
         // trying to set the volume
         radioHandler.handleCommand(absoluteVolumeChannelUID, DecimalType.valueOf("15"));
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
+            assertTrue("We should be able to set the volume correctly",
+                    radioServiceDummy.containsRequestParameter(15, VOLUME));
+            radioServiceDummy.clearRequestParameters();
         });
     }
 
@@ -522,8 +495,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          */
         String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE;
         String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID);
-        Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID,
-                absoluteAcceptedItemType);
+        createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType);
 
         String percentVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT;
         String percentAcceptedItemType = acceptedItemTypes.get(percentVolumeChannelID);
@@ -555,8 +527,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          */
         String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE;
         String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID);
-        Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID,
-                absoluteAcceptedItemType);
+        createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType);
 
         String percentVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT;
         String percentAcceptedItemType = acceptedItemTypes.get(percentVolumeChannelID);
@@ -583,8 +554,7 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     public void validInvalidPercVolume() {
         String absoluteVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_ABSOLUTE;
         String absoluteAcceptedItemType = acceptedItemTypes.get(absoluteVolumeChannelID);
-        Channel absoluteVolumeChannel = createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID,
-                absoluteAcceptedItemType);
+        createChannel(DEFAULT_THING_UID, absoluteVolumeChannelID, absoluteAcceptedItemType);
 
         String percentVolumeChannelID = FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT;
         String percentAcceptedItemType = acceptedItemTypes.get(percentVolumeChannelID);
@@ -607,19 +577,17 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
          */
         radioHandler.handleCommand(percentVolumeChannelUID, PercentType.valueOf("50"));
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("16"), volumeTestItem.getState());
+            assertTrue("We should be able to set the volume correctly using percentages.",
+                    radioServiceDummy.containsRequestParameter(16, VOLUME));
+            radioServiceDummy.clearRequestParameters();
         });
-
-        /*
-         * Setting the needed boolean variable to true, so we can be sure
-         * that an invalid value will be returned in the XML response
-         */
-        servlet.setInvalidValueExpected(true);
 
         radioHandler.handleCommand(percentVolumeChannelUID, PercentType.valueOf("15"));
 
         waitForAssert(() -> {
-            assertEquals(DecimalType.valueOf("0"), volumeTestItem.getState());
+            assertTrue("We should be able to set the volume correctly using percentages.",
+                    radioServiceDummy.containsRequestParameter(4, VOLUME));
+            radioServiceDummy.clearRequestParameters();
         });
     }
 
@@ -628,25 +596,32 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
             // First we have to make sure that the item state is 0
             radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"));
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertTrue("We should be able to turn on the radio",
+                        radioServiceDummy.containsRequestParameter(1, CHANNEL_POWER));
+                radioServiceDummy.clearRequestParameters();
             });
 
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.INCREASE);
 
             waitForAssert(() -> {
-                assertThat("The item's state was not updated correctly in attempt to use the INCREASE command",
-                        item.getState(), is(DecimalType.valueOf("1")));
+                assertTrue("We should be able to increase the volume correctly",
+                        radioServiceDummy.containsRequestParameter(1, VOLUME));
+                radioServiceDummy.clearRequestParameters();
             });
 
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE);
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertTrue("We should be able to increase the volume correctly",
+                        radioServiceDummy.containsRequestParameter(0, VOLUME));
+                radioServiceDummy.clearRequestParameters();
             });
 
             // Trying to decrease one more time
             radioHandler.handleCommand(channelUID, IncreaseDecreaseType.DECREASE);
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertFalse("We should be able to decrease the volume correctly",
+                        radioServiceDummy.containsRequestParameter(0, VOLUME));
+                radioServiceDummy.clearRequestParameters();
             });
         }
     }
@@ -656,23 +631,31 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
             // First we have to make sure that the item state is 0
             radioHandler.handleCommand(channelUID, DecimalType.valueOf("0"));
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertTrue("We should be able to turn on the radio",
+                        radioServiceDummy.containsRequestParameter(1, CHANNEL_POWER));
+                radioServiceDummy.clearRequestParameters();
             });
 
             radioHandler.handleCommand(channelUID, UpDownType.UP);
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("1"), item.getState());
+                assertTrue("We should be able to increase the volume correctly",
+                        radioServiceDummy.containsRequestParameter(1, VOLUME));
+                radioServiceDummy.clearRequestParameters();
             });
 
             radioHandler.handleCommand(channelUID, UpDownType.DOWN);
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertTrue("We should be able to decrease the volume correctly",
+                        radioServiceDummy.containsRequestParameter(0, VOLUME));
+                radioServiceDummy.clearRequestParameters();
             });
 
             // Trying to decrease one more time
             radioHandler.handleCommand(channelUID, UpDownType.DOWN);
             waitForAssert(() -> {
-                assertEquals(DecimalType.valueOf("0"), item.getState());
+                assertTrue("We shouldn't be able to decrease the volume below 0",
+                        radioServiceDummy.areRequestParametersEmpty());
+                radioServiceDummy.clearRequestParameters();
             });
         }
     }
@@ -691,11 +674,13 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         turnTheRadioOn(radioThing);
 
         ChannelUID presetChannelUID = getChannelUID(radioThing, FSInternetRadioBindingConstants.CHANNEL_PRESET);
-        Item presetTestItem = initializeItem(presetChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
+        initializeItem(presetChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         radioHandler.handleCommand(presetChannelUID, DecimalType.valueOf("100"));
         waitForAssert(() -> {
-            assertEquals("100", servlet.getRadioStation());
+            assertTrue("We should be able to set value to the preset",
+                    radioServiceDummy.containsRequestParameter(100, PRESET));
+            radioServiceDummy.clearRequestParameters();
         });
     }
 
@@ -708,17 +693,17 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         String acceptedItemType = acceptedItemTypes.get(playInfoNameChannelID);
         createChannel(DEFAULT_THING_UID, playInfoNameChannelID, acceptedItemType);
 
-        Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION);
+        Thing radioThing = initializeRadioThingWithMockedHandler(DEFAULT_COMPLETE_CONFIGURATION);
         testRadioThingConsideringConfiguration(radioThing);
 
         turnTheRadioOn(radioThing);
 
         ChannelUID playInfoNameChannelUID = getChannelUID(radioThing,
                 FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_NAME);
-        Item playInfoNameTestItem = initializeItem(playInfoNameChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
+        initializeItem(playInfoNameChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
-            assertEquals(new StringType("random_station"), playInfoNameTestItem.getState());
+            verifyOnlineStatusIsSet();
         });
     }
 
@@ -731,17 +716,16 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         String acceptedItemType = acceptedItemTypes.get(playInfoTextChannelID);
         createChannel(DEFAULT_THING_UID, playInfoTextChannelID, acceptedItemType);
 
-        Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION);
+        Thing radioThing = initializeRadioThingWithMockedHandler(DEFAULT_COMPLETE_CONFIGURATION);
         testRadioThingConsideringConfiguration(radioThing);
 
         turnTheRadioOn(radioThing);
-
         ChannelUID playInfoTextChannelUID = getChannelUID(radioThing,
                 FSInternetRadioBindingConstants.CHANNEL_PLAY_INFO_TEXT);
-        Item playInfoTextTestItem = initializeItem(playInfoTextChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
+        initializeItem(playInfoTextChannelUID, DEFAULT_TEST_ITEM_NAME, acceptedItemType);
 
         waitForAssert(() -> {
-            assertEquals(new StringType("additional_info"), playInfoTextTestItem.getState());
+            verifyOnlineStatusIsSet();
         });
     }
 
@@ -771,71 +755,10 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         acceptedItemTypes.put(FSInternetRadioBindingConstants.CHANNEL_VOLUME_PERCENT, "Dimmer");
     }
 
-    private void setUpServices() {
-        registerVolatileStorageService();
-
-        managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertNotNull(managedThingProvider);
-
-        thingRegistry = getService(ThingRegistry.class);
-        assertNotNull(thingRegistry);
-
-        itemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
-        assertNotNull(itemChannelLinkProvider);
-
-        managedItemProvider = getService(ManagedItemProvider.class);
-        assertNotNull(managedItemProvider);
-    }
-
-    private void registerRadioTestServlet() throws ServletException, NamespaceException {
-        HttpService httpService = waitForAssert(() -> {
-            HttpService tmp = getService(HttpService.class);
-            assertNotNull(tmp);
-            return tmp;
-        });
-        servlet = new RadioServiceDummy();
-        httpService.registerServlet(DUMMY_SERVLET_PATH, servlet, null, null);
-    }
-
     private void createThePowerChannel() {
         String powerChannelID = FSInternetRadioBindingConstants.CHANNEL_POWER;
         String acceptedItemType = acceptedItemTypes.get(powerChannelID);
         powerChannel = createChannel(DEFAULT_THING_UID, powerChannelID, acceptedItemType);
-    }
-
-    private void unregisterRadioTestServlet() {
-        HttpService httpService = getService(HttpService.class);
-        assertNotNull(httpService);
-        httpService.unregister(DUMMY_SERVLET_PATH);
-        servlet = null;
-    }
-
-    private void clearThings() {
-        final Collection<Thing> things = managedThingProvider.getAll();
-        for (final Thing thing : things) {
-            managedThingProvider.remove(thing.getUID());
-        }
-        assertTrue(managedThingProvider.getAll().isEmpty());
-    }
-
-    private void clearItems() {
-        final Collection<Item> items = managedItemProvider.getAll();
-        for (final Item item : items) {
-            managedItemProvider.remove(item.getName());
-        }
-        waitForAssert(() -> {
-            assertTrue(managedItemProvider.getAll().isEmpty());
-        });
-    }
-
-    private void clearLinks() {
-        final Collection<ItemChannelLink> links = itemChannelLinkProvider.getAll();
-        for (final ItemChannelLink link : links) {
-            itemChannelLinkProvider.remove(link.getUID());
-        }
-        waitForAssert(() -> {
-            assertTrue(itemChannelLinkProvider.getAll().isEmpty());
-        });
     }
 
     private Item initializeItem(ChannelUID channelUID, String itemName, String acceptedItemType) {
@@ -860,21 +783,12 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
                 break;
         }
 
-        if (item != null) {
-            managedItemProvider.add(item);
-        }
-        itemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
-        try {
-            Thread.sleep(WAIT_ITEM_CHANNEL_LINK_TO_BE_ADDED);
-        } catch (InterruptedException e) {
-        }
         return item;
     }
 
     private Channel createChannel(ThingUID thingUID, String channelID, String acceptedItemType) {
         ChannelUID channelUID = new ChannelUID(thingUID, channelID);
-        ChannelTypeUID channelTypeUID = new ChannelTypeUID(FSInternetRadioBindingConstants.BINDING_ID,
-                channelUID.getIdWithoutGroup());
+
         Channel radioChannel = new Channel(channelUID, acceptedItemType);
         channels.add(radioChannel);
         return radioChannel;
@@ -884,12 +798,11 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         Configuration config = thing.getConfiguration();
         if (isConfigurationComplete(config)) {
             waitForAssert(() -> {
-                assertEquals(ThingStatus.ONLINE, thing.getStatus());
+                verifyOnlineStatusIsSet();
             });
         } else {
             waitForAssert(() -> {
-                assertEquals(ThingStatus.OFFLINE, thing.getStatus());
-                assertEquals(ThingStatusDetail.CONFIGURATION_ERROR, thing.getStatusInfo().getStatusDetail());
+                verifyConfigurationError();
             });
         }
     }
@@ -906,15 +819,30 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
     }
 
     private Thing initializeRadioThing(Configuration config) {
-        Thing radioThing = ThingBuilder.create(DEFAULT_THING_TYPE_UID, DEFAULT_THING_UID).withConfiguration(config)
+        radioThing = ThingBuilder.create(DEFAULT_THING_TYPE_UID, DEFAULT_THING_UID).withConfiguration(config)
                 .withChannels(channels).build();
-        managedThingProvider.add(radioThing);
 
-        radioHandler = waitForAssert(() -> {
-            final ThingHandler thingHandler = radioThing.getHandler();
-            assertThat(thingHandler, is(instanceOf(FSInternetRadioHandler.class)));
-            return (FSInternetRadioHandler) thingHandler;
-        });
+        callback = mock(ThingHandlerCallback.class);
+
+        radioHandler = new FSInternetRadioHandler(radioThing);
+        radioHandler.setCallback(callback);
+        radioThing.setHandler(radioHandler);
+        radioThing.getHandler().initialize();
+
+        return radioThing;
+    }
+
+    private Thing initializeRadioThingWithMockedHandler(Configuration config) {
+        radioThing = ThingBuilder.create(DEFAULT_THING_TYPE_UID, DEFAULT_THING_UID).withConfiguration(config)
+                .withChannels(channels).build();
+
+        callback = mock(ThingHandlerCallback.class);
+
+        radioHandler = new MockedRadioHandler(radioThing);
+        radioHandler.setCallback(callback);
+        radioThing.setHandler(radioHandler);
+        radioThing.getHandler().initialize();
+
         return radioThing;
     }
 
@@ -933,4 +861,24 @@ public class FSInternetRadioHandlerOSGiTest extends JavaOSGiTest {
         });
     }
 
+    private void verifyOnlineStatusIsSet() {
+        ThingStatusInfoBuilder statusBuilder = ThingStatusInfoBuilder.create(ThingStatus.ONLINE,
+                ThingStatusDetail.NONE);
+        ThingStatusInfo statusInfo = statusBuilder.withDescription(null).build();
+        verify(callback, atLeast(1)).statusUpdated(radioThing, statusInfo);
+    }
+
+    private void verifyConfigurationError() {
+        ThingStatusInfoBuilder statusBuilder = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
+                ThingStatusDetail.CONFIGURATION_ERROR);
+        ThingStatusInfo statusInfo = statusBuilder.withDescription("Configuration incomplete").build();
+        verify(callback, atLeast(1)).statusUpdated(radioThing, statusInfo);
+    }
+
+    private void verifyCommunicationError(String exceptionMessage) {
+        ThingStatusInfoBuilder statusBuilder = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
+                ThingStatusDetail.COMMUNICATION_ERROR);
+        ThingStatusInfo statusInfo = statusBuilder.withDescription(exceptionMessage).build();
+        verify(callback, atLeast(1)).statusUpdated(radioThing, statusInfo);
+    }
 }
