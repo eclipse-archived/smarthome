@@ -15,6 +15,8 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.voice.VoiceManager;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This is a scope provider for features that are related to audio and voice support.
@@ -22,9 +24,11 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
  * @author Kai Kreuzer - Initial contribution
  *
  */
+@Component(immediate = true)
 public class MediaScriptScopeProvider implements ScriptExtensionProvider {
     Map<String, Object> elements = new HashMap<>();
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         elements.put("audio", audioManager);
     }
@@ -33,6 +37,7 @@ public class MediaScriptScopeProvider implements ScriptExtensionProvider {
         elements.remove("audio");
     }
 
+    @Reference
     protected void setVoiceManager(VoiceManager voiceManager) {
         elements.put("voice", voiceManager);
     }
