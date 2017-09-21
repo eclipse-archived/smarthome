@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path("/")
-@Component(service = RootResource.class, configurationPid = { "org.eclipse.smarthome.io.rest.root" })
+@Component(service = RootResource.class, configurationPid = "org.eclipse.smarthome.io.rest.root")
 public class RootResource {
 
     private final transient Logger logger = LoggerFactory.getLogger(RootResource.class);

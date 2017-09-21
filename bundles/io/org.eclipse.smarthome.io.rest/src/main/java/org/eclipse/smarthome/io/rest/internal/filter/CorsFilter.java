@@ -41,8 +41,8 @@ import com.google.common.collect.Lists;
  *
  */
 @Provider
-@Component(immediate = true, property = { "service.pid=org.eclipse.smarthome.cors" }, configurationPid = {
-        "org.eclipse.smarthome.cors" }, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(immediate = true, property = {
+        "service.pid=org.eclipse.smarthome.cors" }, configurationPid = "org.eclipse.smarthome.cors", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class CorsFilter implements ContainerResponseFilter {
 
     private static final String HTTP_HEAD_METHOD = "HEAD";

@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 @Provider
 @PreMatching
-@Component(configurationPid = {
-        "org.eclipse.smarthome.io.rest.proxyfilter" }, immediate = true, service = ProxyFilter.class)
+@Component(configurationPid = "org.eclipse.smarthome.io.rest.proxyfilter", immediate = true, service = ProxyFilter.class)
 public class ProxyFilter implements ContainerRequestFilter {
 
     private static final String PROTO_PROXY_HEADER = "x-forwarded-proto";
