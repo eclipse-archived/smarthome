@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.ntp.discovery;
+package org.eclipse.smarthome.binding.ntp.internal.discovery;
 
 import static org.eclipse.smarthome.binding.ntp.NtpBindingConstants.*;
 
