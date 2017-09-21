@@ -25,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * A filter that only affects resources implementing the {@link SatisfiableRESTResource} interface.
@@ -36,6 +37,7 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  *
  */
 @Provider
+@Component(immediate = true, service = SatisfiableResourceFilter.class)
 public class SatisfiableResourceFilter implements ContainerRequestFilter {
 
     @Override
