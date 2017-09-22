@@ -22,13 +22,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager;
-import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
@@ -68,7 +68,7 @@ public class ItemChannelLinkResource implements RESTResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ItemChannelLinkDTO.class, responseContainer = "Collection") })
     public Response getAll() {
-        Stream<AbstractLinkDTO> linkStream = itemChannelLinkRegistry.getAll().stream().map(this::toBeans);
+        Stream<ItemChannelLinkDTO> linkStream = itemChannelLinkRegistry.getAll().stream().map(this::toBeans);
         return Response.ok(new Stream2JSONInputStream(linkStream)).build();
     }
 
@@ -85,10 +85,27 @@ public class ItemChannelLinkResource implements RESTResource {
     @Path("/{itemName}/{channelUID}")
     @ApiOperation(value = "Links item to a channel.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Item already linked to the channel.") })
+            @ApiResponse(code = 400, message = "Content does not match the path") })
     public Response link(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
-            @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
-        itemChannelLinkRegistry.add(new ItemChannelLink(itemName, new ChannelUID(channelUid)));
+            @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid,
+            @ApiParam(value = "link data", required = false) ItemChannelLinkDTO bean) {
+        ItemChannelLink link;
+        if (bean == null) {
+            link = new ItemChannelLink(itemName, new ChannelUID(channelUid), new Configuration());
+        } else {
+            if (bean.channelUID != null && !bean.channelUID.equals(channelUid)) {
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+            if (bean.itemName != null && !bean.itemName.equals(itemName)) {
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+            link = new ItemChannelLink(itemName, new ChannelUID(channelUid), new Configuration(bean.configuration));
+        }
+        if (itemChannelLinkRegistry.get(link.getUID()) == null) {
+            itemChannelLinkRegistry.add(link);
+        } else {
+            itemChannelLinkRegistry.update(link);
+        }
         return Response.ok().build();
     }
 
@@ -132,8 +149,9 @@ public class ItemChannelLinkResource implements RESTResource {
         this.itemChannelLinkRegistry = null;
     }
 
-    private AbstractLinkDTO toBeans(ItemChannelLink link) {
-        return new ItemChannelLinkDTO(link.getItemName(), link.getLinkedUID().toString());
+    private ItemChannelLinkDTO toBeans(ItemChannelLink link) {
+        return new ItemChannelLinkDTO(link.getItemName(), link.getLinkedUID().toString(),
+                link.getConfiguration().getProperties());
     }
 
     @Override

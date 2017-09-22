@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.thing.valueconverter;
+package org.eclipse.smarthome.model.core.valueconverter;
 
 import java.math.BigDecimal;
 

@@ -39,7 +39,26 @@ ModelItemType :
 ;
 
 ModelBinding:
-	type=ID '=' configuration=STRING
+	type=ID '=' configuration=STRING   
+	('['
+        properties+=ModelProperty? (',' properties+=ModelProperty)*
+    ']')?
+;
+
+ModelProperty:
+    key=ID '=' value=ValueType
+;
+
+ValueType returns ecore::EJavaObject:
+    STRING | NUMBER | BOOLEAN
+;
+
+BOOLEAN returns ecore::EBoolean: 
+    'true' | 'false'
+;
+
+NUMBER returns ecore::EBigDecimal:
+    ID ('.' ID )?
 ;
 
 terminal ID  		: '^'?('a'..'z'|'A'..'Z'|'_'|'0'..'9') ('a'..'z'|'A'..'Z'|'_'|'-'|'0'..'9')*;
