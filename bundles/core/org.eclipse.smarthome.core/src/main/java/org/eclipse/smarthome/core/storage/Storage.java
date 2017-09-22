@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.storage;
 
 import java.util.Collection;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
  * @author Kai Kreuzer - improved return values
  */
+@NonNullByDefault
 public interface Storage<T> {
 
     /**
@@ -29,7 +30,7 @@ public interface Storage<T> {
      * @return previous value for the key or null if no value was replaced
      */
     @Nullable
-    T put(@NonNull String key, T value);
+    T put(String key, @Nullable T value);
 
     /**
      * Removes the specified mapping from this map.
@@ -38,7 +39,7 @@ public interface Storage<T> {
      * @return the removed value or null if no entry existed
      */
     @Nullable
-    T remove(@NonNull String key);
+    T remove(String key);
 
     /**
      * Check if the storage contains a key.
@@ -46,7 +47,7 @@ public interface Storage<T> {
      * @param key the key
      * @return true if the storage contains the key, otherwise false
      */
-    boolean containsKey(@NonNull String key);
+    boolean containsKey(String key);
 
     /**
      * Gets the value mapped to the key specified.
@@ -54,6 +55,7 @@ public interface Storage<T> {
      * @param key the key
      * @return the mapped value, null if no match
      */
+    @Nullable
     T get(String key);
 
     /**
@@ -68,6 +70,6 @@ public interface Storage<T> {
      *
      * @return the values of this Storage
      */
-    Collection<T> getValues();
+    Collection<@Nullable T> getValues();
 
 }

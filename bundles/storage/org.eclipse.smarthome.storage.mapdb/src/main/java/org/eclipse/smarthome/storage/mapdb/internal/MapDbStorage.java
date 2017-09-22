@@ -9,10 +9,12 @@ package org.eclipse.smarthome.storage.mapdb.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.storage.DeletableStorage;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.mapdb.DB;
@@ -33,6 +35,7 @@ import com.google.gson.GsonBuilder;
  * @author Alex Tugarev - Loading with Class.forName() if classLoader is null
  * @author Markus Rathgeb - Made the MapDB storage a disposable one
  */
+@NonNullByDefault
 public class MapDbStorage<T> implements DeletableStorage<T> {
 
     private static final String TYPE_SEPARATOR = "@@@";
@@ -40,8 +43,8 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
     private final Logger logger = LoggerFactory.getLogger(MapDbStorage.class);
 
     private final String name;
-    private DB db;
-    private ClassLoader classLoader;
+    private final DB db;
+    private final ClassLoader classLoader;
     private Map<String, String> map;
 
     private transient Gson mapper;
@@ -56,34 +59,35 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
 
     @Override
     public void delete() {
-        map = null;
-        if (db != null) {
-            db.delete(name);
-            db = null;
-        }
+        // Use an unmodifiable map. After deletion no operation / modification should be called anymore.
+        map = Collections.emptyMap();
+        db.delete(name);
     }
 
     @Override
-    public T put(String key, T value) {
+    public @Nullable T put(String key, @Nullable T value) {
+        if (value == null) {
+            return remove(key);
+        }
         String previousValue = map.put(key, serialize(value));
         db.commit();
         return deserialize(previousValue);
     }
 
     @Override
-    public T remove(String key) {
+    public @Nullable T remove(String key) {
         String removedElement = map.remove(key);
         db.commit();
         return deserialize(removedElement);
     }
 
     @Override
-    public boolean containsKey(final @NonNull String key) {
+    public boolean containsKey(final String key) {
         return map.containsKey(key);
     }
 
     @Override
-    public T get(String key) {
+    public @Nullable T get(String key) {
         return deserialize(map.get(key));
     }
 
@@ -93,8 +97,8 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
     }
 
     @Override
-    public Collection<T> getValues() {
-        Collection<T> values = new ArrayList<T>();
+    public Collection<@Nullable T> getValues() {
+        Collection<@Nullable T> values = new ArrayList<>();
         for (String key : getKeys()) {
             values.add(get(key));
         }
@@ -134,7 +138,7 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public T deserialize(String json) {
+    public @Nullable T deserialize(@Nullable String json) {
 
         if (json == null) {
             // nothing to deserialize
@@ -145,6 +149,7 @@ public class MapDbStorage<T> implements DeletableStorage<T> {
         String valueTypeName = concatValue[0];
         String valueAsString = concatValue[1];
 
+        @Nullable
         T value = null;
         try {
             // load required class within the given bundle context

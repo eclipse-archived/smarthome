@@ -20,7 +20,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import com.google.gson.JsonSyntaxException;
  * @author Stefan Triller - Removed dependency to internal GSon packages
  * @author Simon Kaufmann - Distinguish between inner and outer de-/serialization, keep json structures in map
  */
+@NonNullByDefault
 public class JsonStorage<T> implements Storage<T> {
 
     private final Logger logger = LoggerFactory.getLogger(JsonStorage.class);
@@ -57,13 +59,13 @@ public class JsonStorage<T> implements Storage<T> {
     private final String BACKUP_EXTENSION = "backup";
     private final String SEPARATOR = "--";
 
-    private Timer commitTimer = null;
-    private TimerTask commitTimerTask = null;
+    private final Timer commitTimer;
+    private @Nullable TimerTask commitTimerTask = null;
 
     private long deferredSince = 0;
 
-    private File file;
-    private ClassLoader classLoader;
+    private final File file;
+    private final ClassLoader classLoader;
     private final Map<String, StorageEntry> map = new ConcurrentHashMap<String, StorageEntry>();
 
     private transient Gson internalMapper;
@@ -122,7 +124,11 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     @Override
-    public T put(String key, T value) {
+    public @Nullable T put(String key, @Nullable T value) {
+        if (value == null) {
+            return remove(key);
+        }
+
         StorageEntry val = new StorageEntry(value.getClass().getName(), entityMapper.toJsonTree(value));
         StorageEntry previousValue = map.put(key, val);
         deferredCommit();
@@ -135,19 +141,22 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     @Override
-    public T remove(String key) {
+    public @Nullable T remove(String key) {
         StorageEntry removedElement = map.remove(key);
         deferredCommit();
+        if (removedElement == null) {
+            return null;
+        }
         return deserialize(removedElement);
     }
 
     @Override
-    public boolean containsKey(final @NonNull String key) {
+    public boolean containsKey(final String key) {
         return map.containsKey(key);
     }
 
     @Override
-    public T get(String key) {
+    public @Nullable T get(String key) {
         StorageEntry value = map.get(key);
         if (value == null) {
             return null;
@@ -161,8 +170,8 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     @Override
-    public Collection<T> getValues() {
-        Collection<T> values = new ArrayList<T>();
+    public Collection<@Nullable T> getValues() {
+        Collection<@Nullable T> values = new ArrayList<>();
         for (String key : getKeys()) {
             values.add(get(key));
         }
@@ -176,12 +185,13 @@ public class JsonStorage<T> implements Storage<T> {
      * the calling bundle.
      */
     @SuppressWarnings("unchecked")
-    private T deserialize(StorageEntry entry) {
+    private @Nullable T deserialize(@Nullable StorageEntry entry) {
         if (entry == null) {
             // nothing to deserialize
             return null;
         }
 
+        @Nullable
         T value = null;
         try {
             // load required class within the given bundle context
@@ -202,7 +212,7 @@ public class JsonStorage<T> implements Storage<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, StorageEntry> readDatabase(File inputFile) {
+    private @Nullable Map<String, StorageEntry> readDatabase(File inputFile) {
         try {
             final Map<String, StorageEntry> inputMap = new ConcurrentHashMap<>();
 
@@ -220,7 +230,7 @@ public class JsonStorage<T> implements Storage<T> {
         }
     }
 
-    private File getBackupFile(int age) {
+    private @Nullable File getBackupFile(int age) {
         List<Long> fileTimes = calculateFileTimes();
         if (fileTimes.size() < age) {
             return null;
