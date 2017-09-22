@@ -140,7 +140,7 @@ public class PersistentInboxTest {
 
     private void configureConfigDescriptionRegistryMock(String paramName, Type type) throws URISyntaxException {
         URI configDescriptionURI = new URI("thing-type:test:test");
-        ThingType thingType = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID).withLabel("Test")
+        ThingType thingType = ThingTypeBuilder.instance(THING_TYPE_UID, "Test")
                 .withConfigDescriptionURI(configDescriptionURI).build();
         ConfigDescriptionParameter param = ConfigDescriptionParameterBuilder.create(paramName, type).build();
         ConfigDescription configDesc = new ConfigDescription(configDescriptionURI, Collections.singletonList(param));

@@ -61,10 +61,10 @@ public class AutomaticInboxProcessorTest {
     private static final ThingTypeUID THING_TYPE_UID2 = new ThingTypeUID("test2", "test2");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
     private static final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, "test2");
-    private static final ThingType THING_TYPE = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID)
-            .withLabel("label").isListed(true).withRepresentationProperty(DEVICE_ID_KEY).build();
-    private static final ThingType THING_TYPE2 = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID2)
-            .withLabel("label").isListed(true).withRepresentationProperty(CONFIG_KEY).build();
+    private static final ThingType THING_TYPE = ThingTypeBuilder.instance(THING_TYPE_UID, "label").isListed(true)
+            .withRepresentationProperty(DEVICE_ID_KEY).build();
+    private static final ThingType THING_TYPE2 = ThingTypeBuilder.instance(THING_TYPE_UID2, "label").isListed(true)
+            .withRepresentationProperty(CONFIG_KEY).build();
     private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
             .put(DEVICE_ID_KEY, DEVICE_ID).build();
     private final static Configuration CONFIG = new Configuration(

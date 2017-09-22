@@ -94,7 +94,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
             getChannelGroupType: { null }
         ] as ChannelTypeProvider)
 
-        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("hue:lamp")).withLabel(" ").withChannelDefinitions([new ChannelDefinition("1", channelType.UID)]).build();
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID("hue:lamp"), "label").withChannelDefinitions([new ChannelDefinition("1", channelType.UID)]).build();
         def thingTypeProvider = new SimpleThingTypeProvider([thingType])
         registerService(thingTypeProvider)
     }

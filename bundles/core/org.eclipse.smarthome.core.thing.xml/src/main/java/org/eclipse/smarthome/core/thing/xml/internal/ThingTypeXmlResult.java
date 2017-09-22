@@ -134,9 +134,8 @@ public class ThingTypeXmlResult {
     }
 
     ThingTypeBuilder getBuilder() {
-        return new ThingTypeBuilder().withThingTypeUID(thingTypeUID) //
+        return ThingTypeBuilder.instance(thingTypeUID, label) //
                 .withSupportedBridgeTypeUIDs(supportedBridgeTypeUIDs) //
-                .withLabel(label) //
                 .withDescription(description) //
                 .withCategory(category) //
                 .isListed(listed) //

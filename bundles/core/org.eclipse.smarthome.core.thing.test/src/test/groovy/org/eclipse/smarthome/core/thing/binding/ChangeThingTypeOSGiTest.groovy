@@ -394,7 +394,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID) {
         def URI configDescriptionUri = new URI("test:" + thingTypeUID.getId());
-        def thingType = new ThingTypeBuilder().withThingTypeUID(thingTypeUID).withLabel("label").withChannelDefinitions(getChannelDefinitions(thingTypeUID)).withConfigDescriptionURI(configDescriptionUri).build();
+        def thingType = ThingTypeBuilder.instance(thingTypeUID, "label").withChannelDefinitions(getChannelDefinitions(thingTypeUID)).withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri, [
             ConfigDescriptionParameterBuilder.create("parameter"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("default"+thingTypeUID.getId()).build(),
             ConfigDescriptionParameterBuilder.create("provided"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()

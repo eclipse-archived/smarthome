@@ -40,8 +40,8 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingTypeBuilder().withThingTypeUID(DumbThingHandlerFactory.THING_TYPE_TEST).withLabel("DUMB")
-                            .withDescription("Funky Thing").isListed(false).withChannelDefinitions(channelDefinitions)
+                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB").withDescription("Funky Thing")
+                            .isListed(false).withChannelDefinitions(channelDefinitions)
                             .withConfigDescriptionURI(new URI("dumb:DUMB")).build());
         } catch (Exception e) {
             logger.error("{}", e.getMessage());

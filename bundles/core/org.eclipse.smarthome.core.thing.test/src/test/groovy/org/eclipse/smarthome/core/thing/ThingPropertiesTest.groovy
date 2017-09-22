@@ -29,7 +29,7 @@ class ThingPropertiesTest {
 
     @Before
     void setup() {
-        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("bindingId", "thingTypeId")).withLabel("label").withProperties(properties).build();
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID("bindingId", "thingTypeId"), "label").withProperties(properties).build();
         thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), new Configuration())
     }
 

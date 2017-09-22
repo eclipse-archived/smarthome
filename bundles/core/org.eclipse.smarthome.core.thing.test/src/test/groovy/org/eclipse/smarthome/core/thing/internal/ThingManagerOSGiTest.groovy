@@ -1583,7 +1583,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("binding", "type")).withLabel("label").withConfigDescriptionURI(configDescriptionUri).build();
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID("binding", "type"), "label").withConfigDescriptionURI(configDescriptionUri).build();
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }

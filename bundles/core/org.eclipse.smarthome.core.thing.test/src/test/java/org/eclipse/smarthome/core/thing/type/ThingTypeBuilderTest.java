@@ -30,6 +30,7 @@ import org.junit.Test;
  * @author Henning Treu - initial contribution
  *
  */
+@SuppressWarnings("null")
 public class ThingTypeBuilderTest {
 
     private static final String CONF_URI = "conf:uri";
@@ -45,33 +46,32 @@ public class ThingTypeBuilderTest {
     @Before
     public void setup() {
         // set up a valid basic ThingTypeBuilder
-        builder = new ThingTypeBuilder().withThingTypeId(THING_TYPE_ID).withBindingId(BINDING_ID).withLabel(LABEL);
+        builder = ThingTypeBuilder.instance(BINDING_ID, THING_TYPE_ID, LABEL);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenThingTypeIdAndBindingIdMissing_shouldFail() {
-        new ThingTypeBuilder().build();
+    public void whenThingTypeIdAndBindingIdBlank_shouldFail() {
+        ThingTypeBuilder.instance("", "", LABEL).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenThingTypeIdMissing_shouldFail() {
-        new ThingTypeBuilder().withBindingId(BINDING_ID).build();
+    public void whenThingTypeIdBlank_shouldFail() {
+        ThingTypeBuilder.instance(BINDING_ID, "", LABEL).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenBindingIdMissing_shouldFail() {
-        new ThingTypeBuilder().withThingTypeId(THING_TYPE_ID).build();
+    public void whenBindingIdBlank_shouldFail() {
+        ThingTypeBuilder.instance("", THING_TYPE_ID, LABEL).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenLabelMissing_shouldFail() {
-        new ThingTypeBuilder().withThingTypeId(THING_TYPE_ID).withBindingId(BINDING_ID).build();
+    public void whenLabelBlank_shouldFail() {
+        ThingTypeBuilder.instance(THING_TYPE_ID, BINDING_ID, "").build();
     }
 
     @Test
     public void withLabelAndThingTypeUID_shouldCreateThingType() {
-        ThingType thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID(BINDING_ID, THING_TYPE_ID))
-                .withLabel(LABEL).build();
+        ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), LABEL).build();
 
         assertThat(thingType.getBindingId(), is(BINDING_ID));
         assertThat(thingType.getUID().getBindingId(), is(BINDING_ID));
@@ -218,7 +218,7 @@ public class ThingTypeBuilderTest {
         return result;
     }
 
-    private <T> List<T> mockList(Class<T> entityClass, int size) {
+    private <T> @NonNull List<T> mockList(Class<T> entityClass, int size) {
         List<T> result = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             result.add(mock(entityClass));

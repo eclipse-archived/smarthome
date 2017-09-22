@@ -66,7 +66,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
     final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
-    final ThingType THING_TYPE = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID).withLabel("label").withRepresentationProperty(DEVICE_ID_KEY).isListed(true).build();
+    final ThingType THING_TYPE = ThingTypeBuilder.instance(THING_TYPE_UID, "label").withRepresentationProperty(DEVICE_ID_KEY).isListed(true).build();
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry

@@ -42,24 +42,24 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         logger.debug("TestHueThingTypeProvider created");
         try {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_BRIDGE,
-                    new ThingTypeBuilder().withThingTypeUID(TestHueThingHandlerFactory.THING_TYPE_BRIDGE)
-                            .withLabel("HueBridge").withDescription("HueBridge").isListed(false).buildBridge());
+                    ThingTypeBuilder.instance(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, "HueBridge")
+                            .withDescription("HueBridge").isListed(false).buildBridge());
 
             ChannelDefinition color = new ChannelDefinition("color", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID);
 
             ChannelDefinition colorTemp = new ChannelDefinition("color_temperature",
                     TestHueChannelTypeProvider.COLOR_TEMP_CHANNEL_TYPE_UID);
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_LCT001,
-                    new ThingTypeBuilder().withThingTypeUID(TestHueThingHandlerFactory.THING_TYPE_LCT001)
+                    ThingTypeBuilder.instance(TestHueThingHandlerFactory.THING_TYPE_LCT001, "LCT001")
                             .withSupportedBridgeTypeUIDs(
                                     Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
-                            .withLabel("LCT001").withDescription("Hue LAMP").isListed(false)
+                            .withDescription("Hue LAMP").isListed(false)
                             .withChannelDefinitions(Lists.newArrayList(color, colorTemp))
                             .withConfigDescriptionURI(new URI("hue", "LCT001", null)).build());
 
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE,
-                    new ThingTypeBuilder().withThingTypeUID(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE)
-                            .withLabel("HueBridge").withDescription("HueBridge").isListed(false).buildBridge());
+                    ThingTypeBuilder.instance(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE, "HueBridge")
+                            .withDescription("HueBridge").isListed(false).buildBridge());
 
             ChannelDefinition colorX = new ChannelDefinition("Xcolor",
                     TestHueChannelTypeProvider.COLORX_CHANNEL_TYPE_UID);
@@ -67,20 +67,20 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
             ChannelDefinition colorTempX = new ChannelDefinition("Xcolor_temperature",
                     TestHueChannelTypeProvider.COLORX_TEMP_CHANNEL_TYPE_UID);
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_LCT001,
-                    new ThingTypeBuilder().withThingTypeUID(TestHueThingHandlerFactoryX.THING_TYPE_LCT001)
+                    ThingTypeBuilder.instance(TestHueThingHandlerFactoryX.THING_TYPE_LCT001, "XLCT001")
                             .withSupportedBridgeTypeUIDs(
                                     Lists.newArrayList(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE.toString()))
-                            .withLabel("XLCT001").withDescription("Hue LAMP").isListed(false)
+                            .withDescription("Hue LAMP").isListed(false)
                             .withChannelDefinitions(Lists.newArrayList(colorX, colorTempX))
                             .withConfigDescriptionURI(new URI("Xhue", "XLCT001", null)).build());
 
             ChannelGroupDefinition groupDefinition = new ChannelGroupDefinition("group",
                     TestHueChannelTypeProvider.GROUP_CHANNEL_GROUP_TYPE_UID);
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_GROUPED,
-                    new ThingTypeBuilder().withThingTypeUID(TestHueThingHandlerFactory.THING_TYPE_GROUPED)
+                    ThingTypeBuilder.instance(TestHueThingHandlerFactory.THING_TYPE_GROUPED, "grouped")
                             .withSupportedBridgeTypeUIDs(
                                     Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
-                            .withLabel("grouped").withDescription("Grouped Lamp")
+                            .withDescription("Grouped Lamp")
                             .withChannelGroupDefinitions(Lists.newArrayList(groupDefinition))
                             .withConfigDescriptionURI(new URI("hue", "grouped", null)).build());
 

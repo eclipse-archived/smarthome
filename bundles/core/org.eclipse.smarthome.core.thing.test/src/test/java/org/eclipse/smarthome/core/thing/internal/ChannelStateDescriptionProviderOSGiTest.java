@@ -155,9 +155,8 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         channelDefinitions.add(new ChannelDefinition("5", channelType5.getUID()));
         channelDefinitions.add(new ChannelDefinition("6", channelType6.getUID()));
 
-        registerService(new SimpleThingTypeProvider(
-                Collections.singleton(new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID("hue:lamp"))
-                        .withLabel(" ").withChannelDefinitions(channelDefinitions).build())));
+        registerService(new SimpleThingTypeProvider(Collections.singleton(ThingTypeBuilder
+                .instance(new ThingTypeUID("hue:lamp"), "label").withChannelDefinitions(channelDefinitions).build())));
 
         List<Item> items = new ArrayList<>();
         items.add(new NumberItem("TestItem"));

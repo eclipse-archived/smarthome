@@ -13,6 +13,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -21,29 +23,50 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Henning Treu - initial contribution
  *
  */
+@NonNullByDefault
 public class ThingTypeBuilder {
 
-    private List<ChannelGroupDefinition> channelGroupDefinitions;
-    private List<ChannelDefinition> channelDefinitions;
-    private List<String> extensibleChannelTypeIds;
-    private List<String> supportedBridgeTypeUIDs;
-    private Map<@NonNull String, String> properties;
-    private String representationProperty;
-    private URI configDescriptionURI;
+    private @Nullable List<ChannelGroupDefinition> channelGroupDefinitions;
+    private @Nullable List<ChannelDefinition> channelDefinitions;
+    private @Nullable List<String> extensibleChannelTypeIds;
+    private @Nullable List<String> supportedBridgeTypeUIDs;
+    private @Nullable Map<String, String> properties;
+    private @Nullable String representationProperty;
+    private @Nullable URI configDescriptionURI;
     private boolean listed;
-    private String category;
+    private @Nullable String category;
+    private @Nullable String description;
 
     private String bindingId;
     private String thingTypeId;
     private String label;
-    private String description;
 
     /**
-     * Create and return a {@link ThingTypeBuilder} without any properties set, except <b>listed</b> defaults to
-     * <code>true</code>.
+     * Create and return a {@link ThingTypeBuilder} with the given {@code bindingId}, {@code thingTypeId} and
+     * {@code label}. Also, {@code listed} defaults to {@code true}.
+     *
+     * @param bindingId the binding Id the resulting {@link ThingType} will have. Must not be null or empty.
+     * @param thingTypeId the thingTypeId the resulting {@link ThingType} will have (builds a {@link ThingTypeUID} with
+     *            {@code bindingId:thingTypeId}. Must not be null or empty.
+     * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
+     *
+     * @return the new {@link ThingTypeBuilder}.
      */
-    public ThingTypeBuilder() {
-        this.listed = true;
+    public static ThingTypeBuilder instance(String bindingId, String thingTypeId, String label) {
+        return new ThingTypeBuilder(bindingId, thingTypeId, label);
+    }
+
+    /**
+     * Create and return a {@link ThingTypeBuilder} with the given {@link ThingTypeUID} and {@code label}. Also,
+     * {@code listed} defaults to {@code true}.
+     *
+     * @param thingTypeUID the {@link ThingTypeUID} the resulting {@link ThingType} will have. Must not be null.
+     * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
+     *
+     * @return the new {@link ThingTypeBuilder}.
+     */
+    public static ThingTypeBuilder instance(ThingTypeUID thingTypeUID, String label) {
+        return new ThingTypeBuilder(thingTypeUID.getBindingId(), thingTypeUID.getId(), label);
     }
 
     /**
@@ -51,11 +74,22 @@ public class ThingTypeBuilder {
      *
      * @param thingType take all properties from this {@link ThingType}.
      * @return a new {@link ThingTypeBuilder} configured with all properties from the given {@link ThingType};
+     *
+     * @return the new {@link ThingTypeBuilder}.
      */
-    public ThingTypeBuilder(ThingType thingType) {
-        bindingId = thingType.getBindingId();
-        thingTypeId = thingType.getUID().getId();
-        label = thingType.getLabel();
+    public static ThingTypeBuilder instance(ThingType thingType) {
+        return new ThingTypeBuilder(thingType);
+    }
+
+    private ThingTypeBuilder(String bindingId, String thingTypeId, String label) {
+        this.bindingId = bindingId;
+        this.thingTypeId = thingTypeId;
+        this.label = label;
+        this.listed = true;
+    }
+
+    private ThingTypeBuilder(ThingType thingType) {
+        this(thingType.getBindingId(), thingType.getUID().getId(), thingType.getLabel());
         description = thingType.getDescription();
         channelGroupDefinitions = thingType.getChannelGroupDefinitions();
         channelDefinitions = thingType.getChannelDefinitions();
@@ -73,7 +107,7 @@ public class ThingTypeBuilder {
      *
      * @return a new {@link ThingType} according to the given values from this builder.
      *
-     * @throws IllegalStateException if <code>bindingId</code> or <code>thingTypeId</code> are not given.
+     * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public ThingType build() {
         if (StringUtils.isBlank(bindingId)) {
@@ -81,6 +115,9 @@ public class ThingTypeBuilder {
         }
         if (StringUtils.isBlank(thingTypeId)) {
             throw new IllegalArgumentException("The thingTypeId must neither be null nor empty.");
+        }
+        if (StringUtils.isBlank(label)) {
+            throw new IllegalArgumentException("The label must neither be null nor empty.");
         }
 
         return new ThingType(new ThingTypeUID(bindingId, thingTypeId), supportedBridgeTypeUIDs, label, description,
@@ -93,7 +130,7 @@ public class ThingTypeBuilder {
      *
      * @return a new {@link BridgeType} according to the given values from this builder.
      *
-     * @throws IllegalStateException if <code>bindingId</code> or <code>thingTypeId</code> are not given.
+     * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public BridgeType buildBridge() {
         if (StringUtils.isBlank(bindingId)) {
@@ -102,25 +139,13 @@ public class ThingTypeBuilder {
         if (StringUtils.isBlank(thingTypeId)) {
             throw new IllegalArgumentException("The thingTypeId must neither be null nor empty.");
         }
+        if (StringUtils.isBlank(label)) {
+            throw new IllegalArgumentException("The label must neither be null nor empty.");
+        }
 
         return new BridgeType(new ThingTypeUID(bindingId, thingTypeId), supportedBridgeTypeUIDs, label, description,
                 category, listed, representationProperty, channelDefinitions, channelGroupDefinitions, properties,
                 configDescriptionURI, extensibleChannelTypeIds);
-    }
-
-    public ThingTypeBuilder withBindingId(String bindingId) {
-        this.bindingId = bindingId;
-        return this;
-    }
-
-    public ThingTypeBuilder withThingTypeId(String thingTypeId) {
-        this.thingTypeId = thingTypeId;
-        return this;
-    }
-
-    public ThingTypeBuilder withThingTypeUID(ThingTypeUID uid) {
-        withBindingId(uid.getBindingId()).withThingTypeId(uid.getId());
-        return this;
     }
 
     public ThingTypeBuilder withLabel(String label) {

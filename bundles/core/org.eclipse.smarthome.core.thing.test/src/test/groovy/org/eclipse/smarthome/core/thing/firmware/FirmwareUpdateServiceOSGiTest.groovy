@@ -965,8 +965,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     private void registerThingTypeProvider() {
-        def thingType = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID1).withLabel("label").withConfigDescriptionURI(CONFIG_URI).build();
-        def thingTypeWithoutFW = new ThingTypeBuilder().withThingTypeUID(THING_TYPE_UID_WITHOUT_FW).withLabel("label").withConfigDescriptionURI(CONFIG_URI).build();
+        def thingType = ThingTypeBuilder.instance(THING_TYPE_UID1, "label").withConfigDescriptionURI(CONFIG_URI).build();
+        def thingTypeWithoutFW = ThingTypeBuilder.instance(THING_TYPE_UID_WITHOUT_FW, "label").withConfigDescriptionURI(CONFIG_URI).build();
 
         registerService([
             getThingType: { thingTypeUID,locale ->

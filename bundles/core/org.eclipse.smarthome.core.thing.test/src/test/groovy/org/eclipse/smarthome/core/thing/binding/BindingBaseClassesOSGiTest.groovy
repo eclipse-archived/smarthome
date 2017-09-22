@@ -606,7 +606,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     private void registerThingTypeAndConfigDescription() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID(BINDING_ID, THING_TYPE_ID)).withLabel("label").withConfigDescriptionURI(configDescriptionUri).build();
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), "label").withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri,
                 [
                     ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(true).build()] as List);
@@ -627,7 +627,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingTypeBuilder().withThingTypeUID(new ThingTypeUID(BINDING_ID, THING_TYPE_ID)).withLabel("label").withConfigDescriptionURI(configDescriptionUri).build();
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), "label").withConfigDescriptionURI(configDescriptionUri).build();
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -33,17 +33,18 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Andre Fuechsel - Added representationProperty field
  * @author Stefan Triller - Added category field
  */
+@NonNullByDefault
 public class ThingType extends AbstractDescriptionType {
 
     private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
     private final List<String> extensibleChannelTypeIds;
     private final List<String> supportedBridgeTypeUIDs;
-    private final @NonNull Map<@NonNull String, String> properties;
-    private final String representationProperty;
-    private final URI configDescriptionURI;
+    private final Map<String, String> properties;
+    private final @Nullable String representationProperty;
+    private final @Nullable URI configDescriptionURI;
     private final boolean listed;
-    private String category;
+    private final @Nullable String category;
 
     /**
      * @deprecated Use the {@link ThingTypeBuilder} instead.
@@ -86,7 +87,7 @@ public class ThingType extends AbstractDescriptionType {
     @SuppressWarnings("null")
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             String category, boolean listed, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
+            List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
         this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
@@ -101,10 +102,11 @@ public class ThingType extends AbstractDescriptionType {
      *             if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
-    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<@NonNull String, String> properties,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public ThingType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
+            @Nullable String description, @Nullable String category, boolean listed,
+            @Nullable String representationProperty, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI) throws IllegalArgumentException {
         this(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
                 channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI, null);
     }
@@ -132,10 +134,12 @@ public class ThingType extends AbstractDescriptionType {
      * @throws IllegalArgumentException
      *             if the UID is null or empty, or the the meta information is null
      */
-    ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description, String category,
-            boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<@NonNull String, String> properties,
-            URI configDescriptionURI, List<String> extensibleChannelTypeIds) throws IllegalArgumentException {
+    ThingType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
+            @Nullable String description, @Nullable String category, boolean listed,
+            @Nullable String representationProperty, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI, @Nullable List<String> extensibleChannelTypeIds)
+            throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -193,7 +197,7 @@ public class ThingType extends AbstractDescriptionType {
      * @return the binding ID this Thing type belongs to (not null)
      */
     public String getBindingId() {
-        return this.getUID().getBindingId();
+        return getUID().getBindingId();
     }
 
     /**
@@ -236,7 +240,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @return the link to a concrete ConfigDescription (could be null)
      */
-    public URI getConfigDescriptionURI() {
+    public @Nullable URI getConfigDescriptionURI() {
         return this.configDescriptionURI;
     }
 
@@ -245,7 +249,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @return the properties for this {@link ThingType} (not null)
      */
-    public @NonNull Map<@NonNull String, String> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
@@ -256,7 +260,7 @@ public class ThingType extends AbstractDescriptionType {
      * @param channelUID channel UID
      * @return channel type UID or null if no matching channel type UID could be found in the thing type
      */
-    public ChannelTypeUID getChannelTypeUID(ChannelUID channelUID) {
+    public @Nullable ChannelTypeUID getChannelTypeUID(ChannelUID channelUID) {
         if (!channelUID.isInGroup()) {
             for (ChannelDefinition channelDefinition : this.getChannelDefinitions()) {
                 if (channelDefinition.getId().equals(channelUID.getId())) {
@@ -281,7 +285,7 @@ public class ThingType extends AbstractDescriptionType {
         return null;
     }
 
-    public String getCategory() {
+    public @Nullable String getCategory() {
         return this.category;
     }
 
@@ -304,7 +308,7 @@ public class ThingType extends AbstractDescriptionType {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
