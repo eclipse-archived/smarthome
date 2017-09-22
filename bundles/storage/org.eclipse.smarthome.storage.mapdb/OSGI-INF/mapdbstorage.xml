@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.storage.mapdb">
-   <implementation class="org.eclipse.smarthome.storage.mapdb.MapDbStorageService"/>
+   <implementation class="org.eclipse.smarthome.storage.mapdb.internal.MapDbStorageService"/>
 
     <property name="storage.format" type="String" value="mapdb"/>
 
