@@ -10,11 +10,7 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.BROADCAST_PORT;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
@@ -25,11 +21,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -49,6 +42,8 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLabelResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxThrottlingUtil;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxNetworkUtil;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -81,10 +76,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     private static final int BROADCAST_TIMEOUT = 5000;
     private static final int SELECTOR_TIMEOUT = 10000;
     private static final int REFRESH_INTERVAL = 60;
-
-    private List<InetSocketAddress> broadcastAddresses;
-    private List<InetAddress> interfaceAddresses;
-    private int bufferSize = 0;
 
     private Selector selector;
     private SelectionKey broadcastKey;
@@ -127,42 +118,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     @Override
     protected void activate(Map<String, Object> configProperties) {
         super.activate(configProperties);
-
-        broadcastAddresses = new ArrayList<InetSocketAddress>();
-        interfaceAddresses = new ArrayList<InetAddress>();
-
-        Enumeration<NetworkInterface> networkInterfaces = null;
-        try {
-            networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException e) {
-            logger.debug("An exception occurred while discovering LIFX lights : '{}'", e.getMessage());
-        }
-        if (networkInterfaces != null) {
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface iface = networkInterfaces.nextElement();
-                try {
-                    if (iface.isUp() && !iface.isLoopback()) {
-                        for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                            if (ifaceAddr.getAddress() instanceof Inet4Address) {
-                                logger.debug("Adding '{}' as interface address with MTU {}", ifaceAddr.getAddress(),
-                                        iface.getMTU());
-                                if (iface.getMTU() > bufferSize) {
-                                    bufferSize = iface.getMTU();
-                                }
-                                interfaceAddresses.add(ifaceAddr.getAddress());
-                                if (ifaceAddr.getBroadcast() != null) {
-                                    logger.debug("Adding '{}' as broadcast address", ifaceAddr.getBroadcast());
-                                    broadcastAddresses
-                                            .add(new InetSocketAddress(ifaceAddr.getBroadcast(), BROADCAST_PORT));
-                                }
-                            }
-                        }
-                    }
-                } catch (SocketException e) {
-                    logger.debug("An exception occurred while discovering LIFX lights : '{}'", e.getMessage());
-                }
-            }
-        }
     }
 
     @Modified
@@ -263,10 +218,10 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     private void broadcastPacket(Packet packet) {
-        for (InetSocketAddress address : broadcastAddresses) {
-            LifxNetworkThrottler.lock();
+        for (InetSocketAddress address : LifxNetworkUtil.getBroadcastAddresses()) {
+            LifxThrottlingUtil.lock();
             sendPacket(packet, address, broadcastKey);
-            LifxNetworkThrottler.unlock();
+            LifxThrottlingUtil.unlock();
         }
     }
 
@@ -276,9 +231,9 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         packet.setSequence(sequenceNumber);
         packet.setSource(source);
 
-        LifxNetworkThrottler.lock(light.macAddress);
+        LifxThrottlingUtil.lock(light.macAddress);
         sendPacket(packet, light.socketAddress, unicastKey);
-        LifxNetworkThrottler.unlock(light.macAddress);
+        LifxThrottlingUtil.unlock(light.macAddress);
     }
 
     private boolean sendPacket(Packet packet, InetSocketAddress address, SelectionKey selectedKey) {
@@ -355,7 +310,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                                 InetSocketAddress address = null;
                                 int messageLength = 0;
 
-                                ByteBuffer readBuffer = ByteBuffer.allocate(bufferSize);
+                                ByteBuffer readBuffer = ByteBuffer.allocate(LifxNetworkUtil.getBufferSize());
                                 try {
                                     if (channel instanceof DatagramChannel) {
                                         address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
@@ -370,7 +325,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
                                 if (address != null) {
                                     logger.trace("Receiving data from {}", address.getAddress().toString());
-                                    if (!interfaceAddresses.contains(address.getAddress())) {
+                                    if (!LifxNetworkUtil.getInterfaceAddresses().contains(address.getAddress())) {
                                         readBuffer.rewind();
 
                                         ByteBuffer packetSize = readBuffer.slice();

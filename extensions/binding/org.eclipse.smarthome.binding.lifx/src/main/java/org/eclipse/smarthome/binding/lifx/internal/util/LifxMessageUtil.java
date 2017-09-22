@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.lifx.internal;
+package org.eclipse.smarthome.binding.lifx.internal.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,18 +16,18 @@ import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
- * Utility class for sharing utility methods between objects.
+ * Utility class for sharing message utility methods between objects.
  *
  * @author Wouter Born - Extracted methods from LifxLightHandler
  */
-public final class LifxUtils {
+public final class LifxMessageUtil {
 
     private static final BigDecimal INCREASE_DECREASE_STEP = new BigDecimal(10);
 
     private static final BigDecimal ZERO = PercentType.ZERO.toBigDecimal();
     private static final BigDecimal HUNDRED = PercentType.HUNDRED.toBigDecimal();
 
-    private LifxUtils() {
+    private LifxMessageUtil() {
         // hidden utility class constructor
     }
 

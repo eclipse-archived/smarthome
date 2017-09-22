@@ -10,11 +10,7 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
@@ -24,9 +20,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +42,8 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxThrottlingUtil;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxNetworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,9 +82,6 @@ public class LifxLightCommunicationHandler {
     private DatagramChannel unicastChannel;
     private SelectionKey unicastKey;
     private SelectionKey broadcastKey;
-    private List<InetSocketAddress> broadcastAddresses;
-    private List<InetAddress> interfaceAddresses;
-    private int bufferSize = 0;
 
     public LifxLightCommunicationHandler(MACAddress macAddress, ScheduledExecutorService scheduler,
             CurrentLightState currentLightState) {
@@ -132,29 +125,6 @@ public class LifxLightCommunicationHandler {
 
             source = UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
             logger.debug("The LIFX handler will use '{}' as source identifier", Long.toString(source, 16));
-            broadcastAddresses = new ArrayList<InetSocketAddress>();
-            interfaceAddresses = new ArrayList<InetAddress>();
-
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface iface = networkInterfaces.nextElement();
-                if (iface.isUp() && !iface.isLoopback()) {
-                    for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                        if (ifaceAddr.getAddress() instanceof Inet4Address) {
-                            logger.debug("Adding '{}' as interface address with MTU {}", ifaceAddr.getAddress(),
-                                    iface.getMTU());
-                            if (iface.getMTU() > bufferSize) {
-                                bufferSize = iface.getMTU();
-                            }
-                            interfaceAddresses.add(ifaceAddr.getAddress());
-                            if (broadcastEnabled && ifaceAddr.getBroadcast() != null) {
-                                logger.debug("Adding '{}' as broadcast address", ifaceAddr.getBroadcast());
-                                broadcastAddresses.add(new InetSocketAddress(ifaceAddr.getBroadcast(), BROADCAST_PORT));
-                            }
-                        }
-                    }
-                }
-            }
 
             currentLightState.setOffline();
 
@@ -269,7 +239,7 @@ public class LifxLightCommunicationHandler {
                             InetSocketAddress address = null;
                             int messageLength = 0;
 
-                            ByteBuffer readBuffer = ByteBuffer.allocate(bufferSize);
+                            ByteBuffer readBuffer = ByteBuffer.allocate(LifxNetworkUtil.getBufferSize());
                             try {
                                 if (channel instanceof DatagramChannel) {
                                     address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
@@ -282,7 +252,7 @@ public class LifxLightCommunicationHandler {
                                 logger.warn("An exception occurred while reading data : '{}'", e.getMessage());
                             }
                             if (address != null) {
-                                if (!interfaceAddresses.contains(address.getAddress())) {
+                                if (!LifxNetworkUtil.getInterfaceAddresses().contains(address.getAddress())) {
                                     readBuffer.rewind();
 
                                     ByteBuffer packetSize = readBuffer.slice();
@@ -434,7 +404,7 @@ public class LifxLightCommunicationHandler {
         packet.setSource(source);
         packet.setSequence(sequenceNumber.getAndUpdate(INC_SEQUENCE_NUMBER));
 
-        for (InetSocketAddress address : broadcastAddresses) {
+        for (InetSocketAddress address : LifxNetworkUtil.getBroadcastAddresses()) {
             sendPacket(packet, address, broadcastKey);
         }
     }
@@ -446,9 +416,9 @@ public class LifxLightCommunicationHandler {
             lock.lock();
 
             if (selectedKey.equals(unicastKey)) {
-                LifxNetworkThrottler.lock(macAddress);
+                LifxThrottlingUtil.lock(macAddress);
             } else {
-                LifxNetworkThrottler.lock();
+                LifxThrottlingUtil.lock();
             }
 
             while (!result) {
@@ -483,9 +453,9 @@ public class LifxLightCommunicationHandler {
             currentLightState.setOfflineByCommunicationError();
         } finally {
             if (selectedKey.equals(unicastKey)) {
-                LifxNetworkThrottler.unlock(macAddress);
+                LifxThrottlingUtil.unlock(macAddress);
             } else {
-                LifxNetworkThrottler.unlock();
+                LifxThrottlingUtil.unlock();
             }
 
             lock.unlock();

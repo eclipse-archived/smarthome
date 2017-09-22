@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
 import java.time.Duration;
 import java.util.ArrayList;

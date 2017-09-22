@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.MIN_ZONE_INDEX;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.infraredToPercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.infraredToPercentType;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;

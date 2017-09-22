@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx;
 
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.kelvinToPercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.kelvinToPercentType;
 
 import java.util.Set;
 import java.util.stream.Collectors;

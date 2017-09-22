@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.increaseDecreasePercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.increaseDecreasePercentType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -322,7 +322,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
     }
 
     private void addRemoveZoneChannels(int zones) {
-        List<Channel> newChannels = new ArrayList<Channel>();
+        List<Channel> newChannels = new ArrayList<>();
 
         // retain non-zone channels
         for (Channel channel : getThing().getChannels()) {
