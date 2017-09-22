@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.io.rest.core.internal.config;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -21,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -76,14 +76,10 @@ public class ConfigDescriptionResource implements RESTResource {
     public Response getByURI(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language,
             @PathParam("uri") @ApiParam(value = "uri") String uri) {
         Locale locale = LocaleUtil.getLocale(language);
-        try {
-            ConfigDescription configDescription = this.configDescriptionRegistry.getConfigDescription(new URI(uri),
-                    locale);
-            return configDescription != null ? Response.ok(ConfigDescriptionDTOMapper.map(configDescription)).build()
-                    : JSONResponse.createErrorResponse(Status.NOT_FOUND, "Configuration not found: " + uri);
-        } catch (URISyntaxException e) {
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Exception getting confinguration description");
-        }
+        URI uriObject = UriBuilder.fromPath(uri).build();
+        ConfigDescription configDescription = this.configDescriptionRegistry.getConfigDescription(uriObject, locale);
+        return configDescription != null ? Response.ok(ConfigDescriptionDTOMapper.map(configDescription)).build()
+                : JSONResponse.createErrorResponse(Status.NOT_FOUND, "Configuration not found: " + uri);
     }
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {

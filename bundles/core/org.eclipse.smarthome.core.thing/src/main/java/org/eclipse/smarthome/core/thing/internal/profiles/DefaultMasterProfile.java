@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultMasterProfile implements StateProfile {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultMasterProfile.class);
+    public static final ProfileTypeUID UID = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "master", "Master");
 
     @Override
     public void onCommand(ItemChannelLink link, Thing thing, Command command) {

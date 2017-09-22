@@ -12,6 +12,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -29,9 +30,12 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.eclipse.smarthome.core.thing.internal.profiles.DefaultProfileFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
 import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
@@ -76,6 +80,9 @@ public class CommunicationManagerTest {
     private ProfileFactory mockProfileFactory;
 
     @Mock
+    private ProfileAdvisor mockProfileAdvisor;
+
+    @Mock
     private StateProfile stateProfile;
 
     @Mock
@@ -90,17 +97,33 @@ public class CommunicationManagerTest {
 
         manager = new CommunicationManager();
         manager.setEventPublisher(eventPublisher);
+        manager.setDefaultProfileFactory(new DefaultProfileFactory());
 
         doAnswer(invocation -> {
             switch (((Channel) invocation.getArguments()[2]).getKind()) {
                 case STATE:
-                    return stateProfile;
+                    return new ProfileTypeUID("test:state");
                 case TRIGGER:
+                    return new ProfileTypeUID("test:trigger");
+            }
+            return null;
+        }).when(mockProfileAdvisor).getSuggestedProfileTypeUID(isA(ItemChannelLink.class), isA(Item.class),
+                isA(Channel.class));
+        doAnswer(invocation -> {
+            switch (((ProfileTypeUID) invocation.getArguments()[0]).toString()) {
+                case "test:state":
+                    return stateProfile;
+                case "test:trigger":
                     return triggerProfile;
             }
             return null;
-        }).when(mockProfileFactory).createProfile(isA(ItemChannelLink.class), isA(Item.class), isA(Channel.class));
+        }).when(mockProfileFactory).createProfile(isA(ProfileTypeUID.class));
+
+        when(mockProfileFactory.getSupportedProfileTypeUIDs()).thenReturn(Stream
+                .of(new ProfileTypeUID("test:state"), new ProfileTypeUID("test:trigger")).collect(Collectors.toList()));
+
         manager.addProfileFactory(mockProfileFactory);
+        manager.addProfileAdvisor(mockProfileAdvisor);
 
         ItemChannelLinkRegistry iclRegistry = new ItemChannelLinkRegistry() {
             @Override
@@ -229,8 +252,11 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory).createProfile(isA(ItemChannelLink.class), isA(Item.class), isA(Channel.class));
+        verify(mockProfileFactory).createProfile(isA(ProfileTypeUID.class));
+        verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
+        verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
+        verifyNoMoreInteractions(mockProfileAdvisor);
     }
 
     @Test
@@ -246,9 +272,11 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ItemChannelLink.class), isA(Item.class),
-                isA(Channel.class));
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class));
+        verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
+        verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
+        verifyNoMoreInteractions(mockProfileAdvisor);
     }
 
     @Test
@@ -264,9 +292,11 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ItemChannelLink.class), isA(Item.class),
-                isA(Channel.class));
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class));
+        verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
+        verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
+        verifyNoMoreInteractions(mockProfileAdvisor);
     }
 
     @Test
@@ -282,8 +312,11 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory).createProfile(isA(ItemChannelLink.class), isA(Item.class), isA(Channel.class));
+        verify(mockProfileFactory).createProfile(isA(ProfileTypeUID.class));
+        verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
+        verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
+        verifyNoMoreInteractions(mockProfileAdvisor);
     }
 
     @Test
@@ -298,9 +331,11 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ItemChannelLink.class), isA(Item.class),
-                isA(Channel.class));
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class));
+        verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
+        verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
+        verifyNoMoreInteractions(mockProfileAdvisor);
     }
 
 }
