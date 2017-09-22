@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.internal.sample.json.handler;
+package org.eclipse.smarthome.automation.internal.sample.json.internal.handler;
 
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.osgi.framework.BundleActivator;
