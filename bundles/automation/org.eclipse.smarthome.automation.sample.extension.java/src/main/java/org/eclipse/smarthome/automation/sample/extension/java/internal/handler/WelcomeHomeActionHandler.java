@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java.handler;
+package org.eclipse.smarthome.automation.sample.extension.java.internal.handler;
 
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
-import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeActionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.WelcomeHomeActionType;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**

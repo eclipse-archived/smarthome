@@ -1,13 +1,8 @@
 Manifest-Version: 1.0
-Bundle-Activator: org.eclipse.smarthome.automation.sample.extension.java
- .Activator
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse SmartHome Automation Sample Extension Java - Welcom
- e Home Application
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.extension.j
- ava
-Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Name: Eclipse SmartHome Automation Sample Extension Java - Welcome Home Application
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.extension.java
+Bundle-Activator: org.eclipse.smarthome.automation.sample.extension.java.internal.Activator
 Bundle-Version: 0.9.0.qualifier
 Import-Package: 
  org.apache.commons.lang,

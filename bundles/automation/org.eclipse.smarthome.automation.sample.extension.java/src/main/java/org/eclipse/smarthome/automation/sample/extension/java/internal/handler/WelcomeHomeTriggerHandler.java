@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java.handler;
+package org.eclipse.smarthome.automation.sample.extension.java.internal.handler;
 
 import java.util.Map;
 

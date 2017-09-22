@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java;
+package org.eclipse.smarthome.automation.sample.extension.java.internal;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.automation.sample.extension.java.handler.WelcomeHomeHandlerFactory;
-import org.eclipse.smarthome.automation.sample.extension.java.handler.WelcomeHomeTriggerHandler;
-import org.eclipse.smarthome.automation.sample.extension.java.template.AirConditionerRuleTemplate;
-import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditionType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.handler.WelcomeHomeHandlerFactory;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.handler.WelcomeHomeTriggerHandler;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.template.AirConditionerRuleTemplate;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.TemperatureConditionType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;

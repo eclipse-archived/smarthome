@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.sample.extension.java.handler;
+package org.eclipse.smarthome.automation.sample.extension.java.internal.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +21,11 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
-import org.eclipse.smarthome.automation.sample.extension.java.type.AirConditionerTriggerType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.LightsTriggerType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.StateConditionType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.TemperatureConditionType;
-import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeActionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.AirConditionerTriggerType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.LightsTriggerType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.TemperatureConditionType;
+import org.eclipse.smarthome.automation.sample.extension.java.internal.type.WelcomeHomeActionType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
