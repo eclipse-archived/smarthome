@@ -456,7 +456,6 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             builder.withLabel(label);
 
             builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
-            builder.withProperty(LifxBindingConstants.PROPERTY_HOST, light.socketAddress.getHostString());
             builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, light.products.getProduct());
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, light.products.getName());
