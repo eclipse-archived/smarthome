@@ -42,8 +42,8 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLabelResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
-import org.eclipse.smarthome.binding.lifx.internal.util.LifxThrottlingUtil;
 import org.eclipse.smarthome.binding.lifx.internal.util.LifxNetworkUtil;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxThrottlingUtil;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -136,15 +136,8 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     protected void startBackgroundDiscovery() {
         logger.debug("Starting the LIFX device background discovery");
 
-        Runnable discoveryRunnable = new Runnable() {
-            @Override
-            public void run() {
-                doScan();
-            }
-        };
-
         if (discoveryJob == null || discoveryJob.isCancelled()) {
-            discoveryJob = scheduler.scheduleWithFixedDelay(discoveryRunnable, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
+            discoveryJob = scheduler.scheduleWithFixedDelay(this::doScan, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
         }
     }
 
@@ -187,7 +180,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 selector = Selector.open();
                 openBroadcastChannel();
 
-                networkJob = scheduler.schedule(networkRunnable, 0, TimeUnit.MILLISECONDS);
+                networkJob = scheduler.schedule(this::receiveAndHandlePackets, 0, TimeUnit.MILLISECONDS);
 
                 source = UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
                 logger.debug("The LIFX discovery service will use '{}' as source identifier",
@@ -274,137 +267,133 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         return result;
     }
 
-    private Runnable networkRunnable = new Runnable() {
+    public void receiveAndHandlePackets() {
+        try {
+            long startStamp = System.currentTimeMillis();
+            discoveredLights.clear();
 
-        @Override
-        public void run() {
-            try {
-                long startStamp = System.currentTimeMillis();
-                discoveredLights.clear();
+            logger.trace("Entering read loop at {}", startStamp);
 
-                logger.trace("Entering read loop at {}", startStamp);
+            while (System.currentTimeMillis() - startStamp < SELECTOR_TIMEOUT) {
+                if (selector != null && selector.isOpen()) {
+                    try {
+                        selector.selectNow();
+                    } catch (IOException e) {
+                        logger.error("An exception occurred while selecting: {}", e.getMessage());
+                    }
 
-                while (System.currentTimeMillis() - startStamp < SELECTOR_TIMEOUT) {
-                    if (selector != null && selector.isOpen()) {
-                        try {
-                            selector.selectNow();
-                        } catch (IOException e) {
-                            logger.error("An exception occurred while selecting: {}", e.getMessage());
-                        }
+                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+                    while (keyIterator.hasNext()) {
+                        SelectionKey key = keyIterator.next();
 
-                        while (keyIterator.hasNext()) {
-                            SelectionKey key = keyIterator.next();
+                        if (key.isValid() && key.isAcceptable()) {
+                            // block of code only for completeness purposes
+                            logger.trace("Connection was accepted by a ServerSocketChannel");
+                        } else if (key.isValid() && key.isConnectable()) {
+                            // block of code only for completeness purposes
+                            logger.trace("Connection was established with a remote server");
+                        } else if (key.isValid() && key.isReadable()) {
+                            logger.trace("Channel is ready for reading");
+                            SelectableChannel channel = key.channel();
+                            InetSocketAddress address = null;
+                            int messageLength = 0;
 
-                            if (key.isValid() && key.isAcceptable()) {
-                                // block of code only for completeness purposes
-                                logger.trace("Connection was accepted by a ServerSocketChannel");
-                            } else if (key.isValid() && key.isConnectable()) {
-                                // block of code only for completeness purposes
-                                logger.trace("Connection was established with a remote server");
-                            } else if (key.isValid() && key.isReadable()) {
-                                logger.trace("Channel is ready for reading");
-                                SelectableChannel channel = key.channel();
-                                InetSocketAddress address = null;
-                                int messageLength = 0;
-
-                                ByteBuffer readBuffer = ByteBuffer.allocate(LifxNetworkUtil.getBufferSize());
-                                try {
-                                    if (channel instanceof DatagramChannel) {
-                                        address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
-                                    } else if (channel instanceof SocketChannel) {
-                                        address = (InetSocketAddress) ((SocketChannel) channel).getRemoteAddress();
-                                        ((SocketChannel) channel).read(readBuffer);
-                                    }
-                                    messageLength = readBuffer.position();
-                                } catch (Exception e) {
-                                    logger.warn("An exception occurred while reading data : '{}'", e.getMessage());
+                            ByteBuffer readBuffer = ByteBuffer.allocate(LifxNetworkUtil.getBufferSize());
+                            try {
+                                if (channel instanceof DatagramChannel) {
+                                    address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
+                                } else if (channel instanceof SocketChannel) {
+                                    address = (InetSocketAddress) ((SocketChannel) channel).getRemoteAddress();
+                                    ((SocketChannel) channel).read(readBuffer);
                                 }
+                                messageLength = readBuffer.position();
+                            } catch (Exception e) {
+                                logger.warn("An exception occurred while reading data : '{}'", e.getMessage());
+                            }
 
-                                if (address != null) {
-                                    logger.trace("Receiving data from {}", address.getAddress().toString());
-                                    if (!LifxNetworkUtil.getInterfaceAddresses().contains(address.getAddress())) {
-                                        readBuffer.rewind();
+                            if (address != null) {
+                                logger.trace("Receiving data from {}", address.getAddress().toString());
+                                if (!LifxNetworkUtil.getInterfaceAddresses().contains(address.getAddress())) {
+                                    readBuffer.rewind();
 
-                                        ByteBuffer packetSize = readBuffer.slice();
-                                        packetSize.position(0);
-                                        packetSize.limit(2);
-                                        int size = Packet.FIELD_SIZE.value(packetSize);
+                                    ByteBuffer packetSize = readBuffer.slice();
+                                    packetSize.position(0);
+                                    packetSize.limit(2);
+                                    int size = Packet.FIELD_SIZE.value(packetSize);
 
-                                        if (messageLength == size) {
-                                            ByteBuffer packetType = readBuffer.slice();
-                                            packetType.position(32);
-                                            packetType.limit(34);
-                                            int type = Packet.FIELD_PACKET_TYPE.value(packetType);
+                                    if (messageLength == size) {
+                                        ByteBuffer packetType = readBuffer.slice();
+                                        packetType.position(32);
+                                        packetType.limit(34);
+                                        int type = Packet.FIELD_PACKET_TYPE.value(packetType);
 
-                                            PacketHandler<?> handler = PacketFactory.createHandler(type);
+                                        PacketHandler<?> handler = PacketFactory.createHandler(type);
 
-                                            if (handler == null) {
-                                                logger.trace("Unknown packet type: {} (source: {})",
-                                                        String.format("0x%02X", type), address.toString());
-                                                continue;
-                                            }
+                                        if (handler == null) {
+                                            logger.trace("Unknown packet type: {} (source: {})",
+                                                    String.format("0x%02X", type), address.toString());
+                                            continue;
+                                        }
 
-                                            Packet packet = handler.handle(readBuffer);
-                                            if (packet == null) {
-                                                logger.warn("Handler {} was unable to handle packet",
-                                                        handler.getClass().getName());
-                                            } else {
-                                                handlePacket(packet, address);
-                                            }
+                                        Packet packet = handler.handle(readBuffer);
+                                        if (packet == null) {
+                                            logger.warn("Packet handler '{}' was unable to handle packet",
+                                                    handler.getClass().getName());
+                                        } else {
+                                            handlePacket(packet, address);
                                         }
                                     }
-                                } else if (key.isValid() && key.isWritable()) {
-                                    // block of code only for completeness purposes
-                                    logger.trace("Channel is ready for writing");
                                 }
+                            } else if (key.isValid() && key.isWritable()) {
+                                // block of code only for completeness purposes
+                                logger.trace("Channel is ready for writing");
                             }
                         }
-
-                        requestAdditionalLightData();
-                    }
-                }
-                isScanning = false;
-            } catch (Exception e) {
-                logger.debug("An exception occurred while communicating with the light : '{}'", e.getMessage(), e);
-            }
-        }
-
-        private void requestAdditionalLightData() throws IOException, ClosedChannelException {
-            // Iterate through the discovered lights that have to be set up, and the packets that have to be sent
-            // Workaround to avoid a ConcurrentModifictionException on the selector.SelectedKeys() Set
-            for (DiscoveredLight light : discoveredLights.values()) {
-
-                boolean waitingForLightResponse = System.currentTimeMillis() - light.lastRequestTimeMillis < 200;
-
-                if (light.supportedProduct && !light.isDataComplete() && !waitingForLightResponse) {
-                    SelectionKey unicastKey = openUnicastChannel(light);
-
-                    if (light.products == null) {
-                        sendLightDataRequestPacket(light, new GetVersionRequest(), VERSION_REQUEST_SEQ_NO, unicastKey);
                     }
 
-                    if (light.label == null) {
-                        sendLightDataRequestPacket(light, new GetLabelRequest(), LABEL_REQUEST_SEQ_NO, unicastKey);
-                    }
-
-                    light.lastRequestTimeMillis = System.currentTimeMillis();
+                    requestAdditionalLightData();
                 }
             }
+            isScanning = false;
+        } catch (Exception e) {
+            logger.debug("An exception occurred while communicating with the light : '{}'", e.getMessage(), e);
         }
+    }
 
-        private SelectionKey openUnicastChannel(DiscoveredLight light) throws IOException, ClosedChannelException {
-            DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                    .setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            unicastChannel.configureBlocking(false);
-            SelectionKey unicastKey = unicastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-            unicastChannel.connect(light.socketAddress);
-            logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
-            return unicastKey;
+    private void requestAdditionalLightData() throws IOException, ClosedChannelException {
+        // Iterate through the discovered lights that have to be set up, and the packets that have to be sent
+        // Workaround to avoid a ConcurrentModifictionException on the selector.SelectedKeys() Set
+        for (DiscoveredLight light : discoveredLights.values()) {
+
+            boolean waitingForLightResponse = System.currentTimeMillis() - light.lastRequestTimeMillis < 200;
+
+            if (light.supportedProduct && !light.isDataComplete() && !waitingForLightResponse) {
+                SelectionKey unicastKey = openUnicastChannel(light);
+
+                if (light.products == null) {
+                    sendLightDataRequestPacket(light, new GetVersionRequest(), VERSION_REQUEST_SEQ_NO, unicastKey);
+                }
+
+                if (light.label == null) {
+                    sendLightDataRequestPacket(light, new GetLabelRequest(), LABEL_REQUEST_SEQ_NO, unicastKey);
+                }
+
+                light.lastRequestTimeMillis = System.currentTimeMillis();
+            }
         }
-    };
+    }
+
+    private SelectionKey openUnicastChannel(DiscoveredLight light) throws IOException, ClosedChannelException {
+        DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        unicastChannel.configureBlocking(false);
+        SelectionKey unicastKey = unicastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        unicastChannel.connect(light.socketAddress);
+        logger.trace("Connected to a light via {}", unicastChannel.getLocalAddress().toString());
+        return unicastKey;
+    }
 
     private void handlePacket(Packet packet, InetSocketAddress address) {
         logger.trace("Discovery : Packet type '{}' received from '{}' for '{}' with sequence '{}' and source '{}'",
@@ -467,6 +456,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
             builder.withLabel(label);
 
             builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
+            builder.withProperty(LifxBindingConstants.PROPERTY_HOST, light.socketAddress.getHostString());
             builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, light.products.getProduct());
             builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, light.products.getName());

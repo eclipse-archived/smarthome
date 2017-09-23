@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
     <config-description uri="thing-type:lifx:light">
-        <parameter name="deviceId" type="text" pattern="([0-9A-Fa-f]{12})" required="true">
+        <parameter name="deviceId" type="text" pattern="([0-9A-Fa-f]{12})" required="false">
             <label>LIFX device ID</label>
             <description>Identifies the light e.g. "D073D5A1A1A1"</description>
         </parameter>

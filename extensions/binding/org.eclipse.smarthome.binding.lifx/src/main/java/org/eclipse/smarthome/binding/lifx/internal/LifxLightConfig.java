@@ -25,15 +25,11 @@ public class LifxLightConfig {
     private long fadetime = 300; // milliseconds
 
     public MACAddress getMACAddress() {
-        return new MACAddress(deviceId, true);
-    }
-
-    public boolean hasHost() {
-        return host != null && !host.isEmpty();
+        return deviceId == null ? null : new MACAddress(deviceId, true);
     }
 
     public InetSocketAddress getHost() {
-        return new InetSocketAddress(host, LifxBindingConstants.UNICAST_PORT);
+        return host == null ? null : new InetSocketAddress(host, LifxBindingConstants.UNICAST_PORT);
     }
 
     public Duration getFadeTime() {

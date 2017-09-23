@@ -74,9 +74,13 @@ public final class LifxThrottlingUtil {
     private static Map<MACAddress, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<MACAddress, LifxLightCommunicationTracker>();
 
     public static void lock(MACAddress mac) {
-        LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
-        tracker.lock();
-        waitForNextPacketInterval(tracker.getTimestamp());
+        if (mac != null) {
+            LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
+            tracker.lock();
+            waitForNextPacketInterval(tracker.getTimestamp());
+        } else {
+            lock();
+        }
     }
 
     private static LifxLightCommunicationTracker getOrCreateTracker(MACAddress mac) {
@@ -108,8 +112,12 @@ public final class LifxThrottlingUtil {
     }
 
     public static void unlock(MACAddress mac) {
-        if (macTrackerMapping.containsKey(mac)) {
-            macTrackerMapping.get(mac).unlock();
+        if (mac != null) {
+            if (macTrackerMapping.containsKey(mac)) {
+                macTrackerMapping.get(mac).unlock();
+            }
+        } else {
+            unlock();
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  * @author Dennis Nobel - Initial contribution
  * @author Wouter Born - Added packet interval, power on brightness constants
  */
+@NonNullByDefault
 public class LifxBindingConstants {
 
     public static final String BINDING_ID = "lifx";
@@ -71,6 +73,7 @@ public class LifxBindingConstants {
     public static final String CONFIG_PROPERTY_POWER_ON_BRIGHTNESS = "powerOnBrightness";
 
     // Property keys
+    public static final String PROPERTY_HOST = "host";
     public static final String PROPERTY_HOST_VERSION = "hostVersion";
     public static final String PROPERTY_MAC_ADDRESS = "macAddress";
     public static final String PROPERTY_PRODUCT_ID = "productId";
@@ -87,6 +90,7 @@ public class LifxBindingConstants {
     public static final ThingTypeUID THING_TYPE_COLORMZLIGHT = new ThingTypeUID(BINDING_ID, "colormzlight");
     public static final ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
+    @SuppressWarnings("null")
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
             .of(THING_TYPE_COLORLIGHT, THING_TYPE_COLORIRLIGHT, THING_TYPE_COLORMZLIGHT, THING_TYPE_WHITELIGHT)
             .collect(Collectors.toSet());

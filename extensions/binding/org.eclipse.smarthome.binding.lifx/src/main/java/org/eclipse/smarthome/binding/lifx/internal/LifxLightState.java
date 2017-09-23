@@ -135,9 +135,7 @@ public class LifxLightState {
         HSBK[] oldColors = this.colors;
         this.colors = newColors;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleColorsChange(oldColors, newColors);
-        }
+        listeners.forEach(listener -> listener.handleColorsChange(oldColors, newColors));
     }
 
     public void setPowerState(OnOffType newOnOff) {
@@ -148,9 +146,7 @@ public class LifxLightState {
         PowerState oldPowerState = this.powerState;
         this.powerState = newPowerState;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handlePowerStateChange(oldPowerState, newPowerState);
-        }
+        listeners.forEach(listener -> listener.handlePowerStateChange(oldPowerState, newPowerState));
     }
 
     public void setTemperature(PercentType temperature) {
@@ -171,18 +167,14 @@ public class LifxLightState {
         PercentType oldInfrared = this.infrared;
         this.infrared = newInfrared;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleInfraredChange(oldInfrared, newInfrared);
-        }
+        listeners.forEach(listener -> listener.handleInfraredChange(oldInfrared, newInfrared));
     }
 
     public void setSignalStrength(SignalStrength newSignalStrength) {
         SignalStrength oldSignalStrength = this.signalStrength;
         this.signalStrength = newSignalStrength;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleSignalStrengthChange(oldSignalStrength, newSignalStrength);
-        }
+        listeners.forEach(listener -> listener.handleSignalStrengthChange(oldSignalStrength, newSignalStrength));
     }
 
     private void updateLastChange() {

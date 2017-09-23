@@ -44,7 +44,7 @@ The binding is able to auto-discover all lights in a network over the LIFX UDP p
 
 ## Thing Configuration
 
-Each light needs the device ID as a configuration parameter. The device ID is printed as a serial number on the light and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
+Each light needs a Device ID or Host as a configuration parameter. The device ID is printed as a serial number on the light and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
 
 However, in the thing file, a manual configuration looks e.g. like
 
@@ -54,10 +54,10 @@ Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1", fadetime=200 ]
 
 The *fadetime* is an optional thing configuration parameter which configures the time to fade to a new color value (in ms). When the *fadetime* is not configured, the binding uses 300ms as default.
 
-You can optionally also configure a fixed hostname or IP address when lights are in a different subnet and are not discovered.
+You can optionally also configure a fixed Host or IP address when lights are in a different subnet and are not discovered.
 
 ```
-Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ]
+Thing lifx:colorirlight:porch [ host="10.120.130.4", fadetime=0 ]
 ```
 
 ## Channels
@@ -108,7 +108,7 @@ Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fa
         Type color : color [ powerOnBrightness=75 ]
 }
 
-Thing lifx:colormzlight:ceiling [ deviceId="D073D5C3C3C3" ]
+Thing lifx:colormzlight:ceiling [ host="10.120.130.5" ]
 
 Thing lifx:whitelight:kitchen [ deviceId="D073D5D4D4D4", fadetime=150 ]
 ```
