@@ -37,7 +37,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     private static ComponentContext context;
 
     private static final String CONFIGURATION_BASE_DIR = "configurations";
-    private static final String CONFIG_DISPATCHER_COMPONENT_ID = "org.eclipse.smarthome.config.dispatch";
+    private static final String CONFIG_DISPATCHER_COMPONENT_ID = "org.eclipse.smarthome.config.dispatch.internal.ConfigDispatcher";
     private static final String SEP = File.separator;
 
     private static String defaultConfigDir;
