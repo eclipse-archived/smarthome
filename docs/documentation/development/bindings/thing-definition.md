@@ -251,6 +251,31 @@ Depending on the solution the provided meta data can be used for different purpo
 
 In general each `property` must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the 'ThingType' definitions the thing handler [documentation](thing-handler.html) explains how properties can be set during runtime.
 
+### Representation Property
+
+A thing type can contain a so-called `representation property`. This optional property contains the _name_ of a property, whose value can be used to uniquely identify a deivce. The `thingUID` cannot be used for this purpose, there can be more than one thing for the same device. 
+
+Each physical device normally has some kind of technical id to identify it uniquely. This could be a MAC address (e.g. Hue bridge, camera, all IP-based devices), a unique device id (e.g. a Hue lamp) or some other property that is unique per device. This property is normally part of a discovery result for that specific thing type. Having this property identified per binding it could be used as the `representation property` for this thing.
+
+The `representation property` will be defined in the thing type XML: 
+
+```xml 
+ <bridge-type id="thingTypeId">
+        ...
+        <properties>
+        	<property name="vendor">Philips</property>
+        </properties>
+        <representation-property>serialNumber</representation-property>
+	...
+   </thing-type>
+```
+
+Note, that the `representation property` is normally not listed in the `properties` part of the thing type, as this part contains static properties, that are the same for each thing of this thing type. The name of the `representaion property` identifies a property, that is added to the thing in the thing handler upon successful initialization. 
+
+### Representation Property and Discovery
+
+The representation property is being used to auto-ignore discovery results of devices, that already have a corresponding thing. This happens, if a device is being added manually. If the new thing is going online, the auto-ignore service of the inbox checks, if the inbox already contains a discovery result of the same type, where the value of its `representation property` is identical to the value of the `representation property` of the newly added thing. If this is the case, the result in the inbox is automatically set to ignored. Note that this result is automatically removed, when the manual added thing is eventually removed. A new discovery would then automatically find this device again and add it to the inbox properly. 
+
 ## Formatting Labels and Descriptions
 
 The label and descriptions for things, channels and config descriptions should follow the following format. The label should be short so that for most UIs it does not spread across multiple lines. The description can contain longer text to describe the thing in more detail. Limited use of HTML tags is permitted to enhance the description - if a long description is provided, the first line should be kept short, and a line break (```<br />```) placed at the end of the line to allow UIs to display a short description in limited space.
