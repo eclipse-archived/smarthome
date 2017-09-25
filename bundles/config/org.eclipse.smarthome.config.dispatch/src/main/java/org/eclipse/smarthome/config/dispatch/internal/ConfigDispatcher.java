@@ -195,9 +195,11 @@ public class ConfigDispatcher extends AbstractWatchService {
                 exclusivePIDMap.initializeProcessPIDMapping();
             }
         } catch (JsonSyntaxException | JsonIOException e) {
-            logger.error("Error parsing exclusive pids from {}.", exclusivePIDStore.getAbsolutePath(), e.getMessage());
+            logger.error("Error parsing exclusive pids from '{}': {}", exclusivePIDStore.getAbsolutePath(),
+                    e.getMessage());
         } catch (IOException e) {
-            logger.debug("Error loading exclusive pids from {}.", exclusivePIDStore.getAbsolutePath(), e.getMessage());
+            logger.debug("Error loading exclusive pids from '{}': {}", exclusivePIDStore.getAbsolutePath(),
+                    e.getMessage());
         } finally {
             if (exclusivePIDMap == null) {
                 exclusivePIDMap = new ExclusivePIDMap();
@@ -210,7 +212,7 @@ public class ConfigDispatcher extends AbstractWatchService {
             exclusivePIDMap.setCurrentExclusivePIDList();
             gson.toJson(exclusivePIDMap, writer);
         } catch (JsonIOException | IOException e) {
-            logger.error("Error storing exclusive PID list in bundle data file.", e.getMessage());
+            logger.error("Error storing exclusive PID list in bundle data file: {}", e.getMessage());
         }
     }
 
