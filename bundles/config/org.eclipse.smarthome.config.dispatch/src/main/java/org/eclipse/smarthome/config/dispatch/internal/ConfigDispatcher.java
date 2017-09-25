@@ -37,6 +37,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,11 +83,12 @@ import com.google.gson.JsonSyntaxException;
  * @author Ana Dimova - Reduce to a single watch thread for all class instances
  * @author Henning Treu - Delete orphan exclusive configuration from configAdmin
  */
+@Component(immediate = true)
 public class ConfigDispatcher extends AbstractWatchService {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
 
-    private final Gson GSON = new Gson();
+    private final Gson gson = new Gson();
 
     /** The program argument name for setting the service config directory path */
     final static public String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
@@ -108,7 +115,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     private static final String EXCLUSIVE_PID_STORE_FILE = "configdispatcher_pid_list.json";
 
-    private ExclusivePIDMap exclusivcePIDMap;
+    private ExclusivePIDMap exclusivePIDMap;
 
     private ConfigurationAdmin configAdmin;
 
@@ -118,6 +125,7 @@ public class ConfigDispatcher extends AbstractWatchService {
         super(getPathToWatch());
     }
 
+    @Activate
     public void activate(BundleContext bundleContext) {
         super.activate();
         exclusivePIDStore = bundleContext.getDataFile(EXCLUSIVE_PID_STORE_FILE);
@@ -128,12 +136,14 @@ public class ConfigDispatcher extends AbstractWatchService {
         storeCurrentExclusivePIDList();
     }
 
+    @Deactivate
     @Override
     public void deactivate() {
         super.deactivate();
 
     }
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
     protected void setConfigurationAdmin(ConfigurationAdmin configAdmin) {
         this.configAdmin = configAdmin;
     }
@@ -171,44 +181,47 @@ public class ConfigDispatcher extends AbstractWatchService {
                 return;
             }
 
-            exclusivcePIDMap.setFileRemoved(configFile.getAbsolutePath());
+            exclusivePIDMap.setFileRemoved(configFile.getAbsolutePath());
             processOrphanExclusivePIDs();
-            storeCurrentExclusivePIDList();
         }
+
+        storeCurrentExclusivePIDList();
     }
 
     private void loadExclusivePIDList() {
         try (FileReader reader = new FileReader(exclusivePIDStore)) {
-            exclusivcePIDMap = GSON.fromJson(reader, ExclusivePIDMap.class);
-            if (exclusivcePIDMap != null) {
-                exclusivcePIDMap.initializeProcessPIDMapping();
+            exclusivePIDMap = gson.fromJson(reader, ExclusivePIDMap.class);
+            if (exclusivePIDMap != null) {
+                exclusivePIDMap.initializeProcessPIDMapping();
             }
-        } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            logger.error("Error loading exclusive pids from {}.", exclusivePIDStore.getAbsolutePath(), e);
+        } catch (JsonSyntaxException | JsonIOException e) {
+            logger.error("Error parsing exclusive pids from {}.", exclusivePIDStore.getAbsolutePath(), e.getMessage());
+        } catch (IOException e) {
+            logger.debug("Error loading exclusive pids from {}.", exclusivePIDStore.getAbsolutePath(), e.getMessage());
         } finally {
-            if (exclusivcePIDMap == null) {
-                exclusivcePIDMap = new ExclusivePIDMap();
+            if (exclusivePIDMap == null) {
+                exclusivePIDMap = new ExclusivePIDMap();
             }
         }
     }
 
     private void storeCurrentExclusivePIDList() {
         try (FileWriter writer = new FileWriter(exclusivePIDStore)) {
-            exclusivcePIDMap.setCurrentExclusivePIDList();
-            GSON.toJson(exclusivcePIDMap, writer);
+            exclusivePIDMap.setCurrentExclusivePIDList();
+            gson.toJson(exclusivePIDMap, writer);
         } catch (JsonIOException | IOException e) {
-            logger.error("Error storing exclusive PID list in bundle data file.", e);
+            logger.error("Error storing exclusive PID list in bundle data file.", e.getMessage());
         }
     }
 
     private void processOrphanExclusivePIDs() {
-        for (String orpahnPID : exclusivcePIDMap.getOrpahnPIDs()) {
+        for (String orphanPID : exclusivePIDMap.getOrphanPIDs()) {
             try {
-                Configuration configuration = configAdmin.getConfiguration(orpahnPID, null);
+                Configuration configuration = configAdmin.getConfiguration(orphanPID, null);
                 configuration.delete();
-                logger.debug("Deleting configuration for orphan pid {}", orpahnPID);
+                logger.debug("Deleting configuration for orphan pid {}", orphanPID);
             } catch (IOException e) {
-                logger.error("Error deleting configuration for orphan pid {}.", orpahnPID);
+                logger.error("Error deleting configuration for orphan pid {}.", orphanPID);
             }
         }
     }
@@ -222,7 +235,7 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
     }
 
-    private String getDefaultServiceConfigFile() {
+    private String getDefaultServiceConfigPath() {
         String progArg = System.getProperty(SERVICECFG_PROG_ARGUMENT);
         if (progArg != null) {
             return progArg;
@@ -232,11 +245,11 @@ public class ConfigDispatcher extends AbstractWatchService {
     }
 
     private void readDefaultConfig() {
-        File defaultCfg = new File(getDefaultServiceConfigFile());
+        String defaultCfgPath = getDefaultServiceConfigPath();
         try {
-            processConfigFile(defaultCfg);
+            processConfigFile(new File(defaultCfgPath));
         } catch (IOException e) {
-            logger.warn("Could not process default config file '{}': {}", getDefaultServiceConfigFile(), e);
+            logger.warn("Could not process default config file '{}': {}", defaultCfgPath, e.getMessage());
         }
     }
 
@@ -256,7 +269,7 @@ public class ConfigDispatcher extends AbstractWatchService {
                 try {
                     processConfigFile(file);
                 } catch (IOException e) {
-                    logger.warn("Could not process config file '{}': {}", file.getName(), e);
+                    logger.warn("Could not process config file '{}': {}", file.getName(), e.getMessage());
                 }
             }
         } else {
@@ -313,13 +326,13 @@ public class ConfigDispatcher extends AbstractWatchService {
         if (exclusivePID != null) {
             pid = exclusivePID;
             lines = lines.subList(1, lines.size());
-            exclusivcePIDMap.setProcessedPID(pid, configFile.getAbsolutePath());
+            exclusivePIDMap.setProcessedPID(pid, configFile.getAbsolutePath());
         }
 
         Configuration configuration = configAdmin.getConfiguration(pid, null);
 
         // this file does only contain entries for this PID and no other files do contain further entries for this PID.
-        if (exclusivcePIDMap.contains(pid)) {
+        if (exclusivePIDMap.contains(pid)) {
             configMap.put(configuration, new Properties());
         }
 
@@ -330,7 +343,7 @@ public class ConfigDispatcher extends AbstractWatchService {
                 continue;
             }
 
-            if (exclusivcePIDMap.contains(pid) && parsedLine.pid != null && !pid.equals(parsedLine.pid)) {
+            if (exclusivePIDMap.contains(pid) && parsedLine.pid != null && !pid.equals(parsedLine.pid)) {
                 logger.error("Error parsing config file {}. Exclusive PID {} found but line starts with {}.",
                         configFile.getName(), pid, parsedLine.pid);
                 configuration.update((Dictionary) new Properties()); // update with empty properties
@@ -464,7 +477,7 @@ public class ConfigDispatcher extends AbstractWatchService {
          *
          * @return the list of PIDs which where not processed either during #activate or on file deleted event.
          */
-        public List<String> getOrpahnPIDs() {
+        public List<String> getOrphanPIDs() {
             return processedPIDMapping.entrySet().stream().filter(e -> e.getValue() == null).map(e -> e.getKey())
                     .collect(Collectors.toList());
         }
