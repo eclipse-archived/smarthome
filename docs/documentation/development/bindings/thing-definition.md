@@ -300,11 +300,11 @@ In contrast to the properties defined in the 'ThingType' definitions the thing h
 ### Representation Property
 
 A thing type can contain a so-called `representation property`. 
-This optional property contains the _name_ of a property, whose value can be used to uniquely identify a deivce. 
-The `thingUID` cannot be used for this purpose, there can be more than one thing for the same device. 
+This optional property contains the _name_ of a property whose value can be used to uniquely identify a deivce. 
+The `thingUID` cannot be used for this purpose because there can be more than one thing for the same device. 
 
-Each physical device normally has some kind of technical id to identify it uniquely. 
-This could be a MAC address (e.g. Hue bridge, camera, all IP-based devices), a unique device id (e.g. a Hue lamp) or some other property that is unique per device. 
+Each physical device normally has some kind of a technical identifier which is unique.
+This could be a MAC address (e.g. Hue bridge, camera, all IP-based devices), a unique device id (e.g. a Hue lamp) or some other property that is unique per device type. 
 This property is normally part of a discovery result for that specific thing type. 
 Having this property identified per binding it could be used as the `representation property` for this thing.
 
@@ -321,16 +321,16 @@ The `representation property` will be defined in the thing type XML:
    </thing-type>
 ```
 
-Note, that the `representation property` is normally not listed in the `properties` part of the thing type, as this part contains static properties, that are the same for each thing of this thing type. 
-The name of the `representation property` identifies a property, that is added to the thing in the thing handler upon successful initialization. 
+Note that the `representation property` is normally not listed in the `properties` part of the thing type, as this part contains static properties, that are the same for each thing of this thing type. 
+The name of the `representation property` identifies a property that is added to the thing in the thing handler upon successful initialization. 
 
 ### Representation Property and Discovery
 
-The representation property is being used to auto-ignore discovery results of devices, that already have a corresponding thing. 
-This happens, if a device is being added manually. 
-If the new thing is going online, the auto-ignore service of the inbox checks, if the inbox already contains a discovery result of the same type, where the value of its `representation property` is identical to the value of the `representation property` of the newly added thing. 
+The representation property is being used to auto-ignore discovery results of devices that already have a corresponding thing. 
+This happens if a device is being added manually. 
+If the new thing is going online, the auto-ignore service of the inbox checks if the inbox already contains a discovery result of the same type where the value of its `representation property` is identical to the value of the `representation property` of the newly added thing. 
 If this is the case, the result in the inbox is automatically set to ignored. 
-Note that this result is automatically removed, when the manual added thing is eventually removed. 
+Note that this result is automatically removed when the manual added thing is eventually removed. 
 A new discovery would then automatically find this device again and add it to the inbox properly. 
 
 ## Formatting Labels and Descriptions
