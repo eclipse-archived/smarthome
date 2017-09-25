@@ -17,7 +17,8 @@ When implementing a dynamic `ThingTypeProvider` you can also refer to the channe
 ## Things
 
 Things represent devices or services that can be individually added to, configured or removed from the system. 
-They either contain a set of channels or a set of channel groups. A bridge is a specific type of thing as it can additionally provide access to other Things as well. 
+They either contain a set of channels or a set of channel groups. 
+A bridge is a specific type of thing as it can additionally provide access to other Things as well. 
 Which Things can be associated through which bridge type is defined within the description of a thing:
 
 ```xml
@@ -112,7 +113,8 @@ There exist systemwide channels that are available by default:
 
 For further information about categories see the [categories page](../../concepts/categories.html).
 
-The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. 
+The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. 
+If `advanced` is set to `true` a user interface may hide this channel by default. 
 The default value is `false` and thus will be taken if the `advanced` attribute is not specified. 
 Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. 
 Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. 
@@ -192,7 +194,8 @@ The following XML snippet shows the definition for a temperature actuator channe
 
 The attributes `min` and `max` can only be declared for channel with the item type `Number`. 
 It defines the range of the numeric value. 
-The Java data type is a BigDecimal. For example user interfaces can create sliders with an appropriate scale based on this information. 
+The Java data type is a BigDecimal. 
+For example user interfaces can create sliders with an appropriate scale based on this information. 
 The `step` attribute can be declared for `Number` and `Dimmer` items and defines what is the minimal step size that can be used. 
 The `readonly` attribute can be used for all item types and defines if the state of an item can be changed. 
 For all sensors the `readonly` attribute should be set to `true`. 
