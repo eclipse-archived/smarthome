@@ -329,6 +329,10 @@ public class ConfigDispatcher extends AbstractWatchService {
             pid = exclusivePID;
             lines = lines.subList(1, lines.size());
             exclusivePIDMap.setProcessedPID(pid, configFile.getAbsolutePath());
+        } else if (exclusivePIDMap.contains(pid)) {
+            // the pid was once from an exclusive file but there is either a second non-exclusive-file with config
+            // entries or the `pid:` marker was removed.
+            exclusivePIDMap.removeExclusivePID(pid);
         }
 
         Configuration configuration = configAdmin.getConfiguration(pid, null);
@@ -456,6 +460,10 @@ public class ConfigDispatcher extends AbstractWatchService {
 
         public void setProcessedPID(String pid, String pathToFile) {
             processedPIDMapping.put(pid, pathToFile);
+        }
+
+        public void removeExclusivePID(String pid) {
+            processedPIDMapping.remove(pid);
         }
 
         public void setFileRemoved(String absolutePath) {
