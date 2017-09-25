@@ -175,9 +175,13 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
     }
 
-    private void set(String payload) {
+    private void set(String payload, Integer delay) {
         logger.debug("Sending payload: {}", payload);
-        coapClient.asyncPut(payload, this);
+        coapClient.asyncPut(payload, this, delay, scheduler);
+    }
+
+    private void set(String payload) {
+        set(payload, null);
     }
 
     private void setBrightness(PercentType percent) {
@@ -201,7 +205,7 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
     private void setColor(HSBType hsb) {
         LightData data = new LightData();
         data.setColor(hsb).setTransitionTime(DEFAULT_DIMMER_TRANSITION_TIME);
-        set(data.getJsonString());
+        set(data.getJsonString(), 1000);
     }
 
     @Override
@@ -269,13 +273,8 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
 
     private void handleColorCommand(Command command) {
         if (command instanceof HSBType) {
-            // tradfri can not handle color (xy) and brightness at once,
-            // so send color first and schedule the brightess update.
-            // 1500ms wait time because brightness setting would interrupt color fading
             setColor((HSBType) command);
-            scheduler.schedule(() -> {
-                setBrightness(((HSBType) command).getBrightness());
-            }, 1500, TimeUnit.MILLISECONDS);
+            setBrightness(((HSBType) command).getBrightness());
         } else if (command instanceof OnOffType) {
             setState(((OnOffType) command));
         } else if (command instanceof PercentType) {
