@@ -11,7 +11,7 @@ Import-Package: com.google.gson,
  org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.service,
- org.osgi.framework;version="1.5.0",
- org.osgi.service.cm;version="1.5.0",
- org.slf4j;version="1.7.2"
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.slf4j
 Service-Component: OSGI-INF/*.xml
