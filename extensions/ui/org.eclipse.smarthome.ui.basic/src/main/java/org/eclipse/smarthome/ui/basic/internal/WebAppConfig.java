@@ -21,7 +21,10 @@ import java.util.Map;
 public class WebAppConfig {
     private final static String DEFAULT_SITEMAP = "default";
     private final static String DEFAULT_ICON_TYPE = "png";
-    private final static String DEFAULT_THEME = "default";
+
+    public final static String THEME_NAME_DEFAULT = "default";
+    public final static String THEME_NAME_DARK = "dark";
+    private final static String DEFAULT_THEME = THEME_NAME_DEFAULT;
 
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
