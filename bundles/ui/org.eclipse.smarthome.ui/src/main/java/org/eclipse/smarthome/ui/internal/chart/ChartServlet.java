@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -43,12 +44,15 @@ import org.slf4j.LoggerFactory;
  * <li>items: A comma separated list of item names to display</li>
  * <li>groups: A comma separated list of group names, whose members should be displayed</li>
  * <li>service: The persistence service name. If not supplied the first service found will be used.</li>
+ * <li>theme: The chart theme to use. If not supplied the chart provider uses a default theme.</li>
+ * <li>dpi: The DPI (dots per inch) value. If not supplied, a default is used.</code></li>
+ * <li>legend: Show the legend? If not supplied, the ChartProvider should make his own decision.</li>
  * </ul>
  *
  * @author Chris Jackson
+ * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
@@ -249,11 +253,30 @@ public class ChartServlet extends HttpServlet {
             throw new ServletException("Could not get chart provider.");
         }
 
+        // Read out the parameter 'dpi'
+        Integer dpi = null;
+        if (req.getParameter("dpi") != null) {
+            try {
+                dpi = Integer.valueOf(req.getParameter("dpi"));
+            } catch (NumberFormatException e) {
+                throw new ServletException("dpi parameter is invalid");
+            }
+            if (dpi <= 0) {
+                throw new ServletException("dpi parameter is <= 0");
+            }
+        }
+
+        // Read out parameter 'legend'
+        Boolean legend = null;
+        if (req.getParameter("legend") != null) {
+            legend = BooleanUtils.toBoolean(req.getParameter("legend"));
+        }
+
         // Set the content type to that provided by the chart provider
         res.setContentType("image/" + provider.getChartType());
         try {
-            BufferedImage chart = provider.createChart(serviceName, null, timeBegin, timeEnd, height, width,
-                    req.getParameter("items"), req.getParameter("groups"));
+            BufferedImage chart = provider.createChart(serviceName, req.getParameter("theme"), timeBegin, timeEnd,
+                    height, width, req.getParameter("items"), req.getParameter("groups"), dpi, legend);
             ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
         } catch (ItemNotFoundException e) {
             logger.debug("{}", e.getMessage());

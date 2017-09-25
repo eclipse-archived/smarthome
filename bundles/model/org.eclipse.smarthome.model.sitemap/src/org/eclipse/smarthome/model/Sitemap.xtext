@@ -58,7 +58,7 @@ Video:
 
 Chart:
     'Chart' (('item=' item=ItemRef) & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? &
-    ('service=' service=(STRING))? & ('refresh=' refresh=INT)? & ('period=' period=ID) &
+    ('service=' service=(STRING))? & ('refresh=' refresh=INT)? & ('period=' period=ID) & ('legend=' legend=BOOLEAN_OBJECT)? &
     ('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
     ('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
     ('visibility=[' (Visibility+=VisibilityRule (',' Visibility+=VisibilityRule)* ']'))?);
@@ -160,4 +160,6 @@ terminal ID:
 
 terminal FLOAT returns ecore::EBigDecimal:
     INT '.' INT;
-	
+
+BOOLEAN_OBJECT returns ecore::EBooleanObject:
+    'true' | 'false';

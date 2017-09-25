@@ -55,6 +55,13 @@ public class ChartRenderer extends AbstractWidgetRenderer {
             if (chart.getService() != null) {
                 chartUrl += "&service=" + chart.getService();
             }
+            if (chart.getLegend() != null) {
+                if (chart.getLegend()) {
+                    chartUrl += "&legend=true";
+                } else {
+                    chartUrl += "&legend=false";
+                }
+            }
             String url = chartUrl + "&t=" + (new Date()).getTime();
 
             String snippet = getSnippet("chart");

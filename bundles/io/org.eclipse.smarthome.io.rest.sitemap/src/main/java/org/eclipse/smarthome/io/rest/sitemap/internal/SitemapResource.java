@@ -496,6 +496,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             Chart chartWidget = (Chart) widget;
             bean.service = chartWidget.getService();
             bean.period = chartWidget.getPeriod();
+            bean.legend = chartWidget.getLegend();
             if (chartWidget.getRefresh() > 0) {
                 bean.refresh = chartWidget.getRefresh();
             }
