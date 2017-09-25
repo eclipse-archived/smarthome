@@ -41,6 +41,16 @@ The following example is taken from the `HueLightDiscoveryService`, it calls `th
 
 The discovery service needs to provide the list of supported thing types, that can be found by the discovery service. This list will be given to the constructor of `AbstractDiscoveryService` and can be requested by using `DiscoveryService#getSupportedThingTypes` method. 
 
+## Registering as an OSGi service
+
+The `Discovery` class of a binding which implements `AbstractDiscoveryService` should be annotated with
+
+```java
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.<bindingID>")
+```
+
+where `<bindingID>` is the package name of the binding, i.e. `astro` for the Astro binding. Such a registered service will be picked up automatically by the framework.
+
 ## Discovery 
 
 ### Background Discovery 
