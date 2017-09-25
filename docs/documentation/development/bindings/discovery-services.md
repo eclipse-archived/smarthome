@@ -64,6 +64,7 @@ The following example shows the implementation of the above mentioned methods in
     protected void startBackgroundDiscovery() {
         logger.debug("Start WeMo device background discovery");
         if (wemoDiscoveryJob == null || wemoDiscoveryJob.isCancelled()) {
+            wemoDiscoveryJob = scheduler.scheduleWithFixedDelay(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
             wemoDiscoveryJob = scheduler.scheduleAtFixedRate(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
