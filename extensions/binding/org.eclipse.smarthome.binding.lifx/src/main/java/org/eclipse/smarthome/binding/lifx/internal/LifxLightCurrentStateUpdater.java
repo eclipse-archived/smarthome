@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.MIN_ZONE_INDEX;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.infraredToPercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.infraredToPercentType;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -17,8 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
-import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
-import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetColorZonesRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
@@ -41,17 +39,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler
  */
-public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener {
+public class LifxLightCurrentStateUpdater {
 
     private static final int STATE_POLLING_INTERVAL = 3;
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightCurrentStateUpdater.class);
 
-    private final String macAsHex;
-    private final ScheduledExecutorService scheduler;
-    private final CurrentLightState currentLightState;
-    private final LifxLightCommunicationHandler communicationHandler;
+    private final String logId;
     private final Products product;
+    private final CurrentLightState currentLightState;
+    private final ScheduledExecutorService scheduler;
+    private final LifxLightCommunicationHandler communicationHandler;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -60,34 +58,29 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
 
     private ScheduledFuture<?> statePollingJob;
 
-    private Runnable statePollingRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            try {
-                lock.lock();
-                if (currentLightState.isOnline()) {
-                    logger.trace("{} : Polling the state of the light", macAsHex);
-                    sendLightStateRequests();
-                } else {
-                    logger.trace("{} : The light is not online, there is no point polling it", macAsHex);
-                }
-                wasOnline = currentLightState.isOnline();
-            } catch (Exception e) {
-                logger.error("Error occurred while polling light state", e);
-            } finally {
-                lock.unlock();
-            }
-        }
-    };
-
-    public LifxLightCurrentStateUpdater(MACAddress macAddress, ScheduledExecutorService scheduler,
-            CurrentLightState currentLightState, LifxLightCommunicationHandler communicationHandler, Products product) {
-        this.macAsHex = macAddress.getHex();
-        this.currentLightState = currentLightState;
-        this.scheduler = scheduler;
+    public LifxLightCurrentStateUpdater(LifxLightContext context, LifxLightCommunicationHandler communicationHandler) {
+        this.logId = context.getLogId();
+        this.product = context.getProduct();
+        this.currentLightState = context.getCurrentLightState();
+        this.scheduler = context.getScheduler();
         this.communicationHandler = communicationHandler;
-        this.product = product;
+    }
+
+    public void pollLightState() {
+        try {
+            lock.lock();
+            if (currentLightState.isOnline()) {
+                logger.trace("{} : Polling the state of the light", logId);
+                sendLightStateRequests();
+            } else {
+                logger.trace("{} : The light is not online, there is no point polling it", logId);
+            }
+            wasOnline = currentLightState.isOnline();
+        } catch (Exception e) {
+            logger.error("Error occurred while polling light state", e);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void setUpdateSignalStrength(boolean updateSignalStrength) {
@@ -97,9 +90,9 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     public void start() {
         try {
             lock.lock();
-            communicationHandler.addResponsePacketListener(this);
+            communicationHandler.addResponsePacketListener(this::handleResponsePacket);
             if (statePollingJob == null || statePollingJob.isCancelled()) {
-                statePollingJob = scheduler.scheduleWithFixedDelay(statePollingRunnable, 0, STATE_POLLING_INTERVAL,
+                statePollingJob = scheduler.scheduleWithFixedDelay(this::pollLightState, 0, STATE_POLLING_INTERVAL,
                         TimeUnit.SECONDS);
             }
         } catch (Exception e) {
@@ -112,7 +105,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     public void stop() {
         try {
             lock.lock();
-            communicationHandler.removeResponsePacketListener(this);
+            communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
             if (statePollingJob != null && !statePollingJob.isCancelled()) {
                 statePollingJob.cancel(true);
                 statePollingJob = null;
@@ -125,24 +118,19 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
     }
 
     private void sendLightStateRequests() {
-        GetRequest statePacket = new GetRequest();
-        communicationHandler.sendPacket(statePacket);
+        communicationHandler.sendPacket(new GetRequest());
 
         if (product.isInfrared()) {
-            GetLightInfraredRequest infraredPacket = new GetLightInfraredRequest();
-            communicationHandler.sendPacket(infraredPacket);
+            communicationHandler.sendPacket(new GetLightInfraredRequest());
         }
         if (product.isMultiZone()) {
-            GetColorZonesRequest colorZonesPacket = new GetColorZonesRequest();
-            communicationHandler.sendPacket(colorZonesPacket);
+            communicationHandler.sendPacket(new GetColorZonesRequest());
         }
         if (updateSignalStrength) {
-            GetWifiInfoRequest wifiInfoPacket = new GetWifiInfoRequest();
-            communicationHandler.sendPacket(wifiInfoPacket);
+            communicationHandler.sendPacket(new GetWifiInfoRequest());
         }
     }
 
-    @Override
     public void handleResponsePacket(Packet packet) {
         try {
             lock.lock();
@@ -165,7 +153,7 @@ public class LifxLightCurrentStateUpdater implements LifxResponsePacketListener 
 
             if (currentLightState.isOnline() && !wasOnline) {
                 wasOnline = true;
-                logger.trace("{} : The light just went online, immediately polling the state of the light", macAsHex);
+                logger.trace("{} : The light just went online, immediately polling the state of the light", logId);
                 sendLightStateRequests();
             }
         } finally {

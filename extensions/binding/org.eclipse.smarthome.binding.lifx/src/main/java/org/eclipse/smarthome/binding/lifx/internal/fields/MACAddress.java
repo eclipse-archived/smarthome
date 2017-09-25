@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
  */
 public class MACAddress {
 
+    public static final MACAddress BROADCAST_ADDRESS = new MACAddress("000000000000", true);
+
     private final Logger logger = LoggerFactory.getLogger(MACAddress.class);
 
     private ByteBuffer bytes;
@@ -104,7 +106,6 @@ public class MACAddress {
         }
 
         hex = StringUtils.left(result, result.length() - 1);
-
     }
 
     @Override

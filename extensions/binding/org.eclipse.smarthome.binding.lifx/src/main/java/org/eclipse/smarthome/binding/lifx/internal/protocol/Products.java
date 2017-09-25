@@ -26,11 +26,17 @@ public enum Products {
     W900LV(1, 18, "White 900 BR30 (Low Voltage)", false, false, false),
     C900(1, 20, "Color 900 BR30", true, false, false),
     C1000(1, 22, "Color 1000", true, false, false),
-    LA19(1, 27, "LIFX A19", true, false, false),
-    LBR30(1, 28, "LIFX BR30", true, false, false),
+    LA19_1(1, 27, "LIFX A19", true, false, false),
+    LBR30_1(1, 28, "LIFX BR30", true, false, false),
     LPA19(1, 29, "LIFX+ A19", true, true, false),
     LPBR30(1, 30, "LIFX+ BR30", true, true, false),
-    LZ(1, 31, "LIFX Z", true, false, true);
+    LZ(1, 31, "LIFX Z", true, false, true),
+    LDL_1(1, 36, "LIFX Downlight", true, false, false),
+    LDL_2(1, 37, "LIFX Downlight", true, false, false),
+    LA19_2(1, 43, "LIFX A19", true, false, false),
+    LBR30_2(1, 44, "LIFX BR30", true, false, false),
+    LPA19_2(1, 45, "LIFX+ A19", true, true, false),
+    LPBR30_2(1, 46, "LIFX+ BR30", true, true, false);
 
     private final long vendorID;
     private final long productID;

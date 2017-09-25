@@ -63,4 +63,14 @@ public class GetEchoRequest extends Packet {
         return new int[] { EchoRequestResponse.TYPE };
     }
 
+    public static GetEchoRequest currentTimeEchoRequest() {
+        ByteBuffer payload = ByteBuffer.allocate(Long.SIZE / 8);
+        payload.putLong(System.currentTimeMillis());
+
+        GetEchoRequest request = new GetEchoRequest();
+        request.setResponseRequired(true);
+        request.setPayload(payload);
+        return request;
+    }
+
 }

@@ -7,12 +7,13 @@
  */
 package org.eclipse.smarthome.binding.lifx;
 
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.kelvinToPercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.kelvinToPercentType;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -26,12 +27,17 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  * @author Dennis Nobel - Initial contribution
  * @author Wouter Born - Added packet interval, power on brightness constants
  */
+@NonNullByDefault
 public class LifxBindingConstants {
 
     public static final String BINDING_ID = "lifx";
 
     // The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not more.
     public static final long PACKET_INTERVAL = 50;
+
+    // Port constants
+    public static final int BROADCAST_PORT = 56700;
+    public static final int UNICAST_PORT = 56700;
 
     // Minimum and maximum of MultiZone light indices
     public static final int MIN_ZONE_INDEX = 0;
@@ -67,6 +73,7 @@ public class LifxBindingConstants {
     public static final String CONFIG_PROPERTY_POWER_ON_BRIGHTNESS = "powerOnBrightness";
 
     // Property keys
+    public static final String PROPERTY_HOST = "host";
     public static final String PROPERTY_HOST_VERSION = "hostVersion";
     public static final String PROPERTY_MAC_ADDRESS = "macAddress";
     public static final String PROPERTY_PRODUCT_ID = "productId";
@@ -83,6 +90,7 @@ public class LifxBindingConstants {
     public static final ThingTypeUID THING_TYPE_COLORMZLIGHT = new ThingTypeUID(BINDING_ID, "colormzlight");
     public static final ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
+    @SuppressWarnings("null")
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
             .of(THING_TYPE_COLORLIGHT, THING_TYPE_COLORIRLIGHT, THING_TYPE_COLORMZLIGHT, THING_TYPE_WHITELIGHT)
             .collect(Collectors.toSet());

@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.fields;
 
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
