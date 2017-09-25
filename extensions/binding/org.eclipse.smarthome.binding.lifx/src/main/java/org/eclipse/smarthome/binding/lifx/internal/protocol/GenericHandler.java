@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
  * additional logic (other than parsing).
  *
  * @param <T> the packet subtype this handler constructs
- * 
+ *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
  */
@@ -53,7 +53,6 @@ public class GenericHandler<T extends Packet> implements PacketHandler<T> {
             // silently ignore
             typeFound = false;
         }
-
     }
 
     @Override

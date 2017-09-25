@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.*;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,9 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
-import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
-import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.AcknowledgementResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.ApplicationRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetColorZonesRequest;
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler, added logic for handling packet loss
  */
-public class LifxLightStateChanger implements LifxLightStateListener, LifxResponsePacketListener {
+public class LifxLightStateChanger implements LifxLightStateListener {
 
     /**
      * Milliseconds before a packet is considered to be lost (unacknowledged).
@@ -65,12 +63,12 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightStateChanger.class);
 
-    private final String macAsHex;
-    private final ScheduledExecutorService scheduler;
-    private final LifxLightState pendingLightState;
-    private final LifxLightCommunicationHandler communicationHandler;
-    private final Duration fadeTime;
+    private final String logId;
     private final Products product;
+    private final Duration fadeTime;
+    private final LifxLightState pendingLightState;
+    private final ScheduledExecutorService scheduler;
+    private final LifxLightCommunicationHandler communicationHandler;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -94,58 +92,52 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         }
     }
 
-    private Runnable sendRunnable = new Runnable() {
+    public LifxLightStateChanger(LifxLightContext context, LifxLightCommunicationHandler communicationHandler) {
+        this.logId = context.getLogId();
+        this.product = context.getProduct();
+        this.fadeTime = context.getConfiguration().getFadeTime();
+        this.pendingLightState = context.getPendingLightState();
+        this.scheduler = context.getScheduler();
+        this.communicationHandler = communicationHandler;
+    }
 
-        @Override
-        public void run() {
-            try {
-                lock.lock();
+    private void sendPendingPackets() {
+        try {
+            lock.lock();
 
-                removeFailedPackets();
-                PendingPacket pendingPacket = findPacketToSend();
+            removeFailedPackets();
+            PendingPacket pendingPacket = findPacketToSend();
 
-                if (pendingPacket != null) {
-                    Packet packet = pendingPacket.packet;
+            if (pendingPacket != null) {
+                Packet packet = pendingPacket.packet;
 
-                    if (pendingPacket.sendCount == 0) {
-                        // sendPacket will set the sequence number
-                        logger.debug("{} : Sending {} packet", macAsHex, packet.getClass().getSimpleName());
-                        communicationHandler.sendPacket(packet);
-                    } else {
-                        // resendPacket will reuse the sequence number
-                        logger.debug("{} : Resending {} packet", macAsHex, packet.getClass().getSimpleName());
-                        communicationHandler.resendPacket(packet);
-                    }
-                    pendingPacket.lastSend = System.currentTimeMillis();
-                    pendingPacket.sendCount++;
+                if (pendingPacket.sendCount == 0) {
+                    // sendPacket will set the sequence number
+                    logger.debug("{} : Sending {} packet", logId, packet.getClass().getSimpleName());
+                    communicationHandler.sendPacket(packet);
+                } else {
+                    // resendPacket will reuse the sequence number
+                    logger.debug("{} : Resending {} packet", logId, packet.getClass().getSimpleName());
+                    communicationHandler.resendPacket(packet);
                 }
-
-            } catch (Exception e) {
-                logger.error("Error occurred while sending packet", e);
-            } finally {
-                lock.unlock();
+                pendingPacket.lastSend = System.currentTimeMillis();
+                pendingPacket.sendCount++;
             }
+        } catch (Exception e) {
+            logger.error("Error occurred while sending packet", e);
+        } finally {
+            lock.unlock();
         }
     };
-
-    public LifxLightStateChanger(MACAddress macAddress, ScheduledExecutorService scheduler,
-            LifxLightState pendingLightState, LifxLightCommunicationHandler communicationHandler, Products product,
-            Duration fadeTime) {
-        this.macAsHex = macAddress.getHex();
-        this.scheduler = scheduler;
-        this.pendingLightState = pendingLightState;
-        this.communicationHandler = communicationHandler;
-        this.product = product;
-        this.fadeTime = fadeTime;
-    }
 
     public void start() {
         try {
             lock.lock();
-            communicationHandler.addResponsePacketListener(this);
+            communicationHandler.addResponsePacketListener(this::handleResponsePacket);
             pendingLightState.addListener(this);
             if (sendJob == null || sendJob.isCancelled()) {
-                sendJob = scheduler.scheduleWithFixedDelay(sendRunnable, 0, PACKET_INTERVAL, TimeUnit.MILLISECONDS);
+                sendJob = scheduler.scheduleWithFixedDelay(this::sendPendingPackets, 0, PACKET_INTERVAL,
+                        TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
             logger.error("Error occurred while starting send packets job", e);
@@ -157,7 +149,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
     public void stop() {
         try {
             lock.lock();
-            communicationHandler.removeResponsePacketListener(this);
+            communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
             pendingLightState.removeListener(this);
             if (sendJob != null && !sendJob.isCancelled()) {
                 sendJob.cancel(true);
@@ -186,7 +178,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
             if (packetType == null) {
                 packetType = packet.getPacketType();
             } else if (packetType != packet.getPacketType()) {
-                throw new RuntimeException("Packets should have same packet type");
+                throw new IllegalArgumentException("Packets should have same packet type");
             }
         }
 
@@ -316,7 +308,6 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
         // Nothing to handle
     }
 
-    @Override
     public void handleResponsePacket(Packet packet) {
         if (packet instanceof AcknowledgementResponse) {
             long ackTimestamp = System.currentTimeMillis();
@@ -332,7 +323,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
 
             if (pendingPacket != null) {
                 Packet sentPacket = pendingPacket.packet;
-                logger.debug("{} : {} packet was acknowledged in {}ms", macAsHex, sentPacket.getClass().getSimpleName(),
+                logger.debug("{} : {} packet was acknowledged in {}ms", logId, sentPacket.getClass().getSimpleName(),
                         ackTimestamp - pendingPacket.lastSend);
 
                 // when these packets get lost the current state will still be updated by the
@@ -351,7 +342,7 @@ public class LifxLightStateChanger implements LifxLightStateListener, LifxRespon
                     communicationHandler.sendPacket(infraredPacket);
                 }
             } else {
-                logger.debug("{} : No pending packet found for ack with sequence number: {}", macAsHex,
+                logger.debug("{} : No pending packet found for ack with sequence number: {}", logId,
                         packet.getSequence());
             }
         }

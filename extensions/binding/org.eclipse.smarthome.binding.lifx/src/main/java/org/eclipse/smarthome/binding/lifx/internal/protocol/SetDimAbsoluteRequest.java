@@ -36,7 +36,6 @@ public class SetDimAbsoluteRequest extends Packet {
     }
 
     public SetDimAbsoluteRequest() {
-
     }
 
     public SetDimAbsoluteRequest(int dim, long duration) {

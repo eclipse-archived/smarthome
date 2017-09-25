@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.lifx.internal;
+package org.eclipse.smarthome.binding.lifx.internal.util;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
 
@@ -20,16 +20,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link LifxNetworkThrottler} is a helper class that regulates the frequency at which messages/packets are sent to
- * LIFX lights. The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second, not
- * more.
+ * The {@link LifxThrottlingUtil} is a utility class that regulates the frequency at which messages/packets are
+ * sent to LIFX lights. The LIFX LAN Protocol Specification states that lights can process up to 20 messages per second,
+ * not more.
  *
  * @author Karel Goderis - Initial Contribution
  * @author Wouter Born - Deadlock fix
  */
-public class LifxNetworkThrottler {
+public final class LifxThrottlingUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(LifxNetworkThrottler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LifxThrottlingUtil.class);
+
+    private LifxThrottlingUtil() {
+        // hidden utility class constructor
+    }
 
     /**
      * Tracks when the last packet was sent to a LIFX light. The packet is sent after obtaining the lock and before
@@ -70,9 +74,13 @@ public class LifxNetworkThrottler {
     private static Map<MACAddress, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<MACAddress, LifxLightCommunicationTracker>();
 
     public static void lock(MACAddress mac) {
-        LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
-        tracker.lock();
-        waitForNextPacketInterval(tracker.getTimestamp());
+        if (mac != null) {
+            LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
+            tracker.lock();
+            waitForNextPacketInterval(tracker.getTimestamp());
+        } else {
+            lock();
+        }
     }
 
     private static LifxLightCommunicationTracker getOrCreateTracker(MACAddress mac) {
@@ -98,14 +106,18 @@ public class LifxNetworkThrottler {
             try {
                 Thread.sleep(timeToWait);
             } catch (InterruptedException e) {
-                logger.error("An exception occurred while putting the thread to sleep : '{}'", e.getMessage());
+                LOGGER.error("An exception occurred while putting the thread to sleep : '{}'", e.getMessage());
             }
         }
     }
 
     public static void unlock(MACAddress mac) {
-        if (macTrackerMapping.containsKey(mac)) {
-            macTrackerMapping.get(mac).unlock();
+        if (mac != null) {
+            if (macTrackerMapping.containsKey(mac)) {
+                macTrackerMapping.get(mac).unlock();
+            }
+        } else {
+            unlock();
         }
     }
 

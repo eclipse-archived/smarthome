@@ -43,8 +43,11 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-        if (supportsThingType(thing.getThingTypeUID())) {
-            return new LifxLightHandler(thing, channelFactory);
+        ThingTypeUID typeUID = thing.getThingTypeUID();
+        if (typeUID != null && supportsThingType(typeUID)) {
+            if (channelFactory != null) {
+                return new LifxLightHandler(thing, channelFactory);
+            }
         }
 
         return null;
