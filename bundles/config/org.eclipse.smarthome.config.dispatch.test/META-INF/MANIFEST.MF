@@ -11,5 +11,6 @@ Import-Package:
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit,
+ org.junit.rules,
  org.osgi.framework,
  org.osgi.service.component

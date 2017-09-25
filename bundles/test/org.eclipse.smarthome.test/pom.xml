@@ -18,7 +18,7 @@
   <artifactId>org.eclipse.smarthome.test</artifactId>
 
   <name>Eclipse SmartHome Test</name>
-  <packaging>eclipse-plugin</packaging>
+  <packaging>eclipse-test-plugin</packaging>
 
   <build>
     <plugins>
