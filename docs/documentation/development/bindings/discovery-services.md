@@ -49,7 +49,7 @@ The `Discovery` class of a binding which implements `AbstractDiscoveryService` s
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.<bindingID>")
 ```
 
-where `<bindingID>` is the package name of the binding, i.e. `astro` for the Astro binding. Such a registered service will be picked up automatically by the framework.
+where `<bindingID>` is the id of the binding, i.e. `astro` for the Astro binding. Such a registered service will be picked up automatically by the framework.
 
 ## Discovery 
 
@@ -65,7 +65,6 @@ The following example shows the implementation of the above mentioned methods in
         logger.debug("Start WeMo device background discovery");
         if (wemoDiscoveryJob == null || wemoDiscoveryJob.isCancelled()) {
             wemoDiscoveryJob = scheduler.scheduleWithFixedDelay(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
-            wemoDiscoveryJob = scheduler.scheduleAtFixedRate(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 
