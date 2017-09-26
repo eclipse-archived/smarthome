@@ -11,7 +11,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.storage.Storage;
 
 /**
@@ -20,27 +21,28 @@ import org.eclipse.smarthome.core.storage.Storage;
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
  * @author Kai Kreuzer - improved return values
  */
+@NonNullByDefault
 public class VolatileStorage<T> implements Storage<T> {
 
     Map<String, T> storage = new ConcurrentHashMap<String, T>();
 
     @Override
-    public T put(String key, T value) {
+    public @Nullable T put(String key, @Nullable T value) {
         return storage.put(key, value);
     }
 
     @Override
-    public T remove(String key) {
+    public @Nullable T remove(String key) {
         return storage.remove(key);
     }
 
     @Override
-    public boolean containsKey(final @NonNull String key) {
+    public boolean containsKey(final String key) {
         return storage.containsKey(key);
     }
 
     @Override
-    public T get(String key) {
+    public @Nullable T get(String key) {
         return storage.get(key);
     }
 
@@ -50,7 +52,7 @@ public class VolatileStorage<T> implements Storage<T> {
     }
 
     @Override
-    public Collection<T> getValues() {
+    public Collection<@Nullable T> getValues() {
         return storage.values();
     }
 
