@@ -13,7 +13,6 @@ import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.CommonTriggerEvents;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
-import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 
 /**
  * This profile allows a channel of the "system:rawbutton" type to be bound to an item.
