@@ -245,8 +245,8 @@ public class TradfriColor {
             int xyBrightness) {
         // construct HSBType from RGB values
         HSBType hsbFullBright = HSBType.fromRGB(rgbR, rgbG, rgbB);
-        // get hue and saturation from HSBType and construct new HSBType based on these values with the given brightbess
-        PercentType brightnessPercent = new PercentType((int) (xyBrightness / 2.54));
+        // get hue and saturation from HSBType and construct new HSBType based on these values with the given brightness
+        PercentType brightnessPercent = xyBrightnessToPercentType(xyBrightness);
         HSBType hsb = new HSBType(hsbFullBright.getHue(), hsbFullBright.getSaturation(), brightnessPercent);
         return hsb;
     }
@@ -278,6 +278,22 @@ public class TradfriColor {
             value = 1.0;
         }
         return new PercentType((int) Math.round(value * 100.0));
+    }
+    
+    
+    /**
+     * Converts the xyBrightness value to PercentType
+     *
+     * @param xyBrightness xy brightness level 0 to 254
+     * @return {@link PercentType} with brightness level (0 = light is off, 1 = lowest, 100 = highest)
+     */
+    public static PercentType xyBrightnessToPercentType(int xyBrightness) {
+        if (xyBrightness > 254) {
+            xyBrightness = 254;
+        } else if (xyBrightness < 0) {
+            xyBrightness = 0;
+        }
+        return new PercentType((int) Math.ceil(xyBrightness / 2.54));
     }
 
 }
