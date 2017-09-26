@@ -64,7 +64,7 @@
 	</thing-type>
 
 	<!-- HUE Lamp with Group -->
-	<thing-type id="lamp-with-group">
+	<thing-type id="lamp-with-group" extensible="brightness, alarm">
 
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>

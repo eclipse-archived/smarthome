@@ -165,6 +165,7 @@ public class ThingTypesTest extends JavaOSGiTest {
         assertThat(thingType.getProperties().size(), is(0));
         assertThat(thingType.getCategory(), is(nullValue()));
         assertThat(thingType.isListed(), is(true));
+        assertThat(thingType.getExtensibleChannelTypeIds(), containsInAnyOrder("brightness", "alarm"));
 
         // uninstall test bundle
         bundle.uninstall();

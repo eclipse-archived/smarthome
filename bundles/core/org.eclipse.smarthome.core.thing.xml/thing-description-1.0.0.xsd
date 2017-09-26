@@ -43,7 +43,7 @@
     
     <xs:simpleType name="namespaceIdListRestrictionPattern">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Za-z0-9\-_.]+(,[A-Za-z0-9\-_.]+)*" />
+            <xs:pattern value="[A-Za-z0-9\-_.]+(,( )?[A-Za-z0-9\-_.]+)*" />
         </xs:restriction>
     </xs:simpleType>
 

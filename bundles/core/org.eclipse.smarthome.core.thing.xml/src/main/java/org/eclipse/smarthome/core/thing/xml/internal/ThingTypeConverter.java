@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -110,7 +112,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
             return Collections.emptyList();
         }
 
-        return Arrays.asList(extensible.split(","));
+        return Arrays.stream(extensible.split(",")).map(String::trim).collect(toList());
     }
 
     protected String readCategory(NodeIterator nodeIterator) {
