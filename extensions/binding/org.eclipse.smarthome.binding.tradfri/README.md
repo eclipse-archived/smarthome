@@ -16,11 +16,11 @@ The thing type ids are defined according to the lighting devices defined for Zig
 
 The following matrix lists the capabilities (channels) for each of the supported lighting device types:
 
-| Thing type  | On/Off | Brightness | Color | Color Temperature |
-|-------------|:------:|:----------:|:-----:|:-----------------:|   
-|  0100       |    X   |     X      |       |                   |
-|  0220       |    X   |     X      |       |          X        |
-|  0210       |    X   |            |   X   |          X        |
+| Thing type  | Brightness | Color | Color Temperature |
+|-------------|:----------:|:-----:|:-----------------:|   
+|  0100       |     X      |       |                   |
+|  0220       |     X      |       |          X        |
+|  0210       |            |   X   |          X        |
 
 ## Thing Configuration
 
@@ -59,7 +59,9 @@ Bridge tradfri:gateway:mygateway [ host="192.168.0.177", code="EHPW5rIJKyXFgjH3"
 demo.items:
 
 ```
-Dimmer Light { channel="tradfri:0100:mygateway:myDimmableBulb:brightness" }
+Dimmer Light1 { channel="tradfri:0100:mygateway:myDimmableBulb:brightness" }
+Dimmer Light2_Brightness { channel="tradfri:0220:mygateway:myColorTempBulb:brightness" }
+Dimmer Light2_ColorTemperature { channel="tradfri:0220:mygateway:myColorTempBulb:color_temperature" }
 Color ColorLight { channel="tradfri:0210:mygateway:myColorBulb:color" } 
 ```
 
@@ -69,8 +71,10 @@ demo.sitemap:
 sitemap demo label="Main Menu"
 {
     Frame {
-        Slider item=Light label="Brightness [%.1f %%]"
-        Colorpicker item=ColorLight
+        Slider item=Light1 label="Light1 Brightness [%.1f %%]"
+        Slider item=Light2_Brightness label="Light2 Brightness [%.1f %%]"
+        Slider item=Light2_ColorTemperature label="Light2 Color Temperature [%.1f %%]"
+        Colorpicker item=ColorLight label="Color"
     }
 }
 ```
