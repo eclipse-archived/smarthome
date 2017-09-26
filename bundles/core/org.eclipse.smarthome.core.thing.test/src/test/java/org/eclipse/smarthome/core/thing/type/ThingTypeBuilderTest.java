@@ -201,7 +201,7 @@ public class ThingTypeBuilderTest {
     }
 
     @Test
-    public void shoulsBuildBridgeType() {
+    public void shouldBuildBridgeType() {
         BridgeType bridgeType = builder.buildBridge();
 
         assertThat(bridgeType.getBindingId(), is(BINDING_ID));
