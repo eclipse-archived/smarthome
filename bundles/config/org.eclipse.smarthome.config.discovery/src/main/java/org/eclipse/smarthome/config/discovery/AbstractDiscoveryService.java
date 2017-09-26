@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -23,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -67,7 +67,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     private ScheduledFuture<?> scheduledStop;
 
     protected TranslationProvider i18nProvider;
-    protected Locale locale;
+    protected LocaleProvider localeProvider;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -258,7 +258,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            Holds the information needed to identify the discovered device.
      */
     protected void thingDiscovered(DiscoveryResult discoveryResult) {
-        if (this.i18nProvider != null && this.locale != null) {
+        if (this.i18nProvider != null && this.localeProvider != null) {
             Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 
             String defaultLabel = discoveryResult.getLabel();
@@ -266,7 +266,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
                     : inferKey(discoveryResult, "label");
 
-            String label = this.i18nProvider.getText(bundle, key, defaultLabel, this.locale);
+            String label = this.i18nProvider.getText(bundle, key, defaultLabel, this.localeProvider.getLocale());
 
             discoveryResult = new DiscoveryResultImpl(discoveryResult.getThingTypeUID(), discoveryResult.getThingUID(),
                     discoveryResult.getBridgeUID(), discoveryResult.getProperties(),

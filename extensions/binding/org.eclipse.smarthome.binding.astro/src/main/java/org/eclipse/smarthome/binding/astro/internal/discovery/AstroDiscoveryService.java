@@ -128,11 +128,11 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
 
     @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
-        this.locale = localeProvider.getLocale();
+        this.localeProvider = localeProvider;
     }
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
-        this.locale = null;
+        this.localeProvider = null;
     }
 
     @Reference
