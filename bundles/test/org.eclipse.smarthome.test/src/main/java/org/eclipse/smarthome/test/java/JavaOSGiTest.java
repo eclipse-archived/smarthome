@@ -45,20 +45,19 @@ public class JavaOSGiTest extends JavaTest {
 
     @Before
     public void bindBundleContext() {
-        bundleContext = getBundleContext();
+        bundleContext = initBundleContext();
         assertThat(bundleContext, is(notNullValue()));
     }
 
     /**
-     * Get the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
+     * Initialise the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
      *
      * <p>
-     * By default it uses the bundle context of the test class itself. This method can be overridden by concrete
-     * implementations to provide another bundle context.
+     * This uses the bundle context of the test class itself.
      *
      * @return bundle context
      */
-    protected BundleContext getBundleContext() {
+    private BundleContext initBundleContext() {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             return bundle.getBundleContext();

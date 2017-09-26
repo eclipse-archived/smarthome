@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @author Simon Kaufmann - Initial contribution and API
@@ -50,12 +49,11 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), SYSTEM_CHANNELS_IN_CHANNEL_GROUPS_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, SYSTEM_CHANNELS_IN_CHANNEL_GROUPS_BUNDLE_NAME);
     }
 
     @Test
     public void systemChannelsInChannelGroupsShouldLoadAndUnload() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
         int initialNumberOfChannelTypes = channelTypeRegistry.getChannelTypes().size();
         int initialNumberOfChannelGroupTypes = channelTypeRegistry.getChannelGroupTypes().size();
@@ -81,8 +79,6 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
     @Test
     public void thingTypesWithSystemChannelsInChannelsGoupsShouldHavePorperChannelDefinitions() throws Exception {
-        BundleContext bundleContext = getBundleContext();
-
         // install test bundle
         Bundle sysBundle = SyntheticBundleInstaller.install(bundleContext,
                 SYSTEM_CHANNELS_IN_CHANNEL_GROUPS_BUNDLE_NAME);

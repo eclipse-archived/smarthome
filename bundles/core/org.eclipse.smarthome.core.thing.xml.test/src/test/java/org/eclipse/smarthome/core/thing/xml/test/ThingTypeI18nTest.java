@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 public class ThingTypeI18nTest extends JavaOSGiTest {
 
@@ -40,12 +39,11 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
     }
 
     @Test
     public void thingTypeShouldBeLocalized() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle
@@ -64,8 +62,6 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
 
     @Test
     public void channelGroupTypeShouldBeLocalized() throws Exception {
-
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle
@@ -87,8 +83,6 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
 
     @Test
     public void channelTypeShouldBeLocalized() throws Exception {
-
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle

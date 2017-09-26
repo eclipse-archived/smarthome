@@ -21,7 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /***
  *
@@ -49,12 +48,11 @@ public class ChannelTypesTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
     }
 
     @Test
     public void ChannelTypesShouldBeLoaded() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfChannelTypes = channelTypeProvider.getChannelTypes(null).size();
         int initialNumberOfChannelGroupTypes = channelGroupTypeProvider.getChannelGroupTypes(null).size();
 

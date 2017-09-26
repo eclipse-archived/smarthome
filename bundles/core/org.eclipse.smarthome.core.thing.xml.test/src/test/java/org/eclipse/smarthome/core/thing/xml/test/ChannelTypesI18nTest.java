@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /***
  *
@@ -57,12 +56,11 @@ public class ChannelTypesI18nTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
     }
 
     @Test
     public void channelTypesShouldTranslateCorrectly() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME);
         assertThat(bundle, is(notNullValue()));
 
@@ -83,7 +81,6 @@ public class ChannelTypesI18nTest extends JavaOSGiTest {
 
     @Test
     public void channelDefinitionsShouldBeTranslatedCorrectly() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME);
         assertThat(bundle, is(notNullValue()));
 

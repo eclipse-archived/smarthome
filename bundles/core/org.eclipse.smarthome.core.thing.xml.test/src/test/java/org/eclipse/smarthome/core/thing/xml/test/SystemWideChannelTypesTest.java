@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @author Ivan Iliev - Initial contribution
@@ -51,14 +50,13 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), SYSTEM_CHANNELS_BUNDLE_NAME);
-        SyntheticBundleInstaller.uninstall(getBundleContext(), SYSTEM_CHANNELS_USER_BUNDLE_NAME);
-        SyntheticBundleInstaller.uninstall(getBundleContext(), SYSTEM_CHANNELS_WITHOUT_THING_TYPES_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, SYSTEM_CHANNELS_USER_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, SYSTEM_CHANNELS_WITHOUT_THING_TYPES_BUNDLE_NAME);
     }
 
     @Test
     public void systemChannelsShouldLoadAndUnload() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         int initialNumberOfChannelTypes = getChannelTypes().size();
@@ -84,7 +82,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
     @Test
     public void systemChannelsShouldBeusedByOtherBinding() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
         int initialNumberOfChannelTypes = getChannelTypes().size();
 
@@ -103,8 +100,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
     @Test
     public void thingTyoesShouldHaveProperChannelDefinitions() throws Exception {
-        BundleContext bundleContext = getBundleContext();
-
         // install test bundle
         Bundle sysBundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME);
         assertThat(sysBundle, is(notNullValue()));
@@ -137,7 +132,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
     @Test
     public void systemChannelsShouldBeAddedWithoutThingTypes() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
         int initialNumberOfChannelTypes = getChannelTypes().size();
 
@@ -161,7 +155,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
     @Test
     public void systemChannelsShouldTranslateProperly() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle

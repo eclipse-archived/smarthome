@@ -29,7 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 public class ThingTypesTest extends JavaOSGiTest {
@@ -46,12 +45,11 @@ public class ThingTypesTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws BundleException {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
     }
 
     @Test
     public void thingTypesShouldLoad() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle
@@ -175,7 +173,6 @@ public class ThingTypesTest extends JavaOSGiTest {
 
     @Test
     public void thingTypesShouldBeRemoved_whenBundleIsUninstalled() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
 
         // install test bundle

@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 public class ConfigDescriptionsTest extends JavaOSGiTest {
 
@@ -40,12 +39,11 @@ public class ConfigDescriptionsTest extends JavaOSGiTest {
 
     @After
     public void tearDown() throws Exception {
-        SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME);
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
     }
 
     @Test
     public void syntheticBundleShouldLoadFromTestResource() throws Exception {
-        BundleContext bundleContext = getBundleContext();
 
         // install test bundle
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME);
@@ -58,7 +56,6 @@ public class ConfigDescriptionsTest extends JavaOSGiTest {
 
     @Test
     public void ConfigDescriptionsShouldLoadProperly() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size();
 
         // install test bundle
@@ -129,7 +126,6 @@ public class ConfigDescriptionsTest extends JavaOSGiTest {
 
     @Test
     public void parametersWithOptionsAndFiltersShouldLoadProperly() throws Exception {
-        BundleContext bundleContext = getBundleContext();
         int initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size();
 
         // install test bundle
