@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.model.sitemap.Chart;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class ChartRenderer extends AbstractWidgetRenderer {
             if (chart.getService() != null) {
                 chartUrl += "&service=" + chart.getService();
             }
+            // if legend parameter is given, add correspondending GET parameter
             if (chart.getLegend() != null) {
                 if (chart.getLegend()) {
                     chartUrl += "&legend=true";
@@ -62,6 +64,20 @@ public class ChartRenderer extends AbstractWidgetRenderer {
                     chartUrl += "&legend=false";
                 }
             }
+            // add theme GET parameter
+            String chartTheme = null;
+            switch (config.getTheme()) {
+                case WebAppConfig.THEME_NAME_DEFAULT:
+                    chartTheme = "bright";
+                    break;
+                case WebAppConfig.THEME_NAME_DARK:
+                    chartTheme = "dark";
+                    break;
+            }
+            if (chartTheme != null) {
+                chartUrl += "&theme=" + chartTheme;
+            }
+            // add timestamp to circumvent browser cache
             String url = chartUrl + "&t=" + (new Date()).getTime();
 
             String snippet = getSnippet("chart");
