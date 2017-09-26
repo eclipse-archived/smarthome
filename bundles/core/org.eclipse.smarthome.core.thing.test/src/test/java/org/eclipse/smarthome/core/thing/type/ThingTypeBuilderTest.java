@@ -172,7 +172,6 @@ public class ThingTypeBuilderTest {
 
     @Test
     public void withExtensibleChannelTypeIds_shouldSetUnmodifiableExtensibleChannelTypeIds() {
-        @SuppressWarnings("null")
         ThingType thingType = builder
                 .withExtensibleChannelTypeIds(Arrays.asList(new String[] { "channelTypeId1", "channelTypeId2" }))
                 .build();
