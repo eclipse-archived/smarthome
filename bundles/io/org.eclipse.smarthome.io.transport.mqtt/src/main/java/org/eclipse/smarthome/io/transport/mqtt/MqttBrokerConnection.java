@@ -347,9 +347,8 @@ public class MqttBrokerConnection {
      * @throws MqttException If connected and the subscribe fails, this exception is thrown.
      */
     public boolean addConsumer(MqttMessageSubscriber subscriber) throws MqttException {
-        String topic = subscriber.getTopic();
         // Prepare topic for regex pattern matching taking place in messageArrived.
-        topic = StringUtils.replace(StringUtils.replace(topic, "+", "[^/]*"), "#", ".*");
+        String topic = StringUtils.replace(StringUtils.replace(subscriber.getTopic(), "+", "[^/]*"), "#", ".*");
         synchronized (consumers) {
             List<MqttMessageSubscriber> subscriberList = consumers.get(topic);
             if (subscriberList == null) {
@@ -360,7 +359,7 @@ public class MqttBrokerConnection {
         }
         if (isConnected()) {
             try {
-                client.subscribe(topic, qos);
+                client.subscribe(subscriber.getTopic(), qos);
             } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                 throw new MqttException(e);
             }
