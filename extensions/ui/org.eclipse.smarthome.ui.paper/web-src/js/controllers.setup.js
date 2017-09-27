@@ -209,7 +209,6 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         thingService.add(thing, function() {
             toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thing.UID);
-            window.localStorage.setItem('thingUID', thing.UID);
             $location.path('configuration/things');
         });
     };

@@ -6,21 +6,19 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
 
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
-    $scope.newThingUID = window.localStorage.getItem('thingUID');
-    window.localStorage.removeItem('thingUID');
+    $scope.bindings = []; // used for the things filter
     $scope.thingTypes = [];
     $scope.things;
 
     $scope.refresh = function() {
-        bindingRepository.getAll(true);
-        thingRepository.getAll(function(things) {
-            for (var i = 0; i < things.length; i++) {
-                things[i].bindingType = things[i].thingTypeUID.split(':')[0];
-            }
-            $scope.things = things;
-            refreshBindings();
-        });
-        getThingTypes();
+        refreshThingTypes().then(function() {
+            thingRepository.getAll(function(things) {
+                angular.forEach(things, function(thing) {
+                    thing.bindingType = thing.thingTypeUID.split(':')[0];
+                })
+                $scope.things = things;
+            })
+        })
     }
 
     $scope.remove = function(thing, event) {
@@ -38,24 +36,9 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
         });
     }
 
-    function getThingTypes() {
-        thingTypeRepository.getAll(function(thingTypes) {
-            angular.forEach(thingTypes, function(thingType) {
-                $scope.thingTypes[thingType.UID] = thingType;
-            });
-        });
-    }
-
     $scope.getThingTypeLabel = function(key) {
-        if ($scope.thingTypes && Object.keys($scope.thingTypes).length != 0) {
-            if ($scope.thingTypes[key]) {
-                return $scope.thingTypes[key].label;
-            } else {
-                return '';
-            }
-        } else {
-            thingTypeRepository.setDirty();
-        }
+        var thingType = $scope.thingTypes[key]
+        return thingType ? thingType.label : '';
     };
 
     $scope.clearAll = function() {
@@ -63,26 +46,29 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
         $scope.$broadcast("ClearFilters");
     }
 
-    $scope.$watch("things", function() {
+    $scope.$watch("things", function(newThings, oldThings) {
         refreshBindings();
     })
 
-    function refreshBindings() {
-        $scope.bindings = [];
-        if ($scope.data && $scope.data.bindings && $scope.data.bindings.length > 0) {
-            var arr = [];
-            if ($scope.things) {
-                for (var i = 0; i < $scope.data.bindings.length; i++) {
-                    var a = $.grep($scope.things, function(result) {
-                        return result.bindingType == $scope.data.bindings[i].id;
-                    });
-                    if (a.length > 0) {
-                        $scope.bindings.push($scope.data.bindings[i]);
-                    }
+    function refreshThingTypes() {
+        return thingTypeRepository.getAll(function(thingTypes) {
+            angular.forEach(thingTypes, function(thingType) {
+                $scope.thingTypes[thingType.UID] = thingType;
+            });
+        });
+    }
 
-                }
-            }
-        }
+    function refreshBindings() {
+        bindingRepository.getAll(function(bindings) {
+            var filteredBindings = new Set();
+            angular.forEach($scope.things, function(thing) {
+                var binding = bindings.filter(function(binding) {
+                    return binding.id === thing.bindingType
+                })
+                filteredBindings.add(binding[0])
+            })
+            $scope.bindings = Array.from(filteredBindings)
+        }, true);
     }
 
     $scope.refresh();
