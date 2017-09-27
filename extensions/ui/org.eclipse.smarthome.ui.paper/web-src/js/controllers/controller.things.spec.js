@@ -29,6 +29,13 @@ describe('module PaperUI.controllers.things', function() {
             scope.remove(0, event);
             expect(mdDialog.show).toHaveBeenCalled();
         });
+        it('should get thingType label', function() {
+            scope.thingTypes = [ {
+                label : '1'
+            } ]
+            var label = scope.getThingTypeLabel(0);
+            expect(label).toEqual('1');
+        });
     });
 
     describe('tests for ViewThingController', function() {

@@ -34,15 +34,23 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         redirectTo : '/configuration/bindings'
     }).when('/configuration/services', {
         templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'ServicesController',
         title : 'Configuration'
     }).when('/configuration/things', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
+        title : 'Configuration'
+    }).when('/configuration/things/view/:thingUID', {
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
+        title : 'Configuration'
+    }).when('/configuration/things/edit/:thingUID', {
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
         title : 'Configuration'
     }).when('/configuration/items', {
         templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'ItemSetupController',
         title : 'Configuration'
     }).when('/configuration/item/edit/:itemName', {
         templateUrl : 'partials/item.config.html',
@@ -51,17 +59,9 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/item.config.html',
         controller : 'ItemSetupController',
         title : 'Create item'
-    }).when('/configuration/things/view/:thingUID', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
-    }).when('/configuration/things/edit/:thingUID', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
     }).when('/configuration/system', {
         templateUrl : 'partials/system.configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'SystemController',
         title : 'Configuration'
     }).when('/extensions', {
         templateUrl : 'partials/extensions.html',
