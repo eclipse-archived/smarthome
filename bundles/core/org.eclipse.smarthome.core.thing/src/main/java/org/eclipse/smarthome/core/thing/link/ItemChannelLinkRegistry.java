@@ -63,14 +63,6 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         return channelUIDs;
     }
 
-    /**
-     * Channels can not be updated, so this methods throws an {@link UnsupportedOperationException}.
-     */
-    @Override
-    public ItemChannelLink update(ItemChannelLink element) {
-        throw new UnsupportedOperationException("Channels can not be updated.");
-    }
-
     @Override
     public Set<String> getLinkedItemNames(UID uid) {
         final Set<String> linkedItems = new LinkedHashSet<>();

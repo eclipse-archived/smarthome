@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.link.dto;
 
+import java.util.Map;
+
 /**
  * This is a data transfer object that is used to serialize links.
  *
@@ -15,6 +17,7 @@ package org.eclipse.smarthome.core.thing.link.dto;
 public class ItemChannelLinkDTO extends AbstractLinkDTO {
 
     public String channelUID;
+    public Map<String, Object> configuration;
 
     /**
      * Default constructor for deserialization e.g. by Gson.
@@ -22,9 +25,10 @@ public class ItemChannelLinkDTO extends AbstractLinkDTO {
     protected ItemChannelLinkDTO() {
     }
 
-    public ItemChannelLinkDTO(String itemName, String channelUID) {
+    public ItemChannelLinkDTO(String itemName, String channelUID, Map<String, Object> configuration) {
         super(itemName);
         this.channelUID = channelUID;
+        this.configuration = configuration;
     }
 
 }

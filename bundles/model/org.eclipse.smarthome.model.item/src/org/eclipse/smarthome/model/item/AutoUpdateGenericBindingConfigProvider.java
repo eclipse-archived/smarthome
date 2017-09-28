@@ -16,6 +16,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 
 /**
@@ -23,7 +24,7 @@ import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
  * This class can parse information from the generic binding format and provides AutoUpdate binding information from it.
  * If no binding configuration is provided <code>autoupdate</code> is evaluated to true. This means every received
  * <code>Command</code> will update its corresponding <code>State</code> by default.
- * 
+ *
  * <p>
  * This class registers as a {@link AutoUpdateBindingConfigProvider} service as well.
  *
@@ -60,8 +61,8 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
     }
 
     @Override
-    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
-            throws BindingConfigParseException {
+    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig,
+            Configuration configuration) throws BindingConfigParseException {
         Set<String> itemNames = contextMap.get(context);
         if (itemNames == null) {
             itemNames = new HashSet<String>();
