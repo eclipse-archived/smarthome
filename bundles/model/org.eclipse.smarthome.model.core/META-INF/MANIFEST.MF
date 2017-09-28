@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.core;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Export-Package: org.eclipse.smarthome.model.core
+Export-Package: org.eclipse.smarthome.model.core,
+ org.eclipse.smarthome.model.core.valueconverter
 Import-Package: 
  com.google.common.base,
  com.google.common.collect,
@@ -27,8 +28,11 @@ Import-Package:
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.model.core,
  org.eclipse.xtext.common.types.impl,
+ org.eclipse.xtext.conversion,
+ org.eclipse.xtext.nodemodel,
  org.eclipse.xtext.resource,
  org.eclipse.xtext.resource.impl,
+ org.eclipse.xtext.util,
  org.osgi.framework,
  org.osgi.service.component,
  org.slf4j

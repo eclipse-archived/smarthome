@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -57,15 +58,15 @@ public class GenericItemProvider extends AbstractProvider<Item>
     private final Logger logger = LoggerFactory.getLogger(GenericItemProvider.class);
 
     /** to keep track of all binding config readers */
-    private Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
+    private final Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
 
     private ModelRepository modelRepository = null;
 
-    private Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
+    private final Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
 
-    private Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
+    private final Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
 
-    private Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
+    private final Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
 
     private Integer rank;
 
@@ -309,6 +310,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String bindingType = binding.getType();
             String config = binding.getConfiguration();
 
+            Configuration configuration = new Configuration();
+            binding.getProperties().forEach(p -> configuration.put(p.getKey(), p.getValue()));
+
             BindingConfigReader localReader = reader;
             if (reader == null) {
                 logger.trace("Given binding config reader is null > query cache to find appropriate reader!");
@@ -328,7 +332,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
             if (localReader != null) {
                 try {
                     localReader.validateItemType(item.getType(), config);
-                    localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config);
+                    localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config,
+                            configuration);
                 } catch (BindingConfigParseException e) {
                     logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
                             bindingType, item.getName(), e);

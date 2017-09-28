@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.thing.valueconverter;
+package org.eclipse.smarthome.model.internal.valueconverter;
 
 import org.eclipse.smarthome.model.core.valueconverter.ValueTypeToStringConverter;
 import org.eclipse.xtext.common.services.DefaultTerminalConverters;
@@ -14,22 +14,20 @@ import org.eclipse.xtext.conversion.ValueConverter;
 
 import com.google.inject.Inject;
 
-public class ThingValueConverters extends DefaultTerminalConverters {
+/**
+ * Registers {@link IValueConverter}s for the items language.
+ *
+ * @author Simon Kaufmann - initial contribution and API.
+ *
+ */
+public class ItemValueConverters extends DefaultTerminalConverters {
 
     @Inject
     private ValueTypeToStringConverter valueTypeToStringConverter;
 
-    @Inject
-    private UIDtoStringConverter uidToStringConverter;
-
     @ValueConverter(rule = "ValueType")
     public IValueConverter<Object> ValueType() {
         return valueTypeToStringConverter;
-    }
-
-    @ValueConverter(rule = "UID")
-    public IValueConverter<String> UID() {
-        return uidToStringConverter;
     }
 
 }

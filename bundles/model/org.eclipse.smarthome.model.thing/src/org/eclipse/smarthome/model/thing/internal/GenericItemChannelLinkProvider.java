@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -56,19 +57,19 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     }
 
     @Override
-    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
-            throws BindingConfigParseException {
+    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig,
+            Configuration configuration) throws BindingConfigParseException {
         String[] uids = bindingConfig.split(",");
         if (uids.length == 0) {
             throw new BindingConfigParseException(
                     "At least one Channel UID should be provided: <bindingID>.<thingTypeId>.<thingId>.<channelId>");
         }
         for (String uid : uids) {
-            createItemChannelLink(context, itemName, uid.trim());
+            createItemChannelLink(context, itemName, uid.trim(), configuration);
         }
     }
 
-    private void createItemChannelLink(String context, String itemName, String channelUID)
+    private void createItemChannelLink(String context, String itemName, String channelUID, Configuration configuration)
             throws BindingConfigParseException {
         ChannelUID channelUIDObject = null;
         try {
@@ -76,7 +77,7 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
         } catch (IllegalArgumentException e) {
             throw new BindingConfigParseException(e.getMessage());
         }
-        ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject);
+        ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject, configuration);
 
         Set<String> itemNames = contextMap.get(context);
         if (itemNames == null) {
