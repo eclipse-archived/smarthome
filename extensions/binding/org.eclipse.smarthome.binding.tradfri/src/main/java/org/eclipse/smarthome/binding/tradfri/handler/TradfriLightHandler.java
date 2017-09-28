@@ -346,16 +346,14 @@ public class TradfriLightHandler extends BaseThingHandler implements CoapCallbac
         }
 
         public PercentType getBrightness() {
+            PercentType result = null;
+            
             JsonElement dimmer = attributes.get(DIMMER);
             if (dimmer != null) {
-                int b = dimmer.getAsInt();
-                if (b == 1) {
-                    return new PercentType(1);
-                }
-                return new PercentType((int) Math.round(b / 2.54));
-            } else {
-                return null;
-            }
+                result = TradfriColor.xyBrightnessToPercentType(dimmer.getAsInt());
+            } 
+            
+            return result;
         }
 
         public boolean getReachabilityStatus() {
