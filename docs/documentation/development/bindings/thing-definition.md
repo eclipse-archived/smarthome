@@ -60,7 +60,7 @@ The channel type definition is specified on the same level as the thing type def
 That way channels can be reused in different things.
 
 The granularity of channel types should be on its semantic level, i.e. very fine-grained:
-If a Thing measures two temperature values, one for indoor and one for outdoor, this should be modelled as two different channel types.
+If a Thing measures two temperature values, one for indoor and one for outdoor, this should be modeled as two different channel types.
 Overriding labels of a channel type must only be done if the very same functionality is offered multiple times, e.g. having an actuator with 5 relais, which each is a simple "switch", but you want to individually name the channels (1-5).
 
 The following XML snippet shows a thing type definition with 2 channels and one referenced channel type:
@@ -109,7 +109,7 @@ There exist systemwide channels that are available by default:
 |-----------------|------------------------|--------------|----------------- |------------- |
 | signal-strength | system.signal-strength | Number       | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.  |
 | low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
-| battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (eg 4 levels) should convert to a percentage to provide a consistent battery level reading. |
+| battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (e.g. 4 levels) should convert to a percentage to provide a consistent battery level reading. |
 
 For further information about categories see the [categories page](../../concepts/categories.html).
 
@@ -145,7 +145,7 @@ The following XML snippet shows a trigger channel:
 
 This channel can emit the event payloads `PRESSED`, `RELEASED` and `DOUBLE_PRESSED`.
 
-If no `<event>` tag is speficied, the channel can be triggered, but has no event payload. If an empty `<event>` tag is specified, the channel can trigger any event payload.
+If no `<event>` tag is specified, the channel can be triggered, but has no event payload. If an empty `<event>` tag is specified, the channel can trigger any event payload.
 
 There exist systemwide trigger channels that are available by default:
 
@@ -300,8 +300,8 @@ In contrast to the properties defined in the 'ThingType' definitions the thing h
 ### Representation Property
 
 A thing type can contain a so-called `representation property`. 
-This optional property contains the _name_ of a property whose value can be used to uniquely identify a deivce. 
-The `thingUID` cannot be used for this purpose because there can be more than one thing for the same device. 
+This optional property contains the _name_ of a property whose value can be used to uniquely identify a device.
+The `thingUID` cannot be used for this purpose because there can be more than one thing for the same device.
 
 Each physical device normally has some kind of a technical identifier which is unique.
 This could be a MAC address (e.g. Hue bridge, camera, all IP-based devices), a unique device id (e.g. a Hue lamp) or some other property that is unique per device type. 
@@ -310,15 +310,15 @@ Having this property identified per binding it could be used as the `representat
 
 The `representation property` will be defined in the thing type XML: 
 
-```xml 
- <bridge-type id="thingTypeId">
+```xml
+    <thing-type id="thingTypeId">
         ...
         <properties>
-        	<property name="vendor">Philips</property>
+            <property name="vendor">Philips</property>
         </properties>
         <representation-property>serialNumber</representation-property>
-	...
-   </thing-type>
+        ...
+    </thing-type>
 ```
 
 Note that the `representation property` is normally not listed in the `properties` part of the thing type, as this part contains static properties, that are the same for each thing of this thing type. 
@@ -345,4 +345,4 @@ If you want to provide a longer description of the options provided by a particu
 The description can include limited HTML to enhance the display of this information.
 
 The following HTML tags are allowed : ```<b>, <br />, <em>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <i>, <p>, <small>, <strong>, <sub>, <sup>, <ul>, <ol>, <li>```. 
-These must be inside the XML escape sequence - eg. ```<description><![CDATA[ HTML marked up text here ]]></description>```.
+These must be inside the XML escape sequence - e.g. ```<description><![CDATA[ HTML marked up text here ]]></description>```.
