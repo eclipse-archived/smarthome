@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util, itemRepository) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -12,10 +12,11 @@ angular.module('PaperUI.controllers.things') //
     $scope.channelTypes;
     $scope.items;
 
-    channelTypeService.getAll().$promise.then(function(channels) {
+    channelTypeRepository.getAll(function(channels) {
         $scope.channelTypes = channels;
         $scope.refreshChannels(false);
     });
+
     itemRepository.getAll(function(items) {
         $scope.items = items;
     });
@@ -201,15 +202,12 @@ angular.module('PaperUI.controllers.things') //
     }
 
     function checkAdvance(channels) {
-        if (channels) {
-            for (var i = 0, len = channels.length; i < len; i++) {
-                var channel = channels[i];
-                var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
-                if (channelType && channelType.advanced) {
-                    return true;
-                }
-            }
-        }
+        var advancedChannels = channels.filter(function(channel) {
+            var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
+            return channelType && channelType.advanced
+        })
+
+        return advancedChannels.length > 0
     }
 
     $scope.getThing = function(refresh) {
