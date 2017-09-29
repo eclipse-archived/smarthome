@@ -265,7 +265,7 @@ angular.module('PaperUI.controllers.things') //
             hasBackdrop : true,
             locals : {
                 channelType : channelType,
-                channelUID : channel.uid,
+                channel : channel,
                 thing : thing
             }
         });

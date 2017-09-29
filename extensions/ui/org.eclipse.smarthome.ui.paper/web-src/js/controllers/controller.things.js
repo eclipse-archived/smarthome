@@ -178,28 +178,18 @@ angular.module('PaperUI.controllers.things') //
     $scope.unlink = function() {
         $mdDialog.hide();
     }
-}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channelUID, thing) {
+}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channel, thing) {
     $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);
-    $scope.thing = thing;
-    $scope.channel = $.grep(thing.channels, function(channel) {
-        return channel.uid == channelUID;
-    });
-    $scope.configuration = $scope.channel[0].configuration;
+    $scope.configuration = channel.configuration
 
     $scope.close = function() {
         $mdDialog.cancel();
     }
     $scope.save = function() {
-        var updated = false;
-        for (var i = 0; !updated && i < $scope.thing.channels.length; i++) {
-            if ($scope.thing.channels[i].uid == $scope.channel.uid) {
-                $scope.thing.channels[i].configuration = $scope.configuration;
-                updated = true;
-            }
-        }
+        channel = $scope.configuration
         thingService.update({
             thingUID : thing.UID
-        }, $scope.thing, function() {
+        }, thing, function() {
             $mdDialog.hide();
             toastService.showDefaultToast('Channel updated');
         });
