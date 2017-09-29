@@ -66,6 +66,11 @@ public class NetUtil implements NetworkAddressService {
 
     @Override
     public String getPrimaryIpv4HostAddress() {
+        if (primaryAddress == null) {
+            // we do not seem to have any network interfaces
+            return null;
+        }
+
         String primaryIP;
 
         String[] addrString = primaryAddress.split("/");
