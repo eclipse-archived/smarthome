@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog' ]) //
-.controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, configService, configDescriptionService, thingService) {
+.controller('EditThingController', function($scope, $mdDialog, toastService, thingRepository, configService, configDescriptionService, thingService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
@@ -7,9 +7,12 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
 
     $scope.thing = {};
     $scope.groups = [];
-    $scope.thingType;
     $scope.isEditing = true;
     var originalThing = {};
+
+    // used for the thing config parameters
+    $scope.parameters = undefined
+    $scope.configuration = {}
 
     $scope.update = function(thing) {
         thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
@@ -30,14 +33,6 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
         $scope.navigateTo('view/' + thing.UID);
     };
 
-    var refreshThingType = function(thingTypeUID) {
-        thingTypeService.getByUid({
-            thingTypeUID : thingTypeUID
-        }, function(thingType) {
-            $scope.thingType = thingType;
-        });
-    };
-
     var getThing = function(refresh) {
         // Get the thing
         thingRepository.getOne(function(thing) {
@@ -46,8 +41,6 @@ angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.con
             $scope.thing = thing;
             angular.copy(thing, originalThing);
 
-            // Get the thing type
-            refreshThingType(thing.thingTypeUID);
             $scope.setSubtitle([ 'Things', 'Edit', thing.label ]);
 
             // Now get the configuration information for this thing
