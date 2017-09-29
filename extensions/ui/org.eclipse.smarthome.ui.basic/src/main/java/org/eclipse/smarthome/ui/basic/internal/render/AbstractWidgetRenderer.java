@@ -17,6 +17,9 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppActivator;
@@ -24,7 +27,7 @@ import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +45,12 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
     protected ItemUIRegistry itemUIRegistry;
+    protected TranslationProvider i18nProvider;
+    protected LocaleProvider localeProvider;
 
     protected WebAppConfig config;
+
+    private BundleContext bundleContext;
 
     /* the file extension of the snippets */
     protected static final String SNIPPET_EXT = ".html";
@@ -66,10 +73,28 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         return itemUIRegistry;
     }
 
-    protected void activate(ComponentContext context) {
+    public void setLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
     }
 
-    protected void deactivate(ComponentContext context) {
+    public void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = null;
+    }
+
+    public void setTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+    }
+
+    public void unsetTranslationProvider(TranslationProvider i18nProvider) {
+        this.i18nProvider = null;
+    }
+
+    protected void activate(BundleContext context) {
+        this.bundleContext = context;
+    }
+
+    protected void deactivate(BundleContext context) {
+        this.bundleContext = null;
     }
 
     /**
@@ -272,5 +297,14 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     @Override
     public void setConfig(WebAppConfig config) {
         this.config = config;
+    }
+
+    protected String localizeText(String key) {
+        String result = "";
+        if (I18nUtil.isConstant(key)) {
+            result = this.i18nProvider.getText(this.bundleContext.getBundle(), I18nUtil.stripConstant(key), "",
+                    this.localeProvider.getLocale());
+        }
+        return result;
     }
 }
