@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +40,9 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", null, false,
-                            channelDefinitions, null, null, new URI("dumb:DUMB")));
+                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB").withDescription("Funky Thing")
+                            .isListed(false).withChannelDefinitions(channelDefinitions)
+                            .withConfigDescriptionURI(new URI("dumb:DUMB")).build());
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
         }

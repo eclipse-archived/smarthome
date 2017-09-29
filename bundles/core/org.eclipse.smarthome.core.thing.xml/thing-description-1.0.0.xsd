@@ -38,7 +38,14 @@
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="listed" type="xs:boolean" default="true" use="optional"/>
+        <xs:attribute name="extensible" type="thing-description:namespaceIdListRestrictionPattern" use="optional"/>
     </xs:complexType>
+    
+    <xs:simpleType name="namespaceIdListRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9\-_.]+(,( )?[A-Za-z0-9\-_.]+)*" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="bridgeType">
         <xs:complexContent>

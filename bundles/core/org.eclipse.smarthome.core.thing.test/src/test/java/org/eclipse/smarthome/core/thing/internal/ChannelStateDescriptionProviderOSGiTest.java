@@ -49,7 +49,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
@@ -155,8 +155,8 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         channelDefinitions.add(new ChannelDefinition("5", channelType5.getUID()));
         channelDefinitions.add(new ChannelDefinition("6", channelType6.getUID()));
 
-        registerService(new SimpleThingTypeProvider(Collections.singleton(
-                new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, channelDefinitions, null, null, null))));
+        registerService(new SimpleThingTypeProvider(Collections.singleton(ThingTypeBuilder
+                .instance(new ThingTypeUID("hue:lamp"), "label").withChannelDefinitions(channelDefinitions).build())));
 
         List<Item> items = new ArrayList<>();
         items.add(new NumberItem("TestItem"));
