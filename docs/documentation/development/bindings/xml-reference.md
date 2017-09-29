@@ -141,7 +141,7 @@ Further, the <strong>item</strong> context can contain criteria to filter the li
 </filter>
 ```
 
-In the case of above filter only those items will be shown that satisfy the filter's coniditions. The above filter is evaluated as follows: 
+In the case of above filter only those items will be shown that satisfy the filter's conditions. The above filter is evaluated as follows: 
 
 ```
 (type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
@@ -294,7 +294,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
         http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-  <bridge-type id="bridgeTypeID" listed="{true|false}">
+  <bridge-type id="bridgeTypeID" listed="{true|false}" extensible="channelTypeId,channelGroupTypeID,...">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -337,7 +337,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
   </bridge-type>
 
-  <thing-type id="thingTypeID" listed="{true|false}">
+  <thing-type id="thingTypeID" listed="{true|false}" extensible="channelTypeId,channelGroupTypeID,...">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -444,6 +444,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>bridge-type.id | thing-type.id</td><td>An identifier for the bridge/<i>Thing</i> type (mandatory).</td></tr>
   <tr><td>bridge-type.listed | thing-type.listed</td><td>Denotes if user interfaces should list the bridge/<i>Thing</i>, e.g. for pairing (optional, defaults to true).</td></tr>
+  <tr><td>bridge-type.extensible | thing-type.extensible</td><td>If the bridge/<i>Thing</i> supports a generic number of channels the allowed channelTypeIds and/or channelGroupTypeIds can be listed here (optional). This provides a hint for UIs to support adding/removing channels.</td></tr>
   <tr><td>supported-bridge-type-refs</td><td>The identifiers of the bridges this bridge/<i>Thing</i> can connect to (optional).</td></tr>
   <tr><td>bridge-type-ref.id</td><td>The identifier of a bridge this bridge/<i>Thing</i> can connect to (mandatory).</td></tr>
   <tr><td>label</td><td>A human-readable label for the bridge/<i>Thing</i> (mandatory).</td></tr>

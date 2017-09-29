@@ -35,7 +35,7 @@
 	</bridge-type>
 
 	<!-- HUE Lamp -->
-	<thing-type id="lamp" listed="false">
+	<thing-type id="lamp" listed="false" extensible="alarm,brightness">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
@@ -64,7 +64,7 @@
 	</thing-type>
 
 	<!-- HUE Lamp with Group -->
-	<thing-type id="lamp-with-group">
+	<thing-type id="lamp-with-group" extensible="brightness, alarm">
 
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>

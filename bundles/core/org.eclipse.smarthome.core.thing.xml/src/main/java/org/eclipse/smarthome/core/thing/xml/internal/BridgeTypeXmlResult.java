@@ -14,7 +14,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
@@ -31,23 +30,17 @@ import com.thoughtworks.xstream.converters.ConversionException;
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, String category, boolean listed, List<ChannelXmlResult>[] channelTypeReferenceObjects,
-            List<NodeValue> properties, String representationProperty, Object[] configDescriptionObjects) {
+            String description, String category, boolean listed, List<String> extensibleChannelTypeIds,
+            List<ChannelXmlResult>[] channelTypeReferenceObjects, List<NodeValue> properties,
+            String representationProperty, Object[] configDescriptionObjects) {
 
-        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, category, listed, channelTypeReferenceObjects,
-                properties, representationProperty, configDescriptionObjects);
+        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, category, listed, extensibleChannelTypeIds,
+                channelTypeReferenceObjects, properties, representationProperty, configDescriptionObjects);
     }
 
     @Override
-    public ThingType toThingType() throws ConversionException {
-
-        BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
-                super.description, super.category, super.listed, super.representationProperty,
-                super.toChannelDefinitions(this.channelTypeReferences),
-                super.toChannelGroupDefinitions(this.channelGroupTypeReferences), super.toPropertiesMap(),
-                super.configDescriptionURI);
-
-        return bridgeType;
+    public BridgeType toThingType() throws ConversionException {
+        return getBuilder().buildBridge();
     }
 
     @Override
@@ -56,8 +49,9 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description + ", category="
                 + category + ", listed=" + listed + ", representationProperty=" + representationProperty
                 + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
-                + configDescriptionURI + ", configDescription=" + configDescription + "]";
+                + channelGroupTypeReferences + ", extensibelChannelTypeIds=" + extensibleChannelTypeIds
+                + ", properties=" + properties + ", configDescriptionURI=" + configDescriptionURI
+                + ", configDescription=" + configDescription + "]";
     }
 
 }
