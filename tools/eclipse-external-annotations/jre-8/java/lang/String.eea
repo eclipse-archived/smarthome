@@ -1,0 +1,19 @@
+class java/lang/String
+format
+ (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+ (Ljava/lang/String;[Ljava/lang/Object;)L1java/lang/String;
+replace
+ (CC)Ljava/lang/String;
+ (CC)L1java/lang/String;
+split
+ (Ljava/lang/String;)[Ljava/lang/String;
+ (Ljava/lang/String;)[1L1java/lang/String;
+toLowerCase
+ ()Ljava/lang/String;
+ ()L1java/lang/String;
+valueOf
+ (J)Ljava/lang/String;
+ (J)L1java/lang/String;
+valueOf
+ (Ljava/lang/Object;)Ljava/lang/String;
+ (Ljava/lang/Object;)L1java/lang/String;

@@ -184,6 +184,8 @@
             <compilerArgs>
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
               <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+              <arg>-annotationpath</arg>
+              <arg>${basedirRoot}/tools/eclipse-external-annotations/jre-8:${basedirRoot}/tools/eclipse-external-annotations/others</arg>
             </compilerArgs>
           </configuration>
         </plugin>
@@ -514,9 +516,9 @@
                 </execution>
               </executions>
               <configuration>
-                <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
-                <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
-                <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
+                <checkstyleProperties>tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
+                <checkstyleFilter>tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
+                <findbugsExclude>tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
               </configuration>
             </plugin>
           </plugins>
@@ -533,9 +535,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.openhab.tools</groupId>
-            <artifactId>static-code-analysis</artifactId>
-            <version>${sat.version}</version>
+              <groupId>org.openhab.tools</groupId>
+              <artifactId>static-code-analysis</artifactId>
+              <version>${sat.version}</version>
           </plugin>
         </plugins>
       </build>
@@ -560,7 +562,7 @@
       </releases>
       <snapshots>
         <enabled>false</enabled>
-      </snapshots>
+        </snapshots>
     </repository>
   </repositories>
 

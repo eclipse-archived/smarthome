@@ -1,0 +1,4 @@
+class java/lang/Long
+valueOf
+ (J)Ljava/lang/Long;
+ (J)L1java/lang/Long;
