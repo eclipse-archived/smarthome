@@ -903,10 +903,13 @@ public class HueBridge {
     }
 
     private String getRelativeURL(String path) {
-        if (username == null) {
-            return "http://" + ip + "/api/" + path;
-        } else {
-            return "http://" + ip + "/api/" + enc(username) + "/" + path;
+        String relativeUrl = "http://" + ip + "/api";
+        if (username != null) {
+            relativeUrl += "/" + enc(username);
         }
+        if (!path.isEmpty()) {
+            relativeUrl += "/" + path;
+        }
+        return relativeUrl;
     }
 }
