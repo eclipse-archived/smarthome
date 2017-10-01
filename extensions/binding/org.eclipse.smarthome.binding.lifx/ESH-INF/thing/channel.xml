@@ -35,6 +35,25 @@
 		</tags>
 	</channel-type>
 
+	<channel-type id="effect">
+		<item-type>String</item-type>
+		<label>Effect</label>
+		<description>Selects the light effect</description>
+		<category>ColorLight</category>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state>
+			<options>
+				<option value="sawTest">Saw Test (Black/White)</option>
+				<option value="sineTest">Sine Test (White/Orange)</option>
+				<option value="halfSineTest">Half Sine Test (White/Green)</option>
+				<option value="triangleTest">Triangle Test (White/Blue)</option>
+				<option value="pulseTest">Pulse Test (Red/Blue)</option>
+			</options>
+		</state>		
+	</channel-type>
+
 	<channel-type id="infrared">
 		<item-type>Dimmer</item-type>
 		<label>Infrared</label>

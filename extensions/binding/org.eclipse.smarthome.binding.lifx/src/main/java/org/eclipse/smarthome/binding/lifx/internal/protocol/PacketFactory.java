@@ -75,6 +75,8 @@ public class PacketFactory {
         register(SetLightPowerRequest.class);
         register(SetPowerRequest.class);
         register(SetTagsRequest.class);
+        register(SetWaveformOptionalRequest.class);
+        register(SetWaveformRequest.class);
         register(StateGroupResponse.class);
         register(StateHostFirmwareResponse.class);
         register(StateHostInfoResponse.class);

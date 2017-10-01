@@ -47,13 +47,18 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiInfoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SetPowerRequest;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.SetWaveformRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Waveform;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -429,12 +434,9 @@ public class LifxLightHandler extends BaseThingHandler {
         if (command instanceof RefreshType) {
             channelStates.remove(channelUID.getId());
             switch (channelUID.getId()) {
-                case CHANNEL_COLOR:
                 case CHANNEL_BRIGHTNESS:
+                case CHANNEL_COLOR:
                     sendPacket(new GetLightPowerRequest());
-                    sendPacket(new GetRequest());
-                    break;
-                case CHANNEL_TEMPERATURE:
                     sendPacket(new GetRequest());
                     break;
                 case CHANNEL_INFRARED:
@@ -443,12 +445,26 @@ public class LifxLightHandler extends BaseThingHandler {
                 case CHANNEL_SIGNAL_STRENGTH:
                     sendPacket(new GetWifiInfoRequest());
                     break;
+                case CHANNEL_TEMPERATURE:
+                    sendPacket(new GetRequest());
+                    break;
                 default:
                     break;
             }
         } else {
             boolean supportedCommand = true;
             switch (channelUID.getId()) {
+                case CHANNEL_BRIGHTNESS:
+                    if (command instanceof PercentType) {
+                        handlePercentCommand((PercentType) command);
+                    } else if (command instanceof OnOffType) {
+                        handleOnOffCommand((OnOffType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                    } else {
+                        supportedCommand = false;
+                    }
+                    break;
                 case CHANNEL_COLOR:
                     if (command instanceof HSBType) {
                         handleHSBCommand((HSBType) command);
@@ -462,13 +478,15 @@ public class LifxLightHandler extends BaseThingHandler {
                         supportedCommand = false;
                     }
                     break;
-                case CHANNEL_BRIGHTNESS:
+                case CHANNEL_EFFECT:
+                    handleEffectCommand(((StringType) command));
+                    supportedCommand = false;
+                    break;
+                case CHANNEL_INFRARED:
                     if (command instanceof PercentType) {
-                        handlePercentCommand((PercentType) command);
-                    } else if (command instanceof OnOffType) {
-                        handleOnOffCommand((OnOffType) command);
+                        handleInfraredCommand((PercentType) command);
                     } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                        handleIncreaseDecreaseInfraredCommand((IncreaseDecreaseType) command);
                     } else {
                         supportedCommand = false;
                     }
@@ -478,15 +496,6 @@ public class LifxLightHandler extends BaseThingHandler {
                         handleTemperatureCommand((PercentType) command);
                     } else if (command instanceof IncreaseDecreaseType) {
                         handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
-                    } else {
-                        supportedCommand = false;
-                    }
-                    break;
-                case CHANNEL_INFRARED:
-                    if (command instanceof PercentType) {
-                        handleInfraredCommand((PercentType) command);
-                    } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseInfraredCommand((IncreaseDecreaseType) command);
                     } else {
                         supportedCommand = false;
                     }
@@ -541,6 +550,68 @@ public class LifxLightHandler extends BaseThingHandler {
         return pendingLightState.getDurationSinceLastChange().minus(MAX_STATE_CHANGE_DURATION).isNegative();
     }
 
+    private void handleEffectCommand(StringType command) {
+        String effect = command.toString();
+
+        logger.debug("Effect: {}", effect);
+
+        HSBK black = new HSBK(new HSBType("0,100,0"), 2700);
+        HSBK white = new HSBK(new HSBType("22,0,40"), 2700);
+        HSBK red = new HSBK(new HSBType("345,100,40"), 2700);
+        HSBK orange = new HSBK(new HSBType("43,100,40"), 2700);
+        HSBK green = new HSBK(new HSBType("120,100,40"), 2700);
+        HSBK blue = new HSBK(new HSBType("240,100,40"), 2700);
+
+        HSBK from = null;
+        HSBK to = null;
+        Waveform waveform = null;
+
+        switch (effect) {
+            case "sawTest":
+                from = black;
+                to = white;
+                waveform = Waveform.SAW;
+                break;
+            case "sineTest":
+                from = white;
+                to = orange;
+                waveform = Waveform.SINE;
+                break;
+            case "halfSineTest":
+                from = white;
+                to = green;
+                waveform = Waveform.HALF_SINE;
+                break;
+            case "triangleTest":
+                from = white;
+                to = blue;
+                waveform = Waveform.TRIANGLE;
+                break;
+            case "pulseTest":
+                from = red;
+                to = blue;
+                waveform = Waveform.PULSE;
+                break;
+            default:
+                logger.warn("{} : Unknown effect: {}", logId, effect);
+
+        }
+
+        if (waveform != null) {
+            communicationHandler.sendPacket(new SetPowerRequest(PowerState.ON));
+            communicationHandler.sendPacket(new SetColorRequest(from, 0));
+            communicationHandler.sendPacket(new SetWaveformRequest(true, to, 5000, 15, 0, waveform));
+        }
+    }
+
+    private void handleHSBCommand(HSBType hsb) {
+        getLightStateForCommand().setColor(hsb);
+    }
+
+    private void handleHSBCommand(HSBType hsb, int zoneIndex) {
+        getLightStateForCommand().setColor(hsb, zoneIndex);
+    }
+
     private void handleTemperatureCommand(PercentType temperature) {
         HSBK newColor = getLightStateForCommand().getColor();
         newColor.setSaturation(PercentType.ZERO);
@@ -553,14 +624,6 @@ public class LifxLightHandler extends BaseThingHandler {
         newColor.setSaturation(PercentType.ZERO);
         newColor.setKelvin(percentTypeToKelvin(temperature, product.getTemperatureRange()));
         getLightStateForCommand().setColor(newColor, zoneIndex);
-    }
-
-    private void handleHSBCommand(HSBType hsb) {
-        getLightStateForCommand().setColor(hsb);
-    }
-
-    private void handleHSBCommand(HSBType hsb, int zoneIndex) {
-        getLightStateForCommand().setColor(hsb, zoneIndex);
     }
 
     private void handlePercentCommand(PercentType brightness) {

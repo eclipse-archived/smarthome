@@ -8,6 +8,7 @@
 		<channels>
 			<channel id="color" typeId="color" />
 			<channel id="temperature" typeId="temperature" />
+			<channel id="effect" typeId="effect" />
 			<channel id="signalstrength" typeId="system.signal-strength" />
 		</channels>
 		<representation-property>macAddress</representation-property>
