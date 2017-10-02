@@ -157,7 +157,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
 
             @Override
             public Result get(String address) throws IOException {
-                if (address.endsWith("testUserName/")) {
+                if (address.endsWith("testUserName")) {
                     String body = "{\"lights\":{}}";
                     return new Result(body, 200);
                 } else {
