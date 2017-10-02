@@ -481,7 +481,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                     new Result("", 200)
                 },
                 get: { String address ->
-                    if (address.endsWith("testUserName/")) {
+                    if (address.endsWith("testUserName")) {
                         new Result(currentState.toString(), 200)
                     }
                 }
