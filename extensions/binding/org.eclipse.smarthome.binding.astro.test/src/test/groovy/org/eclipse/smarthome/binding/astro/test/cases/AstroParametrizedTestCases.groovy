@@ -11,6 +11,7 @@ import static org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsDa
 
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime;
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.core.library.types.DecimalType
  * @author Svilen Valakanov - Added test data from 
  *      <a href="http://www.suncalc.net">http://www.suncalc.net</a> and 
  *      <a href="http://www.mooncalc.org">http://www.mooncalc.org</a>
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 public class AstroParametrizedTestCases {
     public static final double TEST_LATITUDE = 22.4343
@@ -212,9 +214,7 @@ public class AstroParametrizedTestCases {
 
     private DateTimeType getDateTime(String timeStamp) {
         LocalDateTime dateTime = LocalDateTime.parse(timeStamp)
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(dateTime,TEST_ZONE_OFSET,null)
-
-        Calendar calendar = GregorianCalendar.from(zonedDateTime)
-        return new DateTimeType(calendar)
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(dateTime,ZoneId.of(TEST_ZONE_OFSET.getId()))
+        return new DateTimeType(zonedDateTime)
     }
 }

@@ -10,7 +10,11 @@ package org.eclipse.smarthome.binding.astro.internal.util;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
@@ -25,6 +29,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * Methods to get the value from a property of an object.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 public class PropertyUtils {
 
@@ -41,8 +46,13 @@ public class PropertyUtils {
         if (value == null) {
             return UnDefType.UNDEF;
         } else if (value instanceof Calendar) {
+            // TODO use LocationProvider service once it's merged https://github.com/eclipse/smarthome/issues/3936
+            ZoneId zone = ZoneId.of("+03:00");
             Calendar cal = (Calendar) value;
-            return new DateTimeType(DateTimeUtils.applyConfig(cal, config));
+            GregorianCalendar gregorianCal = (GregorianCalendar) DateTimeUtils.applyConfig(cal, config);
+            cal.setTimeZone(TimeZone.getTimeZone(zone));
+            ZonedDateTime zoned = gregorianCal.toZonedDateTime().withFixedOffsetZone();
+            return new DateTimeType(zoned);
         } else if (value instanceof Number) {
             BigDecimal decimalValue = new BigDecimal(value.toString()).setScale(2, RoundingMode.HALF_UP);
             return new DecimalType(decimalValue);
