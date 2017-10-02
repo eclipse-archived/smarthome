@@ -329,7 +329,8 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .fab-item .item-content .actions {
-	width: 160px;
+	flex-wrap: nowrap;
+	display: flex;
 }
 
 .fab-item .item-content .actions i:last-child {
@@ -928,6 +929,10 @@ md-input-container .md-errors-spacer {
 
 .firmware-table .firmware-detail-button {
     width: 100px;
+}
+
+button.extensible-thing {
+	margin-top: 0;
 }
 
 md-chips .md-chip-remove-container {
