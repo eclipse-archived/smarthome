@@ -102,13 +102,13 @@ public class ChartThemeDark implements ChartTheme {
     }
 
     @Override
-    public int getChartPadding() {
-        return 5;
+    public int getChartPadding(int dpi) {
+        return (int) Math.max(5, Math.round(dpi / 19.0));
     }
 
     @Override
-    public int getLegendSeriesLineLength() {
-        return 10;
+    public int getLegendSeriesLineLength(int dpi) {
+        return (int) Math.max(10, Math.round(dpi / 12.0));
     }
 
 }

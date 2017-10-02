@@ -120,15 +120,17 @@ public interface ChartTheme {
     /**
      * Padding of the chart.
      *
+     * @param dpi the DPI to calculate the padding
      * @return padding of the chart
      */
-    public int getChartPadding();
+    public int getChartPadding(int dpi);
 
     /**
      * Length of the line markers in the legend, in px.
      *
+     * @param dpi the DPI to calculate the line length
      * @return length of the line markers in the legend, in px
      */
-    public int getLegendSeriesLineLength();
+    public int getLegendSeriesLineLength(int dpi);
 
 }

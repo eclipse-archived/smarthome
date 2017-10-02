@@ -64,8 +64,8 @@ public class DefaultChartProvider implements ChartProvider {
 
     private int legendPosition = 0;
 
-    private static final ChartTheme[] CHART_THEMES_AVAILABLE = { new ChartThemeBright(), new ChartThemeDark(),
-            new ChartThemeBlack() };
+    private static final ChartTheme[] CHART_THEMES_AVAILABLE = { new ChartThemeWhite(), new ChartThemeBright(),
+            new ChartThemeDark(), new ChartThemeBlack() };
     public static final String CHART_THEME_DEFAULT_NAME = "bright";
     private Map<String, ChartTheme> chartThemes = null;
 
@@ -157,11 +157,12 @@ public class DefaultChartProvider implements ChartProvider {
         chart.getStyleManager().setAxisTickLabelsColor(chartTheme.getAxisTickLabelsColor());
         chart.getStyleManager().setXAxisMin(startTime.getTime());
         chart.getStyleManager().setXAxisMax(endTime.getTime());
-        chart.getStyleManager().setYAxisTickMarkSpacingHint(height / 10);
+        int yAxisSpacing = Math.max(height / 10, chartTheme.getAxisTickLabelsFont(dpi).getSize());
+        chart.getStyleManager().setYAxisTickMarkSpacingHint(yAxisSpacing);
         // chart
         chart.getStyleManager().setChartBackgroundColor(chartTheme.getChartBackgroundColor());
         chart.getStyleManager().setChartFontColor(chartTheme.getChartFontColor());
-        chart.getStyleManager().setChartPadding(chartTheme.getChartPadding());
+        chart.getStyleManager().setChartPadding(chartTheme.getChartPadding(dpi));
         chart.getStyleManager().setPlotBackgroundColor(chartTheme.getPlotBackgroundColor());
         float plotGridLinesDash = (float) chartTheme.getPlotGridLinesDash(dpi);
         float[] plotGridLinesDashArray = { plotGridLinesDash, plotGridLinesDash };
@@ -171,7 +172,7 @@ public class DefaultChartProvider implements ChartProvider {
         // legend
         chart.getStyleManager().setLegendBackgroundColor(chartTheme.getLegendBackgroundColor());
         chart.getStyleManager().setLegendFont(chartTheme.getLegendFont(dpi));
-        chart.getStyleManager().setLegendSeriesLineLength(chartTheme.getLegendSeriesLineLength());
+        chart.getStyleManager().setLegendSeriesLineLength(chartTheme.getLegendSeriesLineLength(dpi));
 
         // If a persistence service is specified, find the provider
         persistenceService = null;
@@ -378,7 +379,8 @@ public class DefaultChartProvider implements ChartProvider {
         }
 
         Series series = chart.addSeries(label, xData, yData);
-        series.setLineStyle(new BasicStroke((float) chartTheme.getLineWidth(dpi)));
+        float lineWidth = (float) chartTheme.getLineWidth(dpi);
+        series.setLineStyle(new BasicStroke(lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
         series.setMarker(SeriesMarker.NONE);
         series.setLineColor(color);
 
