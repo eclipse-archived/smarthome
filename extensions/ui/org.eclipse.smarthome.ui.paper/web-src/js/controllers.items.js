@@ -1,4 +1,9 @@
-angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemRepository, toastService, sharedProperties) {
+angular.module('PaperUI.controllers.configuration')//
+.controller('ItemSetupController', function($scope, $timeout, $location, $mdDialog, $filter, itemRepository, toastService, sharedProperties) {
+    $scope.navigateTo = function(path) {
+        $location.path('configuration/' + path);
+    }
+
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [], $scope.groups = [], $scope.types = [];
