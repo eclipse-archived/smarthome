@@ -166,7 +166,9 @@ public interface Scheduler {
     }
 
     /**
-     * Schedule a runnable to be executed in a loop. At the first time, first is
+     * Schedule a runnable to be executed in a loop.
+     *
+     * At the first time, first is
      * used as delay, later the delays are used sequentially. If no more values
      * are present, the last value is re-used. The method returns a {@link Closeable}
      * that can be used to stop scheduling. This is a fixed rate scheduler. That

@@ -13,8 +13,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjuster;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -141,45 +141,11 @@ public class InternalSchedulerImpl implements Scheduler {
         return d;
     }
 
-    private static abstract class Schedule {
-        volatile CompletableFuture<?> promise;
-        volatile boolean canceled;
-        Throwable exception;
-
-        abstract Instant next();
-
-        abstract void doIt() throws Exception;
-    }
-
-    private static class PeriodSchedule extends Schedule {
-        private long last;
-        private Iterator<Long> iterator;
-        private long rover;
-        private RunnableWithException runnable;
-
-        @Override
-        Instant next() {
-            if (iterator.hasNext()) {
-                last = iterator.next();
-            }
-
-            return Instant.ofEpochMilli(rover += last);
-        }
-
-        @Override
-        void doIt() throws Exception {
-            runnable.run();
-        }
-    }
-
     @Override
     public Closeable schedule(RunnableWithException r, Duration first, Duration... delays) {
-        PeriodSchedule s = new PeriodSchedule();
-        s.iterator = Arrays.stream(delays).map(delay -> delay.toMillis()).iterator();
-        s.runnable = r;
-        s.rover = System.currentTimeMillis() + first.toMillis();
-        s.last = first.toMillis();
-        schedule(s, Instant.ofEpochMilli(first.toMillis() + System.currentTimeMillis()));
+        PeriodicAdjuster cronAdjuster = new PeriodicAdjuster(first, delays);
+        Schedule s = new Schedule(cronAdjuster, r);
+        schedule(s, s.next(ZonedDateTime.now(clock)));
         return () -> {
             s.canceled = true;
             s.promise.cancel(true);
@@ -197,7 +163,7 @@ public class InternalSchedulerImpl implements Scheduler {
                 s.exception = t;
             }
 
-            schedule(s, s.next());
+            schedule(s, s.next(ZonedDateTime.now(clock)));
             return null;
         }, instant);
         if (s.canceled) {
@@ -205,35 +171,10 @@ public class InternalSchedulerImpl implements Scheduler {
         }
     }
 
-    private class ScheduleCron extends Schedule {
-        CronAdjuster cron;
-        CronJob job;
-        RunnableWithException runnable;
-        Map<String, Object> env;
-
-        @Override
-        Instant next() {
-            ZonedDateTime now = ZonedDateTime.now(clock);
-            ZonedDateTime next = now.with(cron);
-            return next.toInstant();
-        }
-
-        @Override
-        void doIt() throws Exception {
-            if (runnable != null) {
-                runnable.run();
-            } else {
-                job.run(env);
-            }
-        }
-    }
-
     @Override
     public Closeable schedule(RunnableWithException r, String cronExpression) {
-        ScheduleCron s = new ScheduleCron();
-        s.cron = new CronAdjuster(cronExpression);
-        s.runnable = r;
-        schedule(s, s.next());
+        Schedule s = new Schedule(new CronAdjuster(cronExpression), r);
+        schedule(s, s.next(ZonedDateTime.now(clock)));
         return () -> {
             s.canceled = true;
             s.promise.cancel(true);
@@ -242,11 +183,9 @@ public class InternalSchedulerImpl implements Scheduler {
 
     @Override
     public <T> Closeable schedule(CronJob job, Map<String, Object> config, String cronExpression) {
-        ScheduleCron s = new ScheduleCron();
-        s.cron = new CronAdjuster(cronExpression);
-        s.job = job;
-        s.env = config;
-        schedule(s, s.cron.isReboot() ? Instant.ofEpochMilli(1) : s.next());
+        CronAdjuster cronAdjuster = new CronAdjuster(cronExpression);
+        Schedule s = new Schedule(cronAdjuster, job, config);
+        schedule(s, cronAdjuster.isReboot() ? Instant.ofEpochMilli(1) : s.next(ZonedDateTime.now(clock)));
         return () -> {
             s.canceled = true;
             s.promise.cancel(true);
@@ -315,6 +254,45 @@ public class InternalSchedulerImpl implements Scheduler {
                 }
             }
         }
+    }
+
+    private static class Schedule {
+
+        private final TemporalAdjuster adjuster;
+        private final RunnableWithException runnable;
+        private final CronJob job;
+        private final Map<String, Object> env;
+
+        volatile CompletableFuture<?> promise;
+        volatile boolean canceled;
+        Throwable exception;
+
+        public Schedule(TemporalAdjuster adjuster, CronJob job, Map<String, Object> env) {
+            this.adjuster = adjuster;
+            this.job = job;
+            this.env = env;
+            this.runnable = null;
+        }
+
+        public Schedule(TemporalAdjuster adjuster, RunnableWithException runnable) {
+            this.adjuster = adjuster;
+            this.job = null;
+            this.env = null;
+            this.runnable = runnable;
+        }
+
+        Instant next(ZonedDateTime now) {
+            return now.with(adjuster).toInstant();
+        }
+
+        void doIt() throws Exception {
+            if (runnable != null) {
+                runnable.run();
+            } else {
+                job.run(env);
+            }
+        }
+
     }
 
 }
