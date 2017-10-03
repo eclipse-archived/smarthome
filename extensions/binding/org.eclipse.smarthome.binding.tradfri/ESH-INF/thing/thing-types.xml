@@ -42,12 +42,9 @@
             <channel id="brightness" typeId="brightness"/>
         </channels>
 
-        <config-description>
-            <parameter name="id" type="integer" required="true">
-                <label>ID</label>
-                <description>The identifier of the light on the gateway</description>
-            </parameter>
-        </config-description>
+        <representation-property>id</representation-property>
+
+        <config-description-ref uri="thing-type:tradfri:device" />
     </thing-type>
 
     <thing-type id="0220">
@@ -63,12 +60,9 @@
             <channel id="color_temperature" typeId="color_temperature"/>
         </channels>
 
-        <config-description>
-            <parameter name="id" type="integer" required="true">
-                <label>ID</label>
-                <description>The identifier of the light on the gateway</description>
-            </parameter>
-        </config-description>
+        <representation-property>id</representation-property>
+
+        <config-description-ref uri="thing-type:tradfri:device" />
     </thing-type>
 
     <thing-type id="0210">
@@ -84,12 +78,9 @@
             <channel id="color" typeId="color"/>
         </channels>
 
-        <config-description>
-            <parameter name="id" type="integer" required="true">
-                <label>ID</label>
-                <description>The identifier of the light on the gateway</description>
-            </parameter>
-        </config-description>
+        <representation-property>id</representation-property>
+
+        <config-description-ref uri="thing-type:tradfri:device" />
     </thing-type>
 
     <!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
@@ -104,12 +95,9 @@
             <channel id="brightness" typeId="brightness"/>
         </channels>
 
-        <config-description>
-            <parameter name="id" type="integer" required="true">
-                <label>ID</label>
-                <description>The identifier of the controller on the gateway</description>
-            </parameter>
-        </config-description>
+        <representation-property>id</representation-property>
+
+        <config-description-ref uri="thing-type:tradfri:device" />
     </thing-type>
 
     <channel-type id="brightness">
