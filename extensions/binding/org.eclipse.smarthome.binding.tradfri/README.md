@@ -1,6 +1,6 @@
-# Trådfri Binding
+# TRÅDFRI Binding
 
-This binding integrates the IKEA Trådfri gateway and devices connected to it (such as dimmable LED bulbs).
+This binding integrates the IKEA TRÅDFRI gateway and devices connected to it (such as dimmable LED bulbs).
 
 ## Supported Things
 
