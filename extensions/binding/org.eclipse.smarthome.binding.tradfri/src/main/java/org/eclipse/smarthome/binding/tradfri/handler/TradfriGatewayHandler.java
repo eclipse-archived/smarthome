@@ -7,15 +7,14 @@
  */
 package org.eclipse.smarthome.binding.tradfri.handler;
 
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.DEVICES;
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY;
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_DETAILS;
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.VERSION;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
@@ -26,11 +25,12 @@ import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.scandium.DTLSConnector;
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
 import org.eclipse.californium.scandium.dtls.pskstore.StaticPskStore;
-import org.eclipse.smarthome.binding.tradfri.GatewayConfig;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapHandler;
+import org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -78,7 +78,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     @Override
     public void initialize() {
-        GatewayConfig configuration = getConfigAs(GatewayConfig.class);
+        TradfriGatewayConfig configuration = getConfigAs(TradfriGatewayConfig.class);
         if (configuration.host == null || configuration.host.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "Host must be specified in the configuration!");
@@ -91,7 +91,8 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         }
 
         this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
-        this.gatewayInfoURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GATEWAY + "/" + GATEWAY_DETAILS;
+        this.gatewayInfoURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GATEWAY + "/"
+                + GATEWAY_DETAILS;
         try {
             URI uri = new URI(gatewayURI);
             deviceClient = new TradfriCoapClient(uri);
@@ -176,17 +177,27 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             }
         }
     }
-    
+
     private synchronized void updateGatewayInfo() {
         // we are reusing our coap client and merely temporarily set a gateway info to call
         deviceClient.setURI(this.gatewayInfoURI);
         deviceClient.asyncGet().thenAccept(data -> {
             JsonObject json = new JsonParser().parse(data).getAsJsonObject();
+            String ntpServer = json.get(NTP_SERVER).getAsString();
+            Configuration configuration = editConfiguration();
+            configuration.put(CONFIG_NTP_SERVER, ntpServer);
+            updateConfiguration(configuration);
             String firmwareVersion = json.get(VERSION).getAsString();
             getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
         });
         // restore root URI
         deviceClient.setURI(gatewayURI);
+    }
+
+    @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+        // TODO update ntp server configuration
+        super.handleConfigurationUpdate(configurationParameters);
     }
 
     private synchronized void requestDeviceDetails(String instanceId) {

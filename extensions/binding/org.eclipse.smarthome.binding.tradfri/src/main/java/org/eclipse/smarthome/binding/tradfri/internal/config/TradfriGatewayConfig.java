@@ -5,20 +5,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.tradfri;
+package org.eclipse.smarthome.binding.tradfri.internal.config;
 
 /**
  * Configuration class for the gateway.
  *
  * @author Kai Kreuzer - Initial contribution
  */
-public class GatewayConfig {
+public class TradfriGatewayConfig {
 
-    public static final String HOST = "host";
-    public static final String PORT = "port";
-    public static final String CODE = "code";
+    public static final String CONFIG_HOST = "host";
+    public static final String CONFIG_PORT = "port";
+    public static final String CONFIG_CODE = "code";
+    public static final String CONFIG_NTP_SERVER = "ntpServer";
 
     public String host;
     public int port = 5684; // default port
     public String code;
+    public String ntpServer;
 }
