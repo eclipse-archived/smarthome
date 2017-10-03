@@ -76,7 +76,7 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 if (fwVersion != null) {
                     properties.put(Thing.PROPERTY_FIRMWARE_VERSION, fwVersion);
                 }
-                return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("Trådfri Gateway")
+                return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("TRÅDFRI Gateway")
                         .withRepresentationProperty(GatewayConfig.HOST).build();
             }
         }
