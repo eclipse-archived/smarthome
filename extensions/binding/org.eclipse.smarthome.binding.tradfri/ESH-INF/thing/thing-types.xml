@@ -82,8 +82,7 @@
 		<config-description-ref uri="thing-type:tradfri:device" />
 	</thing-type>
 
-	<!-- note that this isn't yet supported by the code as we do not receive any data 
-		from the gateway for it -->
+	<!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
 	<thing-type id="0820" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="gateway" />
