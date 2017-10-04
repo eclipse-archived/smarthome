@@ -22,6 +22,7 @@ public class MagicBindingConstants {
     // List all Thing Type UIDs, related to the Hue Binding
 
     // generic thing types
+    public static final ThingTypeUID THING_TYPE_EXTENSIBLE_THING = new ThingTypeUID(BINDING_ID, "extensible-thing");
     public static final ThingTypeUID THING_TYPE_ON_OFF_LIGHT = new ThingTypeUID(BINDING_ID, "onoff-light");
     public static final ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "dimmable-light");
     public static final ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "color-light");
