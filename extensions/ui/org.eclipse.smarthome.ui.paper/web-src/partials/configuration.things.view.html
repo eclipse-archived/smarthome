@@ -31,7 +31,7 @@
 		</div>
 		<div ng-include="'partials/configuration.firmware.html'"></div>
 		<br />
-		<h2 class="inline" ng-show="thing.channels.length > 0">Channels
+		<h2 class="inline" ng-show="thing.channels.length > 0 || isExtensible()">Channels
 		<button ng-if="isExtensible()" class="extensible-thing md-fab md-custom-plus md-button md-ink-ripple" type="button" ng-click="addChannel($event)" aria-label="Add">
 		    <span class="ng-scope">+</span>
 		    <div class="md-ripple-container"></div>
