@@ -51,7 +51,7 @@ public class TradfriColorTest {
         assertEquals(89, color.hsbType.getSaturation().intValue());
         assertEquals(34, color.hsbType.getBrightness().intValue());
     }
-    
+
     @Test
     public void testFromCieKnownGood3() {
         TradfriColor color = TradfriColor.fromCie(19983, 37417, 1);
@@ -69,6 +69,22 @@ public class TradfriColorTest {
     }
 
     @Test
+    public void testFromCieKnownGood4() {
+        TradfriColor color = TradfriColor.fromCie(11469, 3277, 181);
+        assertNotNull(color);
+        assertEquals(12, (int) color.rgbR);
+        assertEquals(0, (int) color.rgbG);
+        assertEquals(183, (int) color.rgbB);
+        assertEquals(11469, (int) color.xyX);
+        assertEquals(3277, (int) color.xyY);
+        assertEquals(181, (int) color.brightness);
+        assertNotNull(color.hsbType);
+        assertEquals(245, color.hsbType.getHue().intValue());
+        assertEquals(100, color.hsbType.getSaturation().intValue());
+        assertEquals(72, color.hsbType.getBrightness().intValue());
+    }
+
+    @Test
     public void testFromHSBTypeKnownGood1() {
         TradfriColor color = TradfriColor.fromHSBType(HSBType.RED);
         assertNotNull(color);
@@ -83,7 +99,7 @@ public class TradfriColorTest {
         assertEquals(100, color.hsbType.getSaturation().intValue());
         assertEquals(100, color.hsbType.getBrightness().intValue());
     }
-    
+
     @Test
     public void testFromHSBTypeKnownGood2() {
         TradfriColor color = TradfriColor.fromHSBType(new HSBType("0,100,1"));
