@@ -124,6 +124,11 @@ public class TradfriColor {
         // green = green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
         // blue = blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
 
+        // calculated values can be slightly negative, so cap them to minimum 0.0
+        red = Math.max(0.0, red);
+        green = Math.max(0.0, green);
+        blue = Math.max(0.0, blue);
+
         int redRounded = (int) Math.round(red * 255.0);
         int greenRounded = (int) Math.round(green * 255.0);
         int blueRounded = (int) Math.round(blue * 255.0);
@@ -162,7 +167,7 @@ public class TradfriColor {
         // red = (red > 0.04045) ? Math.pow((red + 0.055) / (1.0 + 0.055), 2.4) : (red / 12.92);
         // green = (green > 0.04045) ? Math.pow((green + 0.055) / (1.0 + 0.055), 2.4) : (green / 12.92);
         // blue = (blue > 0.04045) ? Math.pow((blue + 0.055) / (1.0 + 0.055), 2.4) : (blue / 12.92);
-        
+
         // Wide RGB D65 conversion
         // math inspiration: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
         double X = red * 0.664511 + green * 0.154324 + blue * 0.162028;
@@ -279,8 +284,7 @@ public class TradfriColor {
         }
         return new PercentType((int) Math.round(value * 100.0));
     }
-    
-    
+
     /**
      * Converts the xyBrightness value to PercentType
      *
