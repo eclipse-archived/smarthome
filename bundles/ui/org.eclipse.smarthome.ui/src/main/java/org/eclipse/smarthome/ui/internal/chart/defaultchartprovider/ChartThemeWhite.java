@@ -11,17 +11,26 @@ import java.awt.Color;
 import java.awt.Font;
 
 /**
- * Implementation of the default bright {@link ChartTheme chart theme}.
+ * Implementation of the white {@link ChartTheme chart theme}.
  *
  * @author Holger Reichert - Initial contribution
  *
  */
-public class ChartThemeBright implements ChartTheme {
+public class ChartThemeWhite implements ChartTheme {
 
-    private static final String THEME_NAME = "bright";
+    private static final String THEME_NAME = "white";
 
-    private static final Color[] LINECOLORS = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA,
-            Color.ORANGE, Color.CYAN, Color.PINK, Color.DARK_GRAY, Color.YELLOW };
+    private Color[] LINECOLORS = new Color[] { //
+            new Color(244, 67, 54), // red
+            new Color(76, 175, 80), // green
+            new Color(63, 81, 181), // blue
+            new Color(156, 39, 176), // magenta/purple
+            new Color(255, 152, 0), // orange
+            new Color(0, 188, 212), // cyan
+            new Color(233, 30, 99), // pink
+            new Color(50, 50, 50), // dark grey
+            new Color(205, 220, 57) // yellow/lime
+    };
 
     private static final String FONT_NAME = "SansSerif";
 
@@ -32,7 +41,7 @@ public class ChartThemeBright implements ChartTheme {
 
     @Override
     public Color getPlotBackgroundColor() {
-        return new Color(254, 254, 254);
+        return Color.WHITE;
     }
 
     @Override
@@ -52,12 +61,12 @@ public class ChartThemeBright implements ChartTheme {
 
     @Override
     public Color getLegendBackgroundColor() {
-        return new Color(224, 224, 224, 160);
+        return new Color(255, 255, 255, 160);
     }
 
     @Override
     public Color getChartBackgroundColor() {
-        return new Color(224, 224, 224, 224);
+        return Color.WHITE;
     }
 
     @Override
