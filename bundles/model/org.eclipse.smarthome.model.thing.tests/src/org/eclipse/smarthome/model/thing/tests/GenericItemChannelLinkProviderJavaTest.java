@@ -187,4 +187,37 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
 
     }
 
+    @Test
+    public void testMultiLinkConfiguration() {
+        Collection<Thing> things = thingRegistry.getAll();
+        assertThat(things.size(), is(0));
+
+        String thingsModel = "Bridge hue:bridge:huebridge [ ipAddress = \"192.168.3.84\", userName = \"19fc3fa6fc870a4280a55f21315631f\" ] {"
+                + "LCT001 bulb2 [ lightId = \"2\" ]" //
+                + "LCT001 bulb3 [ lightId = \"3\" ]" //
+                + "LCT001 bulb4 [ lightId = \"4\" ]" //
+                + "}";
+        modelRepository.addOrRefreshModel(THINGS_TESTMODEL_NAME, new ByteArrayInputStream(thingsModel.getBytes()));
+
+        String itemsModel = "Color Light3Color \"Light3 Color\" { " + //
+                "channel=\"hue:LCT001:huebridge:bulb2:color,hue:LCT001:huebridge:bulb3:color\" [ value=1 ]," + //
+                "channel=\"hue:LCT001:huebridge:bulb4:color\" [ value=2 ]" + //
+                "}";
+        modelRepository.addOrRefreshModel(ITEMS_TESTMODEL_NAME, new ByteArrayInputStream(itemsModel.getBytes()));
+
+        waitForAssert(() -> {
+            assertThat(thingRegistry.getAll().size(), is(4));
+            assertThat(itemRegistry.getItems().size(), is(1));
+            assertThat(itemChannelLinkRegistry.getAll().size(), is(3));
+        });
+
+        assertEquals(new BigDecimal(1), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb2:color")
+                .getConfiguration().get("value"));
+        assertEquals(new BigDecimal(1), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb3:color")
+                .getConfiguration().get("value"));
+        assertEquals(new BigDecimal(2), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb4:color")
+                .getConfiguration().get("value"));
+
+    }
+
 }
