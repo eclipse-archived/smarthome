@@ -8,4 +8,6 @@ Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.transform.jsonpath
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.hamcrest,
  org.junit;version="4.0.0"
+Require-Bundle: org.hamcrest
