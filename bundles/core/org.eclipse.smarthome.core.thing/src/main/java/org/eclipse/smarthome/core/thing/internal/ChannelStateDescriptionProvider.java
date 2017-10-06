@@ -7,9 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
@@ -18,6 +20,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.DynamicStateDescriptionProvider;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
@@ -25,6 +28,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +39,11 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  */
 @Component(immediate = true, property = { "service.ranking:Integer=-1" })
-public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
+public class ChannelStateDescriptionProvider implements StateDescriptionProvider, DynamicStateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
 
+    private List<DynamicStateDescriptionProvider> dynamicStateDescriptionProviders = new CopyOnWriteArrayList<>();
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ThingRegistry thingRegistry;
@@ -68,7 +73,10 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             if (channel != null) {
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
                 if (channelType != null) {
-                    StateDescription stateDescription = channelType.getState();
+                    StateDescription stateDescription = getStateDescription(channelUID, locale);
+                    if (stateDescription == null) {
+                        stateDescription = channelType.getState();
+                    }
                     if ((channelType.getItemType() != null)
                             && ((stateDescription == null) || (stateDescription.getPattern() == null))) {
                         String pattern = null;
@@ -92,6 +100,17 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                 } else {
                     return null;
                 }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public StateDescription getStateDescription(ChannelUID channelUID, Locale locale) {
+        for (DynamicStateDescriptionProvider provider : dynamicStateDescriptionProviders) {
+            StateDescription stateDescription = provider.getStateDescription(channelUID, locale);
+            if (stateDescription != null) {
+                return stateDescription;
             }
         }
         return null;
@@ -122,6 +141,16 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE)
+    protected void addDynamicStateDescriptionProvider(DynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+        this.dynamicStateDescriptionProviders.add(dynamicStateDescriptionProvider);
+    }
+
+    protected void removeDynamicStateDescriptionProvider(
+            DynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+        this.dynamicStateDescriptionProviders.remove(dynamicStateDescriptionProvider);
     }
 
 }
