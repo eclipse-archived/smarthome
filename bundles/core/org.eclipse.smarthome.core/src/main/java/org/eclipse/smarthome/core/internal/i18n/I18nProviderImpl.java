@@ -8,13 +8,16 @@
 package org.eclipse.smarthome.core.internal.i18n;
 
 import java.text.MessageFormat;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.osgi.framework.Bundle;
@@ -43,12 +46,14 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Höfer - Added getText operation with arguments
  * @author Markus Rathgeb - Initial contribution and API of LocaleProvider
  * @author Stefan Triller - Initial contribution and API of LocationProvider
+ * @author Erdoan Hadzhiyusein - Added time zone
  *
  */
+
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.core.i18nprovider", property = {
         "service.pid=org.eclipse.smarthome.core.i18nprovider", "service.config.description.uri:String=system:i18n",
         "service.config.label:String=Regional Settings", "service.config.category:String=system" })
-public class I18nProviderImpl implements TranslationProvider, LocaleProvider, LocationProvider {
+public class I18nProviderImpl implements TranslationProvider, LocaleProvider, LocationProvider, TimeZoneProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -65,6 +70,10 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
     // LocationProvider
     private static final String LOCATION = "location";
     private PointType location;
+
+    // TimeZoneProvider
+    private static final String TIMEZONE = "timezone";
+    private ZoneId timeZone;
 
     @Activate
     @SuppressWarnings("unchecked")
@@ -87,15 +96,10 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         final String region = (String) config.get(REGION);
         final String variant = (String) config.get(VARIANT);
         final String location = (String) config.get(LOCATION);
+        final ZoneId timeZone = (ZoneId) config.get(TIMEZONE);
 
-        if (location != null) {
-            try {
-                this.location = PointType.valueOf(location);
-            } catch (IllegalArgumentException e) {
-                // preserve old location or null if none was set before
-                logger.warn("Could not set new location, keeping old one: ", e.getMessage());
-            }
-        }
+        setTimeZone(timeZone);
+        setLocation(location);
 
         if (StringUtils.isEmpty(language)) {
             // at least the language must be defined otherwise the system default locale is used
@@ -135,12 +139,39 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
 
         locale = builder.build();
 
-        logger.info("Locale set to {}, Location set to {}", locale, this.location);
+        logger.info("Locale set to {}, Location set to {}, Time zone set to {}", locale, this.location, this.timeZone);
+    }
+
+    private void setLocation(final String location) {
+        if (location != null) {
+            try {
+                this.location = PointType.valueOf(location);
+            } catch (IllegalArgumentException e) {
+                // preserve old location or null if none was set before
+                logger.warn("Could not set new location, keeping old one: ", location, e.getMessage());
+            }
+        }
+    }
+
+    private void setTimeZone(final ZoneId timeZone) {
+        if (timeZone != null) {
+            try {
+                this.timeZone = TimeZone.getTimeZone(timeZone).toZoneId();
+            } catch (IllegalArgumentException e) {
+                this.timeZone = TimeZone.getDefault().toZoneId();
+                logger.warn("Could not set a new time zone, the system's default time zone will be used ", timeZone, e.getMessage());
+            }
+        }
     }
 
     @Override
     public PointType getLocation() {
         return location;
+    }
+
+    @Override
+    public ZoneId getTimeZone() {
+        return this.timeZone;
     }
 
     @Override
