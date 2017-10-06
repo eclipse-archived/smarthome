@@ -61,7 +61,6 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 /**
@@ -106,7 +105,6 @@ public class RuleTriggerManager {
     // the scheduler used for timer events
     private Scheduler scheduler;
 
-    @Inject
     public RuleTriggerManager(Injector injector) {
         try {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -234,7 +232,7 @@ public class RuleTriggerManager {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
 
                             if (et.getChannel().equals(channel)
-                                    && (et.getTrigger() == null || et.getTrigger().equals(event))) {
+                                    && (et.getTrigger() == null || et.getTrigger().getValue().equals(event))) {
                                 // if the rule does not have a specific event , execute it on any event
                                 result.add(rule);
                             }
@@ -300,14 +298,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof UpdateEventTrigger)) {
                     final UpdateEventTrigger ut = (UpdateEventTrigger) t;
                     if (ut.getItem().equals(name)) {
-                        triggerStateString = ut.getState();
+                        triggerStateString = ut.getState().getValue();
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberUpdateEventTrigger)) {
                     final GroupMemberUpdateEventTrigger gmut = (GroupMemberUpdateEventTrigger) t;
                     if (gmut.getGroup().equals(name)) {
-                        triggerStateString = gmut.getState();
+                        triggerStateString = gmut.getState().getValue();
                     } else {
                         continue;
                     }
@@ -335,16 +333,16 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof ChangedEventTrigger)) {
                     final ChangedEventTrigger ct = (ChangedEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerOldStateString = ct.getOldState();
-                        triggerNewStateString = ct.getNewState();
+                        triggerOldStateString = ct.getOldState().getValue();
+                        triggerNewStateString = ct.getNewState().getValue();
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberChangedEventTrigger)) {
                     final GroupMemberChangedEventTrigger gmct = (GroupMemberChangedEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerOldStateString = gmct.getOldState();
-                        triggerNewStateString = gmct.getNewState();
+                        triggerOldStateString = gmct.getOldState().getValue();
+                        triggerNewStateString = gmct.getNewState().getValue();
                     } else {
                         continue;
                     }
@@ -377,14 +375,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof CommandEventTrigger)) {
                     final CommandEventTrigger ct = (CommandEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerCommandString = ct.getCommand();
+                        triggerCommandString = ct.getCommand().getValue();
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberCommandEventTrigger)) {
                     final GroupMemberCommandEventTrigger gmct = (GroupMemberCommandEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerCommandString = gmct.getCommand();
+                        triggerCommandString = gmct.getCommand().getValue();
                     } else {
                         continue;
                     }
