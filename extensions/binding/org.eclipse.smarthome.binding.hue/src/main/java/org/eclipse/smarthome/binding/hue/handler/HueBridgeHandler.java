@@ -187,15 +187,17 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     public void updateLightState(FullLight light, StateUpdate stateUpdate) {
-
         if (hueBridge != null) {
             try {
                 hueBridge.setLightState(light, stateUpdate);
             } catch (DeviceOffException e) {
                 updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
                 updateLightState(light, stateUpdate);
-            } catch (IOException | ApiException e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            } catch (ApiException e) {
+                // This should not happen - if it does, it is most likely some bug that should be reported.
+                logger.warn("Error while accessing light: {}", e.getMessage(), e);
             } catch (IllegalStateException e) {
                 logger.trace("Error while accessing light: {}", e.getMessage());
             }
