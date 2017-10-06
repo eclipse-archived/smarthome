@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -274,10 +275,10 @@ public class ChartServlet extends HttpServlet {
 
         // Set the content type to that provided by the chart provider
         res.setContentType("image/" + provider.getChartType());
-        try {
+        try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(res.getOutputStream())) {
             BufferedImage chart = provider.createChart(serviceName, req.getParameter("theme"), timeBegin, timeEnd,
                     height, width, req.getParameter("items"), req.getParameter("groups"), dpi, legend);
-            ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
+            ImageIO.write(chart, provider.getChartType().toString(), imageOutputStream);
         } catch (ItemNotFoundException e) {
             logger.debug("{}", e.getMessage());
         } catch (IllegalArgumentException e) {
