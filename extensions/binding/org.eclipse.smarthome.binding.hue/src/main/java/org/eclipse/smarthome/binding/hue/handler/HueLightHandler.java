@@ -454,12 +454,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         int delay = getAlertDuration(command);
 
         if (delay > 0) {
-            scheduledFuture = scheduler.schedule(new Runnable() {
-
-                @Override
-                public void run() {
-                    updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
-                }
+            scheduledFuture = scheduler.schedule(() -> {
+                updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
             }, delay, TimeUnit.MILLISECONDS);
         }
     }

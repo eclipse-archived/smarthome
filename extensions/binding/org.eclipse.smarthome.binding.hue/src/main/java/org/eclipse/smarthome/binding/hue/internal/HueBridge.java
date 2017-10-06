@@ -248,13 +248,13 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if the specified light no longer exists
      * @throws DeviceOffException thrown if the specified light is turned off
+     * @throws IOException if the bridge cannot be reached
      */
     public void setLightState(Light light, StateUpdate update) throws IOException, ApiException {
         requireAuthentication();
 
         String body = update.toJson();
         Result result = http.put(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body);
-
         handleErrors(result);
     }
 
