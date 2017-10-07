@@ -1,0 +1,41 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Bluetooth Binding
+Bundle-SymbolicName: org.eclipse.smarthome.binding.bluetooth;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-Copyright: Eclipse Public License v1.0
+Bundle-ClassPath: .,
+ lib/bluetooth-utils-1.7.jar,lib/bluetooth-gatt-parser-1.4-SNAPSHOT.jar,lib/bluetooth-manager-1.2-SNAPSHOT.jar,lib/commons-beanutils-1.9.3.jar
+Import-Package: org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.slf4j,
+ com.google.common.base,
+ org.osgi.framework,
+ org.osgi.service.component,
+ com.google.common.collect,
+ org.apache.commons.io,
+ org.apache.commons.logging,
+ org.apache.commons.lang,
+ org.apache.commons.lang.math,
+ com.thoughtworks.xstream,
+ com.thoughtworks.xstream.annotations,
+ com.thoughtworks.xstream.io,
+ com.thoughtworks.xstream.io.xml
+Service-Component: OSGI-INF/*.xml
+Export-Package: org.eclipse.smarthome.binding.bluetooth,org.eclipse.smarthome.binding.bluetooth.handler,
+ org.sputnikdev.bluetooth,
+ org.sputnikdev.bluetooth.manager,
+ org.sputnikdev.bluetooth.manager.transport,
+ org.sputnikdev.bluetooth.gattparser
+Include-Resource: src/main/resources
+

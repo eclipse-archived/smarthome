@@ -37,6 +37,8 @@
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.wemo.test</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>
+    <module>org.eclipse.smarthome.binding.bluetooth</module>
+    <module>org.eclipse.smarthome.binding.bluetooth.transport.tinyb</module>
   </modules>
 
 </project>

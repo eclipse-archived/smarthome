@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Bluetooth Manager TinyB Transport Bundle
+Bundle-SymbolicName: org.eclipse.smarthome.binding.bluetooth.transport.tinyb;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-Copyright: Eclipse Public License v1.0
+Bundle-ClassPath: .,
+  lib/bluetooth-manager-tinyb-1.1-SNAPSHOT.jar
+Import-Package: org.sputnikdev.bluetooth,
+ org.sputnikdev.bluetooth.manager,
+ org.sputnikdev.bluetooth.manager.transport,
+ org.osgi.framework,
+ org.osgi.service.component,
+ org.apache.commons.io,
+ org.apache.commons.logging,
+ org.slf4j
+Export-Package: org.sputnikdev.bluetooth.manager.transport.tinyb,
+ org.sputnikdev.bluetooth.manager.transport.tinyb.activator
+Service-Component: OSGI-INF/*.xml
