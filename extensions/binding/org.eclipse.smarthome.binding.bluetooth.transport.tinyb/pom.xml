@@ -15,4 +15,17 @@
   <name>Eclipse SmartHome Bluetooth TinyB Transport Binding</name>
   <packaging>eclipse-plugin</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>biz.aQute.bnd</groupId>
+      <artifactId>biz.aQute.bndlib</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sputnikdev</groupId>
+      <artifactId>bluetooth-manager</artifactId>
+      <version>1.1</version>
+    </dependency>
+  </dependencies>
+
 </project>
