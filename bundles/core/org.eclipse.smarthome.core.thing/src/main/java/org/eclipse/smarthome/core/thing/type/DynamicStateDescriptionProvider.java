@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
@@ -31,10 +31,10 @@ public interface DynamicStateDescriptionProvider {
      * description is provided for the same channel (by different providers), only one will be used, from the provider
      * that registered first.
      *
-     * @param channelUID channel UID
+     * @param channel channel
      * @param locale locale (can be null)
      * @return state description or null if none provided
      */
     @Nullable
-    StateDescription getStateDescription(ChannelUID channelUID, @Nullable Locale locale);
+    StateDescription getStateDescription(Channel channel, @Nullable Locale locale);
 }

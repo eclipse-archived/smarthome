@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.Item;
@@ -49,6 +50,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.DynamicStateDescriptionProvider;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -61,6 +63,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.osgi.service.component.ComponentContext;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Tests for {@link ChannelStateDescriptionProvider}.
@@ -111,6 +115,8 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
                 "Brightness", "", "DimmableLight", null, null, null);
         final ChannelType channelType6 = new ChannelType(new ChannelTypeUID("hue:switch"), false, "Switch", "Switch",
                 "", "Light", null, null, null);
+        final ChannelType channelType7 = new ChannelType(new ChannelTypeUID("hue:num-dynamic"), false, "Number", " ",
+                "", "Light", null, state, null);
 
         List<ChannelType> channelTypes = new ArrayList<>();
         channelTypes.add(channelType);
@@ -119,6 +125,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         channelTypes.add(channelType4);
         channelTypes.add(channelType5);
         channelTypes.add(channelType6);
+        channelTypes.add(channelType7);
 
         registerService(new ChannelTypeProvider() {
             @Override
@@ -147,6 +154,20 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
             }
         });
 
+        registerService(new DynamicStateDescriptionProvider() {
+            final StateDescription newState = new StateDescription(BigDecimal.valueOf(10), BigDecimal.valueOf(100),
+                    BigDecimal.valueOf(5), "VALUE %d", false, ImmutableList.<StateOption> builder()
+                            .add(new StateOption("value0", "label0")).add(new StateOption("value1", "label1")).build());
+
+            @Override
+            public @Nullable StateDescription getStateDescription(@NonNull Channel channel, @Nullable Locale locale) {
+                if (channelType7.getUID().equals(channel.getChannelTypeUID())) {
+                    return newState;
+                }
+                return null;
+            }
+        });
+
         List<ChannelDefinition> channelDefinitions = new ArrayList<>();
         channelDefinitions.add(new ChannelDefinition("1", channelType.getUID()));
         channelDefinitions.add(new ChannelDefinition("2", channelType2.getUID()));
@@ -154,6 +175,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         channelDefinitions.add(new ChannelDefinition("4", channelType4.getUID()));
         channelDefinitions.add(new ChannelDefinition("5", channelType5.getUID()));
         channelDefinitions.add(new ChannelDefinition("6", channelType6.getUID()));
+        channelDefinitions.add(new ChannelDefinition("7", channelType7.getUID()));
 
         registerService(new SimpleThingTypeProvider(Collections.singleton(ThingTypeBuilder
                 .instance(new ThingTypeUID("hue:lamp"), "label").withChannelDefinitions(channelDefinitions).build())));
@@ -165,6 +187,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         items.add(new ColorItem("TestItem4"));
         items.add(new DimmerItem("TestItem5"));
         items.add(new SwitchItem("TestItem6"));
+        items.add(new NumberItem("TestItem7"));
         registerService(new TestItemProvider(items));
 
         linkRegistry = getService(ItemChannelLinkRegistry.class);
@@ -217,6 +240,8 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         link = new ItemChannelLink("TestItem5", getChannel(thing, "5").getUID());
         linkRegistry.add(link);
         link = new ItemChannelLink("TestItem6", getChannel(thing, "6").getUID());
+        linkRegistry.add(link);
+        link = new ItemChannelLink("TestItem7", getChannel(thing, "7").getUID());
         linkRegistry.add(link);
         //
         final Collection<Item> items = itemRegistry.getItems();
@@ -285,6 +310,27 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         state = item.getStateDescription();
         assertNull(state);
 
+        item = itemRegistry.getItem("TestItem7");
+        assertEquals("Number", item.getType());
+
+        state = item.getStateDescription();
+        assertNotNull(state);
+
+        assertEquals(BigDecimal.valueOf(10), state.getMinimum());
+        assertEquals(BigDecimal.valueOf(100), state.getMaximum());
+        assertEquals(BigDecimal.valueOf(5), state.getStep());
+        assertEquals("VALUE %d", state.getPattern());
+        assertEquals(false, state.isReadOnly());
+        opts = state.getOptions();
+        assertEquals(2, opts.size());
+        final StateOption opt0 = opts.get(0);
+        assertNotNull(opt0);
+        assertEquals(opt0.getValue(), "value0");
+        assertEquals(opt0.getLabel(), "label0");
+        final StateOption opt1 = opts.get(1);
+        assertNotNull(opt1);
+        assertEquals(opt1.getValue(), "value1");
+        assertEquals(opt1.getLabel(), "label1");
     }
 
     /*

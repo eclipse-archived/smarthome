@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  */
 @Component(immediate = true, property = { "service.ranking:Integer=-1" })
-public class ChannelStateDescriptionProvider implements StateDescriptionProvider, DynamicStateDescriptionProvider {
+public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
 
@@ -73,7 +74,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             if (channel != null) {
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
                 if (channelType != null) {
-                    StateDescription stateDescription = getStateDescription(channelUID, locale);
+                    StateDescription stateDescription = getDynamicStateDescription(channel, locale);
                     if (stateDescription == null) {
                         stateDescription = channelType.getState();
                     }
@@ -105,10 +106,9 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
         return null;
     }
 
-    @Override
-    public StateDescription getStateDescription(ChannelUID channelUID, Locale locale) {
+    private StateDescription getDynamicStateDescription(Channel channel, Locale locale) {
         for (DynamicStateDescriptionProvider provider : dynamicStateDescriptionProviders) {
-            StateDescription stateDescription = provider.getStateDescription(channelUID, locale);
+            StateDescription stateDescription = provider.getStateDescription(channel, locale);
             if (stateDescription != null) {
                 return stateDescription;
             }
@@ -143,7 +143,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
         this.thingRegistry = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addDynamicStateDescriptionProvider(DynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
         this.dynamicStateDescriptionProviders.add(dynamicStateDescriptionProvider);
     }
