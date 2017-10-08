@@ -13,6 +13,7 @@ import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.CommonTriggerEvents;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 
 /**
@@ -25,6 +26,9 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
  *
  */
 public class RawButtonToggleProfile implements TriggerProfile {
+
+    public static final ProfileTypeUID UID = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle",
+            "Raw Button Toggle");
 
     @Override
     public void onTrigger(EventPublisher eventPublisher, ItemChannelLink link, String event, Item item) {
