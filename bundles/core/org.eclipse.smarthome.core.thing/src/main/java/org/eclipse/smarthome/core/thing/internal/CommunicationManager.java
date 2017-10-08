@@ -14,9 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -28,18 +27,20 @@ import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
-import org.eclipse.smarthome.core.thing.internal.profiles.DefaultMasterProfile;
-import org.eclipse.smarthome.core.thing.internal.profiles.RawButtonToggleProfile;
+import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
+import org.eclipse.smarthome.core.thing.internal.profiles.DefaultProfileFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.profiles.Profile;
+import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
 import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
@@ -62,20 +63,23 @@ import org.slf4j.LoggerFactory;
 @Component(service = { EventSubscriber.class, CommunicationManager.class }, immediate = true)
 public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
-    private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
-    private final Set<String> subscribedEventTypes = Collections.unmodifiableSet(
+    private static final Set<String> SUBSCRIBED_EVENT_TYPES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(ItemStateEvent.TYPE, ItemCommandEvent.TYPE, ChannelTriggeredEvent.TYPE)));
 
+    private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
+
+    private DefaultProfileFactory defaultProfileFactory;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
     private final Map<ChannelUID, Profile> profiles = new ConcurrentHashMap<>();
     private final Map<ProfileFactory, Set<ChannelUID>> profileFactories = new ConcurrentHashMap<>();
+    private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
 
     @Override
     public Set<String> getSubscribedEventTypes() {
-        return subscribedEventTypes;
+        return SUBSCRIBED_EVENT_TYPES;
     }
 
     @Override
@@ -98,63 +102,105 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return thingRegistry.get(thingUID);
     }
 
-    @NonNull
-    private Profile getProfile(@NonNull ItemChannelLink link, @NonNull Item item, Thing thing) {
-        if (thing == null) {
-            return new NoOpProfile();
-        }
-
-        Channel channel = thing.getChannel(link.getLinkedUID().getId());
-        if (channel == null) {
-            return new NoOpProfile();
-        }
-
-        Profile profile = null;
-        synchronized (profiles) {
-            profile = profiles.get(link.getLinkedUID());
-            if (profile == null) {
-                profile = getProfileFromFactories(link, item, channel);
-                if (profile == null) {
-                    logger.trace("No profile factory found for link {}, falling back to the defaults", link);
-                    profile = createDefaultProfile(channel);
-                }
-                if (profile != null) {
-                    profiles.put(link.getLinkedUID(), profile);
-                }
-            }
-        }
+    private Profile getProfile(ItemChannelLink link, Item item, Thing thing) {
+        ProfileTypeUID profileTypeUID = determineProfileTypeUID(link, item, thing);
+        Profile profile = getProfile(link, profileTypeUID);
         return profile != null ? profile : new NoOpProfile();
     }
 
-    private Profile getProfileFromFactories(@NonNull ItemChannelLink link, @NonNull Item item,
-            @NonNull Channel channel) {
-        for (Entry<ProfileFactory, Set<ChannelUID>> entry : profileFactories.entrySet()) {
-            Profile profile = entry.getKey().createProfile(link, item, channel);
-            if (profile != null) {
-                entry.getValue().add(link.getLinkedUID());
-                logger.trace("Going to use profile {} for link {}", profile, link);
-                return profile;
+    private Profile getProfile(ItemChannelLink link, ProfileTypeUID profileTypeUID) {
+        Profile profile = null;
+        if (profileTypeUID != null) {
+            logger.trace("Going to use profile {} for link {}", profileTypeUID, link);
+            synchronized (profiles) {
+                profile = profiles.get(link.getLinkedUID());
+                if (profile == null) {
+                    profile = getProfileFromFactories(profileTypeUID, link.getLinkedUID());
+                    if (profile != null) {
+                        profiles.put(link.getLinkedUID(), profile);
+                    }
+                }
+            }
+        }
+        return profile;
+    }
+
+    private ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, Thing thing) {
+        ProfileTypeUID profileTypeUID = getConfiguredProfileTypeUID(link);
+        Channel channel = null;
+        if (profileTypeUID == null) {
+            if (thing == null) {
+                return null;
+            }
+
+            channel = thing.getChannel(link.getLinkedUID().getId());
+            if (channel == null) {
+                return null;
+            }
+
+            if (profileTypeUID == null) {
+                // ask advisors
+                profileTypeUID = getAdvice(link, item, channel);
+            }
+
+            if (profileTypeUID == null) {
+                // ask default advisor
+                logger.trace("No profile advisor found for link {}, falling back to the defaults", link);
+                profileTypeUID = defaultProfileFactory.getSuggestedProfileTypeUID(link, item, channel);
+            }
+        }
+        return profileTypeUID;
+    }
+
+    private ProfileTypeUID getAdvice(ItemChannelLink link, Item item, Channel channel) {
+        ProfileTypeUID ret;
+        for (ProfileAdvisor advisor : profileAdvisors) {
+            ret = advisor.getSuggestedProfileTypeUID(link, item, channel);
+            if (ret != null) {
+                return ret;
             }
         }
         return null;
     }
 
-    private Profile createDefaultProfile(@NonNull Channel channel) {
-        switch (channel.getKind()) {
-            case STATE:
-                return new DefaultMasterProfile();
-            case TRIGGER:
-                if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
-                    return new RawButtonToggleProfile();
-                }
-                break;
-            default:
-                throw new NotImplementedException();
+    private ProfileTypeUID getConfiguredProfileTypeUID(ItemChannelLink link) {
+        String profileName = (String) link.getConfiguration()
+                .get(ItemChannelLinkConfigDescriptionProvider.PARAM_PROFILE);
+        if (profileName != null && !profileName.trim().isEmpty()) {
+            profileName = normalizeProfileName(profileName);
+            return new ProfileTypeUID(profileName);
         }
         return null;
     }
 
-    private void receiveCommand(@NonNull ItemCommandEvent commandEvent) {
+    private String normalizeProfileName(String profileName) {
+        if (!profileName.contains(UID.SEPARATOR)) {
+            return ProfileTypeUID.SYSTEM_SCOPE + UID.SEPARATOR + profileName;
+        }
+        return profileName;
+    }
+
+    private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ChannelUID channelUID) {
+        if (defaultProfileFactory.getSupportedProfileTypeUIDs().contains(profileTypeUID)) {
+            return defaultProfileFactory.createProfile(profileTypeUID);
+        }
+        for (Entry<ProfileFactory, Set<ChannelUID>> entry : profileFactories.entrySet()) {
+            ProfileFactory factory = entry.getKey();
+            if (factory.getSupportedProfileTypeUIDs().contains(profileTypeUID)) {
+                Profile profile = factory.createProfile(profileTypeUID);
+                if (profile == null) {
+                    logger.error("ProfileFactory {} returned 'null' although it claimed it supports {}", factory,
+                            profileTypeUID);
+                } else {
+                    entry.getValue().add(channelUID);
+                    return profile;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void receiveCommand(ItemCommandEvent commandEvent) {
         final String itemName = commandEvent.getItemName();
         final Command command = commandEvent.getItemCommand();
         final Item item = itemRegistry.get(itemName);
@@ -204,7 +250,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
-    private void receiveTrigger(@NonNull ChannelTriggeredEvent channelTriggeredEvent) {
+    private void receiveTrigger(ChannelTriggeredEvent channelTriggeredEvent) {
         final ChannelUID channelUID = channelTriggeredEvent.getChannel();
         final String event = channelTriggeredEvent.getEvent();
         final Thing thing = getThing(channelUID.getThingUID());
@@ -223,7 +269,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
-    public void stateUpdated(@NonNull ChannelUID channelUID, State state) {
+    public void stateUpdated(ChannelUID channelUID, State state) {
         final Thing thing = getThing(channelUID.getThingUID());
 
         itemChannelLinkRegistry.stream().filter(link -> {
@@ -240,7 +286,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
-    public void postCommand(@NonNull ChannelUID channelUID, Command command) {
+    public void postCommand(ChannelUID channelUID, Command command) {
         final Thing thing = getThing(channelUID.getThingUID());
 
         itemChannelLinkRegistry.stream().filter(link -> {
@@ -330,6 +376,24 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         synchronized (profiles) {
             channelUIDs.forEach(channelUID -> profiles.remove(channelUID));
         }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addProfileAdvisor(ProfileAdvisor profileAdvisor) {
+        profileAdvisors.add(profileAdvisor);
+    }
+
+    protected void removeProfileAdvisor(ProfileAdvisor profileAdvisor) {
+        profileAdvisors.remove(profileAdvisor);
+    }
+
+    @Reference
+    protected void setDefaultProfileFactory(DefaultProfileFactory defaultProfileFactory) {
+        this.defaultProfileFactory = defaultProfileFactory;
+    }
+
+    protected void unsetDefaultProfileFactory(DefaultProfileFactory defaultProfileFactory) {
+        this.defaultProfileFactory = null;
     }
 
     private static class NoOpProfile implements Profile {
