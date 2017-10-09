@@ -13,8 +13,8 @@
 							<p class="text-left hint small">{{service.id}}</p>
 							<div ng-controller="ConfigureSystemServiceController">
 								<div>
-									<div ng-init="form={};editing=false;">
-										<div onload="getConfigDescription()" ng-include="'partials/include.config.html'"></div>
+									<div ng-init="form={};getConfigDescription()">
+									    <config-description configuration="configuration" parameters="parameters" form="form"></config-description>
 										<div class="text-right">
 											<md-button ng-show="editing" ng-disabled="form.configForm.$invalid" aria-label="Save" ng-click="save(service.id, service.configDescriptionURI, $event)"> Save</md-button>
 										</div>

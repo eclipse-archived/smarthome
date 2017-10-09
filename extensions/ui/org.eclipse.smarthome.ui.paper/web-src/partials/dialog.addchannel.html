@@ -20,7 +20,7 @@
 		</md-input-container>
 		<div ng-if="parameters && parameters.length > 0" class="col-xs-12 noPadding">
 		   <h3>Channel configuration</h3>
-	       <div ng-include="'partials/include.config.html'"></div>
+	       <config-description configuration="configuration" parameters="parameters" />
 		</div>
 	</md-dialog-content>
 	<div class="md-actions" layout="row">

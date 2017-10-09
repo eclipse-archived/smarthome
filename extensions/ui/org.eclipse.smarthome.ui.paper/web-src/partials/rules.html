@@ -178,7 +178,7 @@
 						<md-input-container class="rules-input col-xs-12" md-no-float> <textarea placeholder="Description" ng-model="description"></textarea> </md-input-container>
 						<input type="hidden" ng-value="id" />
 						<h3 class="md-title-nospace">Configurations</h3>
-						<div ng-include="'partials/include.config.html'"></div>
+						<config-description configuration="configuration" parameters="parameters" />
 					</div>
 				</div>
 			</div>
