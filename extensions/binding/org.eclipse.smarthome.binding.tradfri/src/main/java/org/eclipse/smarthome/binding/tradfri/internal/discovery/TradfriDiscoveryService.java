@@ -43,6 +43,9 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private final TradfriGatewayHandler handler;
 
+    private static final String REMOTE_CONTROLLER_MODEL = "TRADFRI remote control";
+    private static final String WIRELESS_DIMMER_MODEL = "TRADFRI wireless dimmer";
+
     private static final String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
             "TRADFRI bulb E27 WS clear 950lm", "TRADFRI bulb GU10 WS 400lm", "TRADFRI bulb E14 WS opal 400lm",
             "FLOALT panel WS 30x30", "FLOALT panel WS 60x60", "FLOALT panel WS 30x90" };
@@ -113,8 +116,12 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                     // TODO How to distinguish between remote control and wireless dimmer?
                     // thingId = new ThingUID(THING_TYPE_DIMMER, bridge, Integer.toString(id));
                 } else if (TYPE_SWITCH.equals(type) && data.has(SWITCH)) {
-                    // Remote control
-                    thingId = new ThingUID(THING_TYPE_REMOTE_CONTROL, bridge, Integer.toString(id));
+                    // Remote control and wireless dimmer
+                    // As protocol does not distinguishes between remote control and wireless dimmer,
+                    // we check for the whole model name
+                    ThingTypeUID thingType = (model != null && REMOTE_CONTROLLER_MODEL.equals(model))
+                            ? THING_TYPE_REMOTE_CONTROL : THING_TYPE_DIMMER;
+                    thingId = new ThingUID(thingType, bridge, Integer.toString(id));
                 } else if (TYPE_SENSOR.equals(type) && data.has(SENSOR)) {
                     // Motion sensor
                     thingId = new ThingUID(THING_TYPE_MOTION_SENSOR, bridge, Integer.toString(id));

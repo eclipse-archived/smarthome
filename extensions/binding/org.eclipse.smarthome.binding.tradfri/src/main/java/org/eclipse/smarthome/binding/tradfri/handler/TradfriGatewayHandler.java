@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 
 /**
@@ -138,7 +140,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
      */
     public void startScan() {
         if (endPoint != null) {
-            updateGatewayInfo();
+            requestGatewayInfo();
             deviceClient.get(new TradfriCoapHandler(this));
         }
     }
@@ -178,7 +180,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         }
     }
 
-    private synchronized void updateGatewayInfo() {
+    private synchronized void requestGatewayInfo() {
         // we are reusing our coap client and merely temporarily set a gateway info to call
         deviceClient.setURI(this.gatewayInfoURI);
         deviceClient.asyncGet().thenAccept(data -> {
@@ -196,8 +198,25 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-        // TODO update ntp server configuration
+        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+            logger.debug("TRADFRI Gateway {}: Configuration update {} to {}", getThing().getThingTypeUID(),
+                    configurationParameter.getKey(), configurationParameter.getValue());
+            if (CONFIG_NTP_SERVER.equals(configurationParameter.getKey())) {
+                JsonObject root = new JsonObject();
+                root.add(NTP_SERVER, new JsonPrimitive((String) configurationParameters.get(CONFIG_NTP_SERVER)));
+                //updateGatewayInfo(root.toString());
+            }
+        }
         super.handleConfigurationUpdate(configurationParameters);
+    }
+
+    private synchronized void updateGatewayInfo(String payload) {
+        // we are reusing our coap client and merely temporarily set a gateway info to update
+        deviceClient.setURI(gatewayInfoURI);
+        logger.debug("Sending payload: {}", payload);
+        deviceClient.asyncPut(payload, this, null, scheduler);
+        // restore root URI
+        deviceClient.setURI(gatewayURI);
     }
 
     private synchronized void requestDeviceDetails(String instanceId) {

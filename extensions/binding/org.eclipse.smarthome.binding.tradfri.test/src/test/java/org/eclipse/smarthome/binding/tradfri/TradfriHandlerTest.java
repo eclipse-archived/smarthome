@@ -51,8 +51,10 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(CONFIG_HOST, "1.2.3.4");
         properties.put(CONFIG_CODE, "abc");
+        properties.put(CONFIG_NTP_SERVER, "europe.pool.ntp.org");
         bridge = BridgeBuilder.create(GATEWAY_TYPE_UID, "1").withLabel("My Gateway")
                 .withConfiguration(new Configuration(properties)).build();
+
         properties = new HashMap<>();
         properties.put(CONFIG_ID, "65537");
         thing = ThingBuilder.create(THING_TYPE_DIMMABLE_LIGHT, "1").withLabel("My Bulb").withBridge(bridge.getUID())
@@ -71,6 +73,26 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         assertThat(bridge.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
         waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+
+        configurationOfTradfriGatewayHandler();
+    }
+
+    private void configurationOfTradfriGatewayHandler() {
+        Configuration configuration = bridge.getConfiguration();
+        assertThat(configuration, is(notNullValue()));
+
+        assertThat(configuration.get(CONFIG_HOST), is("1.2.3.4"));
+        assertThat(configuration.get(CONFIG_CODE), is("abc"));
+        assertThat(configuration.get(CONFIG_NTP_SERVER), is("europe.pool.ntp.org"));
+
+        Map<String, Object> configurationParameters = new HashMap<>();
+        configurationParameters.put(CONFIG_NTP_SERVER, "de.pool.ntp.org");
+        bridge.getHandler().handleConfigurationUpdate(configurationParameters);
+
+        configuration = bridge.getConfiguration();
+        assertThat(configuration, is(notNullValue()));
+
+        assertThat(configuration.get(CONFIG_NTP_SERVER), is("de.pool.ntp.org"));
     }
 
     @Test
@@ -79,5 +101,14 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         managedThingProvider.add(bridge);
         managedThingProvider.add(thing);
         waitForAssert(() -> assertThat(thing.getHandler(), notNullValue()));
+
+        configurationOfTradfriLightHandler();
+    }
+
+    private void configurationOfTradfriLightHandler() {
+        Configuration configuration = thing.getConfiguration();
+        assertThat(configuration, is(notNullValue()));
+
+        assertThat(configuration.get(CONFIG_ID), is("65537"));
     }
 }

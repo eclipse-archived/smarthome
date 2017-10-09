@@ -175,6 +175,22 @@ public class TradfriDiscoveryServiceTest {
     }
 
     @Test
+    public void validDiscoveryResultWirelessDimmer() {
+        String json = "{\"9001\":\"TRADFRI wireless dimmer\",\"9002\":1492843083,\"9020\":1506977986,\"9003\":65536,\"9054\":0,\"5750\":0,\"9019\":1,\"3\":{\"0\":\"IKEA of Sweden\",\"1\":\"TRADFRI wireless dimmer\",\"2\":\"\",\"3\":\"1.2.214\",\"6\":3,\"9\":47},\"15009\":[{\"9003\":0}]}";
+        JsonObject data = new JsonParser().parse(json).getAsJsonObject();
+
+        discovery.onUpdate("65536", data);
+
+        assertNotNull(discoveryResult);
+        assertThat(discoveryResult.getFlag(), is(DiscoveryResultFlag.NEW));
+        assertThat(discoveryResult.getThingUID(), is(new ThingUID("tradfri:0820:1:65536")));
+        assertThat(discoveryResult.getThingTypeUID(), is(THING_TYPE_DIMMER));
+        assertThat(discoveryResult.getBridgeUID(), is(GATEWAY_THING_UID));
+        assertThat(discoveryResult.getProperties().get(CONFIG_ID), is(65536));
+        assertThat(discoveryResult.getRepresentationProperty(), is(CONFIG_ID));
+    }
+
+    @Test
     public void validDiscoveryResultMotionSensor() {
         String json = "{\"9001\":\"TRADFRI motion sensor\",\"9002\":1492955083,\"9020\":1507120083,\"9003\":65538,\"9054\":0,\"5750\":4,\"9019\":1,\"3\":{\"0\":\"IKEA of Sweden\",\"1\":\"TRADFRI motion sensor\",\"2\":\"\",\"3\":\"1.2.214\",\"6\":3,\"9\":60},\"3300\":[{\"9003\":0}]}";
         JsonObject data = new JsonParser().parse(json).getAsJsonObject();
