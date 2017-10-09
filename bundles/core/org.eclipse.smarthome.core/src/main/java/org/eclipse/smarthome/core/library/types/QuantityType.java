@@ -44,6 +44,12 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
 
     public Quantity<?> quantity;
 
+    /**
+     * Creates a new {@link QuantityType} with the given value. The value may contain a unit. The specific
+     * {@link Quantity} is obtained by {@link Quantities#getQuantity(CharSequence)}.
+     *
+     * @param value the non null value representing a quantity with an optional unit.
+     */
     public QuantityType(String value) {
         if (value == null) {
             throw new IllegalArgumentException("Constructor argument must not be null");
@@ -61,12 +67,25 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         }
     }
 
+    /**
+     * Creates a new {@link QuantityType} with the given value and {@link Unit}.
+     *
+     * @param value the non null measurement value.
+     * @param unit the non null measurement unit.
+     */
     public QuantityType(double value, Unit<?> unit) {
         // Avoid scientific notation for double
         BigDecimal bd = new BigDecimal(value);
         quantity = Quantities.getQuantity(bd, unit);
     }
 
+    /**
+     * Static access to {@link QuantityType#QuantityType(double, Unit)}.
+     *
+     * @param value the non null measurement value.
+     * @param unit the non null measurement unit.
+     * @return a new {@link QuantityType}
+     */
     public static QuantityType valueOf(double value, Unit<?> unit) {
         return new QuantityType(value, unit);
     }
