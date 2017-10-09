@@ -72,12 +72,13 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             ChannelUID channelUID = boundChannels.iterator().next();
             Channel channel = thingRegistry.getChannel(channelUID);
             if (channel != null) {
+                StateDescription stateDescription = getDynamicStateDescription(channel, locale);
+                if (stateDescription != null) {
+                    return stateDescription;
+                }
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
                 if (channelType != null) {
-                    StateDescription stateDescription = getDynamicStateDescription(channel, locale);
-                    if (stateDescription == null) {
-                        stateDescription = channelType.getState();
-                    }
+                    stateDescription = channelType.getState();
                     if ((channelType.getItemType() != null)
                             && ((stateDescription == null) || (stateDescription.getPattern() == null))) {
                         String pattern = null;
@@ -98,8 +99,6 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                         }
                     }
                     return stateDescription;
-                } else {
-                    return null;
                 }
             }
         }
