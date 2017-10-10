@@ -69,7 +69,9 @@
 			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
 				<p>Configure parameters for the thing.</p>
-				<div ng-if="counter==1" ng-include="'partials/include.config.html'"></div>
+				<div ng-if="counter==1">
+				    <config-description configuration="configuration" parameters="parameters" form="form" />
+				</div>
 			</div>
 		</div>
 	</div>

@@ -3,7 +3,7 @@
 	Configure {{binding.name}} <small>{{binding.id}}</small>
 </h1>
 <div ng-init="form={}">
-	<div ng-include="'partials/include.config.html'"></div>
+	<config-description configuration="configuration" parameters="parameters" />
 </div>
 <div ng-show="expertMode" layout="row" layout-align="center">
 	<button class="md-raised md-button" ng-click="addParameter()" aria-label="Add Parameter">Add Parameter</button>

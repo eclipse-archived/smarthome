@@ -178,15 +178,16 @@ angular.module('PaperUI.controllers.things') //
     $scope.unlink = function() {
         $mdDialog.hide();
     }
-}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channel, thing) {
+}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingService, configService, channelType, channel, thing) {
     $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);
-    $scope.configuration = channel.configuration
+    $scope.configuration = {}
+    angular.copy(channel.configuration, $scope.configuration)
 
     $scope.close = function() {
         $mdDialog.cancel();
     }
     $scope.save = function() {
-        channel = $scope.configuration
+        channel.configuration = $scope.configuration
         thingService.update({
             thingUID : thing.UID
         }, thing, function() {
