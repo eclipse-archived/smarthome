@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceServiceConfiguration;
 import org.eclipse.smarthome.core.persistence.SimpleItemConfiguration;
 import org.eclipse.smarthome.core.persistence.strategy.SimpleStrategy;
+import org.eclipse.smarthome.core.scheduler2.Scheduler.RunnableWithException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Separation of persistence core and model, drop Quartz usage.
  */
-public class PersistItemsJob implements Runnable {
+public class PersistItemsJob implements Runnable, RunnableWithException {
 
     private final Logger logger = LoggerFactory.getLogger(PersistItemsJob.class);
 

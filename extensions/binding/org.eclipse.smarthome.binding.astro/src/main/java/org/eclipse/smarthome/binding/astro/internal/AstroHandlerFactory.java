@@ -18,12 +18,14 @@ import java.util.stream.Stream;
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.handler.MoonHandler;
 import org.eclipse.smarthome.binding.astro.handler.SunHandler;
+import org.eclipse.smarthome.core.scheduler2.Scheduler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link AstroHandlerFactory} is responsible for creating things and thing handlers.
@@ -37,6 +39,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
             .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
     private static final Map<String, AstroThingHandler> astroThingHandlers = new HashMap<>();
+    private Scheduler scheduler;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -49,9 +52,9 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
         AstroThingHandler thingHandler = null;
 
         if (thingTypeUID.equals(THING_TYPE_SUN)) {
-            thingHandler = new SunHandler(thing);
+            thingHandler = new SunHandler(thing, scheduler);
         } else if (thingTypeUID.equals(THING_TYPE_MOON)) {
-            thingHandler = new MoonHandler(thing);
+            thingHandler = new MoonHandler(thing, scheduler);
         }
         if (thingHandler != null) {
             astroThingHandlers.put(thing.getUID().toString(), thingHandler);
@@ -68,4 +71,14 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     public static AstroThingHandler getHandler(String thingUid) {
         return astroThingHandlers.get(thingUid);
     }
+
+    @Reference
+    protected void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    protected void unsetScheduler(Scheduler scheduler) {
+        this.scheduler = null;
+    }
+
 }

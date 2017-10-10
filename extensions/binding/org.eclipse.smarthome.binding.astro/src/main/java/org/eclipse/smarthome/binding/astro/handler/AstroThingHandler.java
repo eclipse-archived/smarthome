@@ -11,8 +11,8 @@ import static org.eclipse.smarthome.core.thing.ThingStatus.*;
 import static org.eclipse.smarthome.core.thing.type.ChannelKind.TRIGGER;
 import static org.eclipse.smarthome.core.types.RefreshType.REFRESH;
 
+import java.io.Closeable;
 import java.lang.invoke.MethodHandles;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,9 +32,7 @@ import org.eclipse.smarthome.binding.astro.internal.job.Job;
 import org.eclipse.smarthome.binding.astro.internal.job.PositionalJob;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
+import org.eclipse.smarthome.core.scheduler2.Scheduler;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -57,17 +55,18 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     /** Scheduler to schedule jobs */
-    private final ExpressionThreadPoolExecutor scheduledExecutor;
+    private final Scheduler scheduledExecutor;
 
     private int linkedPositionalChannels = 0;
     protected AstroThingConfig thingConfig;
     private final Lock monitor = new ReentrantLock();
-    private Job dailyJob;
+
+    private Closeable dailyJob;
     private final Set<ScheduledFuture<?>> scheduledFutures = new HashSet<>();
 
-    public AstroThingHandler(Thing thing) {
+    public AstroThingHandler(Thing thing, Scheduler scheduler) {
         super(thing);
-        scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
+        this.scheduledExecutor = scheduler;
     }
 
     @Override
@@ -171,11 +170,11 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                     return;
                 }
                 // Daily Job
-                dailyJob = getDailyJob();
-                scheduledExecutor.schedule(dailyJob, new CronExpression(DAILY_MIDNIGHT));
+                Job runnable = getDailyJob();
+                dailyJob = scheduledExecutor.schedule(runnable, DAILY_MIDNIGHT);
                 logger.debug("Scheduled {} at midnight", dailyJob);
                 // Execute daily startup job immediately
-                dailyJob.run();
+                runnable.run();
 
                 // Repeat positional job every configured seconds
                 if (isPositionalChannelLinked()) {
@@ -186,8 +185,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                     logger.info("Scheduled {} every {} seconds", positionalJob, thingConfig.getInterval());
                 }
             }
-        } catch (ParseException ex) {
-            logger.error("{}", ex.getMessage(), ex);
         } finally {
             monitor.unlock();
         }
@@ -202,7 +199,7 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         try {
             if (scheduledExecutor != null) {
                 if (dailyJob != null) {
-                    scheduledExecutor.remove(dailyJob);
+                    dailyJob.close();
                 }
                 dailyJob = null;
             }

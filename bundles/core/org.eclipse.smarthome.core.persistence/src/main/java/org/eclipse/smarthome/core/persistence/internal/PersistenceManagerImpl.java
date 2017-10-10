@@ -7,8 +7,9 @@
  */
 package org.eclipse.smarthome.core.persistence.internal;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,9 +39,7 @@ import org.eclipse.smarthome.core.persistence.config.SimpleGroupConfig;
 import org.eclipse.smarthome.core.persistence.config.SimpleItemConfig;
 import org.eclipse.smarthome.core.persistence.strategy.SimpleCronStrategy;
 import org.eclipse.smarthome.core.persistence.strategy.SimpleStrategy;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
+import org.eclipse.smarthome.core.scheduler2.Scheduler;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.service.component.annotations.Component;
@@ -62,24 +61,24 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
     // the scheduler used for timer events
-    private ExpressionThreadPoolExecutor scheduler;
+    private Scheduler scheduler;
 
     private ItemRegistry itemRegistry;
 
     final Map<String, PersistenceService> persistenceServices = new HashMap<>();
     final Map<String, PersistenceServiceConfiguration> persistenceServiceConfigs = new HashMap<>();
-    private final Map<String, Set<Runnable>> persistenceJobs = new HashMap<>();
+    private final Map<String, Set<Closeable>> persistenceJobs = new HashMap<>();
 
     public PersistenceManagerImpl() {
     }
 
-    protected void activate() {
-        scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool("persist");
+    @Reference
+    protected void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
-    protected void deactivate() {
-        scheduler.shutdown();
-        scheduler = null;
+    protected void unsetScheduler(Scheduler scheduler) {
+        this.scheduler = null;
     }
 
     @Reference
@@ -292,24 +291,17 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
             if (strategy instanceof SimpleCronStrategy) {
                 SimpleCronStrategy cronStrategy = (SimpleCronStrategy) strategy;
                 String cronExpression = cronStrategy.getCronExpression();
-                final CronExpression expression;
-                try {
-                    expression = new CronExpression(cronExpression);
-                } catch (final ParseException ex) {
-                    logger.warn("Cannot parse cron expression ({}).", cronExpression, ex);
-                    continue;
-                }
 
                 final PersistItemsJob job = new PersistItemsJob(this, modelName, cronStrategy.getName());
+                Closeable schedule = scheduler.schedule(job, cronExpression);
                 if (persistenceJobs.containsKey(modelName)) {
-                    persistenceJobs.get(modelName).add(job);
+                    persistenceJobs.get(modelName).add(schedule);
                 } else {
-                    final Set<Runnable> jobs = new HashSet<>();
-                    jobs.add(job);
+                    final Set<Closeable> jobs = new HashSet<>();
+                    jobs.add(schedule);
                     persistenceJobs.put(modelName, jobs);
                 }
 
-                scheduler.schedule(job, expression);
                 logger.debug("Scheduled strategy {} with cron expression {}", cronStrategy.getName(), cronExpression);
             }
         }
@@ -324,11 +316,11 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         if (!persistenceJobs.containsKey(persistModelName)) {
             return;
         }
-        for (final Runnable job : persistenceJobs.get(persistModelName)) {
-            boolean success = scheduler.remove(job);
-            if (success) {
+        for (final Closeable job : persistenceJobs.get(persistModelName)) {
+            try {
+                job.close();
                 logger.debug("Removed scheduled cron job for dbId '{}'", persistModelName);
-            } else {
+            } catch (IOException e) {
                 logger.warn("Failed to delete cron job for dbId '{}'", persistModelName);
             }
         }

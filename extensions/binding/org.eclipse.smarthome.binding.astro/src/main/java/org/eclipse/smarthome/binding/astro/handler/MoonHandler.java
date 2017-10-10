@@ -19,6 +19,7 @@ import org.eclipse.smarthome.binding.astro.internal.job.DailyJobMoon;
 import org.eclipse.smarthome.binding.astro.internal.job.Job;
 import org.eclipse.smarthome.binding.astro.internal.model.Moon;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
+import org.eclipse.smarthome.core.scheduler2.Scheduler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -37,9 +38,11 @@ public class MoonHandler extends AstroThingHandler {
     private final MoonCalc moonCalc = new MoonCalc();
     private Moon moon;
 
-    /** Constructor */
-    public MoonHandler(Thing thing) {
-        super(thing);
+    /**
+     * Constructor
+     */
+    public MoonHandler(Thing thing, Scheduler scheduler) {
+        super(thing, scheduler);
     }
 
     @Override
@@ -75,7 +78,7 @@ public class MoonHandler extends AstroThingHandler {
     protected Job getDailyJob() {
         return new DailyJobMoon(thing.getUID().getAsString(), this);
     }
-    
+
     private void initializeMoon() {
         moon = moonCalc.getMoonInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude());
     }

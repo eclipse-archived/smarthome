@@ -23,6 +23,7 @@ Import-Package:
  org.eclipse.smarthome.core.persistence.dto,
  org.eclipse.smarthome.core.persistence.strategy,
  org.eclipse.smarthome.core.scheduler,
+ org.eclipse.smarthome.core.scheduler2,
  org.eclipse.smarthome.core.types,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
