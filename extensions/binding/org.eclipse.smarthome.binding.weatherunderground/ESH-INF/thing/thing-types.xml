@@ -450,17 +450,6 @@
 		<description>Rain fall during the day</description>
 		<category>Rain</category>
 		<state readOnly="true" pattern="%.2f %unit%" />
-		<!--  config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Rain fall Source Unit</label>
-				<description>Select the rain fall unit provided by the Weather Underground service</description>
-				<options>
-					<option value="mm">Millimeters</option>
-					<option value="in">Inches</option>
-				</options>
-				<default>mm</default>
-			</parameter>
-		</config-description> -->
 	</channel-type>
 
 	<channel-type id="rainHour">
@@ -479,17 +468,6 @@
 		<description>Snow fall</description>
 		<category>Rain</category>
 		<state readOnly="true" pattern="%.2f %unit%" />
-		<!--  config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Snow fall Source Unit</label>
-				<description>Select the snow fall unit provided by the Weather Underground service</description>
-				<options>
-					<option value="cm">Centimeters</option>
-					<option value="in">Inches</option>
-				</options>
-				<default>cm</default>
-			</parameter>
-		</config-description> -->
 	</channel-type>
 
 	<channel-type id="probaPrecipitation">
