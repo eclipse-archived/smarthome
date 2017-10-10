@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
+import java.util.Map;
 
 import javax.measure.Dimension;
 import javax.measure.IncommensurableException;
@@ -17,7 +19,10 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -33,6 +38,7 @@ import tec.uom.se.quantity.Quantities;
  * @author Gaël L'hopital - Initial contribution
  *
  */
+@NonNullByDefault
 public class QuantityType extends Number implements PrimitiveType, State, Command, Comparable<QuantityType> {
     private final static Logger logger = LoggerFactory.getLogger(QuantityType.class);
 
@@ -42,7 +48,8 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     // Regular expression to split unit from value
     private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%])";
 
-    public Quantity<?> quantity;
+    private Quantity<?> quantity;
+    private Map<MeasurementSystem, Unit<?>> conversionUnits = new HashMap<MeasurementSystem, Unit<?>>(2);
 
     /**
      * Creates a new {@link QuantityType} with the given value. The value may contain a unit. The specific
@@ -74,9 +81,24 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @param unit the non null measurement unit.
      */
     public QuantityType(double value, Unit<?> unit) {
+        this(value, unit, null);
+    }
+
+    /**
+     * Creates a new {@link QuantityType} with the given value and {@link Unit}.
+     *
+     * @param value the non null measurement value.
+     * @param unit the non null measurement unit.
+     * @param conversionUnits the optional unit map which is used to determine the {@link MeasurementSystem} specific
+     *            unit for conversion.
+     */
+    public QuantityType(double value, Unit<?> unit, @Nullable Map<MeasurementSystem, Unit<?>> conversionUnits) {
         // Avoid scientific notation for double
         BigDecimal bd = new BigDecimal(value);
         quantity = Quantities.getQuantity(bd, unit);
+        if (conversionUnits != null && !conversionUnits.isEmpty()) {
+            this.conversionUnits.putAll(conversionUnits);
+        }
     }
 
     /**
@@ -100,7 +122,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -143,13 +165,19 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return getUnit().getDimension();
     }
 
-    public QuantityType toUnit(Unit<?> targetUnit) {
+    /**
+     * Convert this QuantityType to a new {@link QuantityType} using the given target unit.
+     *
+     * @param targetUnit the unit to which this {@link QuantityType} will be converted to.
+     * @return the new {@link QuantityType} in the given {@link Unit} or {@code null} in case of a
+     */
+    public @Nullable QuantityType toUnit(Unit<?> targetUnit) {
         if (!targetUnit.equals(getUnit())) {
             try {
                 UnitConverter uc = getUnit().getConverterToAny(targetUnit);
                 Quantity<?> result = Quantities.getQuantity(uc.convert(quantity.getValue()), targetUnit);
 
-                return new QuantityType(result.getValue().doubleValue(), targetUnit);
+                return new QuantityType(result.getValue().doubleValue(), targetUnit, conversionUnits);
             } catch (UnconvertibleException | IncommensurableException e) {
                 logger.debug("Unable to convert unit from {} to {}",
                         new Object[] { getUnit().toString(), targetUnit.toString() });
@@ -159,14 +187,12 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return this;
     }
 
-    public QuantityType toUnit(String targetUnit) {
-        if (targetUnit != null) {
-            Unit<?> unit = AbstractUnit.parse(targetUnit);
-            if (unit != null) {
-                return toUnit(unit);
-            }
-
+    public @Nullable QuantityType toUnit(String targetUnit) {
+        Unit<?> unit = AbstractUnit.parse(targetUnit);
+        if (unit != null) {
+            return toUnit(unit);
         }
+
         return null;
     }
 
@@ -183,7 +209,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     }
 
     @Override
-    public String format(String pattern) {
+    public String format(@Nullable String pattern) {
         // The value could be an integer value. Try to convert to BigInteger in
         // order to have access to more conversion formats.
         try {
@@ -229,8 +255,27 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return toBigDecimal().toPlainString();
     }
 
+    public Unit<?> getConversionUnit(MeasurementSystem ms) {
+        return conversionUnits.get(ms);
+    }
+
+    /**
+     * Whether this {@link QuantityType} needs a conversion to the given MeasurementSystem. This uses the
+     * conversionUnits map from the {@link QuantityType#QuantityType(double, Unit, Map)} constructor.
+     *
+     * @param ms
+     * @return
+     */
+    public boolean needsConversion(MeasurementSystem ms) {
+        if (quantity != null && conversionUnits.get(ms) != null && conversionUnits.get(ms).equals(quantity.getUnit())) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
-    public State as(Class<? extends State> target) {
+    public State as(@Nullable Class<? extends @Nullable State> target) {
         if (target == OnOffType.class) {
             if (intValue() == 0) {
                 return OnOffType.OFF;

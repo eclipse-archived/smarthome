@@ -8,6 +8,7 @@ import javax.measure.Unit;
 
 import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.UnitProvider;
 import org.osgi.service.component.annotations.Component;
 
@@ -25,12 +26,13 @@ public class DefaultUnitProvider implements UnitProvider {
     @Override
     public Unit<?> getUnit(Dimension dimension, Locale locale) {
         Map<MeasurementSystem, Unit<?>> unitMap = dimensionMap.get(dimension);
-        
-        MeasurementSystem system = getMeasurmenetSystem(locale);
+
+        MeasurementSystem system = getMeasurementSystem(locale);
         return unitMap.get(system);
     }
-    
-    private MeasurementSystem getMeasurmenetSystem(Locale locale) {
+
+    @Override
+    public MeasurementSystem getMeasurementSystem(Locale locale) {
         // Only US and Liberia use the Imperial System.
         if (Locale.US.equals(locale) || Locale.forLanguageTag("en-LR").equals(locale)) {
             return MeasurementSystem.US;
@@ -42,7 +44,7 @@ public class DefaultUnitProvider implements UnitProvider {
         dimensionMap = new HashMap<>();
 
         Map<MeasurementSystem, Unit<?>> temperatureMap = new HashMap<>();
-        temperatureMap.put(MeasurementSystem.SI, ESHUnits.CELSIUS);
+        temperatureMap.put(MeasurementSystem.SI, Units.CELSIUS);
         temperatureMap.put(MeasurementSystem.US, ESHUnits.FAHRENHEIT);
         dimensionMap.put(Dimension.TEMPERATURE, temperatureMap);
 
@@ -67,8 +69,4 @@ public class DefaultUnitProvider implements UnitProvider {
         dimensionMap.put(Dimension.INTENSITY, intensityMap);
     }
 
-    private enum MeasurementSystem {
-        SI, // metric measurement system
-        US  // imperial measurement system
-    }
 }

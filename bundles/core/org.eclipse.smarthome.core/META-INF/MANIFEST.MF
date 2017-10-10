@@ -74,6 +74,7 @@ Import-Package:
  tec.uom.lib.common,
  tec.uom.se,
  tec.uom.se.format,
+ tec.uom.se.function,
  tec.uom.se.quantity,
  tec.uom.se.unit 
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smartho

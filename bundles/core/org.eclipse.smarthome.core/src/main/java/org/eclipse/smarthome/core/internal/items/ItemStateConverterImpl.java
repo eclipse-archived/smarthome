@@ -2,6 +2,8 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.Locale;
 
+import javax.measure.Unit;
+
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
@@ -10,6 +12,7 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Dimension;
+import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.UnitProvider;
@@ -51,7 +54,19 @@ public class ItemStateConverterImpl implements ItemStateConverter {
             if (dimension != Dimension.DIMENSIONLESS
                     && dimension.getDefaultUnit().isCompatible(quantityState.getUnit())) {
                 Locale locale = localeProvider.getLocale();
-                return quantityState.toUnit(unitProvider.getUnit(dimension, locale));
+                MeasurementSystem ms = unitProvider.getMeasurementSystem(locale);
+                if (quantityState.needsConversion(ms)) {
+                    Unit<?> conversionUnit = quantityState.getConversionUnit(ms);
+                    if (conversionUnit != null) {
+                        // the quantity state knows for itself which unit to convert too.
+                        return quantityState.toUnit(conversionUnit);
+                    } else {
+                        // we do default conversion to the system provided unit for the specific dimension & locale
+                        return quantityState.toUnit(unitProvider.getUnit(dimension, locale));
+                    }
+                }
+
+                return quantityState;
             } else {
                 return quantityState.as(DecimalType.class);
             }

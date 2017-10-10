@@ -15,4 +15,6 @@ public interface UnitProvider {
      */
     Unit<?> getUnit(Dimension dimension, Locale locale);
 
+    MeasurementSystem getMeasurementSystem(Locale locale);
+
 }

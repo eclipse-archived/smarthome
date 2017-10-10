@@ -101,6 +101,15 @@ public class ESHUnitsTest {
     }
 
     @Test
+    public void testM2Ml() {
+        Quantity<Length> km = Quantities.getQuantity(new BigDecimal(10), MetricPrefix.KILO(Units.METRE));
+
+        Quantity<Length> mile = km.to(ESHUnits.MILE);
+        assertThat(mile.getUnit(), is(ESHUnits.MILE));
+        assertThat(mile.getValue().doubleValue(), is(closeTo(6.2137119223733395d, DEFAULT_ERROR)));
+    }
+
+    @Test
     public void test_fahrenheit_UnitSymbol() {
         assertThat(ESHUnits.FAHRENHEIT.getSymbol(), is("°F"));
         assertThat(ESHUnits.FAHRENHEIT.toString(), is("°F"));
@@ -110,6 +119,12 @@ public class ESHUnitsTest {
     public void test_inch_UnitSymbol() {
         assertThat(ESHUnits.INCH.getSymbol(), is("in"));
         assertThat(ESHUnits.INCH.toString(), is("in"));
+    }
+
+    @Test
+    public void test_mile_UnitSymbol() {
+        assertThat(ESHUnits.MILE.getSymbol(), is("ml"));
+        assertThat(ESHUnits.MILE.toString(), is("ml"));
     }
 
 }
