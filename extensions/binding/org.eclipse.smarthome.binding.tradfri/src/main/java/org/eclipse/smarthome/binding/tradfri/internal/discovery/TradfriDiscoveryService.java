@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import com.google.gson.JsonSyntaxException;
  * This class identifies devices that are available on the gateway and adds discovery results for them.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Andre Fuechsel - fixed the results removal
  */
 public class TradfriDiscoveryService extends AbstractDiscoveryService implements DeviceUpdateListener {
 
@@ -51,8 +53,13 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     protected void startScan() {
-        removeOlderResults(getTimestampOfLastScan());
         handler.startScan();
+    }
+
+    @Override
+    protected synchronized void stopScan() {
+        super.stopScan();
+        removeOlderResults(getTimestampOfLastScan());
     }
 
     public void activate() {
@@ -61,6 +68,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     public void deactivate() {
+        removeOlderResults(new Date().getTime());
         handler.unregisterDeviceUpdateListener(this);
     }
 
