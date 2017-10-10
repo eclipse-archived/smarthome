@@ -12,6 +12,7 @@ import org.eclipse.smarthome.core.transform.TransformationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -48,10 +49,10 @@ public class JSonPathTransformationService implements TransformationService {
         try {
             Object transformationResult = JsonPath.read(source, jsonPathExpression);
             logger.debug("transformation resulted in '{}'", transformationResult);
-            return (transformationResult != null) ? transformationResult.toString() : null;
+            return (transformationResult != null) ? transformationResult.toString() : source;
         } catch (PathNotFoundException e) {
-            return null;
-        } catch (InvalidPathException e) {
+            throw new TransformationException("Invalid path '" + jsonPathExpression + "' in '" + source + "'");
+        } catch (InvalidPathException | InvalidJsonException e) {
             throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
 
