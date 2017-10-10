@@ -14,7 +14,7 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.moduletype.commands;
+package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.commands;
 
 /**
  * This class is base for the commands in this demo automation commands. It defines common functionality for the

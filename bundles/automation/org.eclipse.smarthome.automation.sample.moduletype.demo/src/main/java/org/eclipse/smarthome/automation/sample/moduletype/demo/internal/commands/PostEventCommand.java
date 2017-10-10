@@ -14,7 +14,7 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.moduletype.commands;
+package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.commands;
 
 import java.util.HashMap;
 import java.util.Map;
