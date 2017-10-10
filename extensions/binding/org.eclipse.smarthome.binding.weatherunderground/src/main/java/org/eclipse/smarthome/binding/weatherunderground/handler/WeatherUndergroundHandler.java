@@ -11,6 +11,7 @@ import static tec.uom.se.unit.MetricPrefix.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,9 +40,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -217,10 +218,10 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrState(current.getStationId(), new StringType(current.getStationId()));
             case "observationTime":
                 return undefOrState(current.getObservationTime(), new DateTimeType(current.getObservationTime()));
-            case "currentConditions":
+            case "conditions":
                 return undefOrState(current.getConditions(), new StringType(current.getConditions()));
             case "temperature":
-                return undefOrQuantity(current.getTemperatureC(), Units.CELSIUS);
+                return undefOrQuantity(current.getTemperatureC(), Units.CELSIUS, getTemperatureConversionMap());
             case "relativeHumidity":
                 return undefOrDecimal(current.getRelativeHumidity());
             case "windDirection":
@@ -228,29 +229,32 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             case "windDirectionDegrees":
                 return undefOrDecimal(current.getWindDirectionDegrees());
             case "windSpeed":
-                return undefOrQuantity(current.getWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+                return undefOrQuantity(current.getWindSpeedKmh(), Units.KILOMETRE_PER_HOUR, getSpeedConversionMap());
             case "windGust":
-                return undefOrQuantity(current.getWindGustKmh(), Units.KILOMETRE_PER_HOUR);
+                return undefOrQuantity(current.getWindGustKmh(), Units.KILOMETRE_PER_HOUR, getSpeedConversionMap());
             case "pressure":
-                return undefOrQuantity(current.getPressureHPa(), ESHUnits.HECTO_PASCAL);
+                return undefOrQuantity(current.getPressureHPa(), ESHUnits.HECTO_PASCAL, getPressureConversionMap());
             case "dewPoint":
-                return undefOrQuantity(current.getDewPointC(), Units.CELSIUS);
+                return undefOrQuantity(current.getDewPointC(), Units.CELSIUS, getTemperatureConversionMap());
             case "heatIndex":
-                return undefOrQuantity(current.getHeatIndexC(), Units.CELSIUS);
+                return undefOrQuantity(current.getHeatIndexC(), Units.CELSIUS, getTemperatureConversionMap());
             case "windChill":
-                return undefOrQuantity(current.getWindChillC(), Units.CELSIUS);
+                return undefOrQuantity(current.getWindChillC(), Units.CELSIUS, getTemperatureConversionMap());
             case "feelingTemperature":
-                return undefOrQuantity(current.getFeelingTemperatureC(), Units.CELSIUS);
+                return undefOrQuantity(current.getFeelingTemperatureC(), Units.CELSIUS, getTemperatureConversionMap());
             case "visibility":
-                return undefOrQuantity(current.getVisibilityKm(), KILO(Units.METRE));
+                return undefOrQuantity(current.getVisibilityKm(), KILO(Units.METRE),
+                        getConversionMap(KILO(Units.METRE), ESHUnits.MILE));
             case "solarRadiation":
-                return undefOrQuantity(current.getSolarRadiation(), ESHUnits.IRRADIANCE);
+                return undefOrQuantity(current.getSolarRadiation(), ESHUnits.IRRADIANCE, Collections.emptyMap());
             case "UVIndex":
                 return undefOrDecimal(current.getUVIndex());
-            case "rainDay":
-                return undefOrQuantity(current.getPrecipitationDayMm(), MILLI(Units.METRE));
-            case "rainHour":
-                return undefOrQuantity(current.getPrecipitationHourMm(), MILLI(Units.METRE));
+            case "precipitationDay":
+                return undefOrQuantity(current.getPrecipitationDayMm(), MILLI(Units.METRE),
+                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
+            case "precipitationHour":
+                return undefOrQuantity(current.getPrecipitationHourMm(), MILLI(Units.METRE),
+                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
             case "icon":
                 State icon = HttpUtil.downloadImage(current.getIcon().toExternalForm());
                 if (icon == null) {
@@ -271,34 +275,38 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         switch (channelTypeId) {
             case "forecastTime":
                 return undefOrState(dayForecast.getForecastTime(), new DateTimeType(dayForecast.getForecastTime()));
-            case "forecastConditions":
+            case "conditions":
                 return undefOrState(dayForecast.getConditions(), new StringType(dayForecast.getConditions()));
             case "minTemperature":
-                return undefOrQuantity(dayForecast.getMinTemperatureC(), Units.CELSIUS);
+                return undefOrQuantity(dayForecast.getMinTemperatureC(), Units.CELSIUS, getTemperatureConversionMap());
             case "maxTemperature":
-                return undefOrQuantity(dayForecast.getMaxTemperatureC(), Units.CELSIUS);
+                return undefOrQuantity(dayForecast.getMaxTemperatureC(), Units.CELSIUS, getTemperatureConversionMap());
             case "relativeHumidity":
                 return undefOrDecimal(dayForecast.getRelativeHumidity());
             case "probaPrecipitation":
                 return undefOrDecimal(dayForecast.getProbaPrecipitation());
-            case "rainDay":
-                return undefOrQuantity(dayForecast.getPrecipitationDayMm(), MILLI(Units.METRE));
+            case "precipitationDay":
+                return undefOrQuantity(dayForecast.getPrecipitationDayMm(), MILLI(Units.METRE),
+                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
             case "snow":
-                return undefOrQuantity(dayForecast.getSnowCm(), CENTI(Units.METRE));
+                return undefOrQuantity(dayForecast.getSnowCm(), CENTI(Units.METRE),
+                        getConversionMap(CENTI(Units.METRE), ESHUnits.INCH));
             case "maxWindDirection":
                 return undefOrState(dayForecast.getMaxWindDirection(),
                         new StringType(dayForecast.getMaxWindDirection()));
             case "maxWindDirectionDegrees":
                 return undefOrDecimal(dayForecast.getMaxWindDirectionDegrees());
             case "maxWindSpeed":
-                return undefOrQuantity(dayForecast.getMaxWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+                return undefOrQuantity(dayForecast.getMaxWindSpeedKmh(), Units.KILOMETRE_PER_HOUR,
+                        getSpeedConversionMap());
             case "averageWindDirection":
                 return undefOrState(dayForecast.getAverageWindDirection(),
                         new StringType(dayForecast.getAverageWindDirection()));
             case "averageWindDirectionDegrees":
                 return undefOrDecimal(dayForecast.getAverageWindDirectionDegrees());
             case "averageWindSpeed":
-                return undefOrQuantity(dayForecast.getAverageWindSpeedKmh(), Units.KILOMETRE_PER_HOUR);
+                return undefOrQuantity(dayForecast.getAverageWindSpeedKmh(), Units.KILOMETRE_PER_HOUR,
+                        getSpeedConversionMap());
             case "icon":
                 State icon = HttpUtil.downloadImage(dayForecast.getIcon().toExternalForm());
                 if (icon == null) {
@@ -315,8 +323,8 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         return value == null ? UnDefType.UNDEF : state;
     }
 
-    private State undefOrQuantity(BigDecimal value, Unit<?> unit) {
-        return value == null ? UnDefType.UNDEF : new QuantityType(value.doubleValue(), unit);
+    private State undefOrQuantity(BigDecimal value, Unit<?> unit, Map<MeasurementSystem, Unit<?>> conversionMap) {
+        return value == null ? UnDefType.UNDEF : new QuantityType(value.doubleValue(), unit, conversionMap);
     }
 
     private State undefOrDecimal(Number value) {
@@ -329,10 +337,28 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         return forecastMap.get(channel);
     }
 
+    private Map<MeasurementSystem, Unit<?>> getConversionMap(Unit<?> metricUnit, Unit<?> imperialUnit) {
+        Map<MeasurementSystem, Unit<?>> conversionMap = new HashMap<>();
+        conversionMap.put(MeasurementSystem.SI, metricUnit);
+        conversionMap.put(MeasurementSystem.US, imperialUnit);
+
+        return conversionMap;
+    }
+
+    private Map<MeasurementSystem, Unit<?>> getPressureConversionMap() {
+        return getConversionMap(ESHUnits.HECTO_PASCAL, ESHUnits.INCH_OF_MERCURY);
+    }
+
+    private Map<MeasurementSystem, Unit<?>> getSpeedConversionMap() {
+        return getConversionMap(Units.KILOMETRE_PER_HOUR, ESHUnits.MILES_PER_HOUR);
+    }
+
+    private Map<MeasurementSystem, Unit<?>> getTemperatureConversionMap() {
+        return getConversionMap(Units.CELSIUS, ESHUnits.FAHRENHEIT);
+    }
+
     private String getChannelTypeId(String channelId) {
-        Channel channel = thing.getChannel(channelId);
-        ChannelTypeUID channelTypeUID = channel == null ? null : channel.getChannelTypeUID();
-        return channelTypeUID == null ? null : channelTypeUID.getId();
+        return channelId.substring(channelId.indexOf("#") + 1);
     }
 
     private Map<String, Integer> initForecastDayMap() {
