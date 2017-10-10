@@ -56,7 +56,7 @@ public class ChartRenderer extends AbstractWidgetRenderer {
             if (chart.getService() != null) {
                 chartUrl += "&service=" + chart.getService();
             }
-            // if legend parameter is given, add correspondending GET parameter
+            // if legend parameter is given, add corresponding GET parameter
             if (chart.getLegend() != null) {
                 if (chart.getLegend()) {
                     chartUrl += "&legend=true";
