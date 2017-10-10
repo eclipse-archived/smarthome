@@ -14,7 +14,7 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.java.demo;
+package org.eclipse.smarthome.automation.sample.java.demo.internal;
 
 import java.util.ArrayList;
 

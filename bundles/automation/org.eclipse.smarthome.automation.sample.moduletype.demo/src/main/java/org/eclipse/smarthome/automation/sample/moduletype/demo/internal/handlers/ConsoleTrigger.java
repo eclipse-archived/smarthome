@@ -14,7 +14,7 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.moduletype.handlers;
+package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers;
 
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.sample.moduletype.factory.HandlerFactory;
+import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

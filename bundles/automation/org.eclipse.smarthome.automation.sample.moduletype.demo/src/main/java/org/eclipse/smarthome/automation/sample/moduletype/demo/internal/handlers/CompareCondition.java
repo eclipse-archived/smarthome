@@ -14,14 +14,14 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.moduletype.handlers;
+package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers;
 
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.sample.moduletype.factory.HandlerFactory;
+import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**

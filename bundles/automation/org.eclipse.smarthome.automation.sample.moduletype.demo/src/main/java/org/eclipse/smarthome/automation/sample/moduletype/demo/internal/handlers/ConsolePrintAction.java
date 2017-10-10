@@ -14,7 +14,7 @@
  * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
  *
  *******************************************************************************/
-package org.eclipse.smarthome.automation.sample.moduletype.handlers;
+package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
-import org.eclipse.smarthome.automation.sample.moduletype.factory.HandlerFactory;
+import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory;
 
 /**
  * This class is handler for 'ConsolePrintAction' {@link Action}.
