@@ -10,21 +10,17 @@ describe('factory configService', function() {
         expect(configService).toBeDefined();
     });
     describe('tests for Rendering model', function() {
+        var $httpBackend
+        var restConfig
+        var itemRepository
         beforeEach(inject(function($injector, $rootScope, thingService) {
             $httpBackend = $injector.get('$httpBackend');
             restConfig = $injector.get('restConfig');
+            itemRepository = $injector.get('itemRepository');
         }));
         it('should accept empty config parameters', function() {
             var params = configService.getRenderingModel();
             expect(params).toEqual([]);
-        });
-        it('should call item config', function() {
-            spyOn(configService, "getItemConfigs").and.callThrough();
-            var inputParams = [ {
-                type : 'none'
-            } ];
-            var params = configService.getRenderingModel(inputParams);
-            expect(configService.getItemConfigs).toHaveBeenCalled();
         });
         it('should return the default group when no groups', function() {
             var inputParams = [ {
@@ -70,6 +66,33 @@ describe('factory configService', function() {
             } ];
             var params = configService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("select");
+        });
+        it('should return item options for context ITEM', function() {
+            var inputParams = [ {
+                context : 'item',
+                filterCriteria : [{
+                    name: 'type',
+                    value: 'number'
+                }]
+            } ];
+            
+            var items = [{
+                type : 'number',
+                label : 'number item'
+            }, {
+                type : 'contact',
+                label : 'contact item'
+            }]
+            
+            spyOn(itemRepository, 'getAll').and.callFake(function(callback) {
+                callback(items)
+            });
+            
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("select");
+            expect(params[0].parameters[0].options.length).toEqual(1);
+            expect(params[0].parameters[0].options[0]).toBeDefined();
+            expect(params[0].parameters[0].options[0].label).toEqual('number item');
         });
         it('should return date widget for context DATE type=Text', function() {
             var inputParams = [ {
@@ -299,5 +322,20 @@ describe('factory configService', function() {
             expect(params[0].parameters[0].options[1].label).toEqual('rule2');
         });
     });
+    
+    describe('test for replaceEmtpyValues method', function() {
+        it('should replace empty strings and undefined values by null', function () {
+            var emptyProperties = {
+                    label : '',
+                    value : undefined,
+                    property : null
+            }
+            
+            emptyProperties = configService.replaceEmptyValues(emptyProperties)
+            expect(emptyProperties.label).toBe(null)
+            expect(emptyProperties.value).toBe(null)
+            expect(emptyProperties.property).toBe(null)
+        })
+    })
 
 });
