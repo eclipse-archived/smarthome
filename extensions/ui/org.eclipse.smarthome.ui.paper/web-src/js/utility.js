@@ -1,7 +1,7 @@
 angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
     return {
         getItemStateText : function(item) {
-            if (item.state === 'NULL' || item.state === 'UNDEF') {
+            if (item.state === 'NULL' || item.state === 'UNDEF' || item.state === null) {
                 return '-';
             }
             if (item.stateDescription != null && item.stateDescription.options.length > 0) {
