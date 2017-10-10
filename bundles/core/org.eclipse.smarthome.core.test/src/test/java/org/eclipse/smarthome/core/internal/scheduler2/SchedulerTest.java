@@ -118,8 +118,8 @@ public class SchedulerTest {
         si.after(() -> {
             s.release(1);
             return null;
-        }, Duration.ofMillis(-100));
-        Thread.sleep(2);
+        }, Duration.ofMillis(-1000));
+        Thread.sleep(200);
         assertEquals(1, s.availablePermits());
     }
 
