@@ -419,8 +419,7 @@ public class ThingResource implements RESTResource {
                     ex.getValidationMessages());
             return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
         } catch (Exception ex) {
-            logger.error("Exception during HTTP PUT request for update config at '{}' for thing '{}': {}",
-                    uriInfo.getPath(), thingUID, ex.getMessage());
+            logger.error("Exception during HTTP PUT request for update config at '{}'", uriInfo.getPath(), ex);
             return JSONResponse.createResponse(Status.INTERNAL_SERVER_ERROR, null, ex.getMessage());
         }
 
