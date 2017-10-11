@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.test
+package org.eclipse.smarthome.binding.hue.internal
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
@@ -15,6 +15,8 @@ import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
 import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
 import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
+import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest
+import org.eclipse.smarthome.binding.hue.test.HueLightState
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.ItemRegistry
