@@ -222,6 +222,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
             if (item instanceof NumberItem) {
                 ((NumberItem) item).setDimension(mapDimensionModel(normalItem.getDimension()));
+                ((NumberItem) item).setUnit(normalItem.getUnit());
             }
         }
         if (item != null) {

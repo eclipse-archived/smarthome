@@ -38,6 +38,7 @@ public class NumberItem extends GenericItem {
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
     private Dimension dimension;
+    private String unit;
 
     static {
         acceptedDataTypes.add(DecimalType.class);
@@ -93,6 +94,25 @@ public class NumberItem extends GenericItem {
         } else {
             logSetTypeError(state);
         }
+    }
+
+    /**
+     * Returns the optional unit string configured for this {@link NumberItem}.
+     *
+     * @return the optional unit string configured for this {@link NumberItem}.
+     */
+    public String getUnit() {
+        return unit;
+    }
+
+    /**
+     * Sets the optional unit string configured for this {@link NumberItem}. The unit string will be used to convert a
+     * {@link QuantityType} to the corresponding {@link Unit}.
+     *
+     * @param unit the optional unit string configured for this {@link NumberItem}.
+     */
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
 }

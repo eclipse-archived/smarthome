@@ -2,8 +2,10 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.Locale;
 
+import javax.measure.Quantity;
 import javax.measure.Unit;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
@@ -20,6 +22,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import tec.uom.se.quantity.Quantities;
 
 @Component(service = ItemStateConverter.class, name = "itemStateConverter")
 public class ItemStateConverterImpl implements ItemStateConverter {
@@ -49,27 +53,41 @@ public class ItemStateConverterImpl implements ItemStateConverter {
         }
 
         if (item instanceof NumberItem && state instanceof QuantityType) {
-            Dimension dimension = ((NumberItem) item).getDimension();
             QuantityType quantityState = (QuantityType) state;
-            if (dimension != Dimension.DIMENSIONLESS
-                    && dimension.getDefaultUnit().isCompatible(quantityState.getUnit())) {
-                Locale locale = localeProvider.getLocale();
-                MeasurementSystem ms = unitProvider.getMeasurementSystem(locale);
-                if (quantityState.needsConversion(ms)) {
-                    Unit<?> conversionUnit = quantityState.getConversionUnit(ms);
-                    if (conversionUnit != null) {
-                        // the quantity state knows for itself which unit to convert too.
-                        return quantityState.toUnit(conversionUnit);
+            NumberItem numberItem = (NumberItem) item;
+
+            // in case the item does define a unit it takes predescense over all other conversions:
+            if (StringUtils.isNotBlank(numberItem.getUnit())) {
+                Quantity<?> quantity = Quantities.getQuantity("1 " + numberItem.getUnit());
+                if (quantity != null) {
+                    Unit<?> itemUnit = quantity.getUnit();
+                    if (!itemUnit.equals(quantityState.getUnit())) {
+                        return quantityState.toUnit(itemUnit);
                     } else {
-                        // we do default conversion to the system provided unit for the specific dimension & locale
-                        return quantityState.toUnit(unitProvider.getUnit(dimension, locale));
+                        return quantityState;
                     }
                 }
+            }
 
-                return quantityState;
-            } else {
+            Locale locale = localeProvider.getLocale();
+            MeasurementSystem ms = unitProvider.getMeasurementSystem(locale);
+            if (quantityState.needsConversion(ms)) {
+                Dimension dimension = numberItem.getDimension();
+
+                Unit<?> conversionUnit = quantityState.getConversionUnit(ms);
+                if (conversionUnit != null) {
+                    // the quantity state knows for itself which unit to convert too.
+                    return quantityState.toUnit(conversionUnit);
+                } else if (dimension != Dimension.DIMENSIONLESS
+                        && dimension.getDefaultUnit().isCompatible(quantityState.getUnit())) {
+                    // we do default conversion to the system provided unit for the specific dimension & locale
+                    return quantityState.toUnit(unitProvider.getUnit(dimension, locale));
+                }
+
                 return quantityState.as(DecimalType.class);
             }
+
+            return quantityState;
         }
 
         return state;

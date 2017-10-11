@@ -255,7 +255,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return toBigDecimal().toPlainString();
     }
 
-    public Unit<?> getConversionUnit(MeasurementSystem ms) {
+    public @Nullable Unit<?> getConversionUnit(MeasurementSystem ms) {
         return conversionUnits.get(ms);
     }
 

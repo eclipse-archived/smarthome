@@ -11,3 +11,8 @@ Contact DemoContact
 
 Number:TEMPERATURE Weather_Temperature "Outside Temperature" <temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
 Number:PRESSURE Weather_Pressure "Pressure [%.2f %unit%]"  { channel="yahooweather:weather:berlin:pressure" }
+
+// Number temperatureF "°F [%.2f %unit%]" { channel="weatherunderground:weather:kaarst:current#temperature", dimension="Temperature" [ unit="°F" ] }
+// Number temperatureC "°C [%.1f %unit%]" { channel="weatherunderground:weather:kaarst:current#temperature", dimension="Temperature" [ unit="°C" ] }
+// Number pressureInHg "inHg [%.2f %unit%]" { channel="weatherunderground:weather:kaarst:current#pressure", dimension="Pressure" [ unit="inHg" ] }
+// Number pressureHPa "hPa [%.1f %unit%]" { channel="weatherunderground:weather:kaarst:current#pressure", dimension="Pressure" [ unit="hPa" ] }
