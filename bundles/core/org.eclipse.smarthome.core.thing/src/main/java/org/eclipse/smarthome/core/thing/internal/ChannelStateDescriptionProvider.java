@@ -72,10 +72,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             ChannelUID channelUID = boundChannels.iterator().next();
             Channel channel = thingRegistry.getChannel(channelUID);
             if (channel != null) {
-                StateDescription stateDescription = getDynamicStateDescription(channel, locale);
-                if (stateDescription != null) {
-                    return stateDescription;
-                }
+                StateDescription stateDescription = null;
                 ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
                 if (channelType != null) {
                     stateDescription = channelType.getState();
@@ -98,16 +95,22 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                             }
                         }
                     }
-                    return stateDescription;
                 }
+                StateDescription dynamicStateDescription = getDynamicStateDescription(channel, stateDescription,
+                        locale);
+                if (dynamicStateDescription != null) {
+                    return dynamicStateDescription;
+                }
+                return stateDescription;
             }
         }
         return null;
     }
 
-    private StateDescription getDynamicStateDescription(Channel channel, Locale locale) {
+    private StateDescription getDynamicStateDescription(Channel channel, StateDescription originalStateDescription,
+            Locale locale) {
         for (DynamicStateDescriptionProvider provider : dynamicStateDescriptionProviders) {
-            StateDescription stateDescription = provider.getStateDescription(channel, locale);
+            StateDescription stateDescription = provider.getStateDescription(channel, originalStateDescription, locale);
             if (stateDescription != null) {
                 return stateDescription;
             }

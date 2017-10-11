@@ -32,9 +32,12 @@ public interface DynamicStateDescriptionProvider {
      * that registered first.
      *
      * @param channel channel
+     * @param originalStateDescription original state description retrieved from the channel type
+     *            this is the description to be replaced by the provided one
      * @param locale locale (can be null)
      * @return state description or null if none provided
      */
     @Nullable
-    StateDescription getStateDescription(Channel channel, @Nullable Locale locale);
+    StateDescription getStateDescription(Channel channel, @Nullable StateDescription originalStateDescription,
+            @Nullable Locale locale);
 }
