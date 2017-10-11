@@ -28,4 +28,20 @@
     <module>karaf</module>
   </modules>
 
+  <build>
+	<pluginManagement>
+	  <plugins>
+		<plugin>
+	  	  <groupId>org.eclipse.tycho</groupId>
+		  <artifactId>tycho-p2-plugin</artifactId>
+		  <version>${tycho-version}</version>
+		  <configuration>
+		    <!-- fix to prevent double upload of p2metadata artifacts in maven 3.3.X or later -->
+			<defaultP2Metadata>false</defaultP2Metadata>
+		  </configuration>
+		</plugin>
+	  </plugins>
+	</pluginManagement>
+  </build>
+
 </project>
