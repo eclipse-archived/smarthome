@@ -102,7 +102,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     protected ItemRegistry itemRegistry;
 
-    private Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
+    private final Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
 
     public ItemUIRegistryImpl() {
     }
@@ -521,9 +521,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     private State convertState(Widget w, Item i) {
         State returnState = null;
 
-        // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
-        if (w instanceof Slider || (w instanceof Switch && i instanceof RollershutterItem)) {
+        if (w instanceof Switch && i instanceof RollershutterItem) {
+            // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
             returnState = i.getStateAs(PercentType.class);
+        } else if (w instanceof Slider) {
+            if (i.getAcceptedDataTypes().contains(PercentType.class)) {
+                returnState = i.getStateAs(PercentType.class);
+            } else {
+                returnState = i.getStateAs(DecimalType.class);
+            }
         } else if (w instanceof Switch) {
             Switch sw = (Switch) w;
             if (sw.getMappings().size() == 0) {
