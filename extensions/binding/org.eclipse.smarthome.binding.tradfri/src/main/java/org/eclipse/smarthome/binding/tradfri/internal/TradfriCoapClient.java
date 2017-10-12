@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class TradfriCoapClient extends CoapClient {
 
     private static final int TIMEOUT = 2000;
-    private static final int DEFAULT_DELAY_MILLIS = 500;
+    private static final int DEFAULT_DELAY_MILLIS = 600;
     private final Logger logger;
     private final LinkedList<PayloadCallbackPair> commandsQueue;
     private final Runnable commandExecutor;
