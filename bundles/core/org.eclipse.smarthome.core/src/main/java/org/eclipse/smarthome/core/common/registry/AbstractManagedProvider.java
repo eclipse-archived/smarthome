@@ -122,7 +122,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
         String key = getKeyAsString(element);
         if (storage.get(key) != null) {
             PE persistableElement = storage.put(key, toPersistableElement(element));
-            if (persistableElement != null) { // redundant but makes null reference check happy.
+            if (persistableElement != null) {
                 E oldElement = toElement(key, persistableElement);
                 notifyListenersAboutUpdatedElement(oldElement, element);
                 logger.debug("Updated element {} in {}.", key, this.getClass().getSimpleName());
