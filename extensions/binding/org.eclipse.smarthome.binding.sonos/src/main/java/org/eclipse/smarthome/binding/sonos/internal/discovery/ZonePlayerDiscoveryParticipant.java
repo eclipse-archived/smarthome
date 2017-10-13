@@ -74,7 +74,13 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
             if (device.getDetails().getManufacturerDetails().getManufacturer() != null) {
                 if (device.getDetails().getManufacturerDetails().getManufacturer().toUpperCase().contains("SONOS")) {
 
-                    ThingTypeUID thingUID = new ThingTypeUID(SonosBindingConstants.BINDING_ID, getModelName(device));
+                    String modelName = getModelName(device);
+                    if (modelName.equals("ZP80")) {
+                        modelName = "PLAY3";
+                    } else if (modelName.equals("ZP100")) {
+                        modelName = "PLAY5";
+                    }
+                    ThingTypeUID thingUID = new ThingTypeUID(SonosBindingConstants.BINDING_ID, modelName);
 
                     // In case a new "unknown" Sonos player is discovered a generic ThingTypeUID will be used
                     if (!SonosBindingConstants.SUPPORTED_KNOWN_THING_TYPES_UIDS.contains(thingUID)) {
