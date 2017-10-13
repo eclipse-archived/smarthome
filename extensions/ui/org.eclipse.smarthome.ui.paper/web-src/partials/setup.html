@@ -111,11 +111,11 @@
 			</div>
 		</div>
 		<div ng-init="form={}">
-			<div ng-include="'partials/include.thingconfig.html'"></div>
+			<thing-configuration thing="thing" form="form"></thing-configuration>
 			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
 				<p>Configure parameters for the thing.</p>
-			    <config-description configuration="thing.configuration" parameters="parameters" />
+			    <config-description configuration="thing.configuration" parameters="parameters" form="form"/>
 			</div>
 		</div>
 	</div>
