@@ -1,5 +1,5 @@
 angular.module('PaperUI.component', []) //
-.directive('mapComponent', function() {
+.directive('mapComponent', function(mapSourceService) {
     var Drag = function(callback) {
 
         ol.interaction.Pointer.call(this, {
@@ -73,7 +73,7 @@ angular.module('PaperUI.component', []) //
 
     function createMap(element, coordinateCallback) {
         var mapLayer = new ol.layer.Tile({
-            source : new ol.source.OSM()
+            source : mapSourceService.getMapSource()
         });
 
         var drag = [];
@@ -94,49 +94,61 @@ angular.module('PaperUI.component', []) //
         return map;
     }
 
-    var controller = function($scope) {
-        var element = 'map';
-        var map;
-
-        if ($scope.readOnly) {
-            map = createMap(element, null);
-        } else {
-            map = createMap(element, function(dragCoordinates) {
-                $scope.$apply(function() {
-                    var location = getLocation($scope.model);
-                    var altitude = location[2];
-
-                    var lonLatCoordinates = ol.proj.toLonLat(dragCoordinates);
-                    var model = lonLatCoordinates[1] + ',' + lonLatCoordinates[0];
-                    if (altitude != null) {
-                        model += (',' + altitude);
-                    }
-                    $scope.model = model;
-                });
-            });
-        }
-
-        var point = new ol.geom.Point(ol.proj.fromLonLat([ 0, 0 ]));
-
-        map.addLayer(createVectorLayer(point));
-
-        $scope.redrawMap = function() {
-            setTimeout(function() {
-                if ($scope.model) {
-                    updateMap(map, point, $scope.model);
-                    map.getView().setZoom(14);
-                } else {
-                    updateMap(map, point, [ 0, 0 ])
+    var createController = function(mapSourceService) {
+        // return an empty controller function in case no map source is provided:
+        if (!mapSourceService.getMapSource()) {
+            return function($scope) {
+                $scope.hasMapSource = false
+                $scope.redrawMap = function() {
                 }
-                map.updateSize();
-            }, 100);
+            };
         }
 
-        $scope.$watch('model', function() {
-            updateMap(map, point, $scope.model);
-        })
+        // return the map controller in case a map source is provided:
+        return function($scope) {
+            $scope.hasMapSource = true
 
-        initialized = true;
+            var element = 'map';
+            var map;
+
+            if ($scope.readOnly) {
+                map = createMap(element, null);
+            } else {
+                map = createMap(element, function(dragCoordinates) {
+                    $scope.$apply(function() {
+                        var location = getLocation($scope.model);
+                        var altitude = location[2];
+
+                        var lonLatCoordinates = ol.proj.toLonLat(dragCoordinates);
+                        var model = lonLatCoordinates[1] + ',' + lonLatCoordinates[0];
+                        if (altitude != null) {
+                            model += (',' + altitude);
+                        }
+                        $scope.model = model;
+                    });
+                });
+            }
+
+            var point = new ol.geom.Point(ol.proj.fromLonLat([ 0, 0 ]));
+
+            map.addLayer(createVectorLayer(point));
+
+            $scope.redrawMap = function() {
+                setTimeout(function() {
+                    if ($scope.model) {
+                        updateMap(map, point, $scope.model);
+                        map.getView().setZoom(14);
+                    } else {
+                        updateMap(map, point, [ 0, 0 ])
+                    }
+                    map.updateSize();
+                }, 100);
+            }
+
+            $scope.$watch('model', function() {
+                updateMap(map, point, $scope.model);
+            })
+        }
     }
 
     var updateMap = function(map, point, model) {
@@ -200,9 +212,9 @@ angular.module('PaperUI.component', []) //
             readOnly : '='
         },
         templateUrl : 'partials/directive.component.map.html',
-        controller : controller,
+        controller : [ '$scope', createController(mapSourceService) ],
         link : function($scope) {
-            $scope.redrawMap();
+            $scope.redrawMap()
         }
     }
 })
