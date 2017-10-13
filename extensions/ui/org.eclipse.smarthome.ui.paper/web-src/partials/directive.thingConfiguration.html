@@ -11,7 +11,7 @@
 			<md-input-container class="col-xs-12 noPadding"> <label>Location</label> <input ng-model="thing.location"> </md-input-container>
 		</div>
 	</div>
-	<div class="container" ng-if="needsBridge">
+	<div class="container" ng-if="bridges.length > 0">
 		<h3>Bridge Selection</h3>
 		<div class="form-group">
 			<md-select placeholder="Select a Bridge" ng-model="thing.bridgeUID" ng-readonly="true"> <md-option ng-value="bridge.UID" ng-repeat="bridge in bridges">{{bridge.label + ' - '}}{{bridge.UID}}</md-option> </md-select>
