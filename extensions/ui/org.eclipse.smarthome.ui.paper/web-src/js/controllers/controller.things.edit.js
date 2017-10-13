@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog' ]) //
+angular.module('PaperUI.controllers.things', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog', 'PaperUI.directive.thingConfiguration' ]) //
 .controller('EditThingController', function($scope, $mdDialog, toastService, thingRepository, configService, configDescriptionService, thingService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');

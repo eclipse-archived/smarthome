@@ -64,14 +64,12 @@
 				</div>
 			</div>
 		</div>
-		<div ng-init="counter=0;form={}">
-			<div ng-include="'partials/include.thingconfig.html'" onload="counter=counter+1;"></div>
+		<div ng-init="form={}">
+			<thing-configuration thing="thing" is-editing="isEditing" form="form"></thing-configuration>
 			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
 				<p>Configure parameters for the thing.</p>
-				<div ng-if="counter==1">
-				    <config-description configuration="configuration" parameters="parameters" form="form" />
-				</div>
+			    <config-description configuration="configuration" parameters="parameters" form="form" />
 			</div>
 		</div>
 	</div>
