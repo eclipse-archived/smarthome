@@ -122,10 +122,12 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
         String key = getKeyAsString(element);
         if (storage.get(key) != null) {
             PE persistableElement = storage.put(key, toPersistableElement(element));
-            E oldElement = toElement(key, persistableElement);
-            notifyListenersAboutUpdatedElement(oldElement, element);
-            logger.debug("Updated element {} in {}.", key, this.getClass().getSimpleName());
-            return oldElement;
+            if (persistableElement != null) {
+                E oldElement = toElement(key, persistableElement);
+                notifyListenersAboutUpdatedElement(oldElement, element);
+                logger.debug("Updated element {} in {}.", key, this.getClass().getSimpleName());
+                return oldElement;
+            }
         } else {
             logger.warn("Could not update element with key {} in {}, because it does not exists.", key,
                     this.getClass().getSimpleName());
