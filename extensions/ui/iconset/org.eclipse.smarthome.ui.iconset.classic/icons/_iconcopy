@@ -150,3 +150,7 @@ cp -f clock.svg             time.svg
 
 cp -f video.png             mediacontrol.png
 cp -f video.svg             mediacontrol.svg
+
+cp -f soundvolume.png       mutevolume.png
+cp -f soundvolume_mute.png  mutevolume-on.png
+cp -f soundvolume.png       mutevolume-off.png
