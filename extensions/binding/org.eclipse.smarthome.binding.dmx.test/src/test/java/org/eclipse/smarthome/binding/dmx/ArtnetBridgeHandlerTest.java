@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.binding.dmx.handler.ArtnetBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseChannel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -118,8 +118,8 @@ public class ArtnetBridgeHandlerTest extends JavaOSGiTest {
         managedThingProvider.add(thing);
         DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
 
-        BaseChannel channel = new BaseChannel(TEST_UNIVERSE, TEST_CHANNEL);
-        BaseChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
+        BaseDmxChannel channel = new BaseDmxChannel(TEST_UNIVERSE, TEST_CHANNEL);
+        BaseDmxChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
 
         Integer channelId = returnedChannel.getChannelId();
         assertThat(channelId, is(TEST_CHANNEL));

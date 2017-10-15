@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.binding.dmx.internal.action;
 
 import org.eclipse.smarthome.binding.dmx.internal.Util;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.Channel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -67,7 +67,7 @@ public class FadeAction extends BaseAction {
     }
 
     @Override
-    public int getNewValue(Channel channel, long currentTime) {
+    public int getNewValue(DmxChannel channel, long currentTime) {
         int newValue = channel.getHiResValue();
 
         if (startTime == 0) {

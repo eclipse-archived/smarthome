@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseChannel;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.Channel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -89,7 +89,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * @param thing the Thing that requests the channel to track channel usage
      * @return a Channel object
      */
-    public Channel getDmxChannel(BaseChannel channel, Thing thing) {
+    public DmxChannel getDmxChannel(BaseDmxChannel channel, Thing thing) {
         return universe.registerChannel(channel, thing);
     }
 
