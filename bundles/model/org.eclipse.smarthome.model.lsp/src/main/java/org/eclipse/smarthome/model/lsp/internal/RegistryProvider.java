@@ -11,6 +11,8 @@ import org.eclipse.smarthome.model.ide.ItemsIdeSetup;
 import org.eclipse.smarthome.model.ide.SitemapIdeSetup;
 import org.eclipse.smarthome.model.persistence.ide.PersistenceIdeSetup;
 import org.eclipse.smarthome.model.rule.ide.RulesIdeSetup;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.ide.ScriptIdeSetup;
 import org.eclipse.smarthome.model.thing.ide.ThingIdeSetup;
 import org.eclipse.xtext.resource.FileExtensionProvider;
@@ -33,25 +35,37 @@ import com.google.inject.Singleton;
 @Singleton
 public class RegistryProvider implements Provider<IResourceServiceProvider.Registry> {
 
-    private static IResourceServiceProvider.Registry registry = createRegistry();
+    private IResourceServiceProvider.Registry registry;
+    private final ScriptServiceUtil scriptServiceUtil;
+    private final ScriptEngine scriptEngine;
+
+    public RegistryProvider(ScriptServiceUtil scriptServiceUtil, ScriptEngine scriptEngine) {
+        this.scriptServiceUtil = scriptServiceUtil;
+        this.scriptEngine = scriptEngine;
+    }
 
     @Override
     public IResourceServiceProvider.Registry get() {
+        if (registry == null) {
+            registry = createRegistry();
+        }
         return registry;
     }
 
-    private static Registry createRegistry() {
+    private Registry createRegistry() {
         IResourceServiceProvider.Registry registry = new ResourceServiceProviderRegistryImpl();
         register(registry, new ItemsIdeSetup().createInjector());
         register(registry, new PersistenceIdeSetup().createInjector());
-        register(registry, new RulesIdeSetup().createInjector());
-        register(registry, new ScriptIdeSetup().createInjector());
+        register(registry, new RulesIdeSetup().setScriptServiceUtil(scriptServiceUtil).setScriptEngine(scriptEngine)
+                .createInjector());
+        register(registry, new ScriptIdeSetup().setScriptServiceUtil(scriptServiceUtil).setScriptEngine(scriptEngine)
+                .createInjector());
         register(registry, new SitemapIdeSetup().createInjector());
         register(registry, new ThingIdeSetup().createInjector());
         return registry;
     }
 
-    private static void register(IResourceServiceProvider.Registry registry, Injector injector) {
+    private void register(IResourceServiceProvider.Registry registry, Injector injector) {
         IResourceServiceProvider resourceServiceProvider = injector.getInstance(IResourceServiceProvider.class);
         FileExtensionProvider extensionProvider = injector.getInstance(FileExtensionProvider.class);
         for (String ext : extensionProvider.getFileExtensions()) {

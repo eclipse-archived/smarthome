@@ -40,12 +40,20 @@ class RulesStandaloneSetup extends RulesStandaloneSetupGenerated {
         this.scriptServiceUtil = scriptServiceUtil;
         return this;
     }
-
+    
     def RulesStandaloneSetup setScriptEngine(ScriptEngine scriptEngine) {
         this.scriptEngine = scriptEngine;
         return this;
     }
 
+    def ScriptServiceUtil getScriptServiceUtil() {
+        return scriptServiceUtil;
+    }
+    
+    def ScriptEngine getScriptEngine() {
+        return scriptEngine;
+    }
+    
     def static void doSetup(ScriptServiceUtil scriptServiceUtil, ScriptEngine scriptEngine) {
         if (injector === null) {
             injector = new RulesStandaloneSetup().setScriptServiceUtil(scriptServiceUtil).setScriptEngine(scriptEngine).createInjectorAndDoEMFRegistration()

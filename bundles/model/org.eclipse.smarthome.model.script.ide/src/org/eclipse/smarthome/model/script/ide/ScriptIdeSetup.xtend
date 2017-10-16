@@ -6,6 +6,7 @@ package org.eclipse.smarthome.model.script.ide
 import com.google.inject.Guice
 import org.eclipse.smarthome.model.script.ScriptRuntimeModule
 import org.eclipse.smarthome.model.script.ScriptStandaloneSetup
+import org.eclipse.smarthome.model.script.ServiceModule
 import org.eclipse.xtext.util.Modules2
 
 /**
@@ -14,7 +15,7 @@ import org.eclipse.xtext.util.Modules2
 class ScriptIdeSetup extends ScriptStandaloneSetup {
 
 	override createInjector() {
-		Guice.createInjector(Modules2.mixin(new ScriptRuntimeModule, new ScriptIdeModule))
+		Guice.createInjector(new ServiceModule(scriptServiceUtil, scriptEngine), Modules2.mixin(new ScriptRuntimeModule, new ScriptIdeModule))
 	}
 	
 }
