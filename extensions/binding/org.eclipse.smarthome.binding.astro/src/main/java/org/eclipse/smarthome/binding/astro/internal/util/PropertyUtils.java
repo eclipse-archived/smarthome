@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.astro.internal.util;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -18,6 +17,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -38,6 +38,8 @@ public class PropertyUtils {
         throw new IllegalAccessError("Non-instantiable");
     }
 
+    private static TimeZoneProvider zone;
+    
     /**
      * Returns the state of the channel.
      */
@@ -47,10 +49,9 @@ public class PropertyUtils {
             return UnDefType.UNDEF;
         } else if (value instanceof Calendar) {
             // TODO use LocationProvider service once it's merged https://github.com/eclipse/smarthome/issues/3936
-            ZoneId zone = ZoneId.of("+03:00");
             Calendar cal = (Calendar) value;
             GregorianCalendar gregorianCal = (GregorianCalendar) DateTimeUtils.applyConfig(cal, config);
-            cal.setTimeZone(TimeZone.getTimeZone(zone));
+            cal.setTimeZone(TimeZone.getTimeZone(zone.getTimeZone()));
             ZonedDateTime zoned = gregorianCal.toZonedDateTime().withFixedOffsetZone();
             return new DateTimeType(zoned);
         } else if (value instanceof Number) {
@@ -62,7 +63,15 @@ public class PropertyUtils {
             throw new RuntimeException("Unsupported value type " + value.getClass().getSimpleName());
         }
     }
+    
+    public static void setTimeZone (TimeZoneProvider zone) {
+        PropertyUtils.zone=zone;
+    }
 
+    public static void unsetTimeZone() {
+        PropertyUtils.zone=null;
+    }
+    
     /**
      * Returns the property value from the object instance, nested properties are possible. If the propertyName is for
      * example rise.start, the methods getRise().getStart() are called.
