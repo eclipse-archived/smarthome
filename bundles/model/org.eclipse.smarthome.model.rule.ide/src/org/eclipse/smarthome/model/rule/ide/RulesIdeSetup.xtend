@@ -6,6 +6,7 @@ package org.eclipse.smarthome.model.rule.ide
 import com.google.inject.Guice
 import org.eclipse.smarthome.model.rule.RulesRuntimeModule
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup
+import org.eclipse.smarthome.model.script.ServiceModule
 import org.eclipse.xtext.util.Modules2
 
 /**
@@ -14,7 +15,7 @@ import org.eclipse.xtext.util.Modules2
 class RulesIdeSetup extends RulesStandaloneSetup {
 
 	override createInjector() {
-		Guice.createInjector(Modules2.mixin(new RulesRuntimeModule, new RulesIdeModule))
+		Guice.createInjector(new ServiceModule(scriptServiceUtil, scriptEngine), Modules2.mixin(new RulesRuntimeModule, new RulesIdeModule))
 	}
 	
 }

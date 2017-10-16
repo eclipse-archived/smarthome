@@ -10,6 +10,8 @@ package org.eclipse.smarthome.model.lsp.internal;
 import java.util.concurrent.ExecutorService;
 
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.xtext.ide.ExecutorServiceProvider;
 import org.eclipse.xtext.ide.server.DefaultProjectDescriptionFactory;
 import org.eclipse.xtext.ide.server.IProjectDescriptionFactory;
@@ -30,12 +32,20 @@ import com.google.inject.AbstractModule;
  */
 public class RuntimeServerModule extends AbstractModule {
 
+    private final ScriptServiceUtil scriptServiceUtil;
+    private final ScriptEngine scriptEngine;
+
+    public RuntimeServerModule(ScriptServiceUtil scriptServiceUtil, ScriptEngine scriptEngine) {
+        this.scriptServiceUtil = scriptServiceUtil;
+        this.scriptEngine = scriptEngine;
+    }
+
     @Override
     protected void configure() {
         binder().bind(ExecutorService.class).toProvider(ExecutorServiceProvider.class);
 
         bind(LanguageServer.class).to(LanguageServerImpl.class);
-        bind(IResourceServiceProvider.Registry.class).toProvider(RegistryProvider.class);
+        bind(IResourceServiceProvider.Registry.class).toProvider(new RegistryProvider(scriptServiceUtil, scriptEngine));
         bind(IWorkspaceConfigFactory.class).to(ProjectWorkspaceConfigFactory.class);
         bind(IProjectDescriptionFactory.class).to(DefaultProjectDescriptionFactory.class);
         bind(IContainer.Manager.class).to(ProjectDescriptionBasedContainerManager.class);
