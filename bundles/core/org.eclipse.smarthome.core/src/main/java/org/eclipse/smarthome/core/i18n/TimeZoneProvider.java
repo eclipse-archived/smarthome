@@ -17,9 +17,9 @@ import java.time.ZoneId;
 public interface TimeZoneProvider {
 
     /**
-     * Provides access to the time zone property.
+     * Gets the configured time zone as {@link ZoneId} or the system default time zone if not configured properly.
      *
-     * @return the time zone set in the user interface and if there isn't one, the default time zone of the operating system
+     * @return the configured time zone as {@link ZoneId} or the system default time zone if not configured properly.
      */
     ZoneId getTimeZone();
 }
