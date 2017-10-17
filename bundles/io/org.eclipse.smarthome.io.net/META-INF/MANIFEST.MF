@@ -10,6 +10,7 @@ Export-Package:
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http
 Import-Package: 
+ javax.servlet.http;version="3.1.0",
  org.apache.commons.exec,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -24,4 +25,8 @@ Import-Package:
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http,
+ org.osgi.framework,
+ org.osgi.service.http,
  org.slf4j
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
