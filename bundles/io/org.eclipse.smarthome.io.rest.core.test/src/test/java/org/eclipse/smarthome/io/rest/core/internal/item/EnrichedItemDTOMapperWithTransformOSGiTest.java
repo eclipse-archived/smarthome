@@ -11,8 +11,10 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -68,5 +70,29 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         assertThat(sd.getOptions().get(0).getValue(), is("SOUND"));
         assertThat(sd.getOptions().get(0).getLabel(), is("My great sound."));
     }
+    
+    @Test
+    public void testStateDescriptionReadOnly() {
 
+        StateDescriptionProvider stateDescriptionProvider1 = mock(StateDescriptionProvider.class);
+        StateDescription stateDescriptionContainingPattern = new StateDescription(null, null, null, "somePattern",
+                false, null);
+        when(stateDescriptionProvider1.getStateDescription("Item2", null))
+                .thenReturn(stateDescriptionContainingPattern);
+
+        StateDescriptionProvider stateDescriptionProvider2 = mock(StateDescriptionProvider.class);
+        StateDescription stateDescriptionContainingReadOnlyValue = new StateDescription(null, null, null,
+                "defaultPattern", true, null);
+        when(stateDescriptionProvider2.getStateDescription("Item2", null))
+                .thenReturn(stateDescriptionContainingReadOnlyValue);
+
+        NumberItem item2 = new NumberItem("Item2");
+        item2.setStateDescriptionProviders(Arrays.asList(stateDescriptionProvider1, stateDescriptionProvider2));
+
+        EnrichedItemDTO enrichedDTO = EnrichedItemDTOMapper.map(item2, false, null, null);
+        StateDescription sd = enrichedDTO.stateDescription;
+
+        assertThat(sd.isReadOnly(), is(true));
+        assertThat(sd.getPattern(), is("somePattern"));
+    }
 }

@@ -408,6 +408,11 @@ abstract public class GenericItem implements ActiveItem {
                     result = stateDescription;
                 }
 
+                if (result != null && stateDescription != null) {
+                    result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
+                            result.getPattern(), stateDescription.isReadOnly(), result.getOptions());
+                }
+
                 // if the current StateDescription does provide options and we don't already have some, we pick them up
                 // here
                 if (stateDescription != null && !stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
