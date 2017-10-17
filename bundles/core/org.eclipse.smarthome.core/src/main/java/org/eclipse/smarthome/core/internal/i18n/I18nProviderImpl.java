@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.internal.i18n;
 
 import java.text.MessageFormat;
+import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
@@ -58,21 +59,21 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // LocaleProvider
-    private static final String LANGUAGE = "language";
-    private static final String SCRIPT = "script";
-    private static final String REGION = "region";
-    private static final String VARIANT = "variant";
+    static final String LANGUAGE = "language";
+    static final String SCRIPT = "script";
+    static final String REGION = "region";
+    static final String VARIANT = "variant";
     private Locale locale;
 
     // TranslationProvider
     private ResourceBundleTracker resourceBundleTracker;
 
     // LocationProvider
-    private static final String LOCATION = "location";
+    static final String LOCATION = "location";
     private PointType location;
 
     // TimeZoneProvider
-    private static final String TIMEZONE = "timezone";
+    static final String TIMEZONE = "timezone";
     private ZoneId timeZone;
 
     @Activate
@@ -91,19 +92,19 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
 
     @Modified
     protected synchronized void modified(Map<String, Object> config) {
-        final String language = (String) config.get(LANGUAGE);
-        final String script = (String) config.get(SCRIPT);
-        final String region = (String) config.get(REGION);
-        final String variant = (String) config.get(VARIANT);
-        final String location = (String) config.get(LOCATION);
-        final ZoneId timeZone = (ZoneId) config.get(TIMEZONE);
+        final String language = toStringOrNull(config.get(LANGUAGE));
+        final String script = toStringOrNull(config.get(SCRIPT));
+        final String region = toStringOrNull(config.get(REGION));
+        final String variant = toStringOrNull(config.get(VARIANT));
+        final String location = toStringOrNull(config.get(LOCATION));
+        final String zoneId = toStringOrNull(config.get(TIMEZONE));
 
-        setTimeZone(timeZone);
+        setTimeZone(zoneId);
         setLocation(location);
 
         if (StringUtils.isEmpty(language)) {
             // at least the language must be defined otherwise the system default locale is used
-            logger.debug("No language set, fallback to default system locale");
+            logger.debug("No language set, falling back to the default locale");
             locale = null;
             return;
         }
@@ -142,6 +143,10 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         logger.info("Locale set to {}, Location set to {}, Time zone set to {}", locale, this.location, this.timeZone);
     }
 
+    private String toStringOrNull(Object value) {
+        return value == null ? null : value.toString();
+    }
+
     private void setLocation(final String location) {
         if (location != null) {
             try {
@@ -153,13 +158,17 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         }
     }
 
-    private void setTimeZone(final ZoneId timeZone) {
-        if (timeZone != null) {
+    private void setTimeZone(final String zoneId) {
+        if (StringUtils.isBlank(zoneId)) {
+            timeZone = TimeZone.getDefault().toZoneId();
+            logger.debug("No time zone set, falling back to the default time zone '{}'.", timeZone.toString());
+        } else {
             try {
-                this.timeZone = TimeZone.getTimeZone(timeZone).toZoneId();
-            } catch (IllegalArgumentException e) {
-                this.timeZone = TimeZone.getDefault().toZoneId();
-                logger.warn("Could not set a new time zone, the system's default time zone will be used ", timeZone, e.getMessage());
+                timeZone = ZoneId.of(zoneId);
+            } catch (DateTimeException e) {
+                timeZone = TimeZone.getDefault().toZoneId();
+                logger.warn("Error setting time zone '{}', falling back to the default time zone '{}': {}", zoneId,
+                        timeZone.toString(), e.getMessage());
             }
         }
     }

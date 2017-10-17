@@ -7,15 +7,18 @@
  */
 package org.eclipse.smarthome.core.internal.i18n;
 
+import static org.eclipse.smarthome.core.internal.i18n.I18nProviderImpl.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.time.ZoneId;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.junit.Before;
@@ -33,12 +36,6 @@ import org.osgi.service.component.ComponentContext;
  */
 public class I18nProviderImplTest {
 
-    private static final String CONFIG_LOCATION = "location";
-    private static final String CONFIG_LANGUAGE = "language";
-    private static final String CONFIG_SCRIPT = "script";
-    private static final String CONFIG_REGION = "region";
-    private static final String CONFIG_VARIANT = "variant";
-
     private static final String LOCATION_ZERO = "0,0";
     private static final String LOCATION_DARMSTADT = "49.876733,8.666809,1";
     private static final String LOCATION_HAMBURG = "53.588231,9.920082,5";
@@ -54,6 +51,8 @@ public class I18nProviderImplTest {
 
     private static final String VARIANT_DE = "1996";
     private static final String VARIANT_RU = "";
+
+    private static final String TIMEZONE_GMT9 = "Etc/GMT-9";
 
     // LocationProvider translationProvider;
     I18nProviderImpl i18nProviderImpl;
@@ -72,7 +71,7 @@ public class I18nProviderImplTest {
     public void setup() {
 
         initMocks(this);
-        buildInitialConfig();
+        initialConfig = buildInitialConfig();
         when(componentContext.getProperties()).thenReturn(initialConfig);
         when(componentContext.getBundleContext()).thenReturn(bundleContext);
         when(bundleContext.getBundles()).thenReturn(new Bundle[] { bundle });
@@ -90,10 +89,11 @@ public class I18nProviderImplTest {
 
         assertThat(location.toString(), is(LOCATION_ZERO));
 
-        assertThat(setLocale.getLanguage(), is(initialConfig.get(CONFIG_LANGUAGE)));
-        assertThat(setLocale.getScript(), is(initialConfig.get(CONFIG_SCRIPT)));
-        assertThat(setLocale.getCountry(), is(initialConfig.get(CONFIG_REGION)));
-        assertThat(setLocale.getVariant(), is(initialConfig.get(CONFIG_VARIANT)));
+        assertThat(setLocale.getLanguage(), is(initialConfig.get(LANGUAGE)));
+        assertThat(setLocale.getScript(), is(initialConfig.get(SCRIPT)));
+        assertThat(setLocale.getCountry(), is(initialConfig.get(REGION)));
+        assertThat(setLocale.getVariant(), is(initialConfig.get(VARIANT)));
+        assertThat(i18nProviderImpl.getTimeZone(), is(ZoneId.of(TIMEZONE_GMT9)));
     }
 
     @Test
@@ -104,13 +104,14 @@ public class I18nProviderImplTest {
         Locale setLocale = i18nProviderImpl.getLocale();
 
         assertNull(location);
+        assertThat(i18nProviderImpl.getTimeZone(), is(TimeZone.getDefault().toZoneId()));
         assertThat(setLocale, is(Locale.getDefault()));
     }
 
     @Test
     public void assertThatDefaultLocaleWillBeUsedAndLocationIsSet() {
-        Hashtable<String, Object> conf = new Hashtable<String, Object>();
-        conf.put(CONFIG_LOCATION, LOCATION_DARMSTADT);
+        Hashtable<String, Object> conf = new Hashtable<>();
+        conf.put(LOCATION, LOCATION_DARMSTADT);
         i18nProviderImpl.modified(conf);
 
         PointType location = i18nProviderImpl.getLocation();
@@ -129,10 +130,19 @@ public class I18nProviderImplTest {
 
         assertThat(location.toString(), is(LOCATION_ZERO));
 
-        assertThat(setLocale.getLanguage(), is(initialConfig.get(CONFIG_LANGUAGE)));
-        assertThat(setLocale.getScript(), is(initialConfig.get(CONFIG_SCRIPT)));
-        assertThat(setLocale.getCountry(), is(initialConfig.get(CONFIG_REGION)));
-        assertThat(setLocale.getVariant(), is(initialConfig.get(CONFIG_VARIANT)));
+        assertThat(setLocale.getLanguage(), is(initialConfig.get(LANGUAGE)));
+        assertThat(setLocale.getScript(), is(initialConfig.get(SCRIPT)));
+        assertThat(setLocale.getCountry(), is(initialConfig.get(REGION)));
+        assertThat(setLocale.getVariant(), is(initialConfig.get(VARIANT)));
+    }
+
+    @Test
+    public void assertThatInvalidTimeZoneFallsbackToDefaultTimeZone() {
+        Hashtable<String, Object> conf = new Hashtable<>();
+        conf.put(TIMEZONE, "invalid");
+        i18nProviderImpl.modified(conf);
+
+        assertThat(i18nProviderImpl.getTimeZone(), is(TimeZone.getDefault().toZoneId()));
     }
 
     @Test
@@ -152,21 +162,25 @@ public class I18nProviderImplTest {
         assertThat(setLocale.getVariant(), is(VARIANT_RU));
     }
 
-    private void buildInitialConfig() {
-        initialConfig.put(CONFIG_LOCATION, LOCATION_ZERO);
-        initialConfig.put(CONFIG_LANGUAGE, LANGUAGE_DE);
-        initialConfig.put(CONFIG_SCRIPT, SCRIPT_DE);
-        initialConfig.put(CONFIG_REGION, REGION_DE);
-        initialConfig.put(CONFIG_VARIANT, VARIANT_DE);
+    private Dictionary<String, Object> buildInitialConfig() {
+        Dictionary<String, Object> conf = new Hashtable<>();
+        conf.put(LOCATION, LOCATION_ZERO);
+        conf.put(LANGUAGE, LANGUAGE_DE);
+        conf.put(SCRIPT, SCRIPT_DE);
+        conf.put(REGION, REGION_DE);
+        conf.put(VARIANT, VARIANT_DE);
+        conf.put(TIMEZONE, TIMEZONE_GMT9);
+
+        return conf;
     }
 
     private Hashtable<String, Object> buildRUConfig() {
         Hashtable<String, Object> conf = new Hashtable<>();
-        conf.put(CONFIG_LOCATION, LOCATION_HAMBURG);
-        conf.put(CONFIG_LANGUAGE, LANGUAGE_RU);
-        conf.put(CONFIG_SCRIPT, SCRIPT_RU);
-        conf.put(CONFIG_REGION, REGION_RU);
-        conf.put(CONFIG_VARIANT, VARIANT_RU);
+        conf.put(LOCATION, LOCATION_HAMBURG);
+        conf.put(LANGUAGE, LANGUAGE_RU);
+        conf.put(SCRIPT, SCRIPT_RU);
+        conf.put(REGION, REGION_RU);
+        conf.put(VARIANT, VARIANT_RU);
         return conf;
     }
 
