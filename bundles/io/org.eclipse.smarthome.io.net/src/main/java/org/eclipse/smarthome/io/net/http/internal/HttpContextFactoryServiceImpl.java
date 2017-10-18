@@ -51,9 +51,11 @@ public class HttpContextFactoryServiceImpl implements HttpContextFactoryService 
         @Override
         public URL getResource(String name) {
             if (name != null) {
-                String resourceName = name;
+                String resourceName;
                 if (name.startsWith("/")) {
                     resourceName = name.substring(1);
+                } else {
+                    resourceName = name;
                 }
 
                 return bundle.getResource(resourceName);

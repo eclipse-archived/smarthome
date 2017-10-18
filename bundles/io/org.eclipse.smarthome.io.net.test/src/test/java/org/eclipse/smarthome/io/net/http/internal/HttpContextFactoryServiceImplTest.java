@@ -40,4 +40,12 @@ public class HttpContextFactoryServiceImplTest {
 
         verify(bundle).getResource(RESOURCE);
     }
+
+    @Test
+    public void httpContextShouldCallgetResourceOnBundleWithoutLeadingSlash() {
+        HttpContext context = httpContextFactoryService.createHttpContext(bundle);
+        context.getResource("/" + RESOURCE);
+
+        verify(bundle).getResource(RESOURCE);
+    }
 }
