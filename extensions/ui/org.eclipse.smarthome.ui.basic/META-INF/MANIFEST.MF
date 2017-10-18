@@ -28,6 +28,7 @@ Import-Package:
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.io.rest.sitemap,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.sitemap,
