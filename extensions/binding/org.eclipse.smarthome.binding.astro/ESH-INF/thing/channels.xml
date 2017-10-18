@@ -420,14 +420,14 @@
 		<item-type>Number</item-type>
 		<label>Miles</label>
 		<description>The distance in miles</description>
-		<state readOnly="true" pattern="%d miles" />
+		<state readOnly="true" pattern="%.1f miles" />
 	</channel-type>
 
 	<channel-type id="kilometer">
 		<item-type>Number</item-type>
 		<label>Kilometer</label>
 		<description>The distance in kilometers</description>
-		<state readOnly="true" pattern="%d km" />
+		<state readOnly="true" pattern="%.1f km" />
 	</channel-type>
 
 	<channel-type id="distanceEvent">
