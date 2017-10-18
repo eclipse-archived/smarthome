@@ -60,8 +60,8 @@ The channel type definition is specified on the same level as the thing type def
 That way channels can be reused in different things.
 
 The granularity of channel types should be on its semantic level, i.e. very fine-grained:
-If a Thing measures two temperature values, one for indoor and one for outdoor, this should be modeled as two different channel types.
-Overriding labels of a channel type must only be done if the very same functionality is offered multiple times, e.g. having an actuator with 5 relais, which each is a simple "switch", but you want to individually name the channels (1-5).
+If a Thing measures two temperature values, one for indoor and one for outdoor, this should be modelled as two different channel types.
+Overriding labels of a channel type must only be done if the very same functionality is offered multiple times, e.g. having an actuator with 5 relays, which each is a simple "switch", but you want to individually name the channels (1-5).
 
 The following XML snippet shows a thing type definition with 2 channels and one referenced channel type:
 
@@ -189,7 +189,7 @@ Some configuration options are only valid for specific item types.
 The following XML snippet shows the definition for a temperature actuator channel:
 
 ```xml
-<state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false"></state>
+<state min="12" max="30" step="0.5" pattern="%.1f %unit%" readOnly="false"></state>
 ```
 
 The attributes `min` and `max` can only be declared for channel with the item type `Number`. 
@@ -202,7 +202,9 @@ For all sensors the `readonly` attribute should be set to `true`.
 The `pattern` attribute can be used for `Number` and  `String` items. 
 It gives user interface a hint how to render the item. 
 The format of the pattern must be compliant to the [Java Number Format](http://docs.oracle.com/javase/tutorial/java/data/numberformat.html). 
-The pattern can be localized (see also [Internationalization](../../features/internationalization.html))
+The pattern can be localized (see also [Internationalization](../../features/internationalization.html)).
+The special pattern placeholder `%unit%` is used for channels which bind to items of type `Number` and also define the _dimension_ tag: 
+These channels will send state updates of type [QuantityType](/documentation/concepts/items.html#quantitytype) and the unit is then rendered for the placeholder. 
 
 Some channels might have only a limited and countable set of states. 
 These states can be specified as options. 
