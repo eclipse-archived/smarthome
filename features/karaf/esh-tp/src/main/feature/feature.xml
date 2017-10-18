@@ -210,7 +210,7 @@
     <feature dependency="true">esh-tp-xtext</feature>
 
     <!-- Support for the Language Server Protocol -->
-    <bundle dependency="true">mvn:de.maggu2810.thirdparty.org.eclipse.xtext/org.eclipse.xtext.ide/2.12.0.sp1</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.thirdparty.org.eclipse.xtext/org.eclipse.xtext.ide/2.12.0.sp2</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.ide/2.12.0</bundle>    
   </feature>
 
