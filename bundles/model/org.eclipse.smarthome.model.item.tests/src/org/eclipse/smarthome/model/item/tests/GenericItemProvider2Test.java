@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.util.Iterator;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -120,6 +121,28 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
                 assertEquals("Number Seven", item.getLabel());
             }
         }
+    }
+
+    @Test
+    public void testGroupAssignmentsAreConsidered() {
+        assertThat(itemRegistry.getAll().size(), is(0));
+
+        String model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+
+        model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup)";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+
+        GenericItem item = (GenericItem) itemRegistry.get("number2");
+        assertTrue(item.getGroupNames().contains("testGroup"));
+        GroupItem groupItem = (GroupItem) itemRegistry.get("testGroup");
+        assertTrue(groupItem.getAllMembers().contains(item));
     }
 
 }

@@ -286,6 +286,7 @@ abstract public class GenericItem implements ActiveItem {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((category == null) ? 0 : category.hashCode());
+        result = prime * result + ((groupNames == null) ? 0 : groupNames.hashCode());
         result = prime * result + ((label == null) ? 0 : label.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((tags == null) ? 0 : tags.hashCode());
@@ -310,6 +311,13 @@ abstract public class GenericItem implements ActiveItem {
                 return false;
             }
         } else if (!category.equals(other.category)) {
+            return false;
+        }
+        if (groupNames == null) {
+            if (other.groupNames != null) {
+                return false;
+            }
+        } else if (!groupNames.equals(other.groupNames)) {
             return false;
         }
         if (label == null) {
