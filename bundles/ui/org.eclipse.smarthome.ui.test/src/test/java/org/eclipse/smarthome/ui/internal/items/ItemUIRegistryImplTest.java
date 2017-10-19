@@ -16,6 +16,8 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.measure.Unit;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -26,7 +28,9 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.ESHUnits;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
@@ -137,6 +141,29 @@ public class ItemUIRegistryImplTest {
         when(item.getStateAs(DecimalType.class)).thenReturn(new DecimalType(10f / 3f));
         String label = uiRegistry.getLabel(widget);
         assertEquals("Label [3" + sep + "333]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit() {
+        String testLabel = "Label [%.3f %unit%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType("" + 10f / 3f + " °C"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3" + sep + "333 ℃]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnitConversion() {
+        @SuppressWarnings("unused")
+        Unit<?> fahrenheit = ESHUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
+
+        String testLabel = "Label [%.2f °F]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType("22 °C"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [71" + sep + "60 °F]", label);
     }
 
     @Test
