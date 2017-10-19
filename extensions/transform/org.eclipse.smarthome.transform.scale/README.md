@@ -10,7 +10,7 @@ Range expressions always contain two parts.
 The range to scale on, which is located left from the equality sign and the corresponding output string on the right of it.
 A range consists of two bounds. Both are optional, the range is then open. Both bounds can be inclusive or exclusive.
 
-| Scale Expression | Returns XYZ when the given Value is                        |
+| Scale Expression | Returns XYZ when the given value is                        |
 |------------------|------------------------------------------------------------|
 | `[12..23]=XYZ`   | `between (or equal to) 12 and 23`                          |
 | `]12..23[=XYZ`   | `between 12 and 23 (12 and 23 are excluded in this case.)` |
@@ -31,7 +31,7 @@ Example item:
 Number Uv_Sensor_Level "UV Level [SCALE(uvindex.scale):%s]"
 ```
 
-Referenced scale file `uvindex.scale` in the `transform` folder::
+Referenced scale file `uvindex.scale` in the `transform` folder:
 
 ```python
 [..3]=1
@@ -42,7 +42,7 @@ Referenced scale file `uvindex.scale` in the `transform` folder::
 ```
 
 Each value the item receives, will be categorized to one of the five given ranges.
-Values **lower than or equal to 3** are catched with `[..3]=1`.
+Values **lower than or equal to 3** are caught with `[..3]=1`.
 Greater values are catched in ranges with 2 values as criteria.
 The only condition here is that the received value has to be lower than or equal to `100` in our example, since we haven't defined other cases yet.
 If **none** of the configured conditions matches the given value, the response will be empty.
