@@ -1,6 +1,6 @@
 # Scale Transformation Service
 
-Transform a given input by matching it between limits of ranges.
+Transform a given input by matching it to ranges.
 The input string must be in numerical format.
 
 The file is expected to exist in the `transform` configuration directory and its ending has to be `.scale`.
@@ -42,9 +42,9 @@ Referenced scale file `uvindex.scale` in the `transform` folder:
 ```
 
 Each value the item receives, will be categorized to one of the five given ranges.
-Values **lower than or equal to 3** are caught with `[..3]=1`.
+Values **lower than or equal to 3** are matched with `[..3]=1`.
 Greater values are catched in ranges with 2 values as criteria.
-The only condition here is that the received value has to be lower than or equal to `100` in our example, since we haven't defined other cases yet.
+The only condition here is that the received value has to be lower or equal than `100` in our example, since we haven't defined other cases yet.
 If **none** of the configured conditions matches the given value, the response will be empty.
 
 Please note that all ranges for values above **3** are opened with a `]`.
