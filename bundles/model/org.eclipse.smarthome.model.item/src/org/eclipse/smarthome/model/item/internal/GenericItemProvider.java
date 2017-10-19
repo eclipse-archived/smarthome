@@ -30,6 +30,8 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.model.core.EventType;
@@ -224,6 +226,10 @@ public class GenericItemProvider extends AbstractProvider<Item>
             ModelNormalItem normalItem = (ModelNormalItem) modelItem;
             String itemName = normalItem.getName();
             item = createItemOfType(normalItem.getType(), itemName);
+
+            if (item instanceof NumberItem) {
+                ((NumberItem) item).setDimension(Dimension.parse(normalItem.getDimension()));
+            }
         }
         if (item != null) {
             String label = modelItem.getLabel();

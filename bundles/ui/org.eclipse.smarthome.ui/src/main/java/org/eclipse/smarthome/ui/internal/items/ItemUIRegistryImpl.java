@@ -49,6 +49,7 @@ import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -355,6 +356,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                                     break;
                                 }
                             }
+                        }
+
+                        if (state instanceof QuantityType && formatPattern.contains("%unit%")) {
+                            formatPattern = formatPattern.replace("%unit%",
+                                    ((QuantityType) state).getUnit().toString());
                         }
 
                         // The following exception handling has been added to work around a Java bug with formatting

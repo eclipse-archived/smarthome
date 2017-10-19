@@ -9,13 +9,13 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
-import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.UnitProvider;
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +28,7 @@ import tec.uom.se.quantity.Quantities;
 @Component(service = ItemStateConverter.class, name = "itemStateConverter")
 public class ItemStateConverterImpl implements ItemStateConverter {
 
-    private final Logger logger = LoggerFactory.getLogger(ItemUtil.class);
+    private final Logger logger = LoggerFactory.getLogger(ItemStateConverterImpl.class);
 
     private UnitProvider unitProvider;
 
@@ -57,8 +57,16 @@ public class ItemStateConverterImpl implements ItemStateConverter {
             NumberItem numberItem = (NumberItem) item;
 
             // in case the item does define a unit it takes predescense over all other conversions:
-            if (StringUtils.isNotBlank(numberItem.getUnit())) {
-                Quantity<?> quantity = Quantities.getQuantity("1 " + numberItem.getUnit());
+            String unitFromPattern = parseItemUnit(numberItem);
+            unitFromPattern = unitFromPattern == null ? "" : unitFromPattern.trim();
+            if (StringUtils.isNotBlank(unitFromPattern) && !unitFromPattern.equals("%unit%")) {
+                Quantity<?> quantity = null;
+                try {
+                    quantity = Quantities.getQuantity("1 " + unitFromPattern);
+                } catch (IllegalArgumentException e) {
+                    // we expect this exception in case the extracted string does not match any known unit
+                    logger.warn("Unknown unit from state description pattern: {}", unitFromPattern);
+                }
                 if (quantity != null) {
                     Unit<?> itemUnit = quantity.getUnit();
                     if (!itemUnit.equals(quantityState.getUnit())) {
@@ -91,6 +99,27 @@ public class ItemStateConverterImpl implements ItemStateConverter {
         }
 
         return state;
+    }
+
+    /**
+     * Extracts the unit from the {@link StateDescription} pattern. We assume the unit is always the last part of the
+     * pattern separated by " ".
+     *
+     * @param numberItem the {@link NumberItem} from which the unit is to be extracted.
+     * @return the unit or null.
+     */
+    private String parseItemUnit(NumberItem numberItem) {
+        StateDescription stateDescription = numberItem.getStateDescription();
+        if (stateDescription == null) {
+            return null;
+        }
+
+        String pattern = stateDescription.getPattern();
+        if (StringUtils.isBlank(pattern)) {
+            return null;
+        }
+
+        return pattern.substring(pattern.lastIndexOf(" "));
     }
 
     private boolean isAccepted(Item item, State state) {
