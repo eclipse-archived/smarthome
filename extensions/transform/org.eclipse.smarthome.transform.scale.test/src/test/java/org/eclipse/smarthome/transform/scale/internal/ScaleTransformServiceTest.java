@@ -45,7 +45,6 @@ public class ScaleTransformServiceTest {
         source = "10";
         transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("middle", transformedResponse);
-
     }
 
     @Test
@@ -78,7 +77,6 @@ public class ScaleTransformServiceTest {
         String source = "-";
         String transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("", transformedResponse);
-
     }
 
     @Test
@@ -95,7 +93,17 @@ public class ScaleTransformServiceTest {
         } catch (TransformationException e) {
             // awaited result
         }
+    }
 
+    @Test
+    public void testEvaluationOrder() throws TransformationException {
+        // Ensures that only first matching scale as presented in the file is taken in account
+        String evaluationOrder = "scale/evaluationorder.scale";
+        // This value matches two lines of the scale file
+        String source = "12";
+
+        String transformedResponse = processor.transform(evaluationOrder, source);
+        Assert.assertEquals("first", transformedResponse);
     }
 
 }
