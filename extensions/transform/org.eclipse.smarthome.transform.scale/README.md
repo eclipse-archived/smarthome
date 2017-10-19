@@ -1,6 +1,6 @@
 # Scale Transformation Service
 
-Transform a given input by matching it to ranges.
+Transform a given input by matching it to specified ranges.
 The input string must be in numerical format.
 
 The file is expected to exist in the `transform` configuration directory and its ending has to be `.scale`.
