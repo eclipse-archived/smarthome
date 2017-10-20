@@ -99,11 +99,18 @@ A weather binding which measures the amount of rain could provide a hint to conv
 The framework uses the conversion map to determine if a locale based conversion is necessary and uses the specified units for the conversion.
 
 In addition to the automated conversion the `NumberItem` bound to a channel delivering `QuantityTypes` can be configured to always have state updates converted to a specific unit. 
-Using the item DSL this can be configured using the _dimension_ binding:
+The unit given in the state description is parsed and then used for conversion (if necessary). The framework assumes that the unit is always the last token in the state description. If the parsing failed the locale based default conversion takes place.
 
-    Number temperature "Outside [%.2f %unit%]" { channel="...:current#temperature", dimension="Temperature" [ unit="°F" ] }
+    Number:Temperature temperature "Outside [%.2f °F]" { channel="...:current#temperature" }
     
-The _dimension_ binding serves two purposes:
+In the example the `NumberItem` is specified to bind to channels which offer values from the dimension `Temperature`.
+Without the dimension information the `NumberItem` only will receive updates of type `DecimalType` without a unit and any conversion.
+The state description defines two decimal places for the value and the fix unit °F.
+In case the state description should display the unit the binding delivers or the framework calculates through locale based conversion the pattern will look like this:
+    
+    "Outside [%.2f %unit%]"
+    
+The special placeholder `%unit%` will then be replaced by the actual unit symbol.
 
   1. Define the dimension of matching channels: This mandatory information marks a `NumberItem` for channels of a specific dimension, regardless their concrete unit. `NumberItems` without the _dimension_ binding will only receive updates of type `DecimalType`.
   

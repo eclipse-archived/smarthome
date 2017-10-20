@@ -94,9 +94,10 @@ The channel type definition allows one to specify a category and additional meta
 Together with the definition of the `readOnly` attribute, user interfaces get an idea how to render an item for this channel. 
 For example, a channel with the category `Temperature` which is readable only, indicates that this is a sensor for temperature. 
 In that case the user interface can render an appropriate icon and label for the current value. 
-The label is further described from the `state` tags `pattern` attribute: 
+The label is further described by the `state` tags `pattern` attribute: 
 In this case the temperature should be rendered with one decimal place followed by the unit the binding specifies for the current measurement. 
-The `dimension` tag describes this channels ability to send state updates using the type `QuantityType` with a value and a unit. For detailed information about _dimensions_ and _units_ see the [QuantityType definition](/documentation/concepts/items.html#quantitytype). 
+The `dimension` tag describes this channels ability to send state updates using the type `QuantityType` with a value and a unit. 
+For detailed information about _dimensions_ and _units_ see the [QuantityType definition](/documentation/concepts/items.html#quantitytype). 
 If the `readOnly` flag is set to `false` (which is the default value), the user interface could render a slider to change the temperature, since this means it is temperature actuator. 
 Restrictions of the state such as the minimum or maximum value can also be specified.
 
