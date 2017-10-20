@@ -7,11 +7,13 @@
  */
 package org.eclipse.smarthome.automation.type;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -25,64 +27,58 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
+@NonNullByDefault
 public class CompositeTriggerType extends TriggerType {
 
-    private List<Trigger> children;
-
-    /**
-     * Default constructor for deserialization e.g. by Gson.
-     */
-    protected CompositeTriggerType() {
-    }
+    private final List<Trigger> children;
 
     /**
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
-     * {@link Trigger}s.
-     * It initialize only base properties of the {@code CompositeTriggerType}.
+     * {@link Trigger}s. It initialize only base properties of the {@code CompositeTriggerType}.
      *
-     * @param UID is the unique id of this module type in scope of the RuleEngine.
-     * @param configDescriptions is a {@link Set} of configuration descriptions.
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
+     *            instances.
      * @param children is a {@link LinkedHashSet} of {@link Trigger}s.
-     * @param outputs is a {@link Set} of {@link Output} descriptions.
      *
      */
-    public CompositeTriggerType(String UID, List<ConfigDescriptionParameter> configDescriptions, List<Output> outputs,
-            List<Trigger> children) {
+    public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable List<Output> outputs, @Nullable List<Trigger> children) {
         super(UID, configDescriptions, outputs);
-        this.children = children;
+        this.children = children != null ? Collections.unmodifiableList(children) : Collections.emptyList();
     }
 
     /**
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
-     * {@link Trigger}s.
-     * It initialize all properties of the {@code CompositeTriggerType}.
+     * {@link Trigger}s. It initialize all properties of the {@code CompositeTriggerType}.
      *
-     * @param UID is the unique id of this module type in scope of the RuleEngine.
-     * @param configDescriptions is a {@link Set} of configuration descriptions.
-     * @param label is a short and accurate name of the {@code CompositeTriggerType}.
-     * @param description is a short and understandable description of which can be used the {@code CompositeActionType}
-     *            .
-     * @param tags defines categories that fit the {@code CompositTriggerType} and which can serve as criteria for
-     *            searching
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param label a short and accurate, human-readable label of the {@link TriggerType}.
+     * @param description a detailed, human-readable description of usage of {@link TriggerType} and its benefits.
+     * @param tags defines categories that fit the {@link TriggerType} and which can serve as criteria for searching
      *            or filtering it.
-     * @param visibility determines whether the {@code CompositeTriggerType} can be used by anyone if it is
+     * @param visibility determines whether the {@link TriggerType} can be used by anyone if it is
      *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param outputs is a {@link Set} of {@link Output} descriptions.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
+     *            instances.
      * @param children is a {@link LinkedHashSet} of {@link Trigger}s.
      */
-    public CompositeTriggerType(String UID, List<ConfigDescriptionParameter> configDescriptions, String label,
-            String description, Set<String> tags, Visibility visibility, List<Output> outputs, List<Trigger> children) {
+    public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
+            @Nullable Visibility visibility, @Nullable List<Output> outputs, @Nullable List<Trigger> children) {
         super(UID, configDescriptions, label, description, tags, visibility, outputs);
-        this.children = children;
+        this.children = children != null ? Collections.unmodifiableList(children) : Collections.emptyList();
     }
 
     /**
-     * This method is used for getting the {@link Trigger}s of the {@code CompositeTriggerType}.
+     * This method is used to obtain the {@link Trigger}s of the {@code CompositeTriggerType}.
      *
      * @return a {@link LinkedHashSet} of the {@link Trigger} modules of this {@code CompositeTriggerType}.
      */
     public List<Trigger> getChildren() {
-        return children != null ? children : new ArrayList<Trigger>(0);
+        return children;
     }
 
 }

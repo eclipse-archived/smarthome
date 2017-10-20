@@ -11,24 +11,24 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
- * Defines visibility values of {@link ModuleType}s and {@link Template}s
+ * Defines visibility values of {@link Rule}s, {@link ModuleType}s and {@link Template}s
  *
  * @author Yordan Mihaylov - Initial Contribution
  *
  */
 public enum Visibility {
     /**
-     * The UI has to show this object.
+     * The UI has always to show an object with such visibility.
      */
     VISIBLE,
 
     /**
-     * The UI has to hide this object.
+     * The UI has always to hide an object with such visibility.
      */
     HIDDEN,
 
     /**
-     * The UI has to show this object only to experts.
+     * The UI has to show an object with such visibility only to experts.
      */
     EXPERT
 
