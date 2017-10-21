@@ -17,7 +17,7 @@ import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
  */
 public abstract class BaseAction {
 
-    protected boolean completed = false;
+    protected ActionState state = ActionState.waiting;
     protected long startTime = 0;
 
     /**
@@ -30,10 +30,10 @@ public abstract class BaseAction {
     public abstract int getNewValue(DmxChannel channel, long currentTime);
 
     /**
-     * @return true if the action was completed.
+     * @return the action's state
      */
-    public final boolean isCompleted() {
-        return completed;
+    public final ActionState getState() {
+        return state;
     }
 
     /**
@@ -41,7 +41,7 @@ public abstract class BaseAction {
      */
     public void reset() {
         startTime = 0;
-        completed = false;
+        state = ActionState.waiting;
     }
 
 }

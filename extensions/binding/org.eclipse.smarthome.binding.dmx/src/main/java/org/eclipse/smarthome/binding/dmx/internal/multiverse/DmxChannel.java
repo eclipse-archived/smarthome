@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
+import org.eclipse.smarthome.binding.dmx.internal.action.ActionState;
 import org.eclipse.smarthome.binding.dmx.internal.action.BaseAction;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -253,8 +254,10 @@ public class DmxChannel extends BaseDmxChannel {
         if (hasRunningActions()) {
             BaseAction action = actions.get(0);
             value = action.getNewValue(this, calculationTime);
-            if (action.isCompleted()) {
+            if (ActionState.completed.equals(action.getState())) {
                 switchToNextAction();
+            } else if (ActionState.completedfinal.equals(action.getState())) {
+                clearAction();
             }
         }
 

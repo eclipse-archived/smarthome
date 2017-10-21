@@ -19,6 +19,7 @@ public class ResumeAction extends BaseAction {
 
     @Override
     public int getNewValue(DmxChannel channel, long currentTime) {
+        state = ActionState.completed;
         channel.resumeAction();
         return channel.getNewHiResValue(currentTime);
     }

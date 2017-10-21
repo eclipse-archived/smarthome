@@ -30,7 +30,7 @@ public class FadeAction extends BaseAction {
     private int startValue;
 
     /** Desired channel output value. **/
-    private int targetValue;
+    private final int targetValue;
 
     private float stepDuration;
 
@@ -72,6 +72,7 @@ public class FadeAction extends BaseAction {
 
         if (startTime == 0) {
             startTime = currentTime;
+            state = ActionState.running;
 
             if (fadeTime != 0) {
                 startValue = channel.getHiResValue();
@@ -111,14 +112,20 @@ public class FadeAction extends BaseAction {
                     newValue = targetValue;
                 }
             }
+        } else {
+            newValue = targetValue;
         }
 
-        if (newValue == targetValue && holdTime > -1) {
-            // we reached the target already, check if we need to hold longer
-            if (((holdTime > 0 || fadeTime > 0) && (duration >= fadeTime + holdTime))
-                    || (holdTime == 0 && fadeTime == 0)) {
-                // mark action as completed
-                completed = true;
+        if (newValue == targetValue) {
+            if (holdTime > -1) {
+                // we reached the target already, check if we need to hold longer
+                if (((holdTime > 0 || fadeTime > 0) && (duration >= fadeTime + holdTime))
+                        || (holdTime == 0 && fadeTime == 0)) {
+                    // mark action as completed
+                    state = ActionState.completed;
+                }
+            } else {
+                state = ActionState.completedfinal;
             }
         }
 
