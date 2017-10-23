@@ -234,10 +234,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         String rUID = rule.getUID();
         if (rUID == null) {
             rUID = ruleEngine.getUniqueId();
-            super.add(initRuleId(rUID, rule));
-        } else {
-            super.add(rule);
+            rule = initRuleId(rUID, rule);
         }
+        ruleEngine.normalizeRuleConfigurations(rule);
+        super.add(rule);
         Rule ruleCopy = get(rUID);
         if (ruleCopy != null) {
             return ruleCopy;
@@ -523,6 +523,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             String rUID = ruleEngine.getUniqueId();
             ruleWithUID = initRuleId(rUID, element);
         }
+        ruleEngine.normalizeRuleConfigurations(element);
         super.added(provider, ruleWithUID);
         updateRuleByTemplate(provider, ruleWithUID);
     }

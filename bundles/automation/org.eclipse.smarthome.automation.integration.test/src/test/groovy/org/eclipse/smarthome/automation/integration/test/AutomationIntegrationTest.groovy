@@ -835,5 +835,39 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
+
+    @Test
+    public void 'assert a rule resolves default configuration values'() {
+        def random = new Random().nextInt(100000)
+        logger.info('assert a rule with generic condition works')
+        //Creation of RULE
+        def triggerConfig = new Configuration([eventSource:"myMotionItem5", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
+        def conditionConfig = new Configuration([right:"myMotionItem5", inputproperty:"itemName"])
+        def actionConfig = new Configuration([itemName:"myLampItem5", command:"ON"])
+        def triggerId = "ItemStateChangeTrigger"+random
+        def triggers = [new Trigger(triggerId, "core.GenericEventTrigger", triggerConfig)]
+        def conditions = [new Condition("ItemStateCondition"+(random+1), "core.GenericCompareCondition", conditionConfig, [input:triggerId+".event"])]
+        def actions = [new Action("ItemPostCommandAction"+random, "core.ItemCommandAction", actionConfig, null)]
+
+        def rule = new Rule("myRule_"+random)
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
+        rule.name="RuleByJAVA_API"+random
+        def tags = ["myRule_"+random] as Set
+        rule.tags = tags
+
+        logger.info("Rule created: "+rule.getUID())
+        //the condition configuration does not set 'operator' config property. It should be set by its default value.
+        assertThat rule.conditions[0].configuration.containsKey("operator"), is(false);
+
+        ruleRegistry.add(rule)
+        def rule3 = ruleRegistry.get(rule.UID)
+        //the stored rule contains all config properies: these set by the user + these set by default
+        assertThat rule3.conditions[0].configuration.get("operator"), is("=");
+
+    }
+
 }
 

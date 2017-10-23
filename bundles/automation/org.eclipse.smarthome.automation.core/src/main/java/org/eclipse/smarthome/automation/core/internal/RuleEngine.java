@@ -1430,7 +1430,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         }
     }
 
-    private void normalizeRuleConfigurations(Rule rule) {
+    protected void normalizeRuleConfigurations(Rule rule) {
         List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
         Map<String, ConfigDescriptionParameter> mapConfigDescriptions;
         if (configDescriptions != null) {
