@@ -102,7 +102,7 @@
 		}
 	}
 	&__image {
-		.mdl-form__control#{&} {
+		&.mdl-form__control {
 			padding-left: 0;
 			padding-right: 0;
 			max-width: 100%;
@@ -111,7 +111,7 @@
 			}
 		}
 		@media screen and (max-width: $layout-tablet-size-threshold) {
-			.mdl-form__control#{&} {
+			&.mdl-form__control {
 				padding-left: 0;
 				padding-right: 0;
 			}
