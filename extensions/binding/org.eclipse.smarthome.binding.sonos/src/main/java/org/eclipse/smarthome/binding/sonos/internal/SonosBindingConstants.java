@@ -29,6 +29,7 @@ public class SonosBindingConstants {
     // List of all Thing Type UIDs
     // Column (:) is not used for PLAY:1, PLAY:3, PLAY:5 and CONNECT:AMP because of
     // ThingTypeUID and device pairing name restrictions
+    public final static ThingTypeUID ONE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "One");
     public final static ThingTypeUID PLAY1_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY1");
     public final static ThingTypeUID PLAY3_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY3");
     public final static ThingTypeUID PLAY5_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY5");
@@ -38,7 +39,7 @@ public class SonosBindingConstants {
     public final static ThingTypeUID ZONEPLAYER_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "zoneplayer");
 
     public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Stream
-            .of(PLAY1_THING_TYPE_UID, PLAY3_THING_TYPE_UID, PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID,
+            .of(ONE_THING_TYPE_UID, PLAY1_THING_TYPE_UID, PLAY3_THING_TYPE_UID, PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID,
                     CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
             .collect(Collectors.toSet());
 
