@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.osgi.framework.Bundle
 import org.osgi.framework.FrameworkEvent
@@ -102,6 +103,7 @@ class HostFragmentSupportTest extends OSGiTest{
     }
 
     @Test
+    @Ignore // see https://github.com/eclipse/smarthome/pull/4451
     public void 'asserting that the installation of the host-fragment provides the resources correctly' () {
         logger.info('asserting that the installation of the host-fragment provides the resources correctly')
 
