@@ -51,7 +51,6 @@ public class HostFragmentMappingUtil {
      * @return a list with the hosts of the <code>fragment</code> parameter.
      */
     static List<Bundle> returnHostBundles(Bundle fragment) {
-        pkgAdmin.resolveBundles(new Bundle[] { fragment });
         List<Bundle> hosts = new ArrayList<Bundle>();
         Bundle[] bundles = pkgAdmin.getHosts(fragment);
         if (bundles != null) {
@@ -67,7 +66,6 @@ public class HostFragmentMappingUtil {
     }
 
     static List<Bundle> fillHostFragmentMapping(Bundle host) {
-        pkgAdmin.resolveBundles(new Bundle[] { host });
         List<Bundle> fragments = new ArrayList<Bundle>();
         Bundle[] bundles = pkgAdmin.getFragments(host);
         if (bundles != null) {
