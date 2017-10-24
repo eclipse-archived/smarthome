@@ -94,11 +94,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     public static final char OUTPUT_SEPARATOR = '.';
 
     /**
-     * Prefix of {@link Rule}'s UID created by the rule engine.
-     */
-    public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
-
-    /**
      * Default value of delay between rule's re-initialization tries.
      */
     public static final long DEFAULT_REINITIALIZATION_DELAY = 500;
@@ -117,24 +112,24 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
      * only one rule callback.
      */
-    private Map<String, RuleEngineCallbackImpl> reCallbacks = new HashMap<String, RuleEngineCallbackImpl>();
+    private final Map<String, RuleEngineCallbackImpl> reCallbacks = new HashMap<String, RuleEngineCallbackImpl>();
 
     /**
      * {@link Map} of module type UIDs to rules where these module types participated.
      */
-    private Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
 
     /**
      * {@link Map} of created rules. It contains all rules added to rule engine independent if they are initialized or
      * not. The relation is rule's id to {@link Rule} object.
      */
-    private Map<String, RuntimeRule> rules;
+    private final Map<String, RuntimeRule> rules;
 
     /**
      * {@link Map} system module type to corresponding module handler factories.
      */
-    private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
-    private Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<>();
+    private final Map<String, ModuleHandlerFactory> moduleHandlerFactories;
+    private final Set<ModuleHandlerFactory> allModuleHandlerFactories = new CopyOnWriteArraySet<>();
 
     /**
      * Locker which does not permit rule initialization when the rule engine is stopping.
@@ -144,7 +139,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     /**
      * {@link Map} of {@link Rule}'s id to current {@link RuleStatus} object.
      */
-    private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
+    private final Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
 
     protected Logger logger = LoggerFactory.getLogger(RuleEngine.class.getName());
 
@@ -155,8 +150,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private ModuleTypeRegistry mtRegistry;
 
     private CompositeModuleHandlerFactory compositeFactory;
-
-    private int ruleMaxID = 0;
 
     private Map<String, Future> scheduleTasks = new HashMap<String, Future>(31);
 
@@ -366,11 +359,9 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     // property). The rule must stay NOT_INITIALISED.
         }
 
-        List<Module> modules = runtimeRule.getModules(null);
-        if (modules != null) {
-            for (Module m : modules) {
-                updateMapModuleTypeToRule(rUID, m.getTypeUID());
-            }
+        List<Module> modules = runtimeRule.getModules(Module.class);
+        for (Module m : modules) {
+            updateMapModuleTypeToRule(rUID, m.getTypeUID());
         }
 
         String errMsgs;
@@ -994,29 +985,27 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     private void executeActions(Rule rule, boolean stopOnFirstFail) {
         List<Action> actions = ((RuntimeRule) rule).getActions();
-        if (actions == null || actions.size() == 0) {
+        if (actions.size() == 0) {
             return;
         }
         RuleStatus ruleStatus = null;
-        RuntimeAction action = null;
         for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(rule.getUID());
             if (ruleStatus != RuleStatus.RUNNING) {
                 return;
             }
-            action = (RuntimeAction) it.next();
+            RuntimeAction action = (RuntimeAction) it.next();
             ActionHandler aHandler = action.getModuleHandler();
             String rUID = rule.getUID();
             Map<String, Object> context = getContext(rUID, action.getConnections());
             try {
-
                 Map<String, ?> outputs = aHandler.execute(Collections.unmodifiableMap(context));
                 if (outputs != null) {
                     context = getContext(rUID);
                     updateContext(rUID, action.getId(), outputs);
                 }
             } catch (Throwable t) {
-                String errMessage = "Fail to execute action: " + action != null ? action.getId() : "<unknown>";
+                String errMessage = "Fail to execute action: " + action.getId();
                 if (stopOnFirstFail) {
                     RuntimeException re = new RuntimeException(errMessage, t);
                     throw re;
@@ -1086,34 +1075,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      */
     protected synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
         return statusMap.get(rUID);
-    }
-
-    protected synchronized @NonNull String getUniqueId() {
-        int result = 0;
-        if (rules != null) {
-            Set<String> col = rules.keySet();
-            if (col != null) {
-                for (Iterator<String> it = col.iterator(); it.hasNext();) {
-                    String rUID = it.next();
-                    if (rUID != null && rUID.startsWith(ID_PREFIX)) {
-                        String sNum = rUID.substring(ID_PREFIX.length());
-                        int i;
-                        try {
-                            i = Integer.parseInt(sNum);
-                            result = i > result ? i : result; // find bigger key
-                        } catch (NumberFormatException e) {
-                            // skip this key
-                        }
-                    }
-                }
-            }
-        }
-        if (result > ruleMaxID) {
-            ruleMaxID = result + 1;
-        } else {
-            ++ruleMaxID;
-        }
-        return ID_PREFIX + ruleMaxID;
     }
 
     protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
@@ -1303,8 +1264,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     class OutputRef {
 
-        private String moduleId;
-        private String outputName;
+        private final String moduleId;
+        private final String outputName;
 
         public OutputRef(String moduleId, String outputName) {
             this.moduleId = moduleId;
@@ -1433,10 +1394,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private void normalizeRuleConfigurations(Rule rule) {
         List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
         Map<String, ConfigDescriptionParameter> mapConfigDescriptions;
-        if (configDescriptions != null) {
-            mapConfigDescriptions = getConfigDescriptionMap(configDescriptions);
-            normalizeConfiguration(rule.getConfiguration(), mapConfigDescriptions);
-        }
+        mapConfigDescriptions = getConfigDescriptionMap(configDescriptions);
+        normalizeConfiguration(rule.getConfiguration(), mapConfigDescriptions);
         normalizeModuleConfigurations(rule.getTriggers());
         normalizeModuleConfigurations(rule.getConditions());
         normalizeModuleConfigurations(rule.getActions());
@@ -1451,11 +1410,9 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                 ModuleType mt = mtRegistry.get(type);
                 if (mt != null) {
                     List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
-                    if (configDescriptions != null) {
-                        Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
-                                configDescriptions);
-                        normalizeConfiguration(config, mapConfigDescriptions);
-                    }
+                    Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
+                            configDescriptions);
+                    normalizeConfiguration(config, mapConfigDescriptions);
                 }
             }
         }

@@ -50,12 +50,12 @@ public class RuleEngineTest {
     @Test
     public void testAddRetrieveRules() {
         RuleEngine ruleEngine = createRuleEngine();
-        Rule rule0 = new Rule(ruleEngine.getUniqueId());
+        Rule rule0 = new Rule(null);
         ruleEngine.addRule(rule0, true);
         Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
         Assert.assertNotNull("null returned instead of rules list", rules);
         Assert.assertEquals("empty rules list is returned", 1, rules.size());
-        Assert.assertEquals("Returned rule with wrong UID", "rule_1", rules.iterator().next().getUID());
+        Assert.assertNotNull("Returned rule with wrong UID", rules.iterator().next().getUID());
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1, true);
         rules = ruleEngine.getRuntimeRules();

@@ -11,77 +11,70 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Module;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
- * This class is used to define trigger types. The triggers types contains meta
- * info of the {@link Trigger} instances. Each trigger type has unique id in
- * scope of the rule engine and defines {@link ConfigDescriptionParameter}s and {@link Output}s of the {@link Trigger}
- * instance.
- *
- * This class provides common functionality for creating {@link Trigger} instances by supplying types with their
- * meta-information. The {@link Trigger}s are part of "ON" section of the Rule. Each {@link TriggerType} is defined by
- * unique id in scope of the RuleEngine and defines {@link ConfigDescriptionParameter}s that are meta-information for
- * configuration and meta-information for {@link Output}s used for creation of {@link Trigger} instances.
+ * This class provides common functionality for creating {@link Trigger} instances by supplying their meta-information.
+ * Each {@link TriggerType} is uniquely identifiable in scope of the {@link ModuleTypeRegistry} and defines
+ * {@link ConfigDescriptionParameter}s that are meta-information for configuration of the future {@link Trigger}
+ * instances and meta-information for {@link Output}s used from these {@link Trigger} instances.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
+@NonNullByDefault
 public class TriggerType extends ModuleType {
 
-    private List<Output> outputs;
-
-    /**
-     * Default constructor for deserialization e.g. by Gson.
-     */
-    protected TriggerType() {
-    }
+    private final List<Output> outputs;
 
     /**
      * This constructor is responsible to create an instance of {@link TriggerType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Output} descriptions.
      *
-     * @param UID is an unique id of the {@link ActionType}, used as reference from the {@link Module}s, to find their
-     *            meta-information.
-     * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
-     * @param outputs is a {@link List} of {@link Output} meta-information descriptions.
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
+     *            instances.
      */
-    public TriggerType(String UID, List<ConfigDescriptionParameter> configDescriptions, List<Output> outputs) {
+    public TriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable List<Output> outputs) {
         super(UID, configDescriptions);
-        this.outputs = outputs;
+        this.outputs = outputs != null ? Collections.unmodifiableList(outputs) : Collections.emptyList();
     }
 
     /**
      * This constructor is responsible to create an instance of {@link TriggerType} with UID, label, description, a
      * {@link Set} of tags, visibility, a {@link List} of configuration descriptions and a {@link List} of
-     * {@link Output}
-     * descriptions.
+     * {@link Output} descriptions.
      *
-     * @param UID unique id of the {@link TriggerType}.
-     * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
-     * @param label is a short and accurate name of the {@link TriggerType}.
-     * @param description is a short and understandable description of which can be used the {@link TriggerType}.
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param label a short and accurate, human-readable label of the {@link TriggerType}.
+     * @param description a detailed, human-readable description of usage of {@link TriggerType} and its benefits.
      * @param tags defines categories that fit the {@link TriggerType} and which can serve as criteria for searching
      *            or filtering it.
      * @param visibility determines whether the {@link TriggerType} can be used by anyone if it is
      *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param outputs is a {@link List} of {@link Output} meta-information descriptions.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
+     *            instances.
      */
-    public TriggerType(String UID, List<ConfigDescriptionParameter> configDescriptions, String label,
-            String description, Set<String> tags, Visibility visibility, List<Output> outputs) {
+    public TriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
+            @Nullable Visibility visibility, @Nullable List<Output> outputs) {
         super(UID, configDescriptions, label, description, tags, visibility);
-        this.outputs = outputs;
+        this.outputs = outputs != null ? Collections.unmodifiableList(outputs) : Collections.emptyList();
     }
 
     /**
-     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.<br>
+     * This method is used to obtain the meta-information descriptions of {@link Output}s defined by this type.<br>
      *
      * @return a {@link List} of {@link Output} definitions.
      */
     public List<Output> getOutputs() {
-        return outputs != null ? outputs : Collections.<Output> emptyList();
+        return outputs;
     }
 
 }
