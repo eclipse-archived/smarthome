@@ -29,8 +29,8 @@ public class RulePrefixTest {
      */
     @Test
     public void testEmptyPrefix() {
-        final Rule rule0 = new Rule();
-        Assert.assertNull("Returned an UID instead of null", rule0.getUID());
+        final Rule rule0 = new Rule(null);
+        Assert.assertNotNull("Returned UID is null instead of generated one", rule0.getUID());
         Assert.assertNull("Returned a prefix instead of null", RulePredicates.getPrefix(rule0));
 
         final String somethingWithoutSeparator = "something_without_separator";

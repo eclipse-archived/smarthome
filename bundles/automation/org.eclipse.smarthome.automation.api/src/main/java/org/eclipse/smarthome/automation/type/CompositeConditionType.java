@@ -12,6 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -25,15 +27,10 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
+@NonNullByDefault
 public class CompositeConditionType extends ConditionType {
 
-    private List<Condition> children;
-
-    /**
-     * Default constructor for deserialization e.g. by Gson.
-     */
-    protected CompositeConditionType() {
-    }
+    private final List<Condition> children;
 
     /**
      * This constructor is responsible for creation of a {@code CompositeConditionType} with ordered set of
@@ -45,10 +42,10 @@ public class CompositeConditionType extends ConditionType {
      * @param children is a LinkedHashSet of {@link Condition}s.
      * @param inputs is a {@link Set} of {@link Input} descriptions.
      */
-    public CompositeConditionType(String UID, List<ConfigDescriptionParameter> configDescriptions, List<Input> inputs,
-            List<Condition> children) {
+    public CompositeConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable List<Input> inputs, @Nullable List<Condition> children) {
         super(UID, configDescriptions, inputs);
-        this.children = children;
+        this.children = children != null ? Collections.unmodifiableList(children) : Collections.emptyList();
     }
 
     /**
@@ -69,10 +66,11 @@ public class CompositeConditionType extends ConditionType {
      * @param inputs is a {@link List} of {@link Input} descriptions.
      * @param children is a {@link LinkedHashSet} of {@link Condition}s.
      */
-    public CompositeConditionType(String UID, List<ConfigDescriptionParameter> configDescriptions, String label,
-            String description, Set<String> tags, Visibility visibility, List<Input> inputs, List<Condition> children) {
+    public CompositeConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
+            @Nullable Visibility visibility, @Nullable List<Input> inputs, @Nullable List<Condition> children) {
         super(UID, configDescriptions, label, description, tags, visibility, inputs);
-        this.children = children;
+        this.children = children != null ? Collections.unmodifiableList(children) : Collections.emptyList();
     }
 
     /**
@@ -81,7 +79,7 @@ public class CompositeConditionType extends ConditionType {
      * @return a {@link LinkedHashSet} of the {@link Condition} modules of this {@code CompositeConditionType}.
      */
     public List<Condition> getChildren() {
-        return children != null ? children : Collections.<Condition> emptyList();
+        return children;
     }
 
 }

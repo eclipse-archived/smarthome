@@ -47,16 +47,12 @@ public class RulePredicates {
     public static String getPrefix(Rule rule) {
         if (null != rule) {
             final String uid = rule.getUID();
-            if (null != uid) {
-                final int index = uid.indexOf(PREFIX_SEPARATOR);
-
-                // only when a delimiter was found and the prefix is not empty
-                if (0 < index) {
-                    return uid.substring(0, index);
-                }
+            final int index = uid.indexOf(PREFIX_SEPARATOR);
+            // only when a delimiter was found and the prefix is not empty
+            if (0 < index) {
+                return uid.substring(0, index);
             }
         }
-
         return null;
     }
 
