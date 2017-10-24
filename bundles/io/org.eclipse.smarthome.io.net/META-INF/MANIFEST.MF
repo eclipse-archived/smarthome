@@ -10,7 +10,7 @@ Export-Package:
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http
 Import-Package: 
- javax.servlet.http;version="3.1.0",
+ javax.servlet.http,
  org.apache.commons.exec,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
