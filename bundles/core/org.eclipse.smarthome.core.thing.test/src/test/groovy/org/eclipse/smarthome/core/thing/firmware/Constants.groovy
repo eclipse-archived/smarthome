@@ -79,4 +79,6 @@ interface Constants {
     static final Firmware FWGAMMA_DE = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID2, VGAMMA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("German description vgamma").withChangelog("German changelog vgamma").withOnlineChangelog(new URL("http://url/changelog-vgamma?lang=de")).withProperties(["prop1" :"a", "prop2":"b"]).build()
 
     static final Firmware FW120_EN = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID3, V120)).withVendor(VENDOR1).withModel(MODEL1).withDescription("English description v1.2.0").withChangelog("English changelog v1.2.0").withOnlineChangelog(new URL("http://url/changelog-v1.2.0?lang=en")).build()
+
+    static final Firmware FWALPHA_RESTRICTED_TO_MODEL2 = new Firmware.Builder(new FirmwareUID(THING_TYPE_UID1, VALPHA)).withVendor(VENDOR2).withModel(MODEL2).withDescription("English description valpha").withChangelog("English changelog valpha").withOnlineChangelog(new URL("http://url/changelog-valpha?lang=en")).withModelRestricted(true).build()
 }

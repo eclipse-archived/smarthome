@@ -271,8 +271,8 @@ public class ThingTypeResource implements RESTResource {
 
     private FirmwareDTO convertToFirmwareDTO(Firmware firmware) {
         return new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
-                firmware.getDescription(), firmware.getVersion(), firmware.getPrerequisiteVersion(),
-                firmware.getChangelog());
+                firmware.isModelRestricted(), firmware.getDescription(), firmware.getVersion(),
+                firmware.getPrerequisiteVersion(), firmware.getChangelog());
     }
 
     @Override
