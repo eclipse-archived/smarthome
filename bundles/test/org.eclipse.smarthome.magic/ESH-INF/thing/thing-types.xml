@@ -72,5 +72,15 @@
 			</parameter>
 		</config-description>
 	</thing-type>
+	
+	<thing-type id="thermostat">
+	   <label>Magic Thermostat</label>
+	   <description>A thermostat for set point and current temperature.</description>
+	   
+	   <channels>
+	       <channel typeId="temperature" id="temperature"></channel>
+	       <channel typeId="set-temperature" id="set-temperature"></channel>
+	   </channels>
+	</thing-type>
 
 </thing:thing-descriptions>
