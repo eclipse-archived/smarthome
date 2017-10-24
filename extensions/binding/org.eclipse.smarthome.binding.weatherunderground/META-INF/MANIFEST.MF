@@ -11,8 +11,7 @@ Bundle-Version: 0.9.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.binding.weatherunderground,
  org.eclipse.smarthome.binding.weatherunderground.handler
-Import-Package:
- com.google.common.collect, 
+Import-Package: com.google.common.collect, 
  com.google.gson,
  javax.measure, 
  org.apache.commons.lang,

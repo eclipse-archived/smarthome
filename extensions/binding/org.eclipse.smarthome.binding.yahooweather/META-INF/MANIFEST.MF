@@ -9,8 +9,7 @@ Bundle-Version: 0.9.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.binding.yahooweather,
  org.eclipse.smarthome.binding.yahooweather.handler
-Import-Package:
- javax.measure, 
+Import-Package: javax.measure, 
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.yahooweather,
