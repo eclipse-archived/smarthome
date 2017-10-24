@@ -39,7 +39,7 @@ public class PaperUIApp {
         try {
             Bundle paperuiBundle = bundleContext.getBundle();
             httpService.registerResources(WEBAPP_ALIAS, "web",
-                    httpContextFactoryService.createHttpContext(paperuiBundle));
+                    httpContextFactoryService.createDefaultHttpContext(paperuiBundle));
             logger.info("Started Paper UI at " + WEBAPP_ALIAS);
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);

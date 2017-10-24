@@ -22,12 +22,11 @@ public interface HttpContextFactoryService {
 
     /**
      * Creates an {@link HttpContext} according to the OSGi specification of
-     * {@link HttpService#createDefaultHttpContext()} as described here:
-     * https://www.knopflerfish.org/releases/6.0.0/docs/javadoc/org/osgi/service/http/HttpService.html#createDefaultHttpContext
+     * {@link HttpService#createDefaultHttpContext()}.
      *
      * @param bundle the bundle which will be used by this {@link HttpContext} to resolve resources.
      * @return the {@link HttpContext} for the given bundle.
      */
-    HttpContext createHttpContext(Bundle bundle);
+    HttpContext createDefaultHttpContext(Bundle bundle);
 
 }

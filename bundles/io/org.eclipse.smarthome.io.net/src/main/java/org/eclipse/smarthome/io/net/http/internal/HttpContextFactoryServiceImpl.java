@@ -22,8 +22,7 @@ import org.osgi.service.http.HttpService;
 /**
  * Create {@link HttpContext} instances when registering servlets, resources or filters using the
  * {@link HttpService#registerServlet} and corresponding methods.
- * The resulting {@link HttpContext} complies with the OSGi specification when it comes to resource resolving, see
- * https://www.knopflerfish.org/releases/6.0.0/docs/javadoc/org/osgi/service/http/HttpService.html#createDefaultHttpContext
+ * The resulting {@link HttpContext} complies with the OSGi specification when it comes to resource resolving.
  *
  * @author Henning Treu - initial contribution and API
  *
@@ -32,7 +31,7 @@ import org.osgi.service.http.HttpService;
 public class HttpContextFactoryServiceImpl implements HttpContextFactoryService {
 
     @Override
-    public HttpContext createHttpContext(Bundle bundle) {
+    public HttpContext createDefaultHttpContext(Bundle bundle) {
         return new DefaultHttpContext(bundle);
     }
 

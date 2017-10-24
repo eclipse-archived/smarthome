@@ -29,13 +29,13 @@ public class HttpContextFactoryServiceImplTest {
 
     @Test
     public void shouldCreateHttpContext() {
-        HttpContext context = httpContextFactoryService.createHttpContext(bundle);
+        HttpContext context = httpContextFactoryService.createDefaultHttpContext(bundle);
         assertThat(context, is(notNullValue()));
     }
 
     @Test
     public void httpContextShouldCallgetResourceOnBundle() {
-        HttpContext context = httpContextFactoryService.createHttpContext(bundle);
+        HttpContext context = httpContextFactoryService.createDefaultHttpContext(bundle);
         context.getResource(RESOURCE);
 
         verify(bundle).getResource(RESOURCE);
@@ -43,7 +43,7 @@ public class HttpContextFactoryServiceImplTest {
 
     @Test
     public void httpContextShouldCallgetResourceOnBundleWithoutLeadingSlash() {
-        HttpContext context = httpContextFactoryService.createHttpContext(bundle);
+        HttpContext context = httpContextFactoryService.createDefaultHttpContext(bundle);
         context.getResource("/" + RESOURCE);
 
         verify(bundle).getResource(RESOURCE);

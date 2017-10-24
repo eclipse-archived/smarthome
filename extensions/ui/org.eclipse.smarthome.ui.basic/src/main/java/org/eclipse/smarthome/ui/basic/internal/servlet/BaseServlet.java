@@ -61,7 +61,7 @@ public abstract class BaseServlet implements Servlet {
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext(Bundle bundle) {
-        return httpContextFactoryService.createHttpContext(bundle);
+        return httpContextFactoryService.createDefaultHttpContext(bundle);
     }
 
     @Override
