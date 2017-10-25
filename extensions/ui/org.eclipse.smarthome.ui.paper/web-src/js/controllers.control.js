@@ -331,9 +331,9 @@ angular.module('PaperUI.controllers.control', []) //
     $scope.setOn = function(state) {
         $scope.sendCommand(state);
     }
-}).controller('DimmerItemController', function($scope, $timeout, itemService) {
+}).controller('DimmerItemController', function($scope, $timeout) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
-        $scope.item.state = '-'
+        $scope.item.state = '-';
     }
 
     // state.switchState overcomes the new $scope from ng-if directive
@@ -342,26 +342,26 @@ angular.module('PaperUI.controllers.control', []) //
     }
 
     $scope.setSwitch = function(state) {
-        sendCommand(state ? 'ON' : 'OFF')
+        sendCommand(state ? 'ON' : 'OFF');
     }
 
     $scope.setBrightness = function(brightness) {
-        $scope.state.switchState = brightness > 0
-        sendCommand(brightness)
+        $scope.state.switchState = brightness > 0;
+        sendCommand(brightness);
     }
 
     var commandTimeout = undefined;
 
     var sendCommand = function(command) {
         if (commandTimeout) {
-            $timeout.cancel(commandTimeout)
+            $timeout.cancel(commandTimeout);
         }
 
         // send updates every 300 ms only
         commandTimeout = $timeout(function() {
-            $scope.sendCommand(command)
-            commandTimeout = undefined
-        }, 300)
+            $scope.sendCommand(command);
+            commandTimeout = undefined;
+        }, 300);
     }
 
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
