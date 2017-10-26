@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -28,7 +29,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
@@ -309,12 +309,12 @@ public final class Firmware implements Comparable<Firmware> {
     }
 
     private boolean hasSameThingType(Thing thing) {
-        return Objects.equal(this.getUID().getThingTypeUID(), thing.getThingTypeUID());
+        return Objects.equals(this.getUID().getThingTypeUID(), thing.getThingTypeUID());
     }
 
     private boolean hasRequiredModel(Thing thing) {
         if (isModelRestricted()) {
-            return Objects.equal(this.getModel(), thing.getProperties().get(PROPERTY_MODEL_ID));
+            return Objects.equals(this.getModel(), thing.getProperties().get(PROPERTY_MODEL_ID));
         } else {
             return true;
         }
