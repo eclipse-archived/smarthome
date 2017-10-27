@@ -25,6 +25,8 @@ import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException
+import org.eclipse.xtext.xbase.XMemberFeatureCall
+import org.eclipse.xtext.xbase.XFeatureCall
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -68,8 +70,15 @@ public class ScriptInterpreter extends XbaseInterpreter {
 	override protected invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall,
 		Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
 		if (feature != null && feature.eIsProxy) {
-			throw new RuntimeException(
-				"The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
+		    if (featureCall instanceof XMemberFeatureCall) {
+                throw new ScriptExecutionException(
+                    "'" + featureCall.getConcreteSyntaxFeatureName() + "' is not a member of '" + receiverObj?.getClass()?.getName() + "'.");
+		    } else if (featureCall instanceof XFeatureCall) {
+                throw new ScriptExecutionException(
+                    "The name '" + featureCall.getConcreteSyntaxFeatureName() + "' cannot be resolved to an item or type.");
+		    } else {
+                throw new ScriptExecutionException("Unknown variable or command '" + featureCall.getConcreteSyntaxFeatureName() + "'.");
+		    }
 		}
         super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
 	}
