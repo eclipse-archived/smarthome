@@ -230,8 +230,8 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
         firmwareUpdateThingHandlerFactory.activate([getBundleContext: { bundleContext }] as ComponentContext)
         registerService(firmwareUpdateThingHandlerFactory, ThingHandlerFactory.class.name)
 
-        thing1 = ThingBuilder.create(THING_TYPE_UID1, THING1_ID).withProperties([(Thing.PROPERTY_FIRMWARE_VERSION) : V111]).build()
-        thing2 = ThingBuilder.create(THING_TYPE_UID1, THING2_ID).withProperties([(Thing.PROPERTY_FIRMWARE_VERSION) : V112]).build()
+        thing1 = ThingBuilder.create(THING_TYPE_UID1, THING1_ID).withProperties([(Thing.PROPERTY_FIRMWARE_VERSION) : V111, (Thing.PROPERTY_MODEL_ID) : MODEL1]).build()
+        thing2 = ThingBuilder.create(THING_TYPE_UID1, THING2_ID).withProperties([(Thing.PROPERTY_FIRMWARE_VERSION) : V112, (Thing.PROPERTY_MODEL_ID) : MODEL2]).build()
         thing3 = ThingBuilder.create(THING_TYPE_UID2, THING3_ID).withProperties([(Thing.PROPERTY_FIRMWARE_VERSION) : VALPHA]).build()
 
         managedThingProvider.add(thing1)
@@ -725,7 +725,7 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that firmware update is rejected if firmware is not suitable for thing'() {
+    void 'assert that firmware update for a thing is rejected if firmware is for a different thing type'() {
         def firmwareProvider2 = [
             getFirmware: { firmwareUID, locale ->
                 if(firmwareUID.equals(FWALPHA_EN.getUID())) {
@@ -748,6 +748,34 @@ final class FirmwareUpdateServiceOSGiTest extends OSGiTest {
                 THING1_UID)))
 
         firmwareUpdateService.updateFirmware(THING1_UID, FWALPHA_EN.getUID(), null)
+    }
+
+    @Test
+    void 'assert that firmware update for a thing with some model is rejected if the firmware is restricted to another model'() {
+        def firmwareProvider2 = [
+            getFirmware: { firmwareUID, locale ->
+                if (firmwareUID.equals(FWALPHA_RESTRICTED_TO_MODEL2.getUID())) {
+                    FWALPHA_RESTRICTED_TO_MODEL2
+                } else {
+                    null
+                }
+            },
+            getFirmwares: { thingTypeUID, locale ->
+                if (thingTypeUID.equals(THING_TYPE_UID1)) {
+                    [
+                        FWALPHA_RESTRICTED_TO_MODEL2] as Set
+                } else {
+                    [] as Set
+                }
+            }] as FirmwareProvider
+
+        registerService(firmwareProvider2, FirmwareProvider.class.getName())
+
+        thrown.expect(IllegalArgumentException.class)
+        thrown.expectMessage(is(String.format("Firmware with UID %s is not suitable for thing with UID %s.", FWALPHA_RESTRICTED_TO_MODEL2.getUID(),
+                THING1_UID)))
+
+        firmwareUpdateService.updateFirmware(THING1_UID, FWALPHA_RESTRICTED_TO_MODEL2.getUID(), null)
     }
 
     @Test
