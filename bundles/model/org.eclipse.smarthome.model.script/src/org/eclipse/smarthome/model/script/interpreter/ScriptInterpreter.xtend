@@ -78,14 +78,14 @@ public class ScriptInterpreter extends XbaseInterpreter {
             if (featureCall instanceof XMemberFeatureCall) {
                 throw new ScriptExecutionException(new ScriptError(
                     "'" + featureCall.getConcreteSyntaxFeatureName() + "' is not a member of '" +
-                        receiverObj?.getClass()?.getName() + "'.", featureCall));
+                        receiverObj?.getClass()?.getName() + "'", featureCall));
             } else if (featureCall instanceof XFeatureCall) {
                 throw new ScriptExecutionException(new ScriptError(
                     "The name '" + featureCall.getConcreteSyntaxFeatureName() +
-                        "' cannot be resolved to an item or type.", featureCall));
+                        "' cannot be resolved to an item or type", featureCall));
             } else {
                 throw new ScriptExecutionException(new ScriptError(
-                    "Unknown variable or command '" + featureCall.getConcreteSyntaxFeatureName() + "'.", featureCall));
+                    "Unknown variable or command '" + featureCall.getConcreteSyntaxFeatureName() + "'", featureCall));
             }
         }
         super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
