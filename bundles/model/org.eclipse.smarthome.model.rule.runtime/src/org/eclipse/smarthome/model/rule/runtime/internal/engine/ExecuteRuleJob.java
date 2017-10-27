@@ -61,7 +61,7 @@ public class ExecuteRuleJob implements Job {
                     try {
                         script.execute(RuleContextHelper.getContext(rule, injector));
                     } catch (ScriptExecutionException e) {
-                        logger.error("Error during the execution of rule {}: {}", rule.getName(), e.getMessage());
+                        logger.error("Error during the execution of rule '{}': {}", rule.getName(), e.getMessage());
                     }
                 } else {
                     logger.debug("Scheduled rule '{}' does not exist", ruleName);
