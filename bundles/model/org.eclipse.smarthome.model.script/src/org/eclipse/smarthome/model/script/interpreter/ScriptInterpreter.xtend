@@ -19,10 +19,12 @@ import org.eclipse.xtext.common.types.JvmIdentifiableElement
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
+import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -69,7 +71,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			throw new RuntimeException(
 				"The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
 		}
-		super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
+        super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
 	}
 
 	def protected Type getStateOrCommand(String name) {
@@ -117,5 +119,19 @@ public class ScriptInterpreter extends XbaseInterpreter {
         }
         return super.doEvaluate(expression, context, indicator)
     }
+
+    override Object _doEvaluate(XCastedExpression castedExpression, IEvaluationContext context, CancelIndicator indicator) {
+        try {
+            return super._doEvaluate(castedExpression, context, indicator)
+        } catch (RuntimeException e) {
+            if (e.cause instanceof ClassCastException) {
+                val Object result = internalEvaluate(castedExpression.getTarget(), context, indicator);
+                throw new ScriptExecutionException("Could not cast " + result + " to " + castedExpression.getType().getType().getQualifiedName());
+            } else {
+                throw e;
+            }
+        }
+    }
+
 
 }
