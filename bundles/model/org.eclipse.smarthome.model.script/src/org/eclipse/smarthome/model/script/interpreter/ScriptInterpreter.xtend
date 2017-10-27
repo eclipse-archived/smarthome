@@ -8,25 +8,30 @@
 package org.eclipse.smarthome.model.script.interpreter;
 
 import com.google.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.types.Type
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException
 import org.eclipse.smarthome.model.script.lib.NumberExtensions
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmIdentifiableElement
 import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.nodemodel.INode
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.util.CancelIndicator
+import org.eclipse.xtext.util.LineAndColumn
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
+import org.eclipse.xtext.xbase.XFeatureCall
+import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
-import org.eclipse.smarthome.model.script.engine.ScriptExecutionException
-import org.eclipse.xtext.xbase.XMemberFeatureCall
-import org.eclipse.xtext.xbase.XFeatureCall
+import org.eclipse.smarthome.model.script.engine.ScriptError
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -71,18 +76,19 @@ public class ScriptInterpreter extends XbaseInterpreter {
 		Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
 		if (feature != null && feature.eIsProxy) {
 		    if (featureCall instanceof XMemberFeatureCall) {
-                throw new ScriptExecutionException(
-                    "'" + featureCall.getConcreteSyntaxFeatureName() + "' is not a member of '" + receiverObj?.getClass()?.getName() + "'.");
+                throw new ScriptExecutionException(new ScriptError(
+                    "'" + featureCall.getConcreteSyntaxFeatureName() + "' is not a member of '" + receiverObj?.getClass()?.getName() + "'.", featureCall));
 		    } else if (featureCall instanceof XFeatureCall) {
-                throw new ScriptExecutionException(
-                    "The name '" + featureCall.getConcreteSyntaxFeatureName() + "' cannot be resolved to an item or type.");
+                throw new ScriptExecutionException(new ScriptError(
+                    "The name '" + featureCall.getConcreteSyntaxFeatureName() + "' cannot be resolved to an item or type.", featureCall));
 		    } else {
-                throw new ScriptExecutionException("Unknown variable or command '" + featureCall.getConcreteSyntaxFeatureName() + "'.");
+                throw new ScriptExecutionException(new ScriptError(
+                    "Unknown variable or command '" + featureCall.getConcreteSyntaxFeatureName() + "'.", featureCall));
 		    }
 		}
         super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
 	}
-
+	
 	def protected Type getStateOrCommand(String name) {
 		for (Type type : stateAndCommandProvider.getAllTypes()) {
 			if (type.toString == name) {
@@ -135,7 +141,8 @@ public class ScriptInterpreter extends XbaseInterpreter {
         } catch (RuntimeException e) {
             if (e.cause instanceof ClassCastException) {
                 val Object result = internalEvaluate(castedExpression.getTarget(), context, indicator);
-                throw new ScriptExecutionException("Could not cast " + result + " to " + castedExpression.getType().getType().getQualifiedName());
+                throw new ScriptExecutionException(new ScriptError(
+                    "Could not cast " + result + " to " + castedExpression.getType().getType().getQualifiedName(), castedExpression));
             } else {
                 throw e;
             }
