@@ -17,16 +17,18 @@ public class FirmwareDTO {
     public final String firmwareUID;
     public final String vendor;
     public final String model;
+    public final boolean modelRestricted;
     public final String description;
     public final String version;
     public final String changelog;
     public final String prerequisiteVersion;
 
-    public FirmwareDTO(String firmwareUID, String vendor, String model, String description, String version,
-            String prerequisiteVersion, String changelog) {
+    public FirmwareDTO(String firmwareUID, String vendor, String model, boolean modelRestricted, String description,
+            String version, String prerequisiteVersion, String changelog) {
         this.firmwareUID = firmwareUID;
         this.vendor = vendor;
         this.model = model;
+        this.modelRestricted = modelRestricted;
         this.description = description;
         this.version = version;
         this.prerequisiteVersion = prerequisiteVersion;

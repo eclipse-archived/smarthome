@@ -94,7 +94,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private TranslationProvider i18nProvider;
     private LocaleProvider localeProvider;
 
-    private Runnable firmwareStatusRunnable = new Runnable() {
+    private final Runnable firmwareStatusRunnable = new Runnable() {
         @Override
         public void run() {
             logger.debug("Running firmware status check.");
@@ -103,8 +103,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
                     logger.debug("Executing firmware status check for thing with UID {}.",
                             firmwareUpdateHandler.getThing().getUID());
 
-                    Firmware latestFirmware = firmwareRegistry
-                            .getLatestFirmware(firmwareUpdateHandler.getThing().getThingTypeUID());
+                    Firmware latestFirmware = getLatestSuitableFirmware(firmwareUpdateHandler.getThing());
 
                     FirmwareStatusInfo newFirmwareStatusInfo = getFirmwareStatusInfo(firmwareUpdateHandler,
                             latestFirmware);
@@ -172,8 +171,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
             return null;
         }
 
-        Firmware latestFirmware = firmwareRegistry
-                .getLatestFirmware(firmwareUpdateHandler.getThing().getThingTypeUID());
+        Firmware latestFirmware = getLatestSuitableFirmware(firmwareUpdateHandler.getThing());
 
         FirmwareStatusInfo firmwareStatusInfo = getFirmwareStatusInfo(firmwareUpdateHandler, latestFirmware);
 
@@ -327,6 +325,11 @@ public final class FirmwareUpdateService implements EventSubscriber {
         return progressCallbackMap.get(thingUID);
     }
 
+    private Firmware getLatestSuitableFirmware(Thing thing) {
+        return firmwareRegistry.getFirmwares(thing.getThingTypeUID()).stream()
+                .filter(firmware -> firmware.isSuitableFor(thing)).findFirst().orElse(null);
+    }
+
     private FirmwareStatusInfo getFirmwareStatusInfo(FirmwareUpdateHandler firmwareUpdateHandler,
             Firmware latestFirmware) {
         String thingFirmwareVersion = getThingFirmwareVersion(firmwareUpdateHandler);
@@ -391,7 +394,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private void validateFirmwareSuitability(Firmware firmware, FirmwareUpdateHandler firmwareUpdateHandler) {
         Thing thing = firmwareUpdateHandler.getThing();
-        if (!firmware.getUID().getThingTypeUID().equals(thing.getThingTypeUID())) {
+        if (!firmware.isSuitableFor(thing)) {
             throw new IllegalArgumentException(String.format(
                     "Firmware with UID %s is not suitable for thing with UID %s.", firmware.getUID(), thing.getUID()));
         }
