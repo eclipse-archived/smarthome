@@ -18,6 +18,7 @@
 		<item-type>Dimmer</item-type>
 		<label>Dimmer</label>
 		<description>The dimmer channel allows to control the brightness.</description>
+		<category>DimmableLight</category>
 	</channel-type>
 
 	<channel-type id="color">

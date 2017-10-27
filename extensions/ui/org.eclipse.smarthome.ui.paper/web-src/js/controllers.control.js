@@ -331,46 +331,39 @@ angular.module('PaperUI.controllers.control', []) //
     $scope.setOn = function(state) {
         $scope.sendCommand(state);
     }
-}).controller('DimmerItemController', function($scope, $timeout, itemService) {
+}).controller('DimmerItemController', function($scope, $timeout) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
-    $scope.on = parseInt($scope.item.state) > 0 ? 'ON' : 'OFF';
 
-    $scope.setOn = function(on) {
-        $scope.on = on === 'ON' ? 'ON' : 'OFF';
-
-        $scope.sendCommand(on);
-
-        var brightness = parseInt($scope.item.state);
-        if (on === 'ON' && brightness === 0) {
-            $scope.item.state = 100;
-        }
-        if (on === 'OFF' && brightness > 0) {
-            $scope.item.state = 0;
-        }
+    // state.switchState overcomes the new $scope from ng-if directive
+    $scope.state = {
+        switchState : parseInt($scope.item.state) > 0
     }
-    $scope.pending = false;
+
+    $scope.setSwitch = function(state) {
+        sendCommand(state ? 'ON' : 'OFF');
+    }
+
     $scope.setBrightness = function(brightness) {
-        // send updates every 300 ms only
-        if (!$scope.pending) {
-            $timeout(function() {
-                var command = $scope.item.state === 0 ? '0' : $scope.item.state;
-                $scope.sendCommand(command);
-                $scope.pending = false;
-            }, 300);
-            $scope.pending = true;
-        }
+        $scope.state.switchState = brightness > 0;
+        sendCommand(brightness);
     }
-    $scope.$watch('item.state', function() {
-        var brightness = parseInt($scope.item.state);
-        if (brightness > 0 && $scope.on === 'OFF') {
-            $scope.on = 'ON';
+
+    var commandTimeout = undefined;
+
+    var sendCommand = function(command) {
+        if (commandTimeout) {
+            $timeout.cancel(commandTimeout);
         }
-        if (brightness === 0 && $scope.on === 'ON') {
-            $scope.on = 'OFF';
-        }
-    });
+
+        // send updates every 300 ms only
+        commandTimeout = $timeout(function() {
+            $scope.sendCommand(command);
+            commandTimeout = undefined;
+        }, 300);
+    }
+
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
 
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
