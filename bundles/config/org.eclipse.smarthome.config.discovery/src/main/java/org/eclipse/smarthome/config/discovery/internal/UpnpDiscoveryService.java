@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import java.util.Collection;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -19,16 +20,11 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.jupnp.UpnpService;
-import org.jupnp.model.meta.LocalDevice;
-import org.jupnp.model.meta.RemoteDevice;
-import org.jupnp.registry.Registry;
-import org.jupnp.registry.RegistryListener;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,24 +34,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - Added call of removeOlderResults
- *
+ * @author Amit Kumar Mondal - Extracted Registry Listener due to JUPnP optional dependencies
  */
-@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
-public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
-
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp", property = "serviceType=upnp")
+public class UpnpDiscoveryService extends AbstractDiscoveryService {
+    
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
-    private Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
+    private UpnpDiscoveryRegistryListener discoveryRegistryListener;
+    private ComponentContext context;
+    private final AtomicBoolean isComponentEnabled = new AtomicBoolean();;
 
     public UpnpDiscoveryService() {
         super(5);
     }
 
-    private UpnpService upnpService;
-
-    @Override
-    protected void activate(Map<String, Object> configProperties) {
+    @Activate
+    protected void activate(ComponentContext context, Map<String, Object> configProperties) {
         super.activate(configProperties);
+        this.context = context;
         startScan();
     }
 
@@ -65,125 +62,98 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         super.modified(configProperties);
     }
 
-    @Reference
-    protected void setUpnpService(UpnpService upnpService) {
-        this.upnpService = upnpService;
+    @Reference(cardinality = OPTIONAL)
+    protected void setUpnpDiscoveryRegistryListener(UpnpDiscoveryRegistryListener discoveryRegistryListener) {
+        this.discoveryRegistryListener = discoveryRegistryListener;
     }
 
-    protected void unsetUpnpService(UpnpService upnpService) {
-        this.upnpService = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
-    protected void addUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
-        this.participants.add(participant);
-
-        if (upnpService != null) {
-            Collection<RemoteDevice> devices = upnpService.getRegistry().getRemoteDevices();
-            for (RemoteDevice device : devices) {
-                DiscoveryResult result = participant.createResult(device);
-                if (result != null) {
-                    thingDiscovered(result);
-                }
-            }
-        }
-    }
-
-    protected void removeUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
-        this.participants.remove(participant);
+    protected void unsetUpnpDiscoveryRegistryListener(UpnpDiscoveryRegistryListener discoveryRegistryListener) {
+        this.discoveryRegistryListener = null;
     }
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
-        for (UpnpDiscoveryParticipant participant : participants) {
-            supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
+        if (isComponentEnabled.get()) {
+            for (UpnpDiscoveryParticipant participant : discoveryRegistryListener.getParticipants()) {
+                supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
+            }
         }
         return supportedThingTypes;
     }
 
     @Override
     protected void startBackgroundDiscovery() {
-        upnpService.getRegistry().addListener(this);
+        if (isComponentEnabled.get()) {
+            discoveryRegistryListener.addRegistryListener();
+        } else if (areDependenciesAvailable()) {
+            enableComponent();
+            discoveryRegistryListener.addRegistryListener();
+        }
     }
 
     @Override
     protected void stopBackgroundDiscovery() {
-        upnpService.getRegistry().removeListener(this);
+        if (isComponentEnabled.get()) {
+            discoveryRegistryListener.removeRegistryListener();
+        }
     }
 
     @Override
     protected void startScan() {
-        for (RemoteDevice device : upnpService.getRegistry().getRemoteDevices()) {
-            remoteDeviceAdded(upnpService.getRegistry(), device);
-        }
-        upnpService.getRegistry().addListener(this);
-        upnpService.getControlPoint().search();
-    }
-
-    @Override
-    protected synchronized void stopScan() {
-        removeOlderResults(getTimestampOfLastScan());
-        super.stopScan();
-        if (!isBackgroundDiscoveryEnabled()) {
-            upnpService.getRegistry().removeListener(this);
+        if (isComponentEnabled.get()) {
+            discoveryRegistryListener.upnpDeviceSearch();
+        } else if (areDependenciesAvailable()) {
+            enableComponent();
+            discoveryRegistryListener.upnpDeviceSearch();
         }
     }
 
     @Override
-    public void remoteDeviceAdded(Registry registry, RemoteDevice device) {
-        for (UpnpDiscoveryParticipant participant : participants) {
-            try {
-                DiscoveryResult result = participant.createResult(device);
-                if (result != null) {
-                    thingDiscovered(result);
-                }
-            } catch (Exception e) {
-                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+    protected void stopScan() {
+        if (isComponentEnabled.get()) {
+            removeOlderResults(getTimestampOfLastScan());
+            super.stopScan();
+            if (!isBackgroundDiscoveryEnabled()) {
+                discoveryRegistryListener.removeRegistryListener();
             }
         }
     }
 
     @Override
-    public void remoteDeviceRemoved(Registry registry, RemoteDevice device) {
-        for (UpnpDiscoveryParticipant participant : participants) {
-            try {
-                ThingUID thingUID = participant.getThingUID(device);
-                if (thingUID != null) {
-                    thingRemoved(thingUID);
-                }
-            } catch (Exception e) {
-                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
-            }
+    public void thingDiscovered(DiscoveryResult discoveryResult) {
+        super.thingDiscovered(discoveryResult);
+    }
+
+    @Override
+    public void thingRemoved(ThingUID thingUID) {
+        super.thingRemoved(thingUID);
+    }
+
+    /**
+     * Checks for JUPnP dependencies that are specified as optional
+     * dependencies to this bundle. Before operating on the class
+     * that might not be available any point of time, it is required
+     * to check its availability in the runtime.
+     * 
+     * @return {@code true} if all the JUPnP optional dependencies are available, otherwise {@code false}
+     */
+    private boolean areDependenciesAvailable() {
+        try {
+            Class.forName("org.jupnp.registry.RegistryListener");
+            Class.forName("org.jupnp.UpnpService");
+            Class.forName("org.jupnp.model.meta.LocalDevice");
+            return true;
+        } catch (ClassNotFoundException ex) {
+            logger.warn("Cannot locate JUPnP Optional Dependency in runtime", ex);
+            return false;
         }
     }
 
-    @Override
-    public void remoteDeviceUpdated(Registry registry, RemoteDevice device) {
-    }
-
-    @Override
-    public void localDeviceAdded(Registry registry, LocalDevice device) {
-    }
-
-    @Override
-    public void localDeviceRemoved(Registry registry, LocalDevice device) {
-    }
-
-    @Override
-    public void beforeShutdown(Registry registry) {
-    }
-
-    @Override
-    public void afterShutdown() {
-    }
-
-    @Override
-    public void remoteDeviceDiscoveryStarted(Registry registry, RemoteDevice device) {
-    }
-
-    @Override
-    public void remoteDeviceDiscoveryFailed(Registry registry, RemoteDevice device, Exception ex) {
+    private void enableComponent() {
+        if (isComponentEnabled.compareAndSet(false, true)) {
+            context.enableComponent("UpnpDiscoveryRegistryListener");
+        }
     }
 
 }
