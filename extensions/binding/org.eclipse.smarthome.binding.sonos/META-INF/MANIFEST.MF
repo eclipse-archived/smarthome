@@ -13,6 +13,7 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.upnp,
  org.eclipse.smarthome.core.audio,
  org.eclipse.smarthome.core.audio.utils,
  org.eclipse.smarthome.core.common.registry,
