@@ -19,42 +19,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link BaseChannel} represents a basic DMX channel
+ * The {@link BaseDmxChannel} represents a basic DMX channel
  *
  * @author Jan N. Klug - Initial contribution
  */
 
-public class BaseChannel implements Comparable<BaseChannel> {
+public class BaseDmxChannel implements Comparable<BaseDmxChannel> {
     public static final int MIN_CHANNEL_ID = 1;
     public static final int MAX_CHANNEL_ID = 512;
 
     protected static final Pattern CHANNEL_PATTERN = Pattern.compile("^(\\d*(?=:))?:?(\\d*)\\/?(\\d*)?$");
 
     // this static declaration is needed because of the static fromString method
-    private static final Logger logger = LoggerFactory.getLogger(BaseChannel.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseDmxChannel.class);
 
-    private int universeId, channelId;
+    private int universeId;
+    private final int dmxChannelId;
 
     /**
      * BaseChannel object
      *
      * @param universeId integer for DMX universe
-     * @param channelId integer for DMX channel
+     * @param dmxChannelId integer for DMX channel
      */
-    public BaseChannel(int universeId, int channelId) {
+    public BaseDmxChannel(int universeId, int dmxChannelId) {
         this.universeId = universeId;
-        this.channelId = Util.coerceToRange(channelId, MIN_CHANNEL_ID, MAX_CHANNEL_ID, logger, "channelId");
+        this.dmxChannelId = Util.coerceToRange(dmxChannelId, MIN_CHANNEL_ID, MAX_CHANNEL_ID, logger, "channelId");
     }
 
     /**
      * copy constructor
      *
-     * @param channel a BaseChannel object
+     * @param dmxChannel a BaseChannel object
      */
-    public BaseChannel(BaseChannel channel) {
-        this.universeId = channel.getUniverseId();
-        this.channelId = channel.getChannelId();
-        logger.trace("created DMX channel {} in universe {} ", channelId, universeId);
+    public BaseDmxChannel(BaseDmxChannel dmxChannel) {
+        this.universeId = dmxChannel.getUniverseId();
+        this.dmxChannelId = dmxChannel.getChannelId();
+        logger.trace("created DMX channel {} in universe {} ", dmxChannelId, universeId);
     }
 
     /**
@@ -63,7 +64,7 @@ public class BaseChannel implements Comparable<BaseChannel> {
      * @return a integer for the DMX channel
      */
     public int getChannelId() {
-        return channelId;
+        return dmxChannelId;
     }
 
     /**
@@ -85,13 +86,13 @@ public class BaseChannel implements Comparable<BaseChannel> {
     }
 
     @Override
-    public int compareTo(BaseChannel otherChannel) {
-        if (otherChannel == null) {
+    public int compareTo(BaseDmxChannel otherDmxChannel) {
+        if (otherDmxChannel == null) {
             return -1;
         }
-        int universeCompare = new Integer(getUniverseId()).compareTo(new Integer(otherChannel.getUniverseId()));
+        int universeCompare = new Integer(getUniverseId()).compareTo(new Integer(otherDmxChannel.getUniverseId()));
         if (universeCompare == 0) {
-            return new Integer(getChannelId()).compareTo(new Integer(otherChannel.getChannelId()));
+            return new Integer(getChannelId()).compareTo(new Integer(otherDmxChannel.getChannelId()));
         } else {
             return universeCompare;
         }
@@ -99,37 +100,37 @@ public class BaseChannel implements Comparable<BaseChannel> {
 
     @Override
     public String toString() {
-        return universeId + ":" + channelId;
+        return universeId + ":" + dmxChannelId;
     }
 
     /**
      * parse a BaseChannel list from string
      *
-     * @param channelString channel string in format [universe:]channel[/width],...
+     * @param dmxChannelString channel string in format [universe:]channel[/width],...
      * @param defaultUniverseId default id to use if universe not specified
      * @return a List of BaseChannels
      */
-    public static List<BaseChannel> fromString(String channelString, int defaultUniverseId)
+    public static List<BaseDmxChannel> fromString(String dmxChannelString, int defaultUniverseId)
             throws IllegalArgumentException {
-        List<BaseChannel> channels = new ArrayList<BaseChannel>();
+        List<BaseDmxChannel> dmxChannels = new ArrayList<BaseDmxChannel>();
 
-        Stream.of(channelString.split(",")).forEach(singleChannelString -> {
-            int channelId, channelWidth;
-            Matcher channelMatch = CHANNEL_PATTERN.matcher(singleChannelString);
+        Stream.of(dmxChannelString.split(",")).forEach(singleDmxChannelString -> {
+            int dmxChannelId, dmxChannelWidth;
+            Matcher channelMatch = CHANNEL_PATTERN.matcher(singleDmxChannelString);
             if (channelMatch.matches()) {
                 final int universeId = (channelMatch.group(1) == null) ? defaultUniverseId
                         : Integer.valueOf(channelMatch.group(1));
-                channelWidth = channelMatch.group(3).equals("") ? 1 : Integer.valueOf(channelMatch.group(3));
-                channelId = Integer.valueOf(channelMatch.group(2));
-                logger.trace("parsed channel string {} to universe {}, id {}, width {}", singleChannelString,
-                        universeId, channelId, channelWidth);
-                IntStream.range(channelId, channelId + channelWidth)
-                        .forEach(c -> channels.add(new BaseChannel(universeId, c)));
+                dmxChannelWidth = channelMatch.group(3).equals("") ? 1 : Integer.valueOf(channelMatch.group(3));
+                dmxChannelId = Integer.valueOf(channelMatch.group(2));
+                logger.trace("parsed channel string {} to universe {}, id {}, width {}", singleDmxChannelString,
+                        universeId, dmxChannelId, dmxChannelWidth);
+                IntStream.range(dmxChannelId, dmxChannelId + dmxChannelWidth)
+                        .forEach(c -> dmxChannels.add(new BaseDmxChannel(universeId, c)));
             } else {
-                throw new IllegalArgumentException("invalid channel definition" + singleChannelString);
+                throw new IllegalArgumentException("invalid channel definition" + singleDmxChannelString);
             }
         });
 
-        return channels;
+        return dmxChannels;
     }
 }

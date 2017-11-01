@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal.action;
 
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.Channel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 
 /**
  * Resume action. Restores previously suspended value or actions on an item.
@@ -18,7 +18,8 @@ import org.eclipse.smarthome.binding.dmx.internal.multiverse.Channel;
 public class ResumeAction extends BaseAction {
 
     @Override
-    public int getNewValue(Channel channel, long currentTime) {
+    public int getNewValue(DmxChannel channel, long currentTime) {
+        state = ActionState.COMPLETED;
         channel.resumeAction();
         return channel.getNewHiResValue(currentTime);
     }
