@@ -1,14 +1,8 @@
-/**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
-package org.eclipse.smarthome.config.discovery;
+package org.eclipse.smarthome.config.discovery.upnp;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.RemoteDevice;
@@ -19,10 +13,8 @@ import org.jupnp.model.meta.RemoteDevice;
  * UPnP scans.
  *
  * @author Kai Kreuzer - Initial contribution
- * @deprecated use org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant instead.
  *
  */
-@Deprecated
 public interface UpnpDiscoveryParticipant {
 
     /**
