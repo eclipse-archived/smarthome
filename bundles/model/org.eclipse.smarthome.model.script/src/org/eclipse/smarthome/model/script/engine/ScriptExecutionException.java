@@ -21,6 +21,10 @@ public class ScriptExecutionException extends ScriptException {
         super(message, null, line, column, length);
     }
 
+    public ScriptExecutionException(final ScriptError scriptError) {
+        super(scriptError);
+    }
+
     public ScriptExecutionException(final String message, final Throwable cause, final int line, final int column,
             final int length) {
         super(cause, message, null, line, column, length);
