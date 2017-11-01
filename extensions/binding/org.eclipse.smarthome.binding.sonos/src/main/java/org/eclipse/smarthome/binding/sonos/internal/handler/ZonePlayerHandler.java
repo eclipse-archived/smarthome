@@ -683,10 +683,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CURRENTALBUMART:
                 url = getAlbumArtUrl();
                 if (url != null) {
-                    RawType image = HttpUtil.downloadImage(url, true, 500000);
-                    if (image != null) {
-                        newState = image;
-                    }
+                    // We run the update of the covert art channel in a different thread
+                    // because it can take time
+                    newState = null;
+                    scheduler.submit(() -> {
+                        RawType image = HttpUtil.downloadImage(url, true, 500000);
+                        if (image != null) {
+                            updateState(channeldD, image);
+                        }
+                    });
                 }
                 break;
             case CURRENTALBUMARTURL:
@@ -1765,8 +1770,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true
-                : false;
+                ? true : false;
     }
 
     public String getRepeatMode() {
