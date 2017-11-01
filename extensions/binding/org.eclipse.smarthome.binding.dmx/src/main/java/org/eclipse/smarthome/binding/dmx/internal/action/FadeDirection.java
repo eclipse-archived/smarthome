@@ -13,6 +13,6 @@ package org.eclipse.smarthome.binding.dmx.internal.action;
  * @author Jan N. Klug
  */
 enum FadeDirection {
-    up,
-    down
+    UP,
+    DOWN
 }

@@ -72,7 +72,7 @@ public class FadeAction extends BaseAction {
 
         if (startTime == 0) {
             startTime = currentTime;
-            state = ActionState.running;
+            state = ActionState.RUNNING;
 
             if (fadeTime != 0) {
                 startValue = channel.getHiResValue();
@@ -81,10 +81,10 @@ public class FadeAction extends BaseAction {
                 if (startValue == targetValue) {
                     stepDuration = 1;
                 } else if (startValue > targetValue) {
-                    fadeDirection = FadeDirection.down;
+                    fadeDirection = FadeDirection.DOWN;
                     stepDuration = (float) fadeTime / (startValue - targetValue);
                 } else {
-                    fadeDirection = FadeDirection.up;
+                    fadeDirection = FadeDirection.UP;
                     stepDuration = (float) fadeTime / (targetValue - startValue);
                 }
             } else {
@@ -101,7 +101,7 @@ public class FadeAction extends BaseAction {
             }
             int currentStep = (int) (duration / stepDuration);
 
-            if (fadeDirection == FadeDirection.up) {
+            if (fadeDirection == FadeDirection.UP) {
                 newValue = startValue + currentStep;
                 if (newValue > targetValue) {
                     newValue = targetValue;
@@ -122,10 +122,10 @@ public class FadeAction extends BaseAction {
                 if (((holdTime > 0 || fadeTime > 0) && (duration >= fadeTime + holdTime))
                         || (holdTime == 0 && fadeTime == 0)) {
                     // mark action as completed
-                    state = ActionState.completed;
+                    state = ActionState.COMPLETED;
                 }
             } else {
-                state = ActionState.completedfinal;
+                state = ActionState.COMPLETEDFINAL;
             }
         }
 

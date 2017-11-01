@@ -18,8 +18,8 @@ package org.eclipse.smarthome.binding.dmx.internal.action;
  * @author Jan N. Klug
  */
 public enum ActionState {
-    waiting,
-    running,
-    completed,
-    completedfinal
+    WAITING,
+    RUNNING,
+    COMPLETED,
+    COMPLETEDFINAL
 }

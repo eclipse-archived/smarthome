@@ -17,7 +17,7 @@ import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
  */
 public abstract class BaseAction {
 
-    protected ActionState state = ActionState.waiting;
+    protected ActionState state = ActionState.WAITING;
     protected long startTime = 0;
 
     /**
@@ -41,7 +41,7 @@ public abstract class BaseAction {
      */
     public void reset() {
         startTime = 0;
-        state = ActionState.waiting;
+        state = ActionState.WAITING;
     }
 
 }

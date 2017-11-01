@@ -34,15 +34,15 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(0));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime / 2), is(256 * testValue / 2));
         assertThat(fadeAction.getNewValue(testChannel, startTime + 1000), is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.completed));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
     @Test
@@ -53,20 +53,20 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(0));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime / 2), is(256 * testValue / 2));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime + testHoldTime / 2),
                 is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime + testHoldTime), is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.completed));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
     @Test
@@ -77,15 +77,15 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(0));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime / 2), is(256 * testValue / 2));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completedfinal));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETEDFINAL));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
     @Test
@@ -96,16 +96,16 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testHoldTime / 2), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.running));
+        assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testHoldTime), is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.completed));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
     @Test
@@ -116,12 +116,12 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.completed));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
     @Test
@@ -132,12 +132,12 @@ public class FadeActionTest {
 
         long startTime = System.currentTimeMillis();
 
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completedfinal));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETEDFINAL));
 
         fadeAction.reset();
-        assertThat(fadeAction.getState(), is(ActionState.waiting));
+        assertThat(fadeAction.getState(), is(ActionState.WAITING));
     }
 
 }

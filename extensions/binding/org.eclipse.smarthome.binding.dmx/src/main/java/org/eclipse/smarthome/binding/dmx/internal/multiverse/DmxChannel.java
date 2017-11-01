@@ -254,9 +254,9 @@ public class DmxChannel extends BaseDmxChannel {
         if (hasRunningActions()) {
             BaseAction action = actions.get(0);
             value = action.getNewValue(this, calculationTime);
-            if (ActionState.completed.equals(action.getState())) {
+            if (action.getState() == ActionState.COMPLETED) {
                 switchToNextAction();
-            } else if (ActionState.completedfinal.equals(action.getState())) {
+            } else if (action.getState() == ActionState.COMPLETEDFINAL) {
                 clearAction();
             }
         }
