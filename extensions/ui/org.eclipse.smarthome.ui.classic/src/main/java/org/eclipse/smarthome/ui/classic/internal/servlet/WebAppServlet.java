@@ -36,6 +36,7 @@ import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class WebAppServlet extends BaseServlet {
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
-    private WebAppConfig config = new WebAppConfig();
+    private final WebAppConfig config = new WebAppConfig();
 
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
@@ -78,11 +79,12 @@ public class WebAppServlet extends BaseServlet {
         this.renderer = renderer;
     }
 
-    protected void activate(Map<String, Object> configProps) {
+    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         config.applyConfig(configProps);
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
+                    createHttpContext(bundleContext.getBundle()));
             httpService.registerResources(WEBAPP_ALIAS, "web", null);
             logger.info("Started Classic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
         } catch (NamespaceException e) {

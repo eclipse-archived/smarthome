@@ -27,6 +27,7 @@ import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.basic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class WebAppServlet extends BaseServlet {
 
     private PageRenderer renderer;
     private SitemapSubscriptionService subscriptions;
-    private WebAppConfig config = new WebAppConfig();
+    private final WebAppConfig config = new WebAppConfig();
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
     public void setSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
@@ -75,12 +76,13 @@ public class WebAppServlet extends BaseServlet {
         this.renderer = renderer;
     }
 
-    protected void activate(Map<String, Object> configProps) {
+    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         config.applyConfig(configProps);
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
-            httpService.registerResources(WEBAPP_ALIAS, "web", null);
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
+                    createHttpContext(bundleContext.getBundle()));
+            httpService.registerResources(WEBAPP_ALIAS, "web", createHttpContext(bundleContext.getBundle()));
             logger.info("Started Basic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);
