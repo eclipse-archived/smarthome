@@ -809,11 +809,15 @@ section#blog .section-header {
 }
 
 body section#blog {
-	padding: 0;
+    padding: 0;    
+}
+
+body .card .card-content p {
+    margin: 0px 0px 10px 0px;
 }
 
 body section#blog .parallax-container {
-	height: 300px;
+    height: 300px;
 }
 
 body section#blog .parallax-container #headline {
@@ -830,4 +834,14 @@ body.documentation .icons figure {
     text-align: center;
     font-size: 0.7em;
     margin: 10px 8px;
+}
+
+.white-text a { 
+	color: #9ee8ff; 
+}
+
+.img-responsive {
+    max-width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
