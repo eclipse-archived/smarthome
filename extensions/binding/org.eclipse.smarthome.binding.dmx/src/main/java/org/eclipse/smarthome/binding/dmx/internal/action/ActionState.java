@@ -8,11 +8,18 @@
 package org.eclipse.smarthome.binding.dmx.internal.action;
 
 /**
- * The {@link FadeDirection} gives the direction for fading
+ * The {@link ActionState} gives the state of an action
+ *
+ * waiting : not started yet
+ * running : action is running
+ * completed : action has completed, proceed to next action
+ * completedfinal : action has completed, hold here
  *
  * @author Jan N. Klug
  */
-enum FadeDirection {
-    UP,
-    DOWN
+public enum ActionState {
+    WAITING,
+    RUNNING,
+    COMPLETED,
+    COMPLETEDFINAL
 }

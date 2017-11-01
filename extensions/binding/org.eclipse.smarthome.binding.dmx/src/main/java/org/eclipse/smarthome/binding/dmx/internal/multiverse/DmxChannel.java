@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
+import org.eclipse.smarthome.binding.dmx.internal.action.ActionState;
 import org.eclipse.smarthome.binding.dmx.internal.action.BaseAction;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -25,17 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link Channel} extends {@link BaseChannel} with actions and values
+ * The {@link DmxChannel} extends {@link BaseDmxChannel} with actions and values
  * handlers.
  *
  * @author Jan N. Klug - Initial contribution
  * @author Davy Vanherbergen
  */
-public class Channel extends BaseChannel {
+public class DmxChannel extends BaseDmxChannel {
     public static final int MIN_VALUE = 0;
     public static final int MAX_VALUE = 255;
 
-    private final Logger logger = LoggerFactory.getLogger(Channel.class);
+    private final Logger logger = LoggerFactory.getLogger(DmxChannel.class);
 
     private int value = MIN_VALUE;
     private int suspendedValue = MIN_VALUE;
@@ -44,20 +45,20 @@ public class Channel extends BaseChannel {
     private boolean isSuspended;
     private long lastStateTimestamp = 0;
 
-    private List<BaseAction> actions = new ArrayList<BaseAction>();
-    private List<BaseAction> suspendedActions = new ArrayList<BaseAction>();
-    private List<Thing> registeredThings = new ArrayList<Thing>();
+    private final List<BaseAction> actions = new ArrayList<BaseAction>();
+    private final List<BaseAction> suspendedActions = new ArrayList<BaseAction>();
+    private final List<Thing> registeredThings = new ArrayList<Thing>();
 
-    private HashMap<ChannelUID, DmxThingHandler> onOffListeners = new HashMap<ChannelUID, DmxThingHandler>();
-    private HashMap<ChannelUID, DmxThingHandler> valueListeners = new HashMap<ChannelUID, DmxThingHandler>();
+    private final HashMap<ChannelUID, DmxThingHandler> onOffListeners = new HashMap<ChannelUID, DmxThingHandler>();
+    private final HashMap<ChannelUID, DmxThingHandler> valueListeners = new HashMap<ChannelUID, DmxThingHandler>();
     private Entry<ChannelUID, DmxThingHandler> actionListener = null;
 
-    public Channel(int universeId, int channelId) {
-        super(universeId, channelId);
+    public DmxChannel(int universeId, int dmxChannelId) {
+        super(universeId, dmxChannelId);
     }
 
-    public Channel(BaseChannel channel) {
-        super(channel);
+    public DmxChannel(BaseDmxChannel dmxChannel) {
+        super(dmxChannel);
     }
 
     /**
@@ -67,7 +68,7 @@ public class Channel extends BaseChannel {
      */
     public void registerThing(Thing thing) {
         if (!registeredThings.contains(thing)) {
-            logger.debug("registering {} from Channel {}", thing, this);
+            logger.debug("registering {} for DMX Channel {}", thing, this);
             registeredThings.add(thing);
         }
     }
@@ -79,13 +80,13 @@ public class Channel extends BaseChannel {
      */
     public void unregisterThing(Thing thing) {
         if (registeredThings.contains(thing)) {
-            logger.debug("removing {} from Channel {}", thing, this);
+            logger.debug("removing {} from DMX Channel {}", thing, this);
             registeredThings.remove(thing);
         }
     }
 
     /**
-     * check if Channel has any registered objects
+     * check if DMX Channel has any registered objects
      *
      * @return true or false
      */
@@ -94,27 +95,27 @@ public class Channel extends BaseChannel {
     }
 
     /**
-     * set a channel value
+     * set a DMX channel value
      *
      * @param value Integer value (0-255)
      */
     public void setValue(int value) {
         this.value = Util.toDmxValue(value) << 8;
-        logger.trace("set channel {} to value {}", this, this.value >> 8);
+        logger.trace("set dmx channel {} to value {}", this, this.value >> 8);
     }
 
     /**
-     * set a channel value
+     * set a DMX channel value
      *
      * @param value PercentType (0-100)
      */
     public void setValue(PercentType value) {
         this.value = Util.toDmxValue(value) << 8;
-        logger.trace("set channel {} to value {}", this, this.value >> 8);
+        logger.trace("set dmx channel {} to value {}", this, this.value >> 8);
     }
 
     /**
-     * get the value of this channel
+     * get the value of this DMX channel
      *
      * @return value as Integer (0-255)
      */
@@ -123,7 +124,7 @@ public class Channel extends BaseChannel {
     }
 
     /**
-     * get the value of this channel
+     * get the high resolution value of this DMX channel
      *
      * @return value as Integer (0-65535)
      */
@@ -140,7 +141,7 @@ public class Channel extends BaseChannel {
         suspendedActions.clear();
         suspendedActions.addAll(actions);
         if (isSuspended) {
-            logger.info("second suspend for actions in channel {}, previous will be lost", this);
+            logger.info("second suspend for actions in DMX channel {}, previous will be lost", this);
         } else {
             logger.trace("suspending actions for channel {}", this);
         }
@@ -159,9 +160,9 @@ public class Channel extends BaseChannel {
                 value = suspendedValue;
             }
             isSuspended = false;
-            logger.trace("resuming suspended actions for channel {}", this);
+            logger.trace("resuming suspended actions for DMX channel {}", this);
         } else {
-            throw new IllegalStateException("trying to resume actions in non-suspended channel " + this.toString());
+            throw new IllegalStateException("trying to resume actions in non-suspended DMX channel " + this.toString());
         }
     }
 
@@ -178,7 +179,7 @@ public class Channel extends BaseChannel {
      * clear all running actions
      */
     public synchronized void clearAction() {
-        logger.trace("clearing all actions for channel {}", this);
+        logger.trace("clearing all actions for DMX channel {}", this);
         actions.clear();
         // remove action listener
         if (actionListener != null) {
@@ -196,7 +197,7 @@ public class Channel extends BaseChannel {
     public synchronized void setChannelAction(BaseAction channelAction) {
         clearAction();
         actions.add(channelAction);
-        logger.trace("set action {} for channel {}", channelAction, this);
+        logger.trace("set action {} for DMX channel {}", channelAction, this);
     }
 
     /**
@@ -253,8 +254,10 @@ public class Channel extends BaseChannel {
         if (hasRunningActions()) {
             BaseAction action = actions.get(0);
             value = action.getNewValue(this, calculationTime);
-            if (action.isCompleted()) {
+            if (action.getState() == ActionState.COMPLETED) {
                 switchToNextAction();
+            } else if (action.getState() == ActionState.COMPLETEDFINAL) {
+                clearAction();
             }
         }
 
@@ -329,20 +332,20 @@ public class Channel extends BaseChannel {
         if (onOffListeners.containsKey(thingChannel)) {
             onOffListeners.remove(thingChannel);
             foundListener = true;
-            logger.debug("removing ONOFF listener {} from channel {}", thingChannel, this);
+            logger.debug("removing ONOFF listener {} from DMX channel {}", thingChannel, this);
         }
         if (valueListeners.containsKey(thingChannel)) {
             valueListeners.remove(thingChannel);
             foundListener = true;
-            logger.debug("removing VALUE listener {} from channel {}", thingChannel, this);
+            logger.debug("removing VALUE listener {} from DMX channel {}", thingChannel, this);
         }
         if (actionListener != null && actionListener.getKey().equals(thingChannel)) {
             actionListener = null;
             foundListener = true;
-            logger.debug("removing ACTION listener {} from channel {}", thingChannel, this);
+            logger.debug("removing ACTION listener {} from DMX channel {}", thingChannel, this);
         }
         if (!foundListener) {
-            logger.trace("listener {} not found in channel {}", thingChannel, this);
+            logger.trace("listener {} not found in DMX channel {}", thingChannel, this);
         }
     }
 

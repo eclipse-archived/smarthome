@@ -33,11 +33,11 @@ public class Universe {
     private int bufferSize = MIN_UNIVERSE_SIZE;
 
     private short[] buffer = new short[MAX_UNIVERSE_SIZE];
-    private short[] cie1931Curve = new short[Channel.MAX_VALUE << 8 + 1];
+    private short[] cie1931Curve = new short[DmxChannel.MAX_VALUE << 8 + 1];
 
     private long bufferChanged;
 
-    private List<Channel> channels = new ArrayList<Channel>();
+    private List<DmxChannel> channels = new ArrayList<DmxChannel>();
     private List<Integer> applyCurve = new ArrayList<Integer>();
 
     /**
@@ -60,19 +60,19 @@ public class Universe {
     /**
      * register a channel in the universe, create if not existing
      *
-     * @param channel the channel represented by a {@link BaseChannel} object
+     * @param channel the channel represented by a {@link BaseDmxChannel} object
      * @param thing the thing to register this channel to
      * @return a full featured channel
      */
-    public synchronized Channel registerChannel(BaseChannel baseChannel, Thing thing) {
-        for (Channel channel : channels) {
+    public synchronized DmxChannel registerChannel(BaseDmxChannel baseChannel, Thing thing) {
+        for (DmxChannel channel : channels) {
             if (baseChannel.compareTo(channel) == 0) {
                 logger.trace("returning existing channel {}", channel);
                 channel.registerThing(thing);
                 return channel;
             }
         }
-        Channel channel = new Channel(baseChannel);
+        DmxChannel channel = new DmxChannel(baseChannel);
         addChannel(channel);
         channel.registerThing(thing);
         logger.debug("creating and returning channel {}", channel);
@@ -87,10 +87,10 @@ public class Universe {
     public synchronized void unregisterChannels(Thing thing) {
         universeLock.lock();
         try {
-            Iterator<Channel> channelIterator = channels.iterator();
+            Iterator<DmxChannel> channelIterator = channels.iterator();
 
             while (channelIterator.hasNext()) {
-                Channel channel = channelIterator.next();
+                DmxChannel channel = channelIterator.next();
                 channel.unregisterThing(thing);
                 if (!channel.hasRegisteredThings()) {
                     channelIterator.remove();
@@ -105,9 +105,9 @@ public class Universe {
     /**
      * add an existing channel to this universe
      *
-     * @param channel a {@link Channel} object within this universe
+     * @param channel a {@link DmxChannel} object within this universe
      */
-    private void addChannel(Channel channel) throws IllegalArgumentException {
+    private void addChannel(DmxChannel channel) throws IllegalArgumentException {
         if (universeId == channel.getUniverseId()) {
             universeLock.lock();
             try {
@@ -159,7 +159,7 @@ public class Universe {
     public void rename(int universeId) {
         logger.debug("Renaming universe {} to {}", this.universeId, universeId);
         this.universeId = universeId;
-        for (Channel channel : channels) {
+        for (DmxChannel channel : channels) {
             channel.setUniverseId(universeId);
         }
     }
@@ -172,7 +172,7 @@ public class Universe {
     public void calculateBuffer(long time) {
         universeLock.lock();
         try {
-            for (Channel channel : channels) {
+            for (DmxChannel channel : channels) {
                 logger.trace("calculating new value for {}", channel);
                 int channelId = channel.getChannelId();
                 int vx = channel.getNewHiResValue(time);
@@ -217,7 +217,7 @@ public class Universe {
      */
     public void setDimCurveChannels(String listString) {
         applyCurve.clear();
-        for (BaseChannel channel : BaseChannel.fromString(listString, universeId)) {
+        for (BaseDmxChannel channel : BaseDmxChannel.fromString(listString, universeId)) {
             applyCurve.add(channel.getChannelId());
         }
         logger.debug("applying dim curve in universe {} to channels {}", universeId, applyCurve);
@@ -230,13 +230,13 @@ public class Universe {
         // formula taken from: Poynton, C.A.: “Gamma” and its Disguises: The Nonlinear Mappings of
         // Intensity in Perception, CRTs, Film and Video, SMPTE Journal Dec. 1993, pp. 1099 - 1108
         // inverted
-        int maxValue = Channel.MAX_VALUE << 8;
+        int maxValue = DmxChannel.MAX_VALUE << 8;
         for (int i = 0; i <= maxValue; i++) {
             float lLn = ((float) i) / maxValue;
             if (lLn <= 0.08) {
-                cie1931Curve[i] = (short) Math.round(Channel.MAX_VALUE * lLn / 9.033);
+                cie1931Curve[i] = (short) Math.round(DmxChannel.MAX_VALUE * lLn / 9.033);
             } else {
-                cie1931Curve[i] = (short) Math.round(Channel.MAX_VALUE * Math.pow((lLn + 0.16) / 1.16, 3));
+                cie1931Curve[i] = (short) Math.round(DmxChannel.MAX_VALUE * Math.pow((lLn + 0.16) / 1.16, 3));
             }
         }
     }

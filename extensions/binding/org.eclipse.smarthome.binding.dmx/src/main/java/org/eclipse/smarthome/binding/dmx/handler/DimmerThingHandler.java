@@ -23,8 +23,8 @@ import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
 import org.eclipse.smarthome.binding.dmx.internal.ValueSet;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseChannel;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.Channel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -57,9 +57,9 @@ public class DimmerThingHandler extends DmxThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(DimmerThingHandler.class);
 
-    private List<Channel> channels = new ArrayList<Channel>();
-    private ValueSet turnOnValue = new ValueSet(0, -1, Channel.MAX_VALUE);
-    private ValueSet turnOffValue = new ValueSet(0, -1, Channel.MIN_VALUE);
+    private List<DmxChannel> channels = new ArrayList<DmxChannel>();
+    private ValueSet turnOnValue = new ValueSet(0, -1, DmxChannel.MAX_VALUE);
+    private ValueSet turnOffValue = new ValueSet(0, -1, DmxChannel.MIN_VALUE);
 
     private int fadeTime = 0, dimTime = 0;
 
@@ -93,7 +93,7 @@ public class DimmerThingHandler extends DmxThingHandler {
                 } else if (command instanceof IncreaseDecreaseType) {
                     if (isDimming && ((IncreaseDecreaseType) command).equals(IncreaseDecreaseType.INCREASE)) {
                         logger.trace("stopping fade in thing {}", this.thing.getUID());
-                        channels.forEach(Channel::clearAction);
+                        channels.forEach(DmxChannel::clearAction);
                         isDimming = false;
                     } else {
                         logger.trace("starting {} fade in thing {}", command, this.thing.getUID());
@@ -173,10 +173,10 @@ public class DimmerThingHandler extends DmxThingHandler {
         if (configuration.get(CONFIG_DMX_ID) != null) {
             DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) getBridge().getHandler();
             try {
-                List<BaseChannel> configChannels = BaseChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
+                List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
                         bridgeHandler.getUniverseId());
                 logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
-                for (BaseChannel channel : configChannels) {
+                for (BaseDmxChannel channel : configChannels) {
                     channels.add(bridgeHandler.getDmxChannel(channel, this.thing));
                 }
             } catch (IllegalArgumentException e) {
