@@ -17,8 +17,8 @@ import org.eclipse.smarthome.automation.Rule;
  */
 public abstract class SimpleRule extends Rule implements SimpleRuleActionHandler {
 
-    public SimpleRule(String uid) {
-        super(uid);
+    public SimpleRule() {
+        super(null);
     }
 
 }
