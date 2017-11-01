@@ -39,7 +39,7 @@ public class FadeActionTest {
         assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime / 2), is(256 * testValue / 2));
         assertThat(fadeAction.getNewValue(testChannel, startTime + 1000), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completed));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETED));
 
         fadeAction.reset();
         assertThat(fadeAction.getState(), is(ActionState.WAITING));
@@ -63,7 +63,7 @@ public class FadeActionTest {
                 is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testFadeTime + testHoldTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completed));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETED));
 
         fadeAction.reset();
         assertThat(fadeAction.getState(), is(ActionState.WAITING));
@@ -102,7 +102,7 @@ public class FadeActionTest {
         assertThat(fadeAction.getNewValue(testChannel, startTime + testHoldTime / 2), is(256 * testValue));
         assertThat(fadeAction.getState(), is(ActionState.RUNNING));
         assertThat(fadeAction.getNewValue(testChannel, startTime + testHoldTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completed));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETED));
 
         fadeAction.reset();
         assertThat(fadeAction.getState(), is(ActionState.WAITING));
@@ -118,7 +118,7 @@ public class FadeActionTest {
 
         assertThat(fadeAction.getState(), is(ActionState.WAITING));
         assertThat(fadeAction.getNewValue(testChannel, startTime), is(256 * testValue));
-        assertThat(fadeAction.getState(), is(ActionState.completed));
+        assertThat(fadeAction.getState(), is(ActionState.COMPLETED));
 
         fadeAction.reset();
         assertThat(fadeAction.getState(), is(ActionState.WAITING));
