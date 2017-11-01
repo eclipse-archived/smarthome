@@ -5,26 +5,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.transport.mdns.discovery;
+package org.eclipse.smarthome.config.discovery.mdns;
 
 import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
+import org.eclipse.smarthome.config.discovery.mdns.internal.MDNSDiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * A {@link MDNSDiscoveryParticipant} that is registered as a service is picked up by the MDNSDiscoveryService
+ * A {@link MDNSDiscoveryParticipant} that is registered as a service is picked up by the {@link MDNSDiscoveryService}
  * and can thus contribute {@link DiscoveryResult}s from
  * mDNS scans.
  *
  * @author Tobias Bräutigam - Initial contribution
- * @deprecated use org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant instead.
  *
  */
-@Deprecated
 public interface MDNSDiscoveryParticipant {
 
     /**
