@@ -83,7 +83,26 @@ public class ExpiringCacheMap<K, V> {
     }
 
     /**
-     * Creates an {@link ExpiringCache} and adds it to the cache.
+     * If the specified key is not already associated with a value, associate it with the given expiringCache.
+     *
+     * @param key the key with which the specified value is to be associated
+     * @param item the item to be associated with the specified key
+     */
+    public void putIfAbsent(K key, ExpiringCache<V> item) {
+        if (key == null) {
+            throw new IllegalArgumentException("Item cannot be added as key is null.");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be added as item is null.");
+        }
+
+        items.putIfAbsent(key, item);
+    }
+
+    /**
+     * If the specified key is not already associated, associate it with the given action.
+     *
+     * Note that this method has the overhead of actually calling/performing the action
      *
      * @param key the key with which the specified value is to be associated
      * @param action the action for the item to be associated with the specified key to retrieve/calculate the value
@@ -94,21 +113,16 @@ public class ExpiringCacheMap<K, V> {
     }
 
     /**
-     * If the specified key is not already associated with a value, associate it with the given value.
+     * If the specified key is not already associated with a value, associate it with the given expiringCache.
+     *
+     * Note that this method has the overhead of actually calling/performing the action
      *
      * @param key the key with which the specified value is to be associated
      * @param item the item to be associated with the specified key
      * @return the (cached) value for the specified key
      */
     public V putIfAbsentAndGet(K key, ExpiringCache<V> item) {
-        if (key == null) {
-            throw new IllegalArgumentException("Item cannot be added as key is null.");
-        }
-        if (item == null) {
-            throw new IllegalArgumentException("Item cannot be added as item is null.");
-        }
-
-        items.putIfAbsent(key, item);
+        putIfAbsent(key, item);
 
         return this.get(key);
     }
